@@ -145,6 +145,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Setting up market-hours-aware cron schedules, backfill windows, and holiday calendars for financial data pipelines
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
@@ -253,6 +254,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s — scan phase titles to understand the process -->
 
@@ -404,6 +406,7 @@ python run_backtest.py --strategy covered_call --start 2020-01-01 --end 2024-06-
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -562,7 +565,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **Tick data timestamps with timezone-naive storage** — you store `2024-01-15 09:30:00` assuming it's US/Eastern. But your exchange feed says `09:30:00 EST` and another feed says `09:30:00 UTC`. Now you're merging trades that happened 5 hours apart as if they were simultaneous. Store all timestamps in UTC with an explicit timezone offset.
 - **Corporate actions that aren't applied retroactively** — a stock splits 2:1 on June 1. Your historical price for May 31 is $200, and June 1 is $100. Without split adjustment, your model sees a -50% overnight crash and triggers a panic sell. All historical prices must be split-adjusted from today's perspective.
@@ -581,6 +584,65 @@ graph LR
 | "We can backfill data gaps later, ship the pipeline now" | A trade executed on incomplete data creates permanent P&L impact. A missed corporate action on a $50M position during a stock split causes $100K+ in erroneous margin calls and mispriced fills — irreversible. |
 | "Timestamp precision to the second is fine for daily bars" | For any intraday strategy, microsecond timestamp errors create look-ahead bias in backtesting — fills appear to occur before the signal that triggered them, inflating Sharpe ratios by 30-50% and making losing strategies appear profitable. |
 | "The vendor's SLA covers data quality issues" | Market data vendor SLAs typically cap liability at 12 months of fees (~$50K). A vendor data error causing a $2M trading loss is not reimbursed — your P&L bears the full cost. |
+
+## Best Practices
+
+1. **Store all timestamps in UTC with explicit timezone offset columns.** A `timestamp_utc TIMESTAMPTZ` column plus a `tz_offset_minutes INTEGER` column preserves both the globally sortable time and the local market context. Never store naive timestamps — "09:30:00" without timezone is a $50K error waiting to happen.
+
+2. **Date-first Parquet partitioning (year/month/day/ticker) eliminates 99.7% of scan waste.** Query engines prune left-to-right. With ticker-first partitioning, "AAPL on 2024-06-14" still scans every month under AAPL. Always put the highest-cardinality filter (ticker) LAST in partition order.
+
+3. **Use Avro + Schema Registry (not JSON) for Kafka/Redpanda topics above 1K msg/s.** At 50K msg/s, JSON costs 10× the storage and bandwidth of Avro with Confluent Schema Registry. A single day of JSON becomes a $2,400/month bill vs. $240 with Avro. Schema evolution is also versioned and validated.
+
+4. **Always store raw price, adjustment factor, and adjusted price as three columns.** Never overwrite raw prices with adjusted values. Columns: `price_raw DECIMAL(12,4)`, `adj_factor DECIMAL(10,6) DEFAULT 1.0`, `price_adj DECIMAL(12,4)`. Link to `corporate_actions` table via `corp_action_id UUID`. If the adjustment methodology changes, you can recompute without re-ingesting.
+
+5. **Use token-bucket rate limiters with deadline-aware scheduling — never hardcode `time.sleep()`.** A `time.sleep(60)` on a 30-minute pre-market window loses 17% of your ingestion window. Token bucket: `rate=5, burst=10` with `async with limiter.acquire()`. Add deadline: if `time_remaining < (batch_size / rate)`, alert and skip remaining.
+
+6. **Run corporate actions normalization BEFORE any downstream analytics.** Unadjusted splits produce phantom alpha. A 3:1 split that is not applied shows "cheap" deep-ITM calls that don't exist post-split. Freeze all downstream pipelines if `corp_actions.last_run < today 6 AM ET`.
+
+7. **Point-in-time ticker universes prevent survivorship bias in backtesting.** `WHERE ticker IN (SELECT DISTINCT ticker FROM current_universe)` excludes delisted, bankrupt, and acquired tickers — inflating returns by 2-4% annually. Use: `WHERE ticker IN (SELECT ticker FROM ticker_master WHERE first_trade_date <= '{as_of_date}' AND (last_trade_date IS NULL OR last_trade_date >= '{as_of_date}'))`.
+
+8. **Subscribe to multiple corporate action feeds with different delivery schedules.** A 3:2 stock split on Monday with the vendor delivering the split factor on Thursday means 3 days of wrong position sizes, P&L, and margin requirements. Maintain a manual override for known corporate actions that haven't yet arrived via automated feeds.
+
+9. **Automate reconciliation against trusted reference data monthly.** Compare your computed total return index against CRSP, your options chain against CBOE, your corporate actions log against Bloomberg. Any divergence > 0.05% triggers an alert and pipeline halt. Data errors compound silently until a trade loses money.
+
+10. **Schema migrations require a reconciliation plan.** Before `ALTER TABLE ... ALTER COLUMN ... TYPE`: (1) record current row count, (2) record 1st/50th/99th percentile values of affected columns, (3) after migration, verify these haven't changed beyond expected drift. Migrations that change precision can silently shift strikes by 1000×.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Timestamp standard: all timestamps stored as `TIMESTAMPTZ` in UTC with `tz_offset_minutes` column — zero naive timestamps
+- [ ] Adjustment basis: all price columns paired with `adj_factor` and `corp_action_id` — `price_raw`, `adj_factor`, `price_adj` stored as three columns
+- [ ] Partitioning: Parquet/Delta partitions ordered `year/month/day/ticker` — date-first, ticker-last for optimal pruning
+- [ ] Serialization: Kafka/Redpanda topics use Avro + Schema Registry — no `json.dumps()` in producer code
+- [ ] Rate limiting: token-bucket limiter tested at 2× expected throughput — zero `time.sleep()` calls in ingestion loops
+- [ ] Corporate actions: feed processed and applied BEFORE any downstream analytics — pipeline frozen if CA feed stale
+- [ ] Survivorship bias: all historical queries use point-in-time ticker universe — delisted securities included
+- [ ] Data quality: stale quote detection (no update > 5 min during market hours), arbitrage violation checks (bid > ask), volume/OI discrepancy alerts
+- [ ] Reconciliation: monthly automated reconciliation against CRSP (equities), CBOE (options), Bloomberg (corporate actions) — divergence > 0.05% triggers alert
+- [ ] Gap detection: data gap > 5 seconds during volatility > 2 stddev triggers safety pause — no trading on stale prices
+- [ ] Schema migrations: every `ALTER TABLE` has documented reconciliation plan with before/after validation queries
+- [ ] Multi-feed redundancy: at least 2 independent data feeds for critical symbols — failover tested quarterly
+- [ ] Backup: daily snapshots to S3/Parquet — point-in-time recovery tested within RPO of 24 hours
+
+### Scale Depth
+
+| Scale | Data Volume | Architecture | Storage |
+|-------|------------|-------------|---------|
+| **< 100 symbols, EOD** | < 10MB/day | Single Python script, CSV/Parquet output, cron scheduling | Local Parquet files, duckdb/Polars for queries |
+| **100-1K symbols, 1-min bars** | 100MB-1GB/day | Docker Compose (ingest + store + API), PostgreSQL/TimescaleDB, REST API ingestion | TimescaleDB (hot, 30 days), S3/Parquet (cold, partitioned year/month/day) |
+| **1K-10K symbols, tick-level** | 10-100GB/day | Kafka/Redpanda streaming, Avro schemas, Schema Registry, stream processing (Kafka Streams/Flink) | ClickHouse (analytics), TimescaleDB (operational), S3/Parquet (data lake), Iceberg/Delta Lake catalog |
+| **10K+ symbols, tick + options chains** | 100GB-1TB/day | Kubernetes, multi-DC Kafka clusters, FIX engine ingestion, real-time feature computation, market-hours-aware scheduling | ClickHouse cluster (hot, 7 days), S3/Iceberg (warm, 90 days), Glacier (cold archive), multi-region replication |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|-----------|-----|------------|
+| Backtest Sharpe 3.2 drops to 0.5 in production | Survivorship bias: backtest universe is today's S&P 500 constituents, excluding delisted/acquired tickers | Rebuild universe with point-in-time membership: `ticker_master` with `first_trade_date` and `last_trade_date` columns; include delisting returns | All historical queries use `as_of_date` bounded ticker selection; never filter by current-universe `SELECT DISTINCT` |
+| Options strike prices off by factor of 2 after corporate action | Stock split (2:1) not applied to options chain; 100-strike calls still show $100 strike after underlying split-adjusted to $50 | Apply split factor to all options chain data: `strike_adj = strike_raw / split_factor`; store both | Corporate actions pipeline must run and COMPLETE before options data is made available to downstream consumers |
+| Tick data timestamps 5 hours apart merged as simultaneous | One feed timestamps in EST, another in UTC; stored without timezone offset | Standardize all to UTC at ingestion: `timestamp_utc = timestamp_raw AT TIME ZONE source_timezone`; store `tz_offset_minutes` | Enforce `TIMESTAMPTZ` type at schema level; add ingestion-time validation that rejects naive timestamps |
+| Kafka topic storage costs 10× higher than expected | JSON serialization on high-throughput topic; 50K msg/s produces 500GB/day vs 50GB with Avro | Migrate topic to Avro: add Schema Registry, update producer serializer, run dual-write transition period | Schema validation at CI/CD: grep for `json.dumps()` in producer code; block merge if throughput estimate > 1K msg/s |
+| "Adjusted close" prices don't match between data sources | Yahoo adjusts for splits + dividends, Google for splits only, Bloomberg for everything; models trained on one, tested on another | Document adjustment methodology per source; reconcile total return calculations monthly against CRSP | Store raw prices and adjustments separately; compute total returns from raw data, not vendor adjusted close |
+| Ingestion pipeline misses 17% of data during pre-market window | Hardcoded `time.sleep(60)` in API polling loop; 30-minute window → 30 API calls, but 500 symbols require 150 calls | Replace with token-bucket: `rate=5/sec, burst=10` with deadline `if remaining_time < (remaining_symbols / rate): alert()` | Load-test ingestion with historical market data replay including highest-volume days; validate 100% symbol coverage |
 
 ## Verification
 

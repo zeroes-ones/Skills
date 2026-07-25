@@ -1,0 +1,23 @@
+# Best Practices
+
+<!-- STANDARD: 4min — read when designing or auditing -->
+
+1. **Design resumes in single-column format for 100% ATS parse accuracy.** Multi-column layouts cause experience entries to land in the education field. Images, icons, text boxes, and headers/footers with contact info get stripped or garbled. Test: save as .txt and verify content is still in correct order. If not, ATS will garble it too. A resume rejected by ATS costs you a job you were qualified for — potentially $10K-$50K in lost salary differential per missed opportunity.
+
+2. **Mirror the job description's terminology verbatim in your resume.** ATS keyword matching is literal, not semantic. If the JD says "managed cross-functional teams" and your resume says "led multi-department groups," ATS scores it as zero match. Extract the top 10 keywords and phrases from each target JD and mirror them exactly. A resume scoring 50% match vs 85% match is the difference between a recruiter ever seeing your application or not.
+
+3. **Quantify every bullet with at least one of: dollars, percentages, time, scale, or headcount.** "Led engineering team" scores 2/5 on recruiter impact scoring. "Led 8-person engineering team that shipped payment processing rewrite, reducing chargeback rate from 3.2% to 0.8% and recovering $2.1M in annual revenue" scores 5/5. Recruiters scan for numbers before reading text. Quantification is the single highest-ROI resume improvement.
+
+4. **Tailor resumes for every application with a 15-minute keyword optimization pass.** Generic resumes average 2-4% interview rate (2 interviews from 50 applications). Tailored resumes with keyword-matched bullets average 40-50% interview rate (4-5 interviews from 10 applications). For a professional earning $8K/month, each additional month of job search costs $8K — the generic approach adds 2-3 months. Spend 30-45 minutes per application adapting bullets.
+
+5. **Remove GPA and graduation year after 3 years of professional experience.** For senior roles ($120K+), listing a GPA signals you haven't accomplished anything more recent or relevant to highlight. A senior engineer with a 3.2 GPA listed is perceived as 1-2 levels more junior than one with the same experience and no GPA — costing $10K-$30K in salary compression. Replace with "Key Achievements" or "Selected Impact" section leading with your strongest career metric.
+
+6. **Name resume files professionally: FirstName_LastName_Resume.pdf.** "resume_final_v3_UPDATED.pdf" signals disorganization before the file is opened. Recruiters receive 250+ resumes per role — they judge attention to detail from the filename. Include the company name for tailored versions: "FirstName_LastName_Resume_CompanyName.pdf" to help recruiters organize.
+
+7. **Use .docx format for ATS submissions, PDF for human-first channels.** Many ATS systems (especially government, university, and large enterprise legacy systems) cannot parse PDFs at all. Submitting PDF to a .docx-only ATS means your resume is blank to the system — 100% rejection rate. Check the job posting for format requirements. If unspecified, .docx is safer for ATS; PDF for email, LinkedIn, and direct recruiter channels.
+
+8. **Structure cover letters as Hook-Match-Close under 200 words with no resume rehash.** Hook: one sentence showing you understand the company's specific challenge. Match: 2-3 bullet points connecting your achievements to their needs, with metrics. Close: clear call to action. A cover letter that rehashes the resume is worse than no cover letter — it signals you don't understand the purpose of the format. Write a new letter for each role; templates are detectable and counterproductive.
+
+9. **Maintain 3 resume variants for your top role types, not one generic master.** A full-stack engineer applying to both backend-heavy and frontend-heavy roles needs different lead bullets and skill emphases for each. Similarly, an IC applying to both IC and management roles needs different achievement framing. Build: (1) a master resume with all achievements, (2) 2-3 variant resumes emphasizing different skill clusters. This makes the 30-45 minute per-application tailoring manageable instead of overwhelming.
+
+10. **Audit every line with the "So what?" test.** For each bullet: if a recruiter asks "So what?" does the next word answer the question? "Responsible for managing a team of 5" → So what? (You haven't answered). "Managed 5 engineers to ship 3 features that increased user retention 12%" → That's what. Every bullet must survive the so-what test. Generic soft-skill claims without evidence read as "I have nothing measurable to say" and land you in the "maybe" pile instead of "yes."

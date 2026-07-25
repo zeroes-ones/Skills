@@ -334,6 +334,8 @@ Certification is the gate to tier benefits and deal registration. Design three c
 
 ## Error Recovery
 
+<!-- STANDARD: Recovery patterns for common failures. -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -496,7 +498,22 @@ graph LR
 | "One champion at the partner is enough" | Your champion — the product manager who drove the integration — leaves. Their replacement has a different roadmap. Your integration goes from "strategic" to "legacy" overnight. Three contacts minimum at every partner, or you have no partnership. |
 | "Build the integration first, GTM later" | 3 engineers × 6 months = $270K-$360K invested. Result: a logo on an integrations page generating 12 leads in 6 months. No co-sell motion, no rev share, no GTM funding. Validate demand with a "fake door" test before committing engineering. |
 
-## Gotchas
+## Best Practices
+
+1. **Treat the signed agreement as the starting line, not the finish.** First 30 days post-signing: joint value proposition, joint sales deck, 3 named target accounts, bi-weekly pipeline review. No pipeline in 90 days = dead partnership. Assign a named partner manager before the ink is dry.
+2. **Never grant exclusivity without quarterly performance gates.** Exclusivity must be earned: "Exclusive if ≥ $X pipeline generated per quarter, non-exclusive otherwise." Exclusivity without performance minimums is a self-imposed market exit — your only channel produces zero pipeline.
+3. **Model fully-loaded cost-to-serve per channel before signing any rev share.** A $20K deal at 20% rev share pays partner $4K, but SE + AE + legal support costs $6K in labor. Model economics with loaded costs, not just rev share percentage. Set minimum margin thresholds per channel.
+4. **Build 3+ contacts at every strategic partner.** Champions leave. A single product manager who drove the integration departs, and your integration goes from "strategic" to "legacy" overnight. Minimum: executive sponsor, operational lead, technical lead. Document the partner org chart.
+5. **Validate demand with a "fake door" test before committing engineering to an integration.** List the integration as "coming soon" and measure inbound interest for 30-60 days before assigning 3 engineers for 6 months. A $270K-$360K integration that generates 12 leads is a disaster.
+6. **Tier partners on BOTH revenue and new-logo metrics.** Revenue-only tiers incentivize lumpy, implementation-heavy deals while ignoring partners driving consistent new customer acquisition. Weight new logos at 2-3x in partner scoring vs expansion revenue.
+7. **Implement deal registration with activity requirements and expiration.** Registration expires after 90 days without a logged meeting or opportunity stage advancement. Include binding arbitration for disputes with a 5-business-day resolution SLA. Publish rules of engagement before Q1.
+8. **Take partner NPS as seriously as customer NPS.** A detractor partner won't send deals — they'll warn other partners. Flag all scores <7 and auto-generate follow-up within 48 hours. Survey quarterly; alert if last survey >90 days ago.
+9. **Allocate MDF with documented plans and clawback provisions.** Every MDF dollar needs: activity description, expected outcomes, measurement criteria, and clawback if <50% of target. Post-mortem within 30 days of completion. MDF without measurement is a gift, not an investment.
+10. **Review all partnership agreements annually for performance clause compliance.** Contracts without performance gates drift. Audit at 12 months: are revenue commitments met? Are exclusivity conditions still valid? Is the partner still aligned with your market strategy? Offboard non-performers.
+
+## Anti-Patterns
+
+<!-- STANDARD: Common failure modes with cost estimates and fixes. -->
 
 - **Partnership agreement signed, champagne popped, nothing happens** — both sides return to their day jobs. The signed agreement is the STARTING line, not the finish. First 30 days: joint value proposition, joint sales deck, 3 named target accounts, and a bi-weekly pipeline review. No pipeline in 90 days = dead partnership.
 - **"Exclusive partnership"** without performance clauses — your partner is now your ONLY channel into a market, and they're producing zero pipeline. Exclusivity must be EARNED quarterly: "Exclusive if ≥ $X pipeline generated per quarter, non-exclusive otherwise."
@@ -505,6 +522,67 @@ graph LR
 - **Technology/integration partnership without a commercial agreement.** You spend 6 months building a deep product integration with a larger platform company. Engineering invests 3 engineers × 6 months. The integration launches, gets a blog post on their site, and generates 12 leads in 6 months. There's no co-sell motion, no rev share, no GTM funding — just a logo on an integrations page nobody visits. **Total cost: $270K-$360K in engineering investment ($150K/engineer/year × 3 × 0.5-0.66 years) with near-zero pipeline ROI over 12 months.** Fix: Never start an integration build without a signed commercial agreement specifying co-sell commitments, rev share, or GTM funding; validate partner-driven demand via a "fake door" test (list integration as "coming soon" and measure inbound interest) before committing engineering.
 - **Partner program tiers based on revenue alone.** Your "Platinum" tier requires $500K annual partner-sourced revenue. Two partners qualify — both are consultancies that do one massive implementation deal per year. Your smaller partners generating consistent $50K/quarter, referring 5-8 new logos per quarter, get "Silver" status and minimal support. The program incentivizes lumpy, implementation-heavy deals while ignoring the partners driving new customer acquisition. **Total cost: $1M-$3M in missed new-logo growth — the 8-12 consistent Silver partners could collectively deliver $2M-$4M in new ARR if properly incentivized and supported.** Fix: Tier partners on BOTH revenue and new-logo metrics; create a separate "growth partner" track for consistent referrers; weight new customer acquisition at 2-3x in partner scoring vs expansion revenue.
 - **Partner conflict when two partners claim the same deal.** Your deal registration system shows Partner A registered the account 6 months ago but had zero activity. Partner B has been working the account for 3 months, has a champion, and is about to close. Partner A threatens legal action based on the registration timestamp. The deal stalls for 8 weeks while legal reviews the partner agreement, and the prospect loses patience. **Total cost: $150K-$400K per disputed deal in delayed or lost revenue, plus the cost of one partner relationship that will likely end acrimoniously regardless of outcome.** Fix: Deal registrations must have activity requirements (e.g., registration expires after 90 days without a logged meeting or opportunity stage advancement); include binding arbitration clauses in partner agreements; create a partner deal dispute process with a 5-business-day resolution SLA.
+
+## Production Checklist
+
+<!-- STANDARD: Pre-launch verification gate. All items must pass before delivering work. -->
+
+- [ ] Every partnership agreement has a named partner manager assigned AND documented in CRM before onboarding begins
+- [ ] Partner-sourced and partner-influenced revenue tracked as separate columns in all dashboards and reports
+- [ ] MDF allocation tied to documented plan with activity description, expected outcomes, measurement criteria, and clawback provisions
+- [ ] Channel conflict resolution SLA established (72-hour max) with escalation path to VP Partnerships
+- [ ] Partner NPS surveyed within last 90 days for all active partners — scores <7 flagged for follow-up within 48 hours
+- [ ] Partner tier benefits differentiated — each tier has ≥1 exclusive benefit partners genuinely value (margin, MDF, lead sharing, exec sponsorship)
+- [ ] Partner coverage ratios within target: Platinum 1:10-15 dedicated, Gold 1:20-30 pooled, Silver self-serve + quarterly check-in
+- [ ] Deal registration system has activity requirements — registration expires after 90 days without logged meeting or stage advancement
+- [ ] Joint value proposition, sales deck, and 3 named target accounts defined within 30 days of partnership signing
+- [ ] Integration tested against latest versions of both products within last 6 months
+- [ ] All partnership agreements reviewed within last 12 months — performance clauses validated, non-performers flagged
+- [ ] Partner onboarding includes: sales playbook, demo environment access, pricing guide, support escalation path, deal registration training
+- [ ] Quarterly partner portfolio review completed — top 20% receiving disproportionate investment, bottom 30% flagged for offboarding
+- [ ] Co-selling motion documented: qualification criteria, engagement process, commission structure, CRM tracking fields
+
+## Scale Depth
+
+<!-- DEEP: How this skill scales from solo to enterprise. -->
+
+### Solo Partner Manager (1 person, pre-Series A)
+- **Tooling:** Spreadsheet for partner tracking, shared Google Drive for partner assets, manual deal registration via email, basic CRM for pipeline
+- **Process:** Founder or first partnerships hire personally manages 5-10 partners; ad-hoc onboarding; no formal tier program
+- **Risk:** Every partner depends on one person's relationship — no institutional knowledge; no systematic partner health measurement
+- **Move to next level when:** You have ≥10 active partners OR partner-sourced revenue exceeds $500K ARR
+
+### Small Team (2-3 Partner Managers, Series A-B)
+- **Tooling:** Basic PRM (PartnerStack/PartnerPortal), shared partner Slack channel, deal registration in CRM, partner onboarding checklist
+- **Process:** Formal partner onboarding (2-week program), basic tier program (Silver/Gold), quarterly partner business reviews, partner certification program
+- **Key hire:** First partnerships operations person — manages onboarding, enablement, reporting, and partner communications
+- **Move to next level when:** Managing ≥3 partner types (reseller + ISV + referral) OR partner revenue exceeds $2M ARR
+
+### Medium Team (4-8 Partner Managers, Series B-C)
+- **Tooling:** Full PRM suite (Impartner/Crossbeam), partner portal with self-service, automated deal registration, MDF tracking dashboard, partner analytics (Tableau)
+- **Process:** Dedicated partner managers by partner type/region, formal partner tier program with differentiated benefits, partner advisory board, annual Partner Summit, structured co-selling motion with sales team
+- **Metrics:** Partner-sourced pipeline by tier, time-to-first-deal by partner, partner NPS, partner program ROI, ecosystem health score
+- **Move to next level when:** Partners across ≥3 geographies OR partner revenue exceeds $10M ARR
+
+### Enterprise (8+ Partner Managers, Series C+)
+- **Tooling:** Enterprise PRM with API integrations to partner CRMs, automated co-selling in Salesforce, partner analytics platform, partner marketing automation
+- **Process:** Partner-type-specific teams (reseller, ISV, marketplace, referral), dedicated partner enablement function, partner executive sponsorship program (VP-level), formal partner M&A integration playbook
+- **Metrics:** Partner ecosystem contribution to total ARR, partner retention rate (logo and revenue), partner pipeline velocity vs direct, partner program ROI (revenue / program cost), partner satisfaction (NPS segmented by tier)
+- **Governance:** Monthly partner leadership review, quarterly partner portfolio optimization, annual partner program redesign based on ecosystem health data, partner conflict resolution SLA enforcement tracking
+
+## Error Decoder
+
+<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
+
+| Symptom | Diagnosis | Root Cause | Fix |
+|---------|-----------|------------|-----|
+| Partnership signed, 90 days, zero pipeline | Both sides returned to day jobs; no joint execution plan | No post-signing activation plan; partnership treated as finish line, not starting line | Schedule emergency activation workshop: joint value prop, sales deck, 3 target accounts, bi-weekly pipeline review; escalate to VP Partnerships if no pipeline in 60 days |
+| Partner registered deal 6 months ago with zero activity, claims ownership when another partner is about to close | Deal registration timestamp used as permanent lock; no activity requirements | Registration system lacks expiration rules; no "use it or lose it" enforcement | Add 90-day expiration to all registrations without logged meetings; implement binding arbitration with 5-business-day SLA; grandfather existing registrations with 30-day activity deadline |
+| Integration built (6 months, $300K engineering), generates 12 leads in 6 months | Technology partnership without commercial agreement or demand validation | Engineering investment committed without "fake door" demand test; no co-sell motion | Halt all new integration builds without signed commercial agreement; require co-sell commitments and GTM funding; implement fake door test before any engineering commitment |
+| Platinum partner has dedicated PAM but 15 other partners sharing 1 PAM | Coverage ratios inverted — low performers consuming disproportionate resources | No tiered coverage model; PAM assignments based on who screams loudest | Implement tiered coverage: Platinum 1:10-15 dedicated, Gold 1:20-30 pooled, Silver self-serve; rebalance based on pipeline contribution, not complaint volume |
+| Partner NPS last surveyed 8 months ago — 3 detractors unremediated | No partner health monitoring cadence; detractor feedback unactioned | Partner NPS treated as annual checkbox, not ongoing health metric | Survey all active partners within 30 days; flag all scores <7 for 48-hour follow-up; implement quarterly survey cadence with automated detractor alerts |
+| Tier benefits identical across Silver, Gold, Platinum | Partner program tiers are cosmetic — no real incentive differentiation | Tiers designed without partner input on what they value; benefits copied from competitor programs | Audit tier benefits; ensure each tier has ≥1 exclusive benefit partners value; interview top 5 partners about what would motivate tier advancement |
+| Partner onboarding takes 4 months, 30% of new partners produce zero pipeline in first 6 months | Onboarding is product training, not sales enablement — partners can't sell after completing it | Onboarding designed by product team, not partnerships team; focuses on features, not selling | Redesign onboarding: ≤2 weeks, pre-built sales playbooks, demo environment, pricing guide, first-deal support from SE; measure time-to-first-deal as primary onboarding KPI |
 
 ## Verification
 

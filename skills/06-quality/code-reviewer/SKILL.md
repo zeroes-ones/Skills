@@ -155,6 +155,34 @@ Code review quality scales with the reviewer's ability to spot patterns — from
 
 **Usage**: Say "as an L3 reviewer, review this PR." Default: **L3** (architectural and security review, pattern recognition).
 
+### Solo Developer
+- Self-review using a checklist before opening PRs — catch your own bugs first
+- Use automated SAST (semgrep, CodeQL) and linting as a pre-review filter
+- Review your own diffs in the PR view before requesting others — the perspective shift catches 30% of issues
+- Focus on the Six-Dimension Framework: correctness and security first, style last
+
+### Small Team (2-5)
+- Distribute review responsibility across the team — no single bottleneck reviewer
+- Establish a review SLA: all PRs reviewed within 4 business hours
+- Use CODEOWNERS to auto-assign reviewers by code area
+- Pair less experienced reviewers with domain experts for training
+- Weekly review retrospectives: what patterns are we missing? What feedback is most/least useful?
+
+### Medium Team (5-20)
+- Enforce PR size limit in CI (reject >500 lines, override for migrations and generated code)
+- Review rotation with load balancing — prevent reviewer burnout
+- Cross-team review for cross-cutting changes (shared libraries, API contracts, infrastructure)
+- Maintain a living review checklist per code area (auth module has different checks than UI components)
+- Track review metrics: time-to-review, findings-per-PR, severity distribution, revert rate
+
+### Enterprise (20+)
+- Dedicated review standards board that evolves the Six-Dimension Framework
+- Automated review assignment with workload-aware routing across org
+- Review quality KPIs: findings-per-PR trend, post-merge defect rate, reviewer NPS
+- Multi-reviewer policies for CRITICAL paths (auth, payments, data migrations): Peer + Security Specialist mandatory
+- Org-wide code review training program with certification levels (L1-L5)
+- Centralized review analytics dashboard tracking throughput, quality, and bottleneck patterns across teams
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -164,7 +192,7 @@ Code review quality scales with the reviewer's ability to spot patterns — from
 - Establishing code review standards and checklists for a team
 - Mentoring developers through constructive code review feedback
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Review Depth Decision
@@ -192,7 +220,7 @@ Change type?
 └── Generated code? → Review the generator/template, not the generated output.
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~5 min): Context Gathering
@@ -233,7 +261,20 @@ Change type?
 **Output:** Published review — actionable, specific, respectful, and timely.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Define review scope before starting.** Agree what's in-scope (logic, security, performance) and out-of-scope (naming preferences if a linter handles it, formatting if Prettier/go fmt covers it). Scope creep turns a 30-minute review into a 2-hour yak shave.
+2. **Security-first review on every CRITICAL path change.** Auth, payments, PII handling, data migrations, and input validation get reviewed FIRST — before logic, before style. A missed SQL injection costs more than every other review finding combined. Apply the Six-Dimension Framework with security as the lead dimension.
+3. **Performance patterns over performance micro-optimizations.** Flag N+1 queries, missing indexes, unbounded collections, and synchronous I/O in async paths. Don't nitpick `for` vs `forEach` in non-hot paths. The 80/20 rule: 80% of performance improvements come from fixing 20% of patterns (N+1, missing LIMIT, cartesian JOINs).
+4. **Test coverage review means assertion quality, not line counts.** A test with `expect(result).toBeDefined()` "covers" the line but verifies nothing. Flag tests with weak assertions; demand that every test asserts specific expected behavior. Mutation testing mindset: if you can delete a line of production code and no test fails, coverage is cosmetic.
+5. **Readability over cleverness.** Flag dense one-liners, nested ternaries, and "I'll just figure this out later" variable names. Code is read 10x more than written. If a reviewer can't understand the logic in 30 seconds, it needs rewriting — regardless of how "elegant" the author thinks it is.
+6. **Constructive feedback with severity grading.** Every finding gets a severity (Critical/High/Medium/Low/Info) and a suggested fix. "This is wrong" is not a review — it's a complaint. "This N+1 query will issue 500 DB calls per page load — use `include:` or a JOIN to batch" is a review. Balance criticism with positive feedback: mention at least one thing done well.
+7. **Review the diff, but think in context.** A one-line change that looks safe (`if user`) may bypass a permission check 50 lines above that you can't see in the diff. Always expand context +50 lines before and after critical changes. Verify the change makes sense in the broader module design.
+8. **Run the code for non-trivial changes.** Pull the branch, build it, run the tests, click through the UI if applicable. A PR that passes review but fails CI because the author forgot to push a new file wastes everyone's time. For UI changes, require a screenshot or screen recording as evidence the reviewer interacted with the feature.
+9. **Enforce PR size discipline.** PRs over 400 lines get rubber-stamped — reviewer attention quality degrades sharply. Request the author split large PRs into logical chunks. If splitting isn't feasible, schedule a live review session with dedicated focus time. Use CI to reject PRs >500 lines with an override mechanism for migrations and generated code.
+10. **Review test files with the same severity as production code.** Hardcoded API keys in `test/setup.ts`, test-only workarounds that mask bugs, and brittle mocks that validate implementation instead of behavior all fail review. A security issue in a test file is still a security issue when it's committed.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -446,6 +487,18 @@ After every review cycle: ask the author which comments were most and least valu
 - **CI passing doesn't mean the code works**. The author may have changed tests to match broken behavior. Review modified test assertions as carefully as production code changes.
 - **Large PRs (>400 lines)** get rubber-stamped. The reviewer's attention degrades significantly after ~400 lines. Break large PRs or review in multiple sittings with fresh context.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| Rubber-stamping large PRs with "LGTM 👍" after a 45-second glance | Break PRs into logical chunks under 400 lines. Enforce PR size in CI (reject >500 lines). Schedule live review sessions for unavoidably large changes. |
+| Nitpicking variable names and import ordering while ignoring the unvalidated SQL parameter on line 47 | Use automated formatters (Prettier, Black, gofmt) and linters to eliminate style debates. Separate comments into "blocking" (security, correctness, architecture) and "suggestion" (style, naming). |
+| Reviewing only the diff without expanding context — missing the auth check on line 200 that the diff doesn't show | Always expand context +50 lines before and after critical changes. Use "view entire file" for auth, payment, and data migration changes. |
+| Approving a PR without pulling the branch, building, or running tests — "the logic looks correct" | Require reviewers to pull and build for non-trivial changes. Add CI check on merge commits. For UI changes, require a screenshot or screen recording. |
+| Treating "all tests pass" as a review substitute — the author may have changed tests to match broken behavior | Review test changes and assertions with the same scrutiny as production code. Flag tests whose only assertion is `expect(result).toBeTruthy()`. |
+| Deferring security review to a "security team" that reviews after merge — the average breach costs $4.45M | Train every reviewer on OWASP Top 10 quick-scans. Use automated SAST (semgrep, CodeQL) as a pre-review filter. Flag security findings at CRITICAL severity. |
+| Single bottleneck reviewer — all code must pass through one senior engineer who is also the tech lead, architect, and on-call | Distribute review responsibility with a rotation. Use CODEOWNERS to auto-assign by code area. Pair junior reviewers with domain experts for training. Establish a review SLA (all PRs reviewed within 4 business hours). |
+
 ## Verification
 
 - [ ] All identified issues have severity grading (blocker/critical/major/minor/nit) and specific file:line references
@@ -466,6 +519,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **[CR1]** Six-dimension review completed: security, performance, code quality, error handling, testing, documentation — no dimension skipped
+- [ ] **[CR2]** All Critical and High findings resolved before merge — no deferral, no "will fix in follow-up" on security or data-loss risks
+- [ ] **[CR3]** Every finding has severity grade (Critical/High/Medium/Low/Info), file:line reference, and concrete fix suggestion
+- [ ] **[CR4]** Security dimension reviewed: injection, auth/authz, data exposure, dependency CVEs, input validation — every endpoint and data flow checked
+- [ ] **[CR5]** PR under 400 lines, or split into logical chunks — if over 500 lines, multi-session review scheduled
+- [ ] **[CR6]** Branch pulled, built locally, and test suite run by reviewer for non-trivial changes — UI changes verified with screenshot/recording
+- [ ] **[CR7]** Test changes reviewed with same severity as production code — no weak assertions (`toBeTruthy()`, `toBeDefined()`), no tests that validate implementation not behavior
+- [ ] **[CR8]** Automated tools (lint, format, SAST) run before human review — no style-only comments in review
+- [ ] **[CR9]** Reviewer mentioned at least one thing done well — constructive feedback balanced with positive reinforcement
+- [ ] **[CR10]** Context expanded beyond diff for critical changes — +50 lines before/after; full file for auth/payment/data-migration paths
+- [ ] **[CR11]** Review SLA met: Trivial (<1h), Standard (<4h), Complex (<24h) — no PR older than 24h without a comment or reassignment
+- [ ] **[CR12]** Security findings flagged separately with OWASP category reference (e.g., "OWASP A03:2021 — Injection")
+- [ ] **[CR13]** No "LGTM" with zero comments — at minimum, one specific verification mentioned (e.g., "verified auth checks on all new endpoints")
+- [ ] **[CR14]** Review recorded in state log with PR number, findings count, severity distribution, and reviewer name
 
 ## References
 

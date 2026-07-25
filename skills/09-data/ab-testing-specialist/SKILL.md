@@ -102,6 +102,7 @@ What experimentation task do you need?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1: Experiment Design
 
@@ -163,6 +164,7 @@ What experimentation task do you need?
    c. **Write a 3-sentence executive summary.** Sentence 1: what we tested and what happened (in plain language). Sentence 2: the business impact with uncertainty. Sentence 3: recommendation and next steps. Example: "We tested removing the create-account step from checkout. Conversion increased 2.3% (95% CI: 0.8-3.8%), adding an estimated $450K ARR. Recommend shipping with 30-day guardrail monitoring plan; no guardrail degradation detected."
 
 ## Decision Trees
+**(QUICK)**
 
 ### 1. Sample Size Calculation
 
@@ -278,8 +280,30 @@ What happens after you ship the winning variant?
     └── Were there external factors during the experiment period that inflated or deflated the effect?
 ```
 
+## Best Practices
+
+1. **Pre-register sample size before peeking at results.** Calculate required sample size using power analysis (MDE, baseline rate, α, power) and pre-register the stopping point. Peeking at p-values daily inflates the false positive rate from 5% to 26-40%+. Tools like Eppo, Statsig, or GrowthBook enforce sequential testing with always-valid p-values if you must monitor continuously.
+
+2. **Always calculate and report confidence intervals alongside point estimates.** "We detected a 3.7% lift" is meaningless to a decision-maker without the 95% CI: "The true effect is likely between +0.8% and +6.6%." A +3.7% lift whose lower CI is -0.2% should trigger caution — you cannot rule out a negative effect. Confidence intervals quantify real-world uncertainty that p-values hide.
+
+3. **Run an SRM (Sample Ratio Mismatch) check before any analysis.** If users aren't split at the expected ratio (typically 50/50), results are invalid. SRM indicates: randomization bugs, bot traffic hitting one variant, data pipeline filtering, or instrumentation errors. A statistically significant SRM invalidates the entire experiment — investigate the root cause, don't analyze further.
+
+4. **Segment results by user characteristics before declaring a winner.** An overall +3% conversion lift can hide -5% for returning users, -2% for mobile, or -8% for your highest-LTV segment. Always check: new vs returning, device type, geo, acquisition channel, and customer LTV tier. A "winning" experiment that alienates power users is a net loss.
+
+5. **Use two-sided tests unless the opposite direction is genuinely irrelevant.** One-sided tests double false-positive risk for undetected negative effects. A "neutral" one-sided result could be a real negative effect you're blind to. Use one-sided only for: bug-fix verification (only improvement matters), pre-registered direction with no interest in the opposite effect, or harm-detection scenarios. Default to two-sided.
+
+6. **Account for multiple comparisons when testing > 2 variants.** Testing 8 variants simultaneously with α=0.05 gives a 30% family-wise error rate. Apply Bonferroni correction (α/n_variants) or Benjamini-Hochberg for false discovery rate control. Or simply: limit to 2-3 variants unless traffic is massive (500K+ daily eligible users).
+
+7. **Apply CUPED (Controlled Experiment Using Pre-Experiment Data) to reduce variance.** Pre-experiment behavior (e.g., user's conversion rate in the prior 30 days) explains 50-70% of outcome variance. Regressing on this covariate reduces required sample size by 30-50% and cuts experiment duration in half. Most experimentation platforms support CUPED natively — enable it.
+
+8. **Contextualize results with external events, seasonality, and day-of-week patterns.** A "flat" experiment during Cyber Monday is a win (held steady under 10x traffic). A "positive" experiment during a competitor's outage is a mirage. Always note: holidays, marketing campaigns, product launches, outages, and seasonal patterns that overlapped with the experiment period.
+
+9. **Use stratification for high-variance metrics like revenue.** Revenue per user has extreme right skew (few users spend a lot, most spend zero). Stratified sampling by spend tier reduces variance by 20-40% compared to simple random assignment. Define strata by pre-experiment behavior and randomize within each stratum.
+
+10. **Track the "shipped winner rate" as a team KPI.** If 80% of experiments "win," you're either peeking, under-powering, or testing trivial changes. Industry baseline: 10-20% win rate. Track wins, flat results, and inconclusive results. A discarded test with documented learning is not a failure — it prevented shipping a useless or harmful feature.
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -423,7 +447,7 @@ Before beginning a new phase, verify:
 | "The dashboard shows it's significant — just ship it" | Novelty effects make losing variants look like winners for 3-7 days — shipping on Day 3 'significance' that's flat by Day 14 costs $50K-$150K in features that revert to baseline. |
 | "We'll analyze segments later if needed" | A 'winning' experiment that loses for your best customers destroys $50K-$200K in LTV from churning power users — segment checks are not optional, they are the experiment. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Running too many simultaneous A/B tests — interaction effects that invalidate everything.** Your experimentation platform has 12 concurrent tests running on the same user population: checkout flow test, pricing page test, onboarding test, recommendation algorithm test, email subject line test, and 7 more. When a user in variant A of the checkout test is also in variant B of the pricing test and variant A of the onboarding test, their behavior is influenced by three different experimental conditions simultaneously — and the interaction effects between tests are unmeasurable. You declare the checkout test a "significant winner" at +5%, but 3% of that lift was actually caused by the pricing variant those users were also exposed to. When you roll out the checkout change alone post-experiment, the true lift is 1.8% (not significant at your sample size). A team making 3-4 product decisions per quarter based on confounded experiments ships changes that underperform expectations by 50-80%, wasting $30K-$150K in engineering effort per quarter on features that don't deliver standalone value. **Total cost: $30K-$150K in interaction effects invalidating experiment results and leading to bad ship decisions.** Enforce a maximum of 3-4 concurrent experiments in overlapping user populations, use mutual exclusion groups to isolate high-stakes tests, and always validate a "winner" in a clean follow-up experiment before full rollout.
 - **Peeking is the #1 statistical sin in online experimentation.** Checking results daily and stopping when p < 0.05 inflates false positive rates from 5% to 26-40%+. **A company making 50 product decisions/year with unchecked peeking makes ~20 wrong decisions annually.** At $100K impact per wrong decision, that's $2M/year in bad ships. Fix: sequential testing with adjusted boundaries, or simple discipline — don't look until the timer goes off.
@@ -439,6 +463,51 @@ Before beginning a new phase, verify:
 - **Shipping a neutral test because "it didn't hurt metrics" — ignoring the opportunity cost.** A neutral test is also neutral on the engineering time, design time, PM time, review time, QA time, and deploy risk that went into building it. A team shipping 4 neutral tests per quarter is shipping 4 features that produce zero lift. Meanwhile the feature they didn't build — which might have produced 15% lift — is still on the backlog. **Total cost: $200K-$500K/year in wasted engineering capacity (4 neutral tests × $50K-$125K fully-loaded team cost per experiment).** Fix: Every feature starts with a hypothesis that includes the minimum detectable effect (MDE). If you can't plausibly detect the effect size you expect, don't run the test — redesign for bigger impact or kill the idea. Post-test, classify every test: winner (shipped), loser (learned), or inconclusive (needs redesign). Track the "shipped winner rate" as a team KPI.
 - **Using a one-sided test to "increase power" without pre-registering the direction.** A one-sided test has more power but can only detect effects in one direction. If you run a one-sided test expecting "variant > control" and the variant is actually worse, the test will show non-significance — not the true negative effect. You'll ship a harmful variant thinking it had "no effect." **Total cost: $20K-$100K per incident (shipping a regression that looks neutral).** Fix: Only use one-sided tests when a negative effect is genuinely impossible (rare) or when you've pre-registered that you'll only ship if the direction is positive AND significant. Default to two-sided tests. If you must use one-sided, document the justification in the experiment brief.
 
+## Production Checklist
+**(STANDARD)**
+
+Before any experiment launches or ships, verify ALL of:
+
+1. Hypothesis pre-registered: statement, expected effect size, mechanism, date — locked before data collection
+2. Sample size calculated via power analysis: MDE, baseline rate, α=0.05, power=0.80, expected traffic documented
+3. Primary metric chosen — one metric that directly measures the hypothesis mechanism, registered before launch
+4. Guardrail metrics defined with acceptable degradation thresholds (e.g., "revenue per user must not decrease > 1%")
+5. SRM monitoring configured — alert if randomization deviates from expected split by > 1%
+6. Experiment duration pre-calculated — no stopping early unless sequential testing boundaries crossed
+7. Segment analysis plan documented: new vs returning, device, geo, acquisition channel, LTV tier
+8. CUPED or variance reduction enabled where applicable — pre-experiment covariates configured
+9. Mutual exclusion groups assigned for overlapping experiments — max 3-4 concurrent tests on same population
+10. Two-sided test selected unless one-sided rationale documented and pre-registered
+11. Confidence intervals configured for all readouts — point estimates alone rejected
+12. External event log prepared — holidays, campaigns, launches, outages noted for the experiment period
+13. Shipping criteria defined: statistical significance + practical effect size threshold + guardrail check + segment check
+14. Post-launch monitoring plan: 30-day guardrail watch, long-term metric tracking (retention, LTV) through Day 90
+
+## Scale Depth
+
+| Scale | Scope & Complexity | Key Considerations |
+|---|---|------|
+| **Solo** | 1-2 experiments/month, small user base | Use online sample size calculators (Evan Miller, Optimizely). T-test or chi-squared in Python/R. Google Sheets for experiment tracking. Simplicity over sophistication — your bottleneck is experiment velocity, not statistical methodology. |
+| **Small Team (2-10)** | 5-20 experiments/quarter, product team owns experimentation | Experimentation platform (Eppo, Statsig, GrowthBook). CUPED/covariate adjustment enabled. Standardized experiment brief template. Weekly experiment review meeting. Mutual exclusion groups enforced. |
+| **Medium (10-100)** | 50+ experiments/quarter, dedicated experimentation team | Experimentation platform with programmatic management. Sequential testing with always-valid p-values. Metric taxonomy and standard guardrails. Experimentation council for cross-team coordination. Automated SRM and power monitoring dashboards. Bayesian methods for decision-making under uncertainty. |
+| **Enterprise (100+)** | 500+ experiments/quarter, experimentation as cultural norm | Custom experimentation infrastructure or enterprise platform (Optimizely, Adobe Target). Real-time experiment monitoring with automated kill-switches. Federated experimentation: central team owns platform, metrics, and training; product teams own experiment design and decisions. Experimentation center of excellence. Causal inference methods beyond A/B (diff-in-diff, synthetic control, instrumental variables) for when randomization isn't possible. |
+
+**Transition Triggers:**
+- Solo → Small Team: > 2 concurrent experiments consistently; need for standardized analysis pipeline
+- Small Team → Medium: > 20 experiments/quarter with overlapping populations; need for dedicated experimentation team
+- Medium → Enterprise: > 500 experiments/quarter across > 5 product teams; need for federated governance model
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| 80% of experiments "win" | Peeking, under-powered tests, or testing trivial changes with no practical effect | Enforce sequential testing boundaries; increase MDE to be practically meaningful; pre-register stopping rules; audit win rate by experiment type | Industry baseline is 10-20%. Higher win rates indicate methodology problems, not genius product instincts. |
+| Experiment shows +5% lift at Day 3, -2% at Day 14 | Novelty effect — users engage with anything new, then revert to baseline behavior | Extend all experiments to minimum 14 days; plot daily metric trend; require stability check: effect must be consistent in Week 2 before shipping | If the daily trend is declining, the true long-term effect is closer to the final measurement than the early peak. |
+| SRM detected — 52/48 split instead of 50/50 | Bug in randomization code, bot traffic hitting one variant, data pipeline filtering, or instrumentation error | Check: randomization logic, bot filtering, data pipeline completeness, cookie/tracking integrity; if root cause found in pipeline, re-run experiment; if randomization is broken, fix and discard all concurrent experiments | SRM is the canary — if allocation is wrong, results are garbage. Never analyze an experiment with significant SRM. |
+| Post-launch performance doesn't match experiment result | Interaction with other concurrent changes, different population (experiment vs full user base), or diminishing returns at scale | Compare experiment population demographics to post-launch population; check for concurrent changes during experiment period; run holdout or follow-up experiment on full user base | Experiments measure the effect in a controlled subset; post-launch effects differ when interacting with other features and the full user base. |
+| Required sample size > available users for 6+ months | MDE too small for available traffic; testing a change that affects too few users | Increase MDE to the smallest effect that's practically meaningful; reduce variant count; increase exposure rate (more users see the treatment); consider quasi-experimental methods | An underpowered experiment wastes time and produces unactionable results. Redesign or kill. |
+| One-sided test shows significance, two-sided doesn't | The true effect direction is ambiguous; the one-sided test doubled false-positive risk | Re-run as two-sided; if not significant at α=0.05, the result is not robust. Document the discrepancy and pre-register test directionality for future experiments | One-sided tests must be justified before launch. If the result only holds in one direction, you're seeing noise, not signal. |
+| Stakeholders demand decision before experiment reaches target sample size | Business timeline pressure; experiment was launched too close to decision deadline | Report current results with extremely wide confidence intervals; explain that early stopping makes the results unreliable; provide a decision framework: "We can ship now with 40% confidence the effect is positive, or wait 7 days for 95% confidence" | Start experiments earlier — the worst outcome is a "statistically significant" false positive from a truncated experiment driving a wrong decision. |
 
 ## Deliberate Practice
 

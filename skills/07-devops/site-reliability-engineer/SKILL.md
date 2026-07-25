@@ -151,6 +151,32 @@ SRE skill scales from managing a single service's reliability to org-wide reliab
 
 **Usage**: Say "as an L3 SRE, define the SLO framework for..." Default: **L3** (product-level reliability, independent design).
 
+### Scale Depth
+
+### Solo (1 person, 0-100 users)
+- **What changes**: No formal SRE. You are the SRE. Monitor with UptimeRobot or healthchecks.io. Manual incident response. No SLOs — just "is it up?"
+- **Overkill**: SLO/SLI framework, error budgets, formal incident roles, capacity planning, chaos engineering, postmortem docs, on-call rotations.
+- **Coordination**: You handle everything. No coordination needed. **Cost**: $0-30/month (monitoring + paging).
+- **Transition trigger**: First user-impacting incident undetected for > 1 hour. Paying users depend on availability.
+
+### Small Team (2-10 people, 100-10K users)
+- **What changes**: Define 2-3 SLIs per service. Set basic SLOs (99.9% availability). Simple alerting (CPU > 80%, 5xx > 1%). On-call rotation (weekly). Blameless postmortems for SEV1 only. Toil tracking via rough estimates. No capacity planning — react to growth.
+- **Overkill**: Multi-window burn-rate alerting, formal error budget policy, chaos engineering, dedicated SRE role, capacity forecasting models.
+- **Coordination**: On-call handoff between engineers. Weekly reliability standup (10 min). Postmortem shared in team channel. **Cost**: $100-500/month. SRE is shared responsibility, no dedicated headcount.
+- **Transition trigger**: > 2 SEV1 incidents/month; MTTR > 2 hours; on-call burnout becoming visible.
+
+### Medium Team (10-50 people, 10K-1M users)
+- **What changes**: Dedicated SRE team (2-4). Full SLO framework with multi-window burn-rate alerts. Error budget policy integrated with deploys. Toil measurement and automation program. Capacity planning with quarterly forecasts. Incident commander training. Chaos engineering gamedays (quarterly). Production readiness reviews.
+- **Overkill**: Multi-region active-active SLOs, dedicated SRE for every product team, enterprise incident management platform.
+- **Coordination**: SRE embedded in product teams (1 SRE per 2-3 teams). Monthly SLO review with product owners. Quarterly capacity review. **Cost**: $600K-1.2M/year (2-4 SREs) + $2-5K/month monitoring/paging.
+- **Transition trigger**: >50 engineers, multiple customer-facing services, contractual SLAs, compliance audit requirements.
+
+### Enterprise (50+ people, 1M+ users)
+- **What changes**: SRE organization with multiple models (embedded + consulting + platform). Formal error budget governance. Full chaos engineering program with automated experiments. ML-based capacity forecasting. Dedicated incident management function. Reliability North Star metrics at company level. Progressive delivery with automated canary analysis.
+- **What's full production**: Automated error budget enforcement in CD. Continuous verification in production. Dedicated SRE training program. Published reliability reports. Reliability SLOs in sales contracts.
+- **Coordination**: SRE leadership team weekly. Monthly reliability review with CTO. Quarterly capacity and budget review. **Cost**: $3-8M/year (10-25 SREs) + $15-50K/month enterprise monitoring.
+- **Transition trigger**: >200 engineers, multi-product portfolio, 99.99%+ contractual obligations, public company reliability reporting.
+
 ## When to Use
 
 - You need to define SLIs (latency, error rate, throughput) and set SLO targets for a production service
@@ -162,7 +188,7 @@ SRE skill scales from managing a single service's reliability to org-wide reliab
 - You are redesigning a service for higher reliability — multi-region, active-active, graceful degradation
 - You need to choose an SRE organizational model (embedded, consulting, or hybrid) for your team structure
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What Should Be an SLI?
@@ -248,7 +274,7 @@ Is the incident user-visible?
 
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Reliability Measurement
@@ -304,7 +330,21 @@ Is the incident user-visible?
    - Output: Capacity planning review dashboard.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Define SLIs from the user's perspective.** Measure latency at the edge (CDN/ALB), error rate from application logs, and saturation from connection pool exhaustion. Load balancer SLIs show "request succeeded at LB" but miss backend 500s.
+2. **Multi-window burn-rate alerting.** Single-window alerts miss slow burns that consume the entire error budget without triggering. Configure 1h + 6h + 24h windows. Critical burn: 2% budget consumed in 1 hour AND 5% in 6 hours.
+3. **Error budget policy enforced automatically in CI/CD.** Deploy pipeline queries error budget before promotion. Budget <10%: freeze features, allow only reliability fixes. Critical burn rate: automatic deploy freeze. A human "check" is skipped 100% of the time under delivery pressure.
+4. **Toil automation must be 100% or nothing.** Automating 80% of a task increases cognitive load — the operator must understand what the automation did before doing the manual remainder. Aim for full automation or leave it entirely manual.
+5. **Blameless postmortems with tracked action items.** Every postmortem produces action items with owner + deadline. Open items reviewed at the start of every incident postmortem. Stale items (>30 days) escalate to engineering management. Postmortems without tracked action items are theater.
+6. **Runbook steps must be executable scripts.** A runbook that says "SSH into bastion-host-prod.internal" when the bastion was replaced 14 months ago is worse than no runbook at all. Steps must be tested weekly in staging. Flag runbooks not validated in 90 days.
+7. **Alert fidelity reviewed monthly.** Any alert firing >5 times/week without requiring action must be tuned or removed. Implement an alert budget per team (max 2 pages per on-call shift). Add "was this alert actionable?" feedback on every PagerDuty incident.
+8. **Capacity planning uses peak, not average.** Model P95/P99 traffic, marketing campaigns, and seasonal peaks. Auto-scale with 2× headroom above forecast peak. Average-based capacity planning guarantees failure under peak load — always plan for the spike.
+9. **On-call is a design constraint, not an afterthought.** Maximum on-call frequency: 1 week per month per engineer. Follow-the-sun rotations across time zones. Shadow/secondary on-call for night hours. Track on-call health metrics (sleep interruption, pages-per-shift) in team retrospectives.
+10. **Chaos engineering with measurement, not just destruction.** Define a steady-state hypothesis measured with SLO metrics. Run with controlled blast radius. Document findings. Automate regression. Chaos without measurement is just breaking things for fun — the hypothesis turns chaos into reliability evidence.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -392,6 +432,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+1. [ ] **Every critical service has 2-4 SLIs defined** — latency (P95/P99), error rate (5xx), throughput (RPS), saturation (CPU/memory/connection pool). SLIs measured from user perspective, not infrastructure layer.
+2. [ ] **SLO targets set with stakeholder sign-off** — 99.9% availability baseline for customer-facing APIs. SLO stricter than contractual SLA (typically SLO = SLA × 2). Quarterly SLO review with product owners.
+3. [ ] **Multi-window burn-rate alerts configured** — 1h + 6h + 24h windows. Critical burn (2% budget in 1h AND 5% in 6h) pages on-call. Slow burn (budget exhaustion predicted within 3 days) creates ticket.
+4. [ ] **Error budget policy enforced in CI/CD** — deploy pipeline queries error budget before production promotion. Budget <10%: feature freeze, reliability-only deploys. Critical burn rate: automated deploy freeze.
+5. [ ] **On-call rotation healthy** — max 1 week/month per engineer. Follow-the-sun rotations if 24/7 required. Shadow/secondary for night hours. On-call health metrics reviewed in team retrospectives.
+6. [ ] **Alert fidelity reviewed monthly** — every alert firing >5 times/week without action is tuned or removed. Alert budget: max 2 pages per shift. "Was this alert actionable?" feedback tracked per PagerDuty incident.
+7. [ ] **Runbooks are executable scripts** — every alert links to a runbook. Runbook steps tested weekly in staging against the alert. Any runbook not validated in 90 days flagged for review.
+8. [ ] **Postmortems produce tracked action items** — owner + deadline for each item. Open items reviewed at start of every incident postmortem. Stale items (>30 days) escalate to engineering management.
+9. [ ] **Toil < 50% of team time** — measured via time-tracking or ticket classification. Top 5 toil sources identified. Automation effort vs. annual toil cost calculated. Toil elimination backlog prioritized by ROI.
+10. [ ] **Capacity planning uses peak-based forecasting** — P95/P99 traffic modeled, not average. 2× headroom above forecast peak. Quarterly capacity review vs. actual. Marketing campaigns factored into forecasts.
+11. [ ] **Chaos engineering program active** — quarterly gamedays with realistic scenarios. Steady-state hypothesis defined with SLO metrics. Findings documented in postmortems. Regression experiments automated.
+12. [ ] **Incident commander role trained and rotated** — at least 3 engineers trained. Incident severity classification documented. Communication templates for stakeholder updates. Escalation path tested in gameday.
+13. [ ] **SLI data source resilient** — monitoring system in different failure domain than monitored service. Synthetic probes from multiple regions test full user journey every 60 seconds.
+14. [ ] **Reliability roadmap aligned with product roadmap** — reliability features (circuit breakers, retry budgets, graceful degradation) prioritized alongside product features. Error budget consumed intentionally for velocity, not wasted on unreliability.
+
 ## What Good Looks Like
 
 > Every service has defined SLIs, SLOs, and error budgets that are reviewed quarterly with stakeholders.
@@ -430,7 +487,7 @@ graph LR
 | "Our SLI dashboard is all green — the system is clearly healthy." | SLIs measured at the load balancer show "request succeeded at LB" but miss "request returned 500 from backend." 5-10% of users experience errors while dashboards report 100% availability. $30K-$300K in silently undetected backend failures. |
 | "Error budgets are a compliance checkbox — as long as we're under 100%, we're fine." | Error budget exhaustion isn't a score — it means users experienced real pain. Ignoring a depleted error budget normalizes degradation. $50K-$200K in churn from customers who left because "the service was always slow" and nobody noticed. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Error budgets** are consumed by ALL sources of unreliability, including planned maintenance. A 2-hour planned maintenance window against a 99.9% SLO (43 minutes/month) exhausts the budget in one maintenance. SLOs must either exclude planned downtime or have a high enough target. **Total cost: $25,000-$250,000 per SLO breach in SLA credits, customer churn, and trust erosion.**
 - **SLO-based alerting** with `burn_rate > 14.4` on a 1-hour window catches fast burns, but a slow 1% error rate over a week doesn't trigger until it has already consumed 100% of the monthly error budget. Multi-window alerting (1h + 6h + 24h) catches both fast and slow burns. **Total cost: $15,000-$150,000 in degraded service going undetected for days, compounding customer impact before any alert fires.**

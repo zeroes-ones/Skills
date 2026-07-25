@@ -153,6 +153,33 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 
 **Usage**: Say "as an L3 Kubernetes engineer, design the deployment architecture for..." Default: **L2** (service-level containerization, independent execution).
 
+### Scale Depth
+
+### Solo (1 person, 0-100 users)
+- **What changes**: Docker = `docker-compose up` on a single VM. One Dockerfile (multi-stage). No orchestration. No registry (build on deploy target). Restart policy: `unless-stopped`. Volumes for persistence.
+- **What to skip**: Kubernetes, Docker Swarm, container registry, image scanning, resource limits, network policies, Helm charts, GitOps.
+- **Coordination**: You write the Dockerfile + compose file. Done. **Cost**: $10-50/month (single VM).
+
+### Small Team (2-10 people, 100-10K users)
+- **What changes**: Docker Compose for dev/staging. Container registry (Docker Hub, ECR, GHCR). CI builds and pushes images. Multi-stage builds optimized. Non-root users. Health checks. docker-compose for production on 1-2 VMs or ECS Fargate. Image scanning in CI.
+- **What to skip**: Kubernetes, service mesh, GitOps, PodDisruptionBudget, network policies beyond basic.
+- **Coordination**: Dockerfiles reviewed in PR. Image tags follow semver. CI manages build + push. **Cost**: $100-500/month.
+
+### Medium Team (10-50 people, 10K-1M users)
+- **What changes**: Kubernetes (EKS/GKE/AKS, managed). Helm charts for deployments. GitOps (Argo CD). Resource requests + limits. Liveness/readiness probes. PodDisruptionBudget. NetworkPolicy (deny all, allow explicit). cert-manager + external-dns. Container scanning in CI (block CRITICAL/HIGH). Multi-environment clusters.
+- **What to skip**: Self-managed Kubernetes, service mesh (unless mTLS required), multi-cluster, custom operators.
+- **Coordination**: K8s platform owner (1-2 people). Weekly K8s review. Helm chart PR review. **Cost**: $2,000-8,000/month (managed K8s + registry + scanning).
+
+### Enterprise (50+ people, 1M+ users)
+- **What changes**: Multi-cluster Kubernetes. Service mesh (Istio/Linkerd). Platform team managing K8s. Custom operators. PodSecurityStandards enforced. OPA/Gatekeeper for policy. HPA + cluster autoscaler. External Secrets Operator + Vault. Chaos engineering. Multi-region clusters. Kubecost for cost monitoring.
+- **What's full production**: K8s platform as a product. Self-service namespaces. Policy as code. Automated cluster lifecycle. K8s upgrade automation.
+- **Coordination**: K8s platform team weekly. Cluster upgrade planning monthly. Security policy review quarterly. Capacity planning quarterly. **Cost**: $20,000-100,000+/month.
+
+### Transition Triggers
+- **Solo → Small**: Second developer joins. Need consistent environments across dev/prod.
+- **Small → Medium**: 5+ services. Need auto-scaling and self-healing. docker-compose can't keep up.
+- **Medium → Enterprise**: 10+ clusters or multi-region. 50+ services. Dedicated platform team justified.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -164,7 +191,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 - Hardening pod security: securityContext, PodSecurityStandards, network policies, RBAC
 - Designing ingress architectures with cert-manager, external-dns, and multiple ingress controllers
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Docker Compose vs Kubernetes
@@ -289,7 +316,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 ```
 **When to use Distroless+Signing:** PII/PCI/HIPAA workloads, production, CVE surface must be minimized, SLSA L2+ required. **When Alpine/Slim is enough:** Internal tools, no regulated data, simpler Dockerfile maintenance, acceptable CVE risk profile.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Docker Image Engineering
@@ -341,7 +368,21 @@ Common chains:
 - **Chain**: devops-engineer → docker-kubernetes → platform-engineer — Infrastructure is provisioned; containers are deployed; platform provides self-service container orchestration
 
 
-## Error Recovery
+## Best Practices
+
+1. **Minimal base images reduce attack surface.** Use distroless for Go/Rust, `slim` for interpreted languages, `scratch` for static binaries. Smaller images = fewer CVEs, faster pulls, less disk IO. A `node:22` image has 600+ packages; `node:22-slim` has 60.
+2. **Multi-stage builds separate build from runtime.** Compile/test in a full SDK image; copy only the runtime artifact to the final image. No compilers, dev headers, or build tools in production containers.
+3. **Layer ordering by change frequency.** OS packages first (rarely change), then dependencies (change on lockfile update), then application code (changes every commit). This maximizes cache hits — 90% of builds reuse cached dependency layers.
+4. **Run as non-root with read-only root filesystem.** `USER 1000:1000`, `securityContext.runAsNonRoot: true`, `readOnlyRootFilesystem: true`, drop all Linux capabilities (`drop: [ALL]`). One container escape vulnerability = root on the host node.
+5. **Set resource requests and limits on every container.** `requests` = guaranteed minimum, `limits` = hard ceiling. CPU limits at 2-3× requests for burstable workloads. Without limits, one memory-leaking pod OOM-kills every pod on the node.
+6. **Pin images by SHA256 digest, never `:latest`.** `:latest` is a mutable pointer — two replicas started 10 seconds apart can run different versions. CI should auto-replace tags with digests. Production deployments reference immutable digests only.
+7. **Liveness ≠ Readiness.** Liveness = `is the process alive?` (fast `/healthz`). Readiness = `can the process serve traffic?` (checks dependencies). A liveness probe checking external dependencies kills healthy pods during transient network blips.
+8. **NetworkPolicy deny-all with explicit allows.** Default-deny ingress/egress. Only allow specific namespaces/labels. Without network policies, a compromised frontend pod can reach the database directly — your service mesh isn't a firewall.
+9. **Use operators for stateful workloads, never raw StatefulSets alone.** PostgreSQL, Kafka, Redis in K8s need operators (Zalando, Strimzi, Redis Operator) for backup, failover, upgrades. A StatefulSet without an operator is just a pod with a sticky identity — no managed lifecycle.
+10. **Image scanning in CI, not as a dashboard.** Trivy/Grype blocks builds on CRITICAL/HIGH CVEs with a fix available. Scan deployed images weekly and auto-create Jira tickets for newly discovered CVEs. A scan dashboard nobody reads is security theater.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -432,6 +473,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+1. [ ] **Dockerfiles use multi-stage builds** — build stage: full SDK, compile/test. Runtime stage: minimal base (distroless/slim/scratch), COPY --from=build, no compilers or dev headers.
+2. [ ] **Containers run as non-root** — `USER 1000:1000`, `securityContext.runAsNonRoot: true`, `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`, capabilities dropped (`drop: [ALL]`).
+3. [ ] **Resource requests AND limits set on every container** — `resources.requests` for scheduler, `resources.limits` for hard ceiling. CPU limits at 2-3× requests. Memory limits with OOM-kill buffer. `ephemeral-storage` limits prevent log-disk exhaustion.
+4. [ ] **Images pinned by SHA256 digest** — no `:latest` in production manifests. CI auto-replaces tags with digests. Image pull policy `IfNotPresent` with digest tags prevents registry outage from blocking restarts.
+5. [ ] **Liveness and readiness probes configured** — liveness = fast `/healthz` (process alive), readiness = `/ready` (dependencies checked). Differentiated endpoints, different timing. Liveness never checks external dependencies.
+6. [ ] **NetworkPolicy default-deny with explicit allows** — deny-all ingress/egress baseline. Only allow required namespace/label pairs. No open `0.0.0.0/0` rules without justification.
+7. [ ] **PodDisruptionBudget set** — `minAvailable` or `maxUnavailable` ensures voluntary disruptions (node drain, cluster upgrade) don't cause downtime. PDB must not block cluster autoscaler scale-down.
+8. [ ] **Image scanning blocks CRITICAL/HIGH CVEs** — Trivy/Grype in CI fails build on fixable CRITICAL. Registry push policy rejects unscanned images. Deployed images re-scanned weekly with auto-Jira for new CVEs.
+9. [ ] **Helm hooks have delete policies** — `helm.sh/hook-delete-policy: before-hook-creation` prevents hung hooks from blocking upgrades. Hook timeouts set. Hook jobs not left orphaned.
+10. [ ] **Ingress terminates TLS** — cert-manager auto-provisions Let's Encrypt certificates. `force-ssl-redirect: true` annotation. Minimum TLS 1.2. HSTS headers configured.
+11. [ ] **etcd backups automated and tested** — Velero or cloud-provider backup for cluster state + PV snapshots. Backup restore tested monthly in staging cluster. Backup retention policy documented.
+12. [ ] **Cluster autoscaling configured and tested** — HPA for pods, cluster autoscaler for nodes. Scale-down tested (non-disruptive). Overprovisioning buffer for burst capacity. Node cordon/drain verified clean.
+13. [ ] **Monitoring covers Kubernetes + containers** — Prometheus node-exporter, kube-state-metrics, cadvisor/container metrics. `container_cpu_cfs_throttled_seconds_total` monitored — any non-zero indicates CPU throttling.
+14. [ ] **Secrets managed externally, never in K8s Secret objects** — External Secrets Operator, Sealed Secrets, or Vault agent injector. Kubernetes Secrets are base64-encoded, not encrypted. Etcd encryption at rest enabled as defense-in-depth.
+
 ## What Good Looks Like
 
 > Containers are minimal, pinned by SHA256 digest, and run as non-root with all Linux security capabilities dropped.
@@ -460,7 +518,7 @@ graph LR
 
 **The One Highest-Leverage Activity**: Once a month, break your staging cluster in a way you've never broken it before. The failure mode you discover is the one that would have caused a P1 incident in production. Fix the gap before it finds you.
 
-## Gotchas
+## Anti-Patterns
 
 - **Docker `COPY . .`** includes `.git`, `node_modules`, `.env`, and everything in `.dockerignore` that you forgot to exclude. Image size balloons and secrets leak into the image layer history (visible via `docker history`).
 - **`docker build --no-cache`** rebuilds every layer, but doesn't pull updated base images. If your `FROM node:18` was cached 3 months ago, `--no-cache` rebuilds on the 3-month-old base. Use `--pull` to get the latest base image.

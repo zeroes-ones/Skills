@@ -80,6 +80,15 @@ You are a GraphQL engineer who has migrated REST APIs to GraphQL, debugged N+1 n
 
 ## Operating at Different Levels
 
+### Scale Depth
+
+| Depth | Time | Scope | Deliverable |
+|-------|------|-------|-------------|
+| **Quick Answer** | ~2min | Schema pattern review for nullability, N+1 risk, naming conventions | Specific recommendation with rationale |
+| **Schema Design** | ~15min | Complete GraphQL schema for a domain: types, queries, mutations, subscriptions, pagination | SDL schema with federation boundaries |
+| **Full Implementation** | Full session | Schema + resolvers with DataLoader + auth + error handling + testing + profiling | Working GraphQL service |
+| **Federation Architecture** | Multi-session | Supergraph across multiple teams: domain boundaries, subgraph schemas, entity resolution, contract testing | Federation gateway with subgraph deployment pipeline |
+
 *   **Quick answer (2min):** "Is this schema pattern good?" → Review for nullability, N+1 risk, naming conventions, pagination, error handling. Give specific recommendations.
 *   **Schema design (15min):** Design a complete GraphQL schema for a domain: types, queries, mutations, subscriptions, pagination, error patterns, and federation boundaries.
 *   **Full implementation (full session):** Build a complete GraphQL service: schema, resolvers with DataLoader, auth, error handling, testing, and performance profiling.
@@ -112,6 +121,7 @@ What GraphQL task do you need?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Schema Design
 
@@ -123,7 +133,30 @@ What GraphQL task do you need?
 6. Error handling: User errors in mutation payloads (not GraphQL errors). `{ success: Boolean!, errors: [UserError!] }` pattern for mutations.
 7. Review: Check nullability semantics, check for breaking changes vs current schema, check N+1 risk in relationships.
 
+## Best Practices
+
+1. **Schema-first design — design the graph, then implement resolvers.** Write the complete SDL schema before writing a single resolver. The schema is the contract between frontend and backend teams. Review it with both teams. Once the schema is approved, frontend can mock against it while backend implements resolvers in parallel.
+
+2. **Every list field resolver MUST use DataLoader or equivalent batching from day one.** Not optimization — correctness. A single unbatched list resolver that fetches 100 items, each triggering a nested database call, produces 10,001 queries for one request. Connection pools exhaust, database CPU spikes, and cascading failures affect every service sharing that database.
+
+3. **Nullability is your most important schema decision.** Use non-null (`!`) deliberately — a single failing resolver on a non-null field nullifies the entire parent object. Use non-null for structural identity fields (`id`, `createdAt`). Use nullable for fields that can fail independently (relationships, computed fields). Default to nullable unless you have a specific reason.
+
+4. **Mutations return payload types, not scalars.** `createPost(input: CreatePostInput!): CreatePostPayload!` where `CreatePostPayload` contains `{ post: Post, errors: [UserError!]! }`. This allows partial success, field-level errors, and future extensibility without breaking the contract.
+
+5. **Limit query depth, complexity, and rate — all three.** A single recursive query with depth 10 and branching factor 10 returns 10^10 nodes. Depth limit (5-7 max), query complexity budget (assign costs to fields), and rate limiting form defense in depth. Without all three, your API is a public DDoS vector.
+
+6. **Use persisted queries in production.** Clients send operation IDs, not raw query strings. This eliminates parsing overhead per request, enables CDN caching by operation ID, and prevents arbitrary query attacks. Apollo Automatic Persisted Queries (APQ) provide a migration path from ad-hoc to registered operations.
+
+7. **Federation boundaries match team boundaries, not database tables.** A subgraph = a team's domain. Good: Users subgraph (profile, auth, preferences), Products subgraph (catalog, inventory, pricing). Bad: database-per-service subgraph (users_table subgraph leaks implementation). If two subgraphs always deploy together, they should be one.
+
+8. **Implement authorization at the schema layer, not in resolvers.** Use schema directives (`@auth(requires: ADMIN)`) or GraphQL Shield middleware for declarative, auditable rules. Never embed `if (context.user.role !== 'admin')` inside individual resolvers — a new resolver added by a junior developer will forget the check.
+
+9. **Design the schema for the client's view of the world.** The #1 reason teams abandon GraphQL is a schema that forces 5 round trips to render one screen. Design queries that align with screens, use fragments to compose, and map your data model in resolvers — not in the schema.
+
+10. **Monitor per-operation performance in production.** Track: resolver execution time (p50/p95/p99), database query count per operation, error rate per field, and payload size per operation. N+1 problems that are invisible at 10 items become catastrophic at 10,000 items. You can't fix what you don't measure.
+
 ## Decision Trees
+**(QUICK)**
 
 ### 1. Pagination Pattern
 
@@ -298,6 +331,7 @@ How to secure a GraphQL endpoint:
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -310,6 +344,17 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Query returns `"data": null` with no field-level errors | A non-null field resolver threw an error, nullifying its entire parent. `Post.author` is `Author!` — author resolver fails, entire `Post` becomes null | Audit all non-null fields. Any field that can fail (relationship, computed) must be nullable. Only `id` and `createdAt` should be non-null | Non-null is a promise that nullifies the parent on failure. Use sparingly — every `!` is a blast radius |
+| 100 items in list, 10,000+ database queries in logs | N+1 problem: list resolver fetches 100 items, each item's field resolver queries the database individually. No DataLoader | Add DataLoader to every list field resolver. Batch function collects all IDs, makes ONE query. Verify: database query log shows `WHERE id IN (1, 2, ...)` not sequential single-ID queries | N+1 is invisible at dev scale (10 items) and catastrophic at production scale (10,000 items). DataLoader is correctness, not optimization |
+| GraphQL server CPU at 100%, parsing not resolving | Arbitrary ad-hoc queries in production. Clients send full 50KB query strings. Parser consumes 500ms per request | Implement persisted queries — clients send operation IDs. Register operations at build time. Reject ad-hoc queries or restrict to dev environments | Without persisted queries, your CDN investment is wasted (every query body is a unique cache key) and your CPU is spent parsing, not resolving |
+| WebSocket subscriptions crash server under load | No backpressure. 10,000 clients listening to `liveScore`. 50 score updates in 1 second = 500,000 messages. Event loop blocks, existing subscriptions timeout and reconnect, creating a thundering herd | Implement debouncing/batching for rapid updates. Set per-connection subscription limits. Use Redis Pub/Sub as broadcast layer so WebSocket processes are stateless | Subscriptions multiply traffic. A single event source broadcasting to N subscribers is N× amplification. Always backpressure |
+| Federation query returns partial data with `GRAPHQL_VALIDATION_FAILED` | Subgraph schema change broke composition. One team removed a field another subgraph references. Rover `subgraph check` wasn't in CI | Add `rover subgraph check` to every subgraph PR CI. Block merge if composition fails. Contract testing prevents broken supergraph at the PR, not at deploy | Federation composition is global — one subgraph's change can break every other subgraph's queries. CI composition checks are not optional |
+| `context.user` is undefined in nested resolver but works in root | Auth was set up for HTTP middleware only, but subscriptions and batched queries don't go through the same code path | Validate auth token in GraphQL context factory — the single function that runs for every request, every subscription connection, and every batched query. Never in middleware | GraphQL has multiple entry points (HTTP POST, WebSocket, batched HTTP). Auth in only one path creates silent-gap authorization failures |
 
 ## Cross-Skill Coordination
 
@@ -394,18 +439,42 @@ Before beginning a new phase, verify:
 | Breaking schema change deployed — all mobile clients crash | Field deprecated with @deprecated, monitored for 2 cycles, then removed when usage hits 0 | @deprecated + client notification via schema change log + backward compatibility adapter during migration + GraphOS operation metrics confirming zero usage |
 | Subscriptions work in dev, leak data in production (no WebSocket auth) | Auth on WebSocket connection_init + per-topic authorization | Auth on connection + per-topic auth + subscription rate limiting + connection lifecycle monitoring + alert on unauthorized connection attempts |
 
-## Gotchas
+## Anti-Patterns
 
-- **Exposing GraphQL without query depth limit.** A recursive GraphQL query with depth 10 and branching factor 10 returns 10^10 nodes — a single request that can saturate CPU, exhaust memory, and crash your server. Without depth limiting, your API is a public DDoS tool: a malicious actor, a buggy client, or a new developer testing in production can take down the entire service in one request. **Total cost: $50,000-$500,000 in DDoS vulnerability exposure, production outages, and potential cloud bill explosion from unconstrained queries.** Fix: Set a query depth limit (5-7 max); implement query complexity budgets (assign costs to fields, reject queries over budget); use persisted queries in production; apply rate limiting per operation.
-- **N+1 problem in production.** When a list resolver fetches 100 items and each item has a nested resolver that hits the database, you get 100 items × 1 subquery = 101 database queries for a single GraphQL request. At scale, this explodes exponentially: 100 items × 100 nested items = 10,001 queries. Your connection pool exhausts, every service sharing the database goes down, and the AWS bill spikes from database CPU. **Total cost: $5,000-$50,000 per month in database cost from excessive queries and connection pool exhaustion.** Fix: Use DataLoader from day one for every list field resolver; batch and cache database calls within a single request tick; monitor per-operation database query counts in production.
-- **The N+1 problem isn't just a performance issue — it's a database-melting, AWS-bill-exploding, incident-creating catastrophe at scale.** 100 items × 100 nested items = 10,001 database queries for ONE GraphQL request. **At scale, a single unoptimized query can trigger 50,000 database connections — exhausting your connection pool and taking down every service that shares the database. This has caused production outages at companies of every size.** Fix: DataLoader everywhere, from day one, before you ever run a query with nested lists. It's not optimization — it's correctness.
-- **Unbounded query complexity turns your API into a public DDoS tool.** A recursive GraphQL query with depth 10 and branching factor 10 returns 10^10 nodes. **A malicious actor (or a buggy client, or a new developer testing in production) can take down your API in one request. The cost isn't theoretical — companies have experienced 6-figure cloud bills from runaway GraphQL queries.** Fix: depth limiting (5-7 max), complexity budgets (assign costs to fields, reject over budget), persisted queries in production. All three, not just one.
-- **Null propagation in non-null fields is the GraphQL behavior that surprises everyone.** If `Post.author` is non-null (`Author!`) but the author resolver throws an error, `Post` itself becomes null — and `posts[3]` disappears from the array entirely. **A single failing field resolver can cascade through the response tree, turning a partially-readable response into `"data": null`. This is why non-null should be used sparingly and deliberately — not as a default.** Use nullable for fields that can fail independently. Use non-null for structural identity fields (id, createdAt) that, if they fail, genuinely invalidate the entire object.
-- **Schema design without client input produces beautiful, perfectly normalized schemas that clients hate.** A schema designed in isolation optimizes for data model purity. Clients optimize for: (1) Fewer round trips — can I get everything I need for this screen in one query?, (2) Consistent patterns — are all lists paginated the same way?, (3) Predictable errors — do mutations return actionable error messages? **The #1 reason teams abandon GraphQL isn't technical — it's a schema that forces 5 round trips to render one screen.** Design the schema for the client's view of the world, then map to your data model in resolvers.
-- **GraphQL caching is fundamentally harder than REST caching — and if you don't plan for it, your CDN investment is wasted.** REST: `GET /users/123` → cache key is the URL. GraphQL: `POST /graphql` with body `{ user(id: 123) { name } }` → cache key is the entire query body. Every unique query is a different cache key. **Without a caching strategy, your GraphQL API has the cache hit rate of a dynamic web app — near zero.** Fix: (1) Persisted queries — cache by operation ID, not query text, (2) Entity cache at the gateway level (Apollo Router), (3) CDN-level caching with `GET /graphql?operationId=abc&variables=...` instead of POST.
-- **Accepting arbitrary ad-hoc queries in production without persisted queries.** Every client sends full query strings in POST bodies, including 50KB queries with 15 nested fragments across 10 union types. The parser alone consumes 500ms of CPU before execution begins. At 100 requests per second, the GraphQL server exhausts CPU on parsing rather than resolving, and every query is a cache miss because the body varies by whitespace and field ordering. **Total cost: $5,000-$30,000 per year in unnecessary server scaling to handle parsing overhead and zero cache-hit rates that persisted queries eliminate entirely.** Fix: Require persisted queries in production — clients send operation IDs, not raw query text; register operations at build time via your GraphQL tooling; reject ad-hoc queries or restrict them to development environments only; use Apollo Automatic Persisted Queries or a persisted document store as a migration path from ad-hoc to registered operations.
-- **Mixing authorization logic into individual resolvers.** Each resolver independently checks `if (context.user.role !== 'admin') throw new Error('Forbidden')`. A new resolver added by a junior developer forgets the check entirely, or two resolvers implement conflicting authorization rules for the same resource type. Someone adds a `User.privateNotes` field resolver with no auth check, and a customer discovers they can query another user's private notes by guessing their ID in GraphiQL. **Total cost: $50,000-$500,000 in data breach costs, unauthorized data access incidents, and regulatory fines from authorization failures that code review missed.** Fix: Implement authorization at the GraphQL schema layer — use schema directives (`@auth(requires: ADMIN)`) or GraphQL Shield middleware for declarative, auditable rules that apply before any resolver runs; never embed authorization checks inside individual resolver functions; write integration tests that specifically attempt unauthorized access patterns for every sensitive field and mutation.
-- **Subscriptions without backpressure or connection management.** Opening a WebSocket subscription for every connected client — 10,000 browsers each listening to `liveScore(league: "NBA")`. When a game ends and 50 score updates fire in a second, the server broadcasts 500,000 messages. The Node.js event loop blocks under the message flood, existing subscriptions time out and reconnect, and the thundering herd of simultaneous reconnection attempts takes down the server entirely. **Total cost: $10,000-$50,000 in production outages during peak traffic events, lost user sessions during critical moments, and incident response while users see "Live updates unavailable."** Fix: Implement subscription backpressure with debouncing and batching of rapid updates; set per-connection subscription limits at the gateway; use Redis Pub/Sub or Kafka as a broadcast layer behind the WebSocket server so WebSocket processes are stateless and replaceable; monitor active subscription count and message throughput as first-class production metrics.
+### Anti-Pattern: GraphQL Without Query Depth Limiting
+**What it looks like:** A public GraphQL endpoint with no depth limit, no complexity budget, no rate limiting. A recursive query `{ user { posts { author { posts { author ... } } } } }` with depth 10 returns billions of nodes in one request.
+**Why it fails:** Without depth limiting, your API is a public DDoS tool. A single request from a buggy client, a malicious actor, or a new developer testing in production can saturate CPU, exhaust memory, and crash the server. 
+**Do this instead:** Set query depth limit (5-7 max). Implement query complexity budgets (assign costs to fields: scalar=1, list=10x multiplier). Add rate limiting per operation. Use persisted queries in production. All three defenses, not just one.
+
+### Anti-Pattern: N+1 Problem in Production
+**What it looks like:** List resolver fetches 100 items. Each item has a nested resolver that hits the database with `SELECT * FROM authors WHERE id = 1`, then `id = 2`, then `id = 3`... producing 101 queries.
+**Why it fails:** At scale: 100 items × 100 nested items = 10,001 queries. Connection pool exhausts. Every service sharing that database goes down. AWS bill spikes from database CPU. A single unoptimized query becomes a cascading infrastructure failure.
+**Do this instead:** DataLoader from day one for every list field resolver. Batch function collects all IDs, makes ONE query: `SELECT * FROM authors WHERE id IN (1, 2, ..., 100)`. Map results back to input order. Clear DataLoader cache on mutations.
+
+### Anti-Pattern: Null Propagation Misunderstanding
+**What it looks like:** Developer marks `Post.author` as `Author!` (non-null) because "every post has an author." Author resolver throws (deleted user, network error). Entire `Post` becomes null, and `posts[3]` disappears from the array.
+**Why it fails:** Non-null propagates. A single failing resolver on a non-null field nullifies its entire parent — cascading up the tree. A partially-readable response becomes `"data": null` because one edge-case resolver threw.
+**Do this instead:** Use nullable for fields that can fail independently (relationships, computed fields, external service lookups). Use non-null for structural identity fields (`id: ID!`, `createdAt: DateTime!`) where failure genuinely invalidates the entire object.
+
+### Anti-Pattern: Schema Designed in Isolation From Clients
+**What it looks like:** Backend team designs a perfectly normalized GraphQL schema. Clients need 5 round trips to render one screen because the schema optimizes for data model purity, not screen composition.
+**Why it fails:** The #1 reason teams abandon GraphQL isn't technical — it's a schema that forces multiple round trips. A user profile screen needs: user info (1), user's posts (2), post comments (3), comment authors (4), author avatars (5). That's 5 sequential client requests.
+**Do this instead:** Design queries that align with screens. Use fragments to compose. Map your normalized data model in resolvers, not in the schema. The schema describes the client's view of the world; resolvers translate to your data model.
+
+### Anti-Pattern: Auth Logic Embedded in Individual Resolvers
+**What it looks like:** Every resolver independently checks `if (context.user.role !== 'admin') throw new Error('Forbidden')`. A new resolver added by a junior developer forgets the check. Two resolvers implement conflicting authorization rules for the same resource type.
+**Why it fails:** Authorization logic scattered across 50+ resolvers is unauditable. A field like `User.privateNotes` added without auth check becomes a data breach waiting to happen. Code review can't catch what it can't see as a pattern violation.
+**Do this instead:** Implement authorization at the schema layer using `@auth(requires: ADMIN)` directives or GraphQL Shield middleware. Rules are declarative, auditable, and apply before any resolver runs. Write integration tests specifically attempting unauthorized access to every sensitive field.
+
+### Anti-Pattern: Production Without Persisted Queries
+**What it looks like:** Clients send full query strings in POST bodies — 50KB queries with 15 nested fragments. Parser consumes 500ms per request. Every query body is a unique cache key — CDN cache hit rate near zero.
+**Why it fails:** Server CPU is spent parsing, not resolving. At 100 requests/second, parsing overhead alone requires 3× the server capacity. Plus, zero CDN caching means every request hits the origin server.
+**Do this instead:** Require persisted queries in production. Clients send operation IDs. Operations are registered at build time via GraphQL tooling. CDN caches by `GET /graphql?operationId=abc&variables=...`. Migration path: start with APQ, then enforce registered-only.
+
+### Anti-Pattern: Subscriptions Without Backpressure
+**What it looks like:** 10,000 browsers each subscribed to `liveScore(league: "NBA")`. Game ends, 50 score updates fire in one second. Server broadcasts 500,000 messages synchronously through WebSocket connections.
+**Why it fails:** Node.js event loop blocks under message flood. Existing subscriptions timeout and reconnect simultaneously. The thundering herd of reconnection attempts takes down the server entirely during peak traffic events.
+**Do this instead:** Implement subscription backpressure with debouncing and batching of rapid updates. Set per-connection subscription limits at the gateway. Use Redis Pub/Sub or Kafka as a broadcast layer so WebSocket processes are stateless and replaceable.
 
 ## Deliberate Practice
 
@@ -425,6 +494,27 @@ Before beginning a new phase, verify:
 - [ ] Error masking in production (no stack traces, no internal details in errors)
 - [ ] Schema changes run through breaking change detection before deploy (@deprecated before removal)
 - [ ] Observability: per-operation latency, error rate, and field usage tracked
+
+## Production Checklist
+**(STANDARD)**
+
+Before any GraphQL service reaches production:
+
+- [ ] Query depth limit enforced (5-7 max) — reject deeper queries with clear error messages
+- [ ] Query complexity budget configured: assign costs to fields (scalar=1, list=10x multiplier), reject queries over budget
+- [ ] Rate limiting per user/IP per operation — complex operations consume more tokens in the token bucket
+- [ ] Introspection disabled in production (or restricted to authenticated internal tools only)
+- [ ] Persisted queries enforced — clients send operation IDs; ad-hoc queries rejected or development-only
+- [ ] DataLoader configured for every list field resolver — verify with database query log (batch queries, not sequential)
+- [ ] Mutation payloads return `{ success: Boolean!, errors: [UserError!] }` — field-level errors, partial success supported
+- [ ] Authorization at schema layer via `@auth` directives or GraphQL Shield — not embedded in resolver functions
+- [ ] Error masking: `formatError` hook strips stack traces, internal paths, database connection strings from responses
+- [ ] Subscription backpressure: debouncing, per-connection limits, stateless WebSocket processes behind Redis/Kafka
+- [ ] Breaking change detection in CI: `rover subgraph check` for federation; schema diff for monolithic schemas
+- [ ] Observability dashboard: per-operation p50/p95/p99 latency, database query count per operation, error rate per field
+- [ ] Field-level deprecation tracking: `@deprecated(reason: "...")` on removed fields with migration path documented
+- [ ] CDN caching strategy: persisted queries with `GET /graphql?operationId=...` caching, entity cache at gateway
+- [ ] Load test: 1000 concurrent subscriptions, 100 queries/second, verify no unbounded memory growth or event loop stalls
 
 ## Verification Guardrails
 

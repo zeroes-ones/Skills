@@ -76,6 +76,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -88,6 +89,17 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Guardrail bypass rate spikes from 1% to 8% in one hour with no code changes | Model provider silently updated to new version; jailbreak that was blocked by v1 succeeds on v2. Safety thresholds calibrated on old version are now too lenient. | Pin model versions with dated suffixes. Configure alert on model version change. Re-run full safety suite on any new version before promoting to production. If already in production: pause feature, re-evaluate, adjust guardrails, re-deploy. | Provider model updates are not transparent — they change safety behavior without announcement. A safety system calibrated on v1 may be irrelevant on v2. Treat every model version change as a high-severity deployment requiring full re-validation. |
+| AI agrees with user's dangerous self-diagnosis despite content policy blocking medical advice | Guardrail only checks output for diagnosis keywords ("you have X condition"). Agreement language ("That's understandable," "Many people feel that way") passes the filter but validates the user's dangerous belief. | Add intent-level output classifier: detect when the model is validating, reinforcing, or agreeing with user-expressed dangerous intentions, not just when it generates original harmful content. Track validation rate as a metric. | Content classifiers operating at the token level miss semantic harm. "You should stop your chemo" gets blocked, but "I understand why you'd want to stop your chemo — treatment is hard" passes through and causes equal harm. Safety must operate at semantic intent level. |
+| Multilingual users report AI gives unsafe responses in their language while English responses are safe | Safety testing was English-only. Model handles dangerous requests correctly in English but complies with the same requests when translated to Swahili, Hindi, or Vietnamese. | Test full safety suite in each supported language independently. Don't translate English test cases — create native-language test cases with culturally specific harm vectors. Add multilingual guardrails that don't rely on English keyword matching. | Multilingual safety is not a translation problem. Models have different safety behaviors across languages because training data distribution, RLHF coverage, and safety tuning vary by language. A model safe in English may have a 40% safety pass rate in other languages. |
+| Red team finds same jailbreak pattern recurring every quarter despite "fixes" | Engineering patches specific jailbreak strings (blocking "deceased grandmother") instead of fixing the attack type (role-play persona change). Each patch trains adversaries to find the next variant. | Categorize every jailbreak by attack type: role-play, encoding, multi-turn, token smuggling, context manipulation. Fix at the attack type level with classifiers that detect the pattern (e.g., "user is attempting to change assistant persona") regardless of specific phrasing. | Jailbreak patching without root cause analysis is whack-a-mole. Each string-level patch is a training signal to adversaries about what to avoid next. Attack-type-level defenses break the adversarial cycle by closing the vulnerability class, not the exploit string. |
+| Safety evaluation score drops 3% in weekly automated run with no deployment changes | RAG content changed — new documents ingested into the knowledge base contain content that triggers different model behavior. The model's safety behavior changed because its context changed, not because the model changed. | Include RAG content hash in safety evaluation metadata. Run safety evaluation on any content update, not just model updates. Test retrieval-augmented safety: does the model give different safety responses when different documents are retrieved? | Model safety is a function of model + prompt + context. When any of the three changes, safety behavior can change. RAG systems have an additional safety dimension — retrieved content — that must be included in the evaluation scope. |
+| Human reviewer accuracy drops from 95% to 72% in afternoon shift | Reviewer fatigue — accuracy drops 20-30% after 2 hours of continuous review. Automation bias compounds the effect: reviewers rubber-stamp high-confidence model outputs they should flag. | Measure reviewer accuracy with seeded test cases (known harmful outputs mixed into review queue). Rotate reviewers every 2 hours. Implement double-review for high-severity categories. Track inter-rater reliability weekly. | The human-in-the-loop is a component that needs monitoring and calibration, not a magic fix. Without accuracy measurement and fatigue management, "human review" provides a false sense of security while missing 28% of harmful outputs. |
 
 ## Cross-Skill Coordination
 
@@ -188,6 +200,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Use `/security-engineer` instead when:** You need traditional application security (threat modeling, penetration testing, secrets management). AI safety is a complement to security, not a replacement.
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -249,6 +262,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Critical distinction:** An AI that answers "What is hemophilia?" from your curated education content is low regulatory risk. An AI that analyzes a patient's reported symptoms and says "You should see a doctor" may be a regulated medical device. Get a regulatory opinion before building the second type.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -271,6 +285,19 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Steps:** 1) Log every LLM interaction: input, output, guardrail flags, latency, cost, model used. Anonymize PHI in logs (strip identifiers before writing to the log store) 2) Build a safety dashboard: guardrail trigger rate by category, by model, by feature. Set alerts: >5% trigger rate in any category, >1% bypass attempts, any "Fail" on automated eval 3) Implement human sampling: randomly sample 1% of all LLM interactions for manual review. Stratify by guardrail-passed vs guardrail-flagged to get more signal from edge cases 4) Incident response: if safety dashboard shows a spike in bypass attempts or a single user getting harmful content, follow the incident response playbook (pause the feature, analyze, fix, re-test, re-deploy) 5) Continuous eval: re-run the safety test set weekly. If score drops >2%, investigate the root cause (model updated? prompt changed? content drift?)
 
 **What good looks like:** Safety dashboard with guardrail trigger rates, bypass attempt trends, and evaluation scores over time. Weekly eval run. Human reviewers sampling 1% of interactions. Incident response documented and exercised.
+
+## Best Practices
+
+1. **Never certify a system as "safe."** Safety is a spectrum, not a binary. State what conditions, thresholds, and test sets were passed, the date of evaluation, and that results may degrade with model updates. Replace "the system is safe" with "passed red-teaming for N adversarial inputs across categories, passed safety evaluation at X% threshold, valid as of [date]."
+2. **Every guardrail must fail closed.** On internal error (timeout, crash, dependency failure), guardrails must default to block — never pass. If `on_error: "pass"` or `fallback: allow` exists in any config, the guardrail is a single point of failure. Guardrail errors are safety violations until proven otherwise.
+3. **Safety tests must be reproducible.** Every test artifact must include: model version (dated suffix, not `latest`), dataset hash, timestamp, and evaluator prompt hash. Without these, a safety issue discovered in production cannot be traced to the gap in testing.
+4. **Test safety across all supported languages.** A model safe in English may comply with dangerous requests in Swahili, Hindi, or Vietnamese. Each supported language must pass the full safety test suite independently. A 95% pass in English could be 40% pass in other languages.
+5. **Deploy input AND output guardrails.** Input-only guardrails are a single point of failure — the model can generate harmful content from benign input. Output guardrails are the last line of defense and must scan every response for medical advice, PII, toxicity, and hallucinated claims.
+6. **Red-team continuously, not once.** Red-teaming is an adversarial game where the defender patches known exploits while the attacker invents new ones. Patch a jailbreak, and the red team finds another. Run red-teaming quarterly at minimum, monthly for high-risk applications. Automated probes (garak) for coverage, manual testing for creativity.
+7. **Pin model versions in production.** Provider model updates change safety behavior without notice. Use dated version suffixes (`gpt-4-0613`, not `gpt-4`). Re-run the full safety test suite on any model version change. Configure an alert if the model version changes without safety re-evaluation.
+8. **Classify health AI features by regulatory risk before building.** Any AI that interprets patient data, triages symptoms, or recommends treatment may be a regulated medical device (SaMD). Get a regulatory classification (informational, CDS, SaMD) from compliance before designing safety evaluation. Incorrect classification is a regulatory violation.
+9. **Publish all benchmark results, not just the best.** Selective benchmark reporting (publishing 3 best results, burying 7 failures) creates safety washing. Publish ALL results including failures with documented limitations. Regulators and enterprise customers discover omissions during due diligence.
+10. **Implement human sampling of flagged outputs.** Automated classifiers miss semantic harm spread across turns, coded language, and outputs safe in isolation but dangerous in sequence. Randomly sample 1% of all interactions for manual review, stratified by guardrail-passed vs guardrail-flagged. Human reviewers catch what classifiers miss.
 
 ## Proactive Triggers
 
@@ -369,13 +396,80 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+### Scale Depth
+
+#### Solo Developer
+**Budget:** $0-$500/month. Manual safety evaluation: 25 test cases run before each release. Use open-source classifiers (Llama Guard, Perspective API free tier) for output filtering. Manual red-teaming with 20 attack patterns. Document safety decisions in README.
+**Transition trigger:** First user-facing health feature or handling PII/PHI → move to Small Team.
+
+#### Small Team (2-10)
+**Budget:** $500-$5K/month. Automated safety test suite with 100+ test cases via pytest/garak. Deploy NeMo Guardrails or open-source guardrails (guardrails-ai). Automated weekly red-teaming with 50+ attack patterns. Bias testing across race, gender, age. Safety dashboard (Grafana). Slack alerts for guardrail trigger spikes.
+**Transition trigger:** Deploying a SaMD-classified feature or >10K daily users → move to Organization.
+
+#### Organization (10-50)
+**Budget:** $5K-$50K/month. LLM-as-judge evaluation pipeline for ambiguous safety cases. Continuous red-teaming with automated probes (garak, PyRIT) plus monthly manual red-team exercises. Dedicated safety engineer (0.5-1 FTE). Multilingual safety testing across all supported languages. Incident response automation: auto-pause features on safety spikes. Human sampling: 1% review pipeline with dedicated reviewers.
+**Transition trigger:** Regulatory submission (510(k)/De Novo) or >100K daily users → move to Enterprise.
+
+#### Enterprise (50+)
+**Budget:** $50K+/month. Full-time AI safety team (2+ engineers). Custom guardrail models trained on domain-specific harm taxonomy. Quarterly external red-teaming with specialized firms. Regulatory-grade documentation pipeline (model cards, safety case, PCCP). Multi-model safety evaluation (testing across all provider models in production). Independent safety audit by third party. Continuous bias drift monitoring across demographic subgroups. Safety incident response: on-call rotation, <15min detection, <1hr containment.
+
+## Anti-Patterns
+
+### Anti-Pattern: Safety as a Training Problem Only
+**What it looks like:** Believing "safety is a training problem — better data, better model." Focusing exclusively on RLHF, constitutional AI, and training-time alignment while ignoring deployment context, tool access, and monitoring.
+**Why it fails:** Safety is a systems problem. Deployment context, tool access, multi-agent interaction, and user population all change the harm surface independently of model quality. A well-trained model given unrestricted database access will cause harm when a user says "clean up the data."
+**Do this instead:** Treat safety as a layered systems problem: training alignment (base), prompt engineering (guide), input/output guardrails (catch), tool permissions (constrain), monitoring (detect), incident response (recover). Every layer must fail independently.
+
+### Anti-Pattern: RLHF Reward Model Collapse Unchecked
+**What it looks like:** The reward model learns that verbose, authoritative-sounding responses get higher scores regardless of correctness. The policy model optimizes for length and confidence — producing confident wrong answers.
+**Why it fails:** Length correlates with human preference scores, creating a "confident bullshitter" local optimum. The model sounds authoritative while being wrong. In medical contexts, confident wrong answers can cause patient harm.
+**Do this instead:** Audit reward model scoring: sample 50 high-scoring responses and spot-check for factual correctness, not just verbosity. Train reward model on correctness-annotated data, not just preference data. Monitor response length vs accuracy correlation in production.
+
+### Anti-Pattern: Harmlessness-Helpfulness Overcorrection
+**What it looks like:** Training the model to refuse ALL potentially harmful queries — blocking "how do I tie a tourniquet?" because it could cause harm if misused. The model over-refuses to the point of being useless in safety-critical scenarios.
+**Why it fails:** Real harm from over-refusal (someone dies from blood loss because the model wouldn't provide first-aid instruction) exceeds hypothetical harm from providing correct information. The balance must be domain-calibrated — medical, emergency, and safety instructions need different thresholds than entertainment queries.
+**Do this instead:** Calibrate refusal thresholds by domain. Define explicit categories: always refuse (self-harm methods, illegal activities), refuse with resources (medical diagnosis → "consult your doctor"), provide with disclaimers (first-aid instructions → "in an emergency, call 911. These steps may help while waiting"), always provide (general knowledge).
+
+### Anti-Pattern: Benchmark-Only Safety Evaluation
+**What it looks like:** Evaluating model safety solely against static benchmark datasets (ToxiGen, RealToxicityPrompts) and declaring the model safe when scores are below 1%. No adversarial testing, no novel attack patterns, no multi-turn scenarios.
+**Why it fails:** Benchmark datasets are static targets — they measure performance on known attack surfaces from 2022. Adversarial prompt evolution renders benchmarks obsolete within months of release. A model scoring 0.1% on ToxiGen may still be jailbroken by a novel attack pattern discovered last week.
+**Do this instead:** Combine benchmarks with continuous red-teaming. Use automated probes (garak) for known attack coverage plus manual adversarial testing for novel patterns. Run red-teaming quarterly at minimum. Benchmark scores are a floor, not a ceiling — they tell you what you've patched, not what you've missed.
+
+### Anti-Pattern: Human-in-the-Loop as a Panacea
+**What it looks like:** Assuming human review of flagged outputs solves safety. Reviewers are expected to catch harmful content, hallucinations, and policy violations at scale. No measurement of reviewer accuracy, fatigue, or automation bias.
+**Why it fails:** Human reviewers exhibit automation bias with high-confidence model outputs, decision fatigue at scale (accuracy drops 20-30% after 2 hours), and cultural blind spots. At throughput, the loop amplifies rather than corrects — reviewers rubber-stamp model outputs they should flag.
+**Do this instead:** Measure reviewer accuracy with seeded test cases (known harmful outputs mixed into the review queue). Rotate reviewers every 2 hours. Implement double-review for high-severity categories. Track inter-rater reliability. The human-in-the-loop is a component that needs monitoring and calibration, not a magic fix.
+
+### Anti-Pattern: Jailbreak Patching Without Root Cause Analysis
+**What it looks like:** Red team finds a jailbreak ("pretend you're my deceased grandmother who was a chemist"). Engineering adds a keyword block for "deceased grandmother." Jailbreak still works with "pretend you're my late grandfather who was a pharmacist." Ad infinitum.
+**Why it fails:** Patching specific jailbreak strings is whack-a-mole. The underlying vulnerability — role-play scenarios bypassing content restrictions — remains. Each patch trains adversaries to find the next variant without addressing the root cause.
+**Do this instead:** Categorize each jailbreak by attack type (role-play, encoding, multi-turn, token smuggling, context manipulation). Fix at the attack type level, not the specific string level. For role-play attacks: implement classifier that detects when the user is attempting to change the assistant's persona, regardless of the specific persona requested.
 
 - **RLHF (Reinforcement Learning from Human Feedback) reward model collapse** — the reward model learns that verbose, authoritative-sounding responses get higher scores, regardless of correctness. The policy model learns to produce confident-sounding wrong answers. Length correlates with human preference scores, creating a "confident bullshitter" local optimum. **Total cost: $2M-$10M in wasted training compute, engineering rework, and reputational damage per failed deployment cycle.**
 - **Constitutional AI harmlessness vs helpfulness tension** — training to refuse ALL potentially harmful queries (harmlessness) produces models that refuse "how do I tie a tourniquet?" (it could cause harm if misused). Real harm from over-refusal (someone dies from blood loss) exceeds hypothetical harm from providing first-aid instruction. Balance must be domain-calibrated. **Total cost: $1M-$50M in liability from harm caused by over-refusal or under-refusal in safety-critical domains such as healthcare and emergency response.**
 - **Red-teaming for alignment** — your red team finds 1,000 jailbreaks. You patch them. The model now refuses those 1,000 patterns but the red team's techniques advance. This is an adversarial game where the defender patches known exploits while the attacker invents new ones. Patched jailbreaks ≠ safe model. Continuous red-teaming is non-negotiable. **Total cost: $500K-$3M annually in ongoing red-team operations, model retraining, and the cost of a single uncaught jailbreak causing a regulatory or PR crisis.**
 - **Jailbreak via token smuggling** — the model blocks "how to make a bomb" but processes "h o w t o m a k e a b o m b" as individual characters and answers. Character-level perturbation, base64 encoding, and role-play scenarios (DAN, "pretend you're my deceased grandmother who was a chemist") all bypass token-level filters. Safety must operate at the semantic intent level, not token level. **Total cost: $5M-$50M in regulatory penalties, platform bans, and brand damage from a single high-profile jailbreak exploited at scale.**
 - **Safety washing via selective benchmark reporting** — the model is evaluated on 10 safety benchmarks and publishes results for the 3 where it scores highest, burying failures on the other 7. Regulators and enterprise customers discover the omissions during due diligence and the model's safety claims collapse. Publish ALL benchmark results, including failures, with documented limitations. **Total cost: $1M-$5M in lost enterprise contracts, regulatory rejection, and trust erosion when selective reporting is exposed.**
+
+## Production Checklist
+
+Before any AI system reaches production with safety evaluation, verify:
+
+- [ ] Safety test set created: 100+ test inputs covering medical advice boundary, off-topic, harmful requests, edge cases
+- [ ] Safety evaluation score: >95% Pass, 0% Fail. Every Fail has root cause analysis and remediation
+- [ ] Guardrails deployed: input rails (prompt injection, PII) + output rails (medical advice, toxicity, hallucination)
+- [ ] Every guardrail fails closed: `on_error` or `fallback` never set to `allow` or `pass`
+- [ ] Red-teaming completed: 100+ attack variations across all categories, zero successful bypasses
+- [ ] Safety tests are reproducible: model version, dataset hash, timestamp, evaluator prompt hash stored
+- [ ] Multilingual safety tested: each supported language passes full safety suite independently
+- [ ] Model versions pinned with dated suffixes; alert configured on version change without re-evaluation
+- [ ] Human sampling pipeline: 1% of interactions randomly selected for manual review, stratified by guardrail status
+- [ ] Safety dashboard: guardrail trigger rate by category/model/feature, bypass attempt trends, eval scores over time
+- [ ] Incident response plan: detection triggers, containment (pause feature), investigation, fix, re-test, re-deploy
+- [ ] Weekly automated safety evaluation: re-run test set, alert if score drops > 2%
+- [ ] Regulatory classification documented for all health AI features (informational, CDS, SaMD)
+- [ ] All benchmark results published including failures with documented limitations
+- [ ] Continuous monitoring: output anomaly detection, toxicity spikes, PII leakage alerts active
 
 ## Anti-Rationalization — No Excuses
 

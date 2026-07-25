@@ -85,6 +85,20 @@ The expert also thinks in terms of **seams**: places where one module can be sep
 | **L3 — Package/Domain** | 5-50 modules forming a bounded context or package | Reorganize by locality score, establish interface contracts at domain boundaries, apply anti-corruption layers. |
 | **L4 — Codebase-wide** | Entire repository or monorepo | Complexity budget allocation, depth scoring across all modules, architectural seam validation, locality heatmap generation. |
 
+### Scale Depth — Codebase Size Context
+
+#### Solo (1 engineer, 1-5K LOC)
+Focus on deep module design fundamentals: every new class gets depth-scored before merge. Interface minimization is manual — review each public method. Run the deletion test weekly. Complexity budget is implicit: if a module has >7 public methods, it's too big. No formal seam documentation needed; the engineer holds the architecture in their head.
+
+#### Small (2-5 engineers, 5-50K LOC)
+Depth scorecard tracked in a spreadsheet or CI check. Module inventory documented with depth classifications. Seams identified at package boundaries. Adapters placed where external dependencies meet domain code. Complexity budget: 15% of modules allowed to be shallow (thin controllers, DTOs). Locality violations flagged in code review. Pass-through detection automated via static analysis.
+
+#### Medium (5-20 engineers, 50-200K LOC)
+Depth scoring automated in CI with gates: no module <0.5 depth allowed to merge. Interface contracts documented at domain boundaries (packages, bounded contexts). Anti-corruption layers mandatory for all third-party integrations. Complexity budget allocated per bounded context: core domains get 20% budget, supporting domains 10%, generic subdomains 5%. Seam registry maintained as architecture documentation. Locality heatmaps generated quarterly.
+
+#### Enterprise (20+ engineers, 200K+ LOC, multi-team)
+Depth governance embedded in architecture review board. Every module has a depth SLA. Interface versioning for cross-team contracts. Complexity budget allocated at portfolio level: each team gets a budget, traded in architecture decision records (ADRs). Automated deletion test runs monthly — modules with zero production callers flagged for removal. Seam placement requires architecture board approval for cross-team boundaries. Locality analysis runs continuously — violations generate Jira tickets.
+
 ## When to Use
 
 Use this skill when:
@@ -142,6 +156,9 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+
+**(STANDARD)**
+
 <!-- Full 177 lines extracted to references/core-workflow.md -->
 
 DESIGN → MINIMIZE → SEAM → ADAPT → VERIFY
@@ -154,6 +171,8 @@ DESIGN → MINIMIZE → SEAM → ADAPT → VERIFY
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 177 lines of detailed guidance
 
 ## Decision Trees
+
+**(QUICK)**
 
 #
 
@@ -294,6 +313,8 @@ IGNORE
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -305,6 +326,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Design deep modules from day one — don't refactor into depth later.** A module with 3 public methods and 150 lines of behavior is easier to maintain than one with 12 public methods and 15 lines of behavior. Write the implementation first, then extract the minimal interface. The interface is a cost to every caller; the implementation is a benefit to every caller. Maximize the benefit/cost ratio before the first commit.
+
+2. **Run the deletion test on every module before it ships.** For every file or class, ask: "If I delete this, what breaks in production?" If the answer is "nothing," delete it now. If the answer is "one call site that could easily inline the 3 lines," delete it and inline. Only keep modules that earn their existence through nontrivial behavior depended on by multiple callers.
+
+3. **Place seams at natural change boundaries, not at arbitrary layers.** A seam between two modules that always change together is an artificial seam — it adds complexity without benefit. Identify where change rates differ: domain logic changes weekly, persistence format changes annually, UI changes monthly. Those are natural seams. Score every seam boundary: co-change frequency, test isolation, caller independence, swappability. Minimum score of 4/6 before creating an adapter.
+
+4. **Minimize interfaces relentlessly — every public method is a liability.** A method left public "just in case" will be called. Once called, removing it requires coordination across every caller. Default to private. Make something public only when: (a) an external caller needs it now, (b) the behavior is nontrivial (not a getter/setter), and (c) making it public doesn't expose internal state that could be corrupted. If all three aren't satisfied, keep it private.
+
+5. **Use adapters at every external dependency boundary.** Third-party libraries, vendor APIs, legacy systems — these change on their schedule, not yours. An anti-corruption layer (ACL) translates their model to your model, so when they change, only the ACL changes. Without an ACL, a vendor API deprecation becomes a codebase-wide refactoring affecting every file that imports their types.
+
+6. **Allocate a complexity budget and enforce it.** Not every module can be deep — some must be thin (controllers, DTOs, configuration). Define what percentage of modules are allowed to be shallow. Track it. When the shallow module count exceeds budget, refactor or consolidate. A codebase with 40% shallow modules is a codebase where most developer time is spent navigating indirection, not understanding behavior.
+
+7. **Maximize locality — code that changes together should live together.** Run `git log --name-only` over the last 90 days. Files that appear together in the same commits should be in the same directory. Files that co-change but span 3+ directory levels are locality violations. Each violation costs every developer 30-60 seconds of context-switching per visit. At 20 visits per developer per month, a single violation costs 2+ hours per developer per year.
+
+8. **Pass-through methods are code smell — delete or inline them.** A method whose body is a single delegation call (`return this.dependency.doX(args)`) adds no behavior. It exists only because the caller doesn't know about the dependency. Either: (a) make the dependency directly accessible to the caller, or (b) add real behavior (validation, transformation, error handling, logging) that justifies the delegation. A pass-through that survives 6 months will never be deleted.
+
+9. **Measure depth, not lines of code.** A 500-line class with 3 public methods (depth ~167) is better designed than a 100-line class with 15 public methods (depth ~7). LOC tells you volume. Depth tells you design quality. Track depth per module over time. If depth is declining, the module is accumulating interface cost faster than behavioral value — it's rotting.
+
+10. **Never add a public method "for future use."** YAGNI applies doubly to interfaces. A public method added speculatively costs every future reader the cognitive load of understanding it, every future maintainer the risk of breaking callers when changing it, and every newcomer the confusion of "who calls this and why?" Add public methods only when a real caller exists, and only the methods that caller actually needs.
 
 ## Cross-Skill Coordination
 
@@ -440,7 +483,7 @@ Pick a feature that spans 3+ files. Draw the dependency graph. Identify where ch
 ## Exercise 5: Locality Heatmap (30 min)
 Run `git log --name-only` on your repo for the last 50 commits. Group files that co-change. For each group, compute spatial distance (directory tree distance). Identify files with high co-change frequency but high spatial distance — these are locality violations. Propose a reorganization. Timebox: 30 minutes.
 
-## Gotchas
+## Anti-Patterns
 
 **Total cost: $15,000-$45,000 in developer productivity per year.** A shallow module with 12 public methods and 15 lines of behavior forces 10 developers to read 12 method signatures every time they touch related code. Over a year, that's hundreds of wasted cognitive cycles. Each wasted minute compounds: reading the interface, tracing to the implementation, discovering there's nothing there, and going back. At $150/hour blended rate, a team of 10 loses $15K-$45K annually on a single shallow module.
 
@@ -489,6 +532,34 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[CD1]** Depth scorecard generated for every module in scope — zero modules with depth < 0.5 without documented justification
+- [ ] **[CD2]** Deletion test run on all modules — every surviving module has at least one production caller with nontrivial dependency
+- [ ] **[CD3]** Pass-through methods identified and resolved: each delegation-only method either inlined, enriched with behavior, or documented as intentional facade
+- [ ] **[CD4]** All seams scored ≥4/6 on the seam checklist (co-change frequency, test isolation, caller independence, swappability, different change rates, different caller types)
+- [ ] **[CD5]** Anti-corruption layers (ACLs) in place for every third-party dependency, external API, and legacy system integration
+- [ ] **[CD6]** Interface minimization complete: every public method justified by an actual external caller, convenience overloads removed, getters/setters exposing internal state eliminated
+- [ ] **[CD7]** Complexity budget defined and enforced: ≤20% shallow modules for core domain, ≤10% for supporting, ≤5% for generic subdomains
+- [ ] **[CD8]** Locality heatmap generated from last 90 days of git history — zero files with high co-change frequency spanning >2 directory levels without documented rationale
+- [ ] **[CD9]** Adapter type correctly selected per seam (Translation, Facade, ACL, or Bridge) — no adapter-less seam at external dependency boundaries
+- [ ] **[CD10]** Module inventory documented with depth classifications (Deep, Moderate, Shallow, Critically Shallow) and refactoring priority scores
+- [ ] **[CD11]** No module has >7 public methods for core business logic — controllers/DTOs/configuration exempt with documented boundary
+- [ ] **[CD12]** Complexity budget trend monitored: depth scores not declining quarter-over-quarter, shallow module count not increasing
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|----------|-----------|------|------------|
+| Module has 15+ public methods, each 1-3 lines of delegation | Developer added methods "just in case" or for future use. Each method seemed harmless individually, but the accumulated interface cost makes the module impossible to understand | Run interface minimization: group methods by caller, combine related methods, make uncalled methods private, delete pass-throughs. Target: ≤5 public methods | Gate in code review: every new public method requires a named production caller. "Future use" methods → rejected |
+| Two modules always change together in the same commits | An artificial seam was placed where no natural change boundary exists. The seam adds indirection without enabling independent evolution | Merge the modules. Score the seam: if co-change frequency is >80%, the seam is artificial. Combine into a single module, then re-evaluate for a better seam | Before creating a seam, run `git log --follow` on both sides. If they change together >80% of the time, don't separate them |
+| Bug fix in Module A breaks Module D three layers away | Tight coupling through shared mutable state. Module A modified state that D depends on, with no contract or validation layer between them | Insert an anti-corruption layer between A and the shared state. Make state immutable or access-controlled. Add integration tests at every layer boundary | Every cross-module state access must go through a defined interface. Direct state mutation across module boundaries is a compile-time or lint error |
+| New hire takes 3 weeks to understand how 5 related files connect | Locality violation — files that conceptually belong together are scattered across the directory tree | Run locality heatmap on git history. Group co-changing files into the same directory. Create a package-level README explaining the domain concept and how files relate | Locality heatmap as CI check: files with high co-change frequency must be within 1 directory level of each other |
+| Refactoring a vendor API integration requires changes in 20+ files | No anti-corruption layer. The vendor's types, method names, and error models are imported directly across the codebase | Create an ACL: define your own domain types, translate vendor responses at the boundary, expose only the 3-5 methods callers actually need. Vendor changes now only affect the ACL | Every third-party import must go through a single adapter module. Direct vendor imports outside the ACL are lint errors |
+| Module depth declining: was 8.0 six months ago, now 1.5 | Interface creep — 1-2 public methods added per quarter without corresponding behavior growth. Each addition seemed harmless | Freeze the interface. Audit every public method: who calls it, what behavior does it add? Remove convenience methods, inline pass-throughs, merge thin methods | Track depth in CI. Alert when depth drops >20% quarter-over-quarter. Require architecture review for modules that cross the shallow threshold (depth < 1.0) |
 
 ## References
 

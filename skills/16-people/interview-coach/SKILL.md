@@ -106,6 +106,8 @@ What kind of interview preparation do you need?
 
 ## Core Workflow
 
+**Core Workflow** **(STANDARD)**
+
 ### Phase 1: Behavioral Interview Prep
 
 **Step 1 — Extract requirements.** From job description: identify 5-7 key competencies (e.g., "cross-functional leadership," "data-driven decision making," "stakeholder management").
@@ -133,6 +135,8 @@ What kind of interview preparation do you need?
 Bad interviews happen. Recovery strategy: (1) Identify what went wrong — was it one bad answer or systemic? (2) If one bad answer: address it in the thank-you note with a better response. (3) If systemic: learn the lesson, practice the gap, apply to the next opportunity.
 
 ## Decision Trees
+
+**Decision Trees** **(QUICK)**
 
 ### 1. STAR Story Selection
 
@@ -253,6 +257,8 @@ What interview format are you facing?
 
 ## Error Recovery
 
+**Error Recovery** **(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -349,7 +355,29 @@ Before beginning a new phase, verify:
 | Generic questions: "What's the culture like?" | Specific: "I read your engineering blog post on migrating to event-driven architecture. How has that changed the way teams collaborate across services?" | "In your 3 years here, what's the biggest shift you've seen in how the engineering team operates — and what drove that change?" |
 | "I don't have any questions — you covered everything" | "I have a few questions: [3 prepared]" | "You mentioned the team is growing from 10 to 25 this year. What's the biggest risk you see in scaling that fast while maintaining quality?" |
 
-## Gotchas
+## Best Practices
+
+1. **Prepare 6-8 STAR stories covering every competency category before any interview.** Story categories: leadership, conflict resolution, failure/recovery, cross-functional collaboration, technical depth, delivering under pressure. Each story 60-90 seconds with a quantifiable Result. Rehearse aloud — not in your head. The difference between a prepared candidate (5/5 scores) and an unprepared candidate (2/5 scores) across 4 behavioral rounds translates directly to $15K-$50K in annual compensation difference at offer.
+
+2. **Research each interviewer for 30 minutes before the interview.** Review their LinkedIn career path, shared connections, recent posts, conference talks, and GitHub/portfolio. Find 2-3 genuine connection points. Interviewers who feel a personal connection rate candidates 15-20% higher on "culture fit" and "communication" dimensions, equally weighted with technical skills in most rubrics.
+
+3. **Always deflect the salary expectation question in the first recruiter screen.** Respond with: "Can you share the budgeted range for this role?" If they insist, provide a researched range 10-15% above your target, never your current salary. A $10,000 gap in starting salary compounds to $150,000+ over a decade with raises and bonuses. Research via Levels.fyi, Glassdoor, Blind, and your personal network before the first call.
+
+4. **Send a specific, personalized thank-you note within 4 hours of every interview.** Reference one specific discussion point from the conversation. A same-day specific thank-you says "organized and genuinely interested." A generic 3-days-later thank-you signals low effort and is worse than no thank-you at all. 47% of interviewers say lack of questions or follow-up negatively impacts their evaluation.
+
+5. **Clarify the interview format before preparing.** Ask the recruiter explicitly: "What is the format of each round? Who will I meet with? Is there anything specific I should prepare?" Different formats (behavioral, technical, case, system design, portfolio review) test different skills with different rubrics. When the format surprises you, performance drops 30-50% compared to candidates who prepared specifically.
+
+6. **Practice the "Tell me about yourself" answer as a 60-second commercial, not an autobiography.** Structure: present role (20s) → past trajectory highlighting 2 key achievements (20s) → future and why this role (20s). Interviewers decide in the first 90 seconds whether you're a yes, maybe, or no. The primacy effect means your opening frames everything that follows.
+
+7. **Prepare 5-7 questions that demonstrate preparation and curiosity.** Two role-specific, two team-specific, one company-specific, one interviewer-specific, one challenge question. "Do you have any questions?" is not optional — it's the final test. Asking insightful questions can reverse a mediocre interview and is your last chance to demonstrate preparation.
+
+8. **Research the company's financial health before accepting any offer.** For startups: ask about runway, burn rate, last funding round directly. For public companies: check 1-year and 3-year stock trends. Candidates who join companies with <6 months runway face a 40% layoff rate within the first year. Worthless equity at a failed startup represents $50K-$200K in paper gains that never materialized.
+
+9. **Practice mock interviews with scoring rubrics, not just conversation.** Have someone conduct a 45-minute mock interview with 8 behavioral questions. Score each answer on structure (1-5), specificity (1-5), relevance (1-5), and delivery (1-5). Target: average 4+ across all dimensions. Record yourself — you'll catch filler words, pacing issues, and weak transitions that you don't notice in your head.
+
+10. **Backchannel reference the hiring manager through their former direct reports.** The single biggest predictor of job satisfaction is your direct manager. Find 2-3 people on LinkedIn who previously reported to this manager. Message: "I'm considering joining [manager]'s team at [company]. Would you be open to a 10-minute confidential chat about your experience?" Past direct reports are candid in ways current reports cannot be.
+
+## Anti-Patterns
 
 - **Not preparing STAR stories before behavioral interviews converts "strong candidate" into "unclear impact."** Behavioral interviewers use structured rubrics — they score each answer on Situation, Task, Action, and Result. A candidate who answers with vague generalities ("I always make sure to communicate well with stakeholders") scores 2/5 across the board. The same candidate with a prepared STAR story ("When the payment system went down during Black Friday, I coordinated a 5-person SWAT team to implement a fallback processor in 90 minutes, recovering $480K in at-risk revenue") scores 5/5. The gap between a 2/5 and 5/5 average across 4 behavioral rounds translates directly to offer level — one level lower means $15K-$50K less in annual compensation. **Total cost: $10K-$50K in lower offers from weak, unstructured behavioral interviews.** Prepare and practice 6-8 STAR stories covering leadership, conflict resolution, failure recovery, cross-functional collaboration, technical depth, and delivering under pressure — each deliverable in 90 seconds with a quantifiable Result.
 - **"Tell me about yourself" is not an autobiography — it is a 60-second commercial.** Interviewers decide in the first 90 seconds whether you're a yes, maybe, or no. A chronological life story ("I was born in...") wastes those seconds. **A rambling 3-minute autobiography loses the interviewer's attention — you have 60 seconds to prove you understand this role and why you're the answer to their problem.**
@@ -378,6 +406,57 @@ Before beginning a new phase, verify:
 | "STAR method is overrated, my stories are fine naturally" | Without STAR structure, answers lack measurable impact; interviewers remember stories with numbers, not narratives |
 | "I'll research the company the night before" | Surface-level research produces generic answers; candidates who reference specific quarterly goals and recent press get 3x callback rates |
 | "Salary negotiation is just asking for more money" | First offers leave 10-20% on the table; candidates who don't negotiate leave $500K-$1M in lifetime earnings uncompounded |
+
+## Production Checklist **(STANDARD)**
+
+Before delivering interview coaching deliverables, verify ALL of:
+
+1. STAR stories audited: 6-8 stories prepared across all competency categories, each deliverable in 60-90 seconds without notes, each with a quantifiable Result
+2. "Tell me about yourself" rehearsed: under 60 seconds, present-past-future structure, tailored to the specific role — timed and recorded
+3. Weakness answer prepared: real weakness + specific improvement system + measurable progress — no clichés ("I work too hard")
+4. Interviewer research completed: 30 minutes per interviewer — LinkedIn reviewed, shared connections identified, 2-3 connection points noted per interviewer
+5. Questions prepared: 5-7 questions covering role-specific (2), team-specific (2), company-specific (1), interviewer-specific (1), challenge question (1)
+6. Salary strategy: market rate researched via Levels.fyi, Glassdoor, Blind, personal network — range prepared 10-15% above target, deflection script ready
+7. Company financial health checked: for startups — runway, burn rate, and last funding round verified; for public companies — 1-year and 3-year stock trends reviewed
+8. Format confirmed: recruiter contacted and each round's format, interviewer identity, and expected preparation confirmed in writing
+9. Mock interview completed: 45-minute simulation with 8 behavioral questions, scored on structure/specificity/relevance/delivery, target average 4+/5
+10. Thank-you note template: personalized opening, specific reference, genuine close ready — customized and sent within 4 hours of each interview
+11. Technical prep (if applicable): coding patterns reviewed, system design framework practiced, portfolio story arcs prepared for technical interviews
+12. Post-offer checklist: total compensation model built, backchannel references contacted, negotiation script prepared with 2-3 counter items backed by market data
+
+## Scale Depth
+
+### Junior Candidate (0-3 years experience, individual contributor roles)
+- **Focus**: STAR stories from internships, academic projects, and early work. Behavioral prep emphasizing learning agility and coachability over deep domain expertise.
+- **Prep time**: 8-10 hours total. 6 stories, 1-page resume. Salary research via Glassdoor entry-level bands.
+- **Tools**: Glassdoor, Indeed salary tools, university career center resources.
+- **Skip**: Multi-offer negotiation strategy, backchannel references, compensation modeling for equity-heavy offers.
+
+### Mid-Career Professional (3-10 years, senior IC or manager)
+- **Focus**: STAR stories with measurable business impact (revenue, cost savings, team outcomes). Technical interview prep for system design and architecture. Salary negotiation with market data.
+- **Prep time**: 15-20 hours total. 8-10 stories. Multi-round mock interviews with scoring. Compensation modeling with equity scenarios.
+- **Tools**: Levels.fyi, Blind, LinkedIn Recruiter insights, Pave/Radford data. Mock interview platforms (interviewing.io, Pramp).
+- **Skip**: Executive presence coaching, board-level presentation prep.
+
+### Senior Leader (10+ years, Director/VP/C-suite)
+- **Focus**: Board-level communication. Strategic narrative development. Executive presence coaching. Stakeholder management stories. Compensation negotiation including equity, severance, change-in-control provisions.
+- **Prep time**: 25-40 hours total. 10-12 strategic stories. Multiple mock interviews with executive coaches. Full compensation modeling with tax implications.
+- **Tools**: Executive coaches, compensation attorneys, industry-specific compensation databases. Backchannel network activation.
+- **Add**: Reference orchestration (who, when, what they'll say). Onboarding negotiation (team, budget, resources, reporting structure).
+
+### Transition Triggers
+- Junior → Mid-Career: You're being considered for Senior roles. Compensation includes equity. System design appears in interviews.
+- Mid-Career → Senior Leader: You're interviewing for Director+. Compensation includes multi-year equity, severance, change-in-control. Board members are in your interview loop.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "I got to the final round but they went with someone else — no feedback given" | STAR stories lacked specificity or quantifiable impact. The other candidate had numbers; you had narratives. | Audit every story: does each have a measurable Result ($$, %, time, scale, headcount)? If not, rewrite. Ask recruiter for feedback — frame as "help me improve for future opportunities." | Behavioral interviews are scored on rubrics. "Led a project" scores 2/5. "Led 5 engineers to reduce latency 40%, saving $2.1M" scores 5/5. The difference is the offer. |
+| "Recruiter asked my salary expectations and I panicked and gave my current salary" | No preparation for the salary question. Didn't research market rate. Anchored to current number. | Pivot immediately in follow-up: "After learning more about the role's scope, I've refined my target to $X-$Y based on market data." Research via Levels.fyi before ANY call. | A $10K gap in starting salary compounds to $150K+ over a decade. Never disclose current salary — it resets the negotiation from "what is this role worth?" to "what's a 10% bump from your current?" |
+| "I prepared behavioral stories but the interview was a live coding session — I wasn't ready" | Didn't clarify interview format with recruiter. Assumed all rounds would be similar to the phone screen. | In every recruiter screen, ask: "What is the format of each round? Who will I meet with? Is there anything specific I should prepare?" Most recruiters will tell you. | Format surprise drops performance 30-50%. Each format tests different skills with different rubrics. Clarify before you prepare. |
+| "Accepting an offer — then discovering the company has 4 months of runway left" | Didn't research financial health. Assumed funded companies are stable. | Before accepting: for startups, ask directly about runway, burn rate, and last funding round. For public companies, check 1-year and 3-year stock trends. | Companies with <6 months runway execute layoffs 40% of the time within year 1. Worthless equity = $50K-$200K in paper gains that never materialized. |
+| "Thank-you note sent 3 days later — generic 'thanks for your time'" | No thank-you template prepared. Sent when remembered. Generic content. | Prepare a thank-you template before the interview: personalized opening slot, discussion-point reference slot, genuine close. Customize and send within 4 hours. | 47% of interviewers say lack of questions/follow-up negatively impacts evaluation. A specific same-day thank-you beats a generic 3-days-later one. |
 
 ## Verification
 
@@ -411,9 +490,12 @@ If any checkbox fails, revise before delivering. When all pass, add to the state
 - **Salary Negotiation Scripts**: See [references/salary-scripts.md](references/salary-scripts.md)
 - **Company Research Framework**: See [references/company-research.md](references/company-research.md)
 - **Anti-Patterns**: See [references/anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [references/best-practices.md](references/best-practices.md)
 - **Calibration — How to Know Your Level**: See [references/calibration.md](references/calibration.md)
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [references/footguns.md](references/footguns.md)
+- **Scale Depth: Junior → Mid-Career → Senior Leader → Executive**: See [references/scale-depth.md](references/scale-depth.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
 - **Scale Depth**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

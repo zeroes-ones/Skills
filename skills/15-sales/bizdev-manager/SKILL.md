@@ -327,6 +327,8 @@ Structure the economics: (1) Revenue model — commission on sourced deals, marg
 
 ## Error Recovery
 
+<!-- STANDARD: Recovery patterns for common failures. -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -488,7 +490,22 @@ graph LR
 | "Partner-sourced leads are free — pure margin upside" | A $120K deal at 20% rev share pays $24K to the partner — but SE, AE, and legal labor adds $18K in hidden costs. Net margin: 35% vs 50% direct. Track fully-loaded cost per channel or your "free" leads are your least profitable. |
 | "More resellers = more revenue — sign them up" | A reseller already selling a competing product to 60% of their base pitches yours as option #2. $80K in enablement investment yields $500K-$1.5M in opportunity cost from pipeline that never materializes. Audit competitive overlap before signing. |
 
-## Gotchas
+## Best Practices
+
+1. **Qualify partners with SIMCA before signing anything.** Score every potential partner on Strategic fit (1-5), Integration complexity (1-5), Market access (1-5), Commercial alignment (1-5), and Ability to execute (1-5). Scores <9: reject. 9-11: 90-day activation sprint. 12+: accelerate. Logo prestige without qualification produces zero-revenue partnerships.
+2. **Require a signed Joint Business Plan (JBP) before any agreement executes.** A JBP must include: named resources from both sides, revenue targets by quarter, joint GTM milestones, QBR cadence, and success metrics. Handshake partnerships without documented commitments produce press releases, not pipeline.
+3. **Always add "NON-BINDING" header to every term sheet.** Verbal agreements documented in email can be legally binding. Every term sheet must state "NON-BINDING — This Term Sheet is for discussion purposes only" in the first 10 lines, with only Confidentiality, Exclusivity Period, and Governing Law sections marked as binding.
+4. **Structure exclusivity with performance gates.** Exclusivity without minimum revenue commitments is a one-way bet. Every exclusivity clause must include: "Exclusive for [territory/segment] provided Partner achieves $X in Year 1, $Y in Year 2. Below threshold, exclusivity converts to non-exclusive."
+5. **Model partner economics against competitive benchmarks before proposing terms.** A reseller margin of 15% when competitors offer 25% will get zero mindshare. Research the partner's current portfolio economics before proposing your rev share, discount, or commission structure.
+6. **Pilot with 3 joint deals before signing a full reseller agreement.** A 90-day pilot tests market fit, sales motion compatibility, and partner commitment without locking into a multi-year agreement. If the pilot produces zero pipeline, you saved yourself a $50K-$150K enablement investment.
+7. **Track partner-sourced vs partner-influenced revenue as separate columns.** Blending them inflates partner program ROI and hides underperformance. Partner-sourced = partner brought the deal. Partner-influenced = partner participated. Report both on every dashboard.
+8. **Resolve channel conflict within 72 hours of escalation.** Unresolved conflict poisons partner trust for months — even an imperfect resolution delivered fast beats perfect resolution delivered late. Implement a deal registration system with clear rules of engagement before Q1 starts.
+9. **Run quarterly partner portfolio reviews with the 80/20 rule.** Identify the top 20% of partners driving 80% of revenue and double investment. Identify bottom 30% with zero pipeline in 6+ months and offboard. Partner programs atrophy when resources are spread evenly across all tiers.
+10. **Never structure a partnership around a single champion at the partner.** Champions leave, get promoted, or change priorities. Require 3+ contacts at every strategic partner: executive sponsor, operational lead, and technical lead. Build relationship depth or accept that you have no real partnership.
+
+## Anti-Patterns
+
+<!-- STANDARD: Common failure modes with cost estimates and fixes. -->
 
 - **"Strategic partnership" as a euphemism for "we couldn't sell to them"** — a company that rejected your product as a customer won't become a great partner. If they didn't see value as a buyer, their customers won't see value either. Partnerships amplify existing traction, they don't create traction from nothing.
 - **Channel partner onboarding** that requires the partner to learn your product, your sales methodology, your implementation process, and your support escalation paths — that's 6 months of unpaid training. Partners make money selling, not learning. Onboarding must be under 2 weeks with pre-built sales playbooks and demo environments.
@@ -496,6 +513,67 @@ graph LR
 - **Channel conflict from overlapping territories without deal registration.** Your direct sales team and two channel partners all target the same Fortune 500 account. The prospect receives three different proposals with three different discount structures. They leverage the confusion to negotiate a 40% discount, and one partner bad-mouths the other, poisoning the relationship for future deals. **Total cost: $200K-$500K in lost margin on a single deal, plus permanent reputational damage in the account that blocks 3-5 future expansions worth $1M-$3M.** Fix: Implement a deal registration system with clear rules of engagement; define named accounts (direct-only), partner-led, and open territory before Q1 starts; enforce registration with CRM workflow automation that flags conflicts immediately.
 - **Partner-sourced pipeline treated as "free leads."** You close a $120K deal through a partner at 20% rev share ($24K to partner). But your SE spent 60 hours on demos, your AE spent 40 hours on calls, and legal spent 15 hours on the partner's custom MSA. Fully loaded cost: $18K in labor + $24K rev share = $42K on a deal with 70% gross margin ($84K). Net take: $42K. That's a 35% effective margin — worse than your direct sales channel at 50%. **Total cost: $8K-$15K per deal in hidden support costs that erode channel profitability below direct sales over a year of 30+ partner deals.** Fix: Track fully-loaded cost-per-deal by channel (rev share + SE hours + AE hours + legal + enablement); set minimum margin thresholds per channel; renegotiate rev share or scope for partners where loaded costs exceed targets.
 - **Signing a reseller agreement without auditing their customer base overlap.** Your new "strategic reseller" already sells a competing product to 60% of their installed base. Your product becomes the #2 option they pitch when the incumbent isn't a fit — which is 10% of opportunities. You invest $80K in training, certification, and co-marketing, but the partner's sales team defaults to the product they've sold for 5 years. **Total cost: $80K-$150K in wasted enablement investment plus $500K-$1.5M in opportunity cost from pipeline that never materialized over 12-18 months.** Fix: Require partner to disclose current competitive portfolio during due diligence; include minimum pipeline commitments with quarterly review gates; pilot with 3 joint deals before signing a full reseller agreement.
+
+## Production Checklist
+
+<!-- STANDARD: Pre-launch verification gate. All items must pass before delivering work. -->
+
+- [ ] SIMCA score calculated for every partner in pipeline — scores <9 rejected, 9-11 activation sprint, 12+ accelerated
+- [ ] Joint Business Plan signed for every active partnership — revenue targets, named resources, QBR cadence documented
+- [ ] Term sheet reviewed by legal-advisor AND contains NON-BINDING header in first 10 lines
+- [ ] Exclusivity clauses include performance gates with specific revenue thresholds and conversion triggers
+- [ ] Partner margin/rev share benchmarked against 3+ competitive alternatives in partner's portfolio
+- [ ] 3-deal pilot completed before signing any full reseller or OEM agreement
+- [ ] Partner-sourced and partner-influenced revenue tracked as separate columns in all dashboards
+- [ ] Deal registration system live with clear rules of engagement (named accounts, partner-led, open territory)
+- [ ] Channel conflict resolution SLA defined (72-hour max) with escalation path to VP Partnerships
+- [ ] Partner portfolio reviewed quarterly — top 20% receiving disproportionate investment, bottom 30% flagged for offboarding
+- [ ] Minimum 3 contacts at every strategic partner (executive sponsor, operational lead, technical lead)
+- [ ] Partner onboarding documented: sales playbook, demo environment, pricing guide, support escalation path
+- [ ] MDF allocation tied to pre-agreed success metrics with clawback provisions for non-performance
+- [ ] Quarterly competitive overlap audit for all reseller partners — flag partners selling competing products to >30% of their base
+
+## Scale Depth
+
+<!-- DEEP: How this skill scales from solo to enterprise. -->
+
+### Solo BizDev (Founder-led, pre-Series A)
+- **Tooling:** LinkedIn Sales Navigator for partner discovery, Google Docs for term sheets, manual CRM tracking
+- **Process:** Founder identifies and closes first 3-5 strategic partners personally; no formal qualification framework
+- **Risk:** Every partnership depends on founder relationship — no institutional knowledge if founder leaves
+- **Move to next level when:** You have ≥5 active partners and can't personally attend every QBR
+
+### Small Team (1-3 BizDev, Series A-B)
+- **Tooling:** CRM with partner pipeline tracking (Salesforce/HubSpot Partner Relationship Management), shared deal room (DocuSign/PandaDoc), SIMCA scoring spreadsheet
+- **Process:** Formal partner qualification (SIMCA), standardized term sheet templates, quarterly partner reviews, dedicated partner onboarding specialist
+- **Key hire:** First dedicated partnerships operations person (not BizDev — someone managing onboarding, enablement, and reporting)
+- **Move to next level when:** You need coverage across ≥2 partner types (reseller + ISV + referral) OR partner revenue exceeds $2M ARR
+
+### Medium Team (3-8 BizDev, Series B-C)
+- **Tooling:** Partner Relationship Management platform (PartnerStack/Crossbeam/Impartner), partner portal with self-service onboarding, deal registration automation, MDF tracking dashboard
+- **Process:** Partner tier program (Silver/Gold/Platinum) with differentiated benefits, dedicated partner marketing manager, formal partner certification program, annual Partner Summit
+- **Metrics:** Partner-sourced pipeline by tier, time-to-first-deal by partner, partner NPS, MDF ROI by partner
+- **Move to next level when:** You have partners across ≥3 geographies OR partner revenue exceeds $10M ARR
+
+### Enterprise (8+ BizDev, Series C+)
+- **Tooling:** Full PRM suite with API integration to partner CRMs, automated co-selling motion in Salesforce, partner analytics platform (Tableau/Looker), competitive intelligence (Klue/Crayon)
+- **Process:** Dedicated partner type teams (reseller, ISV, marketplace, strategic alliances), formal partner advisory board, annual partner economic modeling, VP-level partner executive sponsors
+- **Metrics:** Partner ecosystem contribution to total ARR, partner retention rate (logo and revenue), partner pipeline velocity vs direct, partner program ROI (total partner revenue / total partner program cost)
+- **Governance:** Monthly partner leadership review, quarterly partner portfolio optimization (rebalance investment), annual partner program redesign based on ecosystem health data
+
+## Error Decoder
+
+<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
+
+| Symptom | Diagnosis | Root Cause | Fix |
+|---------|-----------|------------|-----|
+| Partnership signed, 90 days, zero pipeline | Both sides returned to day jobs after signing; no joint execution plan | No Joint Business Plan with named resources and revenue targets; agreement treated as finish line, not starting line | Schedule emergency JBP workshop within 1 week; define 3 named target accounts, joint value prop, sales deck, and bi-weekly pipeline review; if no pipeline in 60 more days, downgrade partnership tier |
+| Partner claims deal registration but direct rep already working the account | Overlapping territory definitions; no deal registration rules of engagement | No defined named accounts, partner-led, or open territory mapping; CRM doesn't auto-flag conflicts | Implement deal registration with activity requirements (expires after 90 days without logged meeting); define territory rules before Q1; CRM workflow auto-flags conflicts immediately |
+| Reseller agreement signed but partner defaults to selling competitor's product | Partner already sells competing product to majority of their base; your product is option #2 | No competitive overlap audit during partner due diligence; no minimum pipeline commitments | Require partner to disclose competitive portfolio during qualification; add minimum quarterly pipeline commitments; pilot 3 deals before full agreement |
+| MDF $50K spent, 2 leads generated | Marketing dollars given without pre-agreed success metrics or clawback | MDF treated as relationship investment, not performance investment; no measurement criteria | Implement MDF request template requiring: activity description, expected outcomes, measurement criteria, clawback if <50% of target; post-mortem within 30 days of completion |
+| Term sheet emailed to partner, partner claims it's a binding agreement | Verbal agreement documented in email; term sheet lacked NON-BINDING header | No legal review gate before sending term sheets; no standardized NON-BINDING template | Never send a term sheet without NON-BINDING header in first 10 lines; always include legal-advisor review as mandatory gate; use standardized template with binding/non-binding sections clearly marked |
+| Partner champion leaves, integration goes from "strategic" to "legacy" | Single point of contact at partner; no relationship depth | BizDev built relationship with one person, not the organization | Require 3+ contacts per strategic partner; document partner org chart; schedule cross-functional relationship mapping quarterly |
+| Partner program has 50 partners but top 3 drive 85% of revenue | Resources spread evenly across all partners; low performers consuming disproportionate support | No tiered coverage model; no offboarding process for zero-revenue partners | Implement tiered coverage: Platinum = dedicated PAM (1:10-15), Gold = pooled (1:20-30), Silver = self-serve; offboard partners with zero pipeline in 6+ months |
 
 ## Verification
 

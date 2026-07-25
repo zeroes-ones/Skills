@@ -170,7 +170,7 @@ What browser debugging task are you working on?
 └── Not sure what's wrong → "Core Workflow > Phase 0" — systematic triage across all panels
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- Full 105 lines extracted to references/core-workflow-1.md -->
 
 #
@@ -182,7 +182,7 @@ Open DevTools (F12 or Cmd+Option+I). Work through panels in order until you find
 ...
 > 📎 **[references/core-workflow-1.md](references/core-workflow-1.md)** — 105 lines of detailed guidance
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 #
 
 ## Decision Tree 1: Performance Issue Investigation
@@ -392,7 +392,31 @@ Phase 3: Performance and Debugging
 └── Store as global variable: right-click object in Console → "Store as global variable" → temp1
 ```
 
-## Error Recovery
+
+## Best Practices
+
+1. **Start every performance investigation with the Performance panel, not the code.** Record the slow interaction, examine the flame chart, and identify whether the bottleneck is scripting (yellow), rendering (purple), or painting (green). Reading 800 lines of source code and adding `console.log` at random points takes 3 hours; a Performance recording takes 30 seconds and shows you exactly which function is slow. DevTools-first debugging is faster by an order of magnitude.
+
+2. **Analyze the Network waterfall before optimizing assets.** Sort by waterfall, not by size. Look for: render-blocking resources (CSS/JS at the top of `<head>`), long TTFB (>500ms indicates a backend issue, not a frontend one), sequential request chains (waterfall stair-step pattern), and resources loading before the ones they depend on. Export as HAR and share with backend teams for TTFB/latency issues.
+
+3. **Use the Memory panel's allocation timeline to find leaks, not heap snapshots alone.** Take a baseline heap snapshot, perform the suspect operation, take another, and compare. But allocation timelines are more powerful — record while the leak happens and the timeline shows you exactly which functions allocated the objects that were never freed. Filter by "Objects allocated between X and Y" and sort by retained size.
+
+4. **Monitor the Console panel proactively — errors cascade.** Open DevTools, enable "Preserve log", and reproduce the bug. Red errors (uncaught exceptions) are your starting point. But also check yellow warnings (`[Deprecation]`, `[Intervention]`) — deprecation warnings mean your code will break in a future browser version. Fix errors from the top down; the first error often causes every subsequent error.
+
+5. **Run Coverage analysis before removing any code.** Open the Coverage panel (Cmd+Shift+P → "Show Coverage"), start recording, and interact with the page. The panel shows how much of each JS/CSS file is unused (red bars). Focus on files with >80% unused bytes and large absolute sizes (>50KB). Coverage tells you what's actually dead, not what looks dead. Combined with source maps, it identifies specific functions that never execute.
+
+6. **Audit with Lighthouse for holistic quality scores.** Run Lighthouse (Audits panel) in incognito mode with no extensions for a clean baseline. Check all four categories: Performance (LCP, FCP, TBT, CLS, SI), Accessibility, Best Practices, and SEO. Set Lighthouse CI budgets in the pipeline and block deploys on score drops. Lighthouse won't replace panel-by-panel debugging, but it surfaces regressions you'd miss.
+
+7. **Inspect frame rendering with the Rendering panel.** Enable "Paint flashing" to see what's repainting (green flashes), "Layout Shift Regions" to see CLS culprits (blue rectangles), "Layer borders" to see compositing layers (orange borders), and "FPS meter" for real-time frame rate. If the entire page flashes green on every scroll, you have a layout thrashing problem — batched reads and writes are the fix.
+
+8. **Inspect Service Workers, Web Workers, and Worklets in the Application panel.** The Application panel's "Service Workers" section shows registration status, update lifecycle, and cache contents. For Web Workers and Worklets, use the Sources panel's Threads list to pause and debug worker code. Workers have their own console — click the worker name in the Console panel's context selector. Worker errors are silent unless you're watching the right context.
+
+9. **Test on throttled networks and slowed CPUs by default.** Set Network throttle to "Slow 3G" and CPU throttle to "4x slowdown" in the Performance panel. Every page you debug under load conditions reveals bottlenecks invisible on localhost + gigabit. Most desktop-developed apps fail the "can I complete the primary flow in under 30 seconds on Slow 3G" test — fix the top 3 bottlenecks before the first user hits them on a 4-year-old Android with spotty LTE.
+
+10. **Never leave `debugger;` statements, disabled cache, or throttling enabled when shipping.** Before closing DevTools, reset: remove `debugger;` breakpoints (Sources → Breakpoints pane → right-click → "Remove all breakpoints"), uncheck "Disable cache" (Network panel), reset throttling to "No throttling". A `debugger;` in production freezes the page for any user with DevTools open (including your support team). A disabled-cache production build wastes CDN bandwidth and regresses LCP.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -483,6 +507,27 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+
+## Production Checklist **(STANDARD)**
+
+Before closing DevTools and shipping a fix, verify every item:
+
+- [ ] **Root cause identified using the appropriate DevTools panel.** Evidence captured (screenshot, HAR, Performance profile, or heap snapshot) attached to bug ticket. The bug is understood at the mechanism level, not just "the symptom disappeared."
+- [ ] **Console panel: zero red errors (uncaught exceptions) remain.** Yellow warnings reviewed — `[Deprecation]` and `[Intervention]` warnings either addressed or documented with browser version caveat. Console "Preserve log" verified across page navigation.
+- [ ] **Network panel: no 4xx or 5xx requests on critical flows.** All requests return expected status codes. TTFB < 500ms for primary API calls. Render-blocking resources identified and deferred/inlined. Critical-path requests prioritized.
+- [ ] **Performance panel: LCP < 2.5s, TBT < 200ms, CLS < 0.1.** Before/after Performance profiles compared. No regression in any Core Web Vital. Flame chart shows no single task > 50ms (long task). No forced synchronous layout (purple bars inside yellow).
+- [ ] **Memory panel: no leak introduced.** Heap comparison before/after fix shows stable memory. Allocation timeline shows no unretained object growth over 30 seconds of idle usage. No detached DOM nodes accumulating.
+- [ ] **Coverage panel checked for unused code.** No JS/CSS files with >80% unused bytes AND >50KB absolute size shipped. Code-splitting verified: route-level chunks load only when needed.
+- [ ] **Accessibility panel: zero new violations vs baseline.** axe DevTools scan passes. Accessible names present on all interactive elements. Focus order follows visual order. `[aria-*]` attributes have valid values.
+- [ ] **Mobile: tested on at least one real device, not just emulation.** Verified: touch targets ≥ 44x44dp, viewport meta tag correct, no horizontal scroll on narrow viewports, font sizes legible without zoom. Emulation verified against real device — discrepancies documented.
+- [ ] **Throttling reset before closing DevTools.** Network: "No throttling." CPU: "No throttling." Cache: "Disable cache" unchecked. All breakpoints removed. No `debugger;` statements in shipping code.
+- [ ] **Lighthouse audit run in incognito with no extensions.** All four categories (Performance, Accessibility, Best Practices, SEO) at acceptable scores. No regression from previous audit. Budget thresholds enforced.
+- [ ] **HAR file (if shared) stripped of sensitive headers.** `Authorization`, `Cookie`, and `X-API-Key` values replaced with `[REDACTED]` before sharing. HAR file not committed to repository.
+- [ ] **Third-party scripts audited.** Render-blocking third-party scripts identified. Non-critical third-party scripts deferred or loaded async. Third-party script performance impact quantified (request count, transfer size, main-thread blocking time).
+- [ ] **Frame rendering verified with Rendering panel.** Paint flashing shows no unnecessary repaints. Layout Shift Regions shows no unexpected CLS. FPS meter confirms 60fps during animations and scrolling. Layer borders show compositing working as expected.
+- [ ] **Service Workers / Web Workers inspected in Application panel.** Worker registration status confirmed. Cache storage contents reviewed — no stale or incorrect cached responses. Worker error console checked (separate context from main thread).
+
+
 ## What Good Looks Like
 
 **Before — DevTools-free debugging:**
@@ -527,7 +572,7 @@ Dev: Verification: record new Performance profile → 340ms total (8x improvemen
 | "The Accessibility panel shows zero violations — we're accessible." | Automated tools catch ~30% of WCAG issues. They miss keyboard traps, focus order violations, meaningful alt text quality, and screen reader announcement errors. Cost: **$20K-$100K** in accessibility lawsuit risk from issues that only manifest on real assistive technology. |
 | "I disabled cache for debugging — the production build will be fine." | You spent the entire debugging session with `Disable cache` checked, so you added cache-busting query params everywhere. In production, users get zero cache benefit and LCP regresses. Cost: **$5K-$15K/month** in excess CDN bandwidth and slower user experience. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Debugging with cache disabled by default, then shipping a build that assumes cache is disabled.** The `Disable cache` checkbox is on in your DevTools, so you add cache-busting query params to every request. In production, users would benefit from caching but your build prevents it. **Total cost: $5,000-$15,000/month in excess CDN bandwidth and slower user experience (LCP regressions).**
 - **Using `console.log(JSON.stringify(largeObject))` in a hot path.** `JSON.stringify` on a large object in a render loop can block the main thread for 50-200ms per call, creating the jank you are trying to debug. Use `console.log('checkpoint', performance.now())` for timing, and `copy(obj)` for inspecting objects when paused at a breakpoint. **Total cost: $2,000-$8,000 in wasted debugging time chasing phantom jank caused by the debugging code itself.**
@@ -562,6 +607,24 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+
+### Scale Depth
+
+#### Solo Developer
+Open DevTools when something breaks. Use Console for errors, Network for failed requests, Elements for CSS issues. No systematic profiling. Performance checked via Lighthouse occasionally. Memory investigated only when crashes occur. Keyboard testing manual and ad-hoc.
+
+#### Small Team (2-10)
+Systematic DevTools triage (Console → Network → Performance) for every reported bug. Performance profiles saved and compared before/after fixes. Lighthouse CI run on PRs with advisory budgets. HAR files exported for backend-reported latency issues. Mobile emulation used before every release. Coverage panel checked quarterly for dead code.
+
+#### Medium Team (10-50)
+Performance budgets enforced in CI (LCP < 2.5s, TBT < 200ms, CLS < 0.1). Memory leak regression tests automated in E2E suite. Production Real User Monitoring (RUM) correlated with lab data. HAR files archived for postmortems. Third-party script performance measured monthly. Web Vitals dashboard with per-route scoring. Dedicated performance sprint per quarter.
+
+#### Enterprise (50+)
+Lab data (Lighthouse CI, WebPageTest) + field data (CrUX, RUM) combined for holistic performance governance. Performance budgets enforced at PR, release, and production monitoring levels. Synthetic monitoring on real devices across geographies. Dedicated performance engineering team. A/B test every major change against performance baseline. SLI/SLO defined for Core Web Vitals (e.g., 95th percentile LCP < 2.5s). Performance regression = incident (same severity as error regression).
+
+**Transition Triggers:** Scale up when: (a) bug reports take > 30 min average to triage → Small, (b) LCP exceeds 2.5s in production RUM → Medium, (c) page performance directly impacts revenue (ecommerce, ad-supported) → Enterprise, (d) user base crosses 1M or revenue > $50M → Enterprise.
+
 
 ## References
 

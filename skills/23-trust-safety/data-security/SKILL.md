@@ -190,6 +190,9 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+
+<!-- STANDARD: 5min -->
+
 <!-- Full 43 lines extracted to references/core-workflow.md -->
 
 Execute these phases in order. Each phase gates the next.
@@ -200,6 +203,8 @@ Execute these phases in order. Each phase gates the next.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 43 lines of detailed guidance
 
 ## Decision Trees
+
+<!-- QUICK: 30s -->
 
 #
 
@@ -295,6 +300,8 @@ Database hardening per CIS Benchmarks
 ```
 
 ## Error Recovery
+
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -417,7 +424,31 @@ Before beginning a new phase, verify:
 | 6 | **Classification Deep Dive**: Pick your largest database. Classify every column. Identify columns classified as INTERNAL that contain RESTRICTED data (re-identification risk). Fix the classification. | Data classification, re-identification risk | 45 min | Intermediate |
 | 7 | **Cross-Border TIA**: Pick one cross-border data flow (e.g., EU → US analytics). Conduct a full Transfer Impact Assessment: map flows, assess destination laws, identify supplementary measures, document findings. | Cross-border compliance, TIA methodology | 60 min | Expert |
 
-## Gotchas
+## Best Practices
+
+<!-- STANDARD: 3min -->
+
+1. **Classify data at creation time, not retroactively.** Every data field must be classified (Public/Internal/Confidential/Restricted) before protection controls are applied. Use automated tagging (AWS Macie, Azure Purview, GCP Cloud DLP) with CI gates: schema changes without classification labels fail the build. Retroactive classification costs 10x more and leaves protection gaps during the unclassified window.
+
+2. **Implement defense-in-depth encryption.** Never rely on a single encryption layer. Apply: TLS 1.3 for data in transit, AES-256-GCM with CMK for data at rest, column-level encryption for PII/PHI/PCI fields, and application-level encryption for RESTRICTED data. Provider-managed encryption protects against physical theft only — customer-managed keys (CMK) are required for CONFIDENTIAL+ data.
+
+3. **Automate key rotation with 90-day maximum.** Every encryption key must rotate automatically. Unrotated keys turn a 30-day exposure window into a permanent breach. Track key versions to map which data was encrypted with which key. Destroy old key versions when associated data exceeds retention period. Use HSM-backed KMS — never store keys in config files, environment variables, or source code.
+
+4. **Deploy DLP with phased enforcement.** Start with 14 days monitor-only to baseline normal patterns. Enable blocking for external data transfers when FPR < 10%. Enable internal blocking for RESTRICTED data. Never exceed 30 days in monitor-only without executive sign-off. Eternal monitor-only DLP is security theater that wastes $100K-$500K annually in licensing.
+
+5. **Mask production data in non-production environments.** Using real PII/PHI/PCI in dev/test/staging triggers mandatory breach notification under GDPR Art. 33-34, HIPAA Breach Notification Rule, and PCI DSS Requirement 3. Implement static data masking as a prerequisite for non-production data refreshes. Use synthetic data generation for scale testing.
+
+6. **Document cross-border data transfers with Transfer Impact Assessments.** Under Schrems II, every EU-to-third-country data transfer requires: SCCs (2021 version), a Transfer Impact Assessment evaluating recipient country laws, and supplementary technical measures (CMK encryption, pseudonymization, split processing) where TIA identifies gaps. Review TIAs annually — frameworks like EU-US DPF require ongoing certification.
+
+7. **Implement immutable audit logging for all PII/PHI accesses.** Every access to sensitive data must be logged with: user identity, timestamp (NTP-synchronized), purpose of access, and data accessed. Audit logs must be tamper-proof (WORM storage, chain-of-custody). Retain audit logs per regulatory requirements: PCI DSS (12 months), HIPAA (6 years), GDPR (duration of processing + limitation period).
+
+8. **Enforce data retention with automated TTL policies.** Every data category must have a documented retention period with automated enforcement. Data kept beyond its retention period is discoverable in e-discovery and increases legal exposure. Implement: per-classification retention schedules, automated hard-delete at expiration, crypto-shredding for CONFIDENTIAL+ data, and quarterly retention compliance audits.
+
+9. **Never expose databases to public endpoints.** A database with a public IP and default credentials is discoverable within hours by automated scanners — 58% of cloud data breaches originate from misconfigured storage. Bind databases to private subnets only. Use VPC/service endpoints. Never assign public IPs to database instances. Implement network-layer access controls (security groups, firewalls) as defense-in-depth.
+
+10. **Test backup restoration annually without production keys.** Verify that backups are: (a) encrypted, (b) restorable only with KMS keys, (c) excluded from deletion requests per documented backup retention policy. A backup that can be restored without keys is an unprotected data store. A backup that re-introduces "deleted" data during restoration is a GDPR/CCPA violation.
+
+## Anti-Patterns
 
 #
 
@@ -478,6 +509,12 @@ Before beginning a new phase, verify:
 | 11 | Test backup encryption by restoring without KMS key | Restoration fails, backup requires KMS key |
 | 12 | Verify access control for read-only users | Read-only role has no access to PII-containing tables |
 
+## References
+
+- [OWASP Data Protection Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Data_Protection_Cheat_Sheet.html)
+- [NIST Data Security Framework](https://www.nist.gov/cyberframework)
+- `scripts/references/closed-loop-feedback.md`
+
 ## Verification Guardrails
 
 Before delivering work, the agent must verify:
@@ -491,7 +528,64 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
-## References
+## Production Checklist
+
+<!-- STANDARD: 5min -->
+
+| # | Item | Criticality | Validation |
+|---|------|-------------|------------|
+| 1 | Data discovery scan completed across all data stores — no unclassified sensitive data | CRITICAL | Run Macie/Purview/Cloud DLP scan; verify 100% of data stores have classification metadata |
+| 2 | All data fields classified (Public/Internal/Confidential/Restricted) with automated tagging at creation | CRITICAL | Audit 100 random fields across databases; verify each has classification tag |
+| 3 | TLS 1.3 enforced on all database connections, API endpoints, and inter-service communication | CRITICAL | Run TLS scan; verify zero TLS < 1.2 connections; verify certificate validity > 30 days |
+| 4 | AES-256-GCM encryption with CMK for all CONFIDENTIAL+ data at rest | CRITICAL | Query KMS for encryption key on each data store; verify key type is CMK |
+| 5 | Column-level encryption applied to all PII/PHI/PCI columns | HIGH | Query database schema; verify encryption function applied to each sensitive column |
+| 6 | KMS key rotation enabled with ≤ 90-day rotation period for all data encryption keys | HIGH | Query KMS key rotation config; verify last rotation within 90 days |
+| 7 | DLP blocking rules active for external data transfers with FPR < 5% | HIGH | Test DLP with 100 positive + 1000 negative samples; measure FPR per rule |
+| 8 | Static data masking applied to all non-production databases — zero real PII/PHI/PCI in dev/staging | CRITICAL | Query 100 rows in non-prod; verify all sensitive columns match mask pattern |
+| 9 | SCCs executed for all cross-border EU data transfers with TIA signed within 12 months | CRITICAL | Audit cross-border data flow diagram; verify SCC + TIA exists per flow |
+| 10 | Database instances bound to private subnets only — zero public IPs on database servers | CRITICAL | Network scan for database ports on public IPs; verify all DBs in private subnets |
+| 11 | Audit logging enabled for all PII/PHI table accesses with user identity + purpose + timestamp | HIGH | Query audit log for last 24h; verify all PII table accesses are logged with required fields |
+| 12 | Automated data retention enforcement active — zero records beyond retention period | HIGH | Query for records with `created_at` beyond retention period; verify zero results |
+| 13 | Backup restoration tested — encryption verified, KMS key required, deletion registry checked | HIGH | Attempt backup restore without KMS key; verify failure. Restore with key; verify deletion registry excludes deleted user data |
+| 14 | Database hardening applied — PUBLIC role has no access to dangerous functions, default accounts removed | HIGH | Query database roles/permissions; verify PUBLIC role grants are minimal |
+| 15 | No hardcoded encryption keys, passwords, or secrets in source code, config files, or environment variables | CRITICAL | Run secret scanner (trufflehog, git-secrets) on entire repo; verify zero findings |
+
+## Scale Depth
+
+<!-- STANDARD: 2min -->
+
+#### Solo Developer
+- **Minimum:** Classify data manually with a spreadsheet. Enable provider-managed encryption at rest. Use TLS for all connections. Implement basic audit logging to a structured store.
+- **Cost:** ~$0-50/month (cloud provider defaults + basic logging).
+- **Risk:** No automated classification, no CMK, no DLP, no cross-border transfer documentation.
+
+#### Small Team (2-10 engineers)
+- **Add:** Automated sensitive data discovery (Macie/Purview). CMK with 90-day rotation. Static data masking for non-prod. Basic DLP in monitor-only mode. Cross-border SCCs documented.
+- **Cost:** ~$500-3000/month (KMS API costs + DLP licensing + classification tooling).
+- **Coverage:** PCI DSS/HIPAA baseline compliance, GDPR Article 32 security requirements met.
+
+#### Medium Org (10-50 engineers)
+- **Add:** Full DLP with blocking for external transfers. Column-level encryption for all PII/PHI. Database activity monitoring (Guardium/Imperva). Automated retention enforcement. Formal TIA process. SOC 2 Type II coverage for data protection controls.
+- **Cost:** ~$5000-20000/month (enterprise DLP + DAM + KMS at scale + compliance overhead).
+- **Coverage:** Multi-framework compliance (PCI DSS, HIPAA, GDPR, SOC 2), automated enforcement, audit-ready.
+
+#### Enterprise (50+ engineers)
+- **Add:** Multi-cloud KMS with HSM backing. Real-time data access anomaly detection. Cryptographic shredding for lifecycle management. Privacy-preserving analytics (differential privacy on query interface). Global data residency automation. AI-driven classification with continuous learning. Dedicated data security engineering team.
+- **Cost:** ~$50000-200000+/month (global KMS infrastructure + ML classification + dedicated team).
+- **Coverage:** Zero-trust data protection, regulatory compliance automation across 50+ jurisdictions, real-time breach prevention.
+
+## Error Decoder
+
+<!-- QUICK: 30s -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| GDPR regulator fines €500K after DSAR response missed data in Redis cache and S3 analytics bucket | DSAR pipeline only queried primary PostgreSQL database. Redis sessions, CDN logs, S3 analytics exports, and 4 microservice databases were never inventoried | Build data catalog FIRST: register every data store with data categories and query API. DSAR pipeline queries the catalog, not specific databases. Test with synthetic user having data in all 15 stores | "We forgot about that database" is the #1 DSAR failure mode. 40-60% of user data lives outside the primary database |
+| Production database exposed to internet for 8 hours after Terraform apply removed security group rule | Public IP auto-assigned by cloud provider default settings. Security group change in same Terraform run removed the ingress restriction. Automated scanners found it in 2 hours | Set `auto_assign_public_ip = false` at VPC/subnet level. Add AWS Config rule blocking public IP on RDS/Redshift. Add pre-apply Terraform policy check rejecting public IP assignments | Database public endpoints are the #1 cloud breach vector. Prevention must be at the infrastructure policy level, not the configuration level — configurations drift |
+| PCI DSS audit failed because encryption key rotation was "enabled" but last rotation was 14 months ago | KMS had automatic rotation enabled but the rotation job was silently failing due to IAM permission change. No monitoring on rotation success — only on rotation configuration | Add CloudWatch alarm on KMS key age > 100 days. Add canary test that creates a key, verifies rotation within 90 days, and alerts on failure. Monitor rotation success, not just rotation configuration | Configuration ≠ enforcement. Every automated control needs a liveness check that verifies the control is actually operating |
+| Non-production database breach triggered full GDPR notification because production PII was in staging | Developers refreshed staging from production backup without masking. 3.2M customer records with full PII exposed in staging environment with weaker access controls | Implement static data masking as a prerequisite for non-prod refresh. Add pre-refresh hook that scans for PII patterns and blocks refresh if found. Use synthetic data for scale testing | Production data in non-production environments is the most common "unknown" breach. It's not a best-practice violation — it's a regulatory breach requiring notification |
+| Format-preserving masked dataset shared with analytics vendor was re-identified within 48 hours | Deterministic HMAC masking on SSN preserved uniqueness. Vendor joined masked data with public voter registration database using ZIP + DOB + gender as join key. k-anonymity = 1 for 87% of records | Use k-anonymity ≥ 11 with l-diversity ≥ 3 for shared datasets. Apply differential privacy (ε ≤ 1.0) on aggregate queries. Never share deterministically masked identifiers with external parties | Masking that preserves uniqueness is pseudonymization, not anonymization. Assume any external recipient will attempt re-identification — design for that threat model |
+| Cross-border data transfer fined €1.2B after Schrems II ruling invalidated Privacy Shield | Company relied on invalidated Privacy Shield framework for EU-US transfers. No SCCs executed. No TIA conducted. Continued transfers for 18 months post-ruling | Execute SCCs (2021 modules) for all cross-border flows. Conduct TIA evaluating FISA 702/EO 12333 impact. Apply supplementary measures: CMK encryption with keys held outside US jurisdiction, pseudonymization, split processing | Cross-border compliance is not static. Framework invalidation (Schrems II, DPF challenges) can happen at any time. Maintain a transfer mechanism inventory with 90-day review cadence |
 
 #
 

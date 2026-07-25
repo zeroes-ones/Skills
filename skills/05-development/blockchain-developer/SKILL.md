@@ -76,6 +76,27 @@ You are a blockchain engineer who understands that smart contract development is
 *   **Protocol design (full session):** Architect a DeFi protocol: tokenomics, contract architecture, upgrade strategy, oracle integration, testing plan, deployment script.
 *   **Security audit (multi-session):** Full security review: Slither, Mythril, manual code review, formal verification of invariants, economic attack simulation, audit report.
 
+| Level | Blockchain Developer Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Implements ERC-20/721 from OpenZeppelin templates. Learns Solidity syntax, Remix IDE, MetaMask integration. Needs security review on every commit. |
+| **L2 — Practitioner** | Ships audited contracts independently. Implements DeFi primitives (staking, vesting). Uses Foundry for testing, fork-testing before deploy. Gas-optimized code is routine. |
+| **L3 — Senior** | Protocol architecture: tokenomics design, upgrade strategies, oracle selection, cross-chain bridge patterns. Formal verification of critical invariants. Audit preparation and remediation. |
+| **L4 — Staff** | Multi-protocol ecosystem design. DAO governance frameworks. MEV-resistant architecture. Incident response planning across $100M+ TVL protocols. |
+| **L5 — Principal** | Novel consensus or cryptographic primitives adopted industry-wide. EIP author. Defines security standards adopted by audit firms. Shapes protocol category (lending, DEX, bridging) conventions. |
+
+### Solo / Small / Medium / Enterprise
+
+| Scale | Challenge | Solution |
+|---|---|---|
+| **Solo dev** | No audit budget; single point of failure | OpenZeppelin contracts + Slither + simple test suite. Multi-sig with trusted friends. Bug bounty on Immunefi before mainnet. |
+| **Small team (2-10)** | Audit costs exceed development budget | Code review by 2+ engineers; fuzz testing with Foundry; mainnet fork testing. External audit for contracts holding >$100K TVL. |
+| **Medium (10-50)** | Protocol complexity; multiple contract upgrades | Dedicated security engineer; invariant testing in CI; timelocked multi-sig governance. Audit for every deployment. Incident response plan with contact roster. |
+| **Enterprise (50+)** | $1B+ TVL; regulatory scrutiny; 24/7 monitoring | Formal verification of ALL invariants with Certora; internal red team; multiple audit firms; Tenderly real-time monitoring; dedicated incident response team with pager rotation. |
+
+**Transition Triggers:** When TVL exceeds $100K → external audit. When TVL exceeds $1M → multi-sig + timelock + bug bounty. When TVL exceeds $10M → formal verification + continuous monitoring + incident response plan. When regulatory inquiry received → dedicated compliance counsel.
+
+**Usage**: Say "as an L3 blockchain developer, audit this contract for..." Default: **L2**.
+
 ## When to Use
 
 Use blockchain-developer when building on-chain applications and infrastructure.
@@ -102,7 +123,7 @@ What blockchain task do you need?
 |-- Choosing a blockchain platform → "Decision Trees: Platform Selection"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Smart Contract Development
 
@@ -113,7 +134,20 @@ What blockchain task do you need?
 5. Security: Slither static analysis, internal review, external audit for value-bearing contracts, formal verification for critical invariants.
 6. Deploy: Testnet → testnet usage period → mainnet with timelock or multi-sig → verify on Etherscan → monitor.
 
-## Decision Trees
+## Best Practices
+
+1. **CEI (Checks-Effects-Interactions) pattern for every external call** — Update contract state BEFORE calling external contracts. Use OpenZeppelin `ReentrancyGuard` modifier on functions that transfer assets. The 2016 DAO hack ($60M) was a reentrancy attack from state updated after external transfer.
+2. **Use `SafeERC20` for all token interactions, never raw `IERC20.transfer()`** — USDT, BNB, and other legacy tokens don't return `bool` on `transfer()`. OpenZeppelin's `safeTransfer` wraps both returning and non-returning variants. A contract that calls `require(token.transfer(...))` fails silently on USDT.
+3. **Storage is the most expensive resource — pack variables and use mappings over arrays** — `SSTORE` costs 20,000 gas (cold) vs 2,900 gas (warm). Pack multiple `uint128` into a single `uint256` slot. For lookup-heavy access patterns, `mapping(key => value)` is O(1) gas; `array` iteration is O(n) and can exceed block gas limits at scale.
+4. **TWAP or Chainlink oracle for price feeds, never single-block DEX spot price** — Flash loans enable $100M attacks in one atomic transaction: borrow $100M → manipulate spot price → exploit protocol → repay loan. Use Chainlink `latestRoundData()` with staleness threshold, or Uniswap TWAP with ≥ 30min window.
+5. **Upgradeable contracts (UUPS proxy) initialize via `initializer` modifier, not constructor** — Proxy patterns delegate to implementation contracts; constructors run only in deployment context. Always include `_disableInitializers()` in the implementation constructor to prevent uninitialized implementation attacks.
+6. **Multi-sig admin (Gnosis Safe, 3-of-5+) with timelock for protocol governance** — NEVER use a single EOA as owner or admin. A compromised developer laptop with a single admin key = all funds drained in minutes. Timelock of 48+ hours gives users time to exit before an upgrade executes.
+7. **`msg.sender` for authorization, never `tx.origin`** — `tx.origin` is the original EOA that initiated the transaction chain, not the immediate caller. A phishing contract that tricks a user into calling it can then call your contract with `tx.origin == victim`. `msg.sender` is always the direct caller.
+8. **Calldata over memory for external function parameters** — `external` function parameters declared `calldata` are read-only and don't copy to memory, saving 200-500 gas per call. Arrays and structs passed to external functions should always use `calldata` unless modification is needed.
+9. **Fuzz testing with Foundry `testFuzz_` for invariant verification** — `function testFuzz_Transfer(uint256 amount, address to)` runs thousands of random inputs. Combine with `assume(to != address(0))` to skip invalid cases. A fuzz test that breaks an invariant catches edge cases unit tests miss.
+10. **Mainnet fork testing before every deployment** — Use `forge test --fork-url $ETH_RPC_URL` to test against actual mainnet state. Test interactions with real Uniswap pools, Chainlink oracles, and token contracts. A contract that passes on a local anvil node may fail on mainnet due to real-world token quirks.
+
+## Decision Trees **(QUICK)**
 
 ### 1. Platform Selection
 
@@ -288,7 +322,7 @@ How to structure a full-stack dApp:
 ```
 
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -383,7 +417,7 @@ Before beginning a new phase, verify:
 | External call before state update (reentrancy vulnerable) | CEI pattern: check → update state → external call + ReentrancyGuard | CEI + ReentrancyGuard + pull-over-push + formal verification of "no reentrancy" invariant |
 | `tx.origin` for authorization | `msg.sender` with proper access control | Role-based access control (RBAC) + multi-sig for admin + timelock on critical functions |
 
-## Gotchas
+## Anti-Patterns
 
 - **Smart contract hacks are a $3.8B/year industry (2023). The average exploit takes 5 minutes to execute and 5 months to discover.** Once exploited, funds are gone — there is no reversing blockchain transactions. **The ~$600M Ronin bridge hack happened because 5 of 9 validator keys were compromised through a social engineering attack on a single employee.** Security is only as strong as the weakest link. Beyond code: multi-sig keys in hardware wallets in geographically distributed locations. Incident response plan tested quarterly.
 - **A single unchecked external call can drain the entire contract. The Euler Finance hack ($197M) exploited a function intended for donations — the attacker used it to manipulate the protocol's debt and collateral tracking.** Every public/external function is an attack surface. The attacker's mindset: "What happens if I call this function at the wrong time, with the wrong parameters, in the wrong order, repeatedly?" If you can't answer that for every function, don't deploy.
@@ -423,6 +457,27 @@ Before beginning a new phase, verify:
 - [ ] Oracle manipulation protected: TWAP or Chainlink, not single-block spot price
 - [ ] Upgrade mechanism (if any) timelocked with multi-sig governance
 - [ ] Audit completed by reputable firm for value-bearing contracts
+
+## Production Checklist **(DEEP)**
+
+- [ ] CEI pattern on every external call: state updated BEFORE `transfer()`, `call()`, `delegatecall()`
+- [ ] `ReentrancyGuard` on all functions that transfer value or call external contracts
+- [ ] `SafeERC20` for every token interaction; no raw `IERC20(token).transfer()`
+- [ ] Solidity ≥ 0.8.24 (latest stable); `using Solady for ...` where gas savings matter
+- [ ] `msg.sender` for all authorization checks; zero uses of `tx.origin`
+- [ ] Admin keys in Gnosis Safe with ≥ 3-of-5 signers; timelock ≥ 48 hours on upgrades
+- [ ] Price oracle: Chainlink `latestRoundData()` with `answeredInRound > 0` and staleness check, or TWAP ≥ 30min
+- [ ] No unbounded loops — every loop has a maximum iteration limit or uses pull-over-push pattern
+- [ ] 100% branch coverage in Foundry/Hardhat tests; fuzz tests with `testFuzz_` for all public functions
+- [ ] Invariant tests: "contract balance ≥ sum of all user deposits" — verified via Foundry invariant testing
+- [ ] Slither zero high-severity findings; Mythril zero critical findings
+- [ ] Mainnet fork tests passing: `forge test --fork-url $ETH_RPC_URL --fork-block-number <recent>`
+- [ ] Deployment script idempotent: can be re-run without side effects
+- [ ] `fallback()` and `receive()` functions restricted or removed unless intentional ETH receiver
+- [ ] Events emitted for all state-changing operations; indexed parameters on filterable fields
+- [ ] Test coverage for all `require`/`revert` paths, including edge cases (zero amounts, address(0), overflow boundaries)
+- [ ] Initialization: `_disableInitializers()` in implementation constructor (UUPS); `initializer` modifier on `initialize()`
+- [ ] Bug bounty live on Immunefi with scope document and rewards table before mainnet announcement
 
 ## Verification Guardrails
 

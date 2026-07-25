@@ -159,6 +159,33 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 
 **Usage**: Say "as an L3 CI/CD engineer, design the delivery pipeline for..." Default: **L2** (service-level CI/CD, independent execution).
 
+### Scale Depth
+
+### Solo (1 person, 0-100 users)
+- **What changes**: CI/CD = `git push` to Vercel/Netlify/Railway. No pipeline definition needed. Deploy on push to main. Rollback = `git revert` + push.
+- **What to skip**: Custom CI pipeline, test stages, build caching, environment promotion, secrets management, preview deployments, artifact management.
+- **Coordination**: You push, platform deploys. Done. **Cost**: $0-50/month.
+
+### Small Team (2-10 people, 100-10K users)
+- **What changes**: GitHub Actions or GitLab CI. Stages: lint → test → build → deploy. Caching for dependencies. Environment separation (staging + production). Secrets via CI secrets manager. Preview deployments per PR. Notifications on failure.
+- **What to skip**: Matrix builds, blue-green/canary deployments, progressive delivery, SLSA provenance, SBOM generation, multi-cloud pipelines.
+- **Coordination**: Pipeline changes reviewed in PR. Deploy announcements in Slack. Weekly pipeline health check. **Cost**: $100-500/month.
+
+### Medium Team (10-50 people, 10K-1M users)
+- **What changes**: Full pipeline: lint → test → build → scan → deploy → verify. Matrix builds for multi-platform. Blue-green or canary deployments. Security scanning (SAST + dependency + container). Path filters in monorepo. Environment promotion (dev → staging → prod). Artifact promotion (build once, deploy many). Concurrency groups.
+- **What to skip**: Multi-cloud pipelines, progressive delivery (automated canary analysis), full SLSA Level 3, SBOM for every build.
+- **Coordination**: Pipeline team or DevOps owner. Bi-weekly pipeline review. Deploy calendar for coordinated releases. **Cost**: $1,000-5,000/month.
+
+### Enterprise (50+ people, 1M+ users)
+- **What changes**: Pipeline platform team. Self-service pipeline templates. Multi-cloud deployment pipelines. Progressive delivery with automated rollback. Full security gates (SAST + DAST + SCA + IAC scan + image scan). SLSA Level 3 provenance. SBOM generation. Compliance gates (SOC 2, PCI DSS). Pipeline metrics (DORA). Pipeline cost optimization.
+- **What's full production**: Internal developer platform. Pipeline catalog. Automated canary analysis. Deployment analytics. Pipeline as product.
+- **Coordination**: Pipeline platform team weekly. Monthly pipeline review board. Quarterly DORA metrics review. **Cost**: $10,000-50,000+/month.
+
+### Transition Triggers
+- **Solo → Small**: Second developer joins. Need automated tests before deploy.
+- **Small → Medium**: 3+ teams. Deploy coordination overhead. First security incident from deployed code.
+- **Medium → Enterprise**: 10+ teams. Compliance requirements. >50 deploys/day.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -172,7 +199,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 - Implementing semantic release with conventional commits enforcement and changelog automation
 - Measuring and improving DORA metrics: deployment frequency, lead time, MTTR, change failure rate
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### CI Platform Selection
@@ -307,7 +334,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 ```
 **When to choose Trunk-based:** >5 engineers, deploy >daily, DORA elite target, feature flag infrastructure in place. **When to choose GitFlow:** <5 engineers, deploy <weekly, no feature flag system, need explicit release stabilization window.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Pipeline Architecture Design
@@ -406,7 +433,21 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Staged pipelines — fast checks first.** Lint → type-check → unit tests (≤5 min) run on every push. Integration → E2E → security scans run after fast checks pass. Path-based filtering skips irrelevant jobs. Developers get feedback in under 5 minutes.
+2. **Cache aggressively, invalidate precisely.** Dependency caches keyed on lockfile hash. Docker BuildKit with `mode=max` for layer caching. Test result caches with selective re-run on changed packages. Cache-warm schedules prevent cold-start slowness.
+3. **Build once, deploy many.** A single CI build produces an immutable artifact promoted through environments. Same SHA-tagged container image, same tarball, same binary. Never rebuild between staging and production.
+4. **OIDC for cloud auth, never static credentials.** GitHub Actions OIDC → AWS IAM / GCP WIF. No long-lived access keys in pipeline config. Tokens are short-lived, scoped, and auditable per-run.
+5. **Security gates are blocking, not advisory.** SAST (CodeQL/Semgrep), SCA (dependency scanning), container scanning (Trivy/Grype) must pass CRITICAL/HIGH thresholds. Non-blocking security scanners produce findings nobody reads.
+6. **Concurrency groups prevent race conditions.** `concurrency: deploy-production` with `cancel-in-progress: false` serializes deployments. Without it, 3 parallel deploys race to overwrite each other and the last one wins unpredictably.
+7. **Artifact lifecycle and registry cleanup.** ECR lifecycle rules keep last N builds per branch, delete images >90 days old. Orphaned artifacts cost money and accrue unpatched CVEs. `docker system prune` doesn't fix registry sprawl.
+8. **Ephemeral preview environments per PR.** Full-stack isolated environment provisioned on PR open, torn down on merge/close. Eliminates "works on my machine" and staging merge conflicts simultaneously.
+9. **Immutable tags with digests.** Pin production deployments by SHA256 digest. `:latest` is a mutable pointer — what runs today isn't what ran yesterday. CI should auto-replace tags with digests in deployment manifests.
+10. **Pipeline metrics drive improvement.** Measure DORA metrics weekly: deployment frequency, lead time for changes, MTTR, change failure rate. If you don't measure it, you won't improve it. Pipeline duration SLA enforced by team agreement.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -496,6 +537,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+1. [ ] **Pipeline triggers correctly on all expected events** — push to main, pull request open/sync, release tag creation. Scheduled jobs (cron) run on time.
+2. [ ] **Fast checks complete in ≤5 minutes** — lint, type-check, unit tests. Developers get feedback in their PR before context-switching. Path-based filtering skips irrelevant jobs.
+3. [ ] **Secrets never appear in pipeline logs** — GitHub masked output, OIDC-only cloud auth, no `echo $SECRET`. Secret scanning (trufflehog/git-secrets) runs on every push and blocks on detection.
+4. [ ] **Artifacts are immutable and promoted** — build once, promote the same SHA-tagged artifact through environments. No rebuilding between staging and production.
+5. [ ] **Container images scanned before push to registry** — Trivy/Grype/Snyk block on CRITICAL/HIGH CVEs. Image signed with Cosign and attested with SLSA provenance.
+6. [ ] **Security gates are blocking, not advisory** — SAST (CodeQL/Semgrep), SCA (Dependabot/Renovate), IaC scan (tfsec/checkov) must pass CRITICAL/HIGH. Non-blocking scanners produce findings nobody reads.
+7. [ ] **Deployment concurrency is serialized** — `concurrency: deploy-production` prevents parallel deploys from racing. Cancel-in-progress disabled so pending deploys don't get abandoned mid-flight.
+8. [ ] **Rollback is one-click and automated** — rollback pipeline: trigger → deploy previous artifact → smoke test → notify. Completes in < 5 minutes from trigger. No manual SSH or `kubectl rollout undo`.
+9. [ ] **Pipeline has a fail-safe timeout** — every job has `timeout-minutes` set. Default 360-minute GitHub Actions timeout masks hung pipelines. Kill hung builds at 2× their p95 duration.
+10. [ ] **Flaky tests are quarantined** — tests failing > 2% of runs move to quarantine suite (non-blocking). Jira ticket created per flake. CI pass rate SLO ≥ 95%. "First-time failure" flag distinguishes new regressions from known flakes.
+11. [ ] **Artifact lifecycle policy active** — keep last N builds per branch, delete images >90 days old. ECR/Artifact Registry cleanup policies applied. Orphaned artifacts cost money and accumulate unpatched CVEs.
+12. [ ] **Pipeline metrics tracked weekly** — DORA metrics: deployment frequency, lead time for changes, MTTR, change failure rate. Pipeline duration SLA enforced. Weekly pipeline health review with the team.
+13. [ ] **Self-hosted runners are ephemeral and repo-scoped** — never register at org/enterprise level. Runner IAM role scoped to minimum permissions. Ephemeral runners destroyed after each job. No production VPC access from CI runners unless explicitly required and audited.
+14. [ ] **Deploy freeze enforced on error budget exhaustion** — CI/CD queries error budget before promotion to production. Deploy blocked if budget < 10% or critical burn rate detected. Only reliability fixes allowed during freeze.
+
 ## What Good Looks Like
 
 > Pipelines run reliably on every commit, complete in under fifteen minutes, and provide clear, actionable feedback.
@@ -525,7 +583,7 @@ graph LR
 
 **The One Highest-Leverage Activity**: Measure your DORA metrics every week. If you don't know your deployment frequency, lead time, change failure rate, and MTTR, you don't know if your CI/CD investment is working. What gets measured gets improved.
 
-## Gotchas
+## Anti-Patterns
 
 - **CI pipeline without caching.** Every CI run downloads dependencies from scratch: `npm ci` pulls 500MB of node_modules, Docker builds start from a cold cache, and test databases are seeded from a 200MB dump every time. A pipeline that should take 3 minutes takes 15. Multiply by 50 PRs per week across 10 developers and you're burning 100+ hours of developer waiting time per month. The CI bill from extra build minutes compounds the waste. **Total cost: $20,000-$100,000 per year in wasted build minutes, idle developer time, and inflated CI infrastructure costs.** Fix: Cache dependencies (node_modules/.cache, pip cache, Go module cache) with a key based on lockfile hash; use Docker layer caching with BuildKit and mode=max; cache test database snapshots; use incremental builds where possible.
 - **Deploying on Friday.** A release goes out at 4:45 PM on Friday. At 6 PM, an error-rate spike triggers PagerDuty — the on-call engineer is at dinner, the author is on a flight, and the team lead is camping with no cell service. The incident drags through the weekend with partial context and limited availability. What would have been a 30-minute rollback on Tuesday becomes a 48-hour degraded service event that customers tweet about. **Total cost: $50,000-$500,000 in weekend outage that could have been a Tuesday morning fix, plus reputational damage from extended downtime.** Fix: Establish a "no Friday deploys" policy; deploy Monday through Thursday before 2 PM local time; if a Friday deploy is unavoidable, ensure the full team is available for the next 48 hours; automate rollback to a single command so any on-call can execute it.

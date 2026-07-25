@@ -122,6 +122,20 @@ Master regulatory specialists understand that strategy is not about predicting t
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo
+- Classify your SaMD product, identify the correct regulatory pathway (510(k)/De Novo/PMA or CE marking route), and implement foundational QMS documentation — get the classification right before investing in infrastructure
+
+#### Small Team
+- Deploy an eQMS with document control, CAPA, and training tracking; implement Part 11 compliant electronic records and signatures; establish design controls with traceability from user needs to verification
+
+#### Medium Organization
+- Run multi-jurisdiction regulatory programs (FDA + EU MDR + international), maintain full ISO 13485 certified QMS, manage notified body relationships with ongoing surveillance audits, and implement post-market surveillance with clinical evaluation reporting
+
+#### Enterprise
+- Operate global regulatory affairs across all major markets, manage PMA and Class III device portfolios, run clinical investigation programs (IDE), maintain multiple QMS certifications (ISO 13485, MDSAP, QSR), and drive regulatory intelligence with 24-36 month horizon scanning across 20+ agencies
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -135,6 +149,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Preparing for FDA inspection or notified body audit — mock audit, CAPA review, documentation readiness
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### SaMD Classification (FDA)
@@ -319,6 +334,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to invest more:** Unexplained issue — could be one-off or systemic. Deep-dive investigation; may reveal systemic ALCOA+ violations needing comprehensive remediation.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -355,6 +371,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -482,10 +499,36 @@ graph LR
 - **Assuming international regulations don't apply because "we're US-based"** — GDPR applies to any company processing EU residents' data. EU MDR applies to any medical device sold in the EU. PIPL (China) applies to processing Chinese citizens' data. Territorial reach of modern regulations is global.
 
 ## Error Decoder
+**(STANDARD)**
 
-- **"FDA refuses to accept 510(k) — not substantially equivalent"** → Your predicate device is either: (1) not legally marketed (was recalled/withdrawn), (2) has a different intended use, or (3) has different technological characteristics that raise new safety questions. The FDA's SE (Substantial Equivalence) decision isn't a "rejection" — it's a finding that you chose the wrong predicate or didn't demonstrate equivalence.
-- **"Notified Body suspends CE certificate"** → This is a MAJOR nonconformity, not a routine audit finding. Check: (1) Did you fail to address a previous minor nonconformity? (2) Did post-market surveillance reveal safety issues? (3) Did unannounced audit find serious QMS failures? CE suspension means you can't sell in the EU. Remediation timeline is measured in weeks, not months.
-- **"Warning Letter posted on FDA website"** → The FDA publishes Warning Letters publicly. Your investors, customers, and competitors all see it simultaneously. The clock to respond is 15 business days, but the reputational damage is immediate. Pre-drafted crisis communication for regulatory actions is as important as the regulatory response itself.
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| "FDA refuses to accept 510(k) — not substantially equivalent" | Predicate device is either not legally marketed (recalled/withdrawn), has a different intended use, or has different technological characteristics that raise new safety questions | Verify predicate device is currently legally marketed, map intended use and technological characteristics precisely, and pre-clear the SE comparison table with regulatory affairs before submission | The FDA's SE decision isn't a rejection — it's a finding that you chose the wrong predicate or didn't demonstrate equivalence; predicate selection is the most consequential decision in the 510(k) pathway |
+| "Notified Body suspends CE certificate" | This is a MAJOR nonconformity triggered by unaddressed minor nonconformities, post-market surveillance safety issues, or serious QMS failures found in unannounced audit | Remediate immediately: CE suspension means you cannot sell in the EU; address all audit findings, implement corrective actions with effectiveness evidence, and expect remediation measured in weeks, not months | Minor nonconformities that go unaddressed compound into certificate suspension — every audit finding must be closed with objective evidence before the next surveillance audit |
+| "Warning Letter posted on FDA website" | The FDA publishes Warning Letters publicly — investors, customers, and competitors all see it simultaneously | Respond within 15 business days with root cause analysis, corrective action plan, and timeline; simultaneously activate pre-drafted crisis communications for investors, customers, and media | Regulatory actions carry reputational impact equal to their compliance impact — crisis communication planning must be part of regulatory readiness, not an afterthought |
+
+
+## Best Practices
+
+1. **Classify before you build — SaMD classification determines the entire development pathway.** FDA Class I/II/III and EU MDR Class I/IIa/IIb/III have fundamentally different requirements for premarket submission, QMS, and clinical evidence. A wrong classification decision made early cascades into years of rework. Document the classification rationale with intended use, indications for use, and the specific classification rule applied.
+
+2. **Maintain a living regulatory calendar with 90/60/30-day pre-alerts.** Every filing deadline, renewal date, transition period end, and reporting obligation must be tracked with automated alerts. Missed deadlines trigger daily penalties and heightened scrutiny on all future submissions — the calendar is not optional, it's a regulatory requirement.
+
+3. **Validate continuously, not just at launch.** GxP validation (IQ/OQ/PQ) is a lifecycle activity — every system change, patch, or configuration update may require re-validation. Build validation into your change control process so compliance evidence stays current rather than becoming a point-in-time snapshot that decays.
+
+4. **Test controls for operational effectiveness, not just design existence.** An auditor asks for the last 4 quarters of access review evidence, not the access review policy. Every control mapped to a regulatory requirement must produce operational evidence on a defined cadence — evidence of operation, not evidence of documentation.
+
+5. **Monitor primary regulatory sources, not news headlines.** Regulatory intelligence requires structured monitoring of the Federal Register, EUR-Lex, agency guidance documents, and notified body communications. A Google Alert for "FDA regulation change" misses EU MDR transition deadlines and ICH guideline updates that directly affect your product.
+
+6. **Never claim binary compliance — compliance is a program, not a state.** "We are compliant with ISO 13485" or "Our QMS meets FDA requirements" are statements that become evidence against you in every inspection and enforcement action. Frame compliance as an ongoing program: "We maintain a quality management system aligned with ISO 13485 requirements."
+
+7. **Treat CAPA as a closed-loop system, not a form to fill out.** Every CAPA requires structured root cause analysis (5 Whys + Ishikawa), corrective action with objective effectiveness evidence, preventive action to prevent recurrence, and verification before closure. CAPAs closed in days with root cause "human error" are the first thing FDA inspectors flag as inadequate.
+
+8. **Design audit trails and electronic signatures from day one, not as a retrofit.** 21 CFR Part 11 compliance requires secure, computer-generated, time-stamped audit trails that record operator entries and actions that create, modify, or delete electronic records. Retrofitting Part 11 compliance into an existing system costs 5-10x more than building it in from the start.
+
+9. **Run mock regulatory inspections annually with real SMEs and real evidence.** Tabletop audits that surface missing evidence, outdated documentation, and process gaps before the real inspector arrives prevent Form 483 observations and Warning Letters. Mock inspections should mirror the scope, duration, and evidence requests of actual regulatory audits.
+
+10. **Separate validated from non-validated environments with enforced segregation.** GxP systems require distinct DEV, VAL (validation), and PROD environments with controlled promotion paths. Development activity in a validated production environment invalidates the validated state and requires re-validation — environment segregation is the first thing auditors check in computerized system validation.
 
 
 ## State Log
@@ -535,6 +578,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist
+**(STANDARD)**
 
 - [ ] Regulatory intelligence: monitoring sources cover ALL jurisdictions you operate in. A known recent regulatory change verified to appear in your monitoring feed.
 - [ ] Regulatory calendar: all submission deadlines, renewal dates, transition periods, and reporting dates tracked with 90/60/30-day pre-alerts.

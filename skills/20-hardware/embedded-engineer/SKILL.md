@@ -140,6 +140,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 <!-- STANDARD: 3min — each tree has concrete chip names, price points, and decision rationale -->
 
@@ -259,6 +261,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s — scan phase titles to understand the process -->
 <!-- STANDARD: 3min — each phase has explicit Do/Verify/Recover steps -->
 <!-- DEEP: 10+min -->
@@ -301,6 +305,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -312,6 +318,39 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Design for memory-constrained environments from the start.** Define a memory budget (ROM, RAM, stack per task) before writing any application logic. Use `-fstack-usage` and map files to verify actual usage against budget. Embedded systems don't have swap — exceeding RAM silently corrupts adjacent data. Budget ROM/RAM with 20% headroom for future features.
+
+2. **Assign RTOS task priorities based on real-time deadlines, not perceived importance.** A motor control loop with a 100µs deadline gets priority 0 (highest). A logging task with a 100ms deadline gets priority 5. A UI update task with no deadline gets priority 10 (lowest). Rate-monotonic scheduling: shorter period = higher priority. Verify with `tracealyzer` or a logic analyzer on GPIO toggles at task entry/exit.
+
+3. **Keep ISRs short — under 10µs is ideal, under 100µs is acceptable.** ISRs should: read a register, set a flag, push to a ring buffer, and exit. Never: allocate memory, take a mutex, call `printf`, or busy-wait in an ISR. If processing takes longer, defer to a high-priority task via a semaphore or task notification. Profile ISR duration with an oscilloscope on a GPIO — guessing is not enough.
+
+4. **Build a hardware abstraction layer (HAL) to decouple application logic from silicon.** Define interfaces for GPIO, I2C, SPI, UART, ADC, PWM, and timers. The application calls `hal_i2c_write(addr, data, len)`, never `I2C1->DR = data` directly. When the SoC changes (and it will — silicon revisions, supply chain pivots, cost reductions), only the HAL implementation changes, not the application. A 50-file firmware with a HAL ports in 1 week; without one, 6 weeks.
+
+5. **Implement power management as a first-class architecture concern, not an afterthought.** Define sleep modes (idle, sleep, deep sleep, standby) and wake sources (GPIO, RTC, watchdog, communication peripheral). Measure current in each mode with a power profiler. Enter the deepest possible sleep mode whenever the system is idle. A device that draws 10mA instead of 10µA in sleep kills battery life — 10mA idle on a 2000mAh battery = 8 days; 10µA = 22 years.
+
+6. **Design peripheral drivers with error recovery baked in, not bolted on.** I2C transactions can be NACKed or bus-stuck. SPI can have mode mismatches. UART can receive framing errors. Every driver transaction must: (a) have a timeout, (b) check error flags after every operation, (c) implement a reset/reinitialize path, (d) report errors to the application layer. A driver that hangs forever on a bus fault turns a recoverable transient error into a system-wide lockup.
+
+7. **Architect the bootloader with a fail-safe update path.** Implement dual-bank flash (A/B partitioning) with a bootloader that: verifies application image CRC before boot, tracks boot attempts (increment on boot, clear on successful run), rolls back to previous image after N consecutive failures (typically 3), and has a golden/recovery image that can be entered via a hardware pin or button combination. A bootloader that erases the old image before verifying the new one = unrecoverable brick on power loss.
+
+8. **Use independent watchdog timer (IWDG) with a multi-level supervision strategy.** Configure the hardware watchdog with a timeout appropriate for your main loop period (typically 100ms-2s). Kick it only from the main loop — never from an ISR. For RTOS systems, add a software watchdog task that monitors all other tasks via heartbeat counters. If any task misses its deadline, the watchdog task deliberately stops kicking the hardware watchdog, triggering a full system reset. Test by deliberately hanging each task.
+
+9. **Perform stack depth analysis before releasing firmware.** Use GCC's `-fstack-usage` flag to generate per-function stack usage data. Sum the worst-case call chain (ISR → callback → driver → application). Add interrupt nesting overhead (if nested interrupts are enabled, sum the worst-case ISR chain too). Verify against allocated task stack sizes with 50% margin. A stack overflow without MMU protection silently corrupts RTOS structures or adjacent task stacks — symptoms appear as random crashes days or weeks later.
+
+10. **Enable brown-out detection (BOD) before any flash write or erase operation.** Flash programming requires a minimum voltage (typically 2.7V for 3.3V MCUs). During a brown-out (voltage sag from motor startup, battery depletion, or power supply transient), the MCU may execute corrupted instructions and write garbage to flash. Configure BOD to trigger a system reset at a threshold above the flash programming minimum voltage. Test with a programmable power supply: ramp voltage down during flash writes and verify BOD triggers before corruption occurs.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Watchdog never fires despite main loop hang | Watchdog is kicked from a timer ISR that continues to fire even though the main loop is stuck in a hard fault or infinite loop | Move watchdog kick exclusively to the main loop. For RTOS systems, implement a watchdog task that monitors all other tasks via heartbeats — if any task misses, the watchdog task stops kicking, triggering reset | The watchdog must be supervised by the component it's protecting. Kicking from an ISR creates a false sense of security — the ISR is hardware-triggered and independent of software health |
+| Stack overflow with no crash | Stack overflow on an MCU without MMU/MPU silently corrupts the next task's stack or RTOS control block — no segfault, no hard fault, just inexplicable behavior days later | Enable `-fstack-usage` and `-fstack-protector-strong`. Sum worst-case call chain depths. Set `configCHECK_FOR_STACK_OVERFLOW` in FreeRTOS. Fill stack with known pattern (0xA5) at task creation and check watermark at runtime | Without an MMU, stack overflow is the silent killer of embedded systems. Static analysis and runtime watermark checking are mandatory — you cannot rely on crashes to detect it |
+| `volatile` not atomic in ISR context | `volatile uint32_t x; x++` is compiled as load-increment-store — three instructions. If an ISR fires between load and store, the increment is lost | Use `atomic_fetch_add()` from `<stdatomic.h>` (C11) or critical sections (`__disable_irq()`/`__enable_irq()`) for shared state between ISR and main loop | `volatile` only prevents compiler optimization (caching in registers) — it does NOT provide atomicity, ordering, or mutual exclusion. These are distinct concerns requiring distinct mechanisms |
+| `printf` in ISR blocks for 3ms | UART TX at 115200 baud = ~86µs per character. A 35-character `printf` = ~3ms of blocking with interrupts disabled, causing the systick, motor control, and communication ISRs to miss deadlines | Use a ring buffer: ISR writes formatted data to the buffer, main loop drains and prints. Or use Segger RTT (RAM-based debug output, ~1µs overhead) instead of UART for debug prints | The ISR contract is: enter, do the minimum (read register, set flag, push to buffer), exit. Any operation with unbounded or >10µs execution time must be deferred |
+| Flash write during voltage sag corrupts data | Brown-out drops VDD below flash minimum programming voltage (typically 2.7V) mid-write — the charge pump can't generate programming voltage, bits are partially programmed, and the sector is corrupted | Enable brown-out detection (BOD) at a threshold above the flash minimum programming voltage. Test by ramping supply voltage down with a programmable power supply during flash writes | Flash writes are the most voltage-sensitive operation in an MCU. BOD must be hardware-configured and tested — software voltage checks have too much latency to protect against fast transients |
+| Memory-mapped I/O write cached and never reaches peripheral | CPU data cache holds the write in cache line without flushing to the peripheral bus. The write is visible to the CPU (cache hit) but invisible to the peripheral | Mark MMIO regions as Device-nGnRnE (ARM) or Uncached (x86) in the MMU/MPU configuration. For systems without MMU, use memory barriers: `__DSB()` after MMIO writes, or use `volatile` with proper compiler barriers | CPU caches don't know about peripherals. Memory type configuration in the MMU/MPU is the only correct solution — `volatile` alone prevents compiler reordering but does NOT prevent hardware caching |
 
 ## Cross-Skill Coordination
 
@@ -471,7 +510,7 @@ graph LR
 | "The BOM cost is fixed — we can't afford better components" | A $0.50 capacitor instead of a $2.00 rated one saves $1.50/unit upfront. But a 2% field failure rate on 100K units = 2,000 returns at $75/unit in shipping, diagnosis, and replacement = $150K. The "$1.50 savings" cost $75K more than using the right part. Design-to-cost must account for total lifecycle cost, not just BOM. **Total cost: $100K-$500K in warranty claims and field returns from component cost-cutting that ignores reliability impact.** |
 | "We'll fix it in the next hardware revision" | Hardware revisions take 3-6 months and $50K-$200K in engineering + tooling + certification. Meanwhile, every unit shipped with the known issue generates warranty claims, support tickets, and customer churn. A $5 PCB respin becomes $50K when factoring in compliance recertification (FCC, CE, UL). If the issue causes field failures, add recall logistics. Fix it in THIS revision. **Total cost: $50K-$500K per deferred fix — "next revision" fixes cost 10-100x more than fixing it now, plus accumulated warranty and support costs on already-shipped units.** |
 
-## Gotchas
+## Anti-Patterns
 
 - **`volatile` in C does NOT guarantee atomicity** — `volatile uint32_t x; x++` on a 32-bit ARM is NOT atomic if an ISR can fire mid-instruction. `volatile` only prevents compiler optimization; use atomic operations (`atomic_fetch_add`) or critical sections for shared state between ISR and main loop.
 - **Watchdog timer** that's kicked in a timer ISR — the main loop is stuck in a hard fault handler, but the timer ISR keeps firing, kicking the watchdog. The system is frozen forever with a happy watchdog. Always kick the watchdog from the main loop, never from an ISR.
@@ -503,6 +542,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[EM1]** Memory budget verified: ROM and RAM usage with 20% headroom confirmed via map file and linker output — no allocation exceeds budget
+- [ ] **[EM2]** Stack depth analysis complete: `-fstack-usage` output reviewed, worst-case call chain depths summed, all task stacks sized with 50% margin above worst-case
+- [ ] **[EM3]** Watchdog configuration verified: independent watchdog enabled, timeout appropriate for main loop period, kicked exclusively from main loop (never ISR), multi-level supervision for RTOS — watchdog task monitors all other task heartbeats
+- [ ] **[EM4]** ISR timing verified: all ISR handlers profiled with oscilloscope on GPIO toggles, worst-case duration <100µs, no blocking operations (malloc, printf, mutex) in any ISR
+- [ ] **[EM5]** Power budget complete: current consumption measured in each power mode (active, idle, sleep, deep sleep) with a power profiler, sleep current within battery life budget, wake sources configured and tested
+- [ ] **[EM6]** Bootloader validation: dual-bank flash with boot attempt tracking, CRC/signature verification before boot, automatic rollback after N consecutive failures, golden recovery image accessible via hardware pin
+- [ ] **[EM7]** Peripheral initialization sequence verified: power-on reset, brown-out, and watchdog reset all result in correct peripheral state — no partially initialized hardware after any reset source
+- [ ] **[EM8]** Error handling complete: every peripheral driver implements timeout, error flag checking, reinitialize path, and error reporting to application layer — no infinite-hang paths on bus faults
+- [ ] **[EM9]** Brown-out detection enabled and tested: BOD threshold set above flash minimum programming voltage, verified with programmable power supply ramping voltage down during flash writes — BOD triggers before corruption
+- [ ] **[EM10]** Flash wear analysis: total erase cycles over product lifetime calculated for every flash write path, 3x safety margin confirmed, wear leveling implemented for any sector exceeding 50% of rated endurance
+- [ ] **[EM11]** Security audit: no hardcoded credentials, debug interfaces locked in production, firmware images signed and verified, JTAG/SWD permanently disabled after provisioning, production firmware compiled without debug flags
+- [ ] **[EM12]** Environmental testing: power-cycled 100 times with zero boot failures, tested at -20°C, +25°C, and +60°C (or product rated range), vibration-tested to shipping specification, no intermittent failures
 
 ## References
 

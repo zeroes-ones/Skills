@@ -168,6 +168,8 @@ Network engineering scales from single VPC design to global multi-cloud network 
 
 ## Decision Trees
 
+**(QUICK)**
+
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -176,6 +178,8 @@ VPC/BLOCK DESIGN — How many VPCs and what CIDR ranges?
 ├── Single region, single environment (dev/prod combined), < 10 services?... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Network Design & IP Planning
@@ -224,7 +228,32 @@ VPC/BLOCK DESIGN — How many VPCs and what CIDR ranges?
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
+## Best Practices
+
+1. **Plan CIDR ranges for 3-year growth.** Allocate contiguous supernets per region (`/12`), carve `/16` per VPC, `/18` or `/20` per AZ tier. Never use `/28` subnets — 14 usable IPs vanish when ALB, RDS, and Lambda ENIs claim addresses. CIDR planning is the one network decision you cannot undo.
+
+2. **Default to internal load balancers.** Consumer on the public internet is the ONLY reason for an internet-facing LB. Every public LB is a potential entry point. For public-facing services, layer: WAF → CDN → LB with security groups scoped to CDN prefix lists — never `0.0.0.0/0`.
+
+3. **Set DNS TTL ≤ 60 seconds for failover-capable records.** A 300s TTL means 5 minutes of stale routing during regional failover. Use latency-based or geo-steering routing policies. Split-horizon DNS for internal service discovery — internal services resolve private IPs.
+
+4. **Use BGP dynamic routing for all hybrid connectivity.** Redundant VPN tunnels (2 minimum) with BGP keepalive 10s, hold time 30s. Static routing fails silently — BGP detects dead tunnels in 30 seconds vs. manual 3-hour recovery during an outage.
+
+5. **Implement micro-segmentation with security groups per workload tier.** Never `0.0.0.0/0` in security group rules except for public-facing CDN/WAF managed prefix lists. Flat networks enable lateral movement — a compromised web server can scan the entire VPC.
+
+6. **Deploy VPC flow logs and DNS query logs before going live.** Network observability cannot be retrofitted during an incident. Flow logs + synthetic probes from multiple regions = non-negotiable. If you can't see the packets, you can't debug the problem.
+
+7. **Co-locate services with heavy communication in the same AZ.** Cross-AZ data transfer at $0.01-0.02/GB accumulates silently. A data pipeline moving 50TB/month cross-AZ costs $1,000-2,000/month that nobody budgeted for. AZ affinity saves 30-50% on inter-service data transfer.
+
+8. **Use VPC endpoints for cloud service access.** S3 and DynamoDB via gateway endpoints (free, no data processing charge). Other services via interface endpoints (~$7/month/AZ plus $0.01/GB). Avoids NAT Gateway data charges entirely for AWS API traffic.
+
+9. **Health-check the readiness endpoint, not the root.** `/health/ready` must verify DB connectivity, cache availability, and downstream dependencies. `/health` returning 200 while the connection pool is exhausted is a false positive that routes traffic to dead instances.
+
+10. **Document network topology as code, not as a diagram.** Diagrams go stale within weeks of creation. Maintain topology in Terraform/CDK with automated diagram generation. Every peering connection, route table entry, security group rule, and TLS termination point must be version-controlled.
+
+
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -322,6 +351,24 @@ Before beginning a new phase, verify:
 - [ ] Do any prior decisions constrain what I'm about to do?
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[NE1]** CIDR allocation plan documented: non-overlapping ranges across all VPCs, regions, and on-prem, 3-year growth modeled
+- [ ] **[NE2]** Subnet architecture: public/private/isolated tiers per AZ, `/20` or larger per tier, no `/28` subnets
+- [ ] **[NE3]** Transit Gateway or hub-and-spoke for ≥4 VPCs, VPC peering only for point-to-point connections <4 VPCs
+- [ ] **[NE4]** DNS: split-horizon (public + private zones), TTL ≤ 60s for failover records, health checks on all endpoints
+- [ ] **[NE5]** Load balancers: health checks on readiness endpoint, connection draining ≥30s, access logs to S3/Blob Storage
+- [ ] **[NE6]** Security groups: least-privilege per workload tier, no `0.0.0.0/0` except CDN/WAF managed prefix lists
+- [ ] **[NE7]** VPC flow logs + DNS query logs enabled in all VPCs, shipped to centralized logging
+- [ ] **[NE8]** Hybrid connectivity: redundant VPN tunnels (2+), BGP dynamic routing, failover tested quarterly
+- [ ] **[NE9]** VPC endpoints for all cloud services (S3/DynamoDB/KMS via gateway; others via interface) — zero NAT Gateway dependency for API calls
+- [ ] **[NE10]** CDN: origin shield configured, `Vary: Authorization` header, cache key excludes tracking params, stale-while-revalidate
+- [ ] **[NE11]** WAF with managed rule groups + custom rate-limiting rules on all internet-facing endpoints
+- [ ] **[NE12]** DDoS protection: Shield Standard (AWS) or equivalent, emergency contact info updated
+- [ ] **[NE13]** Network topology documented as code (Terraform/CDK) with automated diagram generation, version-controlled
 
 ## What Good Looks Like
 
@@ -440,7 +487,7 @@ graph LR
 
 **Recommendation:** Default to internal unless the consumer is definitively on the public internet. Every internet-facing load balancer is a potential entry point. For public-facing services, always layer: WAF, CDN, TLS 1.2+ with strong ciphers, and security group rules scoped to CDN IP ranges or WAF-managed prefix lists — never `0.0.0.0/0` directly.
 
-## Gotchas
+## Anti-Patterns
 
 - **Security group rules are stateful** — if you allow outbound on port 443, return traffic is automatically allowed. But Network ACLs are stateless — you must explicitly allow both outbound (ephemeral ports 1024-65535) AND inbound responses.
 - **DNS TTL is a maximum, not a guarantee**. Clients and intermediate resolvers may cache beyond TTL. During a DNS cutover, some clients will hit the old IP for up to 48 hours regardless of your 300-second TTL. Always keep old endpoints running for TTL × 2.

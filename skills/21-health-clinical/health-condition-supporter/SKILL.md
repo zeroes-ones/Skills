@@ -102,6 +102,7 @@ What health management task do you need?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Symptom Tracking
 
@@ -120,6 +121,7 @@ What health management task do you need?
 5. Bring: printed summary, medication list, insurance card, recent test results, notebook for answers.
 
 ## Decision Trees
+**(QUICK)**
 
 ### 1. Tracking Method Selection
 
@@ -279,8 +281,31 @@ How to manage care across multiple providers:
     └── Caregiver's own health: caregivers have 2x rate of chronic illness from stress. Schedule your own care too.
 ```
 
+## Best Practices
+**(STANDARD)**
+
+1. **Ground all advice in evidence-based clinical guidelines.** Every health recommendation should cite the relevant guideline body (e.g., AHA/ACC for cardiovascular, ADA for diabetes, GINA for asthma). The USPSTF grade system (A-D, I) provides a framework for communicating evidence strength to patients. Never imply certainty where guidelines are inconclusive — say "the evidence is mixed" rather than silently choosing one side.
+
+2. **Use structured symptom severity scales with population-validated anchors.** Pain: 0-10 NRS with functional anchors (0=no pain, 4=pain interferes with activities, 7=pain prevents most activities, 10=worst pain imaginable). For pediatrics, use the FLACC or Wong-Baker FACES scale. Unanchored scales produce non-comparable data — a "7/10" from one patient is not equivalent to another's.
+
+3. **Always reconcile medications for drug-drug interactions before making recommendations.** Use a medication interaction checker (e.g., Drugs.com Interaction Checker, Epocrates, Lexicomp) when supporting patients on 3+ medications. Common dangerous interactions: warfarin + NSAIDs (bleeding risk), ACE inhibitors + potassium supplements (hyperkalemia), SSRIs + tramadol (serotonin syndrome). Flag: "These medications have a known interaction — ask your provider or pharmacist to review."
+
+4. **Screen for contraindications before suggesting any supplement or OTC product.** St. John's Wort reduces effectiveness of oral contraceptives, warfarin, and cyclosporine. Vitamin K supplements counteract warfarin. Grapefruit juice inhibits CYP3A4 — affecting statins, calcium channel blockers, and many psych meds. Always ask: "What prescribed medications are you taking?" before discussing supplements.
+
+5. **Design tracking frequency to match clinical decision cadence.** A stable hypothyroid patient on a fixed levothyroxine dose needs TSH every 6-12 months, not weekly. An unstable INR on warfarin may need daily checks. Over-tracking creates noise and anxiety; under-tracking misses actionable changes. Align frequency with the clinical guideline's recommended monitoring interval.
+
+6. **Prepare appointments using the SBAR communication framework adapted for patients.** Situation (the main concern in one sentence), Background (relevant history and medications), Assessment (symptom summary with severity and trend), Recommendation (what you need from the provider — diagnosis clarification, treatment change, referral). SBAR organizes the 15-minute visit for maximum information transfer.
+
+7. **Apply the Teach-Back method for critical instructions.** After a provider explains a new medication or treatment plan, ask the patient: "Can you tell me, in your own words, what you're going to do when you get home?" Studies show 40-80% of medical information is forgotten immediately, and half of what is remembered is incorrect. Teach-Back identifies comprehension gaps before the patient leaves.
+
+8. **Use motivational interviewing principles for behavior change discussions.** Avoid "you should exercise more" — instead: "On a scale of 1-10, how ready do you feel to add a 10-minute walk to your day?" Follow with: "What would need to happen for that number to go up by one?" This elicits the patient's own motivation rather than imposing external goals.
+
+9. **Maintain a living medication reconciliation that travels with the patient across all providers.** The master medication list should include: drug name (brand + generic), dose, frequency, route, prescribing provider, start date, indication, and stop date (if applicable). Reconcile after every specialist visit and hospital discharge. The Joint Commission identifies medication reconciliation errors as a leading cause of preventable adverse events.
+
+10. **Escalate red-flag symptoms immediately — never suggest "wait and see" for potentially life-threatening presentations.** Chest pain with diaphoresis, sudden worst headache of life, unilateral weakness/speech difficulty, suicidal ideation with plan, signs of anaphylaxis — these require emergency evaluation, not tracking. Maintain a published red-flag list and reference it before any "track this symptom" recommendation.
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -374,7 +399,8 @@ Before beginning a new phase, verify:
 | Doctor visit: "I'm fine" (forgot all concerns) | Printed summary: top 3 questions, medication list, "what changed" list, blank page for notes | Appointment prep packet + recording (with permission) + reviewing notes within 24 hours + scheduling follow-up before leaving |
 | Stopped medication without telling doctor | Tracked side effects, brought specific data to doctor: "nausea 1 hour after taking, 4x/week, severity 6/10" | Doctor switched to alternative medication based on documented side effects — adherence improved to 95% |
 
-## Gotchas
+## Anti-Patterns
+**(STANDARD)**
 
 - **Medication non-adherence tracking gap — the silent $290B problem hits individuals at $2K-$10K/year.** The US healthcare system loses $290B annually to medication non-adherence, but the personal cost is devastating: a patient with hypertension who misses medications 30% of the time has a 3-4x higher risk of an acute event (stroke, heart attack, hypertensive crisis). A single preventable ER visit from uncontrolled blood pressure costs $1,500-$3,000 out of pocket with typical insurance, and a hospitalization runs $5,000-$15,000. Patients with 2+ chronic conditions who lack a medication tracking system average 1-2 preventable acute events per year. **Total cost: $2K-$10K/year per individual in preventable hospital visits, urgent care, and disease progression from unmonitored medication gaps.** Implement a multi-layered adherence system: daily pill organizer or blister pack for visual confirmation, phone alarms at consistent times, pharmacy auto-refill enrollment, and a weekly "med check" calendar reminder to review the past 7 days.
 - **The "I'll remember" trap: patients forget 40-80% of what doctors say within minutes of leaving the office.** Critical information — medication changes, follow-up instructions, warning signs — evaporates. **A missed follow-up on an abnormal test result can delay cancer diagnosis by 6-12 months. The cost is measured in treatment options lost, not dollars.** Fix: write everything down during the visit or ask to record. Review notes within 24 hours. If you don't understand something, call back.
@@ -386,6 +412,24 @@ Before beginning a new phase, verify:
 - **Choosing out-of-network providers without understanding the cost difference turns a $200 office visit into a $2,000 bill.** In-network providers have negotiated rates with your insurance — an MRI that costs $500 in-network can cost $3,000 out-of-network, and the patient pays the difference after the insurer's "reasonable and customary" allowance, which is often far below the billed amount (balance billing). A single out-of-network specialist visit for a complex condition can generate $1,500-$5,000 in unexpected bills. For patients managing chronic conditions requiring 6-12 specialist visits per year, the in-network vs out-of-network difference can exceed $15,000 annually. **Total cost: $5K-$15K/year in surprise bills from out-of-network care for a chronic condition patient.** Before every appointment: call both the provider's office ("Are you in-network with [my plan]?") AND your insurance company to verify. Get the provider's NPI number and confirm coverage. For planned procedures, request a pre-treatment estimate in writing.
 - **Not understanding the difference between your deductible, coinsurance, and out-of-pocket maximum leads to either avoiding necessary care or being blindsided by bills.** A patient with a $5,000 deductible who thinks "insurance covers 80%" gets a $4,000 bill after a $5,000 procedure — because the 80% coinsurance only kicks in AFTER the deductible is met. Conversely, a patient who has met their out-of-pocket maximum avoids needed follow-up care to "save money" — not realizing insurance would cover it at 100% for the rest of the year. Every year, millions of Americans delay or skip medically necessary care due to cost confusion, leading to worse outcomes and higher costs later. **Total cost: $2K-$10K/year in either unnecessary out-of-pocket spending or costly delayed care from deductible/coinsurance confusion.** After open enrollment, write down three numbers and tape them to your insurance card: your deductible, your coinsurance rate, and your out-of-pocket maximum. Before any non-emergency procedure, call your insurer and ask: "What will my out-of-pocket cost be, and how much of my deductible remains?"
 - **Delaying preventive care and screenings to save on copays is the most expensive "savings" decision in healthcare — early detection costs hundreds, late detection costs hundreds of thousands.** A $0-copay annual physical catches elevated A1C at 6.2% (pre-diabetic) — reversible with $10/month metformin and lifestyle changes. Skipping the physical for 3 years means discovering Type 2 diabetes at A1C 9.5%, with complications already developing: neuropathy medication ($200/month), quarterly endocrinologist visits ($300/visit), and 3x higher risk of a cardiovascular event ($50K-$150K hospital stay). Colonoscopies catch polyps for $0-$200 under preventive care; waiting until symptoms appear means Stage 3 colorectal cancer with $100K-$200K in treatment costs. **Total cost: $50K-$200K in avoidable acute care from skipped preventive screenings over 3-5 years.** Schedule all age-appropriate preventive screenings in January each year. Most ACA-compliant plans cover them at $0 copay. The "I'm too busy" delay is the most expensive 30-minute decision in healthcare.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Symptom severity scales use validated anchors (NRS 0-10 with functional descriptors, or condition-specific scale)
+- [ ] Medication list includes all prescribed, OTC, and supplement products — with dose, frequency, route, and indication
+- [ ] Medication interaction check performed for combinations of 3+ drugs — known interactions flagged for provider review
+- [ ] Supplement/OTC recommendations screened against prescribed medications for contraindications
+- [ ] Tracking frequency aligned with clinical guideline monitoring intervals — not over-tracked or under-tracked
+- [ ] Appointment preparation follows SBAR format: Situation, Background, Assessment, Recommendation
+- [ ] Teach-Back method documented for all new medication or treatment instructions
+- [ ] Red-flag symptoms checklist reviewed before any "track this symptom" recommendation
+- [ ] Insurance appeal documentation follows the denial → provider letter → appeal → external review pathway
+- [ ] Care coordination master record includes all providers, recent test results, and reconciled medication list
+- [ ] Second opinion recommended for any diagnosis involving surgery, cancer, or lifelong treatment
+- [ ] Preventive screening schedule maintained per USPSTF age-appropriate guidelines — all overdue screenings flagged
+- [ ] Patient health literacy assessed using a validated tool (e.g., Single Item Literacy Screener) before creating education materials
+- [ ] Emergency contact/advance directive information documented and accessible
 
 ## Deliberate Practice
 
@@ -427,6 +471,45 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+### Scale Depth
+
+#### Solo / Individual Patient
+- **Scope:** Personal symptom journal. Single medication list. One condition tracked. Paper or basic app.
+- **Architecture:** Spreadsheet or paper journal. Phone alarms for medications. Notebook for appointment questions.
+- **Constraints:** No care coordination needed. Self-management only. Simple tracking is sufficient — avoid over-systematizing.
+
+#### Small / Family Caregiver
+- **Scope:** One patient, 2-5 conditions, 3-8 medications, 2-4 providers. Caregiver involved in tracking and appointments.
+- **Architecture:** Shared health tracking app or spreadsheet. Caregiver + patient dual access. Piggyback pharmacy auto-refill. Insurance portal bookmarked.
+- **New concerns:** Medication reconciliation across providers. Appointment scheduling conflicts. Caregiver burnout prevention. Insurance EOB tracking.
+
+#### Medium / Complex Chronic Patient
+- **Scope:** 3+ chronic conditions, 8+ medications, 5+ providers across multiple health systems. Prior authorization battles. Appeal management. Medical device dependency.
+- **Architecture:** Dedicated health management system. EHR patient portal aggregation. Professional medication therapy management (MTM) annual review. Legal documents organized (advance directives, power of attorney, living will).
+- **New concerns:** Drug-drug interaction monitoring across prescribers. Durable medical equipment (DME) supplier management. Social worker/case manager coordination. Disability accommodation documentation.
+
+#### Enterprise / Patient Advocacy Organization
+- **Scope:** Population-level self-management programs. Condition-specific tracking templates validated across thousands of patients. Insurance navigation playbooks. Provider communication training.
+- **Architecture:** Structured health management curriculum. Published tracking templates with clinical advisory board validation. Partnerships with pharmacy chains for medication therapy management. Legislative advocacy for coverage mandates.
+- **New concerns:** Template validation across diverse populations (age, language, literacy, culture). Data privacy for patient-submitted health information. Outcomes measurement for self-management programs. Payer negotiation for coverage of self-management tools.
+
+**Transition Triggers:**
+- **Solo → Small:** Second chronic condition diagnosed OR caregiver becomes involved → implement shared tracking system and medication reconciliation. First prior authorization denied → set up insurance navigation system.
+- **Small → Medium:** Third specialist added OR first hospitalization → implement comprehensive care coordination with master health record, medication reconciliation after discharge, and advance care planning. First major insurance appeal → implement systematic appeal tracking with deadlines.
+- **Medium → Enterprise:** Patient advocacy role emerges OR condition community leadership → develop scalable templates validated for diverse populations, establish clinical advisory board, and create outcomes measurement framework.
+
+## Error Decoder
+**(DEEP)**
+
+| Symptom | Real-World Cause | Diagnostic Steps | Resolution |
+|---------|-----------------|------------------|------------|
+| Symptom tracker shows "everything is terrible all the time" with no actionable patterns | Patient tracking 15+ symptoms at maximum granularity without structured anchors — data overload without signal | Review what decisions the tracking data enables. Ask: "What would you do differently if this number were higher or lower?" Reduce to 3-5 key symptoms with functional anchors. | Simplify tracker to 3 most decision-relevant symptoms. Add functional impact anchors ("What couldn't you do because of this?"). Set monthly review cadence to identify whether tracking is reducing or amplifying anxiety. |
+| Medication adherence drops after new specialist adds prescriptions | Polypharmacy burden — new medications added without deprescribing review. Patient overwhelmed by complexity | Audit medication list for therapeutic duplication. Check if any medication treats a side effect of another (prescribing cascade). Calculate daily pill count and dosing frequency. | Schedule medication reconciliation with PCP (brown bag review). Ask pharmacist for deprescribing review. Explore combo pills, extended-release formulations, and synchronized refill schedules to reduce daily regimen complexity. |
+| Insurance appeal denied despite strong medical necessity documentation | Appeal submitted to wrong level (internal vs external) OR missing specific clinical evidence (imaging, labs, failed alternatives) | Verify appeal level: internal (insurance company review) vs external (independent review organization). Check denial letter for specific missing evidence. Confirm timeline compliance (usually 180 days from denial). | File at correct appeal level with all required clinical evidence attached. Include provider letter addressing each denial reason point-by-point. Cite relevant clinical guidelines supporting the treatment. Request external review if internal appeal exhausted. |
+| Care coordination fails because specialists can't see each other's notes | EHR interoperability gap — providers on different EHR systems without HIE connection. Patient is the only common data carrier | Confirm each provider's EHR system. Check if state/regional HIE is available. Verify patient has signed release forms at each practice. Test whether patient portal access is configured at each provider. | Sign release forms at every practice (HIPAA permits sharing for treatment without consent, but forms accelerate the process). Enroll in regional HIE if available. Carry printed records to every visit as backup. Request that each specialist CC the PCP on visit notes. |
+| Patient anxiety increases after starting health tracking | Tracking without context creates false alarms — normal physiological variation interpreted as concerning trends. High-frequency measurement amplifies noise | Review tracking data for expected vs unexpected variation. Compare against published normal ranges and expected variability. Ask patient: "What specific reading triggered your concern?" | Educate on normal physiological variation (blood pressure fluctuates 10-15 mmHg throughout the day; pain scores have natural daily variation). Switch from high-frequency to clinically-relevant frequency tracking. Add "context" field to every reading (time of day, recent activity, stress level). |
+| Treatment plan abandoned because out-of-pocket cost is prohibitive | Cost was never discussed during clinical encounter. Patient never disclosed financial concern. Provider never offered lower-cost alternatives | Check medication retail price (GoodRx, Cost Plus Drugs). Verify insurance formulary tier. Check manufacturer patient assistance program eligibility. Explore therapeutic alternatives with lower cost. | Request formulary exception or tier reduction from insurer. Apply to manufacturer patient assistance program. Ask provider to prescribe lower-cost therapeutic alternative. Explore independent pharmacy cash prices (often cheaper than insurance copay for generics). Never let cost be a silent reason for non-adherence. |
 
 ## References
 

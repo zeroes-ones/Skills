@@ -193,6 +193,8 @@ PM skill manifests in the scope and complexity of the problems you own — from 
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Prioritization Method Selection
 
@@ -222,6 +224,8 @@ Strategic vs tactical feature?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Problem Discovery
 Interview stakeholders and users. Separate expressed solutions from underlying problems. Draft the problem statement in one sentence: "[User] struggles to [outcome] because [constraint]." Define success criteria — choose one North Star metric and 2–3 supporting KPIs. Identify the target cohort with behavioral segmentation (not just demographics). Document the current-state workflow and quantify the pain with data where possible (time spent, error rate, churn).
@@ -238,8 +242,42 @@ Build a Now/Next/Later roadmap — avoid date-based roadmaps beyond the current 
 ### Phase 5 (~25 min): Delivery Partnership
 Attend standups to unblock the team on requirements ambiguity. Triage incoming bugs and feature requests against the current roadmap. Run sprint demos and validate that acceptance criteria are met — not just functionally, but experientially. Collect launch metrics and compare against the success criteria in the PRD. Schedule a post-launch retro to capture product learnings within 2 weeks of GA.
 
+## Best Practices
+
+1. **PRD as a decision document, not a specification.** The PRD captures WHY and WHAT — the problem, success criteria, and user stories. Engineering owns HOW. If your PRD specifies database schemas, it is overreaching.
+
+2. **RICE is a conversation starter, not a calculator.** RICE scores expose assumptions (Is Confidence really 80%? Is Effort really 2 person-months?) The debate that follows the scoring is where prioritization actually happens. Never rank by decimal-point differences.
+
+3. **Stakeholder communication is role-specific.** Engineering needs technical context and acceptance criteria. Executives need risk, ROI, and timeline. Sales needs talking points and launch dates. Marketing needs positioning and customer value. Send the same PRD to all of them and everyone misses what they need.
+
+4. **Roadmaps set outcomes, not timelines beyond the current quarter.** Now = committed and in active development. Next = discovered, spec'd, ready when capacity opens. Later = validated problems without committed solutions. Date-based roadmaps beyond 8 weeks are fiction.
+
+5. **User stories split by persona, not by feature.** "As a user, I want..." creates a false consensus that all users want the same thing. Power users and first-time users of the same feature have diametrically opposed needs. Split personas first, then write stories per persona.
+
+6. **Acceptance criteria must be testable before code freeze.** Use Gherkin syntax (GIVEN/WHEN/THEN) and include edge cases: empty data, concurrent edits, offline mode, permission revocation. If QA cannot write an automated test from your acceptance criteria, the criteria are too vague.
+
+7. **Discovery is continuous, not a phase.** Reserve 20-30% of every cycle for discovery. The spec you wrote 3 months ago was based on what you knew then. Every sprint should include at least one customer conversation that might change what you build next.
+
+8. **Outcome metrics over output metrics.** "Shipped 3 features" is output. "Reduced checkout abandonment from 62% to 54%" is outcome. Define success criteria as outcome metrics before a single line of code is written. If you cannot measure whether the feature worked, do not build it.
+
+9. **Kill criteria ship with every feature.** Define not just the target metric but the kill threshold — the number below which the feature should be removed. Without a kill threshold, every feature becomes a permanent tax on the codebase, compounding maintenance cost forever.
+
+10. **The highest-leverage PM activity is watching users.** One hour of silent user observation reveals more than 50 survey responses. Schedule a user observation session before writing any PRD. The pattern you notice in minute 47 is the one that changes the roadmap.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Roadmap is a Gantt chart set 12 months out | Assumption that the world is static. The first customer escalation, competitor launch, or platform change invalidates everything after month 2. | Switch to Now/Next/Later with rolling 6-week certainty windows. Publish outcomes, not dates. Update monthly. | Roadmaps are living documents that describe intent, not contracts that describe certainty. |
+| "As a user, I want..." user stories create conflicting requirements | All users are not the same user. Power users and first-time users need different things from the same feature. | Split personas BEFORE writing stories. Write "As a [specific persona], I want [capability] so that [job-to-be-done]." | One-size-fits-all stories produce one-size-fits-nobody features. |
+| Stakeholders approved the PRD but engineering built something different | PRD described WHAT without acceptance criteria. Engineering filled in the gaps with their best guess — which was wrong. | Every user story must have Gherkin acceptance criteria. Every functional requirement must have a verifiable condition. | A spec without acceptance criteria is a suggestion, not a spec. |
+| RICE score says Feature A (253,750) wins over Feature B (251,000) | False precision. Reach, Impact, and Confidence are estimates. A 1% difference in RICE score is pure noise. | Use RICE to bucket features into tiers (top quartile, middle 50%, bottom quartile). Debated within tiers based on strategic context. Never rank by decimal-point differences. | RICE is ordinal, not cardinal. Adjacent scores are ties. |
+| Feature shipped but nobody can answer "did it work?" | No success criteria defined in the PRD. Without a baseline and target, post-launch evaluation is impossible. | Every PRD must include: (1) the metric it moves, (2) baseline before launch, (3) target after 90 days, (4) kill threshold. | Features without success criteria become permanent codebase taxes that nobody can justify keeping or killing. |
+| Customer says "I would definitely use this" in interview but never adopts | Social desirability bias. People say yes to avoid conflict. 80% of "would use" responses in interviews result in zero adoption. | Ask "When was the last time you had this problem?" and "How do you solve it today?" The presence of existing workarounds and the recency of the problem predict adoption better than stated intent. | Stated intent and revealed behavior correlate at ~0.3. Observe what users DO, not what they SAY. |
 
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -393,7 +431,7 @@ After every launch: what did you predict would happen? What actually happened? W
 
 **Watch a user use your product in silence.** Don't guide. Don't explain. Just watch. One hour of silent observation reveals more than 50 survey responses. Do this before writing any PRD.
 
-## Gotchas
+## Anti-Patterns
 
 - **70% of features go unused or rarely used — that's $100K-$1M in wasted engineering per product.** Standish Group data consistently shows ~70% of features in a typical software product are rarely or never used. If your annual engineering budget is $2M, that's $1.4M/year building things nobody wants. **Total cost: $100K-$1M wasted per product annually.** Before building any feature, require evidence: 5+ customer interviews confirming the problem, usage data from a prototype or competitor feature, or a validated experiment result.
 - **HIPPO-driven development costs $50K-$500K per misguided initiative.** When the Highest Paid Person's Opinion ("we need AI features" / "our competitor has dark mode") drives the roadmap without user validation, you build what the boss wants — not what users need. A 3-month engineering sprint triggered by an executive whim costs $50K-$200K. Multiple HIPPO-driven features per year = $500K+ in shelfware. **Total cost: $50K-$500K per HIPPO-driven initiative.** Require the same validation bar for executive ideas as any other feature request: user evidence or experiment data.
@@ -427,6 +465,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[PM1]** PRD written with: Executive Summary, Problem Statement, Success Metrics, Target Personas, User Stories, Functional & Non-Functional Requirements, Out of Scope, Assumptions & Risks
+- [ ] **[PM2]** Every user story has Gherkin acceptance criteria (GIVEN/WHEN/THEN) covering happy path, edge cases, and error states
+- [ ] **[PM3]** RICE prioritization complete: Reach, Impact, Confidence, and Effort documented with sources for each initiative
+- [ ] **[PM4]** Kill criteria defined for every feature: target metric, baseline, 90-day target, and threshold below which feature is deprecated
+- [ ] **[PM5]** Roadmap uses Now/Next/Later format with rolling 6-week certainty windows; no date-based commitments beyond current quarter
+- [ ] **[PM6]** Stakeholder communication prepared: engineering brief (technical context), executive summary (risk/ROI), sales enablement (talking points/timeline)
+- [ ] **[PM7]** Discovery buffer allocated: 20-30% of cycle capacity reserved for validation, spikes, and customer conversations
+- [ ] **[PM8]** Competitive analysis reviewed within last 90 days; covers at least 3 competitors with feature parity and differentiation analysis
+- [ ] **[PM9]** Customer validation: minimum 5 customer interviews support the problem hypothesis with behavioral evidence (not stated intent)
+- [ ] **[PM10]** Post-launch retro scheduled within 2 weeks of GA; success metrics compared against PRD targets
+- [ ] **[PM11]** Open questions have assigned owners and resolution dates; no question marked "TBD" without an owner
+- [ ] **[PM12]** Every feature request (including executive requests) passes the same validation bar: user evidence or experiment data before greenlight
 
 ## References
 

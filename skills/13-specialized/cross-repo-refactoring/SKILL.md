@@ -140,7 +140,7 @@ What cross-repo refactoring task are you working on?
 |-- Recovering from a migration that broke production -> Go to "Core Workflow: Crisis Mode"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- COMPRESSED: Full 174 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Blast Radius Analysis
@@ -160,7 +160,20 @@ depend on stable data schemas.
 
 > 📎 **Full content (127 lines):** [references/business-telemetry-scan.md](references/business-telemetry-scan.md)
 
-## Decision Trees
+## Best Practices
+
+1. **Codemod first, manual second.** Automate 95% of migrations with jscodeshift, comby, or ast-grep. Manual work is error-prone and doesn't scale. Test codemods against 3+ real consumer repos with different code styles before deploying broadly.
+2. **Use the Comet pattern for all breaking changes.** Add (new API) → Deprecate (old API with runtime warning) → Remove (old API after 30+ days of zero traffic). Each phase is independently deployable and reversible. Never remove the old API in the same release that adds the new one.
+3. **Runtime deprecation counters are non-negotiable.** Every deprecated API must emit a counter metric. Without observability, you're flying blind — you'll either remove an API that still has callers or leave dead code indefinitely. Alert when counters drop to zero for 30 consecutive days.
+4. **Consumer-driven contract tests prevent silent breakage.** For APIs with 5+ consumers, implement Pact or Spring Cloud Contract. The provider cannot deploy if any consumer contract fails. This catches breaking changes in CI, not in production.
+5. **Progressive rollout with feature flags for behavioral changes.** Wrap new behavior behind a flag, enable for canary consumers first (1% → 10% → 50% → 100%), then remove the old code path after 30 days at 100%. This limits blast radius and enables instant rollback.
+6. **Communication cadence scales with impact.** Announce deprecation at least 90 days before removal. Send reminders at 60d, 30d, 14d, 7d, and 1d before sunset. Direct-message consumer maintainers for high-traffic APIs. Include migration guides with before/after code examples.
+7. **Consumer discovery must be exhaustive.** Search GitHub org-wide with multiple query variants (different import styles, aliases, dynamic invocations). A single missed call site equals a production outage. Cross-reference with runtime telemetry to confirm completeness.
+8. **Every migration plan needs a per-consumer rollback.** If consumer A's migration fails, can they independently revert? Don't force all consumers to roll back because one failed. Feature flags and API versioning enable independent rollback per consumer.
+9. **Timeline = slowest consumer deploy cycle × 3.** If a consumer deploys quarterly, your deprecation timeline must be at least 9 months. A consumer that hasn't even seen the deprecation warning before you break them is not a slow-migrator — it's a planning failure.
+10. **Contract tests and schema compatibility checks in CI.** Run OpenAPI diff, GraphQL schema validation, or Protobuf backward-compatibility checks on every PR. A breaking schema change must fail CI before it reaches production. Pair with consumer contract verification in the same pipeline.
+
+## Decision Trees **(QUICK)**
 
 ### Backwards Compatibility Patterns
 
@@ -356,7 +369,7 @@ What to do when consumers are not migrating:
 |   |-- Action: communicate new timeline broadly. Explain WHY (not "we're slow" — specific blockers)
 |   |-- DO NOT: extend indefinitely. Set a hard, non-negotiable new deadline.
 
-## Error Recovery
+## Error Recovery **(DEEP)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -515,7 +528,7 @@ Phase 6: Full comet migration (capstone)
   Goal: End-to-end migration experience.
 ```
 
-## Gotchas
+## Anti-Patterns
 
 * **A codemod that handles 95% of cases still leaves 5% as manual work — and 5% of 2,000 call sites is 100 manual changes.** Codemod authors consistently underestimate the manual tail. Each manual change requires: reading context, understanding the pattern, applying the fix, testing. At 10 minutes per manual change × 100 sites = 16+ hours of unplanned work. **Total cost: $15K-$50K in manual migration work for the tail end of a codemod that "handles almost everything."**
 
@@ -569,6 +582,21 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(DEEP)**
+
+- [ ] **[S1]** Consumer inventory is exhaustive: GitHub org-wide search with variants (import styles, aliases, dynamic invocations) returns zero additional call sites not in the migration plan. Cross-referenced with runtime telemetry.
+- [ ] **[S2]** Codemod test fixtures cover: simple case, nested usage, edge cases (null, undefined, empty), negative cases (should NOT change), async/await variants. Tested against 3+ real consumer repos with manual diff review.
+- [ ] **[S3]** Runtime deprecation counter exists and emits metrics. Dashboard shows per-consumer usage. Alert fires if counter exceeds threshold or drops to zero for 30 consecutive days.
+- [ ] **[S4]** Deprecation timeline: removal date is at least (slowest consumer deploy cycle × 3) days in the future. All consumer maintainers have acknowledged the timeline in writing.
+- [ ] **[S5]** Migration guide published with: before/after code examples for every affected pattern, common pitfalls and workarounds, timeline with specific dates, contact for migration support.
+- [ ] **[S6]** Rollback plan per consumer: documented procedure for reverting the migration independently. Contact list for emergency rollback coordination. Tested in staging within the last 30 days.
+- [ ] **[S7]** Contract tests pass: all consumer Pact/SCC contracts verified against the new provider version in CI. Zero contract failures. Schema compatibility check (OpenAPI diff, protobuf backward-compatibility) passes.
+- [ ] **[S8]** Cost-benefit analysis documented: total engineering cost, opportunity cost, risk cost vs. performance improvement, incident reduction, velocity gain. Benefit/cost ratio > 1.5 with VP-level approval.
+- [ ] **[S9]** Comet pattern phases tracked: ADD (new API deployed), DEPRECATE (old API with runtime warning), REMOVE (old API confirmed zero traffic for 30 days). Each phase independently deployed.
+- [ ] **[S10]** Feature flags for behavioral changes: canary rollout path (1% → 10% → 50% → 100%) with monitoring gates at each step. Instant rollback via flag toggle.
+- [ ] **[S11]** Dead code removal after deprecation: old API code, tests, documentation, and related configuration all removed. No commented-out code referencing the deprecated surface remains.
+- [ ] **[S12]** Retrospective completed: what went smoothly, what surprised us, were migration tools adequate, was the timeline realistic. Lessons documented and fed back into the deprecation playbook.
 
 ## References
 

@@ -139,19 +139,42 @@ Estimate your level from the user's request. State it upfront: "Operating at L3 
 
 ---
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 Building a new screen on iOS
 
 > 📎 Full content extracted to [references/decision-trees.md](references/decision-trees.md) — 133 lines of detailed guidance, patterns, and code examples.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 Build composable, testable views using a strict hierarchy:
 
 > 📎 See [references/core-workflow.md](references/core-workflow.md) for complete guidance (291 lines).
 
-## Error Recovery
+## Best Practices
+
+1. **Use `@Observable` (iOS 17+) for view models instead of `@ObservableObject`.** The new observation framework tracks field-level access and only re-renders views when accessed properties change — eliminating the `objectWillChange` broadcast that re-renders every subscriber. Migrate from `@Published` + `ObservableObject` to `@Observable` macro for significant performance gains in complex view hierarchies.
+
+2. **Prefer `weak` over `unowned` in all async closures.** `unowned` is safe ONLY when the captured object is guaranteed to outlive the closure. In async contexts (network callbacks, Task closures, DispatchQueue), the object may deallocate before execution — `unowned` crashes with `EXC_BAD_ACCESS`. `weak` returns `nil` safely. The performance difference is negligible; the crash risk of `unowned` is catastrophic.
+
+3. **Use `perform`/`performAndWait` for all Core Data context access.** `NSManagedObjectContext` is not thread-safe. Reading properties on the wrong thread causes intermittent crashes impossible to reproduce. Pass `objectID` across threads and fetch fresh objects in the target context. Or use SwiftData which handles thread confinement automatically with `@ModelActor`.
+
+4. **Design for Dynamic Type from the first view.** Use system fonts (`.font(.body)`, `.font(.title)`) which scale automatically. Test every screen at `.accessibilityExtraExtraExtraLarge` — layout must not clip, truncate, or overlap. Avoid fixed frame sizes for text containers. Use `scrollView` with `axes: .vertical` when content outgrows the screen. Dynamic Type is an accessibility requirement, not a nice-to-have.
+
+5. **Handle `scenePhase` changes correctly.** iOS calls `scenePhase` `.inactive` during Control Center pull-down, app switcher, and incoming calls. `.background` fires after the app is fully backgrounded. Save critical state on `.inactive` — `.background` is not guaranteed (the system may terminate first). Resume network operations on `.active`. Don't pause media on `.inactive` (Control Center would stop music).
+
+6. **Use asset catalogs with App Thinning for images.** Place images in `Assets.xcassets` with `Preserve Vector Data` for SF Symbols and PDFs. Xcode automatically slices assets per device class, reducing bundle size. Never bundle @1x/@2x/@3x manually — the asset catalog handles device-specific delivery. Use `Image("name")` which loads from the catalog with caching.
+
+7. **Set `BGTaskScheduler` for deferrable background work, not `beginBackgroundTask`.** `beginBackgroundTask` gives ~30 seconds — enough to finish an in-flight request, not for periodic sync. `BGTaskScheduler` registers `BGAppRefreshTask` (short, minutes) or `BGProcessingTask` (long, minutes to hours) that the OS schedules during optimal battery windows. Never poll in the background — use push notifications (`content-available: 1` silent pushes) to trigger refreshes.
+
+8. **Validate code signing and entitlements on a physical device before submission.** Simulator doesn't enforce entitlements — push notifications, iCloud, HealthKit, and Keychain sharing all work without proper provisioning on Simulator but silently fail on device. Test with a Release configuration on a physical device. Check `codesign -d --entitlements -` on the built .app to verify entitlement plist.
+
+9. **Use Swift Concurrency (`async/await`) with `@MainActor` for UI updates.** Annotate ViewModels with `@MainActor` so the compiler enforces that published properties are only mutated on the main thread. Use `Task.detached` for background work that returns results via `await`. NEVER use `DispatchQueue.main.async` inside an async context — it breaks structured concurrency and cancellation propagation.
+
+10. **Test Xcode Previews with mock data, never with live services.** Previews run in a sandbox that can't access Keychain, network, or certain entitlements. Inject mock services via the environment: `.environment(\.apiService, MockAPIService())`. Guard preview-only crashes with `if !ProcessInfo.processInfo.isSwiftUIPreview`. Fixing previews is an investment — they save 15 seconds per view-edit-verify cycle, which compounds to hours per week.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -265,9 +288,39 @@ Build a complete feature — from Xcode project setup to TestFlight-ready archiv
 
 ---
 
-## Gotchas
+## Anti-Patterns
 
-Real-world Apple platform traps and their business impact.
+### 1. ATS Blocks HTTP Connections (~$50K)
+**What it looks like:** Network requests silently fail with `NSURLErrorDomain Code=-1022`. App Transport Security blocks plain HTTP by default. App appears broken with no user-facing error.
+**Fix:** Add per-domain ATS exceptions in `Info.plist` for staging/development. Use HTTPS in production. Always test on a physical device — Simulator is more lenient with ATS.
+
+### 2. Main Actor Isolation Cascade (~$20K)
+**What it looks like:** `@StateObject` on a `@MainActor`-isolated ViewModel in a non-isolated View produces 40+ cascading compiler errors. One missing `@MainActor` annotation on the View causes a wall of red.
+**Fix:** Annotate the View with `@MainActor`. All ViewModels that publish UI state should be `@MainActor`-isolated.
+
+### 3. Retain Cycles in Closures (~$100K)
+**What it looks like:** Strong capture of `self` in escaping closures. ViewModel never deinitializes; memory grows with each navigation cycle. App is jetsam-terminated after 10-15 cycles.
+**Fix:** Always use `[weak self]` in escaping closures. `deinit` must be called reliably — add a print statement during development and verify it fires on back-navigation.
+
+### 4. unowned Crash in Async Context (~$75K)
+**What it looks like:** `[unowned self]` in a closure where `self` can deallocate before execution. `EXC_BAD_ACCESS` crash, impossible to reproduce consistently.
+**Rule:** `unowned` is safe only when the captured object is guaranteed to outlive the closure. In ALL async contexts, use `weak`.
+
+### 5. Core Data Thread Confinement (~$60K)
+**What it looks like:** Reading `NSManagedObject` properties on a thread other than its context's queue. Intermittent crashes, "accessed from wrong thread" errors.
+**Fix:** Use `context.perform { }` or `context.performAndWait { }`. Pass `objectID` across threads and fetch fresh objects in the target context. SwiftData handles this automatically.
+
+### 6. SwiftUI View Identity Breakage (~$40K)
+**What it looks like:** Using indices for `ForEach` with mutable data, or unnecessary `id(_:)` modifiers. Animations break, `onAppear` fires unexpectedly, state resets on reorder.
+**Fix:** Use stable, unique identifiers from the model. `ForEach(items)` where `Item: Identifiable`. Never `ForEach(0..<count, id: \.self)` for dynamic lists.
+
+### 7. Xcode Previews Crash Silently (~$15K)
+**What it looks like:** Preview canvas shows "Preview Crashed" or hangs. Previews try to access Keychain, UserDefaults suite, or network — all unavailable in the preview sandbox.
+**Fix:** Inject mock services. Guard with `ProcessInfo.processInfo.isSwiftUIPreview`. Use `#Preview { }` with `.environment()` for dependency injection.
+
+### 8. Missing Entitlement Breaks Feature Silently (~$45K)
+**What it looks like:** Feature works on Simulator, fails on device with no clear error. Push notifications, iCloud sync, HealthKit — all require entitlements that Simulator doesn't enforce.
+**Fix:** Verify entitlements in `App.entitlements`. Test every capability-dependent feature on a physical device with Release configuration. Run `codesign -d --entitlements -` to audit.
 
 > 📎 Full content extracted to [references/gotchas.md](references/gotchas.md) — 171 lines of detailed guidance, patterns, and code examples.
 

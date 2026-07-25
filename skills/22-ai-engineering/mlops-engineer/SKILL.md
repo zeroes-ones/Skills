@@ -161,6 +161,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -172,6 +174,17 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Model accuracy in production is 15% lower than training evaluation | Training-serving skew — features computed differently in training (Spark batch) vs serving (Redis real-time). A 30-day rolling mean includes current day in Spark but excludes it in Redis. | Implement feature parity validation in CI/CD: sample 1,000 requests, compute features both ways, assert 100% match. Use a feature store (Feast/Tecton) with point-in-time correctness. | Training-serving skew is the #1 silent ML failure — the model doesn't crash, it just produces wrong predictions. Detection is delayed by weeks. Feature parity validation in CI/CD is the only reliable detection mechanism. |
+| Model "promoted" to Production in registry but old model still serving | Stage transition updated metadata only — CI/CD pipeline didn't listen for the event. Registry shows v2 as Production, but the deployment manifest still points to v1. | Implement webhook on stage transition → CI/CD pipeline trigger → kubectl rollout. Verify post-deployment: `curl` the endpoint, check `model-version` response header matches registry stage. | Model registry metadata is not deployment. A registry stage change is an intent, not an action. The gap between "promoted in registry" and "deployed to production" is where models silently fail to update. |
+| GPU utilization at 15% but inference latency spikes during peak hours | `batch_size=1` inference underutilizes GPU. Autoscaling adds more GPU instances based on CPU metrics instead of improving utilization on existing GPUs. | Profile GPU memory with `torch.cuda.max_memory_allocated()`. Benchmark throughput at batch sizes 1, 2, 4, 8, 16, 32. Deploy with dynamic batching at the maximum batch size that fits in memory. | GPU underutilization is invisible without profiling — you pay for 100% of the GPU but use 15%. Dynamic batching can 4× throughput without adding GPUs. Adding instances before optimizing utilization is the most expensive scaling strategy. |
+| Training pipeline produces identical results after code rewrite — caching serves old model | Kubeflow Pipelines caches based on input hash, not code hash. Input data is identical to previous run; entire pipeline is cached including the rewritten training code. | Include `git rev-parse HEAD` in pipeline input hash. Or disable caching on training steps: `annotations={'pipelines.kubeflow.org/caching_enabled': 'false'}`. | Pipeline caching is a footgun when the cache key doesn't include code changes. A team that "retrained" with new architecture but actually served the cached old model wastes GPU costs and loses weeks of progress. |
+| MLflow `log_model` with `conda_env` produces different libraries in production | `conda_env.yml` doesn't pin exact versions. Conda resolves dependencies differently on the production server — a NumPy minor version difference changes model outputs silently. | Use `pip_requirements` with exact version pins (`numpy==1.26.3`). Or container-based deployment (Docker). Verify: `pip freeze > requirements.lock` and commit lockfile with model artifact. | Environment reproducibility is the foundation of ML reliability. Without exact version pins, "works on my machine" becomes "fails silently in production" — the model doesn't crash, it just produces wrong predictions. |
+| Feature store online/offline values diverge after infrastructure migration | Redis cluster migration changed TTL behavior, causing some feature values to expire earlier than configured. Offline store (Spark) values remain correct. Online queries return stale defaults. | Monitor feature freshness: track the age of feature values served online vs the expected update frequency. Alert when any feature value is older than 2× its update interval. Run daily parity checks between online and offline values for 1,000 random keys. | Feature stores have two independent data paths — offline (training) and online (serving). Infrastructure changes to one path can break parity without affecting the other. Continuous parity monitoring is the only way to catch divergence before it affects predictions. |
 
 ## Cross-Skill Coordination
 
@@ -217,6 +230,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Model registry is a shared spreadsheet with columns "model_name" and "where_deployed" | Propose MLflow/W&B model registry with stage transitions, approval workflows, metadata (training data hash, code commit, evaluation metrics); sync with `ml-engineer` on registry integration | A spreadsheet model registry cannot answer "which model version is serving?" during an incident; a proper registry with automated stage transitions is the single source of truth for production ML |
 
 ## Core Workflow
+
+**(STANDARD)**
 
 <!-- STANDARD: 3min -->
 
@@ -277,6 +292,19 @@ If a command or approach fails, follow this escalation path before giving up:
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+## Best Practices
+
+1. **Validate training-serving feature parity in CI/CD.** The #1 silent ML failure is training-serving skew — features computed differently in training (batch Spark) vs serving (real-time Redis). Sample 1,000 requests, compute features both ways, assert 100% match. Gate deployment on parity check passing.
+2. **Pin exact dependency versions, not ranges.** A NumPy minor version difference can silently change model outputs. Use `pip freeze > requirements.lock` and commit the lockfile with the model artifact. Use container-based deployment (Docker) with pinned base images and layer hashes for reproducibility.
+3. **Automate model stage transitions.** Setting a model stage to "Production" in the registry should trigger CI/CD deployment — not just update metadata. Implement webhook → CI/CD pipeline → kubectl rollout. Verify: `curl` the endpoint, check `model-version` response header matches the registry.
+4. **Use dynamic batching for GPU inference.** Batch inference with `batch_size=1` underutilizes GPU at 10-20%. Profile with `torch.cuda.max_memory_allocated()` and benchmark throughput at batch sizes 1, 2, 4, 8, 16, 32, 64, 128. Find the largest power-of-2 that fits in GPU memory. Dynamic batching can 4× throughput without adding GPUs.
+5. **Monitor model drift continuously, not periodically.** Use PSI (Population Stability Index) per feature with automated alerting: PSI < 0.1 (no drift), 0.1-0.2 (investigate), > 0.2 (alert, consider retraining). Per-feature PSI catches which specific input is drifting before aggregate metrics show impact.
+6. **Include code hash in pipeline caching keys.** Kubeflow Pipelines and similar tools cache based on input hash only. If you rewrite training code but input data is identical, the pipeline serves cached old results. Include `git rev-parse HEAD` in pipeline input hash or disable caching on training steps.
+7. **Right-size GPU infrastructure with cost attribution.** Tag ALL GPU instances with `model:version:environment`. Track $ per model per day, $ per 1M predictions, GPU utilization %, and idle GPU hours. Without attribution, optimizing is guessing. Use spot/preemptible instances for batch inference.
+8. **Implement automated retraining triggers.** Don't wait for "someone notices accuracy dropped." Implement scheduled (weekly), performance-based (drift > threshold), and data-volume-based (N new labeled examples) triggers. Automated retraining closes the loop between detection and remediation.
+9. **Use a model registry as the single source of truth.** The registry must answer "which model version is serving right now?" during an incident. Include stage transitions, approval workflows, and metadata: training data hash, code commit, evaluation metrics, deployment timestamp.
+10. **Gate deployment on evaluation metrics.** No model reaches production without passing evaluation gates: accuracy/precision/recall above threshold, latency p95 within SLA, no regression vs current production model. Automated gates prevent "the model looked good in the notebook" deployments.
+
 ## Cross-Skill Integration
 
 <!-- STANDARD: 3min -->
@@ -297,6 +325,8 @@ Common chains:
 - **Chain**: ci-cd-builder → mlops-engineer → data-engineer — CI/CD automates ML pipeline stages; MLOps integrates model-specific gates; data engineer builds feature pipelines
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- QUICK: 60s -- flowchart-style logic for fork-in-the-road decisions -->
 
@@ -567,13 +597,80 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas — Highest-Value Content
+### Scale Depth
+
+#### Solo Developer
+**Budget:** $0-$500/month. FastAPI + Transformers for serving. MLflow local tracking for experiment registry. Manual deployment via script. Monitor: basic latency and error rate logging. Retrain: manual trigger when accuracy drops noticeably.
+**Transition trigger:** First production model with SLA or second model to manage → move to Small Team.
+
+#### Small Team (2-10)
+**Budget:** $500-$5K/month. Triton or vLLM for model serving with dynamic batching. MLflow with remote tracking server. Automated CI/CD pipeline with evaluation gates. Drift monitoring: PSI per feature with weekly reports. A/B testing: canary deployment with manual promotion. GPU utilization tracking per model.
+**Transition trigger:** 5+ production models or latency SLA < 100ms → move to Medium Org.
+
+#### Medium Org (10-50)
+**Budget:** $5K-$50K/month. Multi-model serving platform with GPU-aware autoscaling. Feature store (Feast/Tecton) with point-in-time correctness. Automated retraining triggers: scheduled + drift-based + data-volume-based. Model registry with approval workflows. Per-feature drift monitoring with automated alerting. Cost attribution per model per environment.
+**Transition trigger:** 20+ production models or multi-region deployment → move to Enterprise.
+
+#### Enterprise (50+)
+**Budget:** $50K+/month. Dedicated ML platform team. Multi-region model deployment with edge inference. MIG/GPU partitioning with priority-based scheduling. Continuous evaluation: online A/B testing with automated rollback. Federated model registry with compliance audit trails. Real-time drift detection with automated model rollback. FinOps: GPU spot/preemptible optimization, reserved instance planning, cross-team cost chargeback.
+
+## Anti-Patterns
+
+### Anti-Pattern: Manual Model Deployment
+**What it looks like:** Deploying models via manual `kubectl apply`, SCP to server, or clicking "Deploy" in a cloud console. Model versions tracked in a spreadsheet with columns "model_name" and "where_deployed."
+**Why it fails:** Manual deployment cannot answer "which model version is serving right now?" during an incident. Rollback requires remembering which previous version was good and manually re-deploying it. A spreadsheet is not a source of truth — it's stale the moment it's saved.
+**Do this instead:** Use a model registry (MLflow, W&B) with automated stage transitions. CI/CD pipeline deploys on stage change. Every deployment logs: model version, code commit, deployment timestamp, and evaluation metrics. Rollback is one command: deploy previous stage's artifact.
+
+### Anti-Pattern: Conda Environment Without Version Pins
+**What it looks like:** Using `mlflow.log_model` with `conda_env` that doesn't pin exact dependency versions. Each deployment creates a new conda environment from scratch with potentially different library versions than training.
+**Why it fails:** A NumPy minor version difference can silently change model outputs — 0.1% prediction drift across 100 models processing 1M requests/day each. The model doesn't crash, it just produces wrong predictions. Detection is delayed by weeks because performance degrades gradually.
+**Do this instead:** Use `pip_requirements` with exact version pins (`numpy==1.26.3`). Or use container-based deployment (Docker) where the entire environment is versioned as an image layer hash. Verify: `pip freeze > requirements.lock` and commit lockfile with model artifact.
+
+### Anti-Pattern: CPU-Based Autoscaling for GPU Workloads
+**What it looks like:** Configuring Kubernetes HPA (Horizontal Pod Autoscaler) on CPU utilization for GPU inference workloads. GPU utilization at 15% while CPU is at 80% — autoscaler adds more GPU instances unnecessarily.
+**Why it fails:** CPU-based autoscaling for GPU workloads is like monitoring tire pressure to decide when to refuel. GPU is the bottleneck resource, not CPU. Adding instances based on CPU metrics wastes GPU capacity and inflates costs without improving throughput.
+**Do this instead:** Use GPU-aware autoscaling: scale based on GPU utilization, GPU memory usage, or inference queue depth. Implement dynamic batching to improve GPU utilization before adding instances. NVIDIA DCGM metrics can feed directly into Kubernetes custom metrics for HPA.
+
+### Anti-Pattern: Offline-Only Model Evaluation
+**What it looks like:** Evaluating model performance only on offline test sets during training. No online evaluation, no A/B testing, no production metrics tracking. Deploying with the assumption that offline metrics predict online performance.
+**Why it fails:** Offline metrics don't capture training-serving skew, user behavior changes, or real-world data distribution. A model with better offline metrics can reduce user engagement. Without online evaluation, you can't measure business impact — you can only measure statistical metrics on static data.
+**Do this instead:** Implement A/B testing: canary deployment (5% → 25% → 50% → 100%) with automated rollback on guardrail metric degradation. Track business KPIs per model version. Compare online performance against offline evaluation to calibrate your test sets.
+
+### Anti-Pattern: Retraining Without Performance Comparison
+**What it looks like:** Automatically deploying every newly trained model to production because "newer is better." No comparison against the incumbent model, no evaluation gate, no canary deployment.
+**Why it fails:** Newer is not always better. A retrained model may overfit recent data, lose generalization, or introduce regression on edge cases. Replacing a working model with an untested one causes silent degradation — the system doesn't crash, it just gets worse.
+**Do this instead:** Run evaluation suite on new model vs incumbent. Gate deployment: new model must be provably better (higher accuracy, lower latency, or lower cost) on held-out test set. Deploy via canary (5% → 100%) with automated rollback if online metrics degrade.
+
+### Anti-Pattern: Shared GPU Clusters Without Isolation
+**What it looks like:** Running multiple model serving workloads on the same GPU without resource isolation. A batch inference job saturates GPU memory, starving real-time inference endpoints. Latency SLA violations cascade without clear attribution.
+**Why it fails:** Noisy neighbor problems on GPU are worse than CPU because GPU memory is a hard limit — when one workload OOMs, it doesn't gracefully degrade, it crashes. Real-time inference latency SLAs are violated silently until users complain. Attribution is impossible without per-model GPU metrics.
+**Do this instead:** Use MIG (Multi-Instance GPU) partitioning on NVIDIA A100/H100 for hard isolation. Implement GPU scheduling with priority classes: real-time inference > batch inference > training. Set GPU memory limits per container. Monitor per-model GPU utilization with attribution tags.
 
 - **MLflow `log_model` with `conda_env` creates a new conda environment from scratch on each deployment.** If `conda_env.yml` doesn't pin exact versions, the deployed model runs with different library versions than training. A numpy minor version difference can silently change model outputs — 0.1% prediction drift across 100 models processing 1M requests/day each = **$10,000-$50,000/day in bad business decisions**. Use `pip_requirements` with exact version pins (`numpy==1.26.3`) OR container-based deployment (Docker). Verify: `pip freeze > requirements.lock` and commit lockfile with model artifact.
 - **Feature store offline/online skew is the #1 silent ML failure.** The offline store (used for training) uses batch aggregations (Spark). The online store (used for inference) uses real-time aggregations (Redis/KV store). If aggregation logic differs — e.g., a 30-day rolling mean that Spark computes including current day but Redis computes excluding — every prediction uses features the model never saw during training. Detection is hard because model performance degrades gradually. **A financial fraud model with 5% skew produces $500,000-$2M/month in false positives/negatives.** Fix: implement training-serving skew validation in CI/CD. Sample 1,000 requests, compute features both ways, assert 100% match.
 - **Model registry stage transitions (Staging → Production) don't automatically trigger deployment.** Setting the stage to "Production" in MLflow just updates metadata. Your CI/CD pipeline must LISTEN for that event — otherwise your "production" model is a label on a dead artifact. **A model "promoted" but never actually deployed means the old model serves for weeks after it was supposed to be replaced.** In an e-commerce recommendation system, a stale model costs **$5,000-$20,000/day in lost revenue from suboptimal recommendations** ($0.01-0.05 lost per user session × 1M sessions). Fix: webhook → CI/CD pipeline → kubectl rollout. Verify: `curl` the model endpoint, check the `model-version` response header matches the registry.
 - **Kubeflow Pipelines caching is based on input hash, NOT code hash.** If your data ingestion step reads from `s3://bucket/data/date=2024-01-15/` and the data is identical to the previous run, the ENTIRE pipeline is cached — even if you rewrote the training code. **Code changes silently ignored for weeks.** A team that "retrained" a model with new architecture but actually served the cached old model for 3 weeks wasted **$15,000-$30,000 in GPU costs** retraining the wrong model and lost **$50,000-$200,000 in business impact** from the wrong model in production. Fix: include `git rev-parse HEAD` in pipeline input hash. Or disable caching on training steps: `dsl.component(base_image=..., annotations={'pipelines.kubeflow.org/caching_enabled': 'false'})`.
 - **Batch inference on GPU with batch_size=1 underutilizes the GPU at 10-20%.** But batch_size=256 on a model with sequence length 512 may exceed GPU memory and OOM. The optimal batch size is the largest power of 2 that fits in memory. **A team running 8 GPUs at 15% utilization with batch_size=1 is burning $8 × $3.50/hr × 730hrs = $20,440/month** for work that 2 GPUs at 80% utilization could handle ($5,110/month). **$15,330/month ($184,000/year) in wasted GPU spend.** Profile with `torch.cuda.max_memory_allocated()` and `nvidia-smi dmon -s pucv`. Benchmark throughput at batch sizes 1, 2, 4, 8, 16, 32, 64, 128 to find the knee before OOM.
+
+## Production Checklist
+
+Before any model reaches production, verify:
+
+- [ ] Feature pipeline runs end-to-end: features written to online AND offline stores with parity verification
+- [ ] Training pipeline: model artifact produced, registered with version, evaluation metrics stored
+- [ ] Online/offline feature parity: 100% match between training and serving feature computation (tolerance 1e-6)
+- [ ] Model serving smoke test: endpoint healthy, p95 latency within SLA, error rate < 1%
+- [ ] GPU utilization profile: utilization > 30%, memory within limits, dynamic batching configured
+- [ ] Model registry integrity: production version in registry matches version serving on the endpoint
+- [ ] Stage promotion automation: promoting model to Production triggers CI/CD deployment with health check
+- [ ] Rollback tested: deploy previous model version within deployment window (target < 5 min)
+- [ ] Drift monitoring active: PSI per feature with automated alerting (PSI > 0.2 triggers investigation)
+- [ ] Automated retraining triggers: scheduled (weekly), performance-based (drift), data-volume-based
+- [ ] Evaluation gate: new model passes accuracy/latency thresholds and shows no regression vs incumbent
+- [ ] Canary deployment: 5% → 25% → 50% → 100% with automated rollback on metric degradation
+- [ ] Cost attribution: GPU $ per model per day, $ per 1M predictions, idle GPU hours tracked
+- [ ] Dependency versions pinned in lockfile committed with model artifact (container-based deployment preferred)
+- [ ] Pipeline caching configured with code hash in input key (or caching disabled on training steps)
 
 ## Verification
 

@@ -134,6 +134,21 @@ Master customer support engineers know that operational excellence is invisible 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 support person, early-stage startup)
+Single queue. Founder does support. Priority: ticket triage discipline, SLA definition, KB article creation from every resolved ticket, auto-responders. Tools: Gmail/Help Scout, Notion for KB, Linear for bug tracking. No escalation tiers — one person resolves everything. Focus on building the KB as you go.
+
+#### Small (2-5 support engineers, Series A startup)
+L1/L2 split emerges. Dedicated support tooling. Priority: escalation paths, SLA dashboards, KB with full-text search, on-call rotation, ticket deflection metrics. Tools: Zendesk/Intercom, Datadog/Sentry for monitoring, Slack Connect for enterprise customers. Focus: reduce L1-to-L2 escalation rate through KB and training.
+
+#### Medium (5-20 support engineers, growth-stage company)
+L1/L2/L3 tiers with clear escalation criteria. Dedicated support ops role. Priority: support engineering (build internal tools), proactive monitoring (ticket creation from error spikes), customer health scoring, multi-channel support (chat, email, phone, social). Tools: Zendesk Enterprise, Jira Service Management, PagerDuty, Grafana. Focus: proactive support — detect issues before customers report.
+
+#### Enterprise (20+ support engineers, public company)
+Global support org with follow-the-sun coverage. Dedicated roles: support engineer, support ops, KB manager, escalation manager, customer success engineer. Priority: enterprise SLAs (sub-15-min SEV1), customer health dashboards, churn prediction models, self-service portal with AI chatbot, multi-language support. Tools: ServiceNow, Salesforce Service Cloud, Zendesk Suite, custom internal tooling. Focus: support as a competitive advantage — customers stay because support is world-class.
+
+
 ## When to Use
 
 - A customer reports a production issue and you need to triage it — determine severity, reproduce, and find root cause
@@ -146,6 +161,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are building a proactive support strategy — monitoring error rates, reaching out before customers report
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
@@ -184,6 +201,8 @@ IS THIS A KNOWN ISSUE?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Support Tier Design & Setup
@@ -213,9 +232,44 @@ Debugging & Root Cause Analysis
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
+## Best Practices
+
+1. **Classify every ticket by severity AND impact before responding.** SEV1 (service down, data loss) gets immediate escalation; SEV4 (cosmetic, low-impact) can wait. A misclassified SEV1 treated as SEV3 costs $50K/hour in downtime. Classification rubric: how many customers affected × business criticality × data integrity risk. For B2B SaaS, define SEV1 as "revenue-blocking for any paying customer." **Tool:** Zendesk triggers that auto-classify by keyword (outage, 500 error, data loss) and route to on-call for manual confirmation.
+
+2. **Build the KB as you resolve tickets — not as a separate project.** Every resolved ticket with a non-obvious solution becomes a KB article within 24 hours. If it took more than 10 minutes to debug, it's worth documenting. The "we'll build the KB later" project never ships — it competes with tickets and always loses. Embed KB creation in the resolution workflow: resolve ticket → draft article → review → publish. A team adding 1 article/day has 250 articles after 1 year. **Tool:** Zendesk Guide, Notion, GitBook, Confluence — with a template that includes symptoms, root cause, solution steps, and tags.
+
+3. **Track SLA compliance with real-time dashboards, not weekly reports.** A weekly SLA report tells you that 12% of SEV1 tickets were missed last week — three days after the damage was done. Real-time dashboards that flash red at 80% of SLA window let you recover BEFORE the breach. Display: tickets approaching breach (sorted by time remaining), breach count today, 7-day compliance %. The dashboard should be visible to the entire team on a monitor. **Tool:** Zendesk Explore, Datadog dashboard with SLA queries, Grafana with webhook alerts.
+
+4. **Never escalate without a complete investigation summary.** An escalation that says "customer reports slow API" costs engineering 45-75 minutes in context gathering. A proper escalation includes: account ID, affected endpoint, exact error message, reproduction steps, HAR file or API trace, recent deploy timeline, 1-line hypothesis. Enforce with a mandatory escalation template in the ticketing tool. Reject escalations that don't complete the template. **Tool:** Zendesk escalation form with required fields, Jira bug template pre-populated from support ticket data.
+
+5. **Respond during outages even when you have nothing new to say.** Four hours of silence during a payment outage on Black Friday triggers chargebacks, Twitter storms, and cancellations. A status update every 15-30 minutes — even "still investigating, no ETA yet" — signals competence. Implement an incident communication playbook: status page update at 5 min, customer email at 15 min, resolution summary at 24 hours. **Tool:** Statuspage, incident.io, PagerDuty status update templates with pre-written messaging for common outage types.
+
+6. **Measure support quality by first-contact resolution rate, not ticket volume.** An agent closing 80 tickets/day with 30% re-open rate and declining CSAT is generating churn at scale, not solving problems. Weight CSAT scores and FCR (first-contact resolution) at least equally with ticket volume. Trigger proactive follow-up on any ticket closed without customer confirmation within 72 hours — silent closures hide unresolved issues. **Tool:** Zendesk CSAT surveys, FCR tracking via auto-tagging, re-open rate dashboards with root cause analysis.
+
+7. **Detect product problems from support patterns before Product does.** Support sees the bugs before anyone else — 200 "can't log in" tickets in 2 hours IS the canary. Correlate ticket spikes with deploys, monitor error rate trends, and flag patterns weekly. If 3 customers report the same bug in 24 hours, file a product bug with all 3 ticket references. Support is the best product health sensor in the company if you instrument it. **Tool:** Sentry error-to-ticket automation, Datadog anomaly detection, weekly support pattern report to Product and Engineering.
+
+8. **Practice empathy, not just resolution.** The customer with a data integrity issue doesn't care about your root cause analysis — they care that their data is wrong and they're scared. Acknowledge the impact first: "I understand this is stressful — your data is critical. Here's what I'm doing right now to help." Technical accuracy without empathy feels cold and uncaring. Technical accuracy WITH empathy builds trust. **Tool:** Support communication templates with empathy-first language, quality assurance reviews that score empathy alongside technical accuracy.
+
+9. **Build self-service before you build the support team.** Every "how do I reset my password?" ticket answered by a human is a failure of self-service. Auto-suggest KB articles in the ticket submission flow using keyword matching. Track deflection rate as a support KPI. A 30% deflection rate on a 500-ticket/week team = 150 fewer tickets = 20 hours recovered weekly. **Tool:** Zendesk Answer Bot, Intercom Resolution Bot, Algolia-powered KB search, auto-suggest in ticket form based on subject line.
+
+10. **Use the "5 Whys" on every recurring issue until you reach the system fix.** A recurring "login failed" issue resolved with "cleared cache" 50 times = 50 tickets, not 1. Each resolution treats the symptom, not the cause. Ask "why" 5 times: Why login failed? Token expired. Why token expired? No refresh logic. Why no refresh? Never implemented. Why never implemented? Not in roadmap. Why not in roadmap? Product doesn't see support data. Root cause: support-to-product feedback loop is broken. Fix the loop, not the token. **Tool:** Jira root cause analysis template, Confluence RCA with linked tickets, monthly "top 5 recurring issues" review with Product.
+
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Customer reports "data still visible after deleting account" — agent treats as UX bug | GDPR/CCPA deletion violation. Agent didn't recognize compliance language in customer's phrasing. No compliance escalation path defined. | Immediately escalate to legal-advisor + security-engineer. Do not close or merge ticket. Trigger data deletion verification process. | Customer describes compliance violations in product language. Train agents to detect compliance patterns: "delete.*still.*show," "data.*visible.*after," "can't.*export.*data." |
+| "Cannot reproduce" — ticket closed without resolution | Environment mismatch: timezone, browser extensions, corporate proxy, firewall rules. Agent tried to reproduce in clean environment, customer is in restricted corporate environment. | Before attempting reproduction: collect HAR file, console logs, browser version, extensions, network configuration. If still cannot reproduce, schedule live screen-share session. Never close as "cannot reproduce" without customer confirmation. | "Cannot reproduce" is an information gap, not a resolution. The customer's environment differs — find the difference. |
+| 50 "login failed" tickets in one month — all resolved with "clear cache" or "reset password" | Symptom-level resolution. Root cause: token refresh logic broken in a specific auth flow. Agents fixed symptoms because KB article said "tell them to clear cache." | Run "5 Whys" on the recurring issue. Correlate ticket timestamps with deploys. File a product bug with all affected ticket IDs and a hypothesis: "Token refresh fails when session exceeds 24h — 50 tickets in 30 days." | Recurring tickets are a product problem disguised as support volume. Fix the system, not the symptom. |
+| CSAT 95%, NPS declining — team celebrated as "customers are happy" | CSAT measures politeness of support interaction. NPS measures product satisfaction. High CSAT + declining NPS = polite support masking product problems. | Separate CSAT from product health metrics. Report CSAT as "transaction satisfaction" not "customer happiness." Flag divergence to Product: "Support is polite (95% CSAT) but customers are unhappy (NPS -12). Product problems exist." | CSAT without NPS context is misleading. Politeness ≠ product quality. |
+| SEV1 ticket acknowledged at 4 hours — SLA was 15 minutes | No real-time SLA monitoring. Weekly report discovered breach 3 days too late. Agent assumed someone else picked it up. | Real-time dashboards that flash red at 80% of SLA window. Auto-escalation if unacknowledged at 50% of window. Visible team monitor showing tickets approaching breach. | SLAs enforced retrospectively are not enforced at all. Real-time visibility with auto-escalation prevents silent breaches. |
+| Escalation to engineering: "Customer reports slow API" — no other context | Incomplete escalation. Agent escalated ticket title verbatim without investigation. Engineering spent 75 min gathering context across Slack threads. | Mandatory escalation template: account ID, affected endpoint, error message, reproduction steps, HAR/API trace, recent deploy timeline, 1-line hypothesis. Reject escalations missing template fields. | Complete escalations save 50-75 engineering minutes each. Template enforcement is cheaper than wasted engineering hours. |
+
+
 ## Error Recovery
 
-If a command or approach fails, follow this escalation path before giving up:
+**(STANDARD)**, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
 |---------|-------------|---------------|-------------|
@@ -380,6 +434,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[CS1]** Support tiers defined: L1 (triage, KB, basic troubleshooting), L2 (technical debug, reproduction, bug filing), L3 (engineering escalation, code fix) — with SLA per tier
+- [ ] **[CS2]** SLA matrix documented and tool-configured: First Response Time, Resolution Time, Update Cadence — per severity level (SEV1-SEV4)
+- [ ] **[CS3]** Escalation paths documented: L1→L2→L3→Engineering on-call→Incident Commander — for each severity and scenario (security, data, outage)
+- [ ] **[CS4]** On-call rotation defined with schedule, handoff process, escalation policy — runbook available to all team members
+- [ ] **[CS5]** Ticket classification rules automated: severity assignment by keyword (outage, 500 error, data loss, security), auto-routing to correct queue
+- [ ] **[CS6]** Escalation template enforced with required fields: account ID, affected endpoint, error message, reproduction steps, HAR/API trace, 1-line hypothesis
+- [ ] **[CS7]** Real-time SLA dashboard visible to team: tickets approaching breach (sorted by time remaining), breach count today, 7-day compliance %
+- [ ] **[CS8]** Knowledge base workflow established: resolve ticket → draft article within 24 hours → review → publish — with symptom/root cause/solution/tags template
+- [ ] **[CS9]** Customer communication playbook for incidents: status page update at 5 min, customer email at 15 min, resolution summary at 24 hours — even when "still investigating"
+- [ ] **[CS10]** CSAT surveys configured and linked to tickets — FCR (first-contact resolution) tracked — re-open rate monitored with root cause analysis
+- [ ] **[CS11]** Proactive follow-up triggered on any ticket closed without customer confirmation within 72 hours
+- [ ] **[CS12]** Support pattern report automated: ticket spike detection correlated with deploys, weekly top 5 recurring issues shared with Product and Engineering
+- [ ] **[CS13]** Self-service deflection measured: KB auto-suggest in ticket form, deflection rate tracked as support KPI — target >30% deflection
+- [ ] **[CS14]** Data integrity handling procedure: SEV1 immediate escalation, legal-advisor + security-engineer notification, no data modification without approval, scope assessment (one customer vs many)
+
 ## What Good Looks Like
 
 > When customer support engineering operates at its best, every inbound ticket is triaged and routed within minutes, root causes are identified through systematic reproduction rather than guesswork, kno
@@ -413,7 +486,7 @@ graph LR
 | "We'll communicate after we fix the outage" | 4-hour Black Friday outage with zero customer updates means 40% of affected customers hear nothing — $50K-$500K in lost ACV from accounts citing 'poor communication during outages' as cancellation reason. |
 | "First response within a few hours is fine for critical tickets" | B2B customers waiting >60 min show 50% higher churn within 90 days — $10K-$100K/month in lost recurring revenue because slow response signals unreliability. |
 
-## Gotchas
+## Anti-Patterns
 
 - **"Me too" bug reports** — a customer reports a bug, you log it, 10 more customers report the same bug, you merge them as duplicates. But the FIRST report has the freshest details (browser version, exact steps, timestamp) and merging buries it. Always preserve the first report as the canonical source.
 - **Debug symbols in production** — `node --inspect-brk` or `DEBUG=*` in a support debugging session exposes environment variables, secrets, and internal API paths. If you enable debug mode for one customer, ALL customers on that instance get debug output. Use per-request debug flags, not global debug modes.

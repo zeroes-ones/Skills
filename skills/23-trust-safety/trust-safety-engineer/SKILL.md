@@ -256,6 +256,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Error Recovery
 
+<!-- STANDARD: 3min -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -430,7 +432,31 @@ graph LR
 
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
-## Gotchas
+## Best Practices
+
+<!-- STANDARD: 3min -->
+
+1. **Report false positives in absolute numbers, not percentages.** 99.9% accuracy at 1B posts/day = 1M wrongful removals per day. Every moderation dashboard must show absolute false positive counts per locale, per content type, per action type. A "good" percentage hides a catastrophic absolute number. Users don't experience your accuracy — they experience the removal.
+
+2. **Calibrate classifiers per locale, not per language.** A hate speech classifier trained on US English performs at 40-60% F1 in Indian English, Nigerian English, or Singaporean English. Each locale needs native training data, native-speaking moderators for ground truth labeling, and culturally-specific policy mapping. Language ≠ locale.
+
+3. **Every automated enforcement action must have a human-appealable path with a "statement of reasons."** EU DSA Article 17 mandates this. Appeals are not edge cases — they are the primary mechanism for catching classifier errors at scale. Every appeal overturned is a false positive your classifier missed. Track appeal overturn rate as a primary classifier quality metric.
+
+4. **PhotosDNA/CSAI Match integration is an engineering requirement, not a legal checkbox.** Failure to detect and report known CSAM is criminal liability in most jurisdictions. Perceptual hashing integration, hash database updates, NCMEC CyberTipline API integration, and medical imagery exclusion lists are all engineering deliverables. The CTO shares legal exposure with the GC.
+
+5. **Moderation latency SLA must be shorter than content shelf life.** A 45-minute moderation queue kills live-reaction content, breaking news, and time-sensitive posts. Creators learn where the moderation is fastest and post there. Priority queues for time-sensitive content formats with ≤90-second moderation latency keep creators on-platform.
+
+6. **Design the account integrity pipeline in layers, not a single gate.** Phone verification alone blocks 60% of fake accounts; email verification + device fingerprinting + behavioral signals blocks 95%. Each layer catches a different abuse vector. A single gate (CAPTCHA only) is trivially bypassed by CAPTCHA farms at $2/1,000 solves.
+
+7. **Medical imagery and professional content must have explicit exclusion rules in CSAM detection pipelines.** A dermatologist's rash photo or a radiologist's chest X-ray can match perceptual hash patterns in CSAM databases. False-positive CSAM flags on professional users trigger account suspension, legal exposure, and defamation claims. Medical exclusion lists with hash whitelisting are mandatory for health platforms.
+
+8. **Creator and high-value user content needs a separate moderation fast-track.** Creators with verified history and low violation rates should get expedited review with escalating friction (warning → delayed post → manual review → suspension) rather than instant takedown. The value of a creator's audience is measured in ad revenue, not just content policy.
+
+9. **Threat intelligence sharing across platforms is a force multiplier — bad actors operate everywhere.** A supplement scammer banned on Platform A will migrate to Platforms B, C, and D within 48 hours. Cross-platform threat intelligence (hashed identifiers, behavioral patterns, content signatures) enables proactive monitoring before the bad actor establishes a foothold on your platform.
+
+10. **Publish transparency reports quarterly with locale-level granularity.** Aggregate global content removal stats hide systemic bias. Report per locale: removal counts by category, appeal rates, appeal overturn rates, false positive rates, and action types (remove vs. demote vs. warn). Locale-level transparency is the only way to detect algorithmic discrimination in moderation.
+
+## Anti-Patterns
 
 - **Content moderation classifier trained on English data, applied to Hindi** — the model flags "gau mutra" (cow urine, a culturally significant term) as "bodily fluids — remove." The removal triggers a diplomatic incident and #BoycottYourPlatform trending. Moderation models need locale-specific training data for EVERY locale they operate in. **Total cost: $1M-$10M in market exit costs, user boycotts, and emergency localization rework per locale-level moderation failure.**
 - **"Zero tolerance" policies that are enforced by automation** — a teenager posts "I'm going to kill you" to their friend in a gaming chat (innocuous, they're trash-talking). The auto-mod bans them permanently. Appeal denied because "zero tolerance." Context matters. Zero tolerance without human appeal = zero fairness. **Total cost: $500K-$2M in user churn, brand boycott campaigns, and regulatory pressure per high-visibility wrongful ban incident.**
@@ -468,6 +494,73 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+<!-- STANDARD: 3min -->
+
+| # | Item | Criticality | Validation |
+|---|------|------------|------------|
+| 1 | CSAM detection: PhotoDNA/CSAI Match/NCMEC CyberTipline integration with perceptual hashing, hash database auto-update, and medical imagery exclusion lists | 🔴 High | End-to-end test: seeded CSAM hash → detection → NCMEC report filed; exclusion list verified for medical content |
+| 2 | False positive tracking: absolute counts per locale per content type per action type — any locale with > 2x global average FPR investigated | 🔴 High | Weekly FPR dashboard; automated alert when per-locale FPR exceeds 2x global baseline |
+| 3 | Appeal pipeline: every automated enforcement action appealable with "statement of reasons"; appeal SLA tracked and met for > 95% | 🔴 High | Appeal overturn rate tracked; DSA Article 17 compliance verified; statement of reasons template reviewed by legal |
+| 4 | Classifier calibration per locale: every supported locale has native training data, native-speaking moderators for ground truth, and locale-specific accuracy metrics | 🔴 High | Per-locale F1 scores tracked; any locale below F1=0.75 escalated for retraining |
+| 5 | Account integrity: layered defense (phone + email verification, device fingerprinting, behavioral signals) — no single gate | 🔴 High | Fake account creation rate measured via honeypot accounts; layered pipeline blocks ≥ 95% of automated signups |
+| 6 | Moderation latency: priority queues for time-sensitive content with ≤ 90-second SLA; general queue latency tracked per content type | 🟡 Medium | P99 latency dashboard per content type; creator churn correlated with moderation latency |
+| 7 | Medical imagery exclusion: whitelist rules for professional medical content in CSAM/perceptual hash pipelines | 🟡 Medium | Test: dermatology image → NOT flagged by CSAM pipeline; exclusion rules reviewed quarterly with clinical input |
+| 8 | Creator fast-track: verified creators with low violation rates get expedited review with escalating friction (warn → delay → manual → suspend) | 🟡 Medium | Creator violation rate and moderation latency tracked separately; fast-track criteria documented |
+| 9 | Threat intelligence sharing: cross-platform threat intel integration with hashed identifiers and behavioral pattern exchange | 🟡 Medium | Threat intel sharing agreement active with ≥ 2 platforms; inbound threat intel triggers proactive monitoring within 24 hr |
+| 10 | Transparency reports: published quarterly with locale-level granularity — removal counts by category, appeal rates, overturn rates, FPR | 🟡 Medium | Most recent report published within last quarter; locale-level breakdown included |
+| 11 | Classifier test set: refreshed quarterly with recent edge cases that current model got wrong; adversarial test cases included | 🟡 Medium | Test set refresh date within last 90 days; adversarial accuracy tracked separately from general accuracy |
+| 12 | Content policy enforcement: severity ladder (warn → temporary restriction → permanent suspension) with automated escalation based on violation count and severity | 🟡 Medium | Enforcement decision audit shows correct severity tier application ≥ 95%; appeal overturn rate ≤ 5% |
+| 13 | DM/private channel safety: abuse reporting, known-bad-actor heuristics, pattern detection across public + private activity | 🟢 Low | DM abuse report volume tracked; predator detection heuristics tested quarterly |
+| 14 | Child safety: age verification where required, COPPA-compliant data handling for under-13, CSAM detection pipeline active on all user-generated content surfaces | 🟢 Low | Age gate tested; COPPA data handling verified; CSAM pipeline coverage ≥ 99% of UGC surfaces |
+| 15 | Incident response: trust & safety incident playbook with on-call rotation, 24/7 escalation, and regulatory notification process (NCMEC, data protection authority) | 🟢 Low | Incident drill conducted quarterly; on-call rotation tested; regulatory notification templates pre-reviewed |
+
+## Scale Depth
+
+<!-- STANDARD: 2min -->
+
+#### Solo Developer
+- **Safety**: Basic keyword-based content filtering with manual review for appeals; platform with < 5,000 users
+- **Minimum**: Pre-built moderation API (Hive, TwoHat, Spectrum), basic account verification (email + CAPTCHA), manual appeal email process
+- **Add**: CSAM scanning API integration, per-content-type classifier selection, basic transparency page
+- **Cost**: ~$200-1,000/mo (moderation API pay-per-use + basic tooling)
+- **Coverage**: Single locale, single content type — sufficient for indie platform with < 5,000 users
+
+#### Small Team (2-10)
+- **Safety**: Hybrid automated + human moderation with per-locale classifier calibration; platform growing to 50K users
+- **Minimum**: Multi-locale classifiers with native training data, human review queue with SLA tracking, appeal pipeline with statement of reasons, layered account integrity
+- **Add**: CSAM detection pipeline (PhotoDNA integration), transparency reports, threat intelligence sharing membership
+- **Cost**: ~$3,000-10,000/mo (moderation API + human review team of 2-4 + classifier hosting)
+- **Risk**: Without per-locale calibration, non-English moderation accuracy degrades to 40-60% F1 — regulatory exposure under DSA
+
+#### Medium Org (10-100)
+- **Priority**: In-house trust & safety engineering team — moderation is core infrastructure, not a vendor integration
+- **Minimum**: Custom classifiers with continuous retraining pipeline, real-time moderation with priority queues, NCMEC CyberTipline integration, per-locale FPR monitoring, creator fast-track
+- **Add**: Medical imagery exclusion pipeline, behavioral signal-based account integrity, cross-platform threat intelligence automation, adversarial robustness testing
+- **Cost**: ~$15,000-50,000/mo (in-house T&S engineering team of 2-5 + ML infrastructure + human review ops)
+- **Coverage**: Multi-locale, multi-content-type — regulated platform scale under DSA/DMA
+
+#### Enterprise (100+)
+- **Organization**: Dedicated trust & safety organization with engineering, policy, operations, and legal functions; T&S embedded in product development
+- **Minimum**: Federated ML across all content surfaces, real-time threat detection with automated takedown, adversarial ML team for classifier robustness, multi-modal detection (text + image + video + audio), regulatory-grade transparency infrastructure
+- **Add**: Predictive abuse detection (identifying coordinated inauthentic behavior before content is posted), cross-platform identity graph, published safety research, industry standards leadership
+- **Cost**: $50,000-200,000+/mo (dedicated T&S org of 10-30 + enterprise ML infrastructure + legal/policy team)
+- **Focus**: Setting industry standards for content safety — publish detection techniques, lead cross-platform threat intelligence, shape platform regulation
+
+## Error Decoder
+
+<!-- QUICK: 30s -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Moderation classifier at 99.9% accuracy generates 500 support tickets/day from wrongful removals — support team overwhelmed | Accuracy metric reported as percentage, hiding 1M daily false positives at 1B posts/day scale | Convert all moderation metrics to absolute counts: false positives per locale per content type per action. Dashboard shows "1,000 false positives in Hindi video comments today" not "99.9% accuracy." Staff support team proportional to absolute false positive volume, not percentage | Percentages lie at scale. 99.9% accuracy at 1B posts/day = 1M wrongful actions daily. Absolute counts are the only honest metric |
+| Hindi-language hate speech classifier at 40% F1 — policy violations go undetected while innocuous cultural terms are flagged | Classifier trained on US English data, applied to Hindi without locale-specific training or native-speaking moderators for ground truth labeling | Train separate classifier per locale with native training data and native-speaking moderators for ground truth. Cultural context mapping: terms that are innocuous in one culture but flagged in another must be explicitly whitelisted per locale | Language ≠ locale. Hindi as spoken in India, Fiji, and Mauritius have different hate speech patterns. Every locale needs its own training data |
+| CSAM detection pipeline flags a dermatologist's skin condition photo — doctor's account suspended, legal threat received | Perceptual hashing has no medical imagery exclusion; all images matching CSAM hash patterns are treated identically | Implement medical imagery whitelist: hash medical image databases, exclude from CSAM pipeline, add second-layer review for medical-platform content. Dermatology/radiology platforms must have medical exclusion configured before CSAM pipeline activation | Medical imagery and CSAM share visual patterns. Without exclusion lists, false-positive CSAM flags on professional users are defamation and regulatory exposure |
+| Creator with 2M followers leaves platform after 3rd wrongful content takedown — posts go viral on competitor platform | All users get identical moderation treatment; creator's content value and violation history ignored | Implement creator fast-track: verified creators with low violation rates get escalating friction (warning → delayed post → manual review → suspension). Priority queue for creator content with ≤ 90-second moderation SLA | Creator churn is measured in ad revenue. A single wrongful takedown on a creator with 2M followers costs more than 10,000 correct removals on throwaway accounts |
+| Supplement scammer banned on your platform appears 48 hours later on 3 peer platforms with identical behavior pattern | No cross-platform threat intelligence sharing — each platform detects the same bad actor independently, each time from scratch | Join cross-platform threat intelligence group. Share hashed identifiers (email, device fingerprint), behavioral patterns, and content signatures. Proactively monitor inbound threat intel for accounts matching known-bad-actor patterns before they post | Bad actors operate across platforms. Solo detection is playing whack-a-mole while peers are building a surveillance network |
+| EU DSA compliance audit fails because appeals are handled by the same automated system that made the original decision | Appeals treated as edge case — "statement of reasons" not generated, no human review, no independent decision-maker | Implement independent appeals pipeline: every automated decision → appealable → human reviewer (not same system) → statement of reasons generated → decision communicated. Track appeal overturn rate as primary classifier quality metric | DSA Article 17 requires human-reviewable appeals with stated reasons. Automated appeals of automated decisions are non-compliant — fines at 6% of global annual turnover |
 
 ## References
 

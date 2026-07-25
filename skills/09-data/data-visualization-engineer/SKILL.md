@@ -101,6 +101,7 @@ What visualization task do you need?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Dashboard Design
 
@@ -120,6 +121,7 @@ What visualization task do you need?
 5. Remove everything that doesn't support the story. Ruthlessly.
 
 ## Decision Trees
+**(QUICK)**
 
 ### 1. Chart Selection
 
@@ -261,8 +263,30 @@ Which visualization tool?
 └── Embedded in-app analytics → Cube.js, Metabase embedding, custom D3/React components
 ```
 
+## Best Practices
+
+1. **Chart type matches data type AND question type.** Comparison → bar chart. Trend over time → line chart. Distribution → histogram/box plot. Part-to-whole (≤3 categories) → donut. Correlation → scatter plot. Never use a pie chart for more than 3 categories — the human eye cannot accurately compare non-adjacent wedge angles.
+
+2. **Bar charts always start at zero.** A truncated y-axis makes a 2% difference look like 100%. If a non-zero baseline is justified for a line chart, annotate the chart prominently with the actual numeric range and percentage change to prevent visual misinterpretation.
+
+3. **Accessibility is not optional — 1 in 12 men are colorblind.** Use blue-orange palettes (never red-green as the only differentiator), add patterns or direct labels as redundant channels, and test every visualization in grayscale. Dashboards must be navigable via keyboard and readable by screen readers.
+
+4. **Data-ink ratio: maximize data, minimize decoration.** Remove gridlines, borders, and background colors unless they communicate data. Every pixel of ink should serve a purpose. Tufte's principle: above all else, show the data.
+
+5. **Title states the insight, not just the metric name.** "Revenue increased 23% in Q3, driven by enterprise segment" beats "Revenue by Quarter." The title should answer "so what?" before the viewer analyzes the chart.
+
+6. **Every dashboard must answer a specific, stated question.** Before building, write: "This dashboard answers: [specific question] for [specific audience] to make [specific decision]." If you can't fill in all three blanks, the dashboard doesn't need to exist.
+
+7. **Design for the viewer's cognitive load — F-pattern for dashboards.** Top-left: most important KPI (what the viewer sees first). Top row: summary numbers + sparklines. Middle: trends and comparisons. Bottom: detail tables. Limit to 7-9 visual elements per view or create clear information hierarchy.
+
+8. **Interactivity should enhance, not hide, information.** Critical data must be visible without hover/click. Design dashboards to function in print mode — all essential values visible without interaction. Add direct labels instead of tooltips for key data points.
+
+9. **Color system: one accent color for key data, neutral grays for everything else.** Red ONLY for alerts or negative deviations. Consistent color mapping across all dashboards in the organization. Categorical palettes max out at 7-9 colors — beyond that, facets or "other" grouping.
+
+10. **Dashboard performance: optimize for the slowest connection your users experience.** Limit queries per dashboard load. Use extracts over live connections for BigQuery/Redshift. Pre-aggregate data. A dashboard that takes 30 seconds to load is a dashboard that doesn't get used. Target < 5 seconds for all views.
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -368,7 +392,7 @@ Before beginning a new phase, verify:
 | "We'll add labels and context later" | Charts without direct labels and explanatory titles force readers to guess — one bad board decision from misinterpreted visualization costs $100K-$500K in misdirected strategy. |
 | "Stale data isn't a big deal — it's close enough" | Decisions made on 6-hour-old data during outages cost $30K-$150K in misprovisioned infrastructure and delayed response — freshness indicators are not cosmetic. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Dashboard without mobile view — the CEO checks on their phone and sees nothing.** Your meticulously designed 12-panel operational dashboard renders beautifully on a 27-inch monitor at 2560×1440. The CEO opens it on an iPhone during a board meeting to check Q3 revenue and sees: a legend covering the chart, numbers too small to read, horizontal scrolling required for every panel, and a loading time of 12 seconds on cellular. After two attempts, they stop checking the dashboard entirely and start asking the analytics team for ad-hoc reports — adding 5-10 hours of analyst time per month at $75-$100/hour to manually generate what the dashboard should have provided. For a data team supporting 3-5 executives who each disengage from self-service analytics, the annual cost in redundant report generation is $30K-$60K, and more importantly, executives make decisions without real-time data because they can't access it when they need it. **Total cost: $10K-$50K in executive disengagement, redundant ad-hoc reporting, and decisions made without timely data.** Design every dashboard mobile-first or at minimum test on a phone before publishing: single-column layout, card-based panels, swipeable navigation, and top-3 KPIs visible above the fold without scrolling.
 - **Misleading y-axis (truncated axis) — the visualization that generates false urgency.** A line chart shows revenue "plummeting" from visual inspection — the line drops sharply from the top of the chart to the bottom. But the y-axis starts at $4.8M and ends at $5.0M, so the actual decline is from $4.95M to $4.91M — a 0.8% month-over-month change within normal variance. The VP of Sales sees the chart in a board deck, panics, and redirects 2 salespeople from closing deals to "fixing the revenue problem" for 3 weeks, costing $60K in delayed pipeline. Meanwhile, the real issue (customer churn in the enterprise segment, visible in a properly scaled chart) goes unaddressed because attention was hijacked by the visual distortion. A single truncated-axis visualization in a quarterly board deck has triggered documented cases of $50K-$200K in misallocated resources from decisions based on visually exaggerated data. **Total cost: $50K-$200K in bad business decisions driven by visually distorted data that masks true trends.** Always start bar chart y-axes at zero, and for line charts where a non-zero baseline is justified, annotate the chart prominently with the actual numeric range and percentage change to prevent visual misinterpretation.
@@ -380,6 +404,62 @@ Before beginning a new phase, verify:
 - **Too many colors in a categorical palette (> 7-9) causes the "where's waldo" effect — viewers spend more time matching legend colors than understanding the data.** Every extra color adds ~1.5 seconds of legend-matching cognitive load. A 15-category chart takes ~22 seconds just to decode, by which time the viewer has lost the analytical thread. **Group beyond 7 categories into "other" or facet.**
 - **Dashboards without clear ownership degrade into information cemeteries within 6 months.** Charts accumulate ("just add one more KPI"), no one removes outdated views, and the dashboard becomes a graveyard of once-useful metrics that no one trusts anymore. **Every dashboard must have an owner, a review cadence (quarterly), and a sunset criterion (if a chart isn't referenced in decisions for 2 quarters, remove it).**
 - **The "we need real-time" default is expensive and usually unnecessary.** Real-time dashboards cost 10-50x more in infrastructure than daily-refresh. Unless the decision has sub-minute urgency (fraud detection, critical system monitoring), a 1-hour or daily refresh is sufficient. **A mid-size company I consulted spent $180K/year on real-time infrastructure for dashboards checked once daily. Moving to hourly refresh saved $160K/year with zero loss in decision quality.**
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] **Chart type verified:** Chart type matches data type AND question type per chart selection tree
+- [ ] **Accessibility audited:** Colorblind-safe palette; grayscale test passed; keyboard-navigable; screen-reader compatible with alt text
+- [ ] **Bar charts start at zero:** Any non-zero baseline is annotated with actual numeric range and % change
+- [ ] **No 3D effects on 2D data:** No perspective distortion; no exploded pie charts; no decorative elements that obscure data
+- [ ] **Color redundancy:** Color never used as the sole information channel — patterns or direct labels back up color encoding
+- [ ] **Title communicates insight:** Title states the finding, not just the metric name; viewer understands the message in < 5 seconds
+- [ ] **Dashboard answers stated question:** Dashboard purpose documented; audience and decision context clear
+- [ ] **Information hierarchy follows F-pattern:** Top-left KPI is most important; visual weight matches data importance
+- [ ] **≤ 7-9 visual elements per view:** OR clear information hierarchy with progressive disclosure
+- [ ] **Mobile/print tested:** Dashboard renders correctly on phone and tablet; printed version includes all critical data
+- [ ] **Performance verified:** All views load in < 5 seconds; extracts configured with failure notifications; query timeouts set
+- [ ] **Freshness indicator visible:** Last-refresh timestamp displayed on every panel; freshness SLA status clear (green/yellow/red)
+- [ ] **Dashboard ownership assigned:** Owner, review cadence (quarterly), and sunset criteria documented for every dashboard
+
+## Scale Depth
+
+### Solo (1 person, 0-10 dashboards)
+- **Stack:** Tableau Public/Metabase/Google Data Studio. Manual data extracts. CSV/Google Sheets sources.
+- **Design:** One-off dashboards. No design system. Ad-hoc color choices.
+- **Key constraint:** Every dashboard is a bespoke creation. Consistency across dashboards is entirely manual and easily forgotten.
+
+### Small Team (2-10 people, 10-50 dashboards)
+- **Stack:** Tableau/Looker/Power BI with shared data sources. Version-controlled dashboard definitions (LookML).
+- **Design:** Shared color palette and typography. Chart templates for common patterns. Dashboard review process.
+- **Key constraint:** Maintaining visual consistency across team members. Onboarding new designers to the style guide.
+
+### Medium Team (10-50 people, 50-200 dashboards)
+- **Stack:** Embedded analytics platform. Design system with component library (Figma tokens → code). Automated accessibility testing.
+- **Design:** Dashboard design system with documented patterns. Performance budgets. A/B testing for dashboard usability.
+- **Key constraint:** Dashboard sprawl — 200 dashboards, 50 are unused. Implement dashboard lifecycle management and usage analytics.
+
+### Enterprise (50+ people, 200+ dashboards)
+- **Stack:** Multi-product analytics platform with embedded customer-facing analytics. White-label theming. Real-time dashboards.
+- **Design:** Central design system with governance. Automated visual regression testing. Usability research program.
+- **Key constraint:** Brand consistency across internal AND customer-facing analytics. Regulatory compliance for public dashboards.
+
+### Transition Triggers
+- Solo → Small: Someone asks "why does this dashboard look different from the last one?" Stakeholders notice inconsistency.
+- Small → Medium: Dashboard count exceeds 50. Multiple teams request the same metric with different visualizations.
+- Medium → Enterprise: Customer-facing dashboards need white-labeling. Visual accessibility becomes a compliance requirement.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Dashboard renders perfectly on desktop, broken on mobile | Designed for 1440px+ viewport without responsive breakpoints. CEO opens on iPhone during board meeting. | Design mobile-first: single-column layout, card-based panels, swipeable navigation. Test on actual devices. | The person who approved the dashboard budget checks it on their phone. Design for their device first. |
+| Printed dashboard shows empty charts | Critical data displayed only in tooltips/hover states. Print strips interactivity. | Add direct labels to all chart elements. Include a "Print" or "Export to PDF" button. Test every dashboard by printing in grayscale. | Interactivity is progressive enhancement — the data must be visible without it. |
+| Bar chart makes a 2% difference look catastrophic | Y-axis truncated to non-zero baseline. 32% vs 30% with axis starting at 28% looks like 2x difference. | Start bar chart y-axis at zero. For line charts with non-zero baseline, annotate with actual numeric range and % change. | Visual exaggeration is the most common (and most easily weaponized) visualization flaw. |
+| Red-green chart is unreadable to colorblind stakeholder | Red-green colorblindness affects 1 in 12 men. Color is the sole information channel. | Use blue-orange palette. Add patterns, direct labels, or shapes. Test with a colorblind simulator (Coblis, Color Oracle). | If your only differentiator is color, 8% of your male audience literally cannot read your chart. |
+| Dashboard with 15 categories has unreadable legend | 15 colors exceed human categorical perception limit (7-9). Viewers spend more time matching legend colors than understanding data. | Group beyond 7-9 categories into "other." Use small multiples (faceted charts). Direct labeling eliminates legend entirely. | Every extra color adds ~1.5 seconds of cognitive load. A 15-category legend takes ~22 seconds just to decode. |
+| "Real-time" dashboard costs 50x more than needed | Streaming/Kafka pipeline for a dashboard checked once daily during morning standup. | Match refresh rate to decision cadence. Hourly refresh for operational, daily for analytical, weekly for strategic. | Real-time costs 10-50x more and is rarely needed. The question is: "would a 1-hour delay change the decision?" |
+| Dashboard shows "green" but data is 3 days old | Pipeline failed silently. No freshness indicator visible. No freshness alert configured. | Display "last updated" timestamp prominently. Green/yellow/red freshness indicator. PagerDuty alert on SLA breach. | Stale data that looks fresh is more dangerous than no data. Executives trust what they see until proven wrong. |
 
 ## Deliberate Practice
 

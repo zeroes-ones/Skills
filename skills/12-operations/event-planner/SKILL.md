@@ -72,6 +72,20 @@ You are an event producer who has managed events where the keynote speaker's fli
 *   **Full planning (full session):** Build complete event plan: budget, timeline, run-of-show, vendor RFPs, risk register, marketing plan, attendee journey map.
 *   **Event program audit (multi-session):** Evaluate existing event program: ROI per event, attendee NPS trends, vendor performance, process improvement, scaling playbook.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 event, 1 planner, 50-200 attendees)
+Single event budget in spreadsheet, run-of-show in Google Sheets, vendor list in Notion. Focus: disciplined budget tracking, venue negotiation fundamentals, run-of-show creation, single-point-of-failure elimination. Tools: Google Sheets, Excel, Notion, Canva for signage.
+
+#### Small (2-5 events/year, 1-2 planners, 200-500 attendees)
+Standardized templates (budget, run-of-show, venue RFP, vendor scorecard). Vendor relationship management with preferred vendor list. Post-event analysis with NPS trending. Focus: vendor consolidation for volume discounts, attendee experience design, sponsorship management. Tools: Cvent, Eventbrite, Social Tables, Splash.
+
+#### Medium (5-20 events/year, 3-5 planners, 500-2,000 attendees)
+Event program management with portfolio-level budget and ROI tracking. Dedicated event technology stack (registration, mobile app, lead retrieval). Focus: event program ROI optimization, attendee journey personalization, sponsorship revenue growth, event technology integration. Tools: Cvent, Bizzabo, RainFocus, HubSpot/ Salesforce event integration.
+
+#### Enterprise (20+ events/year, 5+ planners, 2,000+ attendees, global)
+Global event strategy with regional execution hubs. Enterprise event technology platform with single sign-on and data integration. Focus: global venue sourcing with preferred partner agreements, event data analytics (attribution, pipeline influence), brand consistency across all events, sustainability program, crisis management playbook. Tools: Cvent Enterprise, RainFocus, Jifflenow/ Certain for meeting management, Salesforce/ Marketo integration.
+
 ## When to Use
 
 Use event-planner when designing and executing live, virtual, or hybrid events.
@@ -101,6 +115,8 @@ What event planning task do you need?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 ### Event Planning Lifecycle
 
 1. Define: Event goals (why are we doing this?), target audience (who must attend?), success metrics (what does success look like?), budget ceiling.
@@ -110,6 +126,8 @@ What event planning task do you need?
 5. Close: Vendor payments, budget reconciliation, attendee survey, stakeholder debrief, lessons learned document.
 
 ## Decision Trees
+
+**(QUICK)**
 
 ### 1. Budget Development
 
@@ -320,7 +338,44 @@ How to measure event success and capture learnings:
 ```
 
 
+## Best Practices
+
+1. **Lock the budget ceiling before any vendor conversation.** A $50K event without a hard cap becomes $95K — vendors will upsell at every touchpoint. Allocate by category: venue 25-35%, F&B 25-35%, AV 10-15%, speaker/talent 10-20%, marketing 5-10%, contingency 15%. Track actuals weekly against plan. When a category exceeds allocation, reduce another — don't expand the ceiling. Events with disciplined budgets land within 5% of plan; events without land 30-50% over. **Tool:** Excel event budget template, Google Sheets with real-time collaboration, or Cvent/Eventbrite budget tracking.
+
+2. **Negotiate every clause in the venue contract before signing.** Hotels and convention centers write contracts that protect them, not you. The five clauses that cost planners the most: attrition (guaranteed room %), force majeure (does it cover pandemics?), AV exclusivity (are you forced to use in-house?), F&B minimums (what if attendance is lower?), and cancellation terms (sliding scale by notice period). Everything is negotiable — ask for 70% attrition instead of 80%, right to use external AV, force majeure updated to include government restrictions. **Tool:** Venue RFP template, contract review checklist, legal advisor for contracts > $50K.
+
+3. **Build the run-of-show backward from doors-open time.** Start with when attendees enter, work backward to when the first crew member arrives. Every minute from load-in to load-out is accounted for. Include: exact times (not "morning" but "7:45 AM"), transitions (15-30 min room flips), buffer (10-15% padding), owner for every line, back-pocket content for speaker gaps, and emergency contacts for every vendor and venue manager. Print 5 copies — WiFi and phones fail. **Tool:** Google Sheets run-of-show template, Excel with color-coding, or Cvent/Social Tables event diagramming.
+
+4. **Test everything before event day — AV, WiFi, check-in, everything.** A "fully equipped" AV setup that's never been tested is a 15-minute outage waiting to happen during the CEO's keynote. Test: every microphone, every projector, every laptop connection, every slide deck, every video, every live stream, every registration kiosk. Test WiFi with simulated load — 200 devices idling is different from 200 streaming. Test the backup: does the backup laptop have all presentations? Does the backup hotspot actually work? **Tool:** AV checklist, WiFi load testing (iPerf), registration system dry run with test attendees.
+
+5. **Eliminate single points of failure — every critical function needs a backup person.** If one AV tech, one registration lead, or one MC gets sick or stuck in traffic, the event must continue without them. For every critical role: name the primary, name the backup, ensure the backup has access to all systems and files, and brief the backup on the run-of-show. Rule: if one person's absence would ruin a segment of the event, you have a plan B problem. **Tool:** Staff assignment sheet with primary/backup columns, shared access to all critical files (Google Drive with offline access), printed emergency contact sheet.
+
+6. **Manage F&B guarantees with data, not anxiety.** The industry average is 15-20% over-ordering "just to be safe." For a 200-person event, that's $3K-10K of uneaten food. Adjust guarantees: expected attendees × (1 - historical no-show rate) × 0.9 (portions are generous). Most venues let you adjust the guarantee 72 hours before. Track daily F&B totals against minimum guarantee during the event — don't wait until final invoice. **Tool:** F&B tracker with actual vs guarantee, historical no-show data from previous events, daily running totals from venue catering manager.
+
+7. **Send the post-event survey within 24 hours with 5 questions max.** Response rates drop 50% for every additional day after the event and 10% for every additional question beyond 5. Ask: (1) overall rating, (2) NPS ("would you recommend?"), (3) best part, (4) what to improve, (5) likelihood of attending next year. A 200-person event with 60% response rate = 120 responses; with 3% response rate = 6 responses. You cannot make data-driven decisions from 6 data points. **Tool:** Typeform, SurveyMonkey, Google Forms, or integrated event app surveys.
+
+8. **Book speaker travel 8-12 weeks out and enforce a "slides due 1 week before" policy.** Flights booked inside 2 weeks cost 40-60% more — for 30 speakers, that's $15K-$25K wasted. Slides that arrive the day before create cascading delays: 12 sessions × 5 minutes late = 60 minutes of lost content. Make slide submission a contractual obligation with a hard deadline. Assign each speaker a "slide buddy" who verifies format, aspect ratio, and embedded media. Have backup laptops preloaded with all presentations. **Tool:** Speaker management spreadsheet with travel booking dates, slide submission tracker, slide template with technical requirements.
+
+9. **Conduct an in-person site visit within 2 weeks of the event.** Photos show the best angle from 3 years ago. A walkthrough reveals: loading dock access that doesn't fit a truck, a "20-minute drive" that's 45 minutes in rush hour, a "fully equipped" kitchen that's a microwave and mini-fridge, an echo-chamber ballroom, outlets on the wrong wall. Walk the attendee journey from parking to seat. Two hours of walkthrough prevent 20 hours of day-of crisis management. **Tool:** Site visit checklist (load-in path, power, WiFi test, acoustics, back-of-house, green room, vendor staging).
+
+10. **Run a structured post-event debrief within 1 week.** While memory is fresh: what went well (replicate next time), what went wrong (prevent next time), budget actuals vs plan (by category), attendee NPS and verbatim feedback, vendor performance scorecard, lessons learned with owners. A debrief that happens 3 weeks later has lost 50% of the detail. A debrief that never happens guarantees the same mistakes on the next event. **Tool:** Confluence post-event template, Google Doc with sections for each category, or dedicated post-event meeting with structured agenda.
+
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| $50K budget becomes $78K actual — "we'll figure out costs as we go" | No hard budget ceiling. Every vendor upsold, every "small upgrade" compounded. No category-level tracking. | Set hard budget ceiling before vendor conversations. Allocate by category with 15% contingency. Track actuals weekly. When a category exceeds, reduce another. | Events without disciplined budgets drift 30-50%. Budget discipline IS event quality. |
+| Venue WiFi collapses during keynote — "they said 500 devices" | "500 devices" means connected, not streaming. 300 attendees × 3 devices = 900. Venue WiFi designed for hotel guests checking email, not conference load. | Dedicated event network on separate VLAN. Hardwired connection for critical systems. Cellular backup hotspots. Test with simulated load before event day. | Venue WiFi claims are aspirational. Always provision dedicated bandwidth and test under load. |
+| Keynote speaker flight canceled 4 hours before doors — no backup plan | Single point of failure: one keynote, one flight, no contingency. "It'll be fine" is not a plan. | Book keynotes to arrive day before. Have backup content: panel discussion, fireside chat, pre-recorded message. Insurance for speaker no-show. | Hope is not a strategy. Every critical element needs redundancy — people, tech, and travel. |
+| AV system fails 10 minutes before opening — 400 attendees waiting | AV not tested with actual equipment. Backup laptop doesn't have correct adapter. No dedicated AV tech on site. | Test every input with the actual laptop and adapter being used. Have a dedicated AV tech on site from load-in to load-out. Have backup laptop with all presentations preloaded. | Testing with "similar" equipment is not testing. Test with the EXACT equipment being used on event day. |
+| 30-question survey gets 6 responses from 200 attendees | Survey fatigue. Every additional question beyond 5 drops response rate ~10%. Every day after the event drops response rate ~50%. | 5 questions max. Send within 24 hours. Include "takes 2 minutes." One open-ended question. Incentivize with prize draw. | Response rate matters more than question count. 120 responses to 5 questions beats 6 responses to 30 questions. |
+
+
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -407,6 +462,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[EV1]** Event goals defined with measurable success criteria — attendee NPS target, budget accuracy target, ROI metric
+- [ ] **[EV2]** Budget ceiling established with category allocations (venue, F&B, AV, speaker/talent, marketing, decor, contingency 15%) — tracked weekly against actuals
+- [ ] **[EV3]** Venue contract reviewed for all 5 critical clauses: attrition (< 70%), force majeure (includes pandemics/government restrictions), AV exclusivity (right to use external), F&B minimums, cancellation terms
+- [ ] **[EV4]** Venue site visit completed within 2 weeks of event: load-in path, power outlets, WiFi tested under load, acoustics checked, back-of-house verified
+- [ ] **[EV5]** Run-of-show created: minute-by-minute, every line has owner, transitions timed (15-30 min), buffer included (10-15%), back-pocket content for gaps, emergency contacts — printed 5 copies
+- [ ] **[EV6]** AV tested with actual equipment: every microphone, projector, laptop connection, slide deck, video, live stream — backup laptop preloaded with all presentations
+- [ ] **[EV7]** WiFi provisioned: dedicated event network on separate VLAN, hardwired for critical systems, cellular backup hotspots — tested under simulated load
+- [ ] **[EV8]** Single points of failure eliminated: every critical function has named primary AND backup person — backup has access to all files/systems, briefed on run-of-show
+- [ ] **[EV9]** Speaker travel booked 8-12 weeks out — slides collected and verified 1 week before event — slide buddy assigned to each speaker
+- [ ] **[EV10]** F&B guarantees data-driven: expected attendees × (1 - historical no-show rate) × 0.9 — daily running totals tracked against minimum guarantee, mid-event checkpoint scheduled
+- [ ] **[EV11]** Registration and check-in system tested: badge printing, on-site registration, mobile check-in, backup paper check-in prepared
+- [ ] **[EV12]** Staff briefing scheduled day before or morning of: run-of-show review, role assignments, radio channels, emergency procedures, FAQ answers
+- [ ] **[EV13]** Post-event survey prepared: 5 questions max, sent within 24 hours, incentivized — NPS, satisfaction, open-ended feedback
+- [ ] **[EV14]** Post-event debrief scheduled within 1 week: budget actuals vs plan, attendee feedback, vendor scorecards, lessons learned with owners
+
 ## What Good Looks Like
 
 | Anti-Pattern | Good | Great |
@@ -425,7 +499,8 @@ Before beginning a new phase, verify:
 | "We'll book speaker travel closer to the date — plans change" | Flights booked inside 2 weeks cost 40-60% more — $15K-$25K in avoidable premiums for 30 speakers with zero improvement in attendee experience. |
 | "Slides can come the day before — speakers are busy" | Late slides cause cascading 5-min delays across 12 sessions — $5K-$10K in refund requests plus permanent 'great content, terrible organization' reviews that outlast the event by years. |
 
-## Gotchas
+## Anti-Patterns
+**(STANDARD)**
 
 - **Attrition clauses are the #1 hidden cost in hotel venue contracts — they can cost more than the venue rental itself.** If you guarantee 200 room nights at $250/night ($50,000 commitment) with 80% attrition, and only 150 rooms book, you owe $10,000 for rooms no one used. **For a mid-size conference, attrition penalties average $8K-25K. This is pure waste — no value delivered, just contractual obligation.** Fix: negotiate attrition to 70% or lower. Track room bookings weekly in final 2 months. If undershooting, open room block to local attendees, offer upgraded rooms, or negotiate with venue to apply F&B spend against attrition shortfall.
 - **Venue WiFi that "supports 500 devices" means 500 devices connected, not 500 devices streaming video, downloading presentations, and video-calling simultaneously.** The average event attendee has 2-3 devices. 300 attendees = 600-900 devices. **Venue WiFi that collapses during your event means: registration system goes offline, speakers can't demo live, virtual attendees lose stream, social media coverage dies. The reputational cost of "great event, terrible WiFi" is permanent — that's the review that sticks.** Fix: dedicated event network, hardwired connection for critical systems, cellular backup hotspots, test with simulated load before event day.

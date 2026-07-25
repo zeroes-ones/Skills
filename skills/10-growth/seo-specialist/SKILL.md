@@ -155,10 +155,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Setting up SEO monitoring: GSC API dashboards, rank tracking, algorithm update alerts
 
 ## Decision Trees
+**(QUICK)**
 
 > See [references/decision-trees.md](references/decision-trees.md) for the full SEO decision trees covering technical SEO audits, content optimization flows, keyword research frameworks, and crawl budget diagnostics.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -233,6 +235,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -439,7 +442,31 @@ graph LR
 | "Googlebot can render JavaScript — it's fine" | JS-rendered content indexes 2-4 weeks after HTML — you lose ranking windows for every content change and fall behind faster competitors. |
 | "More pages targeting the same keyword means more coverage" | Keyword cannibalization splits ranking signals across pages — $5K-$20K/month per cannibalized cluster in lost traffic that one authoritative page would capture. |
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Fix technical SEO fundamentals before investing in content.** Crawl budget waste, broken internal links, missing canonical tags, slow server response times, and poor mobile usability undermine every piece of content you publish. Run a full technical audit (Screaming Frog, Sitebulb, or Google Search Console) and fix crawlability, indexability, and performance issues first. Content built on a broken foundation gets 30-50% less organic traffic.
+
+2. **Target search intent, not keywords.** A keyword tells you what people type. Search intent tells you what they want: informational (learn something), navigational (find a specific site), commercial (research before buying), transactional (buy now). Map every page to ONE intent type. A page that tries to serve informational and transactional intent simultaneously serves neither well.
+
+3. **Build a topical authority map, not a keyword list.** Google's algorithms evaluate whether your site demonstrates comprehensive expertise on a topic, not whether you rank for isolated keywords. For each core topic, create a pillar page (comprehensive guide) surrounded by cluster content (specific subtopics), all interlinked. A site with 50 articles on related subtopics outperforms a site with 50 unrelated articles targeting high-volume keywords.
+
+4. **Monitor Core Web Vitals as ranking signals and user experience metrics.** LCP (Largest Contentful Paint) should be under 2.5s, FID (First Input Delay) under 100ms, CLS (Cumulative Layout Shift) under 0.1. These aren't just SEO metrics — they correlate with bounce rate, conversion rate, and revenue. Fix performance before chasing backlinks.
+
+5. **Implement structured data (Schema.org) for rich results eligibility.** FAQ schema, HowTo schema, Article schema, Product schema, Review schema, and BreadcrumbList schema all enable rich results in SERPs that increase CTR by 5-30%. Validate with Google's Rich Results Test. Structured data is one of the highest-ROI SEO investments: hours to implement, years of benefit.
+
+6. **Build backlinks through value creation, not outreach volume.** The most effective link-building strategies: original research/ data studies (journalists cite data), free tools/calculators (users embed), comprehensive guides (referenced as "the definitive resource"), and expert roundups (contributors share). One data study that earns 50 organic backlinks is worth more than 500 cold outreach emails that earn 5.
+
+7. **Audit and consolidate thin or duplicate content regularly.** Pages with < 300 words of unique content, pages targeting near-identical keywords, and pages with zero organic traffic after 12 months dilute your site's quality signals. Consolidate thin pages into comprehensive resources (301 redirect), delete truly valueless pages (410 or 404), or improve content to meet quality thresholds. Pruning 20% of low-quality pages often increases traffic to the remaining 80%.
+
+8. **Use log file analysis to understand actual crawl behavior.** Google Search Console shows what Google indexed, not what it crawled and discarded. Log file analysis reveals: which pages Google crawls most, which important pages are crawled rarely, and where crawl budget is wasted on low-value URLs (filter pages, faceted navigation, parameter URLs). Optimize crawl budget allocation before it becomes a bottleneck.
+
+9. **Track SEO performance by segment, not aggregate traffic.** "Organic traffic up 15%" hides that your blog traffic is up 40% while your product pages are down 10%. Segment by: page type (blog, product, category, landing), intent (informational, commercial, transactional), and conversion value. A 5% increase in commercial-intent traffic often drives more revenue than a 20% increase in informational traffic.
+
+10. **Run SEO as a continuous process, not a project.** SEO is not "we did an audit and fixed everything." Algorithm updates (3,000+/year), competitor content (published daily), and changing user behavior mean SEO requires ongoing investment. Establish a monthly audit cadence: technical health check, content performance review, backlink profile monitoring, and competitor movement tracking.
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **A Google algorithm update can erase 40-90% of your organic traffic overnight.** Core updates, helpful content updates, and spam updates hit sites with thin content, aggressive monetization, or poor UX disproportionately. An ecommerce site doing $200K/month from organic traffic can drop to $20K-$120K/month after one update — and recovery takes 3-12 months. **Total cost: $10K-$500K/month in lost revenue during ranking recovery.** Diversify traffic sources (email, paid, social) so no single channel exceeds 50% of revenue, and maintain content quality above Google's E-E-A-T bar continuously — not just after a penalty.
 - **Keyword cannibalization silently bleeds $5K-$20K/month in lost rankings.** When 3 blog posts target the same keyword ("best project management software"), they split authority and all rank worse than one authoritative page would. A page ranking #4 instead of #1 captures ~8% of clicks vs. ~28% — losing 20% of potential traffic on a $25K/month keyword. **Total cost: $5K-$20K/month per cannibalized keyword cluster.** Audit with Search Console's query report — if multiple URLs rank for the same high-value query, consolidate into one comprehensive page and 301-redirect the others.
@@ -451,6 +478,30 @@ graph LR
 - **Redirect chains** (A → B → C) lose ~10% of link equity per hop AND add 200-600ms latency per redirect. A chain of 5 redirects costs 1-3 seconds of load time and ~40% link equity loss. Fix intermediate redirects to point directly to the final destination.
 - **Hreflang tags** with incorrect language+country codes silently fail. `en-uk` is invalid (correct: `en-gb`). `pt-br` is valid. Missing reciprocal tags (page A points to B, but B doesn't point back to A) causes Google to ignore all hreflang annotations on both pages.
 - **Site migration or rebrand without a comprehensive 301 redirect map.** An ecommerce business migrates from `oldsite.com` to `newsite.com` — 15,000 product URLs, 2,000 category pages, and 500 blog posts change structure. The dev team sets up a wildcard redirect and calls it done, but Google treats wildcard redirects as soft 404s when the destination doesn't match the original content's intent. Rankings collapse within 4-6 weeks, organic traffic drops 60-85%, and recovery requires a URL-by-URL redirect audit plus a reconsideration timeline of 6-18 months. **Total cost: $50K-$500K in lost revenue during the ranking recovery window, plus $20K-$100K in SEO consultant remediation fees.** Map every indexed URL to its new destination with a 1:1 301 redirect BEFORE migration, verify with Screaming Frog post-launch, and monitor Search Console coverage reports daily for the first 90 days.
+
+- **What:** Chasing algorithm updates with "SEO hacks" instead of building sustainable quality. **Why:** Google runs 3,000+ algorithm updates per year. Each "hack" works for 3-6 months before the next update neutralizes it. Meanwhile, you've accumulated technical debt (spammy backlinks, keyword-stuffed content, doorway pages) that takes 6-12 months to clean up. The cycle of hack → penalty → recovery costs more than doing it right from the start. **Instead:** Invest in E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness): author bios with credentials, cited sources, original research, and transparent about pages. Quality survives algorithm updates; hacks don't.
+
+- **What:** Building backlinks at any cost — buying links, PBNs, comment spam, article directories. **Why:** Google's Penguin algorithm and manual actions team actively detect and penalize link schemes. A manual action can remove your entire domain from search results for 3-12 months. Recovery requires disavowing every toxic link (months of work) and filing a reconsideration request that may or may not be approved. **Instead:** Earn links through linkable assets: original research (data studies, surveys, industry benchmarks), free tools, definitive guides, and expert contributions to reputable publications. One earned link from a .edu or major publication is worth 10,000 spam links and carries zero penalty risk.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any SEO deliverable leaves this skill, verify:
+
+- [ ] Technical SEO audit completed: crawlability, indexability, site speed, mobile friendliness, structured data
+- [ ] robots.txt, XML sitemap, and canonical tags verified and functioning correctly
+- [ ] Core Web Vitals measured and within thresholds: LCP < 2.5s, FID < 100ms, CLS < 0.1
+- [ ] Search intent mapped for all target pages — each page serves exactly one intent type
+- [ ] Topical authority map created: pillar pages + cluster content with internal linking structure
+- [ ] Structured data (Schema.org) implemented for eligible page types and validated via Rich Results Test
+- [ ] Content audit completed: thin/duplicate content identified, consolidation plan documented
+- [ ] Backlink profile audited: toxic links identified for disavowal, link-building opportunities prioritized
+- [ ] Log file analysis (if access available) performed: crawl budget allocation optimized
+- [ ] Keyword cannibalization checked — no two pages targeting the same primary keyword
+- [ ] Internal linking structure reviewed: important pages within 3 clicks of homepage, orphan pages identified
+- [ ] SEO performance segmented by page type, intent, and conversion value — not aggregate traffic
+- [ ] Monthly monitoring cadence established: rank tracking, traffic analysis, competitor monitoring, algorithm update review
+- [ ] Local SEO (if applicable): Google Business Profile optimized, NAP consistency verified, local citations built
 
 ## Verification
 
@@ -474,6 +525,52 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Scale Depth
+
+### Solo/Small Site (< 100 pages, < 10K monthly visits)
+- Technical: Google Search Console + free tools (Lighthouse, PageSpeed Insights). Fix critical errors only
+- Content: Target 10-20 long-tail keywords with low competition. One pillar page + 5-10 cluster articles
+- Backlinks: Earn 5-10 quality backlinks through HARO, guest posts on relevant blogs, and industry directories
+- Tools: Google Search Console, Google Analytics, free Ahrefs Webmaster Tools, Screaming Frog (free for < 500 URLs)
+- Cadence: Monthly technical health check. Quarterly content audit and refresh
+- Deliverable: 1-page SEO plan + monthly traffic report
+
+### Medium (100-1,000 pages, 10K-100K monthly visits)
+- Technical: Weekly crawl audits. Core Web Vitals optimization. Structured data at scale. Log file analysis
+- Content: 50-200 articles with topical clusters. Content refresh cadence (quarterly for top pages). Programmatic SEO for templates
+- Backlinks: Digital PR campaigns. Original research/data studies. Broken link building at scale
+- Tools: Ahrefs/Semrush, Screaming Frog, Schema App, SEO testing platform (SearchPilot), rank tracking (AccuRanker)
+- Cadence: Weekly rank tracking. Monthly content performance review. Quarterly backlink audit and strategy refresh
+- Deliverable: Monthly SEO dashboard + quarterly strategy document + content calendar
+
+### Large (1,000-10,000 pages, 100K-1M monthly visits)
+- Technical: Automated crawl monitoring. Edge SEO (CDN-level changes). JavaScript SEO audit. International SEO (hreflang)
+- Content: Content operations team. Editorial calendar with 20-50 articles/month. AI-assisted content optimization. Dynamic internal linking
+- Backlinks: Dedicated digital PR team. Industry partnerships. Newsjacking. Brand mention reclamation at scale
+- Tools: Enterprise SEO platform (Botify, Conductor, BrightEdge), custom dashboards, A/B testing for SEO, AI content tools
+- Cadence: Daily rank monitoring. Weekly content performance. Monthly strategy review. Quarterly board presentation
+- Deliverable: Monthly SEO business review + quarterly strategy + annual SEO roadmap
+
+### Enterprise (10,000+ pages, 1M+ monthly visits)
+- Technical: Custom crawl infrastructure. Automated issue detection and remediation. Multi-region, multi-language SEO. Faceted navigation optimization
+- Content: Multi-team content operations. Content strategy by business unit. AI-generated content with human editorial review
+- Backlinks: Brand-level digital PR. Industry-defining research. Strategic partnerships. M&A SEO due diligence
+- Tools: Custom SEO platform, data warehouse integration, ML-powered insights, enterprise CDN with edge SEO
+- Cadence: Real-time monitoring. Weekly cross-functional sync. Monthly executive review. Quarterly board strategy
+- Deliverable: Real-time SEO dashboard + monthly executive summary + quarterly board presentation + annual strategy + M&A SEO playbook
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Organic traffic dropped 60% overnight; no recovery after 3 months | Google manual action for unnatural backlinks. Site was buying links from PBNs for 18 months. Manual action page in Search Console confirmed the penalty. | Disavow all toxic backlinks (use Ahrefs/Semrush backlink audit). File reconsideration request with detailed documentation of link removal efforts. Expect 2-6 months for recovery after approval. | Bought backlinks have a 100% eventual penalty rate. |
+| 500 product pages indexed but only 50 get organic traffic | Crawl budget wasted on faceted navigation URLs, parameterized URLs, and filter combinations (e.g., /products?color=red&size=large&sort=price). Google crawled 450 noise pages and missed 50 valuable pages. | Implement canonical tags on faceted URLs pointing to the main product page. Use robots.txt to block crawl of parameter combinations. Add noindex to thin filter pages. Consolidate crawl budget toward valuable pages. | Google doesn't index what you want; it indexes what you let it crawl. |
+| Competitor outranked you for your primary keyword despite having worse content | Competitor has stronger domain authority (DR 70 vs. your DR 30) because they've been building quality backlinks for 5 years. Content quality alone doesn't overcome a 40-point authority gap. | Build topical authority through cluster content. Earn backlinks through original research and industry partnerships. Internal linking from high-authority pages to target pages. Expect 12-18 months to close a significant authority gap. | Domain authority is cumulative — you can't sprint past someone who's been running for 5 years. |
+| Traffic flat for 12 months despite publishing 100 new articles | Content published without search intent mapping. Articles target keywords with no search volume, or target the wrong intent (informational article targeting a transactional keyword). Google doesn't rank content that doesn't match what searchers want. | For each article, search the target keyword and analyze the top 3 results: what intent do they serve? What format (list, guide, comparison, tool)? What comprehensiveness level? Match or exceed the dominant format and intent. | Google doesn't rank your content; it ranks the best answer to the searcher's question. |
+| Site migration (HTTP → HTTPS) caused 40% traffic loss | Missing 301 redirects from HTTP to HTTPS. Google indexed both versions as separate sites, splitting link equity. Canonical tags missing or pointing to HTTP on HTTPS pages. | Audit all redirects: every HTTP URL must 301 to its HTTPS equivalent. Verify canonical tags all point to HTTPS. Update XML sitemap to HTTPS only. Submit change of address in Search Console. | Site migrations without redirect mapping are self-inflicted SEO disasters. |
+| Core Web Vitals "passed" in lab tests but failing in field data (CrUX) | Lab tests (Lighthouse, PageSpeed Insights "lab data") run on powerful dev machines with fast connections. Field data (Chrome User Experience Report) represents real users on slow mobile connections with CPU-constrained devices. | Optimize for the 75th percentile of real users, not your MacBook Pro. Use CrUX data in Search Console and PageSpeed Insights "field data" tab. Test on emulated Moto G4 with 3G throttling. Fix LCP by optimizing server response time, render-blocking resources, and image loading. | Your users don't have your laptop. |
 
 ## References
 

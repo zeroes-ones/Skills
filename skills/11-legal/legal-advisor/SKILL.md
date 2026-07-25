@@ -139,6 +139,20 @@ Master legal advisors understand that strategy is not about predicting the futur
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo
+- Draft foundational documents (ToS, privacy policy, contractor IP assignment), run an open-source license audit on your dependency tree, and establish signing authority protocols — cover the must-haves before scaling legal infrastructure
+
+#### Small Team
+- Implement standardized contract playbooks with pre-approved fallback positions, automate open-source license compliance checks in CI/CD, maintain a legal document registry with version history, and establish quarterly legal review cadences
+
+#### Medium Organization
+- Build an in-house legal function or dedicated external counsel relationship, manage multi-jurisdiction compliance (GDPR + CCPA + PIPEDA), run trademark registration and enforcement programs, and establish IP portfolio management with patent strategy
+
+#### Enterprise
+- Operate a full legal department with specialized counsel across IP, employment, commercial contracts, M&A, and regulatory domains; manage international corporate structure with entity-level compliance; run board-level risk governance with legal KPIs and materiality thresholds
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -152,6 +166,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building a contributor license agreement (CLA) or developer certificate of origin (DCO) process
 
 ## Decision Trees
+**(QUICK)**
 
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
@@ -162,6 +177,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
                      ┌──────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -228,6 +244,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -356,11 +373,37 @@ graph LR
 - **Signing personally instead of as an authorized representative of the company** — "John Smith" instead of "John Smith, CEO, on behalf of Acme Corp." The contract now binds John Smith personally. If the company can't pay, John's personal assets are at risk.
 
 ## Error Decoder
+**(STANDARD)**
 
-- **"This clause is 'standard' or 'boilerplate'" from opposing counsel** → "Standard" means "we put this in every contract and hope you don't push back." Every clause is negotiable. "Boilerplate" clauses that matter: governing law, venue, indemnification, limitation of liability, termination, and assignment. These are never truly boilerplate.
-- **"We need this signed by EOD"** → Artificial urgency is a negotiation tactic. If they really need it signed today, they should have sent it last week. Rushing legal review means you'll miss: auto-renewal clauses, uncapped liability, one-sided indemnification, and IP assignment traps.
-- **NDA that defines "Confidential Information" as "all information disclosed"** → Including publicly available information, information you already knew, and information you independently developed. The NDA now restricts you from using information you already owned. Always add exclusions: publicly known, previously known, independently developed, rightfully received from third party.
-- **Indemnification: "Each party indemnifies the other" (mutual)** → Sounds fair but isn't. If your product causes their data loss, you indemnify them (fair: it's your product). If they use your product to violate GDPR, they indemnify you (fair: it's their use). Mutual indemnification for DIFFERENT types of liability (IP infringement vs data misuse) is standard. Mutual for the SAME liability means you're paying for their mistakes.
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| "This clause is 'standard' or 'boilerplate'" from opposing counsel | "Standard" means "we put this in every contract and hope you don't push back" — every clause is negotiable, especially governing law, venue, indemnification, limitation of liability, termination, and assignment | Treat every clause as negotiable; request redlines on boilerplate provisions that materially affect risk allocation | "Standard" is a negotiation position, not a legal fact — the clauses that are labeled boilerplate are often the ones that determine who pays in a dispute |
+| "We need this signed by EOD" | Artificial urgency is a negotiation tactic — if they truly needed it signed today, they should have sent it last week | Push back on artificial deadlines; request 3 business days for legal review and flag auto-renewal, uncapped liability, one-sided indemnification, and IP assignment traps | The cost of rushing legal review is always higher than the cost of delaying signature — missed traps compound into existential liability |
+| NDA that defines "Confidential Information" as "all information disclosed" | Overbroad definition captures publicly available information, information you already knew, and information you independently developed | Add standard exclusions: publicly known, previously known, independently developed, rightfully received from third party | An NDA without exclusions restricts you from using information you already owned — it's a trap that creates risk rather than managing it |
+| Indemnification: "Each party indemnifies the other" (mutual) | Mutual indemnification for the SAME liability type means each party pays for the other's mistakes | Structure indemnification by liability type: IP infringement (vendor indemnifies), data misuse (customer indemnifies), each party bears their own area of responsibility | Indemnification should follow fault, not symmetry — fair-looking mutual clauses can be deeply unfair when one party controls the risk |
+
+
+## Best Practices
+
+1. **Version every contract with effective dates and acceptance records.** Without versioned acceptance tracking, you cannot prove a user or customer agreed to specific terms in a dispute. Maintain an audit trail of who accepted which version and when.
+
+2. **Redline every inbound contract — the first draft always favors the sender.** The other party's counsel wrote it to protect their interests. Every clause, including boilerplate provisions on governing law, venue, indemnification, and liability caps, is a negotiation starting point, not a final offer.
+
+3. **Maintain an IP assignment registry covering every contributor.** A single contractor without a signed IP assignment means the company may not own its product. Audit every founder, employee, and contractor who contributed code, design, or content — and get signed assignments before fundraising or acquisition due diligence.
+
+4. **Audit open-source licenses quarterly at the dependency-graph level.** Copyleft licenses (GPL, AGPL) propagate through the dependency tree. A single GPL dependency integrated into proprietary code can create an enforceable obligation to open-source the entire codebase. Run automated license checks in CI/CD and flag copyleft triggers before integration.
+
+5. **Never sign personally — always bind the entity.** Signing "John Smith" instead of "John Smith, CEO, on behalf of Acme Corp." binds you personally. If the company cannot pay, your personal assets are at risk. Every signature block must include title and entity designation.
+
+6. **Use clickwrap, not browsewrap, for enforceable acceptance of terms.** Courts consistently uphold clickwrap (user must affirmatively click "I agree") and reject browsewrap (terms linked in footer, no affirmative action). The acceptance mechanism must create an auditable record of consent.
+
+7. **Standardize contract negotiation with playbooks.** Pre-define fallback positions for every negotiable clause — liability cap ranges (1x fees → 2x fees → uncapped with carve-outs), indemnification scope (IP only → IP + data breach), governing law preferences per counterparty jurisdiction. Playbooks reduce cycle time from weeks to days.
+
+8. **Time-bound all confidentiality obligations.** Indefinite NDAs create indefinite risk — the receiving party can never be certain when their obligations end. Specify a term (3-5 years is standard for commercial NDAs) with trade secrets surviving in perpetuity as a defined carve-out.
+
+9. **Escalate liability caps proportionally with deal size.** A $500K enterprise contract with a liability cap of "fees paid in last 12 months" means $500K at risk — appropriate. A $5K self-serve contract with the same cap means $5K at risk — also appropriate. One-size caps either undersell large deals or overexpose small ones.
+
+10. **Archive signed agreements in a durable, searchable, access-controlled system.** Signed contracts are evidence in disputes, due diligence artifacts in fundraising, and compliance records in audits. A PDF in someone's email is not an archive — use a contract management system with retention policies and role-based access.
 
 
 ## State Log
@@ -410,6 +453,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist
+**(STANDARD)**
 
 - [ ] Contract review: reviewed by a barred attorney in the relevant jurisdiction (not just an AI-assisted review)
 - [ ] Key clauses checked: governing law, venue, indemnification, limitation of liability, IP ownership, termination, auto-renewal

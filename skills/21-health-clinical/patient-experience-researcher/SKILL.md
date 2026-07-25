@@ -144,6 +144,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Establishing and facilitating patient advisory boards for co-design of health products
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Clinical Trial Research Path
@@ -217,6 +218,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When full IRB required:** Collecting identifiable health data for generalizable knowledge, testing an intervention, interacting with patients for research purposes beyond standard care. **When exempt:** Anonymous surveys, educational tests, benign behavioral interventions with adults (Category 3), secondary use of de-identified data. **Always confirm with your IRB office — this decision tree is guidance, not a regulatory determination.**
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~25 min): Patient Journey Mapping for Chronic Conditions
@@ -249,6 +251,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -445,6 +448,87 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Best Practices
+
+1. **Map patient journeys with emotional waypoints, not just clinical touchpoints.** Augment every journey map with emotional highs and lows using a 1-10 sentiment scale at each step. Capture verbatim patient quotes as emotional evidence. The 45-minute wait in a paper gown, the provider using incomprehensible jargon, the billing confusion — these are where trust is broken or built, not at the clinical milestones.
+2. **Apply experience-based design (EBD) methodology.** Co-design research instruments and interventions with patients, not for them. Convene a patient advisory board with 8-12 members representing the full demographic and clinical spectrum of your target population. Patients must have decision-making authority in the research design, not an advisory-only role.
+3. **Validate and select Patient-Reported Outcome Measures (PROMs) with psychometric rigor.** Verify the PROM was validated in a population matching yours on condition, age, language, and literacy level. Check Cronbach's α ≥ 0.70, test-retest ICC ≥ 0.70, and demonstrated responsiveness to clinically meaningful change. Cross-cultural adaptation requires forward-back translation plus cognitive debriefing with the target population — translation alone is insufficient.
+4. **Triangulate patient-reported experience measures (PREMs) with clinical outcomes.** Patient satisfaction scores (HCAHPS) that are high alongside elevated readmission rates indicate a "happy but harmed" problem. Build a Patient Experience + Clinical Safety Matrix mapping each touchpoint to both satisfaction and safety indicators. Never improve satisfaction at the expense of safety steps.
+5. **Use purposive sampling with saturation criteria for qualitative studies.** Recruit participants across the full spectrum: newly diagnosed, experienced self-managers, caregivers, and patients who have disengaged from care. Continue recruitment until thematic saturation — no new themes emerge in the final 3 consecutive interviews. Minimum 12 participants for interview-based studies; 5 per segment for journey mapping.
+6. **Conduct thematic analysis with established frameworks.** Use Braun & Clarke's six-phase approach: familiarization → initial coding → theme generation → theme review → theme definition → write-up. Maintain an audit trail linking every finding to specific participant quotes. Themes supported by a single participant must be labeled as "preliminary" — one patient's story is qualitative data (n=1), not design direction.
+7. **Design accessible, health-literate research instruments.** All participant materials must score ≤6th grade on Flesch-Kincaid. Use active voice, sentences ≤20 words, and plain language (say "treatment to prevent bleeds" not "prophylaxis"). Test materials with 2-3 patients from the target population: "Can you tell me in your own words what this is asking you to do?" If they cannot paraphrase correctly, revise.
+8. **Recruit ≥30% of participants from underserved populations.** Include Medicaid beneficiaries, non-English speakers, rural residents, and patients with low health literacy. Conduct interviews in preferred languages with community health workers present. Products designed exclusively from highly engaged, English-speaking, insured patient data fail when deployed to the populations they were meant to serve.
+9. **Employ multi-timepoint data collection for chronic conditions.** Interview patients at ≥2 timepoints — during active treatment and 2+ weeks post-treatment. A patient interviewed during chemotherapy may report high satisfaction ("the nurses are wonderful"); the same patient 2 weeks later may describe the experience as "traumatic and dehumanizing." Timing relative to treatment changes the entire narrative.
+10. **Map every research finding to a dated action item within 2 weeks of report delivery.** Assign a specific owner to each recommendation. Require quarterly progress reviews tracking which recommendations were implemented, deferred, or rejected with rationale. Research reports that sit in SharePoint without driving change waste $150K-$300K in redundant research and compound the original patient experience problems.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
+|-----------------|---------------------|-----------|-------------------|
+| Recruiting only from academic medical center patient portals — produces biased data from white, educated, insured, English-speaking populations | Recruit ≥30% from underserved populations: Medicaid, non-English speaking, rural, low health literacy. Validate design decisions with each segment before development | `grep -r 'recruitment\|participants\|sample' research-protocols/ \| grep -v 'underserved\|diverse\|Medicaid\|rural\|LEP'` | Pre-IRB gate: block protocols where recruitment plan lacks explicit underserved population targets |
+| Journey mapping without emotional waypoints — produces "flatline" maps that miss where patient trust is broken or built | Augment every touchpoint with 1-10 sentiment scale and verbatim quotes. Prioritize improvements at the lowest emotional points first | `grep -r 'journey.map\|touchpoint' --include='*.md' \| grep -v 'emotion\|sentiment\|feeling\|quote'` | Pre-review gate: reject journey maps without emotional data layer |
+| Conflating patient satisfaction with patient safety — the "happy but harmed" problem | Triangulate satisfaction scores with readmission rates and safety incident reports. Use Patient Experience + Clinical Safety Matrix at every touchpoint | `grep -r 'satisfaction\|HCAHPS\|happy' --include='*.md' \| grep -v 'readmission\|safety\|outcome'` | Dashboard rule: satisfaction-only reports with no clinical outcome correlation are automatically flagged |
+| Designing for the "activated patient" (PAM Level 4) while ignoring the 25-40% at low activation (PAM Level 1-2) | Segment patients by activation level during onboarding. Design tiered experiences: Level 1 gets single daily action, Level 4 gets comprehensive tools | `grep -r 'PAM\|activation\|engaged.patient' --include='*.md' \| grep -v 'Level.1\|Level.2\|low.activation'` | Design review gate: block prototypes that only address high-activation user personas |
+| One-and-done patient interviews during active treatment — captures treatment-contextual emotions only | Interview at ≥2 timepoints: during treatment and 2+ weeks post-treatment. Compare narratives across timepoints for a complete picture | `grep -r 'interview\|data.collection' research-protocols/ \| grep -v 'timepoint\|follow.up\|longitudinal'` | Protocol review gate: flag single-timepoint study designs for chronic conditions |
+| Research reports delivered as static slide decks filed in SharePoint with no ownership or action tracking | Map every finding to a specific owner, a dated action item, and a quarterly review cadence within 2 weeks of delivery | `grep -r 'recommendation\|finding\|insight' research-reports/ \| grep -v 'owner\|action.item\|deadline\|responsible'` | Post-delivery gate: block report finalization until action-item mappings are complete |
+| Patient voice tokenism — inviting one patient to a design workshop and treating their story as design direction | Recruit 8-12 patients for structured analysis. Every design decision must be traceable to themes from multiple participants, not a single compelling story | `grep -r 'patient.voice\|patient.story\|co.design' --include='*.md' \| grep -c 'participant\|n='` — flag studies with n<8 | Design review gate: require thematic analysis documentation linking decisions to ≥3 participant sources |
+
+## Production Checklist
+**(STANDARD)**
+
+| ID | Checklist Item | Validation | Auto-Fix |
+|----|---------------|------------|----------|
+| [PX1] | IRB determination documented: exempt, expedited, or full review classification with rationale | `grep -r 'IRB\|exempt\|expedited\|full.review' research-protocols/` — must include classification and date | Run `irb-determination-check --protocol <path>` |
+| [PX2] | Informed consent materials written at ≤6th grade reading level; tested with 2-3 patients from target population | `flesch-kincaid --max 6 consent-forms/ && smog --max 8 consent-forms/` | Pre-submission hook: `readability-check --max-grade 6` on consent materials |
+| [PX3] | Recruitment plan includes ≥30% underserved population targets with documented outreach strategy | `grep -r 'underserved\|Medicaid\|rural\|LEP\|low.literacy' recruitment-plan.md` — must contain specific targets | Protocol gate: block recruitment plans without explicit underserved population percentages |
+| [PX4] | Participant sample ≥12 for interview studies; ≥5 per segment for journey mapping; saturation documented | `grep -r 'n=\|participants\|sample.size' research-protocols/` — verify minimums met | Protocol gate: flag studies below minimum sample thresholds |
+| [PX5] | Multi-timepoint data collection for chronic condition studies (≥2 timepoints, separated by ≥2 weeks) | `grep -r 'timepoint\|T1\|T2\|follow.up' research-protocols/` — must specify ≥2 collection points | Protocol gate: flag single-timepoint chronic condition studies |
+| [PX6] | PROM selection documented with validation evidence: population match, reliability (α ≥ 0.70), responsiveness | `grep -r 'PROM\|PRO-CTCAE\|PROMIS\|validation' research-protocols/` — must include psychometric evidence | `prom-validator --check <instrument>` verifies validation evidence |
+| [PX7] | Cross-cultural adaptation includes forward-back translation + cognitive debriefing, not translation alone | `grep -r 'translation\|cultural.adaptation' research-protocols/ \| grep -v 'cognitive.debriefing\|forward.back'` | Protocol gate: block translations without cognitive debriefing step |
+| [PX8] | Research materials tested with 2-3 target population members; paraphrase comprehension verified | `grep -r 'pilot.test\|cognitive.interview\|comprehension' research-protocols/` | Pre-deployment gate: block untested materials |
+| [PX9] | Data saturation documented: no new themes emerging in final 3 consecutive interviews | `grep -r 'saturation\|no.new.themes' analysis/` — must include saturation statement | Analysis gate: flag thematic analyses without saturation documentation |
+| [PX10] | Every research finding mapped to a specific owner, dated action item, and quarterly review cadence | `grep -r 'finding\|recommendation' research-reports/ \| grep -v 'owner\|action.item\|deadline'` | Post-delivery gate: block report finalization until action-item mappings complete |
+| [PX11] | Patient advisory board includes 8-12 members spanning demographic and clinical spectrum | `grep -r 'advisory.board\|patient.partner' --include='*.md' \| grep -c 'member\|participant'` | Board charter gate: require ≥8 members with documented diversity |
+| [PX12] | Accessibility accommodations documented: remote options, caregiver proxy, screen-reader compatibility, multi-language | `grep -r 'accessibility\|screen.reader\|caregiver.proxy\|remote\|language' research-protocols/` | Protocol gate: block protocols without accessibility section |
+| [PX13] | Diary study protocol includes adherence plan: reminders, missed-entry handling, researcher check-in after 3 consecutive misses | `grep -r 'diary\|EMA\|ecological.momentary' research-protocols/ \| grep -v 'adherence\|reminder\|missed.entry'` | Protocol gate: block diary protocols without adherence plan |
+| [PX14] | Findings shared back with participants: summary of what was learned distributed within 30 days of study completion | `grep -r 'participant.feedback\|findings.shared\|results.summary' research-protocols/` | Post-study gate: flag studies >30 days past completion without participant summary |
+
+### Scale Depth
+
+<!-- DEEP: 10+min -->
+<!-- QUICK: 30s -- how patient research capacity evolves with organizational scale -->
+
+#### Solo (1 researcher, 1-2 studies/year)
+**Approach:** Single researcher conducts all phases — recruitment, interviews, analysis, reporting. Manual processes. IRB handled personally. Research serves immediate product decisions.
+**When to graduate:** Research demand exceeds 2 studies/year; studies require specialized populations (pediatric, rare disease, non-English speaking); IRB complexity increases.
+
+#### Small Team (2-5 researchers, 3-10 studies/year)
+**Approach:** Team with mixed methods expertise (qual + quant). Dedicated recruitment coordinator. Basic research operations (consent management, incentive processing). Reusable templates for IRB, consent, interview guides.
+**When to graduate:** Research portfolio spans multiple product lines; need for longitudinal/outcomes research capability; demand for publication-quality rigor.
+
+#### Medium Team (5-15 researchers, 10-30 studies/year)
+**Approach:** Specialized by method (qualitative, quantitative, diary/longitudinal) and population (pediatric, rare disease, health equity). Research operations function. Centralized participant registry with re-contact consent. Integrated with clinical outcomes data. Regular patient advisory board.
+**When to graduate:** Research drives regulatory submissions or publication; need for dedicated health equity research function; cross-product research synthesis required.
+
+#### Enterprise (15+ researchers, 30+ studies/year)
+**Approach:** Full research institute capability. IRB reliance agreements with multiple institutions. Published research contributing to the evidence base. Patient experience research integrated into clinical development. Dedicated health equity and accessibility research teams. Research governance board with external patient representatives.
+
+#### Transition Triggers
+- **Solo → Small Team:** >2 studies/year; specialized populations needed; IRB complexity exceeds single-researcher capacity
+- **Small Team → Medium Team:** Multiple product lines; longitudinal research demand; publication-quality rigor required
+- **Medium Team → Enterprise:** Regulatory submission evidence generation; cross-institutional IRB reliance; dedicated health equity function
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| Research findings fail to drive any product changes 18 months after delivery | Report was delivered as static slide deck with no ownership assignments, no action items, and no follow-up cadence. Same pain points appear in next study as "new insights" | Map every finding to a specific owner and dated action item within 2 weeks. Require quarterly progress reviews tracking implementation status. Embed researchers in product teams rather than operating as separate insights function | Research without action tracking is reconnaissance, not research. The deliverable is not the report — it is the changed product. Reports that sit in SharePoint cost $150K-$300K in redundant research |
+| Product fails in real-world deployment with underserved populations despite strong pilot results | Pilot recruited exclusively from academic medical center patient portal — white, educated, insured, English-speaking. Product design assumed 10th-grade literacy, reliable internet, and digital literacy | Recruit ≥30% of participants from underserved populations in all studies. Validate design decisions with each population segment before development. Conduct interviews in preferred languages | Products designed from homogeneous samples carry hidden assumptions that fail at scale. Diversity in research is not a nice-to-have — it is a product safety requirement |
+| High patient satisfaction scores coexist with elevated 30-day readmission rates | "Happy but harmed" — satisfaction was measured in isolation without clinical outcome correlation. Expedited checkout and minimal paperwork increased satisfaction but skipped safety-critical steps | Triangulate satisfaction with readmission rates and safety incident reports. Build Patient Experience + Clinical Safety Matrix at every touchpoint. Never improve satisfaction at the expense of safety | Patient experience without clinical context is a vanity metric. Satisfaction that masks harm is worse than dissatisfaction that reveals it |
+| Diary study compliance collapses after week 1 (<30% of participants still logging) | Protocol required 10+ questions per entry with no reminder system, no incentive, and no researcher follow-up for missed entries. Diary fatigue was designed into the protocol | Limit entries to ≤5 questions. Send reminders at consistent times. Allow missed entries without penalty. Provide small incentive per completed week. Researcher calls after 3 consecutive missed entries | Diary burden, not patient motivation, is the primary driver of non-compliance. Protocols that punish non-compliance lose the participants they most need to retain |
+| PROM shows >20% missing data on a specific item across all participants | The item is confusing, irrelevant, or embarrassing for patients. It may have been translated literally without cognitive debriefing, missing cultural meaning | Analyze item-level missing data patterns. Conduct cognitive interviews with 5-10 participants specifically about the problematic item. Revise or remove based on findings | Missing data is data. Patterns of non-response reveal instrument flaws that psychometric validation in a different population would never detect |
+| Single IRB rejection delays study launch by 3+ months with no backup plan | IRB determination was sought after protocol was finalized. No exempt/expedited pathway was evaluated as fallback. No multi-site IRB reliance agreement was in place | Begin IRB consultation during protocol design, not after. Evaluate exempt and expedited pathways before defaulting to full review. Establish IRB reliance agreements for multi-site studies before they are needed | IRB is a design constraint, not a post-design hurdle. Treating it as the last step guarantees it becomes the bottleneck |
 
 ## References
 

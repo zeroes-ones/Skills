@@ -132,6 +132,17 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 | **L4 — Staff** | Platform strategy: shared component libraries, Gradle convention plugins, CI/CD for Android, app size governance. |
 | **L5 — Principal** | Novel patterns adopted industry-wide. Framework contributions. New approaches to Android architecture or performance. |
 
+### Solo / Small / Medium / Enterprise
+
+| Scale | Challenge | Solution |
+|---|---|---|
+| **Solo dev** | All features, all devices, all yourself | Feature flags for WIP; Firebase Test Lab for device matrix; `minSdk` at 26+ (95% of devices) to avoid legacy API burden |
+| **Small team (2-5)** | Merge conflicts in monolithic `app` module | Feature-based modules; Gradle convention plugins in `buildSrc`; shared UI component library module |
+| **Medium (5-25)** | Build times > 10 min; test flakiness | Gradle Build Cache (remote); shard Espresso tests via Firebase Test Lab; snapshot testing for Compose UI |
+| **Enterprise (25+)** | 100+ modules; cross-team consistency; Play Store governance | Gradle version catalog + convention plugin federation; Dackka-generated API docs; Play Store managed publishing with staged rollout across team boundaries |
+
+**Transition Triggers:** When `./gradlew assembleDebug` exceeds 5 min → split into feature modules. When 2+ teams ship to the same Play Store listing → managed publishing with approval gates. When crash-free rate drops below 99.5% → crash reporting + release health dashboard.
+
 **Usage**: Say "as an L3 Android developer, design the architecture for..." Default: **L2**.
 
 ## When to Use
@@ -149,7 +160,7 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 - Optimizing performance: cold start, scroll jank, memory, APK size
 - Implementing accessibility: TalkBack, content descriptions, touch targets, contrast
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -224,7 +235,7 @@ Using reflection, serialization, or annotation processors requiring class names?
 └── NO  → R8 enabled with minifyEnabled true. Zero custom rules in proguard-rules.pro. Libraries ship consumer rules.
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- Full 203 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles -->
@@ -236,7 +247,20 @@ Using reflection, serialization, or annotation processors requiring class names?
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 203 lines of detailed guidance
 
-## Error Recovery
+## Best Practices
+
+1. **Derive UI state from ViewModel via `StateFlow<UiState>`** — Single sealed class per screen (`Loading`, `Success(data)`, `Error(message)`). Never expose mutable state directly to Compose — the ViewModel is the single source of truth.
+2. **Use `rememberSaveable` for Compose-local state that must survive process death** — `remember` data is lost on config change; `rememberSaveable` survives rotation AND process death when backed by `Bundle`-serializable types. For custom types, implement `Saver`.
+3. **Room DAO functions returning `Flow<T>` observe database changes reactively** — Queries with `Flow` re-emit on ANY table change. Use `distinctUntilChanged()` to filter identical results. For one-shot reads, use `suspend` functions, never `LiveData` in new code.
+4. **WorkManager for deferrable background work, `CoroutineWorker` over `Worker`** — `CoroutineWorker.doWork()` is a suspending function; use `withContext(Dispatchers.IO)` for blocking calls. Periodics have a 15-minute minimum; for shorter intervals use `AlarmManager` + `BroadcastReceiver`.
+5. **Navigation Compose with type-safe routes: `NavController.navigate(route = Home(userId))`** — Use Kotlin serialization or `@Serializable` data classes for route arguments. Never pass complex objects via Bundle; pass ID and resolve from repository.
+6. **Enable `StrictMode` in debug builds with penaltyDeath** — `StrictMode.setThreadPolicy()` catches main-thread disk/network I/O immediately. `StrictMode.setVmPolicy()` catches leaked SQLite cursors and unclosed Closeable resources. Crash early, find bugs before users do.
+7. **ProGuard/R8: always test release builds before Play Store submission** — Run `./gradlew bundleRelease` and test on a physical device. R8 strips unused code including reflection-based serialization and Retrofit parameter names. Add `-keep` rules only when a crash confirms a missing class.
+8. **Dark theme uses `isSystemInDarkTheme()` for color scheme selection** — Material 3 `dynamicColor` respects system theme. For manual override, persist preference in DataStore and wrap `MaterialTheme` with the selected scheme. Never hardcode `Color.White` or `Color.Black` as backgrounds.
+9. **Compose Previews parameterized per device: `@Preview(device = Devices.PIXEL_4_XL)`** — Generate previews for compact, medium, and expanded layouts. A layout that looks perfect on a Pixel 9 Pro may overflow on a 320dp-wide budget device.
+10. **Espresso tests target visible elements by resource ID, not text** — `onView(withId(R.id.submit_button))` survives localization; `onView(withText("Submit"))` breaks in 50+ languages. Add `testTag` for Compose elements: `Modifier.testTag("submit_button")` → `onNodeWithTag("submit_button")`.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -403,7 +427,7 @@ Common chains:
 ## The One Thing
 **Preload your app on Android Go edition (1-2GB RAM).** If it launches under 3s and doesn't crash scrolling 100 items, your architecture is solid.
 
-## Gotchas
+## Anti-Patterns
 
 - **Memory leak from retained Fragment View Binding ($15K-$40K).** `_binding` not nulled in `onDestroyView()` retains old view references across config changes. Multiply by navigation across 5 screens and you've got an OOM chain on 2GB devices. Fix: `private var _binding: FragmentXBinding? = null`; null in `onDestroyView()`; use `binding` property with `checkNotNull` guard.
 
@@ -448,6 +472,27 @@ Common chains:
 - [ ] Dark mode: all screens pass 4.5:1 contrast, no hardcoded light colors
 - [ ] `./gradlew lint` — zero new errors or warnings in release lint
 - [ ] Baseline profile generated and included in AAB
+
+## Production Checklist **(DEEP)**
+
+- [ ] `nodeIntegration: false`, `contextIsolation: true` — no Node.js in renderer (if WebView used)
+- [ ] ProGuard/R8 enabled with `minifyEnabled = true`; release build tested on physical device
+- [ ] Room schema exported: `exportSchema = true` in build config; JSON committed to VCS
+- [ ] All migrations tested against production database snapshots; no destructive fallback in release
+- [ ] `StrictMode` enabled in debug: `detectAll()` + `penaltyDeath()` for thread and VM policies
+- [ ] WorkManager `doWork()` returns `Result.success()` or `Result.retry()`; no uncaught exceptions
+- [ ] Navigation: deep links tested via `adb shell am start -d "myapp://..."` from cold start
+- [ ] All ViewModels survive process death: `SavedStateHandle` for critical UI state
+- [ ] Dark mode: every screen uses theme colors; no hardcoded `Color.White`/`Color.Black` backgrounds
+- [ ] Compose `@Stable` annotation on all state data classes; compiler metrics show zero unstable classes
+- [ ] TalkBack: full screen reader navigation tested; every interactive element has `contentDescription` or `semantics`
+- [ ] `./gradlew lint` passes with zero errors in release variant
+- [ ] APK size < 30MB download, install < 100MB (APK Analyzer)
+- [ ] Play App Signing enrolled; upload keystore fingerprint confirmed in Play Console
+- [ ] Play Store Data Safety form completed and accurate
+- [ ] Firebase Crashlytics or equivalent crash reporter configured for release builds
+- [ ] Per-app language preferences tested if supporting multiple locales
+- [ ] Foreground service permissions properly declared with `foregroundServiceType`
 
 ## Verification Guardrails
 

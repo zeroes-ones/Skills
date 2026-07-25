@@ -286,6 +286,8 @@ Tier 4 — Low-Quality (no removal, quality signal)
 
 ## Error Recovery
 
+<!-- STANDARD: 3min -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -436,7 +438,31 @@ graph LR
 
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
-## Gotchas
+## Best Practices
+
+<!-- STANDARD: 3min -->
+
+1. **Write policies for the enforcer, not the lawyer.** A 22-year-old content moderator reviewing 200 posts/hour needs clear decision trees, not legal prose. Replace "Content that depicts or describes serious physical violence in a gratuitous or sensationalized manner" with concrete examples: "Cartoon punch = allow. Real fight with blood visible = remove." Test with 5 moderators on 10 test cases — must achieve Fleiss' Kappa > 0.6 before deployment.
+
+2. **Publish a taxonomy before enforcing against it.** Every enforcement action must reference a specific taxonomy category and severity tier. Ad-hoc classification creates inconsistent enforcement and legal exposure. The taxonomy must be public-facing — users must be able to understand what rules exist and what happens when they violate them.
+
+3. **Design escalation pathways with SLAs measured in hours, not days.** A journalist posts newsworthy content that violates policy — by day 14 of exception review, the story is over. Time-sensitive content needs: Tier 1 (life-threatening) within 1 hour, Tier 2 (high-reach accounts) within 4 hours, Tier 3 (general appeals) within 24 hours.
+
+4. **Distinguish survivor speech from prescriptive medical advice.** "I experienced X side effect" is personal narrative — never remove it under a misinformation policy. "You should stop your medication and try Y" is a prescriptive claim requiring clinical review. Conflating the two silences patients and destroys platform trust. Use linguistic pattern matching: first-person experience markers vs imperative/prescriptive language.
+
+5. **Run keyword filters in shadow mode for 2+ weeks before enforcement.** Keyword filters on "cure" + "cancer" will also match remission announcements, support discussions, and memorial posts. Every keyword rule needs a precision metric measured against real content. Proceed to enforcement only if precision > 0.85 for Tier 1 (life-threatening) and > 0.95 for Tier 4 (low-quality).
+
+6. **Reference principles, not external authorities, in policy rules.** "Remove content that contradicts WHO guidance" creates retroactive enforcement when WHO guidance changes. Use principle-based rules: "Remove content recommending actions that a reasonable clinical professional would identify as likely to cause physical harm." Principles survive authority changes.
+
+7. **Build locale-specific policy research before market expansion.** Policy concepts like "harassment" and "hate speech" have no direct translation in some languages and entirely different cultural thresholds in others. Hire native-speaking policy researchers before launching in a new locale. A policy that works in English-speaking markets may be unenforceable or actively harmful elsewhere.
+
+8. **Maintain a human-accessible appeal pipeline with SLAs.** Every automated enforcement action must be appealable with a "statement of reasons" (EU DSA requirement). Creators with > 100K followers need expedited review within 4 hours. Track appeal overturn rate per policy — any policy with > 10% overturn rate must be flagged for revision.
+
+9. **Publish transparency reports quarterly.** Reports must include: content removal counts by category and locale, appeal rates and outcomes, policy change log, and moderator accuracy audit results. Transparency is not a PR exercise — it's a regulatory requirement under the EU Digital Services Act and an accountability mechanism for users.
+
+10. **Never remove adverse event reports as "negative content."** A user report of a severe drug reaction is a pharmacovigilance signal under FDA/EMA regulations. Removing it is a regulatory violation, not a moderation decision. Route adverse event reports to pharmacovigilance review, preserve in PV archive, and flag for MedWatch/FDA reporting if applicable.
+
+## Anti-Patterns
 
 - **Policy written by lawyers, enforced by 22-year-old content moderators** — "Content that depicts or describes serious physical violence in a gratuitous or sensationalized manner" — the moderator spends 4 seconds per video and has to decide if a cartoon punch is "gratuitous" or "sensationalized." Policy must be written for the ENFORCER, not for legal defensibility. **Total cost: $1M-$5M annually in moderator turnover, re-training, and inconsistent enforcement leading to user churn and advertiser pullback.**
 - **"Health misinformation" policy** that says "remove content that contradicts WHO guidance" — WHO guidance changed 3 times during COVID. Content that was "misinformation" in April 2020 was "WHO guidance" by June 2020. Policy that references external, changing authorities creates retroactive enforcement. Reference principles ("harmful medical advice"), not specific organizations. **Total cost: $500K-$5M per incident in regulatory scrutiny, congressional hearing preparation, and advertiser exodus following high-profile mis-enforcement.**
@@ -462,6 +488,12 @@ graph LR
 - [ ] Appeals: policy overturned on appeal rate tracked — any policy with > 10% overturn rate flagged for revision
 - [ ] Transparency: policy change log public — users can see what changed and when
 
+## References
+
+- [Google Safety Policies](https://safety.google/)
+- [EU Digital Services Act](https://commission.europa.eu/strategy-and-policy/priorities-2019-2024/europe-fit-digital-age/digital-services-act_en)
+- `scripts/references/closed-loop-feedback.md`
+
 ## Verification Guardrails
 
 Before delivering work, the agent must verify:
@@ -475,7 +507,63 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
-## References
+## Production Checklist
+
+<!-- STANDARD: 5min -->
+
+| # | Item | Criticality | Validation |
+|---|------|-------------|------------|
+| 1 | Medical misinformation taxonomy published with severity tiers (T1 Life-Threatening → T4 Low-Quality) and examples per tier | CRITICAL | Verify taxonomy document exists with severity definitions, examples, and enforcement actions per tier |
+| 2 | Every policy rule has boundary-case examples: one barely allowed, one barely not allowed | CRITICAL | Audit each rule for "Example (allowed)" + "Example (removed)" patterns |
+| 3 | 5 moderators tested on 10 test cases with Fleiss' Kappa > 0.6 for inter-rater reliability | HIGH | Run moderator accuracy audit; measure Fleiss' Kappa on standardized test set |
+| 4 | Keyword filters validated in shadow mode for 2+ weeks before enforcement — precision > 0.85 (T1) and > 0.95 (T4) | HIGH | Review shadow mode metrics; verify precision thresholds met before enabling enforcement |
+| 5 | Escalation SLAs defined: T1 (life-threatening) < 1h, T2 (high-reach) < 4h, T3 (general) < 24h | CRITICAL | Measure last 30 days escalation response times; verify SLA met for > 95% of cases |
+| 6 | Survivor speech protected — automated classifier distinguishes personal narrative from prescriptive advice | HIGH | Sample 500 "I experienced/tried/felt" posts; verify zero false-positive removals |
+| 7 | Adverse event reporting pathway integrated — pharmacovigilance flags route to PV review, not moderation | CRITICAL | Submit test adverse event report; verify routing to PV review within 4h, not moderation queue |
+| 8 | Appeals pipeline operational with "statement of reasons" for every enforcement action (EU DSA compliant) | HIGH | Submit test appeal; verify response includes reason, policy reference, and appeal outcome within SLA |
+| 9 | Any policy with > 10% appeal overturn rate flagged for revision — tracked quarterly | HIGH | Query appeal outcomes per policy; verify auto-flag fires for policies exceeding 10% overturn rate |
+| 10 | Locale-specific policy research completed before launching in new market — native-speaking researchers engaged | HIGH | Verify policy adaptation documentation exists per locale with cultural context assessment |
+| 11 | Clinical review pathway operational — medical professionals available for nuanced judgment calls | HIGH | Verify clinical reviewer roster with specialties; test clinical escalation response within 24h SLA |
+| 12 | Legal review triggers documented — defamation, copyright, FDA promotion, named minors (COPPA/HIPAA) | HIGH | Verify legal escalation documentation with trigger definitions and response SLAs |
+| 13 | Transparency report published quarterly — removal counts by category/locale, appeal rates, policy change log | HIGH | Verify last transparency report published within 90 days; audit data completeness |
+| 14 | Policy reviewed within last 6 months — external references (laws, guidelines, authorities) verified current | HIGH | Check last policy review date; verify all external references still valid and current |
+
+## Scale Depth
+
+<!-- STANDARD: 2min -->
+
+#### Solo Moderator / Early-Stage Platform
+- **Minimum:** Published community guidelines with 4-tier severity taxonomy. Manual review for all flagged content. Basic appeal email address. Survivor speech protection rule.
+- **Cost:** ~$0-500/month (moderator time + basic tooling).
+- **Risk:** No automation, single-language coverage, no clinical review, inconsistent enforcement at scale.
+
+#### Small Team (2-10 moderators)
+- **Add:** Keyword filters in shadow mode. Moderation queue with triage. Escalation pathways (clinical, legal, public health). Inter-rater reliability testing. Basic transparency reporting.
+- **Cost:** ~$2000-10000/month (moderation tooling + part-time clinical reviewer).
+- **Coverage:** Consistent enforcement, regulatory baseline (Section 230 documentation), appeal pipeline.
+
+#### Medium Org (10-50 moderators)
+- **Add:** ML-assisted classification with human review gate. Multi-locale policy adaptation. Automated pharmacovigilance routing. Full transparency reporting. Medical expert review board. EU DSA compliance (statement of reasons, appeal mechanism).
+- **Cost:** ~$20000-100000/month (ML infrastructure + multi-locale team + clinical reviewers).
+- **Coverage:** Multi-language enforcement, regulatory compliance across jurisdictions, expert-governed policy.
+
+#### Enterprise (50+ moderators)
+- **Add:** Real-time harm detection with < 5min crisis response. AI-assisted policy consistency checking. Automated locale-specific policy generation from principles. Global escalation network (24/7 clinical + legal + public health). Proactive threat intelligence on emerging misinformation narratives. Dedicated policy research team per region.
+- **Cost:** ~$100000-500000+/month (global moderation workforce + AI infrastructure + expert networks).
+- **Coverage:** > 100 languages, real-time crisis response, industry-leading transparency, regulatory leadership.
+
+## Error Decoder
+
+<!-- QUICK: 30s -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| "I experienced severe side effects from Drug X" was removed under misinformation policy — user goes public, media covers "platform silencing patients" | Automated classifier conflated personal narrative ("I experienced") with prescriptive treatment claim ("you should try"). Survivor speech protection pattern was missing from classifier | Add first-person experience markers to classifier allowlist: "I (experienced\|tried\|took\|felt\|had)", "in my (experience\|case)", "personally". Run 2-week shadow mode test measuring false positive rate on survivor speech before enforcement | Conflating survivor speech with misinformation is the fastest way to destroy patient community trust. Classification systems must distinguish lived experience from medical claims |
+| COVID policy became unenforceable: "remove content contradicting WHO guidance" — WHO changed guidance 3 times, creating retroactive enforcement on previously removed content | Policy referenced external authority (WHO) instead of principles. Content removed in April 2020 for "contradicting WHO" was now aligned with June 2020 WHO guidance | Replace authority-based rules with principle-based rules: "remove content recommending actions that a reasonable clinical professional would identify as likely to cause physical harm." Principles survive authority changes | Policies referencing external, changing authorities create retroactive enforcement problems. Always anchor rules to principles, not organizations |
+| Content moderator accuracy dropped from 92% to 67% after policy update — 3x increase in inconsistent enforcement | Policy was updated with 14 new pages of dense legal language. Moderators couldn't parse new rules at 200 posts/hour review speed. They defaulted to "remove when uncertain" | Revert policy to enforcer-friendly language. Add decision tree, examples per rule, and quick-reference card. Retest 5 moderators on 10 cases — target Fleiss' Kappa > 0.6 before re-deployment | Policy must be written for the person enforcing it, not the lawyer defending it. A legally perfect policy that moderators can't apply consistently is worse than a simple policy applied well |
+| Platform launched in 5 new markets with English-language policies machine-translated — within 2 weeks, 3 markets had organized boycott campaigns | "Hate speech" translated literally had no cultural equivalent. "Harassment" threshold varied 10x across cultures. Machine translation preserved words but destroyed meaning | Hire native-speaking policy researchers per locale before launch. Adapt policy concepts, not just translations. Run cultural sensitivity review with local community representatives. Pilot with 100 local users before full launch | Policy localization is not translation. Policy concepts are culturally constructed — they need adaptation, not word-for-word conversion |
+| Appeals queue backlog hit 45,000 with 3-month wait time — EU DSA investigation launched for failure to provide timely redress | Auto-moderation scaled to 100M decisions/month but appeals pipeline was a shared mailbox monitored by 2 people. No SLA, no prioritization, no escalation for high-reach accounts | Implement tiered appeals: automated for low-severity (T3-T4), human for T1-T2, expedited for accounts > 100K followers (4h SLA). Add self-service appeal in-app. Hire appeals team proportional to enforcement volume | Appeals are not edge cases — they're the accountability mechanism. An appeals pipeline that doesn't scale with enforcement volume is a regulatory liability |
+| Transparency report claimed 99.7% accuracy — journalist investigation found 28% false positive rate on marginalized community content | Accuracy was measured on English-language mainstream content only. Non-English, dialect, and marginalized community content had dramatically different error rates. The "global" metric masked per-community failures | Track and publish per-locale, per-community accuracy metrics. Break down by content type, language, and creator demographics. Add equity audit: compare FPR across community segments quarterly | Aggregate metrics hide systemic bias. A 99.7% global accuracy can coexist with a 72% accuracy on the most vulnerable communities. Disaggregated metrics are an accountability requirement |
 
 Detailed reference material loaded on demand:
 

@@ -148,6 +148,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You need to distinguish multi-leg strategies (spreads, straddles, strangles, butterflies) from single-leg trades
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
@@ -308,6 +309,7 @@ where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
 **Skew metrics:** 25-delta risk reversal = IV(25Δ call) − IV(25Δ put). Negative = normal skew (puts richer). Widening negative skew = growing fear. Butterfly spread IV = [IV(25Δ call) + IV(25Δ put)]/2 − IV(ATM) measures smile convexity; elevated butterfly = tail-risk pricing.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- STANDARD: 5min overview — skim the phases, read your target phase in detail -->
 
@@ -343,6 +345,7 @@ where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -532,7 +535,7 @@ graph LR
 | "Sharpe of 2.5 with 200 parameter combos — this is the one" | 4,000 total optimizations across walk-forward windows produce 200 expected false positives at p=0.05. The "best" is mostly noise. Out-of-sample Sharpe drops to 0.1, costing $1.5M-$5M in live trading losses over 12 months. |
 | "I only tested a few variations — no need for multiple-testing correction" | 100 untracked parameter tweaks still generate 5 false positives. Every hypothesis tested, formal or informal, inflates the false discovery rate. Bonferroni or Benjamini-Hochberg correction is non-negotiable above n=10 tests. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Correlation matrix on non-stationary data** — you calculate the correlation between two stock prices (both trending up) and get 0.95. "They're highly correlated!" No — they're both trending. The correlation of their RETURNS is 0.2 (effectively unrelated). Always compute correlations on stationary transforms (returns, differences).
 - **Sharpe ratio annualized incorrectly** — daily Sharpe × √252 assumes returns are i.i.d. (independent and identically distributed). If your strategy trades weekly (serial correlation), daily Sharpe × √252 overstates annual Sharpe by 30-50%. Use the actual return frequency, not an arbitrary scaling.
@@ -541,6 +544,65 @@ graph LR
 - **Look-ahead bias from using same-day data for signals** — you train a model using Friday's closing price to predict Friday's return. But Friday's close isn't known until 4:00 PM — any trade based on that signal would have had to execute before the close. Your backtest shows a Sharpe of 2.1; the live strategy delivers 0.3. A hedge fund allocates $30M and loses $4M in 6 months before pulling the plug. **Total cost: $5M-$30M in AUM and reputation loss from look-ahead biased backtests.** Fix: Timestamp every data point with its publication time (not observation time); for daily strategies, signals computed at T must only use data published by T-1 close; implement an automated "lag checker" that validates no future information leaks into training features.
 - **Transaction cost models calibrated on calm markets** — your strategy assumes 5bps slippage based on a backtest during a low-volatility regime. When live, it trades during the COVID crash at 85bps effective spread, turning a 20bps-per-trade edge into a 65bps loss. A market-neutral fund running 200% turnover monthly burns through 13% of AUM in unmodeled costs over a volatile quarter, triggering a $50M redemption. **Total cost: $10M-$100M in strategy failure from underestimating transaction costs during stress periods.** Fix: Model transaction costs as a function of volatility, volume, and spread regime — use Almgren-Chriss or similar market impact models; stress-test strategies against high-volatility cost regimes (e.g., 2008, March 2020); include a circuit breaker that reduces position sizes when realized costs exceed model estimates by 2x.
 - **Walk-forward overfitting through repeated optimization** — you run a walk-forward backtest with 200 parameter combinations per window over 20 windows (4,000 total optimizations). At p=0.05, you expect 200 false positives. You select the best-performing parameter set from the final window, but that "best" is mostly noise. The strategy has a 2.5 in-sample Sharpe and 0.1 out-of-sample — but you only discover this after 12 months of live trading with $20M, losing $1.5M in underperformance and management fees. **Total cost: $5M-$25M in live trading losses from walk-forward overfitting that wasn't corrected for multiple testing.** Fix: Apply the Deflated Sharpe Ratio (DSR) or Holm-Bonferroni correction across ALL parameter combinations tested across ALL windows, not just the final window; use the Probability of Backtest Overfitting (PBO) metric; require a minimum out-of-sample Sharpe of 1.0 after adjusting for the number of trials.
+
+## Best Practices
+
+1. **Always compute correlations on stationary transforms, not price levels.** Two stocks both trending up will show 0.95 correlation on prices and 0.2 on returns. Use log returns or differences. Run Augmented Dickey-Fuller (ADF) tests on every series before correlation, regression, or any statistical inference.
+
+2. **Annualize Sharpe ratio using the actual return frequency, not √252.** The √252 scaling assumes i.i.d. returns. Weekly or monthly strategies with serial correlation need the generalized Sharpe ratio: SR_annual = SR_period × √(periods_per_year / (1 + 2 × Σ autocorrelation_lag)). Underestimate serial correlation and you overstate Sharpe by 30-50%.
+
+3. **Apply multiple-testing correction whenever testing > 20 hypotheses.** With 500 independent tests at 95% confidence, 25 false positives are expected by chance. Use Benjamini-Hochberg FDR (preferred for exploratory) or Bonferroni (conservative, for confirmatory). Report: "After Benjamini-Hochberg correction: X of Y tests remain significant at FDR < 0.05."
+
+4. **Report risk metrics as distributions, not point estimates.** Single-path backtest max drawdown of 15% could be median of a distribution where 95th percentile is 35%. Run Monte Carlo (10,000+ paths) or block bootstrap. Report: "Max drawdown: median 18%, 95th percentile 35%, worst case 52%."
+
+5. **Implement automated lag checking for feature leakage.** Any feature at time t must use data published by t−1 close. A model with R² > 0.7 on financial time series is almost certainly leaking future information. Add `features.shift(1)` and `assert model.r2_score < 0.7`.
+
+6. **Use the Deflated Sharpe Ratio (DSR) and Probability of Backtest Overfitting (PBO) for strategy selection.** After testing N parameter combinations across M walk-forward windows, the best observed Sharpe is inflated by selection bias. DSR accounts for the number of trials. PBO quantifies the probability that the selected strategy is overfit.
+
+7. **Build transaction cost models as a function of volatility, volume, and spread regime.** A 5bps fixed slippage assumption calibrated on calm markets will be 10-20× too low during stress events. Use Almgren-Chriss market impact framework or vendor TCA data. Stress-test against high-vol regimes (2008, March 2020).
+
+8. **Cross-validate Greeks against at least two independent sources.** Provider-computed Delta can differ by 0.05-0.10 due to different rate/dividend yield assumptions. Before using any Greek in position sizing: `assert abs(computed_delta - provider_delta) < 0.05`. A 0.10 Delta error = 10% position sizing error.
+
+9. **Volume-to-OI ratio distinguishes opening from closing activity.** A $3M call purchase with volume/OI ratio of 0.1 is likely closing (covering a short call). Same trade with ratio of 3.0 is likely opening. Without this check, 30%+ of directional UOA signals are misclassified.
+
+10. **Put-call parity is the cheapest arbitrage detection tool.** If C − P ≠ S − K × e^(−rT) beyond bid-ask spread + transaction costs, you have either a data error or a tradable opportunity. Run parity checks on every options chain before any downstream analysis.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Stationarity: ADF test run on all input time series — non-stationary series differenced or excluded
+- [ ] Sharpe ratio: annualized using actual return frequency with autocorrelation adjustment — not naive √252
+- [ ] Multiple testing: Benjamini-Hochberg or Bonferroni correction applied when N_tests > 20 — method and adjusted p-values documented
+- [ ] Risk distributions: max drawdown, VaR, CVaR reported as distributions (Monte Carlo or bootstrap) — not single point estimates
+- [ ] Feature leakage: automated lag checker validates no feature at t uses data from t or later — R² > 0.7 flagged as probable leakage
+- [ ] Backtest overfitting: DSR and PBO computed for all strategy selection — strategy only deployed if PBO < 0.1
+- [ ] Greeks verification: computed Greeks cross-validated against provider values — discrepancies > 0.05 flagged
+- [ ] Transaction costs: cost model is regime-aware (vol/size dependent) — stress-tested against 2008 and March 2020 regimes
+- [ ] Signal template: every trade signal includes confidence (STRONG/MODERATE/WEAK), DTE, IV rank, premium context, OI change, multi-leg detection flag
+- [ ] Survivorship bias: all backtests use point-in-time universe — delisted securities included with delisting returns
+- [ ] Put-call parity: parity validation run on every options chain — violations > bid-ask spread flagged as data errors or arbitrage
+- [ ] Reproducibility: full pipeline runs from raw data to final metrics with single command — random seeds set and documented
+
+### Scale Depth
+
+| Analysis Type | Methodology | Tools | Deliverable |
+|--------------|-------------|-------|-------------|
+| **Single-stock UOA signal** | Black-Scholes pricing, Delta/Gamma/Vega computation, IV rank vs. 1-year history, volume/OI ratio, multi-leg detection within 60s window | `scipy.stats.norm`, `py_vollib`, provider Greeks API, Pandas for time-series | Signal card: ticker, direction, confidence, DTE, IV context, strategy recommendation |
+| **Options chain IV surface** | Implied volatility across strikes/expiries, smile/skew quantification, term structure, SVI or SABR parameterization | `py_vollib`, `scipy.optimize`, `mplfinance` for visualization, `plotly` for interactive | IV surface plot, skew metrics (25-delta risk reversal, butterfly), term structure slope, no-arbitrage validated |
+| **Factor research (cross-sectional)** | Fama-French factors, momentum, quality, low-vol — factor construction, long-short portfolio, IC analysis, decay profile | `pandas`, `statsmodels`, `alphalens` (Quantopian fork), `pyfolio` | Factor performance report: IC mean/t-stats, quintile spread, turnover, capacity estimate |
+| **Strategy backtesting (multi-asset)** | Walk-forward optimization, Monte Carlo simulation, regime-conditional performance, DSR/PBO, transaction cost modeling | `vectorbt`, `bt`, `zipline-reloaded`, `riskfolio-lib` | Backtest report: Sharpe by regime, drawdown distribution, PBO < 0.1, capacity analysis, live readiness score |
+| **Full systematic strategy** | End-to-end: data → signals → portfolio construction → execution model → risk overlay → TCA → live monitoring | Above + `kafka-python`, `Redis`, `PostgreSQL/TimescaleDB`, `Grafana` | Production-ready strategy: signal pipeline, portfolio optimizer, risk limits, execution algo spec, monitoring dashboards |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|-----------|-----|------------|
+| Sharpe 2.1 in backtest, 0.3 in live | Look-ahead bias: Friday's close used to predict Friday's return; close not known until 4 PM but trade needed submission at 3:55 PM | Timestamp every feature with publication time; `features = features.shift(1)`; validate no feature at t references data published after t−1 close | Automated lag checker in feature pipeline; R² > 0.7 = probable leakage flag |
+| Correlation matrix shows 0.95 between unrelated assets | Both series are non-stationary (trending up); correlation computed on prices, not returns | Compute correlations on log returns: `df.pct_change().corr()` not `df.corr()`; ADF test first | Transform all series to stationary before any correlation/regression; `stationarity_check()` wrapper |
+| "Significant" factor becomes insignificant next quarter | p-hacking: 500 factors tested, 25 false positives at p < 0.05; reported "discovered" factor was noise | Apply Benjamini-Hochberg FDR: `multipletests(p_values, method='fdr_bh')`; only report factors with adjusted p < 0.05 | Pre-register hypothesis before testing; cap number of tests; use hold-out period for confirmation |
+| Max drawdown 15% becomes 40% within 3 months of deployment | Single-path backtest; actual drawdown distribution was median 18%, 95th percentile 35%, worst case 52% | Run 10,000+ Monte Carlo paths or block bootstrap; report drawdown distribution, not point estimate | All risk metrics reported with confidence intervals; worst-case scenario modeled and capital-allocated |
+| $3M call sweep classified as BULLISH, but volume/OI = 0.2 (closing) | Signal classification ignores OI context; trade was short call being covered, not new bullish position | Check `volume / open_interest` ratio; if < 0.5, classify as POTENTIAL_CLOSING; run multi-leg detection within 60s window | Every signal must include volume/OI ratio and multi-leg detection result before direction classification |
+| Provider Delta = 0.65, Black-Scholes Delta = 0.58 — 7% position sizing error | Different risk-free rate or dividend yield assumptions between provider and internal pricing | Cross-validate: `assert abs(computed_delta - provider_delta) < 0.05`; if discrepancy, investigate rate/div inputs | Maintain own Greeks computation as validation layer; log discrepancies to detect provider methodology changes |
 
 ## Verification
 

@@ -105,6 +105,8 @@ What stage of the job search are you in?
 
 ## Core Workflow
 
+**Core Workflow** **(STANDARD)**
+
 ### Phase 1: Strategy & Targeting
 
 1. Define criteria: industry, company stage, role, location, compensation floor, culture priorities
@@ -127,6 +129,8 @@ Build total compensation model: base + bonus target + equity (4 scenarios: flat,
 Prepare counter: 2-3 items max (base, equity, signing bonus most common). Script: "I'm very excited about this opportunity. Based on [market data/other offers], I was hoping we could adjust [item] to [number]. Is there flexibility?" Accept in writing. Notify other employers professionally.
 
 ## Decision Trees
+
+**Decision Trees** **(QUICK)**
 
 ### 1. Offer Evaluation
 
@@ -255,6 +259,8 @@ How to evaluate competing offers?
 
 
 ## Error Recovery
+
+**Error Recovery** **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -393,7 +399,29 @@ Before beginning a new phase, verify:
 - **BEFORE:** Profile has a bare-minimum headline ("Software Engineer at [Company]"), a 2-line about section copied from their resume objective, 50 connections (all coworkers), no activity for 2 years, and a 5-year-old profile photo. Appears in 0 recruiter searches per week. When a recruiter does land on the profile, there's nothing compelling to reach out about. Profile is invisible — a digital gravestone rather than a lead-generation asset.
 - **AFTER:** Treats LinkedIn as a recruiter discovery engine — optimized for search, not vanity. **Headline:** 220 characters with 3 keyword clusters — role + specialization + technologies. Example: "Senior Backend Engineer | Distributed Systems & Real-Time Data | Python, Go, Kafka, Kubernetes." **About Section:** 3 paragraphs — (1) what you do and who you do it for, (2) 2-3 quantifiable achievements with metrics, (3) what you're looking for next. Uses keywords naturally (recruiters search the about section). **Featured Section:** links to a portfolio project, a talk/presentation, or a blog post demonstrating expertise. **Activity:** posts or comments thoughtfully 1-2x/month. **Connections:** 500+ (the threshold where LinkedIn shows "500+ connections" instead of an exact number — this is a credibility signal). **Skills & Endorsements:** 10-15 skills directly matching target roles; top 3 skills pinned with 50+ endorsements each. **Open to Work:** set to "Recruiters Only" (private mode), not the public green banner. Result: appears in 15-25 recruiter searches per week. Receives 2-5 quality inbound messages per month. Profile does the work so the candidate doesn't have to apply cold.
 
-## Gotchas
+## Best Practices
+
+1. **Build a target company list of 30-50 companies across A/B/C tiers before sending a single application.** A-tier: dream companies (10). B-tier: strong fits where you'd be happy (20). C-tier: acceptable fallbacks where you'd learn and grow (20). Tier prioritization prevents wasting energy on companies you wouldn't actually join. Review and refresh the list monthly based on market intelligence, new funding rounds, and industry movement.
+
+2. **Optimize your LinkedIn for recruiter search, not just profile completeness.** Your headline is the most important 220 characters — it appears in every search result. Use 3 keyword clusters: role + specialization + technologies. Example: "Senior Backend Engineer | Distributed Systems & AWS | Python, Go, Kubernetes." A keyword-optimized headline appears in 3x more recruiter searches. Write your About section as a narrative that connects your skills to business impact, not a resume summary.
+
+3. **Never disclose your current salary to a prospective employer.** When asked, respond: "I'm targeting roles in the $X-$Y range based on market data and the scope of this position." Salary history disclosure resets the negotiation from "what is this role worth?" to "what's a reasonable bump from your current number?" This is how candidates with identical qualifications get offered $130K vs $170K for the same role.
+
+4. **Track your job search as a pipeline with conversion metrics, not a todo list.** Use a CRM spreadsheet: company, role, contact, stage, last contact date, next action, due date. Track leading indicators: informational interviews completed per week, hiring manager conversations, warm referrals submitted. Review daily. Disorganized pipeline management costs $10K-$30K in extended search time from dropped follow-ups.
+
+5. **Conduct 10+ informational interviews before active searching.** Reach out to 2nd-degree LinkedIn connections at target companies. Ask for 15-minute chats. At the end: "Would you be comfortable referring me?" Referrals convert at 20-30% vs. 1-2% for cold applications. A warm referral pipeline produces 10-20x higher interview rates than spray-and-pray applications.
+
+6. **Build a total compensation model for every offer, not just base salary comparison.** Factor: base salary, bonus percentage, equity type (RSU/ISO/NSO), equity value (409A for private, current stock price for public), vesting schedule, signing bonus, benefits value, 401(k) match, and expected annual refresh grants. For private companies: ask for fully-diluted share count, strike price, and 409A valuation. If they won't share, treat equity as $0 in your comparison.
+
+7. **Negotiate every offer at least once with market data backing.** The phrase "this is our best and final offer" is itself a negotiation tactic. First offers leave 10-20% on the table. Even if base is fixed, negotiate: signing bonus ($5K-$25K), equity refresh, title (Senior vs Staff), start date, relocation, or a 6-month performance review for a raise. A single counter-ask with market data backing succeeds in 60-70% of cases.
+
+8. **Always build and maintain a "brag document" before you need it.** Every quarter, add: (1) what you shipped, (2) quantifiable impact (revenue, cost savings, users, latency, reliability), (3) recognition (awards, promotions, kudos), (4) skills acquired. When it's time to negotiate, you have a data-backed case for your value — not "I think I deserve more." This is worth $15K-$40K in negotiation leverage.
+
+9. **Use the private "Open to Work" setting on LinkedIn, not the public green banner.** The public green banner reduces inbound recruiter quality according to multiple recruiting managers. The private setting makes you visible only to recruiters outside your company — same visibility without the public signal that can be interpreted as desperation.
+
+10. **Always be in passive search mode — take one interview per quarter even when happy.** Candidates who search while employed have 2-3x more negotiating leverage than those who search while unemployed. Respond to 1-2 recruiter messages per month. Maintain your network during good times. When the right opportunity appears or when you actually need to search, your pipeline isn't starting from zero.
+
+## Anti-Patterns
 
 - **Accepting the first offer without negotiation resets your lifetime compensation baseline.** A 30-year-old engineer who accepts a $120K first offer instead of negotiating to $130K doesn't just lose $10K this year — that $10K gap compounds through every subsequent raise (3-5% annually), every bonus (calculated as % of base), every promotion increase, and every future job offer anchored to your previous salary. Over a 35-year career, the compounded difference between starting at $120K vs $130K exceeds $500K in nominal earnings, and with equity and retirement contributions factored in, the gap can reach $800K-$1M in total compensation. **Total cost: $500K-$1M in lost lifetime compensation from a lower baseline.** Always negotiate the first offer — even a single counter-ask with market data backing it ("Based on Glassdoor and Levels.fyi data for this role, I was expecting something in the $125K-$135K range") succeeds in 60-70% of cases.
 - **"I'll just take a break and figure it out" without a financial runway model is dangerous.** The average job search for professional roles takes 3-6 months. Without a clear runway calculation, you risk running out of savings and accepting a worse offer out of desperation. **Calculate: (savings ÷ monthly burn) × 0.7 safety factor. If < 6 months runway, do not quit without an offer.**
@@ -446,6 +474,59 @@ Before beginning a new phase, verify:
 | "I'll prep for interviews once I get one" | Interview prep takes 2-3 weeks to internalize; by the time you get the callback, you have 3-5 days |
 | "My experience speaks for itself" | Hiring managers spend 6 seconds on first-pass screening; if your value proposition isn't in the top third of the page, your experience is invisible |
 
+## Production Checklist **(STANDARD)**
+
+Before delivering job search strategy deliverables, verify ALL of:
+
+1. Target company list: 30-50 companies across A/B/C tiers curated — each with specific reason for inclusion, industry, size, funding status verified
+2. LinkedIn profile optimized: keyword-rich headline (3 clusters: role + specialization + technologies), detailed About section with business impact narrative, "Open to Work" set to private (recruiters only)
+3. Personal CRM pipeline built: spreadsheet with company, role, contact, stage, last contact date, next action, due date — review cadence established
+4. Networking outreach script: tested on 5+ contacts, response rate tracked, A/B tested subject lines and messaging — conversion rate benchmarked
+5. Informational interviews completed: 10+ conducted, 2-3 referrals generated per conversation on average, pipeline converting at expected rate
+6. Resume prepared: ATS-optimized, keyword-matched to target role types, quantified with metrics, single-column format, .docx for ATS submissions
+7. Total compensation model: built for benchmarking — base, bonus%, equity structure, benefits valuation, geo-differential factored — market data from Levels.fyi, Glassdoor, Blind, personal network
+8. Negotiation script: prepared for 2-3 counter items (base, signing bonus, equity, title, start date) — each backed by market data, practiced aloud
+9. Runway calculation: (savings ÷ monthly burn) × 0.7 safety factor — ≥12 months runway confirmed if considering quitting without offer
+10. Brag document: quarterly achievements documented with quantifiable impact (revenue, cost savings, users, latency, reliability), recognition, skills acquired — refreshed before any negotiation
+11. Offer evaluation checklist: verbal offer confirmed, written offer received, all compensation components modeled, backchannel references completed, company financial health verified
+12. Timeline management: counter-offer windows tracked, decision deadlines communicated transparently, no ghosting — all companies informed of status within 48 hours
+13. Personal advisory board: 5-7 advisors identified across dimensions (career-ahead peer, same-stage peer, different-industry peer, former manager, recruiter) — quarterly check-ins scheduled
+14. Passive search mode established: responding to 1-2 recruiter messages monthly, maintaining network during good times, taking 1 interview per quarter even when happy
+
+## Scale Depth
+
+### Entry-Level Search (0-3 years, first or second job)
+- **Focus**: LinkedIn optimization, resume keyword-matching, campus recruiting events. Target list: 30 companies. Salary research via Glassdoor entry-level bands.
+- **Pipeline**: 50-100 applications, 5-10 networking conversations, 0-1 offers. Typical timeline: 1-3 months.
+- **Tools**: Glassdoor, Handshake, university career center, LinkedIn basic. Simple spreadsheet CRM.
+- **Skip**: Multi-offer negotiation strategy, equity modeling, severance negotiation, backchannel references.
+
+### Mid-Career Search (3-10 years, Senior/Staff)
+- **Focus**: Warm referral pipeline, informational interviews from LinkedIn 2nd-degree connections, multi-channel sourcing. Target list: 50 companies. Compensation modeling with equity.
+- **Pipeline**: 20-30 tailored applications, 15-20 networking conversations, 2-3 concurrent offers. Typical timeline: 2-4 months.
+- **Tools**: Levels.fyi, Blind, LinkedIn Recruiter insights, Pave compensation data. Dedicated CRM (Notion/Airtable).
+- **Skip**: Retained executive search firms, board-level networking, severance negotiation with legal counsel.
+
+### Executive Search (VP/C-suite, 15+ years)
+- **Focus**: Retained search firm relationships, board-level networking, thought leadership content strategy. Target list: 10-15 companies, hand-selected. Compensation includes multi-year equity, severance, change-in-control.
+- **Pipeline**: 5-10 warm introductions, 3-5 active processes, 1-2 offers. Typical timeline: 4-8 months.
+- **Tools**: Retained search firms (Korn Ferry, Spencer Stuart, Heidrick & Struggles). Compensation attorneys. Personal PR/communications support.
+- **Add**: Reference orchestration (who says what), onboarding negotiation (team size, budget, reporting structure), non-compete review with employment counsel.
+
+### Transition Triggers
+- Entry → Mid-Career: You're targeting Senior+ roles. Compensation includes meaningful equity. Multiple concurrent offers expected.
+- Mid-Career → Executive: You're targeting VP+. Retained search firms involved. Board members in interview loop. Non-compete and severance negotiations standard.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "I sent 100 applications and got 2 responses" | Generic resumes, no referrals, spray-and-pray approach. ATS rejected 75% at keyword-mismatch, recruiters skimmed the rest in 6 seconds. | Pivot to referral-based pipeline. For each target company, find 2nd-degree LinkedIn connections, request 15-min informational chats, ask for referrals. Tailor 10 resumes to specific roles vs. sending 50 generics. | Cold applications convert at 1-2%. Referrals convert at 20-30%. Targeted networking yields 10-20x higher interview rates. Quantity is not strategy. |
+| "I disclosed my current salary and now every offer is anchored $30K below market" | Salary history disclosure resets the negotiation from "what is this role worth?" to "what's a reasonable bump from your current?" | Never disclose current salary. Respond: "I'm targeting $X-$Y based on market data and this role's scope." If already disclosed, use market data to reset in follow-up. | Candidates with identical qualifications get offered $130K vs $170K for the same role — the difference is who disclosed their current salary. |
+| "Accepted a startup offer — options are now worthless because the company failed" | Didn't ask about runway, burn rate, or 409A valuation. Assumed "funded = stable." Didn't understand equity structure. | Before accepting any private company offer: ask about runway, burn rate, last funding round, fully-diluted share count, and latest 409A. If they won't share strike price and 409A, treat equity as $0. | Pre-IPO equity is lottery tickets until you understand the structure. Worthless options at a failed startup = $50K-$200K in paper gains that never materialized. |
+| "I have an exploding offer and haven't finished my other interviews" | Didn't communicate timelines proactively. Now forced to decide between accepting prematurely or losing the offer. | When you receive a verbal offer, immediately communicate: "I'm very interested and need until [date] to finalize as I'm completing another process. Is that timeline workable?" Most will extend. | Transparent communication about competing timelines is respected. Ghosting to shop offers gets them pulled and your reputation burned. |
+| "Accepted a counter-offer from current employer — left anyway 8 months later" | Counter-offer solved the money problem but not the culture, growth, and relationship problems that caused you to look in the first place. | 80% of employees who accept counter-offers leave within 12 months. Accept only if the issue was purely financial AND you trust your employer won't see you as a flight risk. | The reasons you wanted to leave don't disappear with a raise. Counter-offers patch the symptom, not the cause. |
+
 ## Verification
 
 - [ ] Target company list: 30-50 companies across A/B/C tiers with specific reasons for each
@@ -488,9 +569,11 @@ If any checkbox fails, revise before delivering. When all pass, add to the state
 - **Offer Evaluation Framework**: See [references/offer-evaluation.md](references/offer-evaluation.md)
 - **LinkedIn Optimization Guide**: See [references/linkedin-guide.md](references/linkedin-guide.md)
 - **Anti-Patterns**: See [references/anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [references/best-practices.md](references/best-practices.md)
 - **Calibration**: See [references/calibration.md](references/calibration.md)
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
+- **Scale Depth: Entry-Level → Mid-Career → Executive**: See [references/scale-depth.md](references/scale-depth.md)
 - **Scale Depth**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

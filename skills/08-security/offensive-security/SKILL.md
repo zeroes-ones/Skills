@@ -150,7 +150,7 @@ What offensive security activity are you performing?
 |-- Report writing from findings -> Go to "Core Workflow: Phase 5 -- Reporting"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- COMPRESSED: Full 176 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Rules of Engagement & Reconnaissance
@@ -161,7 +161,7 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (176 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Web Application Exploitation Path
 
@@ -416,7 +416,29 @@ Social engineering engagement design:
 |   |-- Escalate difficulty over time: start easy (obvious phish), progress to sophisticated (spear phish with context)
 ```
 
-## Error Recovery
+## Best Practices
+
+1. **Reconnaissance methodology comes first — never skip it.** Passive recon (Shodan, Censys, crt.sh, DNS enumeration, WHOIS, LinkedIn) establishes the attack surface without touching the target. Then active recon (Nmap with service detection `-sV`, script scanning `-sC`, UDP top 1000) validates findings. Skipping passive recon means missed shadow IT, forgotten subdomains, and cloud resources unknown to the client. Every hour of recon saves 4 hours of wasted exploitation attempts.
+
+2. **Exploit safely: PoC only, never persistence.** Every exploit stops at proof-of-concept — capture a screenshot, document the impact, and stop. Never create backdoors, new admin accounts, SSH authorized_keys, cron jobs, or scheduled tasks. If you need to demonstrate impact further, the client provides written authorization for "post-exploitation activities." Establishing persistence without approval turns a legitimate test into a felony.
+
+3. **Report findings with CVSS v3.1 vectors and MITRE ATT&CK mappings.** Every finding includes: CVSS vector string (not just score), reproduction steps that a junior engineer can follow, MITRE ATT&CK technique ID for the attack phase, and specific remediation guidance with exact config changes (not "apply patches"). The executive summary distills technical findings into business risk — a board member reads this and understands the financial and regulatory exposure in 2 minutes.
+
+4. **Evidence handling: encrypt at rest, destroy on schedule.** All engagement artifacts — screenshots, packet captures, database extracts, crack files — are encrypted with AES-256-GCM using a per-engagement key. Retention is defined in the Rules of Engagement. At engagement close, evidence is securely wiped (shred + verify) per the agreed retention schedule. An engagement laptop lost at an airport with unencrypted client PII destroys a career and a firm.
+
+5. **Scope discipline: document out-of-scope risks, never self-authorize.** When you discover a critical vulnerability on an out-of-scope system, STOP. Document the observation — "noted but not tested: out-of-scope system at [IP/hostname] presents observable vulnerability [description]" — and recommend immediate scope expansion. Testing out-of-scope without written authorization is indistinguishable from unauthorized access under the CFAA. The client can expand scope; the tester cannot.
+
+6. **Tool chain management: audit everything, trust nothing.** Every third-party tool — C2 frameworks, exploit POCs, credential harvesters, post-exploitation scripts — must be code-reviewed before deployment in a client environment. Compromised open-source C2 frameworks containing cryptocurrency miners or backdoors have burned red teams. Maintain a trusted-tools repository with hash-verified versions. Commercial tools (Burp Suite Pro, Cobalt Strike, Metasploit Pro) are preferred for production engagements.
+
+7. **C2 opsec: domain fronting, redirectors, and egress hardening.** Command-and-control infrastructure uses HTTPS with domain fronting (CDN-based, e.g., Cloudflare Workers) to blend with legitimate traffic. Redirector chains (2+ hops) separate the target's view from the actual C2 server. C2 domains are aged (>30 days), categorised (business/technology), and use valid TLS certificates. Egress mimics legitimate API calls — beacon intervals jittered (±30%), jitter factor randomized per implant.
+
+8. **Lateral movement: detection-aware, not just successful.** Moving from initial foothold to DA requires understanding what the blue team will see. Avoid: `net.exe` commands (heavily monitored), PsExec with default service names, SMB beaconing (flagged by EDR), and `mimikatz.exe` on disk. Prefer: DCOM, WMI with alternate credentials, WinRM with certificate auth, and LSASS memory reads via direct syscalls. Every lateral movement attempt is a detection risk — plan the path that generates the fewest alerts.
+
+9. **Cleanup: leave no artifacts, document what you couldn't remove.** Post-engagement cleanup removes all uploaded binaries, registry modifications, user accounts, firewall rules, scheduled tasks, and persistence mechanisms. Any artifact that cannot be removed (e.g., security log entries, EDR telemetry) is documented in a "residual artifacts" appendix in the final report. The blue team needs to know what signatures to look for to detect real attackers using the same techniques.
+
+10. **Social engineering: consent, plausibility, and debrief.** Phishing campaigns require explicit written authorization specifying the pretext (e.g., "IT password reset," "HR benefits update"). Pretexts must be plausible for the target organization — a "package delivery" phish for a fully-remote company destroys credibility. After the campaign, debrief participants within 48 hours: explain the test purpose, provide security awareness resources, and measure click-through vs. report rates. Never shame individuals — the metric is organizational readiness, not personal failure.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -509,6 +531,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before any engagement begins, validate every item. This is the gate between planning and execution — skip none.
+
+1. **Authorization:** Signed Rules of Engagement with explicit scope (IP ranges/CIDRs, domains, excluded systems), testing window with start/end times, emergency contact with 24/7 phone number, and authorized signatory with organizational authority. Verbal approval is legally worthless.
+2. **Scope boundary hardening:** Every in-scope target enumerated and verified. Out-of-scope targets identified and excluded in testing tool configurations (e.g., Burp scope, Nmap target list). "Do not test" list distributed to all team members.
+3. **Data handling plan:** Classification of data that may be encountered (PII, PHI, PCI, trade secrets). Encryption standard defined (AES-256-GCM minimum). Retention schedule agreed and documented. Destruction method specified (shred, degauss, crypto-erase).
+4. **Tool audit:** All tools — C2 frameworks, exploit code, credential harvesters, post-exploitation scripts — code-reviewed for backdoors, cryptominers, or unexpected network connections. Tool versions pinned to known-good hashes. Commercial tools licensed and updated.
+5. **C2 infrastructure ready:** Domain fronting configured (CDN-based). Redirector chain tested (2+ hops). TLS certificates valid and aged >30 days. Beacon intervals jittered. Kill switch mechanism tested — ability to terminate all implants with a single command.
+6. **Communication plan:** Encrypted channel for client communication (Signal, PGP-encrypted email). Escalation triggers defined: critical finding (CVSS >= 9.0) = notify within 4 hours, active exploitation discovered = notify immediately, production impact suspected = STOP and call emergency contact.
+7. **E&O insurance verification:** Professional liability/Errors & Omissions insurance active with cyber coverage. Policy covers penetration testing and red team activities explicitly — not just "security consulting." Verify coverage limits and exclusions (e.g., intentional acts, social engineering may be excluded).
+8. **Backup and rollback plan:** For every system where exploitation or configuration changes will occur, documented rollback procedure exists. Credential reset capability verified. Database restore tested within last 30 days. Snapshots taken before exploitation begins.
+9. **Notification dependencies:** Third-party notifications identified (cloud providers, ISPs, managed service providers — their ToS may require notification before testing). Upstream/downstream dependencies mapped. All required notifications sent and acknowledged before testing begins.
+10. **Team readiness:** Every team member has reviewed the scope, ROE, and emergency procedures. Individual assignments defined — who does recon, who does web app testing, who does network exploitation, who does AD attacks. Buddy system for physical testing. Fatigue management plan for multi-week engagements.
+11. **Legal review complete:** ROE reviewed by legal counsel for both testing organization and client. Jurisdiction confirmed (which state/country's laws apply). Indemnification clauses understood. Data breach notification obligations defined if client data is inadvertently exposed.
+12. **Post-engagement deliverables defined:** Report format agreed (executive summary, technical findings, remediation roadmap). Delivery method (encrypted PDF, secure portal, in-person briefing). Timeline for draft, review, final delivery. Retest window offered (30-90 days post-remediation).
+
+If any checklist item fails: STOP. Do not proceed past an unchecked item. Document the gap, notify the engagement lead, and resolve before any testing begins.
+
 ## What Good Looks Like
 
 ```
@@ -534,6 +575,32 @@ Authorized Pentest Engagement (Ethical Hacking Methodology)
 |      |                                                       |
 |      |                                                       |-- Remediation Roadmap: quick wins + strategic, retest offer, secure data destruction
 ```
+
+### Scale Depth
+
+#### Solo
+
+**Penetration testing for 1-5 person startups, personal projects, or self-assessment.** Use free/open-source tools: Nmap, Nikto, SQLMap, Burp Suite Community, OWASP ZAP, Metasploit Community. Focus on OWASP Top 10 web vulnerabilities and basic network scanning. Manual testing for business logic flaws since automated scanners miss these. Self-authorization is legally dangerous — if testing your own company's systems, get written sign-off from the CTO or legal counsel. Reports: markdown with finding, CVSS score, reproduction steps, and fix recommendation. No C2 infrastructure needed — test from your own workstation within defined scope.
+
+**Transition trigger:** When testing for paying clients, testing systems you don't own, or conducting assessments that require professional liability insurance → move to Small.
+
+#### Small
+
+**Boutique pentesting firm (1-5 testers) or internal security team at a 20-100 person company.** Commercial tools become cost-justified: Burp Suite Pro ($449/yr), Nessus Professional ($3,390/yr), Cobalt Strike ($3,500/yr). Establish standard methodology: PTES-aligned phases, OWASP WSTG for web apps, custom checklist for your niche. Client portal for report delivery (encrypted). Templated ROE with legal review. C2 infrastructure: single redirector + C2 server, basic domain fronting. Annual training budget for certifications (OSCP, GWAPT, GPEN). E&O insurance: $1M minimum coverage with explicit pentesting endorsement.
+
+**Transition trigger:** Client demand exceeds tester capacity consistently (backlog >4 weeks), clients require 24/7 emergency response, or engagements span multiple geographies → move to Medium.
+
+#### Medium
+
+**Regional consultancy (10-50 testers) or dedicated internal red team at a 500-2000 person company.** Dedicated infrastructure: C2 with multi-redirector chains, domain fronting via CDN, custom C2 profiles that emulate legitimate traffic (Slack, Teams, O365 API patterns). Tooling: enterprise licenses (Burp Suite Enterprise, Core Impact, Cobalt Strike Team Server). Specialized teams: web app, network, cloud, AD, social engineering, physical. Formal methodology: custom playbooks per service type, internal wiki of TTPs, peer review on all reports. Training: annual SANS courses, internal labs, purple team exercises quarterly. Compliance: PCI ASV certification, FedRAMP 3PAO if serving government clients. E&O: $5M coverage. Report QA process: findings verified by second tester before delivery.
+
+**Transition trigger:** Multi-national clients, 24/7 global coverage required, or contracts exceeding $500K annual value → move to Enterprise.
+
+#### Enterprise
+
+**Large consultancy (100+ testers), Fortune 500 internal red team, or MSSP with offensive security practice.** Global C2 infrastructure: region-specific redirectors for latency optimization, multi-CDN domain fronting, custom implants with in-memory execution and EDR evasion. Dedicated R&D team for zero-day development, custom exploit creation, and toolchain maintenance. Purple team program: continuous adversary emulation (MITRE Caldera, Atomic Red Team, SCYTHE), detection engineering feedback loop with blue team. AI/ML: automated recon correlation (Shodan + Censys + crt.sh + DNS brute-force → attack surface scoring), ML-assisted report generation from tool output. Compliance: PCI ASV, FedRAMP 3PAO, CMMC C3PAO, ISO 27001 certified. Training: internal university with annual mandatory upskilling, conference speaking, research publication. Legal: in-house counsel specializing in CFAA, GDPR, and international computer crime laws.
+
+**Transition triggers:** Acquisition by larger entity, government/military contracts requiring security clearance infrastructure, or opening offices in 5+ countries with local legal teams.
 
 ## Deliberate Practice
 
@@ -565,7 +632,7 @@ Offensive Security Skill Progression
 | "The CTO gave verbal approval — that's enough to start testing." | Verbal approval from anyone without a signed Rules of Engagement is legally worthless. The Computer Fraud and Abuse Act (18 U.S.C. § 1030) requires written authorization. Testing without it = 5-20 years imprisonment and $500K in fines. No exceptions. |
 | "I found a critical vulnerability outside scope — I should test and report it to be helpful." | Scope creep is unauthorized access under the CFAA, indistinguishable from testing with no authorization at all. STOP, document the observation, and request scope expansion — never self-authorize. $250K-$1.5M in legal defense, voided E&O insurance, and career destruction. |
 
-## Gotchas -- Highest-Value Content
+## Anti-Patterns
 
 ### Authorization & Legal Gotchas
 

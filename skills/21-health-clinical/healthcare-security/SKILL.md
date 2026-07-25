@@ -175,7 +175,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Responding to a medical ransomware incident — clinical downtime procedures, evidence preservation, notification
 
 ## Decision Trees
-
+**(QUICK)**
 <!-- STANDARD: 3min -->
 
 #
@@ -342,6 +342,7 @@ Clinical network segmentation design:
 ```
 
 ## Core Workflow
+**(STANDARD)**
 <!-- Full 135 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s — scan phase titles to understand the process -->
@@ -353,7 +354,31 @@ Clinical network segmentation design:
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 135 lines of detailed guidance
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Treat clinical network segmentation as the single highest-leverage security control.** A properly segmented network limits ransomware blast radius to a single VLAN. Separate clinical (EHR, PACS, patient monitors), biomed/IoMT, imaging (DICOM), guest, and corporate traffic onto isolated VLANs with deny-by-default inter-VLAN routing. The difference between a contained incident and hospital-wide downtime is segmentation.
+
+2. **Apply HIPAA technical safeguards as a floor, then build upward with HITRUST CSF.** HIPAA Security Rule defines the minimum — HITRUST CSF provides progressive maturity. Map HIPAA required/addressable specifications to HITRUST control categories (access control, audit logging, encryption, risk management). Use HITRUST's maturity scoring (Policy, Procedure, Implemented, Measured, Managed) to track security program evolution beyond HIPAA's binary compliance.
+
+3. **Never treat a signed BAA as a security assessment.** A BAA is a contract assigning liability, not a guarantee of vendor security. Conduct independent vendor due diligence: SOC 2 Type II report, penetration test results, incident response capability, sub-processor audit, and data flow diagram showing exactly where PHI travels. BAA without verification is compliance theater — OCR fines the covered entity for vendor breaches.
+
+4. **Deploy phishing-resistant MFA (FIDO2/WebAuthn) for all clinical and administrative access.** Healthcare is the #1 target for credential theft. SMS-based MFA is vulnerable to SIM swapping. Push-notification MFA is vulnerable to MFA fatigue attacks (as seen in the Uber and Cisco breaches). FIDO2 security keys or platform authenticators (Windows Hello, Apple Face ID/Touch ID) eliminate shared secrets that can be phished.
+
+5. **Implement PHI-aware logging with redaction middleware, not grep-on-deploy.** PHI in logs is the #1 source of healthcare breaches. Instead of post-deployment log scanning, implement structured logging with a PHI field whitelist — only explicitly approved fields (audit table timestamps, operation types, non-PHI correlation IDs) reach log output. Middleware redacts any field matching PHI patterns (SSN regex, MRN format, email in health context) before it reaches the log transport.
+
+6. **Design breach notification pipelines on infrastructure independent from clinical systems.** If ransomware encrypts your primary stack, the notification pipeline must still function. Host notification contact lists, templates, and workflows on a separate cloud account, separate provider, or offline backup. Test the pipeline annually with a tabletop exercise that simulates total primary infrastructure loss.
+
+7. **Request a Cybersecurity Bill of Materials (CBOM) for every medical device procurement.** FDA's 2023 guidance requires manufacturers to provide CBOM in premarket submissions. For existing devices, request the CBOM from the manufacturer. Without knowing OS versions, libraries, and protocols running on each device, you cannot assess vulnerability exposure. Unpatched medical devices with internet access are the #1 healthcare ransomware vector.
+
+8. **Apply the principle of least privilege to FHIR API scopes, not `patient/*.rs` for everything.** SMART on FHIR scopes should be granular: `patient/Observation.rs` for vitals display, `patient/MedicationRequest.rs` for med lists, NOT `patient/*.rs` which grants access to psychotherapy notes, 42 CFR Part 2 records, and other specially protected data. Implement consent directives at the FHIR authorization server to filter resources before they reach the app.
+
+9. **Conduct a "PHI walk" annually — trace one patient record from collection to final disposition.** Follow a single patient's data through every system: registration desk → EHR → billing → lab → pharmacy → analytics → backup → log aggregation → third-party vendors → deletion. At each hop, verify encryption, access control, BAA coverage, audit logging, and minimum necessary application. This single exercise reveals more gaps than a month of architecture reviews.
+
+10. **Implement compensating controls for legacy medical devices that cannot be patched.** For devices running unsupported OS (Windows XP, Windows 7, legacy Linux): isolate on a dedicated VLAN with no internet access, deploy network-based IPS inline, require jump host with MFA for administrative access, and develop a replacement procurement plan with CFO-level visibility. The cost of replacement is known; the cost of a breach from an unpatched device is unbounded (Change Healthcare 2024, CommonSpirit 2022: $150M).
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **HIPAA breach average cost.** Healthcare breaches cost an average of $10.1M per incident (IBM 2024 Cost of a Data Breach Report) — the highest of any industry for the 14th consecutive year. Detection and escalation alone average $1.7M. Post-breach response (notification, credit monitoring, legal, regulatory fines) averages $2.4M. OCR civil monetary penalties: $100-$50,000 per violation tier depending on culpability, up to $1,919,173 per identical violation type per calendar year. **Total cost: $4M-$10.1M per breach.** Fix: Invest in the controls that prevent the top 3 healthcare breach vectors — phishing-resistant MFA, clinical network segmentation, and PHI-in-log detection. These three controls prevent 80%+ of breach scenarios at a fraction of breach cost.
 
@@ -369,6 +394,25 @@ Clinical network segmentation design:
 
 - **Business Associate liability for sub-processor breaches.** Your cloud vendor (with whom you have a BAA) uses a sub-processor for a specific service. That sub-processor experiences a data breach involving your PHI. Your BAA with the primary vendor may not cover sub-processor breaches, or the primary vendor may not notify you within the required timeframe. OCR holds the covered entity (you) responsible for notification delays — "our vendor didn't tell us" is not a defense. **Total cost: $50,000-$500,000 per incident** — OCR fines for late breach notification (60-day clock runs from discovery, not from vendor notification to you), plus patient lawsuits naming you as the data controller. Fix: Require sub-processor breach notification SLAs in your BAA (48-hour notification from vendor, cascading from sub-processors). Audit sub-processor lists quarterly. Require vendors to maintain cyber insurance covering sub-processor incidents. Include a right to audit sub-processors in BAA terms.
 
+## Production Checklist
+**(STANDARD)**
+
+- [ ] All ePHI data stores encrypted at rest with KMS-managed keys (CMK, not default service key) — key rotation enabled
+- [ ] All endpoints handling PHI enforce TLS 1.2+ with valid certificates — database connections use `sslmode=verify-full`
+- [ ] Phishing-resistant MFA (FIDO2/WebAuthn) deployed for all clinical and administrative access
+- [ ] Clinical network segmented: clinical VLAN, biomed/IoMT VLAN, imaging VLAN, guest VLAN, corporate VLAN — deny-by-default inter-VLAN routing
+- [ ] Every vendor processing, storing, or transmitting PHI has a signed, current BAA — sub-processor lists reviewed within last quarter
+- [ ] PHI redaction middleware active on all logging pipelines — pre-production log scanning with regex for SSN/MRN/DOB patterns returns zero matches
+- [ ] Breach notification pipeline documented, tested annually, and hosted on infrastructure independent from clinical systems
+- [ ] Medical device inventory current — all network-connected devices identified, CBOM requested, vulnerability scanning operational
+- [ ] Legacy medical devices on dedicated VLANs with no internet access — replacement procurement plan with timeline for EOL devices
+- [ ] FHIR API authorization uses SMART on FHIR with granular scopes — resource-level filtering for psychotherapy notes and 42 CFR Part 2 records
+- [ ] De-identification method documented for all published/shared datasets — Safe Harbor checklist OR Expert Determination certification with Data Use Agreement
+- [ ] HITRUST CSF control mapping current — evidence collection automated, quarterly internal reviews completed
+- [ ] Annual "PHI walk" completed — one patient record traced through all systems, gaps documented and remediated
+- [ ] Telemedicine platform uses healthcare-specific tier with signed BAA — recording storage, waiting room auth, chat retention verified
+- [ ] Security incident response plan includes clinical downtime procedures — medical device evidence preservation, patient safety assessment, ambulance diversion protocols
+
 ## Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
@@ -380,6 +424,7 @@ Clinical network segmentation design:
 | "We'll encrypt later — let's get the product shipped first" | The 2024 HIPAA Security Rule proposed update makes encryption required, not addressable. You cannot "encrypt later" — PHI stored unencrypted from day one is a per se violation. Retrofitting encryption onto production databases is a 3-6 month project with downtime risk. Building with encryption from the start takes 1-2 extra days. "Later" means "never" — and "never" means a breach report with "unencrypted PHI" as the finding, and HHS OCR has explicitly confirmed that "we planned to encrypt" is not a defense under the 2024 proposed rule. |
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -537,6 +582,49 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+### Scale Depth
+
+#### Solo Clinic / Small Practice
+- **Scope:** Single EHR system. 1-5 providers. No dedicated IT/security staff. Cloud-hosted EHR with vendor-managed security.
+- **Architecture:** EHR vendor-managed HIPAA controls. Cloud email with BAA (Google Workspace/Office 365). Endpoint antivirus on all clinical workstations. Annual security risk assessment (SRA) per meaningful use requirements.
+- **Constraints:** No budget for dedicated security tooling. Rely on EHR vendor's security posture + BAA. Encrypt all endpoints (BitLocker/FileVault). Implement MFA on email and EHR. Train staff on phishing annually.
+- **Key risk:** The office manager has domain admin because "it's easier" — least privilege is free but rarely implemented.
+
+#### Small / Community Hospital
+- **Scope:** 1-2 hospitals. Multiple EHR modules. PACS imaging. Lab information system. 5-10 clinical applications. Small IT team (3-5 people).
+- **Architecture:** Network segmentation (clinical vs guest vs corporate). Centralized IAM with role-based access. SIEM for log aggregation. Endpoint detection and response (EDR) on all clinical workstations. Annual penetration test. HITRUST e1 (essentials) assessment.
+- **New concerns:** Medical device network isolation. Vendor remote access management. BAA registry maintenance. Backup testing with restore drills. Breach notification procedure documentation.
+- **Key risk:** Medical devices on flat network — one compromised infusion pump = lateral movement to EHR.
+
+#### Medium / Multi-Hospital Health System
+- **Scope:** 3-10 hospitals. 50+ clinical applications. Imaging centers, ambulatory surgery, urgent care. IoMT fleet of 1000+ devices. Dedicated security team (5-15 people).
+- **Architecture:** HITRUST i1 (implemented) or r2 (risk-based validated) certification. Clinical network micro-segmentation (802.1X, NAC). Medical device security platform (passive monitoring, vulnerability assessment). FHIR API gateway with centralized authorization. De-identification pipeline for research data. 24/7 SOC with healthcare-specific alerting. Breach notification pipeline rehearsed semi-annually.
+- **New concerns:** Third-party vendor risk management program. BAA flow-down to sub-processors. M&A security integration. FDA postmarket cybersecurity for connected devices. Cures Act information blocking compliance balanced with security.
+- **Key risk:** Security team focused on perimeter while clinical endpoints remain the primary compromise vector.
+
+#### Enterprise / ACO / National Health System
+- **Scope:** 10+ hospitals, 100+ clinics. Population health management. Research partnerships with pharma. Telemedicine across state lines. 5000+ IoMT devices. Security team of 30+.
+- **Architecture:** HITRUST r2 certification maintained. Zero-trust architecture with continuous authentication. AI/ML-driven anomaly detection for clinical networks. Federated FHIR security with cross-organizational consent frameworks. Threat intelligence sharing (H-ISAC). Red team with healthcare-specific attack scenarios. Supply chain security program for medical devices and health IT vendors. Bug bounty program for patient-facing applications.
+- **New concerns:** Cross-jurisdictional compliance (state breach laws, international data transfers). AI/ML model security (adversarial attacks on diagnostic AI). Quantum-resistant encryption planning for long-lived PHI. Cyber insurance negotiation with actuarial data. Board-level security governance.
+- **Key risk:** Complexity — 100+ vendors with BAA requirements, each with sub-processors. A single missed renewal creates a compliance gap affecting millions of patient records.
+
+**Transition Triggers:**
+- **Solo → Small:** Second location opens OR first connected medical device deployed → implement network segmentation and centralized IAM. First BAA beyond EHR vendor → establish BAA registry.
+- **Small → Medium:** Third hospital acquired OR 500+ IoMT devices → implement medical device security platform and HITRUST r2 certification. First ransomware attack in the region → hire 24/7 SOC or MSSP with healthcare expertise.
+- **Medium → Enterprise:** Cross-state operations OR research partnerships with PHI sharing → implement federated security architecture, zero-trust, and advanced de-identification. First FDA postmarket cybersecurity inquiry → establish formal medical device security program.
+
+## Error Decoder
+**(DEEP)**
+
+| Symptom | Real-World Cause | Diagnostic Steps | Resolution |
+|---------|-----------------|------------------|------------|
+| Ransomware encrypts clinical systems — EHR unavailable, surgeries cancelled, ambulances diverted | Unpatched medical device (Windows 7 MRI workstation) with internet access provided initial foothold. Lateral movement from biomed VLAN to clinical VLAN due to flat network | Identify patient zero (initial compromised device). Determine lateral movement path. Assess which VLANs are affected. Engage IR retainer. Contact cyber insurance. Activate clinical downtime procedures. | Isolate affected VLANs. Restore from offline backups (tested within last 6 months). Engage forensics firm. Notify OCR if PHI was accessed (breach assessment — 60-day clock starts at discovery). Implement network segmentation and EOL device replacement. Expected downtime: 2-4 weeks. Cost: $50M-$150M (Universal Health Services: $67M; CommonSpirit: $150M). |
+| OCR breach investigation opened — notification deadline missed | Breach discovered Day 1, but full scope not determined until Day 45. Team assumed 60-day clock starts at scope confirmation, not initial discovery. 60-day clock started at Day 1 — notification due Day 60 regardless of investigation status. | Review incident timeline: when was the first indicator of unauthorized PHI access? That's Day 1. Check if notification was sent within 60 calendar days of Day 1. If not, you're already late. | Notify immediately — further delay compounds penalties. Document reason for delay (not a defense, but shows good faith). Expect OCR inquiry with document requests (risk assessment, policies, training records). Engage healthcare regulatory counsel. Late notification adds $100-$50,000 per violation tier to base penalties. |
+| Third-party researcher re-identifies published "de-identified" dataset | Safe Harbor de-identification missed one identifier (ZIP codes with population < 20K, or dates more granular than year). Researcher linked dataset to voter registration records via ZIP+DOB+gender (87% unique identifiability). | Determine which identifier was missed. Assess how many individuals were in the dataset. Verify if a Data Use Agreement prohibiting re-identification was in place with the researcher. | Issue breach notification for every individual in the dataset — re-identification by a third party is still YOUR breach if you're the source. Notify OCR. Engage privacy counsel. Settlement costs: $250K-$4.3M. Switch to Expert Determination for future releases. Apply k-anonymity, l-diversity, t-closeness. Never publish "de-identified" data without formal statistical certification. |
+| Cloud vendor reports sub-processor data breach involving your PHI — 30 days after the incident | BAA didn't include sub-processor breach notification SLA. Vendor's BAA only required notification "without unreasonable delay" — interpreted as 30 days. Your 60-day clock to notify patients started when the sub-processor breach occurred, not when the vendor notified you. | Calculate time elapsed since sub-processor breach. If > 60 days since sub-processor incident, you are late on patient notification. Check BAA language for sub-processor notification SLA. | Notify affected patients immediately. Notify OCR (explain vendor notification delay as root cause — OCR may consider it a mitigating factor but won't eliminate liability). Amend all BAAs to require 48-hour sub-processor breach notification with cascading SLAs. Implement sub-processor audit as quarterly process. |
+| FHIR API returns psychotherapy notes and 42 CFR Part 2 records through standard patient/* scope | Authorization server doesn't distinguish between general PHI and specially protected PHI. patient/*.rs scope granted access to ALL patient resources. App developer inadvertently displayed psychotherapy notes in patient portal. | Audit which resources were returned through the broad scope. Identify which patients had specially protected data exposed. Determine if the app displayed or stored this data. | Revoke overbroad scopes. Implement resource-level filtering for psychotherapy notes (require separate explicit authorization per HIPAA) and 42 CFR Part 2 records (require specific consent to redisclose per federal regulation). Notify affected patients. Audit all SMART on FHIR apps for scope compliance. OCR penalties for specially protected PHI disclosure are compounded with state-law penalties and 42 CFR Part 2 violations (up to $1M per violation under Cures Act information blocking if improperly restricted, but improper disclosure is a separate violation). |
+| Google Analytics / Meta Pixel found on patient portal pages after OCR guidance update | Analytics/pixel deployed by marketing team without security review. HHS OCR guidance (December 2022, updated March 2024) clarified that tracking technologies on authenticated patient portal pages collecting PHI require BAA — neither Google nor Meta offer HIPAA-compliant BAAs for these products. | Scan all patient portal pages for tracking pixels: `grep -rn "gtag\|fbq\|analytics\|pixel" src/`. Identify what data is collected (URLs often contain PHI — appointment type, medication names in query params). | Remove tracking pixels from all authenticated pages immediately. Notify OCR if PHI was transmitted to analytics platforms without BAA (this is an impermissible disclosure). Replace with server-side analytics that strip PHI before transmission, or use self-hosted analytics (Matomo, Plausible). One health system paid $1.5M+ in combined OCR fines and patient lawsuit settlements for this exact violation. |
 
 ## References
 

@@ -166,7 +166,7 @@ Security review scales from single-PR review to org-wide security program design
 - Hardening container images and auditing Infrastructure as Code
 - Reviewing mobile app security: secure storage, cert pinning, root detection, code obfuscation
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Review Depth by Change Type
@@ -283,7 +283,7 @@ Security review scales from single-PR review to org-wide security program design
 **When SAST is sufficient:** SQL injection via string concatenation. Hardcoded API keys. Missing CSRF tokens. XSS via innerHTML. High true-positive rate.  
 **When manual review required:** Authorization logic (role checks, ownership verification). Race conditions in financial transactions. Cryptographic algorithm misuse.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Threat Modeling with STRIDE During Code Review
@@ -332,7 +332,30 @@ Apply STRIDE per component by examining the code, not just architecture diagrams
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Audit against the OWASP Top 10 2021 for every review.** Walk through all ten categories: Broken Access Control, Cryptographic Failures, Injection, Insecure Design, Security Misconfiguration, Vulnerable Components, Auth Failures, Software & Data Integrity Failures, Logging & Monitoring Failures, and SSRF. Each category has language-specific detection patterns. A review that skips a category leaves a known attack surface unchecked.
+
+2. **Build a threat model before reading code — STRIDE per component.** For each component (API endpoint, service, database query, UI element), ask the six STRIDE questions: Spoofing (can an attacker impersonate?), Tampering (can data be modified?), Repudiation (can actions be denied?), Information Disclosure (can data leak?), Denial of Service (can the system be overwhelmed?), Elevation of Privilege (can a user escalate?). Threat modeling should happen during design, not after implementation — but code review is the last chance to catch threats missed in design.
+
+3. **Run SAST (Semgrep/CodeQL) as a pre-review gate, not a replacement for review.** Automated static analysis catches ~60% of injection flaws, hardcoded secrets, and missing auth checks. Use it as a filter — let SAST find the mechanical issues so the human reviewer can focus on auth logic, race conditions, and business logic flaws. Never ship code with SAST findings unresolved; if a finding is a false positive, document the justification in the tool, not in a Slack thread.
+
+4. **Scan for secrets in every PR with truffleHog or gitleaks.** Secrets committed to version control are compromised immediately — rotation is mandatory. Scan for: API keys (`AKIA...`), private keys (`-----BEGIN RSA PRIVATE KEY-----`), connection strings (`mongodb+srv://user:pass@...`), JWTs, and cloud credentials. Block commits containing secrets at the pre-commit hook level; scan full history quarterly with `git-secrets --scan-history`. A secret in git is a secret everyone with repo access can find.
+
+5. **Audit dependencies for known vulnerabilities on every commit.** Run `npm audit`, `pip-audit`, `trivy fs .`, or `osv-scanner` in CI. Set SLAs for remediation: critical CVEs patched within 48 hours, high within 1 week, medium within 2 weeks. Block deployments if critical CVEs are unpatched beyond the SLA. The average npm package pulls in 79 transitive dependencies — scanning only direct dependencies misses 80% of the attack surface.
+
+6. **Validate every input at the boundary — never trust client-side validation alone.** Check: type (string vs number vs object), length (max and min), format (email, UUID, date), range (numeric bounds), character set (reject control characters, null bytes), and business rules (an order total must be positive). Server-side validation is the only validation an attacker can't bypass. Client-side validation is UX; server-side validation is security.
+
+7. **Review authentication and authorization as a single flow, not separate checks.** Verify: JWT algorithm is whitelisted (`HS256`, `RS256` — reject `none`), signature is verified before claims are trusted, all claims (`exp`, `nbf`, `aud`, `iss`) are validated, tokens are transmitted over HTTPS only, refresh token rotation is implemented, and every endpoint verifies both authentication (who are you?) AND authorization (are you allowed to do this to this resource?). Authorization is the #1 OWASP category for a reason.
+
+8. **Escalate cryptographic code to a specialist.** If the code generates tokens, hashes passwords, encrypts data, or validates signatures, it must be reviewed by someone with cryptographic training. Cryptographic mistakes look reasonable to generalist reviewers. Rules of thumb: hash passwords with bcrypt/argon2 (not SHA-256), generate tokens with `crypto.randomBytes()` (not `Math.random()` or a hash of timestamp+email), use AES-256-GCM for symmetric encryption (not ECB mode), and never implement your own crypto primitives.
+
+9. **Review infrastructure and config with the same rigor as application code.** A perfectly secure API behind a Terraform config that opens port 22 to 0.0.0.0/0 is a compromised system. Scan IaC with `tfsec`, `checkov`, or `cfn_nag`. Review: security group rules, IAM policies (least privilege), S3 bucket ACLs (block public access), RDS encryption settings, and Kubernetes pod security contexts (non-root, read-only filesystem, dropped capabilities).
+
+10. **Make security review continuous, not a one-time gate.** After the initial review, every PR touching auth, data access, file handling, or external integrations triggers a re-review. Run SAST and dependency scanning on every commit. Schedule quarterly full-application reviews regardless of change volume. The 47 PRs between "we passed security review" and the next review can introduce as many vulnerabilities as the original codebase. Security is a process, not a milestone.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -456,6 +479,27 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+
+## Production Checklist **(STANDARD)**
+
+Before delivering a security review and clearing code for deployment, verify every item:
+
+- [ ] **STRIDE threat model completed for all components in scope.** All six categories (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege) addressed with mitigations. Threat model documented in review findings.
+- [ ] **OWASP Top 10 2021 audited — every category checked.** Broken Access Control, Cryptographic Failures, Injection, Insecure Design, Security Misconfiguration, Vulnerable Components, Auth Failures, Software & Data Integrity Failures, Logging & Monitoring Failures, SSRF. Any findings have CVSS score and severity assigned.
+- [ ] **SAST scan (Semgrep/CodeQL) run and passed.** Zero high-severity findings unresolved. Medium findings triaged. False positives documented with justifications in the SAST tool. Scan results attached to review.
+- [ ] **Dependency audit (`npm audit` / `pip-audit` / `trivy fs .` / `osv-scanner`) clean.** Zero critical CVEs. High CVEs patched or risk-accepted with documented justification and remediation SLA. Transitive dependencies scanned — not just direct dependencies.
+- [ ] **Secret scan (truffleHog/gitleaks/detect-secrets) clean.** Zero secrets in current codebase or git history. Pre-commit hook configured to block future secret commits. Credential rotation completed for any secrets found.
+- [ ] **Authentication flow reviewed end-to-end.** JWT algorithm whitelisted (reject `none`). Signature verified before claims trusted. All claims validated (`exp`, `nbf`, `aud`, `iss`). Tokens transmitted over HTTPS only. Refresh token rotation implemented. MFA enforced where applicable. Password policy meets organizational standards.
+- [ ] **Authorization verified on every endpoint.** No endpoints without auth middleware. Ownership verification on resource access (user can only access their own data). Role checks on server side only (never client-only). Principle of least privilege applied: users have minimum necessary permissions.
+- [ ] **Input validation present at every trust boundary.** Type, length, format, range, character set, and business rule validation on server side. SQL/NoSQL queries use parameterized queries or ORM-safe patterns. No user input concatenated into queries, shell commands, or HTML without sanitization.
+- [ ] **Cryptographic code escalated to specialist if present.** Password hashing uses bcrypt/argon2 (not SHA-256). Token generation uses `crypto.randomBytes()` (not `Math.random()`). Encryption uses AES-256-GCM (not ECB mode). No custom crypto primitives implemented. TLS 1.2+ enforced.
+- [ ] **Infrastructure as Code (IaC) scanned and reviewed.** `tfsec` / `checkov` / `cfn_nag` passed. No open security groups (0.0.0.0/0). No public S3 buckets. IAM policies follow least privilege. RDS/DB encryption enabled. K8s pods run as non-root with read-only filesystem and dropped capabilities.
+- [ ] **CI/CD pipeline security reviewed.** No secrets in pipeline config or logs. Pipeline injection risks assessed. Artifact signing verified. SBOM generated and signed at build time. Deployment permissions follow least privilege.
+- [ ] **Logging and monitoring reviewed for security events.** Authentication failures logged with user context. Authorization denials logged. Sensitive operations (data export, permission changes, payment) audit-logged. Logs are append-only with tamper-proof timestamps. No PII/secrets in logs. SIEM integration configured.
+- [ ] **Rate limiting and DoS protections in place.** Request size limits enforced. Query timeouts configured. Rate limiting per user/IP on auth and resource-intensive endpoints. No unbounded queries (missing LIMIT). Regex timeout on user-supplied patterns (ReDoS protection).
+- [ ] **Findings documented with full CVSS vector and fix recommendations.** Each finding includes: severity, CWE, OWASP category, CVSS vector, location (file + line), reproduction steps, risk assessment, fix code (before/after), and verification steps. Findings structured per the review template.
+
+
 ## What Good Looks Like
 
 > Auth flows, data handling, and dependency chains are reviewed against the principle of least privilege.
@@ -534,7 +578,7 @@ graph LR
 - [Link to CWE, OWASP, or vendor advisory]
 ```
 
-## Gotchas
+## Anti-Patterns
 
 - **Security review only at end of sprint.** The feature is built, tested, and polished. On the last day, security review finds: the auth middleware can be bypassed with a crafted header, user input is rendered without sanitization (stored XSS), and file uploads accept any MIME type including executable. Fixing these requires re-architecting the auth flow and redesigning the upload component — tasks measured in days, not hours. The feature ships late or ships vulnerable; neither is acceptable. **Total cost: $50,000-$500,000 in redesign and reimplementation when security flaws are found late in the development cycle.** Fix: Perform threat modeling during design, not after implementation; add security acceptance criteria to every user story; run SAST in CI as a pre-merge gate; conduct incremental security review as each component is built, not in a final gate.
 - **Dependency vulnerability left unpatched.** A critical CVE is published for a transitive dependency (log4shell, Spring4Shell, left-pad). The fix is available within 48 hours — a version bump and a test suite run. Instead, the ticket sits in the backlog for 6 months behind feature work. During that window, an attacker exploits the known CVE through a public proof-of-concept, exfiltrates customer data, and triggers a mandatory breach notification. The cost of the version bump was a few hours of engineering time; the cost of the breach is 100-1000x that. **Total cost: $100,000-$1,000,000+ breach cost from known CVEs with patches available but not applied.** Fix: Automate dependency scanning in CI (Dependabot, Snyk, Renovate); set SLAs for patch application (critical: 48 hours, high: 1 week, medium: 2 weeks); block deployments if critical CVEs are unpatched beyond the SLA window.
@@ -568,6 +612,24 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+
+### Scale Depth
+
+#### Solo Developer
+Run `npm audit` before deploy. Manual code review focusing on OWASP Top 10. SAST (Semgrep) run locally. No formal threat modeling. Dependency scanning at release time. Secrets checked via `gitleaks` pre-commit hook. Auth patterns verified against known-good examples.
+
+#### Small Team (2-10)
+SAST (Semgrep/CodeQL) in CI as advisory gate. Dependency scanning (Dependabot/Snyk) with auto-PR for patches. Secret scanning blocks commits at pre-commit. STRIDE threat modeling for new features during design review. Security review on PRs touching auth, data access, or external integrations. CVEs triaged weekly. Critical patches within 48 hours SLA.
+
+#### Medium Team (10-50)
+SAST blocks PR on high-severity findings. Dependency scanning blocks deploy on critical CVEs past SLA (48 hours). Secret scanning in CI history + pre-commit. SBOM generated at build time. Formal threat modeling sessions for all new services. Quarterly full-application security review. Penetration testing annually. Security champion program — one per team.
+
+#### Enterprise (50+)
+All medium-team gates + dedicated AppSec team. Continuous pentesting or bug bounty program. Red team exercises quarterly. Runtime protection (RASP/WAF). SIEM with detection rules aligned to MITRE ATT&CK. Automated compliance evidence pipeline (SOC 2, ISO 27001, PCI DSS, HIPAA). Vendor security reviews for all third-party integrations. Board-level security metrics dashboard. Incident response tabletop exercises biannually. 24/7 security on-call rotation.
+
+**Transition Triggers:** Scale up when: (a) storing any PII, PHI, or payment data → Small, (b) first security incident or breach → Medium immediately, (c) revenue > $10M or 100K+ users → Enterprise, (d) regulatory compliance required (SOC 2, HIPAA, PCI DSS) → Enterprise, (e) operating in finance, healthcare, or government → Enterprise regardless of size.
+
 
 ## References
 

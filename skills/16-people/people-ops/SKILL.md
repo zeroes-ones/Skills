@@ -152,6 +152,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+**Decision Trees** **(QUICK)**
+
 ### Performance Review Cadence
 <!-- QUICK: 30s -->
 
@@ -259,6 +261,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Core Workflow
 
+**Core Workflow** **(STANDARD)**
+
 <!-- QUICK: 30s — scan phase titles to understand the process -->
 
 ### Phase 1 (~60 min): Onboarding Program Design
@@ -283,6 +287,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+
+**Error Recovery** **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -462,7 +468,29 @@ graph LR
 | "People will figure it out — give them autonomy" | Promoting your best IC to manager with zero training loses a great IC ($200K value) and creates a bad manager who drives 2-3 reports to quit ($360K replacement). Cost per failed first-time manager transition: $250K-$500K. Train before you promote. |
 | "Stay interviews? We do exit interviews — that's enough" | Exit interviews discover top performers were unhappy for 6-12 months before leaving. A 30-minute stay interview catches it early. Organizations with quarterly stay interviews reduce regrettable attrition by 25-35%, saving $250K-$750K/year. |
 
-## Gotchas
+## Best Practices
+
+1. **Design onboarding programs with a 30/60/90-day structure, not just paperwork.** Day 1: team introduction, laptop setup, first real task. Day 30: role clarity check-in, initial feedback. Day 60: culture integration assessment. Day 90: full productivity milestone review. Companies with structured onboarding see 58% higher three-year retention. Use BambooHR or Sapling to automate workflows and track completion.
+
+2. **Conduct quarterly stay interviews for every employee.** Ask: "What keeps you here? What might pull you away? What would make your job better? When was the last time you thought about leaving, and what triggered it?" Track themes across the organization. Organizations with stay interviews reduce regrettable attrition by 25-35%. A single retained senior employee saves $180K-$250K in replacement costs.
+
+3. **Implement a career framework with 4-6 levels and explicit expectations before the team reaches 50 people.** Each level defines: scope of impact, autonomy expectations, technical/behavioral competencies. Publish promotion criteria. Hold quarterly career conversations where managers review progress against the next level. Without a framework, 3-5 additional engineers leave per year at $120K-$180K replacement cost each.
+
+4. **Calibrate performance ratings across managers before finalizing reviews.** All departmental managers discuss their ratings together, defend outliers with evidence, and normalize the distribution. Without calibration, 80% of employees receive "Exceeds Expectations" — making the entire system useless for differentiating compensation and identifying true top performers. This prevents $100K-$500K/year in misallocated merit budgets.
+
+5. **Measure DEI by retention and promotion rates, not just hiring demographics.** A diverse hire class that all leaves within 18 months because the culture didn't include them is a failed program. Track hiring, retention, promotion, and engagement rates by demographic. Quarterly DEI dashboard reviewed by leadership. Address disparities with targeted programs, not just awareness training.
+
+6. **Segment employee benefits satisfaction by life stage, not aggregate averages.** A 25-year-old engineer cares about student loan repayment and gym reimbursement; a 45-year-old parent cares about 401(k) match and family health coverage. Survey satisfaction within each segment. Underused benefits should be re-evaluated or replaced — use utilization data from your benefits broker and HRIS.
+
+7. **Document every performance conversation with a follow-up email summarizing the gap, plan, and timeline.** Store in HRIS. Employment attorneys require: (1) specific dated examples of performance gaps, (2) written documentation the employee was informed, (3) evidence improvement didn't occur. Without documentation, a termination carries $50K-$150K in legal exposure even when the company prevails.
+
+8. **Train every new manager for 3 months before they receive direct reports.** Cover: 1:1s, feedback delivery, delegation, performance management, team dynamics. Pair with an experienced manager as coach for the first 6 months. Untrained new managers cause 2-3x the attrition of experienced managers — costing $250K-$500K per failed transition in lost IC value, replacement costs, and team disengagement.
+
+9. **Design compensation bands with market data, not internal equity alone.** Benchmark against Radford, Mercer, or Pave every 6-12 months. Include geo-differential strategy for remote/hybrid workforces. Publish bands internally for transparency. Unexplained pay gaps >3% by demographic should trigger immediate remediation. Annual pay equity audit with legal review.
+
+10. **Run employee engagement pulse surveys (Culture Amp, Lattice, Gallup) quarterly with ≥70% response rate.** Track: eNPS, psychological safety, manager effectiveness, growth opportunity, and compensation fairness. Share results with leadership within 2 weeks. Identify bottom-quartile managers and teams for targeted intervention. Anonymous free-text: "What would make you leave?" and "What keeps you here?"
+
+## Anti-Patterns
 
 - **No career framework or leveling guide — "you'll grow here" isn't a plan.** When engineers don't know what "Senior" looks like, what skills they need to develop, or how promotion decisions are made, they leave. A 100-person engineering org with no career framework loses 3-5 additional engineers per year compared to one with clear leveling — each replacement costs 1.5x salary in recruiting, onboarding, and lost productivity ($120K-$180K per senior engineer). Beyond the replacement cost, the attrition signal spreads: remaining engineers see peers leaving for "better growth opportunities" and start interviewing themselves. **Total cost: $50K-$200K/year in preventable attrition and replacement costs from unclear growth paths.** Implement a career framework with 4-6 levels, explicit behavioral and technical expectations per level, a promotion calibration process, and quarterly career conversations where managers review progress against the next level's expectations with each direct report.
 - **Onboarding that's just paperwork** — 3 days of tax forms, benefits enrollment, and IT setup. The new hire hasn't met their team, doesn't know what "done" looks like, and has no 30-day plan. They're productive in month 3 when they could have been productive in week 3. First day = shipping code (or equivalent first real work).
@@ -473,6 +501,68 @@ graph LR
 - **Performance reviews without calibration meetings produce rating inflation that makes the entire system useless.** When managers rate independently without cross-calibration, 80% of employees receive "Exceeds Expectations" ratings because individual managers have different standards and want to protect their teams. The result: a $200K merit increase budget distributed evenly across everyone who got the same inflated rating, meaning true top performers get the same $3K raise as average performers, and true underperformers are never identified or coached. After 2-3 cycles of uncalibrated reviews, top performers realize the system is meaningless and leave. **Total cost: $100K-$500K/year in misallocated compensation and lost top performers from uncalibrated performance reviews.** Hold calibration sessions before finalizing ratings: all managers in a department discuss their ratings together, defend outliers with evidence, and normalize the distribution to reflect actual performance differentiation.
 - **Not documenting performance issues with specific, dated examples creates legal exposure and often prevents termination entirely.** A manager who says "they've been underperforming for a year" but has zero written documentation cannot terminate without significant legal risk. Employment attorneys require: (1) specific, dated examples of performance gaps, (2) written documentation that the employee was informed and given opportunity to improve, (3) evidence that improvement didn't occur. Without this, a wrongful termination claim costs $50K-$150K in legal fees and settlement even when the company prevails, and the underperformer stays on payroll for 3-6 extra months while HR builds the paper trail retroactively. **Total cost: $50K-$150K per case in legal exposure and extended payroll from undocumented performance management.** Implement a simple documentation protocol: every performance conversation gets a follow-up email summarizing what was discussed, the specific gap, the improvement plan, and the timeline. Both manager and employee acknowledge receipt.
 - **Promoting the best IC to manager without management training is the most expensive promotion — you lose a great IC and gain a bad manager.** A top-performing senior engineer gets promoted to Engineering Manager with zero training. They continue doing IC work because it's what they're good at, neglect 1:1s, skip performance conversations, and fail to unblock their team. Within 6 months, 2-3 of their reports have disengaged or started interviewing. Research consistently shows the #1 reason people leave jobs is their direct manager, and untrained new managers cause 2-3x the attrition of experienced managers. The cost: one lost great IC ($200K value), two lost reports to attrition ($360K replacement cost), and a manager who now needs to be managed out or retrained. **Total cost: $250K-$500K per failed first-time manager transition.** Every new manager completes a 3-month management onboarding program before receiving direct reports: training on 1:1s, feedback, delegation, performance management, and team dynamics. Pair them with an experienced manager as coach for the first 6 months.
+
+## Production Checklist **(STANDARD)**
+
+Before deploying any People Operations program or process change, verify ALL of:
+
+1. Onboarding program: 30/60/90-day check-in structure documented, stakeholder tasks assigned in BambooHR/Sapling, new hire satisfaction and productivity tracked — benchmarked against pre-program baselines
+2. Career framework: 4-6 levels defined with explicit behavioral and technical expectations per level, promotion criteria published, quarterly career conversations documented — framework reviewed annually against market
+3. Compensation bands: benchmarked against Radford/Mercer/Pave within last 6 months, geo-differential strategy documented, pay equity audit completed — unexplained gaps >3% by demographic remediated
+4. Performance review: calibration sessions scheduled before ratings finalized, written evidence required for every rating level, distribution normalized — top performers differentiated from average
+5. Stay interviews: quarterly cadence established, 30-minute template documented, themes tracked across org — results shared with leadership within 2 weeks, action plans created for bottom-quartile themes
+6. Engagement pulse surveys: quarterly via Culture Amp/Lattice/Gallup, ≥70% response rate, results shared within 2 weeks — bottom-quartile managers identified and coached
+7. DEI dashboard: hiring, retention, promotion, and engagement rates tracked by demographic — disparities >5% flagged, remediation plans with timelines and owners
+8. Benefits utilization: % employees using each benefit tracked, satisfaction segmented by life stage, underused benefits re-evaluated quarterly — broker relationship reviewed annually
+9. Performance documentation protocol: every conversation followed by email summarizing gap, plan, timeline — stored in HRIS, 100% of employees on PIP have documentation trail
+10. Manager training: 3-month onboarding for all new managers before direct reports assigned, experienced manager coach paired for first 6 months — training completion tracked in LMS
+11. Employee handbook: legal review current (within 12 months), 100% acknowledgment tracked in HRIS within 30 days — version history maintained
+12. Termination checklist: PIP documentation verified, legal consulted for protected class/protected activity, severance per policy offered with release — every termination defensible on paper
+
+## Scale Depth
+
+### Seed/Pre-Seed (1-25 employees)
+- **Onboarding**: Founder-led. 1-page checklist. No dedicated HRIS — Rippling/Gusto PEO handles basics.
+- **Performance**: Quarterly founder 1:1s. No formal review process or calibration needed.
+- **Compensation**: Market-informed but informal. 50th-75th percentile for first 10 hires. Equity-heavy (1-5% for early engineers).
+- **Culture**: Organic. Founder personality defines culture. No formal DEI programs — hire for values alignment.
+- **Skip**: Career frameworks, stay interviews, engagement surveys, compensation bands, benefits benchmarking.
+
+### Series A-B (25-100 employees)
+- **Add**: Dedicated People Ops hire (#1). BambooHR or Workday starter. Structured onboarding (30/60/90). Basic career framework with 3-4 levels.
+- **Performance**: Semi-annual reviews with simple rating scale. Start calibration for managers.
+- **Compensation**: Bands based on Pave/Radford entry-level data. Geo-differential for remote only. Annual benchmarking.
+- **Culture**: Values codified. Pulse surveys begin (Lattice, Culture Amp starter). Benefits benchmarked annually.
+- **Skip**: Full DEI analytics, succession planning, global mobility, predictive attrition modeling.
+
+### Series C-D (100-500 employees)
+- **Add**: People Ops team (3-5). Workday full suite. Compensation bands with full market data. Calibration across departments. Quarterly stay interviews.
+- **Performance**: Formal review cycle with calibration. 9-box talent grid. PIPs standardized. Succession planning for top 50 roles.
+- **DEI**: Dedicated DEI lead or program. Hiring/retention/promotion dashboard by demographic. ERG program launched.
+- **Analytics**: Turnover by department/manager. Engagement trends. Skills gap analysis. HR dashboard reviewed monthly by leadership.
+- **Skip**: Internal mobility marketplace, AI-driven retention prediction, multi-country compliance.
+
+### Enterprise (500+ employees)
+- **People Ops**: 10+ team. HR shared services center. Tiered support model. HRBPs aligned to business units.
+- **Talent**: Succession planning for top 100+ roles. Executive coaching. Leadership development pipeline. Internal mobility marketplace.
+- **Compliance**: In-house employment counsel. Multi-country compliance. OFCCP audit readiness. GDPR/CCPA employee data.
+- **Analytics**: Predictive attrition modeling. Workforce planning with FP&A integration. DEI analytics with statistical significance testing.
+
+### Transition Triggers
+- Seed → Series A: First dedicated People Ops hire. 25+ employees means compliance obligations multiply.
+- Series A → Series B: First manager-layer calibration needed. 50+ employees — career framework becomes urgent.
+- Series B → Series C: International employees trigger multi-country compliance. 100+ employees — engagement surveys become predictive.
+- Series C → Enterprise: 500+ triggers additional regulatory requirements. Multiple business units require HRBP support.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Top performer quit — exit interview revealed they were unhappy for 9 months and nobody asked" | Only exit interviews, no stay interviews. Problems festered for months. Manager assumed silence = satisfaction. | Implement quarterly 30-minute stay interviews for all employees. Ask: "What keeps you here? What might pull you away? What would make your job better? When did you last think about leaving?" Track themes. | Organizations with stay interviews reduce regrettable attrition by 25-35%. Ask before they leave — it's $180K-$250K per retained senior employee. |
+| "80% of employees rated 'Exceeds Expectations' — merit budget distributed evenly, top performers got nothing extra and left" | Performance reviews without calibration. Managers rate independently with different standards, all inflating to protect their teams. | Hold calibration sessions before finalizing. All departmental managers discuss ratings together, defend outliers with evidence, normalize distribution. | Uncalibrated reviews misallocate $100K-$500K/year in merit budgets and drive top performers to leave. Calibration is not optional — it's the system's integrity check. |
+| "Promoted top IC to manager — 6 months later, 3 reports have left and the ex-IC is failing" | Promoted without management training. IC continued doing IC work, neglected 1:1s, skipped performance conversations. | Every new manager completes 3-month training (1:1s, feedback, delegation, performance management) before receiving direct reports. Pair with experienced manager coach for 6 months. | $250K-$500K per failed first-time manager transition. Management is a different job, not a promotion of the IC job. Train before you promote. |
+| "Employee handbook is 120 pages — nobody reads it, policy violation leads to termination, employee claims they didn't know" | Handbook designed for legal protection, not readability. No acknowledgment system beyond a checkbox. | Redesign handbook: 30-page core with essential policies, 90-page reference appendix. Acknowledge receipt with a quiz: "What's our social media policy? (a) Anything goes (b) Don't share confidential info (c) No social media allowed." | The handbook only protects you if employees actually read it. A quiz beats a checkbox — it proves comprehension, not just acknowledgment. |
+| "Benefits survey shows 4.2/5 satisfaction — but utilization data shows only 30% of employees use any benefit beyond health insurance" | Aggregate satisfaction masks life-stage segmentation. 25-year-olds and 45-year-olds have opposite needs. | Segment by life stage. Survey satisfaction within each segment. Track utilization per benefit. Replace underused benefits with what each segment actually values. | A benefits package nobody uses is wasted compensation budget. Segment, measure, iterate — don't optimize for the aggregate. |
 
 ## Verification
 
@@ -506,6 +596,7 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Seed → Series A → Series C → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 

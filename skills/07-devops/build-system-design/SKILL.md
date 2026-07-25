@@ -96,6 +96,20 @@ You are a build system engineer who has lived through migrations, debugged non-d
 * **Deep design (full session):** Full build system evaluation: taxonomy assessment, migration cost/benefit analysis, BUILD file architecture, remote execution design, custom rule authoring, CI integration plan, migration roadmap with milestones.
 * **Crisis mode (build broken, CI red, release blocked):** Triage build failure. Check for non-determinism (run same build 3 times — does it fail consistently?). Isolate to specific target with `--noshow_progress` + `--test_filter`. Rollback to last green commit immediately, debug offline.
 
+### Scale Depth
+
+#### Solo (1-5 engineers, single language)
+Use the language-native build tool: Cargo for Rust, Go modules for Go, Poetry for Python. Add a Makefile for convenience targets (build, test, lint). No need for Bazel — the overhead exceeds the benefit below 50K LOC.
+
+#### Small Team (5-20 engineers, 1-2 languages)
+Adopt a task-based build system with caching: Gradle (JVM), Bazel with `rules_*` for Python/Go, or Nx/Turborepo (JavaScript). Implement local build caching. Benchmark incremental build times monthly: target < 30 seconds for a single-file change. **Transition trigger:** When clean build exceeds 5 minutes, invest in remote caching.
+
+#### Medium Org (20-200 engineers, polyglot)
+Artifact-based build system (Bazel, Buck2, Pants). Remote cache deployed. Hermetic builds enforced in CI. Build graph optimization: dependency pruning, critical path analysis, test sharding with shard count tuned per target. Build cop rotation established. **Transition trigger:** When CI build time exceeds 15 minutes with caching, evaluate remote execution.
+
+#### Enterprise (200+ engineers, multi-team monorepo)
+Remote execution deployed (BuildBarn, BuildBuddy, custom REAPI workers). Custom Starlark rules for org-specific build patterns. Build artifact signing and provenance attestation. Build health dashboard with SLOs: p95 incremental build < 30s, p95 CI build < 10 min, flakiness < 0.1%. BUILD file semantic validation in CI beyond buildifier. Annual build system health review with migration evaluation (is Bazel still the right choice?). **Transition trigger:** When the build team becomes a bottleneck for feature teams, invest in self-service build infrastructure and BUILD file ownership per team.
+
 ## When to Use
 
 Use build-system-design when making build infrastructure decisions that affect the entire engineering organization — the focus is on system-level architecture, not individual build file maintenance.
@@ -146,7 +160,7 @@ What build system task are you working on?
 |-- Emergency: build broken, CI red -> Go to "Core Workflow: Crisis Mode"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- Full 125 lines extracted to references/core-workflow.md -->
 
 #
@@ -158,7 +172,7 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 125 lines of detailed guidance
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 #
 
@@ -345,7 +359,29 @@ Should you write a custom build rule or integrate an external build tool?
 |   |-- Team has Starlark expertise? YES → custom rule. NO → maintain simpler approach.
 ```
 
-## Error Recovery
+## Best Practices
+
+1. **Design for incremental builds from day one.** Every target must declare its exact inputs (deps, srcs, data) and outputs. When a single `.cc` file changes, only affected targets rebuild — not the entire project. Incremental build time is the #1 developer experience metric.
+
+2. **Achieve hermetic builds: no network, no system tools, no timestamps.** Run `bazel build --sandbox_block_network //...` and it must pass. Hermetic builds guarantee reproducibility — the same commit builds identically on any machine, any CI runner, 6 months later.
+
+3. **Use content-addressable caching: remote cache before remote execution.** Deploy a remote cache (bazel-remote, BuildBuddy) before investing in remote execution. A 94% cache hit rate on CI saves more money than 200 parallel workers. Remote execution is the scaling lever; remote cache is the efficiency lever.
+
+4. **Pin external dependencies with content hashes, not branch references.** `git_repository` pointing to `master` in WORKSPACE is non-reproducible. Use Bzlmod/MODULE.bazel with `integrity = "sha256-..."`. Every external dependency must be pinned to an exact version with a verified hash.
+
+5. **Author custom build rules for repeated patterns, not one-off genrules.** A `genrule` with a 10-line `cmd` that copies boilerplate across 50 targets is a maintenance liability. Write a Starlark rule that declares its interface once: inputs, outputs, toolchain dependencies. Custom rules pay for themselves after the third use.
+
+6. **Test sharding requires test isolation.** Before enabling `--test_sharding`, verify no test shares state (database, temp files, environment variables) with another test. Tests that pass serially and fail under sharding are Heisen-failures — the hardest flakiness to debug.
+
+7. **Keep BUILD files minimal: one target per conceptual unit, not one target per file.** Over-granular BUILD files create phantom rebuilds from over-specified deps. `//foo:bar` when you only need `//foo:bar:types` means changing `bar`'s implementation rebuilds your target unnecessarily. Declare `deps` on the narrowest target that provides what you need.
+
+8. **Validate build graph correctness in CI.** Buildifier formats BUILD files but doesn't validate `deps` completeness, visibility correctness, or glob scope. Add `bazel query 'deps(//...)' --output=graph` to CI to catch missing and unused dependency edges. The linter passing is necessary but not sufficient.
+
+9. **Cross-compile for deployment targets in the build system, not in Dockerfiles.** Define platform toolchains (linux_amd64, linux_arm64) in the build graph. Docker builds become `bazel build //... --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64` — no separate cross-compilation step.
+
+10. **Sign build artifacts at creation time.** Attach a cryptographic signature to every release artifact. The build system (not CI glue scripts) should produce a signed artifact + provenance attestation. An unsigned artifact is indistinguishable from a compromised one.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -440,6 +476,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[BS1]** Hermeticity verified: `bazel build --sandbox_block_network //...` passes — no network access, no system tool leaks, no timestamp embedding
+- [ ] **[BS2]** Determinism verified: two consecutive builds on the same machine produce bit-for-bit identical outputs — diff of `bazel-bin/` is empty
+- [ ] **[BS3]** Incremental build time < 10 seconds for a single-file change in a leaf library — only affected targets and their direct dependents rebuild
+- [ ] **[BS4]** Remote cache deployed and configured — cache hit rate > 80% for incremental changes, > 90% for clean CI builds
+- [ ] **[BS5]** External dependencies pinned with content hashes via Bzlmod/MODULE.bazel (Bazel), no `git_repository` pointing to branches — reproducible builds guaranteed
+- [ ] **[BS6]** Build graph validated in CI: `bazel query 'deps(//...)' --output=graph` returns zero missing dependency edges and zero unused deps
+- [ ] **[BS7]** Test sharding enabled only after test isolation audit — zero shared-state tests, all tests pass 100% under `--test_sharding`
+- [ ] **[BS8]** Custom Starlark rules for repeated patterns — no genrule with >5-line `cmd`, no copy-pasted build logic across targets
+- [ ] **[BS9]** Cross-compilation toolchains defined for all deployment platforms — Dockerfiles use `bazel build` output, not separate compilation steps
+- [ ] **[BS10]** Build artifacts cryptographically signed at creation time — provenance attestation generated alongside every release artifact
+- [ ] **[BS11]** Build dashboard visible to all engineers: cache hit rates, build times per target, flakiness rate, CI build duration trend — reviewed weekly by build cop
+- [ ] **[BS12]** Build cop rotation established: 1 engineer/week maintains BUILD file hygiene, toolchain updates, flaky test quarantine — no centralized build team bottleneck
+- [ ] **[BS13]** Buildifier and gazelle configured in CI — formatting enforced, but semantic checks (dep completeness, visibility) run separately
+- [ ] **[BS14]** Migration readiness (if planning): current pain quantified in $, migration cost estimated, projected ROI timeline < 18 months — all three documented in decision record
+
 ## What Good Looks Like
 
 ```
@@ -510,23 +563,42 @@ Phase 6: Full migration simulation
 | "We'll autogenerate BUILD files later — manual is fine for now." | Manual BUILD files at scale accumulate stale deps, missing visibility, and incorrect globs. Fixing 200+ stale BUILD files after a migration = $40K-$80K in one-time cleanup that could have been automated from day one. |
 | "Buildifier makes our BUILD files correct — the linter passes." | Buildifier only formats. It doesn't validate dep completeness, visibility correctness, or glob scope. Teams that trust buildifier alone ship broken builds that "look right" — $15K-$50K in debugging non-obvious failures over 6 months. |
 
-## Gotchas
+## Anti-Patterns
 
-* **Bazel's learning curve costs real money.** Engineers take 2-4 weeks to become productive with BUILD files and Starlark. At $150/hr, that is $12,000-$24,000 per engineer in ramp-up cost. Budget for training and expect a 20-30% productivity dip during the first month. **Total cost: $12K-$24K per engineer onboarding.**
+### Anti-Pattern: Migrating to Bazel Without Training Budget
+**What it looks like:** Org decides "we're migrating to Bazel." Engineers get a wiki link and are expected to learn on the job. BUILD files are cargo-culted from existing targets.
+**Why it fails:** Engineers take 2-4 weeks to become productive with BUILD files and Starlark. At $150/hr, that's $12K-$24K per engineer in ramp-up cost. Within 6 months, the build graph is worse than before the migration — stale deps, incorrect visibility, overly broad globs. $50K-$150K in build graph cleanup.
+**Do this instead:** Budget 2 weeks of dedicated training per engineer before the migration starts. Pair every engineer with a build expert for the first month. Run weekly BUILD file hygiene reviews for 3 months post-migration. Never migrate during a hiring push.
 
-* **Buildifier doesn't fix semantics — only formatting.** Running `buildifier` on your BUILD files makes them look correct. It does not check that `deps` are complete, that visibility is correct, or that globs are appropriately scoped. Teams that rely on buildifier alone ship broken builds that "look right." **Total cost: $15K-$50K in debugging non-obvious build failures over 6 months.**
+### Anti-Pattern: Trusting Buildifier for Correctness
+**What it looks like:** CI runs `buildifier -lint=warn` on BUILD files. The linter passes. Team assumes BUILD files are correct.
+**Why it fails:** Buildifier only formats. It does not check deps completeness, visibility correctness, or glob scope. Teams that trust buildifier alone ship broken builds that "look right." $15K-$50K in debugging non-obvious failures over 6 months.
+**Do this instead:** Run `buildifier` for formatting AND `bazel query` for semantic validation. Check for missing deps, unused deps, and visibility violations in CI. Buildifier is necessary but not sufficient.
 
-* **Remote execution amplifies flakiness, not fixes it.** A test that passes 98% of the time locally will fail 2% × 200 workers = 4 failures per full build on remote execution. Each failure investigation costs $150-$500 in engineer time. The cumulative effect of 1% flakiness across 500 targets is devastating. **Total cost: $30K-$100K/year in flake investigation for a 200-engineer org.**
+### Anti-Pattern: Enabling Remote Execution Before Fixing Flakiness
+**What it looks like:** Team wants faster CI, so they enable remote execution with 200 workers. Tests that "pass almost always" locally now fail regularly due to timing differences.
+**Why it fails:** A test that passes 98% locally fails 2% × 200 workers = 4 failures per build on remote execution. Each investigation costs $150-$500. Cumulative cost: $30K-$100K/year in flake investigation.
+**Do this instead:** Achieve >99.9% test reliability locally before enabling remote execution. Quarantine flaky tests. Run test suite 100x locally to establish baseline reliability. Only then scale horizontally with remote execution.
 
-* **WORKSPACE dependency hell is real.** A single `git_repository` pointing to `master` in WORKSPACE makes your build non-reproducible. Six months later, nobody knows which version of the dependency was used. The fix (Bzlmod/MODULE.bazel) requires restructuring your entire dependency graph. **Total cost: $20K-$80K in dependency migration and debugging for a mid-size repo.**
+### Anti-Pattern: WORKSPACE with Unpinned Git Dependencies
+**What it looks like:** `git_repository(name = "some_dep", remote = "...", branch = "master")` in WORKSPACE. Builds rely on whatever HEAD is at the time.
+**Why it fails:** Six months later, nobody knows which version was used. The build is non-reproducible. Migrating to Bzlmod/MODULE.bazel requires restructuring the entire dependency graph. $20K-$80K in migration and debugging.
+**Do this instead:** Pin every external dependency with a content hash. Use Bzlmod/MODULE.bazel with `integrity = "sha256-..."`. No branch references. No floating tags.
 
-* **Over-specified `deps` cause phantom rebuilds.** Adding a dependency on `//foo:bar` when you only need `//foo:bar:types` means changing `bar`'s implementation rebuilds your target. Over time, this cascades: 5 extra deps per target × 200 targets × 2 min rebuild × 20 changes/day = 6.7 engineer-hours of unnecessary waiting per day. **Total cost: $200K-$500K/year in wasted build time for a 100-engineer org with poorly maintained deps.**
+### Anti-Pattern: Over-Specified Deps Causing Phantom Rebuilds
+**What it looks like:** `deps = ["//foo:bar"]` when only `//foo:bar:types` is needed. Every change to `bar`'s implementation rebuilds your target.
+**Why it fails:** 5 extra deps × 200 targets × 2 min rebuild × 20 changes/day = 6.7 engineer-hours of unnecessary waiting per day. $200K-$500K/year in wasted build time for a 100-engineer org.
+**Do this instead:** Declare deps on the narrowest target providing what you need. Use `bazel query 'somepath(//my:target, //foo:bar)'` to identify unnecessary edges. Audit deps quarterly with `unused_deps` in CI.
 
-* **Test sharding without test isolation creates Heisen-failures.** Tests that share state (database, temp files, environment variables) will pass serially and fail under sharding — the worst kind of flakiness because it is non-deterministic. Finding and fixing shared state across 5,000 tests after sharding is enabled is a multi-week effort. **Total cost: $30K-$75K in test isolation cleanup after enabling sharding on a legacy test suite.**
+### Anti-Pattern: Test Sharding Without Isolation Audit
+**What it looks like:** Enabling `--test_sharding=4` on a test suite where tests share database state, temp files, or environment variables.
+**Why it fails:** Tests pass serially and fail under sharding — the worst kind of flakiness because it's non-deterministic. Finding and fixing shared state across 5,000 tests after sharding is a multi-week effort costing $30K-$75K.
+**Do this instead:** Audit test suite for shared state before enabling sharding. Use `--runs_per_test=100` to detect pre-existing flakiness. Each test must be self-contained: no shared database, no temp file collisions, no mutable environment variables.
 
-* **"Just use ccache" doesn't fix your build system.** ccache works at the compilation level, not the build graph level. If your Makefile has incorrect dependencies, ccache will cache incorrect outputs. ccache also doesn't help with linking, code generation, or test execution — the parts that dominate build times in large projects. **Total cost: $10K-$25K in misdiagnosed build time after investing in ccache but not fixing the underlying dependency graph.**
-
-* **Migrating to Bazel during a hiring push causes permanent build hygiene debt.** New engineers who never learned the old system will cargo-cult BUILD files (copy-paste deps, overly broad globs, no visibility rules). Within 6 months, the build graph is worse than before the migration. **Total cost: $50K-$150K in build graph cleanup and re-education if migration isn't paired with mandatory build hygiene training.**
+### Anti-Pattern: ccache as Build System Substitute
+**What it looks like:** Builds are slow, so team installs ccache. Build times improve slightly. Team considers the problem solved.
+**Why it fails:** ccache operates at the compilation level, not the build graph level. It doesn't help with linking, code generation, or test execution — the parts that dominate build times in large projects. If your Makefile has incorrect dependencies, ccache caches incorrect outputs. $10K-$25K in misdiagnosed build time.
+**Do this instead:** ccache is a compiler wrapper, not a build system. Fix the build graph first: correct dependency declarations, fine-grained targets, and artifact-based caching (remote cache). Use ccache as a complementary optimization, not a substitute.
 
 ## Verification
 

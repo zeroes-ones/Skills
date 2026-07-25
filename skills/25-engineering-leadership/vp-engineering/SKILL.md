@@ -156,6 +156,20 @@ VP of Engineering effectiveness is measured by organizational outcomes — veloc
 
 **Usage**: Say "as a VP managing 200 engineers, help me structure the engineering strategy for..." Default: **L1 (First-time VP)** — managing directors, executive leadership.
 
+### Scale Depth — Organizational Span
+
+#### Startup VP (15-50 engineers, $5-20M revenue)
+Scope: VP Eng or Head of Engineering. Manage 2-4 tech leads or first-line managers. Own all of engineering: hiring, architecture, process, culture. Still hands-on in architecture decisions. Key artifact: first engineering hiring plan and lightweight development process. Key risk: over-investing in process too early — process should enable speed, not replace judgment.
+
+#### Growth VP (50-150 engineers, $20-100M revenue)
+Scope: VP of Engineering with 3-5 directors. Own: engineering strategy, budget, organizational design, executive team membership. Manage through directors; span of 50-80 indirect reports. Key artifact: 18-month engineering strategy, quarterly board update, annual budget model. Key risk: under-delegating — still reviewing code or making individual architecture decisions that should belong to directors.
+
+#### Scale VP (150-500 engineers, $100M-500M revenue)
+Scope: VP/SVP with directors and senior directors. Own: multi-division engineering strategy, platform investment portfolio, M&A integration, public-company readiness. Manage through senior directors; span of 150-400 indirect reports. Key artifact: engineering operating model, platform strategy, 3-year technical vision. Key risk: losing organizational connectivity — not hearing about problems until they're crises because layers insulate you.
+
+#### Enterprise VP (500-2000+ engineers, $500M+ revenue)
+Scope: SVP/CTO with VPs reporting to you. Own: company-wide technical strategy, engineering philosophy, industry thought leadership. Manage through VPs; span of 500-2000+ indirect reports. Key artifact: engineering philosophy document, industry conference keynotes, board-level technology strategy. Key risk: ivory tower — strategy disconnected from execution reality because you haven't walked a team's floor in months.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -168,6 +182,8 @@ VP of Engineering effectiveness is measured by organizational outcomes — veloc
 - **Cross-functional executive alignment** — engineering and product are misaligned, the CEO doesn't understand engineering's value, or the board is questioning engineering investment levels.
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- STANDARD: 3min -->
 
@@ -218,6 +234,8 @@ VP of Engineering effectiveness is measured by organizational outcomes — veloc
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- STANDARD: 3min -->
 
 ### Phase 1: Engineering Strategy
@@ -252,6 +270,8 @@ Org design is your most powerful (and dangerous) lever. Wrong boundaries create 
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -263,6 +283,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Engineering Culture as Deliberate Design.** Culture is what you tolerate, not what you proclaim. Define engineering values with concrete behavioral examples. Reward behaviors that exemplify values through promotion, recognition, and compensation. Address culture violations quickly — every day of inaction signals approval. Run quarterly culture surveys and act transparently on results.
+
+2. **Organizational Scaling Happens Before You Feel the Pain.** Restructure at 15, 50, 150, and 500 engineers *before* communication breaks down. Add management layers proactively — a manager drowning with 12 directs produces more damage than one "unnecessary" hire. Design spans of control (5-8 for managers, 3-5 for directors) and stick to them.
+
+3. **Budget and Headcount Are Strategic Levers, Not Administrative Burdens.** Own the budget model: understand fully-loaded cost per engineer, allocation across product/platform/maintenance/innovation, and ROI framing. Never present headcount requests without business outcome mapping. Run quarterly budget reviews; reallocate underperforming investments.
+
+4. **Board Communication Must Translate Engineering to Business.** Never present technical detail to the board. Frame everything as business risk, opportunity, or capability. Use leading indicators (cycle time, deployment frequency, retention) not lagging indicators (revenue). Prepare board decks that a non-technical director can understand and act on.
+
+5. **M&A Technical Diligence Determines Deal Success.** Lead technical due diligence for acquisitions: architecture assessment, tech debt quantification, team quality evaluation, integration cost modeling. Post-acquisition, own the integration roadmap. The rule: 70% of acquisition value is lost in poor integration — your technical diligence and integration plan prevent this.
+
+6. **Platform Strategy Is a Business Decision, Not an Architecture Decision.** Decide what the engineering platform provides vs. what teams own. Platform investment should be justified by: (a) velocity multiplication across teams, (b) reliability improvement at scale, or (c) compliance/security necessity. Kill platform projects that don't demonstrate team adoption within 2 quarters.
+
+7. **Executive Hiring Is Your Highest-Leverage Activity.** Every director+ hire changes the org's trajectory. Conduct reference calls personally. Assess for: strategic thinking, people development track record, conflict resolution history, and cultural alignment. A bad director hire costs 12-18 months of organizational damage. Invest 20%+ of your time in hiring and onboarding leaders.
+
+8. **Engineering Brand Attracts Talent Before Recruiters Do.** Build external engineering brand: conference talks, open-source contributions, engineering blog, university partnerships. Engineering brand compounds — strong brand reduces cost-per-hire by 30-50% and improves inbound candidate quality. Measure: inbound applicant quality, offer acceptance rate, external mention velocity.
+
+9. **Crisis Leadership Reveals Your True Operating Model.** In incidents, your job is not technical debugging — it's communication, decision rights, and organizational learning. Establish clear incident commanders. Communicate status to executives before they ask. Run blameless post-incident reviews that produce systemic fixes, not individual blame. Your calm during crisis sets the tone for the entire organization.
+
+10. **Strategic Narrative Aligns 500+ People Without Your Presence.** Craft and repeat a clear engineering narrative: where we are, where we're going, why it matters, how each team contributes. This narrative should be repeatable by any engineer in the org. When decisions are made without you, the narrative ensures they align with your intent. Refresh the narrative every 6 months as strategy evolves.
 
 ## Cross-Skill Coordination
 
@@ -411,7 +453,7 @@ graph LR
 | "Ship now, fix org later — we have a deadline" | Organizational dysfunction compounds. A broken decision-making process that causes 2-week delays at 30 engineers causes 6-week delays at 100. Unclear ownership that creates minor friction at 15 engineers creates inter-team warfare at 50. The org problems you defer today become the reasons you miss the next 4 deadlines. Fixing org structure with 100 people costs $500K-$1M in lost productivity during the transition. **Total cost: $1M-$5M in accumulated delays, reorg costs, and missed market windows from deferred organizational fixes.** |
 | "I need to be in every technical decision — that's why they hired me" | A VP of Engineering who approves every architectural decision becomes the bottleneck. At 50 engineers, that's 5-10 decisions/day — meaning everything waits on you. Your best engineers leave because they have no autonomy. Scale yourself by building decision frameworks, not by making every decision. Your job is to create an environment where 200 engineers make better decisions without you than 20 engineers made with you. **Total cost: $1M-$3M/year in velocity loss, missed market windows, and attrition of senior engineers who leave due to lack of autonomy.** |
 
-## Gotchas
+## Anti-Patterns
 
 - **Engineering strategy disconnected from business strategy — building the wrong thing faster.** Your engineering org is executing a brilliant microservices migration, reducing p99 latency by 40%, and achieving 99.99% uptime. Meanwhile, the company missed its Q3 revenue target by 30% because the sales team can't close enterprise deals without SOC 2 compliance — a certification your engineering roadmap deprioritized as "non-technical overhead." The C-suite loses confidence in engineering leadership because they can't connect the $3M annual infrastructure spend to revenue outcomes. The disconnect typically results in a forced strategy realignment that wastes 2-3 quarters of completed work — for a 50-person engineering team at $200K/head fully loaded cost, that's $1.25M-$3.75M in wasted effort, and for larger orgs the number scales proportionally. **Total cost: $500K-$5M in wasted engineering effort from building solutions to the wrong problems.** Maintain a documented strategy traceability matrix linking every engineering initiative to a specific business OKR, and review it quarterly with the CEO and CFO to validate alignment before committing resources.
 - **Re-org as quarterly ritual** — every 6 months you shuffle teams, reporting lines, and ownership. Engineers spend 30% of their time learning new domains, rebuilding relationships, and navigating new decision processes. Organizational churn has a measurable velocity cost: ~20% productivity loss for 4-6 weeks post-re-org.
@@ -432,6 +474,23 @@ graph LR
 - [ ] Org health: attrition < 15% annualized, eNPS score tracked and improving
 - [ ] Business alignment: every team's roadmap items traceable to company OKRs
 - [ ] Succession: at least 2 internal candidates identified for every director+ role
+
+## Production Checklist **(STANDARD)**
+
+Before presenting any VP-level deliverable, verify:
+
+- [ ] [VP1] Engineering strategy document includes business context (market, revenue, competitive landscape) not just technical roadmap
+- [ ] [VP2] Budget model connects headcount, infrastructure, and tooling costs to business outcomes with ROI framing
+- [ ] [VP3] Board presentation audited: zero technical jargon undefined; every slide answerable by a non-technical director
+- [ ] [VP4] Organizational health metrics reviewed: retention rate, engagement survey trends, promotion velocity, diversity pipeline
+- [ ] [VP5] Director+ succession plan updated: 2+ internal candidates identified per critical role with development plans
+- [ ] [VP6] Platform investment portfolio reviewed: each active platform project has measurable adoption targets and sunset criteria
+- [ ] [VP7] Incident review cadence confirmed: all P0/P1 incidents have completed post-mortems with systemic fixes tracked to completion
+- [ ] [VP8] Hiring plan aligned with strategy: critical roles identified, sourcing channels active, interview capacity allocated
+- [ ] [VP9] Cross-functional alignment verified: product, design, sales, and marketing leaders agree on engineering priorities for next quarter
+- [ ] [VP10] Engineering brand activities scheduled: 2+ external-facing artifacts this quarter (blog post, conference talk, open-source contribution, university event)
+- [ ] [VP11] Spend audit conducted: tooling, vendor, and cloud costs reviewed for optimization; unused subscriptions terminated
+- [ ] [VP12] Strategic narrative refreshed: any engineer in the org can articulate where we are, where we're going, and why their team matters
 
 ## Verification Guardrails
 
@@ -458,4 +517,16 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---|---|---|---|
+| Board asks questions you can't answer about engineering velocity | Presenting technical output metrics (commits, PRs) instead of business impact metrics (cycle time, value delivery) | Retrofit presentation: replace all technical metrics with DORA metrics and business outcome linkage | Prepare board decks with a non-technical advisor reviewing before presentation |
+| Director attrition spike (2+ directors leave in 6 months) | Directors feel blocked — no autonomy, no growth path, or you're making decisions that should be theirs | Conduct exit interviews personally; identify autonomy gaps; delegate strategy-level decisions to directors with clear guardrails | Quarterly skip-level retention conversations with all director reports |
+| "We shipped the platform but no teams use it" | Platform built without team demand validation — solution looking for a problem | Pause platform development; run team interviews to identify actual friction points; rebuild adoption through solving real pain | Never fund platform projects without documented demand from 3+ consuming teams |
+| Engineering strategy document gathers dust | Strategy created in isolation without director buy-in; no quarterly review cadence | Reconvene directors; rebuild strategy collaboratively; establish quarterly strategy review with accountable owners per initiative | Co-author strategy with directors, not for directors |
+| Budget overrun discovered months late | No monthly budget tracking; finance-engineering gap where costs are opaque | Implement monthly spend reviews; assign cost ownership to directors; create real-time dashboard | Monthly budget review with finance partner; treat 5%+ variance as escalation trigger |
+| Post-acquisition integration failing (teams leaving, systems breaking) | No dedicated integration lead; treating acquisition as side project for existing teams | Assign full-time integration lead reporting to you; create 90-day integration plan with weekly milestones | Pre-close: designate integration lead and draft 90-day plan before deal closes |
+| You're the bottleneck for every strategic decision | Failed to delegate strategy-level decisions to directors; org can't operate without you | Identify 3 decisions you'll stop making this quarter; explicitly delegate with context and boundaries | Track decisions made without you; if < 70% of strategic decisions happen without your involvement, you're under-delegating |
 

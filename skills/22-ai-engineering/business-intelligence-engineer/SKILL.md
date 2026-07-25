@@ -178,6 +178,20 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo (1 analyst, 1 data source)
+Single database, manual SQL queries → spreadsheet → chart. No semantic layer. One source of truth (the database). Focus: get answers fast, learn what questions matter. Budget: $0/month (existing DB + spreadsheet tools).
+
+#### Small (2-10 data consumers, 2-5 data sources)
+dbt for transformations, one BI tool (Metabase/Lightdash), basic semantic layer with documented metric definitions. Weekly data freshness checks. Focus: consistent metric definitions, self-serve dashboard creation with governance tiers. Budget: $500-$2,000/month (BI tool + dbt Cloud).
+
+#### Medium (10-50 data consumers, 10+ data sources)
+Star schema data warehouse, dbt with MetricFlow semantic layer, governed self-service BI (Looker/Tableau), automated data quality monitoring (Great Expectations/Monte Carlo), investor-grade board reporting. Focus: data trust at scale, board-ready metrics, cross-functional data literacy. Budget: $5,000-$20,000/month.
+
+#### Enterprise (50+ data consumers, 30+ data sources, regulated industry)
+Multi-cluster data warehouse/lakehouse, metrics store as a product, embedded customer-facing analytics, HIPAA-compliant clinical dashboards, real-world evidence generation, automated compliance auditing. Focus: data as a product, regulatory-grade data governance, platform team maintaining shared infrastructure. Budget: $20,000-$100,000+/month.
+
 ## When to Use
 
 <!-- QUICK: 30s — five reasons to invoke this skill -->
@@ -188,7 +202,19 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Responding to "why don't these numbers match?"** — The CEO's dashboard shows $42M ARR, the CFO's shows $38M. You need metric reconciliation, definition audit, and a resolution process that prevents recurrence.
 - **Tracking clinical outcomes or health equity metrics** — Your health platform needs to monitor patient outcomes, care quality scores, or demographic parity. You need a structured analytics approach that handles clinical data governance requirements.
 
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Dashboard shows green metrics but business is clearly struggling" | Dashboard measures vanity metrics (total users, page views) not business outcomes (revenue per user, churn, CAC payback). Green widgets create false confidence while the business deteriorates. | Redesign dashboard around North Star + input metrics. Every tile must answer: "If this number moves, what decision do we make?" If the answer is "nothing," remove the tile. | Dashboards that show everything measure nothing. Ruthlessly prune to metrics that drive decisions. |
+| "Sales says revenue is $5.2M, Finance says $4.8M — same quarter" | Multiple metric definitions. Sales uses gross bookings (contract value). Finance uses recognized revenue (GAAP). Both are "revenue" in their respective BI tools. | Create a metrics dictionary with canonical names: `gross_bookings`, `recognized_revenue`, `net_mrr`. Deprecate the ambiguous "revenue" metric. Every BI tool queries the same semantic layer. | If two departments give different numbers for "the same metric," they're not the same metric. Name things precisely. |
+| "Dashboard queries time out during morning standup when everyone checks at once" | Dashboard queries raw fact tables with no aggregation layer. 50 concurrent users × `SELECT * FROM transactions WHERE date > ...` = database saturation. | Create pre-aggregated summary tables with incremental materialization. Set query timeouts (30s max). Use extracts/cached results for high-traffic dashboards. Implement concurrency limits per data source. | Dashboard concurrency is a real load pattern. Design for peak simultaneous usage, not average. |
+| "dbt run succeeds but downstream dashboards show zero rows for last week" | Silent data pipeline failure. The source table was renamed by the upstream team. dbt's `SELECT * FROM renamed_table` returned 0 rows without error because the old table still exists (empty). | Add data quality checks at every pipeline stage: row count thresholds, freshness checks, schema validation. Alert on anomalies BEFORE dashboards refresh. "Pipeline succeeded" ≠ "data is correct." | Green pipeline status is the most dangerous kind of false positive. Validate output, not just process. |
+| "Self-serve dashboard created by intern is shown in board meeting with wrong numbers" | Self-service without governance tiers. Any user can create and share dashboards. The intern used a different metric definition and presented it to the board as authoritative. | Implement 3-tier governance: Board (certified, locked, change-controlled), Operational (domain-managed), Exploratory (watermarked "Not board-reviewed"). Only Board-tier dashboards can be presented to executives. | Self-service without governance = anyone can publish anything. The board sees the most confident presentation, not the most accurate one. |
+| "Looker PDT fails silently at 3 AM — dashboard shows 2-day-old data all day" | Persistent Derived Table rebuild failed (ETL ran late, dependency missing, resource contention). No retry configured. No alert on failure. Users trust the dashboard because it loaded without error. | Add a 15-minute buffer between ETL completion and PDT rebuild. Configure auto-retry with exponential backoff. Alert on PDT failure within 15 minutes. Show "Data as of [stale timestamp]" in red on the dashboard. | Silent staleness is worse than no dashboard. If you can't guarantee freshness, at least be honest about staleness. |
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -244,6 +270,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Embedded analytics dashboard for enterprise customer times out during their quarterly business review | Propose tenant-isolated query pools with per-tenant concurrency limits and query timeouts; pre-compute tenant-specific aggregates nightly; sync with `data-engineer` on query performance and `backend-developer` on API isolation | In embedded analytics, your biggest customer's experience is only as good as your noisiest tenant's worst query; tenant isolation is not optional when contracts have SLA clauses |
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- COMPRESSED: Full 108 lines extracted to references/core-workflow.md -->
 
 <!-- STANDARD: 3min -->
@@ -278,6 +306,8 @@ Common chains:
 - **Chain**: business-intelligence-engineer → investor-relations — BI provides verified metrics for investor reporting, due diligence, and fundraising materials
 
 ## Decision Trees
+**(QUICK)**
+
 <!-- 66 lines extracted to references/decision-trees.md -->
 
 Key BI decisions: data modeling (star vs snowflake vs OBT), ETL vs ELT, materialization strategy, metric layer design, and semantic model governance.
@@ -608,7 +638,63 @@ START: Selecting analytics data store architecture
 - Regulated industry + need mature governance now → WAREHOUSE or Databricks Unity Catalog
 ```
 
-## Gotchas
+## Best Practices
+
+1. **Build a semantic layer as the single source of truth for metrics.** Every metric (revenue, ARR, NRR, churn) must have exactly one definition in the semantic layer (dbt metrics, LookML, or MetricFlow). BI tools query the semantic layer, not raw tables. When Finance and Sales give different revenue numbers, the semantic layer is the referee.
+
+2. **Document metric definitions with business context, not just SQL.** A metric named `mrr` with the SQL `SUM(revenue)/12` is ambiguous — is it gross MRR or net MRR? Does it include discounts? Trials? Add a `description` field: "Net Monthly Recurring Revenue: sum of active subscription revenue after discounts, excluding trials and one-time payments. Owner: Finance. Updated: monthly."
+
+3. **Design self-service analytics with governance tiers.** Board Tier: certified metrics, locked dashboards, change-controlled. Operational Tier: domain-managed dashboards, team-reviewed. Exploratory Tier: any user can create, watermarked "not board-reviewed." Self-service without tiers = conflicting numbers in executive meetings.
+
+4. **Maintain a data catalog as a living system, not a static document.** Every table, column, and metric needs: owner, description, freshness SLA, lineage (upstream source → transformation → downstream dashboard), and usage stats. A catalog that's 6 months out of date is worse than no catalog — it trains users to distrust metadata.
+
+5. **Optimize BI queries at the data warehouse, not in the BI tool.** A dashboard that runs `SELECT * FROM transactions WHERE date > '2024-01-01'` on every load will time out at scale. Pre-aggregate: create summary tables, materialized views, or incremental models. The BI tool should query aggregates, not raw fact tables.
+
+6. **Implement dashboard governance: every dashboard must have an owner and a sunset date.** Dashboards without owners become zombie dashboards — they consume compute, show stale data, and erode trust. Auto-archive dashboards not viewed in 90 days. Every active dashboard must have a named owner who responds to data quality alerts within 24 hours.
+
+7. **Select BI tools based on organizational needs, not vendor hype.** Looker: strong semantic layer (LookML), good for data-literate orgs. Tableau: best visualization, good for exploratory analysis. Power BI: Microsoft ecosystem integration, good for Excel-heavy orgs. Metabase/Lightdash: simple, fast, good for startups. Choose the tool that matches your org's data maturity, not the one with the best demo.
+
+8. **Treat data freshness as a reliability SLO, not a best-effort metric.** Board dashboards must display "Data as of [timestamp]" with a color-coded freshness indicator. Define SLAs: board dashboards < 6 hours stale, operational dashboards < 24 hours, exploratory < 7 days. Alert on freshness breach — stale data presented as current IS a lie.
+
+9. **Design for query performance from day one.** Partition large tables by date, cluster by common filter columns, use columnar storage for analytics, set statement timeouts (30s max for dashboard queries), and monitor slow queries with query profiling. A dashboard that takes 45 seconds to load is a dashboard nobody uses.
+
+10. **Build data quality monitoring into the pipeline, not as an afterthought.** Every ETL step should validate: freshness (did data arrive?), volume (row count in expected range?), schema (columns unchanged?), and content (null rates, uniqueness, referential integrity). Bad data that reaches a dashboard is 10x more damaging than a pipeline that fails loudly.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any board-facing dashboard or critical BI pipeline goes live, verify ALL of:
+
+1. All metrics defined in semantic layer with single authoritative source — no duplicate metric definitions across BI tools
+2. Metric dictionary documented: name, SQL definition, business owner, update cadence, known limitations for every metric
+3. Data freshness SLA configured: board dashboards show "Data as of [timestamp]" with color-coded staleness indicator
+4. Self-service governance tiers active: Board (certified, locked), Operational (domain-managed), Exploratory (watermarked)
+5. Dashboard load time < 5 seconds for all charts — tested at production data volume, not dev sample
+6. Automated data quality monitoring active: freshness, volume, schema, and content checks at every pipeline stage
+7. BI tool connection uses read replica or data warehouse, NEVER production OLTP primary
+8. dbt tests passing: unique, not_null, accepted_values, and relationship tests on all critical models
+9. Incremental models have unique_key configured — idempotency tested: row counts match after full-refresh vs incremental
+10. Row-level security tested: login as restricted user, verify only authorized data visible, verify aggregate metrics don't leak restricted cardinality
+11. Mobile layout tested: dashboard renders correctly on phone/tablet, all interactions work with touch
+12. Alert rules configured: freshness breach, query timeout, data quality failure, dashboard unused > 90 days
+13. Extract refresh schedules configured with failure notifications — no extract goes > 2x its SLA without alert
+14. Dashboard owner assigned for every dashboard with 24h response SLA on data quality alerts
+
+## Scale Depth
+
+| Scale | Scope & Complexity | Key Considerations |
+|---|---|------|
+| **Solo** | 1-person analytics, single tool (Metabase, Lightdash) | Single BI tool with extracts from production read replica. Google Sheets as lightweight metric dictionary. Focus on answering the top 5 business questions reliably — don't build what won't be used. |
+| **Small Team (2-10)** | 3-10 dashboards, 2-3 data sources, growing stakeholder base | Standardize on one BI platform. dbt for transformations, one data warehouse. Semantic layer (LookML/dbt metrics) for core KPIs. Dashboard governance: owner + freshness SLA for every dashboard. |
+| **Medium (10-100)** | 50+ dashboards, 5+ departments, embedded analytics requests | Multi-tool BI ecosystem with centralized semantic layer (dbt + MetricFlow). Tiered governance: Board, Operational, Exploratory. Data catalog (Alation, Atlan, Amundsen) with ownership and lineage. Embedded analytics with tenant-isolated query pools. |
+| **Enterprise (100+)** | 500+ dashboards, multi-region, regulatory compliance | Federated BI: central data platform team owns semantic layer, catalog, and governance; domain teams own dashboards. Headless BI architecture — metrics API (Cube, MetricFlow) serving multiple consumption tools. Board dashboards with 99.9% freshness SLA. Data product thinking: dashboards as products with SLAs, support, and deprecation policies. |
+
+**Transition Triggers:**
+- Solo → Small Team: > 2 departments requesting dashboards; need for shared metric definitions
+- Small Team → Medium: > 50 dashboards or embedded analytics requirements; need for formal governance
+- Medium → Enterprise: > 500 dashboards or multi-region deployment; need for federated governance model
+
+## Anti-Patterns
 
 - **Dashboard without actionability.** Dashboards that show "total revenue" or "daily active users" without segmentation, thresholds, or "what should I do about this?" context become wallpaper. Execs open them once, see a green number, and never return. **Total cost: $50K-$200K/year in BI team time, tooling costs, and data warehouse spend building dashboards with zero business impact. Industry surveys show 60-73% of enterprise dashboards go unused after the first month.** Fix: every dashboard tile must answer "who should take what action when this number changes?" Add thresholds (green/yellow/red), trend arrows, and links to the underlying data. Sunset dashboards with < 5 views/month.
 - **BI tool proliferation.** Marketing buys Tableau, Finance buys Power BI, Product buys Looker, and Engineering builds Metabase — each with separate licensing, separate data extracts, separate semantic layers, and separate definitions of "revenue." **Total cost: $100K-$500K/year in redundant BI licenses ($1K-$3K/seat × 4 tools × overlapping user bases) plus the cost of reconciling conflicting numbers in executive meetings.** Fix: standardize on one BI platform for the organization. If multiple tools are unavoidable, enforce a single semantic layer (dbt metrics, LookML, or a metrics store) as the source of truth that all tools query.

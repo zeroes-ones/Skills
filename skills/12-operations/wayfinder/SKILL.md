@@ -81,6 +81,20 @@ You are a knowledge cartographer. Your job is not to build software — it's to 
 * **Domain exploration (3-10 sessions):** For a new technology, domain, or platform with 15-50 unknowns. Multi-session with wayfinder + handoff coordination. Knowledge artifacts form a growing knowledge base.
 * **Architecture investigation (5-20 sessions):** For system-level unknowns (migration strategy, technology selection, scalability modeling). Produces architecture decision records (ADRs) as knowledge artifacts. Feeds into system-architect.
 
+### Scale Depth
+
+#### Solo
+Personal investigation for individual contributors. A few investigation tickets, no formal DAG needed, one session to resolve. Focus: disciplined unknown elicitation, artifact production (not just research), and clear documentation so the investigator's own future self can resume. Tools: markdown tickets in `tickets/`, simple dependency notes.
+
+#### Small Team (2-15)
+Team-scale investigations with shared ticket boards. Formal knowledge DAG, frontier resolution across team members, capstone artifacts that feed into team decision-making. Focus: preventing duplicated investigation, maintaining a shared understanding of what's known vs unknown, handoff integration for multi-session continuity.
+
+#### Medium Organization (15-100)
+Cross-team investigations spanning multiple domains. Standardized ticket templates, artifact quality gates, and investigation-to-implementation transition protocols. Focus: knowledge artifacts as organizational currency — a decision document from one team's investigation eliminates re-investigation by others. Risk: dependency inflation across teams serializes parallel work.
+
+#### Enterprise (100+)
+Portfolio-level investigation management. Automated unknown discovery tooling, investigation ROI tracking, and knowledge artifact libraries. Focus: reducing the cost of organizational ignorance — every dollar spent re-investigating a question someone already answered is pure waste. Risk: investigation bureaucracy — ticket templates become more important than knowledge produced. Keep "we don't know [X]" as the invariant.
+
 ## When to Use
 
 Use wayfinder when the path from "idea" to "implementation plan" is blocked by unknowns — questions that must be answered before work can be effectively scoped.
@@ -119,6 +133,8 @@ What kind of investigation are you planning?
 ```
 
 ## Core Workflow
+
+**(STANDARD)**
 
 ### Phase 1: Unknown Elicitation
 
@@ -203,6 +219,8 @@ After all BLOCKING and ORDERING tickets are resolved:
 ```
 
 ## Decision Trees
+
+**(QUICK)**
 
 ### Unknown Classification
 
@@ -372,6 +390,8 @@ After all BLOCKING and ORDERING tickets are resolved:
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -518,7 +538,7 @@ Pick a known unknown. Ask: "What would we need to know to answer this?" Write th
 ### Exercise 5: Scope-Down Practice (15 min)
 Take an unknown that feels overwhelming ("Which cloud provider should we use?"). Scope it down 3 times: what's the smallest knowable piece? What's the next smallest? What's the next? Write an investigation ticket for the smallest piece only.
 
-## Anti-Rationalization — No Excuses
+## Anti-Rationalization
 
 | Rationalization | Reality |
 |---|---|
@@ -528,7 +548,29 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 | "We'll keep researching until we find the answer" | Spinning on UNKNOWABLE questions that cannot produce answers costs $5K-$30K per investigation — after 2 failed approaches, declare UNKNOWABLE and document constraints. |
 | "'Investigate database options' is a perfectly fine ticket" | Tickets without method, artifact specification, and completion criteria are just todos — $2K-$8K per shallow ticket that produces no actionable knowledge. |
 
-## Gotchas
+## Best Practices
+
+1. **Every investigation ticket starts with "We don't know [X]."** An investigation without an explicit unknown statement is implementation masquerading as research. The unknown must be a complete sentence: "We don't know which database fits our query patterns" is actionable; "Database options" is a todo.
+
+2. **Every ticket must specify its knowledge artifact before work begins.** Define the output type, path, and content: "Artifact: benchmark-results.csv at tickets/artifacts/ containing p99 latency for 5 query patterns at 1000 req/s." Investigation without artifact specification produces exploration without a map.
+
+3. **Build the dependency graph before resolving any ticket.** Classify each unknown as BLOCKING (must resolve before implementation), ORDERING (resolution order matters), INDEPENDENT (any order), or NICE_TO_HAVE. The DAG structure IS the plan — it reveals what can be parallelized and what serializes the investigation.
+
+4. **Work only on the frontier — tickets with zero unresolved dependencies.** A ticket with unresolved dependencies is not ready. Working ahead of the frontier produces throwaway knowledge that may be invalidated when a dependency resolves differently than assumed.
+
+5. **Cap active tickets at 3 per session.** Beyond 3 concurrent investigations, context fragmentation guarantees shallow results. Three deep investigations produce far more actionable knowledge than 8 shallow ones. Complete or block existing tickets before opening new ones.
+
+6. **Declare unknowns as UNKNOWABLE after 2 failed approaches.** Some questions cannot be answered with current constraints — pre-release technology, inaccessible data, uncertain market conditions. Document what constraint prevents resolution and move to the next frontier ticket. Spinning wastes resources.
+
+7. **Every capstone artifact must include an explicit recommendation with confidence level.** Format: "We recommend [X]. Confidence: HIGH/MEDIUM/LOW. Rationale: [evidence]. Tradeoffs accepted: [list]." Research dumps without recommendations are ignored by implementation teams.
+
+8. **Prevent dependency inflation — only add edges where genuinely blocking.** A DAG where every ticket depends on 3 others produces a frontier of 1 ticket. Only add edge A→B when B CANNOT START without A's artifact. If B can make partial progress, it's ORDERING, not BLOCKING.
+
+9. **Keep at least 1 INDEPENDENT ticket active as a fill task.** When the frontier empties because all active tickets block on the same dependency, an INDEPENDENT fill task keeps knowledge production flowing while blocked tickets wait.
+
+10. **Test the transition to implementation before declaring investigation complete.** Verify: all BLOCKING unknowns resolved, decision document includes explicit recommendations, open questions documented with risk assessment, implementation team can create tickets from the capstone without re-investigating.
+
+## Anti-Patterns
 
 - **The "we'll figure it out as we build" trap.** Starting implementation without resolving BLOCKING unknowns is exploration masquerading as progress. Every hour of coding against an unresolved architectural unknown produces code that may need to be rewritten. A team that spent 3 weeks building on PostgreSQL before discovering their workload needed DynamoDB lost $45,000 in engineering time on throwaway code. **Total cost: $30,000-$100,000 in rework when a blocking unknown is discovered mid-implementation. Fix: no implementation until all BLOCKING tickets are resolved.**
 
@@ -541,6 +583,48 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 - **The ticket-as-todo anti-pattern.** Investigation tickets that read "Investigate database options" with no method, no artifact specification, and no completion criteria are just todos with a fancy name. They produce the same shallow results as ad-hoc research. **Total cost: $2,000-$8,000 per shallow ticket in wasted time that produces no actionable knowledge. Fix: every ticket must specify method (how will we investigate?), artifact (what will we produce?), and completion criteria (how will we know we're done?).**
 
 - **The frontier starvation problem.** When 3 active tickets all block on the same dependency, and that dependency is slow (waiting for external data, access, or review), the entire investigation stalls. Meanwhile, INDEPENDENT tickets sit idle. **Total cost: $3,000-$15,000 in idle investigation time when the frontier is empty but work exists. Fix: always keep at least 1 INDEPENDENT ticket in the active set as a "fill" task — something that can be worked on while blocked tickets wait.**
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Investigation produces no actionable knowledge after 3+ sessions | Tickets lack artifact specification — method and output were never defined | Retrofit artifact specification: "This ticket produces [artifact type] at [path]." If no artifact can be defined after 3 sessions, close as UNKNOWABLE | Investigation without artifact specification is procrastination. The artifact IS the investigation — without it, the work never happened |
+| Knowledge DAG has cycles — topological sort fails | Circular dependencies: "A must know B, B must know A." Poorly scoped tickets | Merge cyclic tickets into one larger investigation, or split to introduce an intermediate unknown that breaks the cycle | Cycles mean tickets are too granular or mis-scoped. Two unknowns that depend on each other are one unknown with two facets |
+| Implementation team ignores investigation artifacts | Artifacts are research dumps without recommendations. 40 pages of analysis with no "we recommend X" is zero knowledge transfer | Add to capstone: "Recommendation: [X]. Confidence: [HIGH/MEDIUM/LOW]. Evidence: [references]." The recommendation is the artifact's primary output | Knowledge without a recommendation is data. Research dumps are read by no one; recommendations are acted on |
+| Frontier is empty but pending tickets remain | All remaining tickets have unresolved dependencies. Active tickets all block on same external dependency | Escalate the blocking dependency. Activate 1-2 INDEPENDENT fill tickets. Re-examine edges — some may be ORDERING not BLOCKING | Frontier starvation is a process failure. The DAG over-specified dependencies. Always maintain an INDEPENDENT ticket as fill |
+| Ticket active 3+ sessions with zero output | The unknown is UNKNOWABLE with current constraints but hasn't been declared | Run Unknown Escalation tree. After 2 failed approaches: declare UNKNOWABLE, document constraints, specify what would need to change | Courage to declare UNKNOWABLE is a professional skill. Documenting constraints is itself valuable knowledge |
+| 30+ investigation tickets for a single feature | Over-decomposition — every question became a ticket regardless of scope | Cluster related unknowns into themes. Target 8-15 tickets for a feature. Merge tickets sharing the same method or artifact type | Ticket granularity follows investigation effort, not question count. A 10-minute lookup needs a note, not a ticket |
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **All tickets have explicit unknown statements:** Run `grep -L "don't know\|unknown\|uncertain\|?" tickets/*.md` — must return 0
+- [ ] **All tickets have artifact specification:** Run `grep -L "Artifact:" tickets/*.md` — must return 0
+- [ ] **DAG is acyclic:** Topological sort succeeds. Visual inspection confirms no circular dependencies
+- [ ] **Frontier is non-empty:** At least 1 ticket has all dependencies resolved when pending tickets exist
+- [ ] **Active tickets ≤ 3:** Run `grep -c "status: active" tickets/*.md` — must be ≤ 3
+- [ ] **No ticket active > 3 sessions without artifact:** Flag stale investigations for scoping or UNKNOWABLE
+- [ ] **Unknowns classified by type:** Every unknown tagged BLOCKING, ORDERING, INDEPENDENT, NICE_TO_HAVE, or UNKNOWABLE
+- [ ] **Capstone artifact exists when BLOCKING tickets complete:** Decision document with recommendation and confidence level
+- [ ] **Implementation transition tested:** Implementation team can create tickets from capstone without re-investigating
+- [ ] **Tickets directory organized:** Active tickets in `tickets/`, artifacts in `tickets/artifacts/`, completed archived
+- [ ] **Multi-session coordination active:** Handoff integration references current ticket and frontier state if multi-session
+- [ ] **Dependency edges audited:** Each A→B edge verified: can B genuinely not start without A's artifact?
+- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
+
+### Scale Depth
+
+Wayfinder scales from a 10-minute quick scan to multi-month architecture investigation. Match rigor to uncertainty level.
+
+| Scale | Unknowns | Structure | Duration |
+|-------|----------|-----------|----------|
+| **Quick scan** | 2-5 INDEPENDENT unknowns | Elicit → resolve in one session → document in single file. No DAG needed | 10-30 minutes |
+| **Feature investigation** | 8-20 unknowns with dependencies | Build DAG → classify → resolve frontier → capstone decision document | 1-3 sessions |
+| **Domain exploration** | 20-50 unknowns, new technology | Unknown harvesting → DAG → multi-session with handoff → knowledge base of artifacts | 3-10 sessions |
+| **Architecture investigation** | 30-100 unknowns, system-level | Full pipeline: elicitation → DAG → frontier → ADRs → transition plan. Feeds system-architect | 5-20 sessions |
+
+**Scaling rule:** The DAG is overhead for small investigations. For ≤5 INDEPENDENT unknowns, resolve without formal tickets. For 8+ unknowns with dependency relationships, the DAG pays for itself by preventing serialized investigation.
 
 ## Verification
 

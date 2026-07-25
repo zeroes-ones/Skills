@@ -167,6 +167,38 @@ QA engineering scales from test execution to org-wide quality strategy and cultu
 
 **Usage**: Say "as an L3 QA engineer, design the test strategy for..." Default: **L2** (feature-level testing, independent execution).
 
+### Solo Developer
+- Playwright or Cypress for critical E2E flows; Vitest + Testing Library for unit tests
+- Test pyramid enforced manually: write unit tests first, integration tests for API calls, E2E for signup and purchase only
+- Coverage tracked locally via `--coverage`; 80% line target on changed files
+- No dedicated QA role — developer owns quality end-to-end
+- Flaky test detection via CI rerun threshold; quarantine manually in `@flaky` directory
+
+### Small Team (2-5)
+- Dedicated QA engineer or rotating QA responsibilities
+- CI quality gates: lint → unit → integration → E2E → coverage — block merge on failure
+- Contract tests (Pact) between services; schema validation in CI
+- Performance smoke tests on every PR (k6, 5 VUs, 2 min)
+- Accessibility testing via axe-core integrated into E2E pipeline
+- Flaky test dashboard tracking failure rate; auto-quarantine at 3-in-10 threshold
+
+### Medium Team (5-20)
+- QA platform team maintaining shared test infrastructure, fixtures, and factories
+- Test pyramid enforced in CI with layer-specific time budgets (unit <5s, integration <30s, E2E <15min)
+- Visual regression testing (Percy, Chromatic) for UI components
+- Cross-browser testing matrix: Chrome, Firefox, Safari, mobile viewports
+- Load testing in staging with production-like data; performance baseline in repo
+- QA metrics dashboard: flaky rate, coverage trend, test execution time, defect escape rate
+
+### Enterprise (20+)
+- Quality engineering organization with test architecture, tooling, and enablement teams
+- Centralized test data management with GDPR-compliant anonymization pipelines
+- Chaos engineering integrated into QA: regular GameDays injecting latency, packet loss, service failures
+- Multi-region testing for global deployments; localization testing matrix
+- Automated accessibility auditing across all customer-facing surfaces with WCAG 2.2 AA
+- SLO-driven quality gates: error budget burn rate triggers release block
+- QA certification program: test design, automation, performance, and accessibility tracks
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -180,7 +212,7 @@ QA engineering scales from test execution to org-wide quality strategy and cultu
 - <!-- DEEP: 10+min -->
 Debugging flaky tests and improving test stability
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Test Type Selection
@@ -285,7 +317,7 @@ Debugging flaky tests and improving test stability
 **When to quarantine immediately:** CI reliability dropping below 90%. Flaky test blocking > 3 PRs in a week. Root cause unknown and fix estimate > 1 day.  
 **When to fix in place:** Root cause obvious (missing await, unseeded random). Fix takes < 30 minutes. Test provides unique coverage no other test provides.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Test Strategy & Pyramid Design
@@ -320,7 +352,20 @@ Debugging flaky tests and improving test stability
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Follow the test pyramid — not the ice-cream cone.** 60-70% unit tests, 20-25% integration tests, 5-10% E2E tests. Every E2E test you write that could have been an integration test adds 30-60 seconds to CI and 10x the flakiness risk. Push tests down the pyramid at every opportunity: "Can this E2E scenario be verified with an API integration test instead?"
+2. **Quarantine flaky tests immediately at the 3-in-10 threshold.** A test that fails 3+ times in its last 10 CI runs gets moved to a `@flaky` suite with a P1 fix ticket. Flaky tests erode team trust faster than missing tests — when CI is red 30% of the time on flaky failures, developers learn to ignore CI entirely. Track flaky test rate as a quality metric: target <2% of suite.
+3. **Test data must be deterministic and repeatable.** Use factories with fixed seeds (Fishery, factory_boy) — not `faker.name.firstName()` and `Date.now()`. A test that fails on "Jane Smith at 14:32:01Z" can never be reproduced. If you need randomness for property-based testing, log the seed. Time-dependent tests use `sinon.useFakeTimers()` or `vi.setSystemTime()`.
+4. **E2E tests cover critical revenue paths only — not every user flow.** Signup → Purchase → Fulfillment gets E2E. Changing avatar, updating profile, and filtering search results get integration tests. The E2E suite must complete in under 15 minutes. Profile test execution time and move slow tests down the pyramid.
+5. **Accessibility testing is not optional — it's a quality dimension.** Every E2E test should include at least one accessibility assertion: `expect(page).toHaveNoViolations()` via axe-core/Playwright. Automated a11y catches ~30% of issues; pair with manual screen-reader testing for critical flows. WCAG 2.1 AA is the minimum bar.
+6. **Performance tests run in CI, not before major releases.** Add a k6 smoke test (5 VUs, 2 min) to every PR; fail the build if p95 latency increases >20%. Run daily load tests in staging with production-like data volumes. Maintain a performance baseline in the repo; update it only on deliberate improvements, not when tests "accidentally" get faster.
+7. **Contract tests protect API boundaries better than E2E tests.** Use Pact or schema-based contract testing between services. A contract test verifies that Service A's expectations match Service B's actual responses — catching breaking changes before integration tests even run. Cheaper, faster, and more precise than debugging a failing E2E test across 5 services.
+8. **Test isolation is non-negotiable.** Every test must be independently runnable, shardable, and order-independent. Use `test.describe.parallel` with fresh state per test unless ordering is explicitly required. Shared mutable state between tests is the #1 cause of "works on my machine, fails in CI." Tests that depend on execution order are bugs, not tests.
+9. **Code coverage measures risk, not quality.** 95% line coverage with weak assertions is worse than 70% with strong assertions — it creates false confidence. Track coverage on changed lines only (diff coverage), measure branch coverage for critical paths (auth, payments, data integrity), and use mutation testing (Stryker, pitest) to verify assertion quality periodically.
+10. **The QA role shifts left — quality gates belong in development, not after.** Every developer writes tests before merge. Every PR includes test evidence. Every CI pipeline blocks merge on test failures. QA engineers design the strategy, tooling, and frameworks; developers execute the tests. "QA will catch it" is an anti-pattern that costs 10x more to fix post-merge.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -487,6 +532,18 @@ graph LR
 - **Test isolation**: `test.describe` with `serial` mode means test 2 depends on test 1's state. If test 1 fails, test 2-20 all fail with cascading errors. Use `test.describe.parallel` with fresh state per test unless you explicitly need ordering.
 - **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| Ice-cream cone anti-pattern: 300 E2E tests, 50 unit tests, 20 integration tests — 4-hour CI, impossible to triage failures | Follow the test pyramid: 60-70% unit, 20-25% integration, 5-10% E2E. Every test at the wrong level adds latency and flakiness. |
+| Manual regression testing eating 3 days per sprint — QA clicks through 150 cases across 4 browsers every release | Automate every regression case that has run >3 times. Use Playwright or Cypress with CI. Reserve manual QA for exploratory testing and usability heuristics. |
+| Testing only the happy path: valid input → success, logged in → access granted, payment succeeds → order created | Mandate negative test cases per user story. Use property-based testing (fast-check, hypothesis) to discover edge cases. Maintain a shared edge-case catalog: empty, boundary, concurrent, timeout, encoding. |
+| Performance testing only before quarterly releases — discovers p99 latency of 8s two days before launch | Run k6 smoke tests on every PR. Fail on >20% latency regression. Daily soak tests in staging with production-like data. Performance baseline stored in repo. |
+| Non-deterministic test data: `faker.name.firstName()` + `Date.now()` — every CI failure is unreproducible | Use deterministic factories with fixed seeds. Log the random seed for reproducible failures. Freeze time with `sinon.useFakeTimers` or `vi.setSystemTime`. |
+| `test.describe.serial` making test 2-20 dependent on test 1's state — cascading failures from a single root cause | Use `test.describe.parallel` with fresh state per test. If ordering is required, explicitly document why and limit chain length to 3. |
+| `page.waitForSelector()` with default 30s timeout — 20 waits × 30s = 10+ minute test with no indication of which selector failed | Set explicit per-wait timeouts. Log pending selectors. Use `waitForSelector(state: 'visible')` with a 5s timeout and clear error messages. |
+
 ## Verification
 
 - [ ] Run `npm test` — unit tests pass, coverage meets threshold (≥ 80%)
@@ -507,6 +564,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **[QA1]** Test pyramid distribution verified: 60-70% unit, 20-25% integration, 5-10% E2E — no ice-cream cone anti-pattern
+- [ ] **[QA2]** Unit tests pass on every commit (< 5s suite), coverage ≥ 80% lines, ≥ 90% for critical paths (auth, payments, data integrity)
+- [ ] **[QA3]** Integration tests pass against real dependencies (test DB, test Redis, test queue), each test in isolated transaction
+- [ ] **[QA4]** E2E tests cover critical revenue paths (signup → purchase → fulfillment), suite completes < 15 min in CI
+- [ ] **[QA5]** Flaky test rate < 2% of suite — any test failing 3+ times in last 10 runs quarantined to `@flaky` with P1 fix ticket
+- [ ] **[QA6]** Contract tests in place for all service boundaries — breaking schema changes caught at PR, not at integration
+- [ ] **[QA7]** Performance smoke test (k6, 5 VUs, 2 min) runs on every PR — build fails if p95 latency increases >20% from baseline
+- [ ] **[QA8]** Accessibility tests integrated: `axe-core` assertions in E2E, WCAG 2.1 AA minimum, manual screen-reader test for critical flows
+- [ ] **[QA9]** Test data deterministic: factories with fixed seeds, time frozen via fake timers, random seed logged for reproducibility
+- [ ] **[QA10]** Test isolation enforced: every test independently runnable, shardable, order-independent — `parallel` mode default
+- [ ] **[QA11]** Coverage gates enforced in CI: diff coverage on changed lines, branch coverage on critical paths, mutation testing score tracked quarterly
+- [ ] **[QA12]** QA artifacts versioned: test strategies, edge-case catalogs, performance baselines, flaky test logs — all in repo
+- [ ] **[QA13]** Exploratory testing sessions scheduled weekly — time-boxed, charter-driven, findings logged as bug reports
+- [ ] **[QA14]** Daily load/soak tests in staging with production-like data volumes — regression alert if p99 latency degrades >50%
 
 ## References
 

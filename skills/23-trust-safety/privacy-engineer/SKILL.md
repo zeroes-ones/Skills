@@ -249,6 +249,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Error Recovery
 
+<!-- STANDARD: 3min -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -452,7 +454,31 @@ graph LR
 
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
-## Gotchas
+## Best Practices
+
+<!-- STANDARD: 3min -->
+
+1. **Never call pseudonymized data "anonymized."** SHA-256 of an email is pseudonymization — it retains a reversible link and remains personal data under GDPR Article 4(1). Anonymization is irreversible and removes data from GDPR scope entirely. Use "pseudonymized" in all documentation, contracts, and data-sharing agreements. The distinction is legally binding.
+
+2. **Implement consent as an event-sourced ledger.** A boolean `consented=true` column is unprovable to regulators. Store: consent version (which notice was shown), timestamp, affirmative action proof (click/checkbox), purpose(s) consented to, and withdrawal capability. Each consent change is an append-only event — never overwrite consent history.
+
+3. **Test consent withdrawal end-to-end monthly.** Withdraw consent for a test user and verify exclusion from every downstream system (analytics, email, advertising, data warehouse) within 24 hours. Automated reconciliation alerts if any consumer fails to acknowledge the withdrawal event. Consent that can be granted but not reliably withdrawn is not consent — it's a trap door.
+
+4. **Build DSAR pipelines against a data catalog, not specific databases.** A DSAR querying only PostgreSQL misses 40-60% of user data in caches, CDNs, analytics warehouses, and third-party sub-processors. Build a data catalog first: every system storing user data registers data categories and a query API. The DSAR pipeline queries the catalog, then each registered system.
+
+5. **Implement soft-delete → hard-delete → backup exclusion as a three-phase deletion pipeline.** GDPR/CCPA require irreversible destruction. Phase 1: soft-delete with 30-day recovery window. Phase 2: hard-delete after window expires. Phase 3: maintain a deletion registry checked during every backup restore to skip deleted users. Audit trail at every phase with reconciliation jobs detecting partial deletions.
+
+6. **Require a BAA PLUS transport encryption verification for every PHI sub-processor.** A signed BAA without verified TLS on every PHI path is compliance theater. Diagram every PHI data flow, verify TLS quarterly, and add a pre-deployment check that fails if any outbound connection to a BAA-covered service is unencrypted. Error monitoring services (Sentry, Datadog) receiving stack traces with PHI also need BAAs.
+
+7. **Apply k-anonymity (k ≥ 5) AND l-diversity (l ≥ 3) for published datasets.** k-anonymity alone is broken by homogeneity attacks — if all k records share the same sensitive value, the attacker learns it. l-diversity ensures at least l distinct sensitive values per equivalence class. For health data, increase to k ≥ 11 with t-closeness to prevent attribute disclosure.
+
+8. **Track differential privacy budget cumulatively, not per query.** Privacy loss composes additively across queries. A dashboard with 20 charts querying a DP-protected dataset at ε=1 each = total ε=20, providing essentially no privacy. Implement a privacy budget manager that rejects queries exceeding the configured maximum ε per dataset per time window.
+
+9. **Verify that error monitoring/logging services have PHI redaction before data leaves the application.** Stack traces, debug logs, and monitoring data frequently contain PHI (patient names in error messages, DOB in traces, diagnosis codes in log context). Redact PHI at the application level before it reaches any logging framework or third-party service.
+
+10. **Document privacy-by-design decisions in the architecture, not just the privacy policy.** A privacy policy is aspirational; an architecture diagram with data minimization, purpose limitation, and retention enforcement is enforceable. Every privacy requirement must trace to a concrete system property: data minimization → `SELECT specific_columns` not `SELECT *`, purpose limitation → access control per processing purpose, retention → `expires_at` columns with automated TTL deletion.
+
+## Anti-Patterns
 
 - **Differential privacy with ε=1 applied once** gives meaningful privacy. Applied to the SAME dataset for 10 different queries, the combined ε=10 (privacy loss composes additively). A dashboard with 20 charts each querying a DP-protected dataset = ε=20, providing essentially no privacy. Track the privacy BUDGET, not per-query ε. **Total cost: $100K-$1M in re-identification incidents, regulatory fines, and mandated third-party audits after a privacy budget exhaustion event.**
 - **`k-anonymity` with k=5** — each record has at least 4 identical neighbors. But if all 5 records have the same sensitive value ("HIV positive"), the attacker learns the sensitive value despite k-anonymity. k-anonymity without l-diversity (at least `l` DISTINCT sensitive values in each group) is insufficient. **Total cost: $250K-$2M in data re-identification liability, FTC enforcement action, and class-action settlements per published dataset.**
@@ -478,6 +504,12 @@ graph LR
 - [ ] Deletion: end-to-end test — deletion request removes data from ALL stores, verified by query
 - [ ] Data inventory: all data stores catalogued — no "I forgot about that database" gaps
 
+## References
+
+- [NIST Privacy Framework](https://www.nist.gov/privacy-framework)
+- [IAPP Resources](https://iapp.org/resources/)
+- `scripts/references/closed-loop-feedback.md`
+
 ## Verification Guardrails
 
 Before delivering work, the agent must verify:
@@ -491,7 +523,63 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
-## References
+## Production Checklist
+
+<!-- STANDARD: 5min -->
+
+| # | Item | Criticality | Validation |
+|---|------|-------------|------------|
+| 1 | BAA executed with every sub-processor handling PHI — sub-processor inventory current | CRITICAL | Audit sub-processor list against vendor contracts; verify BAA exists per vendor |
+| 2 | TLS 1.3 verified on every PHI data path to every BAA-covered sub-processor | CRITICAL | Run quarterly TLS scan on all outbound connections to sub-processors |
+| 3 | Data catalog complete — every data store registered with data categories and query API | CRITICAL | Query catalog for all known data stores; cross-reference with infrastructure inventory |
+| 4 | DSAR pipeline tested end-to-end — retrieves data from ALL registered stores within 30-day SLA | CRITICAL | Submit test DSAR; verify response includes data from primary DB + caches + analytics + CDN + sub-processors |
+| 5 | Consent records are event-sourced with proof hash — consent version, timestamp, purpose, affirmative action | HIGH | Query consent ledger for test user; verify all fields present and append-only |
+| 6 | Consent withdrawal propagates to all downstream consumers within 24h — monthly end-to-end test | HIGH | Withdraw consent for test user; verify exclusion from all downstream systems within 24h |
+| 7 | Three-phase deletion pipeline active: soft-delete → hard-delete → backup exclusion with reconciliation | CRITICAL | Submit test deletion; verify all three phases complete within configured windows |
+| 8 | Published datasets meet k-anonymity (k ≥ 5 or k ≥ 11 for health) AND l-diversity (l ≥ 3) | HIGH | Run k-anonymity/l-diversity analysis on last published dataset; verify thresholds met |
+| 9 | Differential privacy budget tracked cumulatively — total ε ≤ configured maximum per dataset per window | HIGH | Query privacy budget manager; verify cumulative ε within limits |
+| 10 | PHI redaction active on all error monitoring, logging, and analytics pipelines before data leaves application | CRITICAL | Scan error monitoring service for PHI patterns in last 7 days of data; verify zero findings |
+| 11 | Data minimization verified — every collected field has documented lawful basis and purpose | HIGH | Audit data model against purpose specification; verify zero orphan data fields |
+| 12 | Automated retention enforcement active — `expires_at` on all PII tables with daily deletion job | HIGH | Query for records past retention period; verify zero results |
+| 13 | De-identification method documented per dataset with quantified re-identification risk score | HIGH | For each shared dataset: verify method (Safe Harbor/Expert Determination/DP), k value, risk score |
+| 14 | Privacy-by-design review completed before processing begins — not at launch checklist | HIGH | Verify PIA/DPIA triggered at design phase, not pre-launch; check CI/CD integration |
+
+## Scale Depth
+
+<!-- STANDARD: 2min -->
+
+#### Solo Developer
+- **Minimum:** Manual consent tracking (event-sourced ledger). DSAR handled via email with manual data export. Soft-delete with 30-day window. BAA for any third-party services.
+- **Cost:** ~$0-100/month (manual processes + basic infrastructure).
+- **Risk:** No automated DSAR, no DP budget tracking, no automated retention, manual consent withdrawal propagation.
+
+#### Small Team (2-10 engineers)
+- **Add:** Automated DSAR pipeline with data catalog covering primary DB + common services. Consent management platform with proof chain. Automated retention with TTL columns. k-anonymity analysis on shared datasets. BAA inventory with quarterly review.
+- **Cost:** ~$1000-5000/month (DSAR automation + consent platform + retention tooling).
+- **Coverage:** GDPR/CCPA DSAR compliance, consent audit readiness, basic de-identification.
+
+#### Medium Org (10-50 engineers)
+- **Add:** Full data catalog with automated discovery across all data stores. End-to-end deletion pipeline with reconciliation. Differential privacy on analytics query interface. Automated consent withdrawal propagation with reconciliation. SOC 2 Type II coverage for privacy controls. Monthly privacy-by-design reviews.
+- **Cost:** ~$5000-20000/month (data catalog + DP infrastructure + compliance overhead).
+- **Coverage:** Multi-regulation compliance (GDPR, CCPA, CPRA, VCDPA), privacy-by-design integrated into SDLC.
+
+#### Enterprise (50+ engineers)
+- **Add:** Global data residency automation with per-jurisdiction policy enforcement. Real-time consent propagation across 100+ downstream systems. Privacy-preserving ML (federated learning, SMPC). Automated re-identification risk scoring on all data exports. Dedicated privacy engineering team. EU AI Act readiness with transparency documentation.
+- **Cost:** ~$20000-100000+/month (global infrastructure + dedicated team + advanced privacy tech).
+- **Coverage:** Zero-trust privacy, automated compliance across 50+ jurisdictions, privacy-preserving innovation.
+
+## Error Decoder
+
+<!-- QUICK: 30s -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| GDPR fine: DSAR response missed user data in Mixpanel, Intercom, Redis — regulator found data in 6 of 15 systems | DSAR pipeline hardcoded to query PostgreSQL. No data catalog existed. Engineers assumed "analytics data isn't personal data" — it is | Build data catalog as prerequisite. Register every system with data categories. DSAR queries catalog → each registered system. Test with synthetic user having data in all 15 systems monthly | "I forgot about that database" is the #1 DSAR violation. 40-60% of user data lives outside the primary database in analytics, CDNs, cache layers, and SaaS tools |
+| FTC consent decree: privacy policy said "we never share data" but mobile SDK sent device IDs to attribution provider | Privacy policy written by legal team without engineering review. Mobile SDK integration added attribution tracking that legal didn't know existed | Implement automated privacy policy-to-code audit: scan all outbound network calls, compare against policy claims, alert on discrepancies. Add privacy review gate to SDK integration checklist | Privacy policy claims must be verifiable against code. The FTC treats policy-code gaps as deceptive trade practices under Section 5 — separate from any GDPR/CCPA penalty |
+| Consent withdrawal didn't propagate: user opted out of marketing but continued receiving targeted emails for 6 months | Consent change event published but 3 of 12 downstream consumers had broken webhook endpoints. No reconciliation mechanism detected the delivery failure | Implement: (1) retry with dead-letter queue, (2) reconciliation job checking consumer state vs consent ledger daily, (3) alert on any consumer > 24h out of sync, (4) monthly end-to-end withdrawal test | Consent withdrawal propagation is a distributed systems problem. Without reconciliation, partial failures are silent and accumulate indefinitely |
+| "Anonymized" dataset shared with research partner re-identified within 72 hours using public voter records | SHA-256(email) was called "anonymized." Joined with voter registration DB using ZIP+DOB+gender as quasi-identifiers. 87% of records uniquely identified | Apply k-anonymity ≥ 11 with l-diversity ≥ 3. Add differential privacy (ε ≤ 1.0) on query interface. Conduct re-identification risk assessment against known external datasets before sharing | "Anonymized" is a legal claim, not a technical state. Pseudonymization ≠ anonymization. Every shared dataset needs quantified re-identification risk assessment |
+| PHI leaked via Sentry error stack trace: patient name and diagnosis code appeared in error monitoring dashboard accessible to 200+ developers | Application caught exception and logged full request context including POST body with PHI. Sentry had no BAA. 200+ developers had access to the Sentry project | Redact PHI at application layer before it reaches any logging framework. Use structured logging with PII-safe field allowlists. Audit all third-party services receiving application data for PHI exposure risk | Error logs are data flows. Every service receiving application data — including error monitoring — needs the same privacy assessment as any other data processor |
+| Deletion request partially failed: user record removed from PostgreSQL but restored from backup 45 days later | Backup from day 29 still contained the record. Restore process didn't check deletion registry. User's "deleted" data reappeared in production | Implement deletion registry checked during every backup restore. Document backup retention window in privacy policy: "backups may retain data for up to X days." Add reconciliation job detecting re-appeared deleted records | GDPR right to erasure extends to backups. If a backup restore can bring data back, the deletion was incomplete — and regulators consider this a violation |
 
 Detailed reference material loaded on demand:
 

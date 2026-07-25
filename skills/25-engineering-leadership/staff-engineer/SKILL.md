@@ -154,6 +154,20 @@ Staff engineering has distinct archetypes. The level manifests in scope of influ
 
 **Usage**: Say "as a Staff engineer in the Architect archetype, review this cross-team proposal." Default: **L2 (Staff)** — one archetype, cross-team scope.
 
+### Scale Depth — Scope of Influence
+
+#### Team-level Staff (1 team, 5-10 engineers)
+Archetype: Tech Lead. Focus: technical excellence within one team. Lead architecture decisions for team-owned services. Mentor senior engineers toward staff thinking. Run team design reviews. Key artifact: team technical roadmap. Hands-on: 40-50%. Key risk: getting stuck in senior IC work instead of multiplying impact.
+
+#### Multi-team Staff (2-5 teams, 15-40 engineers)
+Archetype: Architect or Solver. Focus: cross-team architecture, RFC process, technical standards across teams. Lead working groups for shared concerns (API design, observability, testing). Mentor tech leads across teams. Key artifact: cross-team RFCs and architecture decision records. Hands-on: 20-30%. Key risk: spreading too thin — trying to influence 10 teams and having impact on none.
+
+#### Department Staff (5-10 teams, 40-100 engineers)
+Archetype: Senior Staff, multiple archetypes. Focus: department-level technical strategy, 18-month technical vision, build-vs-buy decisions for platform capabilities. Lead architecture review board. Set technical hiring bar. Key artifact: department technical strategy document. Hands-on: 10-20%. Key risk: losing hands-on credibility — unable to evaluate technical arguments because too disconnected from code.
+
+#### Organization Staff (100+ engineers, multiple departments)
+Archetype: Principal/Distinguished. Focus: organization-wide technical direction, 3-year technical vision, industry influence (conferences, open-source, standards bodies). Create patterns adopted by the entire org. Advise CTO/VPE on technical investments. Key artifact: published frameworks, adoption across the industry. Hands-on: 5-10%. Key risk: ivory tower — proposing architectures that teams can't implement because unaware of ground-level constraints.
+
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -168,6 +182,8 @@ Staff engineering has distinct archetypes. The level manifests in scope of influ
 - Measuring and communicating IC impact without direct reports or delivery ownership
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- QUICK: 60s — follow the ASCII tree to your scenario -->
 
@@ -260,6 +276,8 @@ Staff engineering has distinct archetypes. The level manifests in scope of influ
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- STANDARD: 5min — the staff engineer's operating rhythm -->
 
 ### Phase 1: Discovery (~2 weeks per quarter)
@@ -315,6 +333,8 @@ Staff engineering has distinct archetypes. The level manifests in scope of influ
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -326,6 +346,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Technical leadership is influence without authority — invest in relationships, not mandates.** Staff engineers rarely have direct reports, yet must drive cross-team initiatives affecting 50+ engineers. Build trust through: (a) solving real problems teams actually have, (b) making others successful before asking for support, (c) writing proposals that acknowledge trade-offs honestly. A Staff engineer who relies on title to drive change has already failed — influence is earned one solved problem at a time.
+
+2. **Architecture reviews are conversations, not gatekeeping.** The goal is better outcomes, not proving you're the smartest person in the room. Ask questions before making judgments: "What constraints led to this approach?" "What alternatives did you consider?" "What would make this design fail?" A Staff engineer who says "this is wrong, do it this way" gets ignored after the second review. One who says "have you considered the impact on the payment service's latency budget?" earns trust.
+
+3. **Mentoring is a multiplier — spend 20%+ of your time developing senior engineers.** A Staff engineer who elevates 5 senior engineers to think at the next level amplifies their impact 5x. Methods: pair on architectural decisions, review design docs together (not just code), invite them to cross-team meetings, explain your reasoning in real time. The metric: how many engineers are making better decisions because of your influence? Not how many decisions you personally made.
+
+4. **Cross-team initiatives fail from organizational friction, not technical problems.** The hard part of migrating to a new database isn't the migration script — it's getting 5 teams to agree on timing, handling edge cases none of them own, and maintaining momentum when "urgent" features compete for attention. Staff engineers manage the organizational side: stakeholder alignment, sequencing across teams, clear ownership of every workstream, and celebrating progress publicly.
+
+5. **Tech debt strategy: frame in business terms, prioritize by interest rate.** "Our build system is slow" gets ignored. "Our 12-minute CI pipeline costs 50 engineers 10 minutes each, 3x daily — that's 25 hours/day of wasted time, or $450K/year at $200K fully loaded" gets funded. Tech debt has an interest rate: the ongoing cost to the business of not fixing it. Staff engineers quantify this rate and advocate for the highest-interest items.
+
+6. **Write — don't just speak. Written proposals outlast meetings and reach people who weren't in the room.** Every significant technical decision needs a design doc or RFC: problem statement, proposed solution, alternatives considered, trade-offs, migration plan, success metrics. A verbal agreement in a meeting is forgotten in 2 weeks; a written proposal is discoverable by new hires 2 years later. Staff engineers write more than they code.
+
+7. **Scope projects for 6-8 weeks, not 6-8 months.** Multi-quarter projects lose momentum, get deprioritized by leadership changes, and accumulate scope creep. Break large initiatives into 6-8 week phases, each delivering standalone value. Phase 1: solve the most painful 20% of the problem. Phase 2: expand to 60%. Phase 3: handle edge cases. If the project is cancelled after Phase 1, you've still delivered value.
+
+8. **Your technical judgment is most valuable in decisions where the data is incomplete.** Anyone can make the right call when all evidence points one way. Staff engineers earn their title by making high-stakes decisions with 60% of the information: choosing between two architectures when neither has been built at this scale, estimating migration cost when the legacy codebase is poorly understood, deciding whether to build or buy when the vendor's roadmap is uncertain.
+
+9. **Stay hands-on enough to maintain credibility, but not so hands-on that you become a bottleneck.** The Staff engineer who spends 80% of time coding is a senior engineer with a different title. The one who spends 0% loses the ability to evaluate technical arguments. Target: 20-30% hands-on work — enough to understand the codebase at depth, not enough to be on the critical path for any feature. Code reviews, architectural spikes, and debugging complex production issues are high-leverage hands-on activities.
+
+10. **Your loyalty is to the engineering organization and the business, not to any single team.** When Team A's architecture optimizes for their velocity but degrades Team B's reliability, the Staff engineer advocates for the system-level optimum. This sometimes means telling a team "your approach is locally optimal but globally harmful — here's why and here's a better path." The ability to see and advocate for the whole system is what distinguishes Staff from Senior.
 
 ## Cross-Skill Coordination
 
@@ -495,7 +537,7 @@ graph LR
 
 **The One Highest-Leverage Activity**: Write one RFC per month, even if it's for a problem nobody has asked to solve yet. Writing forces clarity. An RFC read by 50 engineers has 50× the impact of a conversation with one engineer.
 
-## Gotchas
+## Anti-Patterns
 
 - **Staff engineer as "tech lead but more senior"** — you spend 100% of your time on your team's execution. But the Staff role's multiplier is CROSS-team impact: fixing the thing that slows down 5 teams, not optimizing your team's output by 5%. If you're not working outside your team boundary, you're operating as a Senior. **Total cost: $500K-$2M annually in missed cross-team optimization opportunities when a Staff engineer operates at Senior scope.**
 - **"Technical strategy" documents** that no one reads — you spend 3 weeks writing a 40-page architecture RFC, share it, and... silence. Engineers don't read 40-page docs. Write a 2-page decision brief (problem, options considered, recommendation, risks) and present it. Share the long version as appendix for the 2 people who want depth. **Total cost: $100K-$500K in wasted engineering time writing dense documents nobody acts on, while the underlying problem remains unsolved.**
@@ -521,6 +563,23 @@ graph LR
 - [ ] Technical strategy: written contribution to roadmap or technical vision document in the last 6 months
 - [ ] Critical path: identified the #1 constraint on engineering velocity and proposed a solution
 
+## Production Checklist **(STANDARD)**
+
+Before shipping any staff-level deliverable, verify:
+
+- [ ] [SE1] No work is being done solo — at least one other engineer paired on architecture decisions
+- [ ] [SE2] At least 50% of tracked work is outside your immediate team (impact leverage verified)
+- [ ] [SE3] 1+ ADRs authored and published for review in the last quarter
+- [ ] [SE4] 2+ engineers outside your team can articulate your technical recommendation in your absence
+- [ ] [SE5] Written contribution to technical strategy or roadmap vision in the last 6 months
+- [ ] [SE6] Critical path constraint identified — proposed, scoped, and socialized solution
+- [ ] [SE7] Mentoring plan exists for 3+ engineers with documented progress milestones
+- [ ] [SE8] Cross-team initiative charter includes success criteria and exit conditions
+- [ ] [SE9] Tech debt proposal framed in business terms (cost of inaction, risk, timeline)
+- [ ] [SE10] Architecture review conducted using RFC or design doc process (not hallway comments)
+- [ ] [SE11] Project scoped to 6-8 weeks max with clear milestone deliverables
+- [ ] [SE12] Hands-on ratio audited: spending 10-40% actively coding, not 0% or 80%
+
 ## Verification Guardrails
 
 Before delivering work, the agent must verify:
@@ -536,3 +595,15 @@ If any checkbox fails, revise before delivering. When all pass, add to the state
 
 ## References
 - **Scale Depth: Solo → Small Team → Medium Team → Enterprise**: See [scale-depth-solo-small-team-medium-team-enterprise.md](references/scale-depth-solo-small-team-medium-team-enterprise.md)
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---|---|---|---|
+| "Nobody reads my RFCs" | Writing in isolation without pre-wiring stakeholders | Pre-wire key decision-makers 1:1 before publishing; socialize the problem before proposing the solution | Never publish a proposal that hasn't been pre-approved by 2+ stakeholders |
+| Pulled into every architecture review personally | No architecture review process exists — you're the ad-hoc bottleneck | Establish an architecture review board; delegate review ownership to tech leads; set explicit escalation criteria | Create a documented review process with rotating reviewers |
+| "I haven't written code in 3 months" | Over-indexed on influence work; lost hands-on credibility | Carve out 1-2 days/week for coding — tactical bugs, small features, prototyping; block calendar | Schedule coding blocks before other meetings; treat them as non-negotiable |
+| Cross-team initiative stalled for weeks | No clear owner outside your influence; teams deprioritize work without their manager's buy-in | Get explicit commitment from each team's EM; create shared success metrics; set weekly sync with owners | Never launch cross-team work without manager-level sponsorship and documented commitments |
+| Tech debt proposal rejected by leadership | Framed as technical purity argument rather than business risk | Reframe as business case: cost of inaction, outage risk, engineering velocity drag, hiring impact | Always quantify tech debt in business terms before presenting to leadership |
+| Senior engineers on your team stagnating | Not delegating complex work — you take the hardest problems yourself | Hand off architecturally significant work to senior engineers; provide scaffolding but not solutions | Track delegation ratio; aim for 70%+ of complex work being owned by others |
+| "Everything is on fire and I'm context-switching 10x/day" | No prioritization framework — treating all requests as equally urgent | Create explicit prioritization rubric (business impact × urgency); redirect non-critical requests to process | Establish a single intake channel with public prioritization criteria |

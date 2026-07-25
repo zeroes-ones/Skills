@@ -161,7 +161,7 @@ What IAM task are you working on?
 |-- Complete IAM system from scratch -> Start at "Core Workflow: Phase 1"
 \\`\\`\\`
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- COMPRESSED: Full 200 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: OAuth2/OIDC Design
@@ -172,7 +172,7 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (200 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Access Control Model Selection
 
@@ -403,7 +403,29 @@ Session Hijacking Detection:
 |-- Impossible travel: session used from New York, then Tokyo 10 minutes later -> terminate and alert
 |-- Geolocation anomaly: session geo-JSON jump >1000km in <travel time -> step-up MFA required
 
-## Error Recovery
+## Best Practices
+
+1. **Least privilege: start with zero access, grant only what's necessary and justified.** Every identity — human user, service account, machine workload — begins with zero permissions. Access is granted incrementally based on job function, with documented business justification. Quarterly access reviews verify that every permission remains necessary. The principle is absolute: if you can't articulate why a specific permission is needed for a specific task, revoke it. Temporary elevation (JIT) for admin operations — never standing admin privileges.
+
+2. **Role design patterns: permission groups, not role-per-permission.** Compose permissions into reusable bundles (e.g., `read_orders`, `write_orders`, `delete_orders` → role `order_manager`). Avoid creating one role per unique permission combination — that leads to role explosion (N permissions create 2^N potential roles). Flat RBAC works for 20-30 roles with 2-3 hierarchy levels. Beyond that, add ABAC for fine-grained exceptions: "user with department=Engineering AND clearance>=3 can read source code" expressed as a policy, not a role.
+
+3. **Temporary credentials: use short-lived tokens with automated rotation.** Access tokens: <= 15 minutes expiry with refresh token rotation. AWS IAM: use STS `AssumeRole` with session duration <= 1 hour, never long-lived access keys. API keys: hashed at rest (SHA-256), shown once at creation, rotated on compromise within 14 days. Service account credentials: Vault dynamic secrets or cloud KMS auto-rotation, never static credentials in config files. Secret scanning in CI/CD: truffleHog/gitleaks on every commit — exposed credential = immediate revocation.
+
+4. **MFA enforcement: WebAuthn/FIDO2 as the gold standard, TOTP as minimum acceptable.** WebAuthn/FIDO2 security keys: >99% phishing resistance, bound to origin, immune to credential theft via fake login pages. TOTP: ~90% phishing resistance (still vulnerable to real-time phishing proxies). SMS: ~30% phishing resistance (SIM-swap takes 10 minutes). Enforce MFA for all human users accessing production, PII, admin functions, or code repositories. No exceptions for executives — attackers target executives specifically because MFA exemptions are common.
+
+5. **Federation: one identity provider, not N identity silos.** SAML/OIDC federation to a single IdP (Okta, Azure AD, Google Workspace, Keycloak) eliminates duplicate identities, inconsistent MFA policies, and orphan accounts. New application onboarding: "Does it support SAML or OIDC?" If not, it doesn't get deployed with user accounts — it gets a feature request for federation support. SCIM provisioning: automate user lifecycle (create → update → deactivate) from HRIS to IdP to applications. No manual account creation — manual = forgotten accounts when people leave.
+
+6. **ABAC vs RBAC: RBAC for static access patterns, ABAC for context-dependent access.** RBAC: admin/editor/viewer roles, <30 roles, internal tools. ABAC: access depends on user attributes (department, clearance, location) + resource attributes (classification, owner) + environment context (time, network, device posture). Policy engine: OPA/Rego, AWS Cedar, or Google Zanzibar (ReBAC). Policy structure: `allow IF user.clearance >= resource.classification AND user.department == resource.owner_department AND request.time between 08:00-20:00`. Attribute freshness: PDP cache invalidation on attribute change events, max 60-second staleness.
+
+7. **Credential rotation: automate and test, don't schedule manual rotations.** API keys: rotate on known schedule (90 days) + on compromise (immediately). Database credentials: Vault dynamic secrets with lease TTL of 1-24 hours, auto-renewed by application. TLS certificates: ACME or cert-manager with 90-day validity, renewal attempted at 60 days. Root/signing keys: rotated via key ceremony (M-of-N custodians across org boundaries). Rotation must be tested: can you rotate credentials without a production outage? If rotation causes an outage, your system isn't ready for the rotation that WILL be forced by a compromise.
+
+8. **Access review automation: no spreadsheet-based quarterly reviews.** Connect your IGA tool (SailPoint, Okta IGA, Saviynt) or GRC platform to your IdP and HRIS. Access review campaign auto-generates: current permissions per user, business justification from initial provisioning, last access timestamp. Manager certifies: "This person still needs these permissions." Auto-remediation: unreviewed access escalates (Day 1: reminder, Day 7: manager's manager, Day 14: automatic revocation). Auditor evidence: "show me the Q2 access review" — GRC exports complete campaign records with approvals, timestamps, and remediation actions in 30 seconds.
+
+9. **Break-glass procedures: emergency access with dual authorization, full audit, and auto-expiry.** "Break-glass" accounts provide emergency administrative access when normal auth systems are unavailable (IdP outage, federation break, key compromise). Characteristics: separate from normal admin accounts, dual-authorization required (two people must approve), full audit logging (every command captured to immutable storage), auto-expiry after 2 hours, auto-notification to security team on activation. Test break-glass access quarterly — during an incident is the wrong time to discover the procedure doesn't work. Break-glass credentials stored in a physical safe or air-gapped HSM, not in the password manager that requires authentication.
+
+10. **Session management: rotate session IDs on privilege change, bind sessions to device/location.** Session ID rotation on every authentication event (login, MFA, password change, privilege escalation). Session binding: user-agent hash (detect session hijacking via browser change), IP prefix /24 (detect network change, with tolerance for mobile carrier IP rotation), geo-velocity (impossible travel detection: New York → Tokyo in 10 minutes = terminate). Server-side session invalidation on logout — clearing the client cookie is cosmetic, the server-side session must be destroyed and the session ID added to a blocklist. Session timeout: 15 minutes idle, 8 hours absolute maximum.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -494,6 +516,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **WebAuthn/FIDO2 MFA enforced for all human users accessing production, PII, admin, or code.** TOTP as minimum fallback for WebAuthn enrollment. SMS: flagged for migration within 90 days.
+- [ ] **OAuth 2.1 Authorization Code + PKCE with S256 code challenge on every user-facing flow.** No implicit grant, no password grant. Client secret for confidential clients, PKCE for public clients.
+- [ ] **Access tokens with <= 15-minute expiry using ES256/RS256 (asymmetric).** Refresh tokens have single-use rotation with reuse detection (RFC 6819 Section 5.2.2.3). No refresh tokens in localStorage or mobile secure storage without biometric binding.
+- [ ] **Session cookies: HttpOnly, Secure, SameSite=Lax, __Host- prefix.** Session ID rotated on login, privilege change, and password change. Server-side session destroyed on logout with session ID blocklisted.
+- [ ] **JWT validation: algorithm allowlist (ES256, RS256 only), issuer check, audience check, exp/nbf/iat validation, signature verification.** Reject tokens with `alg: none` and tokens signed with wrong algorithm.
+- [ ] **API keys hashed at rest (SHA-256), shown once at creation, automatically rotated on 90-day schedule.** Pre-commit hooks (truffleHog/gitleaks) and CI secret scanning with zero-findings enforcement. Compromised keys: immediate revocation, rotation, and incident response.
+- [ ] **OPA/Cedar PDP evaluating ABAC policies with attribute freshness <= 60 seconds.** Policy-as-code in version control with CI testing. "Show all users with permission X" query completes in <2 seconds for any permission.
+- [ ] **Federation via SAML/OIDC to single IdP with SCIM provisioning from HRIS to applications.** New applications: federation support required before deployment. Orphan account detection: weekly scan, auto-deactivation after 7 days without HRIS match.
+- [ ] **Break-glass emergency access: dual authorization, full session recording, auto-expiry at 2 hours, auto-notification to security team.** Tested quarterly. Credentials in physical safe or air-gapped HSM — not in production password manager.
+- [ ] **PAM with JIT elevation (no standing admin privileges), 4-hour max TTL, command filtering, and session recording.** All PAM sessions written to immutable audit log. Auto-revoke on session end.
+- [ ] **Service-to-service authentication via SPIFFE/SPIRE or cloud workload identity with mTLS.** Default-deny microsegmentation. No static service account keys or long-lived shared secrets between services.
+- [ ] **Access review automation: quarterly campaigns auto-generated from IGA/GRC, manager certification with escalation (Day 7: manager's manager, Day 14: auto-revoke).** Audit evidence exportable in 30 seconds — no spreadsheet-based reviews.
+- [ ] **Database credentials: Vault dynamic secrets or cloud KMS auto-rotation, lease TTL 1-24 hours, auto-renewed.** No static database passwords in connection strings or config files.
+- [ ] **TLS certificates: ACME/cert-manager with 90-day validity, auto-renewal at 60 days.** All internal services use TLS. No self-signed certificates in production paths.
+- [ ] **Credential rotation tested: production-outage-free rotation demonstrated for all credential types.** If rotation causes downtime, system is not ready for a compromise-forced emergency rotation.
+- [ ] **Rate limiting on auth endpoints: 5 failed attempts per account per 15 minutes, 10 per IP.** Account lockout with step-up response (captcha, then cooldown, then admin reset).
+
 ## What Good Looks Like
 
 ```mermaid
@@ -521,6 +562,28 @@ graph TD
 
 *   **CORS Access-Control-Allow-Origin: * with credentials is silently blocked — but the intent is dangerous.** Browsers reject the combination of wildcard origin with credentials=true, but if you are using a reverse proxy or non-browser client, the wildcard still works and exposes authenticated endpoints to any origin. Always specify explicit allowed origins. **Total cost: $0 to specify explicit origins; $50K-$500K if wildcard CORS with credentials exposes authenticated APIs to cross-origin attacks.**
 
+### Scale Depth
+
+#### 👤 Solo
+IAM for a single developer or indie project. Cloud IAM (AWS IAM / GCP IAM) with 3-5 roles (admin, app, read-only). OAuth2 social login (Google, GitHub) with managed service (Auth0 free tier, Clerk, Firebase Auth). Session JWTs with 1-hour expiry. Secrets in .env (gitignored) — no Vault needed. MFA via IdP (Google/GitHub MFA covers you). Automated backups of IAM config (Terraform state in git).
+
+**Transition trigger:** Second team member joins OR first paying customer OR handling others' PII. At this point, .env secrets become a risk, shared admin credentials need audit trails, and "I'll just grant admin" stops scaling.
+
+#### 🏢 Small (2-15 people, 1-3 services)
+Dedicated Identity Provider: Okta Workforce Identity (or Azure AD + Duo, or Keycloak). SAML/OIDC federation for all SaaS tools. WebAuthn/FIDO2 MFA enforced for all users. 5-15 roles with RBAC. Access tokens: 15-minute JWTs with refresh rotation. API gateway with JWT validation (Kong, Apigee, or cloud API gateway). Secrets manager with auto-rotation (AWS Secrets Manager or Vault OSS). Pre-commit secret scanning (gitleaks). Quarterly manual access review (spreadsheet is acceptable at this scale). Service accounts with least privilege — one per service, not shared.
+
+**Transition trigger:** SOC2/ISO27001 audit appears on the roadmap OR third service requires service-to-service auth OR access review takes >2 hours (spreadsheet breaking point).
+
+#### 🏭 Medium (15-100 people, 3-20 services)
+Okta/Azure AD + Okta IGA or SailPoint for access reviews and certifications. ABAC with OPA/Cedar PDP for fine-grained authorization. JIT PAM (Teleport, StrongDM, or Boundary) for production access — zero standing admin. SPIFFE/SPIRE for service identity with mTLS. SCIM provisioning from HRIS to IdP to applications. Automated quarterly access reviews with IGA campaigns, manager certification, and auto-remediation escalation. Dynamic database credentials (Vault with 1-24 hour leases). Immutable audit logs (S3 with WORM or GCP Audit Logs). Secret rotation automation with outage-free rotation testing. Rate limiting and anomaly detection on auth endpoints (geo-velocity, impossible travel).
+
+**Transition trigger:** Multi-region deployment OR 100+ employees OR FedRAMP/PCI DSS compliance required OR microservices count exceeds 20 (mTLS becomes essential).
+
+#### 🏛️ Enterprise (100+ people, 20+ services, multi-cloud)
+Multi-cloud IAM federation with centralized policy engine (OPA/Rego across AWS, GCP, Azure). ReBAC with Google Zanzibar-style relationship graph (SpiceDB, Airbnb Himeji, or custom). Zero Trust architecture with continuous authentication — every request evaluated, not just session establishment. Enterprise PAM with full session recording, keystroke logging, and AI-based anomaly detection (CyberArk, BeyondTrust). Real-time IAM threat detection (Splunk/CrowdStrike ingesting IAM audit logs with UEBA). Automated break-glass testing (quarterly drills with measured time-to-access). Cryptographic agility: algorithms deployed with key ceremony, posture to migrate from RSA-2048 to post-quantum within 6 months. Access review: fully automated with ML-based access pattern recommendations, auto-revoke for unused permissions.
+
+**Transition trigger:** IPO or public company status (SOX compliance) OR multi-national with data residency requirements OR acquisition integrating external IAM systems OR security team surpasses 10 people.
+
 ## Deliberate Practice
 
 ```mermaid
@@ -534,7 +597,7 @@ graph LR
     G --> H[Mature IAM: Zero Trust, continuous auth, 14-day mean time to rotate leaked secrets, <60s revocation]
 ```
 
-## Gotchas -- Highest-Value Content
+## Anti-Patterns
 
 ### OAuth2/OIDC Gotchas
 

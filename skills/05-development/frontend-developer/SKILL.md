@@ -167,6 +167,38 @@ The same frontend task produces fundamentally different output depending on the 
 
 **Usage**: Say "as an L3 frontend developer, architect the component tree for..." or "give me an L2 implementation of this form" to calibrate. Default: **L2** (production-ready, independent execution).
 
+### Solo Developer
+- Next.js or Vite SPA with minimal dependencies — optimize for iteration speed
+- Tailwind CSS for styling, shadcn/ui or Radix for accessible component primitives
+- TanStack Query for server state, Zustand for ephemeral client state
+- Deploy to Vercel/Netlify with preview deployments per branch
+- Lighthouse CI in GitHub Actions for perf regression detection
+- Manual accessibility audit before each deploy
+
+### Small Team (2-5)
+- Shared component library in monorepo (`packages/ui`) with Storybook
+- Design tokens as source of truth, consumed by Tailwind config and Figma
+- Vitest + React Testing Library + Playwright for E2E, axe-core in CI
+- Bundle analysis in CI with budget enforcement; visual regression testing (Chromatic/Percy)
+- Real User Monitoring (RUM) with web-vitals.js sending to analytics
+- Feature flags for phased rollout; error boundaries with Sentry integration
+
+### Medium Team (5-20)
+- Multi-app monorepo with Turborepo/Nx; shared packages for types, UI, config
+- Design system with strict API contracts, semantic versioning, and migration guides
+- Module federation or micro-frontend architecture for independent team deployment
+- Automated accessibility CI gate (axe-core + pa11y) blocking merges on violations
+- Performance lab: scheduled Lighthouse runs from multiple geographies and device profiles
+- Incident runbooks for frontend-specific failures (CDN issues, JS errors by route)
+
+### Enterprise (20+)
+- Platform team maintaining internal framework, design system, and build toolchain
+- Server-driven UI for native-like dynamic experiences without app store updates
+- SLO-driven frontend reliability: p95 LCP < 2.5s, p95 error rate < 0.1%, tracked per route
+- Canary deployments with automatic rollback based on error rate and Core Web Vitals
+- Accessibility compliance automation (WCAG 2.2 AA) with legal audit trail
+- Federated module ownership: each team owns their route bundle end-to-end
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -180,7 +212,7 @@ The same frontend task produces fundamentally different output depending on the 
 - Analyzing and optimizing bundle size: dynamic imports, tree shaking verification, code splitting strategies
 - Setting up comprehensive testing: Vitest + React Testing Library (components), Playwright (E2E), axe-core (a11y)
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Rendering Strategy
@@ -300,7 +332,7 @@ The same frontend task produces fundamentally different output depending on the 
 **When Testing Library + MSW:** Component fetches data, handles form submission, or manages async state. Need to test loading → success → error states.  
 **When snapshot test:** Presentational component with stable output. No dynamic data. Quick regression detector. Avoid for large component trees.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 0 (~15 min): Framework Selection — Decision Tree
@@ -344,7 +376,30 @@ Is SEO critical OR do you need server-side rendering?
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Co-locate data fetching with the component that needs it.** In Next.js App Router, fetch data in Server Components using `async`/`await` directly — no `useEffect` waterfalls. For Client Components, use TanStack Query with `staleTime` and `gcTime` tuned to your data's freshness profile. Never fetch in a parent and drill through 4 layers of props — it couples unrelated components and causes unnecessary re-renders.
+
+2. **Treat the Server/Client Component boundary as an explicit architectural decision.** Mark the boundary with `'use client'` only at leaf interactive nodes, not at page roots. Server Components handle data fetching and pass serializable props down; Client Components handle interactivity, state, and browser APIs. Pushing the boundary too high loses streaming and code-splitting benefits; pushing it too low forces awkward prop-drilling patterns.
+
+3. **Set a bundle size budget and enforce it in CI.** Baseline: 200KB JS (gzipped) initial, 100KB CSS. Use `@next/bundle-analyzer` or `source-map-explorer` in CI with `lighthouse-ci` assertions. Every PR that increases the budget must either justify the trade-off or optimize. Bundle creep is invisible until your LCP crosses 2.5s and conversions drop.
+
+4. **Use semantic HTML as the foundation of accessibility.** `<button>` for actions, `<nav>` for navigation, `<main>` for primary content — before reaching for ARIA. A single `<div onclick>` where a `<button>` belongs breaks keyboard navigation, screen readers, and form behavior. WCAG 2.2 AA compliance starts with correct element choice, not `role` attributes patching bad markup.
+
+5. **Choose state management by data category, not by habit.** Server state (API responses) → TanStack Query or SWR with cache invalidation. Form state → React Hook Form with Zod validation. Client-only ephemeral state (theme, sidebar open) → Zustand or React Context + `useReducer`. URL state (filters, pagination) → `useSearchParams`. Mixing server state into Redux or Zustand creates cache synchronization bugs and duplicated fetching logic.
+
+6. **Implement error boundaries at every route and major feature section.** A single uncaught exception crashes the entire React tree into a white screen. Wrap each route in an `<ErrorBoundary fallback={...}>` and log boundary errors to your observability platform. Test boundaries by deliberately throwing in lower components — the fallback UI should render, not the Next.js error overlay.
+
+7. **Optimize images as a build-time concern, not runtime.** Use Next.js `<Image>` with explicit `width`/`height` to prevent Cumulative Layout Shift (CLS). Set `sizes` attribute for responsive `srcSet` generation. Convert to WebP/AVIF at build time. Lazy-load below-fold images with `loading="lazy"`. The Largest Contentful Paint (LCP) element must never be lazy-loaded — preload it with `priority`.
+
+8. **Instrument Core Web Vitals in production with Real User Monitoring (RUM).** Lab data (Lighthouse) shows potential; field data (CrUX, web-vitals.js) shows reality. Send LCP, INP, and CLS to your analytics platform grouped by device type, connection speed, and geography. A p75 LCP of 1.5s from a MacBook Pro means nothing if your mobile users on 4G have a p75 of 4.8s.
+
+9. **Use CSS containment and `content-visibility` for long lists.** For lists beyond ~50 items, `content-visibility: auto` tells the browser to skip rendering off-screen items entirely, reducing layout and paint work by 80%+. Combine with `contain: layout style paint` on list item wrappers. Test with Chrome DevTools Rendering panel to verify off-screen items show as "skipped."
+
+10. **Hydration is a performance budget, not a free operation.** Every kilobyte of JS shipped to the client must be parsed, compiled, and executed before the page is interactive. Server Components ship zero JS. Client Components ship their bundle. Interactive islands (Astro) ship only the interactive parts. For every new dependency, ask: "Does this need to be on the client, or can it run at build time or on the server?"
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -455,6 +510,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before any production deployment, verify ALL of:
+
+1. `npm run build` — zero build errors, no TypeScript errors, bundle within budget (<200KB JS initial gzipped)
+2. `npm test` — all unit + integration tests pass, no snapshot regressions without review
+3. `npm run lint` — zero ESLint errors, zero accessibility rule violations (eslint-plugin-jsx-a11y)
+4. Lighthouse CI: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 90, SEO ≥ 90
+5. Core Web Vitals lab check: LCP < 2.5s, INP < 200ms, CLS < 0.1 — all green
+6. Manual keyboard audit: tab through all interactive elements — logical order, visible focus rings, no traps
+7. Screen reader test: VoiceOver (macOS) or NVDA (Windows) — all content announced, forms labeled, live regions update
+8. Responsive test at 320px, 768px, 1024px, 1440px — no horizontal scroll, no overlapping, text readable
+9. Error boundaries tested: inject throw in child component, verify fallback UI renders, error logged
+10. Loading states verified: Suspense boundaries render skeletons, not blank screens, during data fetch and lazy load
+11. Network throttling: test critical flows at "Slow 3G" — app degrades gracefully, no white screens
+12. Memory leak check: navigate routes 50×, `performance.memory.usedJSHeapSize` stable, no upward trend
+13. Bundle analysis: `@next/bundle-analyzer` shows no duplicate dependencies, no unintended large imports
+14. Environment variables: `NEXT_PUBLIC_` prefix only on intentional client-exposed values — secrets never bundled
+
 ## What Good Looks Like
 
 > Every page loads with a Lighthouse score of 95+, Core Web Vitals all green, and a JavaScript bundle under 150KB gzipped per route.
@@ -493,20 +567,60 @@ Common chains:
 ### The One Thing
 **Rebuild a component you built 6 months ago without looking at the original code.** Compare: is the new version simpler? More accessible? Smaller bundle impact? If it's not better, you haven't grown. If it's worse (over-engineered), you've learned the wrong lessons. Your own code, given 6 months of distance, is the best mirror of your growth.
 
-## Gotchas
+## Anti-Patterns
 
-- **No bundle size budget.** JavaScript bundles grow incrementally — an extra dependency here, an un-tree-shaken import there — until the homepage loads 2MB of JS. At 3G speeds, that's a 6-second Time to Interactive. Every second beyond 3s drops conversion rates ~2-4%; at $100K monthly revenue, a 3s+ page load bleeds $24K-$48K per year in lost conversions alone. **Total cost: $20,000-$100,000 per year in lost conversions from slow page loads.** Fix: Set a bundle size budget in your build tool (e.g., 200KB JS initial, 100KB CSS); enforce it in CI with bundlesize or lighthouse-ci; code-split routes and lazy-load below-the-fold components.
-- **Missing error boundaries.** A single uncaught exception in a React component tree — from a null property access, a failed dynamic import, or an API response shape change — crashes the entire page into a white screen. Users see nothing, can't navigate away, and assume the product is broken. For a SaaS product with 10K daily users, even 1% crash rate is 100 users per day encountering a dead page. **Total cost: $10,000-$50,000 in user churn, support tickets, and trust erosion from white screen crashes.** Fix: Wrap every route and major feature section in an error boundary with a fallback UI; log boundary errors to your observability platform; test error boundaries by deliberately throwing in lower components.
-- **`useEffect` with empty deps `[]`** runs once on mount. But React 18 Strict Mode in development runs it twice to catch side effects. Your production code must tolerate double invocation.
-- **Next.js `getServerSideProps`** serializes everything with `JSON.stringify` internally. `Date` objects become strings, `undefined` becomes absent (not null), and `BigInt` throws. Return only JSON-safe primitives.
-- **Tailwind's JIT compiler** scans your source for class strings. Dynamic class construction like `bg-${color}-500` will NOT generate CSS unless you safelist it or use full class names.
-- **Core Web Vitals LCP** element changes during page load. The initial hero image may be the LCP candidate at 500ms, but a dynamically injected paragraph at 800ms becomes the new LCP. Measure after full hydration.
-- **`localStorage` is synchronous and blocking**. On slow disks, a `localStorage.getItem()` call can block the main thread for 10-50ms. Use `IndexedDB` or memory cache for hot paths.
-- **Form autofill by browsers** doesn't fire `onChange` events in all cases. If your validation relies on `onChange`, it will miss autofilled fields. Listen to `onBlur` or use the `onInvalid` capture phase.
-- **React `key` prop on list items** must be stable across re-renders. Using `Math.random()` or `index` with sortable lists causes DOM thrashing and lost input focus.
-- **Not handling offline or slow-network states at all.** The app assumes always-on connectivity and shows infinite spinners or crashes silently when the user enters a tunnel, switches from WiFi to cellular, or is on a flaky 3G connection in a rural area. Forms lose entered data with no recovery, mutations fail without retry, and navigation dead-ends with a blank screen. Users in emerging markets — where 4G coverage is inconsistent — abandon the app entirely. **Total cost: $15,000-$50,000 per year in churn from mobile users on unreliable connections, especially in high-growth emerging markets where network quality varies wildly.** Fix: Implement optimistic UI updates with automatic rollback on mutation failure; queue offline mutations for retry using service workers or IndexedDB persistence; display explicit offline indicators rather than blank screens or infinite spinners; test every critical flow with Chrome DevTools network throttling at "Slow 3G" and "Offline" presets.
-- **Memory leaks in SPAs through uncleaned subscriptions and event listeners.** A component mounts, subscribes to a WebSocket feed or a Redux/Zustand store, adds a `resize` event listener to the window — and unmounts without any cleanup. After navigating between routes 30-40 times, the page consumes 2GB+ of memory, JavaScript execution slows to a crawl, and the browser tab crashes entirely. Mobile users on low-RAM devices experience crashes within minutes of app usage. **Total cost: $10,000-$40,000 in user churn, negative app store reviews citing "app crashes constantly," and engineering sprints spent debugging sporadic memory-related bugs with heap snapshots.** Fix: Always return cleanup functions from `useEffect` for every subscription, event listener, timer, and observer; use the React DevTools Profiler to identify mounted-but-never-unmounted component instances; add memory regression detection to e2e tests monitoring `performance.memory.usedJSHeapSize`; wrap all async operations in `AbortController` for cancellable cleanup.
-- **CSS-in-JS runtime overhead on animation-heavy components.** Using styled-components or Emotion with dynamic props on components that re-render at 60fps — animations, drag-and-drop interactions, real-time dashboard widgets. The runtime computes and injects new `<style>` tags into the DOM head on every render frame, triggering browser style recalculation and layout thrashing that drops the frame rate below 30fps. The UI feels janky and unresponsive despite correct logic. **Total cost: $5,000-$25,000 in frontend performance optimization sprints, reduced user engagement metrics from janky interactions, and eventual migration costs to a zero-runtime CSS solution.** Fix: Use zero-runtime CSS solutions (Tailwind, vanilla-extract, CSS Modules) for animation-heavy and high-frequency update components; reserve runtime CSS-in-JS only for static or infrequently-updated styles; profile with React DevTools "Highlight updates" and Chrome Performance tab to pinpoint style recalculation bottlenecks.
+### 1. No Bundle Size Budget
+**What it looks like:** JavaScript bundles grow incrementally — an extra dependency here, an un-tree-shaken import there — until the homepage loads 2MB of JS. At 3G speeds, that's a 6-second Time to Interactive. Every second beyond 3s drops conversion rates ~2-4%.
+**Cost:** $20,000-$100,000/year in lost conversions.
+**Fix:** Set a bundle size budget (200KB JS initial, 100KB CSS). Enforce in CI with `bundlesize` or `lighthouse-ci`. Code-split routes and lazy-load below-fold components with `next/dynamic` or `React.lazy`.
+
+### 2. Missing Error Boundaries
+**What it looks like:** A single uncaught exception in a React component tree crashes the entire page to a white screen. 10K daily users at 1% crash rate = 100 users/day encountering a dead page.
+**Cost:** $10,000-$50,000 in user churn, support tickets, and trust erosion.
+**Fix:** Wrap every route and major feature section in an error boundary with a fallback UI. Log boundary errors to your observability platform (Sentry, Datadog RUM). Test by deliberately throwing in child components.
+
+### 3. useEffect Double Invocation in Development
+**What it looks like:** `useEffect` with empty deps `[]` runs twice in React 18 Strict Mode during development. Code that isn't idempotent (e.g., incrementing a counter, subscribing without cleanup) produces subtle bugs that only surface in production.
+**Fix:** Design effects to be idempotent. Return cleanup functions. Use `AbortController` for fetch cancellation. Don't rely on effect running exactly once.
+
+### 4. JSON Serialization Loss in Next.js Data Fetching
+**What it looks like:** `getServerSideProps` and Server Components serialize everything with `JSON.stringify`. `Date` objects become strings, `undefined` becomes absent (not null), and `BigInt` throws. The client receives silently corrupted data.
+**Fix:** Return only JSON-safe primitives. Convert dates to ISO strings explicitly. Use `superjson` or `next-superjson-plugin` for preserving types across the serialization boundary.
+
+### 5. Dynamic Tailwind Class Construction
+**What it looks like:** `bg-${color}-500` where `color` is dynamic — Tailwind's JIT compiler scans source code for complete class strings. Dynamic construction produces no CSS unless safelisted.
+**Fix:** Use full class names: `color === 'red' ? 'bg-red-500' : 'bg-blue-500'`. Or safelist known values. Or use the `style` prop for truly dynamic values.
+
+### 6. LCP Element Shift During Load
+**What it looks like:** An initial hero image is the LCP candidate at 500ms, but a dynamically injected paragraph at 800ms becomes the new LCP. The measurement captures the slower element, masking the real user experience.
+**Fix:** Measure after full hydration. Preload the LCP image with `<link rel="preload">` or Next.js `priority`. Avoid injecting content above the fold after initial render.
+
+### 7. Synchronous localStorage Blocking Main Thread
+**What it looks like:** `localStorage.getItem()` is synchronous and blocks the main thread. On slow disks, a single call takes 10-50ms. Multiple calls during initial render compound into visible jank.
+**Fix:** Use `IndexedDB` (async) for large or frequent reads. Keep a memory cache for hot paths. Use `localStorage` only for small, infrequent reads during non-critical paths.
+
+### 8. Form Autofill Bypasses onChange Validation
+**What it looks like:** Browsers autofill form fields but don't fire `onChange` events consistently. Validation that relies solely on `onChange` misses autofilled fields, showing "required field" errors on pre-filled forms.
+**Fix:** Listen to `onBlur` in addition to `onChange`. Use the `onInvalid` capture phase for native validation. Run validation on submit as the final gate. React Hook Form handles this correctly by default with `mode: 'onBlur'`.
+
+### 9. Unstable React Keys Causing DOM Thrashing
+**What it looks like:** `key={Math.random()}` or `key={index}` on sortable/filterable lists. React unmounts and remounts components unnecessarily, losing input focus, scroll position, and CSS transition state.
+**Fix:** Use stable, unique identifiers from your data (database IDs, UUIDs). `crypto.randomUUID()` at data creation time, not at render time. Index is acceptable only for static, never-reordered lists.
+
+### 10. No Offline or Slow-Network State Handling
+**What it looks like:** App assumes always-on connectivity. Infinite spinners, silent crashes, and lost form data on flaky connections. Users in emerging markets abandon the app.
+**Cost:** $15,000-$50,000/year in churn from mobile users on unreliable connections.
+**Fix:** Implement optimistic UI updates with rollback on mutation failure. Queue offline mutations with service workers or IndexedDB. Display explicit offline indicators. Test every flow at "Slow 3G" and "Offline" in Chrome DevTools.
+
+### 11. Memory Leaks from Uncleaned Subscriptions
+**What it looks like:** Components subscribe to WebSockets, stores, or `resize` events on mount but never clean up. After 30-40 route navigations, the tab consumes 2GB+ and crashes. Mobile users crash within minutes.
+**Cost:** $10,000-$40,000 in churn, negative reviews, and emergency debugging sprints.
+**Fix:** Always return cleanup functions from `useEffect`. Use React DevTools Profiler to find mounted-but-never-unmounted instances. Monitor `performance.memory.usedJSHeapSize` in e2e tests. Wrap async operations in `AbortController`.
+
+### 12. CSS-in-JS Runtime Overhead on Animations
+**What it looks like:** styled-components or Emotion with dynamic props on components re-rendering at 60fps. Runtime computes and injects `<style>` tags every frame, triggering style recalculation and dropping below 30fps.
+**Cost:** $5,000-$25,000 in performance sprints, reduced engagement, and eventual migration to zero-runtime CSS.
+**Fix:** Use zero-runtime CSS (Tailwind, vanilla-extract, CSS Modules) for animation-heavy components. Reserve runtime CSS-in-JS for static styles. Profile with React DevTools "Highlight updates."
 
 ## Verification
 

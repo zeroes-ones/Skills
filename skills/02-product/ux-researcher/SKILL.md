@@ -172,6 +172,8 @@ UX research skill manifests in the complexity of research questions tackled and 
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Research Method Selection
 
@@ -254,6 +256,8 @@ How should you communicate research findings to maximize impact?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Research Planning
 Define the research objective in one sentence. Identify the key research questions (3–5 max). Choose the method: moderated usability test for interaction flow, unmoderated for volume/statistical significance, semi-structured interview for mental models, diary study for longitudinal behavior, survey for attitudes/preferences. Recruit participants: 5 per persona segment for qualitative, 30+ per segment for quantitative. Draft a discussion guide or test script with timestamps. Prepare consent forms, recording setups, and note-taking templates (split observer and facilitator roles).
@@ -270,8 +274,42 @@ Create task scenarios that are realistic, specific, and avoid leading language. 
 ### Phase 5 (~25 min): Synthesis & Reporting
 Cluster observations into themes using affinity diagramming. For each theme: state the insight, the evidence (quotes, clips, metrics), the severity/impact, and a design recommendation. Structure the final report as: Executive Summary, Methodology, Key Insights (top 3), Detailed Findings (by theme), Recommendations (prioritized), Appendix (raw data, session recordings, recruitment screener). Socialize findings with a highlights reel (3 minutes max) before the written report — stakeholders consume video faster than documents.
 
+## Best Practices
+
+1. **Match method to question, not convenience.** "Should we do a survey?" is the wrong starting point. Start with: "What do we need to learn?" If you need to understand mental models → semi-structured interviews. If you need to measure preference at scale → survey. If you need to find interaction flaws → moderated usability test. Method follows question, not the other way around.
+
+2. **Recruit by behavior, not demographics.** "Women 25-34 who shop online" casts a net too wide. "People who abandoned checkout in the last 30 days on mobile" recruits the right participants. Behavioral screening criteria produce actionable insights; demographic screening produces stereotypes.
+
+3. **Pre-register hypotheses before data collection.** Write down what you expect to find, why you expect it, and what would falsify each hypothesis. After the study, compare findings to predictions. This single practice eliminates confirmation bias — it forces you to see what you actually found, not what you wanted to find.
+
+4. **5 participants find ~85% of problems, not ~100%.** The Nielsen heuristic holds for problems affecting >30% of users. Rare problems (affecting 5%) need 50+ participants to surface. Use 5 for formative testing; scale up for statistical claims about prevalence. Never say "5 users validated the design" — 5 users surfaced problems, not absence of problems.
+
+5. **Video clips over slide decks.** A 30-second video of a user struggling with your product is worth 30 pages of research report. Stakeholders consume video faster, retain more, and are more likely to act. Every research finding should include a timestamped clip. The report is evidence; the clip is persuasion.
+
+6. **Insight synthesis: cluster by behavior pattern, not by question asked.** Affinity diagramming works when you let patterns emerge from the data. If you organize findings by interview question ("Q1: Navigation," "Q2: Search"), you have reorganized your interview guide, not synthesized insights. Real patterns cross question boundaries.
+
+7. **Research ops: build the repository before you run the 10th study.** After 10 unorganized studies, you have a mountain of insights nobody can find. Invest in a research repository (Dovetail, Condens, Notion) after study #3. Tag insights by persona, journey stage, severity, and date. Insights expire after 6 months — re-validate or retire.
+
+8. **Findings without assigned owners are entertainment.** Every finding in a research report must have: a specific recommendation, a priority (P0/P1/P2), and an owner who agrees to act on it. Track research-driven changes in the same backlog as feature work. A research readout without assigned action items is a 1-hour meeting that cost $15K in research time and produced $0 in product improvement.
+
+9. **Match fidelity to research goals.** Generative/discovery → low fidelity (paper sketches, wireframes). Users feel comfortable critiquing rough work. Evaluative/usability → medium fidelity (grayscale prototypes). High fidelity for validation only — polished prototypes suppress honest feedback because users are reluctant to criticize a "finished" product.
+
+10. **Triangulate: never ship on one data source.** Behavioral analytics tell you WHAT. Usability testing tells you WHY. Surveys tell you WHAT USERS THINK. One source alone produces half the answer. When analytics say "drop-off at step 3," usability reveals the confusing label, and interviews reveal the mental model mismatch. Use all three.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "5/5 users completed the task — the design works" | False confidence from small sample. 5 users can only detect problems affecting >30% of users. A problem affecting 20% of users has a 67% chance of going undetected. | Report findings as "problems found," not "design validated." Use language: "5 users surfaced 12 issues. We addressed the 4 P0 items. Unknown: problems affecting <30% of users may remain." | Small-N studies find problems; they do not validate absence of problems. |
+| "Users said they wanted X but never used it when we shipped it" | Stated intent vs revealed behavior gap. What people SAY in interviews and what they DO in a live product correlate at ~0.3. | Observe behavior, don't just ask. For feature demand, run a fake-door test before building. Show a UI element for the proposed feature and measure clicks. | Self-reported preference data is the least reliable form of user research. |
+| Personas are demographic stereotypes ("Sarah, 34, marketing manager, 2 kids") with no behavioral data | Demographic attributes do not predict product behavior. "The batch processor" and "the real-time monitor" are actionable personas because they describe how users work. | Build personas from behavioral data: usage frequency, feature adoption sequence, pain points, workarounds, goals. Demographics become irrelevant when behavior is defined. | Behavioral personas drive design decisions. Demographic personas decorate slide decks. |
+| Research report produced, presented, filed — zero product changes | Findings did not include specific, prioritized, assigned recommendations. The PM consumed the presentation but had no action items to put in the backlog. | Every finding → specific recommendation → priority (P0/P1/P2) → assigned owner. Track research-driven changes in the same backlog as feature work. | Research without assigned action items is entertainment, not insight. |
+| "Recruit 5 of our own power users for testing" produces falsely positive results | Power users have built mental models and workarounds. They forgive confusing UX because they know "that's just how it works." Novices get stuck and churn. | Every usability study must include minimum 50% first-time users of the feature. If using existing users, screen for those with <3 uses in the last 90 days. | Testing with power users validates your power users, not your product. |
+| Moderator asks "Would you say the navigation is confusing?" and participant agrees | Leading question. The participant agrees to avoid conflict, not because the navigation is confusing. The unbiased version: "Tell me about your experience finding the settings page." | Audit discussion guides for leading language. Replace "Would you say X is [negative adjective]?" with "Walk me through the last time you [task]." Let the participant surface the problem organically. | Leading questions prime agreement. Open-ended questions surface reality. |
 
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -422,7 +460,7 @@ UX research mastery comes from observing real users, repeatedly, until pattern r
 
 **The One Highest-Leverage Activity:** Watch one user session recording every day. Not a highlight reel — a raw, unedited session. 15 minutes. You'll learn more about your product than from any dashboard. Do this for 30 days and you'll have more user empathy than 90% of product teams.
 
-## Gotchas
+## Anti-Patterns
 
 - **Recruiting the wrong participants wastes the entire study budget.** Testing a developer tool with non-technical participants, or an enterprise SaaS with students, produces data that looks real but points in wrong directions. A study with 8 wrong participants costs $5K-$15K in incentives, facilitation time, and analysis — with $0 in valid insights. Even worse: acting on those wrong insights can send $100K+ in engineering in the wrong direction. **Total cost: $5K-$15K per wasted study; $50K-$150K if acted upon.** Define screening criteria with behavioral triggers (e.g., "has deployed to production in the last 30 days") and screen every participant before scheduling.
 - **Confirmation bias turns research into validation theater.** When you frame questions to hear what you want ("You'd prefer a simpler dashboard, right?"), you get agreement — not truth. Teams then spend $50K-$300K building features that validated their assumptions instead of testing them. **Total cost: $50K-$300K building validated wrong assumptions.** Use neutral, open-ended questions ("Walk me through the last time you used a dashboard. What worked? What didn't?") and pre-register your hypotheses before data collection so you can distinguish learning from confirmation.
@@ -470,6 +508,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[UX1]** Research objectives defined: 1-sentence goal, 3-5 key research questions, method selected to match question type
+- [ ] **[UX2]** Participant screener written with behavioral criteria; minimum 5 participants per segment for qualitative, 30+ for quantitative
+- [ ] **[UX3]** Discussion guide or test script prepared with open-ended, non-leading questions; pilot-tested with 1-2 dry-run participants
+- [ ] **[UX4]** Consent forms, recording setup, and note-taking templates ready before first session
+- [ ] **[UX5]** Personas built from behavioral data with: archetype label, primary goal, core tasks, pain points, current workarounds, context of use
+- [ ] **[UX6]** Journey map covers end-to-end experience: user actions, touchpoints, emotional state, pain points, opportunities per step
+- [ ] **[UX7]** Usability test tasks are realistic, specific, non-leading; success criteria defined (completion rate, time-on-task, error count)
+- [ ] **[UX8]** Findings synthesized via affinity diagramming: themes supported by multiple participant quotes and behavioral evidence
+- [ ] **[UX9]** Every finding includes: specific recommendation, priority (P0/P1/P2), and assigned owner
+- [ ] **[UX10]** Research deliverables matched to urgency: async memo for P0 (24 hours), Top 3 Actions for evaluative (3 days), full report for generative (2 weeks)
+- [ ] **[UX11]** Bias documented: researcher positionality, recruitment channels, methodological limitations stated in report
+- [ ] **[UX12]** Insights repository maintained: tags by persona, journey stage, severity, date; insights re-validated or retired after 6 months
 
 ## References
 

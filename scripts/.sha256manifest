@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-25T14:49:40Z
+# Generated: 2026-07-25T16:28:37Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    3aa388a1a19623f577feda20ad70630dd94f43e3
+# Commit:    db0ccfd9f5fa8727ee703134dc1434331732fa60
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -25,7 +25,7 @@ b3cb0a8c778b89fe4412e4ac9c2bd3c45d87e2417d4a0fc0fab161c64911e313  scripts/sandbo
 e30826411b84e2d4402143670ff88d6821e2635b762d964fcc3015595228cc56  scripts/skill-router.py
 87923f3a5df9c1acd6d0a08979c7b8ac2b2868eb0e315d2dd47bcbfb63188fd4  scripts/trim-context.sh
 0a95e1fb6019c454162c2e3222fe9d461c65eecf7a3a8955373a26a7f13d7cb0  scripts/upgrade_to_10_v2.py
-d9660749dbd645cc482144d566d0ea18187943cde00f81a2cedb7379db2f42c1  scripts/validate-skills.sh
+5f007310d475687e4a95880c9f45145d1840a71d10cc18f9c6ad14570a5d9299  scripts/validate-skills.sh
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/00-framework/skill-levels/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/00-framework/writing-great-skills/scripts/verify-skill.sh

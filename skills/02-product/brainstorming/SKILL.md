@@ -148,6 +148,8 @@ What are you trying to do?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 ### Phase 1: Problem Framing
 
 Execute in order. Do not skip steps. Ask ONE question per step, wait for the answer, then proceed.
@@ -221,7 +223,42 @@ Execute in order. Do not skip steps. Ask ONE question per step, wait for the ans
    |-- IF NO: Return to the step where uncertainty lives. Do not proceed past the gate.
 ```
 
+## Best Practices
+
+1. **Divergent thinking precedes convergent thinking — never mix them.** Phase 1-2 is divergent: generate possibilities, suspend judgment, explore broadly. Phase 3 is convergent: evaluate, eliminate, decide. Teams that evaluate during generation kill ideas before they're fully formed. Enforce the boundary: first explore, then judge.
+
+2. **Psychological safety is the fuel of brainstorming.** If the most junior person in the room won't say "I think this is the wrong problem," you are not brainstorming — you are performing agreement. Explicitly invite dissent. The best ideas often come from the quietest voice. Ask: "Who disagrees? What are we missing?"
+
+3. **Frame constraints before exploring solutions.** "We need to reduce checkout abandonment" is a problem. "We need to reduce checkout abandonment with a $50K budget and no backend changes" is a problem with constraints. Constraint-first framing prevents solutions that are technically brilliant but organizationally impossible. Every brainstorming session starts with a constraint inventory.
+
+4. **The 3-alternatives rule is non-negotiable.** Before committing to any approach, generate at least 3 distinct alternatives. At least one must be the opposite of your instinct. If you cannot generate 3 alternatives, you are not exploring — you are justifying. This rule prevents premature convergence on the first plausible solution.
+
+5. **Capture everything, organize later.** During divergent thinking, every idea goes on the board. No filtering, no "we tried that before," no eye-rolling. Ideas that seem absurd in minute 10 seed the breakthrough in minute 45. Use a shared whiteboard (physical or digital) where everyone can see the full idea landscape.
+
+6. **The Socratic interview: one question at a time.** When facilitating, ask one question and wait. Silence is not awkward — it's thinking time. The facilitator's job is to ask the next question that follows from the answer, not to fill the silence with their own ideas. The best question is the one that makes the room go quiet.
+
+7. **Challenge assumptions, not people.** "What assumption are we making about user behavior?" challenges the idea. "That's wrong" challenges the person. Frame every challenge as a question about the assumption, not a judgment of the proposer. Chesterton's Fence applies to every constraint: understand why it exists before proposing to remove it.
+
+8. **MoSCoW prioritization at the gate.** After exploration, use MoSCoW (Must have, Should have, Could have, Won't have) to prioritize scope. "Must have" = the product cannot function without it. "Should have" = important but not critical. "Could have" = nice to have. "Won't have" = explicitly excluded. This forces trade-off conversations that RICE scores alone cannot surface.
+
+9. **The spec review gate is a hard stop.** Implementation begins only after the gate is passed. No code, no prototypes beyond paper sketches, no architecture diagrams until the design brief is approved. The gate is not bureaucracy — it's the cheapest point to discover you're building the wrong thing.
+
+10. **Time-box exploration to prevent analysis paralysis.** Divergent thinking has diminishing returns. After 3 sessions on the same problem with no new information emerging, you are circulating, not exploring. Document residual uncertainty and decide. The cost of not deciding exceeds the cost of a suboptimal decision that can be corrected later.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Team converges on the first plausible solution after 5 minutes | Premature convergence. The brain latches onto the first idea that "works" and stops exploring. The rest of the session is spent justifying, not discovering. | Enforce the 3-alternatives rule before any decision. Ask: "What would the opposite approach look like? What would the 'do nothing' approach cost us?" | First ideas are rarely best ideas. They're just first. |
+| Stakeholder wants to skip exploration: "We already know what to build" | The "just build it" trap. The stakeholder is betting your time against rework. Skipping exploration on a $200K project that builds the wrong thing costs $380K to rebuild. | Show the anti-rationalization table. Make the cost of skipping visible: "A 2-day exploration costs $4K. A rebuild costs $180K-$400K. Which bet do you want to make?" | Exploration is the cheapest phase. Skipping it is the most expensive decision. |
+| Team explores database options for 3 weeks — chooses the one they would have picked on day 1 | Decision fatigue masquerading as exploration. After 12 meetings, they chose PostgreSQL — same as day 1. Difference: $45K in engineering time with zero new information after meeting 3. | Enforce the 3-visit rule: if a branch is visited 3 times without new information, document residual uncertainty and decide. | Exploration without new information is procrastination with a whiteboard. |
+| Team removes a constraint because "nobody knows why it's there" — it prevents a $31K outage | Chesterton's Fence violation. The rate-limiting middleware they deleted was preventing a $22K/month cloud bill from a buggy mobile client. The bug resurfaced 3 days later. | Before removing any constraint: articulate what problem it solved. If you cannot answer, the constraint stays. Origin unknown ≠ origin irrelevant. | Every constraint solved a problem. If you don't know the problem, you can't judge whether it still exists. |
+| "We'll iterate based on data" — confusing checkout flow causes 14% abandonment before fix ships | The "iterate later" escape hatch. A half-explored feature shipped with a confusing flow. Users who abandoned rarely returned — they went to competitors. Fix shipped in month 2 but lost users represented $180K in lifetime value. | Phase 2, Step 6: explore at least 3 approaches before committing. Paper prototypes cost $0 and catch confusion before it costs users. | "We'll fix it later" only works if users give you a second chance. Most don't. |
+| Brainstorming session produces 47 ideas, zero decisions, team leaves confused | Divergent thinking without convergent thinking produces idea soup. Nobody knows what happens next or who owns which idea. | Every brainstorming session ends with: top 3 ideas, next steps per idea, owner per idea, decision timeline. | Ideas without owners evaporate. Decisions without deadlines don't happen. |
+
 ## Decision Trees
+
+**(QUICK)**
 
 ### When to Continue vs Stop Exploring
 
@@ -396,6 +433,8 @@ Execute in order. Do not skip steps. Ask ONE question per step, wait for the ans
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -539,7 +578,7 @@ Pick a constraint in your current project (a library choice, an architecture dec
 ### Exercise 5: Three-Alternatives Rule (10 min)
 For any design decision you make this week, write down 3 distinct alternatives before choosing. At least one alternative must be the opposite of your instinct. Document why each alternative was rejected. If you cannot generate 3 alternatives, you are not exploring — you are justifying.
 
-## Gotchas
+## Anti-Patterns
 
 - **"The stakeholder just wants it built" trap.** When a stakeholder resists exploration, they are betting your time against rework. A VP who demanded skipping exploration on a $200K CRM integration project got exactly what they asked for — the wrong integration. The rebuild cost $380K and took 4 extra months. The 2-day exploration would have revealed the mismatch. **Total cost: $180K-$400K in unnecessary rebuild per skipped exploration for mid-size projects. Prevent: show the stakeholder the anti-rationalization table. Make the cost of skipping visible.**
 
@@ -584,6 +623,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[BS1]** Problem statement validated with evidence: user interviews, data, support tickets — not assumptions
+- [ ] **[BS2]** Success criteria measurable: specific metric with baseline, target, and timeline
+- [ ] **[BS3]** Persona specific: at least one named persona with current behavior and quantified pain point
+- [ ] **[BS4]** MVP scope defined: single deliverable identified; "we need all of it" is a FAIL
+- [ ] **[BS5]** Constraint inventory complete: every constraint documented with origin story and "what problem does this solve?"
+- [ ] **[BS6]** 3+ approaches considered: at least 3 distinct alternatives with documented pros/cons; opposite-of-instinct alternative included
+- [ ] **[BS7]** Trade-off matrix complete: for each approach, what we GAIN and what we LOSE explicitly stated
+- [ ] **[BS8]** Uncertainty inventory: every known-unknown has a resolution plan (prototype, spike, research); unknown-unknowns acknowledged
+- [ ] **[BS9]** Chesterton's Fence audit: every constraint proposed for removal has verified origin story and problem-it-solves analysis
+- [ ] **[BS10]** MoSCoW prioritization applied: Must/Should/Could/Won't have defined with explicit trade-offs
+- [ ] **[BS11]** Spec review gate passed: design brief produced and approved; all 9 steps complete before implementation
+- [ ] **[BS12]** Time-box respected: divergent exploration capped at 3 sessions without new information; document residual uncertainty and decide
 
 ## References
 

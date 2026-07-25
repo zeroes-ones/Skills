@@ -154,6 +154,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Migrating from "Excel hell" or legacy BI to a modern analytics stack
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### dbt Materialization Strategy
@@ -329,6 +330,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to build Exploratory:** Self-service analysis — interactive filters, drill-down capabilities, flexible date ranges, multi-dimensional pivots.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -400,7 +402,30 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
+## Best Practices
+
+1. **dbt models should be modular — one model, one concept.** A single model that joins 12 tables and produces 50 columns is a maintenance nightmare. Split into staging (1:1 with source, light cleaning), intermediate (business logic, joins), and marts (business-ready tables). Each model should have a clear, single purpose.
+
+2. **Star schema is the default for analytics — denormalize only with purpose.** Fact tables with numeric measures, dimension tables with descriptive attributes. Wide tables (OBT) are acceptable for performance-critical dashboards with < 5 dimensions and no SCD Type 2 history. Kimball methodology over ad-hoc modeling every time.
+
+3. **dbt tests are non-negotiable — uniqueness, not_null, referential integrity at minimum.** Custom data tests for business logic validation. Tests run as part of the pipeline, not as optional post-hoc checks. `dbt test --store-failures` preserves failure data for debugging. Schema tests catch bad data before it reaches dashboards.
+
+4. **Materialization strategy is a performance and freshness contract.** Views for lightweight, always-fresh transformations. Tables for performance-critical models queried frequently. Incremental for large fact tables (> 1M rows/day). Ephemeral for reusable CTE logic. `materialized='incremental'` with `unique_key` and `merge_update_columns` for late-arriving updates.
+
+5. **Documentation is code, not commentary.** Every model has a YAML description. Column descriptions explain what the field means in business terms, not just its data type. `dbt docs generate` and `dbt docs serve` should produce a browsable, trustworthy data catalog. Undocumented models are technical debt.
+
+6. **SQL style guide enforced by automation.** Consistent formatting (lowercase keywords, trailing commas, meaningful aliases). sqlfluff or dbt pre-commit hooks enforce style in CI. Readable SQL is debuggable SQL. Nested subqueries beyond 2 levels are a refactoring signal.
+
+7. **Metric definitions live in ONE place — the semantic layer, not individual dashboards.** dbt MetricFlow, LookML explores, or a metrics store ensures "revenue" means the same thing everywhere. Duplicate metric definitions are the #1 source of organizational data distrust. The semantic layer is the single source of truth for business logic.
+
+8. **Data contracts between producers and consumers.** Schema, freshness SLA, and ownership for every dataset. Producers commit to not breaking the contract without notice. dbt model contracts with `constraints` enforce column types, nullability, and primary keys at build time.
+
+9. **CTE chains beyond 5-7 signal refactoring.** dbt compiles CTE chains into single massive queries. Redshift/Postgres materialize every CTE. On large datasets, disk spillage starts around CTE #5. Use ephemeral materialization or split into multiple models.
+
+10. **Freshness over perfection in operational dashboards.** A stale-but-perfectly-modeled dashboard is useless during an incident. Configure source freshness checks (`dbt source freshness`) with SLAs. Alert when data is late. Executives make decisions on stale data if they don't know it's stale.
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -532,13 +557,76 @@ graph LR
 | "CTEs are free — the optimizer handles it" | 15+ CTE chains cause disk spillage by CTE #5 on large datasets — queries run 10-50x slower, blowing past warehouse credit budgets at $5K-$20K in compute overruns. |
 | "I'll just run the models I changed — downstream will be fine" | `dbt run --select` doesn't auto-select dependent models — stale downstream data produces incorrect executive reports discovered days later at $10K-$40K. |
 
-## Gotchas
+## Anti-Patterns
 
 - **dbt `ref()` vs `source()`**: `ref()` builds a DAG dependency — dbt knows model B depends on model A and runs them in order. `source()` references raw data with NO dependency tracking. If you `source('raw', 'events')` but someone upstream changes the schema, dbt can't warn you. **Total cost: $5,000-$25,000 in data downtime, broken dashboards, and engineering time debugging silent schema breakages that cascade through downstream models.**
 - **dbt incremental models** with `unique_key` but without `merge_update_columns` — only NEW rows are inserted. Updates to existing rows are silently ignored. You get duplicate key errors OR stale data depending on the `on_schema_change` config. **Total cost: $10,000-$50,000 in bad business decisions driven by stale data — execs making pricing, inventory, or hiring calls from reports that silently diverged from source truth.**
 - **`dbt test` runs schema tests (unique, not_null) AND data tests (custom SQL assertions) but they run AFTER the data is already in the warehouse. A uniqueness test failure means you've already loaded bad data. Use `dbt test --store-failures` to preserve failure data. **Total cost: $15,000-$75,000 in corrupted warehouse tables that require full rebuilds, stakeholder trust erosion, and delayed reporting cycles.**
 - **CTE (Common Table Expression) chains with 15+ CTEs** in a single model: dbt compiles these into a single massive query. Redshift/Postgres materialize every CTE as an in-memory temp table. On large datasets, you hit disk spillage at CTE #5. Use ephemeral materialization (`+materialized: ephemeral`) or split into multiple models. **Total cost: $5,000-$20,000 in compute overruns — disk-spilled queries run 10-50x slower, blowing past warehouse credit budgets and delaying downstream SLAs.**
 - **`dbt run` with `--select`** only runs the selected models. Downstream models that depend on the updated model are NOT auto-selected. If you `dbt run --select stg_orders` but `fct_orders` depends on it, `fct_orders` still has old data and you won't know until someone queries it. **Total cost: $10,000-$40,000 in incorrect executive reports and operational decisions made from stale downstream models — discovered days or weeks later when someone notices the numbers don't reconcile.**
+
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] **dbt project structure follows best practices:** Staging, intermediate, and marts layers with clear separation of concerns
+- [ ] **Materialization strategy documented per model:** View/table/incremental/ephemeral chosen with documented rationale; incremental models have `unique_key` and merge strategy
+- [ ] **Tests passing in CI:** `dbt test` runs on every PR; schema tests (unique, not_null) + custom data tests for business logic
+- [ ] **Source freshness monitored:** `dbt source freshness` runs on schedule; alerts on SLA breach; freshness displayed on dashboards
+- [ ] **Documentation generated and accessible:** `dbt docs generate` produces browsable catalog; column descriptions in business terms
+- [ ] **SQL style consistent:** sqlfluff or pre-commit hooks enforce formatting; no unformatted SQL in production models
+- [ ] **Metric definitions centralized:** All metrics defined in semantic layer (dbt MetricFlow/LookML); no duplicate metric definitions across BI tools
+- [ ] **Data contracts enforced:** Model contracts with constraints on column types, nullability, and primary keys; breaking changes communicated to consumers
+- [ ] **Incremental models verified idempotent:** Full refresh produces identical results to incremental run; late-arriving data handled correctly
+- [ ] **Lineage graph complete:** `dbt docs` lineage shows all upstream/downstream dependencies; no orphaned models
+- [ ] **Performance SLAs met:** All models build within configured time limits; long-running models identified with `dbt ls --resource-type model --output json`
+- [ ] **dbt package dependencies pinned:** Version constraints in `packages.yml`; no floating versions
+
+
+## Scale Depth
+
+### Solo (1 person, 0-100 models)
+- **Stack:** dbt Core + dbt docs. Manual runs. GitHub for version control.
+- **Modeling:** Staging → marts. 20-50 models. Manual testing.
+- **Documentation:** dbt docs descriptions. Manual catalog updates.
+- **Key constraint:** You own the entire pipeline. Freshness checks are your responsibility and easy to forget.
+
+### Small Team (2-10 people, 100-500 models)
+- **Stack:** dbt Cloud + Slim CI. Scheduled jobs. Slack alerts on failure.
+- **Modeling:** Staging → intermediate → marts. Data contracts between layers. Custom generic tests.
+- **Documentation:** dbt docs with column-level lineage. Data catalog browsable by business users.
+- **Key constraint:** Model ownership and PR review process. Who approves changes to `fct_orders`?
+
+### Medium Team (10-50 people, 500-2K models)
+- **Stack:** dbt Cloud Enterprise + mesh patterns. Multi-project dbt with cross-project refs. Great Expectations/Monte Carlo.
+- **Modeling:** Domain-owned data products. Semantic layer with MetricFlow. Data contracts with versioning.
+- **Documentation:** Automated data catalog with freshness, quality, and popularity scores. Column-level lineage.
+- **Key constraint:** Cross-domain dependencies. Model deprecation policy. Cost attribution per domain.
+
+### Enterprise (50+ people, 2K+ models)
+- **Stack:** dbt Mesh + data product platform. CI/CD with automated impact analysis. Data observability platform.
+- **Modeling:** Federated governance. Self-service with guardrails. Automated contract enforcement.
+- **Documentation:** Data product catalog with SLAs, owners, and quality scores. Executive data reliability dashboards.
+- **Key constraint:** Governance at scale — hundreds of contributors across dozens of domains need guardrails, not gates.
+
+### Transition Triggers
+- Solo → Small: More than 2 people editing the same dbt project. Merge conflicts on `schema.yml`.
+- Small → Medium: Cross-team dependencies ("we need your model, but it breaks our tests"). Model count exceeds 500.
+- Medium → Enterprise: Multiple teams want the same metric with different definitions. Regulatory audit requires full data lineage.
+
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| dbt run succeeds but data is stale | `dbt run --select stg_orders` doesn't auto-select downstream models. `fct_orders` still has old data. | Use `dbt run --select state:modified+` to include modified models and all downstream dependents. Or `dbt run --select +model_name`. | dbt's `--select` is surgical, not cascading. Explicit `+` suffix propagates downstream. |
+| Incremental model returns duplicates on re-run | `unique_key` configured but no merge strategy. New rows inserted but existing rows not updated. Duplicate keys. | Add `merge_update_columns` to the incremental config. Ensure the `unique_key` truly identifies unique rows across runs. | Incremental models need idempotency designed in — insert-only is not idempotent for mutable source data. |
+| dbt test fails AFTER data is loaded to warehouse | Tests run post-model-build. Uniqueness failure means bad data already committed to the table. | Use `dbt test --store-failures` to capture failure records. Add pre-hook validation where possible. Set `on_schema_change: fail` for incremental models with strict schemas. | dbt tests are detective, not preventive. They tell you something broke, not that you prevented it. |
+| CTE chain causes disk spillage on large datasets | dbt compiles all CTEs into one query. Redshift/Postgres materialize each CTE. 15 CTEs = 15 temp tables. | Split into multiple models. Use ephemeral materialization for reusable CTEs. Or switch to view materialization and let the warehouse optimizer handle it. | The elegance of CTE chains is syntactic — the database sees one massive query plan. |
+| dbt docs lineage graph shows broken link | Model referenced via `ref()` doesn't exist or has been renamed. dbt run fails but docs were generated from stale state. | Run `dbt docs generate` after every successful `dbt run`. Set CI to fail on broken refs. | dbt docs is a snapshot — it reflects the last successful run, not the current code state. |
+| `dbt source freshness` reports "PASS" but data is 3 days old | Freshness threshold set too high (e.g., `warn_after: {count: 72, period: hour}`). Source landed 70 hours ago — within threshold but effectively stale for business. | Set freshness thresholds based on business SLAs: C-level dashboards need < 4 hours, operational < 1 hour, analytical < 24 hours. | "PASS" means within your configured threshold — if your threshold is wrong, PASS is misleading. |
+| Cross-database dbt tests fail silently | `dbt test` runs on the target database. If a test references a table in another database via a cross-db query, the test may run against an empty result set. | Use `dbt test --select` to isolate tests. Verify cross-database connectivity in CI. Use Great Expectations for cross-source validation. | dbt's test framework assumes single-database. Multi-database validation needs external tooling. |
+
 
 ## Verification
 

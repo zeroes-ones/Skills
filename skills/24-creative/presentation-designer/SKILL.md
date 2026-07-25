@@ -103,6 +103,8 @@ If the user shares an existing deck file (.pptx, .key, .pdf, Google Slides link)
 
 ## Core Workflow
 
+**(STANDARD)**
+
 ### Phase 1: Audience & Strategy (30% of effort)
 
 1. **Define audience persona.** Who are they? What do they know? What do they care about? What are their objections? If you can't name 3 specific people in the audience, you don't know them well enough.
@@ -134,6 +136,8 @@ If the user shares an existing deck file (.pptx, .key, .pdf, Google Slides link)
 4. **Three rehearsals minimum.** Run 1: fix timing. Run 2: fix flow and transitions. Run 3: full dress with clicker and timer. Record Run 3 and watch it — you'll catch things you never notice while presenting.
 
 ## Decision Trees
+
+**(QUICK)**
 
 ### Narrative Structure Selection
 
@@ -292,6 +296,8 @@ What type of data story are you telling?
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -304,7 +310,29 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
-## Cross-Skill Coordination
+## Best Practices
+
+1. **Slide architecture — one idea per slide, stated as a headline with a verb.** Every slide should communicate exactly one concept, expressed as a complete declarative sentence in the headline (not a topic label). "Q3 Revenue Increased 22%" is a slide; "Q3 Financial Results" is a table of contents heading. When you can't articulate the one idea in a single sentence, the slide is doing too much — split it. The 3-second test: show the slide to someone for 3 seconds, then hide it. If they can't state the one idea, redesign. Every slide that fails this test dilutes every other slide.
+2. **Visual hierarchy — guide the eye before the brain processes the content.** The audience's eyes track to the highest-contrast element first — usually the headline (largest, boldest), then supporting visuals (charts, images, diagrams), then body text (smallest). Use size, color, contrast, and whitespace — not decoration — to establish this hierarchy. A slide where the headline, subhead, body text, and chart label are all the same visual weight forces the audience to read everything to find what matters. They won't. Guide their eyes to the insight in under 1 second.
+3. **Data storytelling — annotation, not decoration, makes data memorable.** Every data slide needs: (a) a headline that states the insight, not the topic ("Customer churn spiked 40% in Q2 after pricing change" not "Q2 Churn Data"), (b) the key data point highlighted directly on the chart (color, callout, circle), (c) the source cited in 8pt text at bottom right, and (d) the "so what?" answered — what decision or action does this data drive? Charts without annotation are Rorschach tests — every audience member interprets them differently. You control the interpretation by annotating the insight directly on the visual.
+4. **Audience adaptation — design for THEIR questions, not YOUR answers.** Before designing a single slide, map: Who is in the room? What do they care about? What do they fear? What decision can they make? A board presentation answers "should we invest more?" A customer presentation answers "should we buy?" A team presentation answers "what should we do next?" The same data, strategy, and product information must be framed differently for each audience. A presentation that works for one audience fails for another — not because the content is wrong, but because the framing doesn't address their concerns.
+5. **Presentation delivery — rehearsal is not optional, it's the difference between amateur and professional.** Minimum 3 full run-throughs before any presentation. Run-through 1: content flow and timing (does the argument hold? where do I go over?). Run-through 2: transitions between slides (every slide change should feel inevitable, not random). Run-through 3: full dress rehearsal with tech setup, recorded on video for self-review. The "I'll wing it" presenter is obvious within 30 seconds — pacing is off, transitions are awkward, and audience engagement never recovers. 3 rehearsals is the minimum; 5+ is professional; 10+ is TED-stage caliber.
+6. **Slide deck management — version control prevents presentation-day disasters.** Name files with date, version, and purpose: `2026-07-25_BoardDeck_v3_FINAL.pptx`. Never append "FINAL" to a filename — "FINAL_v2" and "FINAL_REAL" are red flags for broken process. Store the working file in cloud-synced storage (Dropbox, OneDrive, Google Drive) with automatic version history. Export a read-only PDF backup before every presentation and store it in three locations: USB drive, email to yourself, cloud folder. The projector will fail. The file will corrupt. The network will be down. Three independent backups is not paranoia — it's insurance that costs 30 seconds.
+7. **Cognitive load reduction — every element on a slide that doesn't support the one idea is actively harming comprehension.** Remove: decorative graphics, unnecessary logos, "About Us" sections, dense tables, full paragraphs, 3D chart effects, slide numbers bigger than 10pt, and any text that isn't spoken aloud or essential context. Research shows audiences can either read slides or listen to the presenter — not both. When both channels carry different information, comprehension drops 40-60%. The slide is a visual aid for the audience, not a teleprompter for the presenter. If it's on the slide, cut it from your script. If it's in your script, it doesn't need to be on the slide.
+8. **Color accessibility — design for the 8% of men and 0.5% of women with color vision deficiency.** Never rely on color alone to convey information (red/green good/bad indicators without labels). Use redundant encoding: color + pattern + label. Test every slide in a colorblind simulator (Coblis, Color Oracle). The most common presentation color failure: red and green on the same chart with no text labels — invisible to 1 in 12 male viewers. High contrast is not optional: minimum 3:1 for large text/icons, 4.5:1 for body text against any background. Brand colors that fail contrast ratios are not brand assets — they're brand liabilities.
+9. **Typography hierarchy — three levels maximum per deck (headline, subhead, body).** Define a type scale before designing: headline (36-48pt, bold), subhead/slide label (24-30pt, medium), body/callouts (18-22pt, regular). Use one typeface family across the entire deck. Body text below 18pt will be illegible in the back of a conference room. Sans-serif for projected presentations (Helvetica, Inter, SF Pro); serif only for printed leave-behinds. Never use more than 15 words of body text on any slide — if you need more, it goes in speaker notes or a handout.
+10. **Speaker note craftsmanship — the slide is for the audience; the notes are for you.** Every slide needs speaker notes that include: (a) the opening hook sentence — the first thing you say when this slide appears, (b) the transition sentence that connects this slide to the next one, (c) the one data point or quote to emphasize verbally, and (d) a timing marker (e.g., "[2:30] — 1 min on this slide"). Speaker notes written as full sentences, not bullet-point reminders, prevent rambling and keep you on pace. The audience never sees them; the quality of your delivery depends entirely on them.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Audience asks "can you go back to slide X?" — narrative lost them | No logical flow between slides; slides presented as isolated facts rather than chapters in an argument; missing transition sentences that connect each slide to the next | Add transition sentences in speaker notes for every slide. Each slide should answer the question the previous slide raised: "Here's the problem. Here's why it matters. Here's our solution. Here's the evidence." Audit your deck: can you state the logical connection between every adjacent pair of slides in one sentence? | Presentations are not slide shows — they are arguments delivered through slides. If the audience can't follow the logic without you explaining the connections, the slide architecture is broken. Every slide transition should feel inevitable, not random |
+| Decision-maker says "this is interesting but not a priority right now" — failed to connect to their agenda | Presentation framed around what YOU want to communicate, not what THEY need to decide. The decision-maker's top-3 concerns were never explicitly named or addressed | In the first 3 slides, name the problem the decision-maker cares about — not the one you want to solve. Research in advance: what keeps them up at night? What metric are they measured on? What decision is on their desk this quarter? Frame your entire presentation as the answer to their question, not your pitch | The most polished presentation in the world fails if it addresses a problem the audience doesn't have. Pre-presentation research is not optional — it's the foundation. Spend 30% of preparation time on audience analysis before designing a single slide |
+| Q&A becomes hostile — audience challenges credibility rather than content | Presentation didn't preemptively address the top 3 objections. The audience's unspoken concerns ("this won't work because X," "we tried this before," "this is too risky") were never acknowledged, so they surface as hostility in Q&A | Add a "Common Concerns" or "What We Considered" slide that names and neutrals the top 3 objections BEFORE Q&A begins. Format: "You might be wondering about X. Here's what we found..." This demonstrates you've done the work and controls the frame. Prepare 5 "bridging" phrases to redirect off-topic or hostile questions | The audience's objections exist whether you acknowledge them or not. Naming them first builds trust; ignoring them builds suspicion. A single preemptive slide transforms Q&A from a defense session into a productive discussion |
+| Audience remembers nothing 24 hours later — message didn't stick | No repetition of the core message throughout the presentation. Information delivered once, without reinforcement, is forgotten within hours per the Ebbinghaus forgetting curve | Apply the Rule of Three: (a) State your through-line in the opening — "By the end of this presentation, you'll know X." (b) Reinforce it in the middle with evidence — "This is why X matters." (c) Restate it in the close — "Here's what we covered and why X is the next step." One message, three passes. Every slide should trace back to this one through-line | The goal of a presentation is not to transmit information — it's to change what the audience believes or does. If they remember nothing, nothing changed. One message, stated three times, embedded in every slide, is the difference between a presentation and a waste of time |
+| Presenter runs out of time before reaching the conclusion — the call to action is never delivered | No time budget per section; no plan for cutting content on the fly; presenter spent too long on early slides and rushed through the most important closing argument | Allocate minutes per section in speaker notes: "Opening: 2 min, Problem: 5 min, Solution: 8 min, Evidence: 5 min, Close: 3 min." Mark every slide as "must-cover" or "nice-to-have." Practice cutting 30% of content mid-presentation — when you hit the 50% time mark, if you haven't covered 50% of must-cover slides, start cutting nice-to-haves immediately. Never sacrifice the close for an extra data slide | The audience remembers the last thing you say. If you don't deliver the close, the presentation didn't happen. Time management is a structural problem, not a delivery problem — build time discipline into the slide architecture, not into your hope that you'll "pace yourself" |
+| Slides look different on projector than on laptop — colors washed out, fonts missing, images pixelated | Color profile mismatch (laptop calibrated to P3/DCI-P3, projector renders sRGB), custom fonts not embedded in file, slide resolution exceeds projector native resolution (1024×768 or 1920×1080) | Always test on the actual projector — arrive 30 minutes early. Embed all fonts in the file (PowerPoint: File → Options → Save → "Embed fonts in the file"; Keynote: fonts are auto-embedded). Use sRGB color profile for all slide assets. Export a high-contrast PDF backup — PDFs render consistently regardless of projector or OS. Test with room lights at presentation brightness — washed-out projectors in bright rooms destroy subtle color differences | Design for the viewing environment, not your retina display. A $5,000 presentation designed on a $3,000 monitor that's illegible on a 2009 conference room projector is worth $0. The PDF backup is not a nicety — it's the only version guaranteed to render correctly |
 
 | Related Skill | Relationship | When to Route |
 |--------------|-------------|---------------|
@@ -318,6 +346,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | `email-composer` | Follow-up communications | Post-presentation follow-up emails, thank you notes, deck distribution |
 | `technical-writer` | Documentation handoff | Converting presentation content into technical documentation or white papers |
 
+
+## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -435,7 +465,7 @@ Run these checks before considering any presentation complete:
 - [ ] Deck file size under 20MB (compress images if over)
 - [ ] Backup format saved (PDF) in case .pptx/.key fails
 
-## Gotchas
+## Anti-Patterns
 
 - **The "one more slide" trap.** Adding slides to "be thorough" kills presentations. Every slide dilutes every other slide. A tight 10-slide deck has more impact than a comprehensive 30-slide deck. **Total cost: losing the deal because the audience checked out by slide 18. For a $2M funding round, that's $2M lost because you wouldn't stop adding slides.** Cut to the bone, then cut one more.
 - **Reading slides to the audience.** The #1 presentation sin and the fastest way to lose credibility. If the audience can read, and your slides have all the text, why are you there? **Total cost: credibility death — $0 raised, $0 sold, 0 minds changed.** Every word on a slide is a word the audience isn't hearing you say. Put the text in your speaker notes, not on the slide.
@@ -485,6 +515,23 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[PD1]** Narrative structure selected and validated: through-line stated in one sentence, every slide supports it, and the deck tells a coherent story from problem to resolution
+- [ ] **[PD2]** Through-line test executed: if you remove each slide, does the argument still hold? Every slide that doesn't directly advance the through-line is cut or merged
+- [ ] **[PD3]** Slide count appropriate for time slot: maximum 1 slide per 2 minutes, with "must-cover" and "nice-to-have" tiers marked in speaker notes for live time-cutting
+- [ ] **[PD4]** 3-second test passed on every slide: each slide communicates exactly one idea, stated as a declarative headline, graspable by a viewer in 3 seconds or less
+- [ ] **[PD5]** Data slides fully annotated: key insight highlighted directly on the chart (color callout, circle, annotation), source cited in 8pt text, y-axis starts at zero unless explicitly noted and labeled
+- [ ] **[PD6]** Speaker notes written for every slide: opening hook sentence, transition to next slide, key data point or quote to emphasize verbally, and timing marker (e.g., "[1:30 — 1 min"]")
+- [ ] **[PD7]** Rehearsal completed: minimum 3 full run-throughs, last one recorded on video and self-reviewed for pacing (120-150 wpm), filler words (<3 per minute), and slide transition smoothness
+- [ ] **[PD8]** Tech setup fully tested: projector/camera/audio verified on actual equipment, clicker remote battery checked, backup computer on standby, all custom fonts embedded in file, sRGB color profile used
+- [ ] **[PD9]** Q&A prep complete: 5 likely challenging questions with prepared answers, 3 "bridging" phrases for off-topic redirects, and a preemptive "Common Concerns" slide addressing top 3 objections
+- [ ] **[PD10]** Backup format saved: PDF with embedded fonts on USB drive, in email to self, and in cloud storage — three independent copies in three separate locations
+- [ ] **[PD11]** Deck file size under 20MB: all images compressed (PNG for graphics, JPEG at 85% quality for photos), videos linked rather than embedded if >50MB, unused slide masters removed
+- [ ] **[PD12]** Handout version created: slide images with 2-3 paragraph narrative per slide, self-contained and readable without the presenter, formatted as PDF with consistent page layout
+
 ## References
 
 * [Narrative Structure Guide](../references/narrative-structures.md) — Minto Pyramid, SCQA, Hero's Journey, Monroe's Motivated Sequence with examples
@@ -495,3 +542,4 @@ If any checkbox fails, revise before delivering. When all pass, add to the state
 * [Presentation Delivery Mastery](../references/presentation-delivery.md) — Voice, pacing, body language, eye contact, handling nerves, Q&A techniques
 * [Audience Analysis Framework](../references/audience-analysis.md) — Persona development, objection mapping, prior knowledge calibration, CTA design
 * [Common Presentation Patterns](../references/common-patterns.md) — Architecture shared across all presentation types
+* **Scale Depth: Solo → Small → Medium → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)

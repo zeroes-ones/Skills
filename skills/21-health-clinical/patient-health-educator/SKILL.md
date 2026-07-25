@@ -154,6 +154,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -230,6 +231,7 @@ Regulatory concern about education content? → compliance-officer + legal-advis
 | Peer educator reports uncertainty about how to answer a clinical question from a patient | Provide immediate clinical backup: connect peer educator with medical content reviewer; document the question and response for future training | Peer educators are not clinicians — they need rapid access to clinical support to avoid giving incorrect medical advice |
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -302,6 +304,7 @@ Content is for which audience?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -447,6 +450,87 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Best Practices
+
+1. **Assess health literacy before designing content.** Use the Brief Health Literacy Screening Tool (BRIEF) or Single Item Literacy Screener (SILS) at onboarding. Segment patients by literacy level and deliver tiered content: Level 1 patients (low literacy) receive a single daily action; Level 4 patients (high literacy) receive comprehensive tools with self-directed exploration. Designing only for highly literate patients guarantees disengagement from the 36% of US adults with below-basic health literacy.
+2. **Apply the teach-back method as a universal precaution.** After explaining any care concept, ask: "Can you tell me in your own words what you'll do at home?" Never ask "Do you understand?" — patients will always say yes to avoid appearing uninformed. If the patient cannot teach back correctly, re-explain using a different approach and re-assess. The teach-back loop continues until comprehension is confirmed.
+3. **Write at 5th-6th grade reading level using plain language principles.** Use active voice, sentences ≤20 words, common words (say "treatment to prevent bleeds" not "prophylaxis"), and define every medical term on first use. Verify with Flesch-Kincaid (target 60-70 score) or SMOG (≤8th grade). Materials for newly diagnosed patients should target 5th grade — they are processing a life-changing diagnosis while trying to learn.
+4. **Adapt content for cultural competence, not just translation.** A literal translation of "You need to exercise more" to a culture where women do not exercise in public is linguistically correct but practically impossible. Cultural adaptation requires: review by a cultural liaison for each major patient demographic, consideration of religious practices (Ramadan fasting impacts medication timing), and adaptation of examples, imagery, and analogies for cultural relevance.
+5. **Select behavior change frameworks based on the specific barrier, not defaults.** Use the COM-B model (Capability, Opportunity, Motivation → Behavior) to diagnose the barrier before selecting the intervention. Forgetfulness → habit stacking + reminders (cue → routine → reward). Injection anxiety → graded exposure + desensitization. Cost → financial navigation + copay assistance. Denial → education about subclinical disease progression + peer testimonials with shared experience.
+6. **Apply the Transtheoretical Model (Stages of Change) to tailor messaging.** Precontemplation patients ("I feel fine, I don't need treatment") need awareness of consequences through joint health imaging and peer stories. Contemplation patients need pros/cons exploration. Action-stage patients need skill-building and relapse prevention. Delivering action-stage content to a precontemplation patient is wasted effort — they are not ready to act.
+7. **Use multimedia learning principles for skills training.** Deconstruct complex skills (e.g., self-infusion) into teachable steps using task analysis. Video demonstration is the gold standard; photo series with callouts is acceptable; text-only is a last resort. Include troubleshooting for common failures: "What if it burns during injection? What if blood appears in the syringe?" Add a practice/assessment mode where patients tick off completed steps.
+8. **Design for failing gracefully in adherence programs.** If a patient misses 3 consecutive doses, do not send another push notification — they have notification blindness. Trigger a different intervention: a nudge from a peer mentor, a call from a nurse navigator, or a simplified care plan. The intervention must escalate in personalization as the gap widens. Punitive messaging ("You missed your dose!") increases shame and disengagement.
+9. **Obtain informed consent that is truly informed.** Consent forms must explain: what data is collected, how it is used, who can see it, and the patient's right to withdraw at any time without affecting their care. Test consent comprehension: "Can you tell me in your own words what you're agreeing to?" If they cannot, the consent is not informed, regardless of the signature.
+10. **Measure education outcomes, not just content delivery.** Track: health literacy improvement (pre/post BRIEF or SILS), knowledge retention at 1 day, 1 week, and 1 month post-module (identify which concepts degrade fastest), behavior adoption rate (are patients actually doing the target behavior?), and clinical outcomes (adherence rate, readmission rate, self-management confidence). Modules with poor retention get redesigned — the data tells you what needs fixing.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
+|-----------------|---------------------|-----------|-------------------|
+| Health education materials written at 10th-12th grade reading level for a population averaging 6th grade literacy | Write at ≤6th grade. Use Flesch-Kincaid (60-70) or SMOG (≤8th). Define every medical term on first use. Test with actual patients, not formulas | `flesch-kincaid patient-content/ \| grep 'grade.*[8-9]\|1[0-2]'` | Pre-commit hook: `readability-check --max-grade 6`; block content exceeding threshold |
+| "Do you understand?" as comprehension check — patients always say yes to avoid appearing uninformed | Use teach-back: "Tell me in your own words what you'll do at home." If they cannot, re-explain and re-assess. Loop until confirmed | `grep -r 'do you understand\|any questions' --include='*.md' \| grep -v 'teach.back\|tell me in your own words'` | Content review gate: flag education modules without explicit teach-back step |
+| Literal translation without cultural adaptation — linguistically correct but practically impossible | Review by cultural liaison for each major demographic. Adapt for religious practices, gender norms, food culture, and health beliefs. Test with target population | `grep -r 'translat\|localiz' --include='*.md' \| grep -v 'cultural.adapt\|cultural.liaison\|religious\|Ramadan\|dietary'` | Localization gate: block translations without cultural adaptation review sign-off |
+| Designing adherence programs without diagnosing the specific barrier — reminder for injection anxiety, education for cost barrier | Diagnose barrier first using patient questionnaire (3-5 questions). Select intervention type based on barrier: reminders (forgetfulness), skills training (anxiety), financial navigation (cost), peer support (isolation) | `grep -r 'adherence.intervention\|reminder\|notification' --include='*.md' \| grep -v 'barrier.diagnos\|barrier.assessment\|COM-B'` | Program design gate: block adherence programs without documented barrier diagnosis |
+| Delivering action-stage content to precontemplation patients — "Here's how to inject" to a patient who does not believe they need treatment | Stage-match content using Transtheoretical Model. Precontemplation → awareness. Contemplation → pros/cons. Action → skills. Maintenance → relapse prevention | `grep -r 'how.to\|step.by.step\|instructions' --include='*.md'` in precontemplation-stage content | Content routing gate: stage-tag all content; block mismatched stage-to-content delivery |
+| Punitive adherence messaging: "You missed your dose!" — increases shame and disengagement | Design for failing gracefully. After 3 missed doses, escalate intervention type (peer nudge, nurse call, simplified plan). Never punish non-adherence | `grep -r 'you missed\|you forgot\|you didn't\|last chance\|warning' --include='*.md'` in adherence content | Content review gate: flag punitive language in patient-facing adherence messaging |
+| Same education delivered to all patients regardless of health literacy level — low-literacy patients receive complex medication schedules they cannot follow | Segment by literacy level at onboarding. Tier content: Level 1 gets single daily action; Level 4 gets comprehensive tools. Adapt as literacy changes | `grep -r 'one.size.fits.all\|universal\|every.patient' --include='*.md'` in education design docs | Design review gate: block education programs without literacy-tiered content strategy |
+
+## Production Checklist
+**(STANDARD)**
+
+| ID | Checklist Item | Validation | Auto-Fix |
+|----|---------------|------------|----------|
+| [PE1] | All patient-facing materials at ≤6th grade reading level (Flesch-Kincaid 60-70 or SMOG ≤8th grade) | `flesch-kincaid --max-grade 6 patient-content/ && smog --max 8 patient-content/` | Pre-commit hook: `readability-check --max-grade 6`; block exceeding content |
+| [PE2] | Teach-back step included in every education module — patient explains care plan in own words | `grep -r 'teach.back\|tell me in your own words' education-modules/` — must appear in every module | Module gate: block modules without teach-back assessment step |
+| [PE3] | Health literacy screening implemented at onboarding (BRIEF, SILS, or equivalent validated tool) | `grep -r 'BRIEF\|SILS\|health.literacy.screen\|literacy.assessment' onboarding/` | Onboarding gate: block flows without literacy screening instrument |
+| [PE4] | Cultural adaptation reviewed by cultural liaison for each major patient demographic | `grep -r 'cultural.liaison\|cultural.review\|adaptation.review' education-modules/` | Localization gate: block content without cultural adaptation sign-off |
+| [PE5] | Behavior change framework selected and documented for each adherence intervention (COM-B, HBM, Transtheoretical Model) | `grep -r 'COM-B\|Health.Belief.Model\|Transtheoretical\|Stages.of.Change' adherence-programs/` | Program gate: block adherence programs without documented framework selection |
+| [PE6] | Barrier diagnosis completed before adherence intervention design (3-5 question patient barrier assessment) | `grep -r 'barrier.diagnos\|barrier.assessment\|adherence.barrier' adherence-programs/` | Program gate: block programs without barrier diagnosis documentation |
+| [PE7] | Skills training content includes video demonstration (gold standard), troubleshooting FAQ, and practice/assessment mode | `grep -r 'video\|demonstration\|troubleshooting\|practice.mode\|assessment' skills-training/` | Content gate: flag text-only skills training without multimedia and assessment |
+| [PE8] | Graceful degradation path designed for non-responders: 3 missed doses triggers escalated intervention, not another notification | `grep -r 'missed.dose\|non.adherent\|graceful.degradation\|escalat' adherence-programs/` | Program gate: block programs without non-responder escalation protocol |
+| [PE9] | Outcome measurement plan: health literacy pre/post, knowledge retention (1d/1wk/1mo), behavior adoption rate, clinical outcomes | `grep -r 'outcome.measure\|pre.post\|knowledge.retention\|behavior.adoption\|adherence.rate' education-programs/` | Program gate: block programs without multi-dimensional outcome measurement plan |
+| [PE10] | Informed consent materials at ≤6th grade reading level; consent comprehension verified with teach-back | `flesch-kincaid --max 6 consent-forms/ && grep -r 'teach.back\|comprehension.check' consent-forms/` | Consent gate: block consent forms failing readability or missing comprehension verification |
+| [PE11] | Content staged by Transtheoretical Model level — precontemplation, contemplation, action, maintenance each receive stage-matched content | `grep -r 'precontemplation\|contemplation\|action\|maintenance' education-modules/` — must cover all 4 stages | Content routing gate: require stage tag on all content; flag missing stage coverage |
+| [PE12] | Peer education content reviewed for clinical accuracy before publication — patient stories are powerful but must not contain medically inaccurate claims | `grep -r 'peer.story\|patient.story\|testimonial' --include='*.md' \| grep -v 'clinically.reviewed\|medical.review'` | Pre-publish gate: block peer stories without clinical accuracy review sign-off |
+| [PE13] | Medication instructions include religious and cultural accommodation guidance (e.g., Ramadan fasting adjustments, dietary restrictions) | `grep -r 'medication\|dosing\|schedule' --include='*.md' \| grep -v 'Ramadan\|fasting\|religious\|cultural\|dietary'` | Content gate: flag medication instructions without cultural accommodation section |
+| [PE14] | Education modules tested with 3-5 patients from target population before full deployment; comprehension verified | `grep -r 'pilot.test\|patient.test\|usability.test' education-modules/` | Pre-deployment gate: block untested modules |
+
+### Scale Depth
+
+<!-- DEEP: 10+min -->
+<!-- QUICK: 30s -- how patient education evolves with organizational scale -->
+
+#### Solo (1 educator, single condition focus)
+**Approach:** Single educator designs all content for one condition. Manual readability checks. Basic outcome tracking (completion rates). No formal behavior change framework — intuition-driven design.
+**When to graduate:** Content volume exceeds one person's capacity; need for multiple conditions or languages; first adverse event traced to education gap.
+
+#### Small Team (2-5 educators, 2-5 conditions)
+**Approach:** Team with condition-specific expertise. Documented style guide and plain language standards. Automated readability checking. Basic learning management system (LMS) for content delivery. Formal behavior change framework selection.
+**When to graduate:** Need for multimedia (video, animation) production; outcome measurement becomes formal requirement; multiple language/cultural adaptations needed.
+
+#### Medium Team (5-15 educators, 5-20 conditions)
+**Approach:** Specialized by therapeutic area and content type (written, video, interactive). Dedicated health literacy and cultural adaptation specialists. Integrated outcome measurement with clinical data. A/B testing of education interventions. Patient advisory board reviews content.
+**When to graduate:** Education content is regulated (FDA-reviewed patient labeling); need for formal instructional design methodology; education outcomes tied to value-based care contracts.
+
+#### Enterprise (15+ educators, 20+ conditions)
+**Approach:** Education institute with instructional design, multimedia production, health literacy, cultural adaptation, and outcomes research functions. FDA-compliant content development process. Published education research. Education integrated into clinical workflow (prescribed by providers). Global content with local cultural adaptation.
+
+#### Transition Triggers
+- **Solo → Small Team:** >1 condition; content volume bottleneck; first education-gap adverse event
+- **Small Team → Medium Team:** Multimedia production needed; formal outcome measurement required; multi-language demand
+- **Medium Team → Enterprise:** FDA-reviewed content; value-based care contracts tie reimbursement to education outcomes; global deployment
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| Patient readmitted within 30 days despite completing education module | Module conveyed information but did not confirm comprehension. Patient said "I understand" but could not teach back the care plan. Education was delivered, not learned | Implement teach-back as universal precaution. Every module must include: "Tell me in your own words what you'll do at home." If patient cannot, re-explain and re-assess. Loop until confirmed | Information delivery ≠ education. The only valid measure of education effectiveness is demonstrated comprehension, not content completion. Patients who cannot teach back their care plan are 2-3x more likely to be readmitted |
+| Medication non-adherence spike during Ramadan across Muslim patient population | Medication instructions said "Take with food twice daily" with no religious accommodation. Patients fasted dawn-to-sunset and either skipped doses or broke fast inappropriately | Add cultural accommodation section to all medication instructions. Consult cultural liaison for each major demographic. Document religious practice impacts (Ramadan, Yom Kippur, dietary restrictions) and provide adjusted schedules | Cultural competence is not optional — it is a medication safety requirement. A religiously uninformed instruction is a clinically dangerous instruction for patients who observe religious practices |
+| Low-literacy patients disengage from app at 3x the rate of high-literacy patients | Same complex content delivered to all patients regardless of literacy level. Low-literacy patients overwhelmed by dense text, medical terminology, and multi-step care plans | Segment by literacy level at onboarding using BRIEF or SILS. Tier content: Level 1 gets single daily action with heavy visual support; Level 4 gets comprehensive tools. Adapt as literacy improves | Health literacy is the strongest predictor of health outcomes after age. Education systems that ignore literacy are systematically excluding the patients who need education most |
+| Adherence program shows 22% engagement rate — well below the 60% target | Program diagnosed forgetfulness as the barrier and deployed push notifications. Actual barriers: injection anxiety (38%), cost (27%), denial (18%). Notifications solved none of these | Diagnose barrier before designing intervention. Use 3-5 question patient barrier assessment. Match intervention to barrier: anxiety → graded exposure, cost → financial navigation, denial → peer testimonials + subclinical progression education | The #1 reason adherence programs fail is treating the wrong barrier. A push notification cannot fix injection anxiety any more than a video can fix cost. Diagnosis must precede prescription |
+| Education module knowledge retention drops 70% between day 1 and day 30 post-completion | Module delivered information once with no spaced repetition, no practical application, and no reinforcement. Memory decay was designed into the program | Implement spaced repetition: quiz at 1 day, 1 week, 1 month. Identify which concepts degrade fastest and redesign those sections. Add practical application exercises and peer discussion prompts for reinforcement | Knowledge without reinforcement is temporary. The forgetting curve is predictable — education design must account for it, not be surprised by it |
+| Injection training module used by patient leads to infection at injection site | Text-only instructions did not adequately convey sterile technique. Patient missed a critical step that video demonstration would have made visually obvious | Convert all skills training to video-first format. Text-only is last resort. Include troubleshooting: "What if it burns? What if blood appears? What if the site becomes red/swollen?" Add practice mode where patient demonstrates steps | Skills training without demonstration is malpractice. A patient who learns injection technique from text alone is being set up for failure. Video is not a nice-to-have — it is the minimum viable format for procedural education |
 
 ## References
 

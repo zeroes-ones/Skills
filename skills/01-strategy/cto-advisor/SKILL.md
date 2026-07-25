@@ -169,6 +169,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
 - Running vendor evaluations: RFIs, RFPs, proof-of-concept design, TCO modeling
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Build vs Buy
@@ -295,6 +296,7 @@ debugging complexity.
 **When to reject:** Vendor < 2 years old with < 50 customers. No SOC 2 or equivalent. Proprietary data format with no export API. Key-person dependency (single maintainer).
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Technology Strategy
@@ -343,6 +345,7 @@ Maintain a living document that classifies technologies into four rings:
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -490,7 +493,31 @@ graph LR
 
 **The One Highest-Leverage Activity**: Audit one team's entire tech stack end-to-end each month — from CI/CD to production monitoring. Write a one-page assessment: what's working, what's the bottleneck, what should change in the next quarter. Share with the team lead.
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Start technology strategy with business outcomes, not technology choices.** "We should use Kubernetes" is a solution in search of a problem. Start with: "We need to reduce deployment time from 3 days to 2 hours" or "We need 99.99% uptime for our payments system." Technology choices follow from business requirements, not trend articles.
+
+2. **Use build-vs-buy decision framework with 36-month TCO.** Every "buy" includes hidden costs: integration engineering (2-6 weeks), ongoing maintenance (schema migrations, API version updates), vendor lock-in risk, and feature gaps you'll fill with workarounds. Calculate fully-loaded cost over 3 years: build cost (engineering hours × fully-loaded rate) vs. buy cost (license + integration + maintenance + switching cost provision).
+
+3. **Manage technical debt as a financial instrument, not a moral failing.** Tech debt is not "bad code" — it's a strategic choice to trade future maintenance cost for current speed. Like financial debt, it's useful when the ROI on speed exceeds the interest rate (future maintenance burden). Track tech debt as a balance sheet item: principal (hours to fix), interest rate (productivity loss per sprint), and payoff date. Make repayment decisions based on ROI, not guilt.
+
+4. **Run an innovation portfolio, not a single innovation bet.** Allocate resources across three horizons: H1 (70%) — core business improvements with 6-12 month payback; H2 (20%) — adjacent innovations with 12-24 month horizon; H3 (10%) — transformational bets with 24+ month horizon. Without this allocation, H1 crowds out H2 and H3, and you wake up in 3 years with a legacy product and no growth engine.
+
+5. **Select vendors with an exit strategy, not just an onboarding plan.** Every vendor relationship should include a documented migration path. Before signing, ask: "How do we leave?" Negotiate data export clauses, API access guarantees, and transition support in the contract. Vendor lock-in isn't a risk — it's a certainty if you don't plan for the exit at the start.
+
+6. **Design architecture governance as guardrails, not gates.** Architecture review boards that must approve every technology choice create bottlenecks and drive shadow IT. Instead, define clear guardrails (allowed patterns, required SLAs, security requirements) and let teams operate freely within them. Escalate only exceptions. Speed with safety, not safety at the expense of speed.
+
+7. **Size engineering teams for cognitive load, not headcount budget.** A team owning 5 microservices plus the frontend plus the CI/CD pipeline has too much cognitive load regardless of headcount. Apply Team Topologies: each team should own a bounded context they can reason about completely. If a team can't explain their system's behavior under all failure modes in 15 minutes, their scope is too large.
+
+8. **Measure engineering effectiveness with DORA metrics + business outcomes, not activity metrics.** Lines of code, story points completed, and PRs merged measure activity, not value. Track: deployment frequency, lead time for changes, change failure rate, time to restore service (DORA 4), plus business-aligned metrics: feature adoption rate, time-to-value for new features, and engineering cost per active user.
+
+9. **Run post-incident reviews as blameless learning sessions, not root-cause witch hunts.** "Root cause" implies a single point of failure, which almost never exists in complex systems. Instead, ask: "How did our socio-technical system allow this to happen?" Document the timeline, contributing factors, detection gaps, and remediation. Share findings broadly — the organization learns from incidents, not the incident response team.
+
+10. **Plan for the engineering organization at 2x current size.** The architecture, tooling, and processes that work for 20 engineers break at 50. Design with the next doubling in mind: automated onboarding (target: shipping code in week 1), standardized dev environments, self-service infrastructure, and documentation that assumes the reader is new. The cost of these investments is measured in weeks; the cost of not making them is measured in years of velocity drag.
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **Build vs buy decision** based on first-year cost alone — building costs $200K (3 engineers × 6 months) and buying costs $50K/year. At year 3: build = $200K + $40K/year maintenance = $320K. Buy = $150K (with 20% annual price increase). But build also gives you control over roadmap, integration depth, and zero vendor lock-in. TCO not year-1.
 - **Due diligence technical assessment** that reviews architecture diagrams and code quality — misses the #1 risk: key-person dependency. "What happens if your lead infrastructure engineer wins the lottery tomorrow?" If the answer is "we're in serious trouble," that's a material risk, regardless of code quality.
@@ -499,6 +526,32 @@ graph LR
 - **Cloud cost optimization left to individual engineering teams.** Each team picks their own instance types, no one tracks reserved instance coverage, and orphaned resources (unattached EBS volumes, idle load balancers, stale snapshots) accumulate for 18 months. The monthly AWS bill hits $180K when it should be $95K. **Total cost: $85K/month in waste = $1M+/year in unnecessary cloud spend for a mid-stage company, equivalent to 5-6 engineer salaries.** Fix: Implement centralized FinOps with tagging policy, reserved instance/savings plan coverage targets (80%+), and automated idle resource detection; review cloud spend weekly at the engineering leadership level.
 - **Security posture assessed via annual penetration test only.** The pen test finds 12 vulnerabilities, 8 are fixed, 4 are "accepted." Six months later, an unpatched Log4j instance in a forgotten microservice is exploited. Customer data is exfiltrated, GDPR notification triggers, and 3 enterprise deals in late-stage procurement go dark. **Total cost: $250K-$500K in incident response and legal fees, $2M-$7M in lost pipeline and churned contracts, plus 20-40% valuation impact if pre-IPO.** Fix: Continuous vulnerability scanning with SLAs (critical: 24hr, high: 72hr, medium: 7 days); quarterly red team exercises; SBOM (software bill of materials) for all production services; cyber insurance with breach coach retainers pre-negotiated.
 - **Platform engineering funded as a "when we have time" initiative.** Every product team builds their own CI/CD pipeline, monitoring stack, and deployment scripts. Eight teams spend 20% of their sprint capacity on infra toil instead of product features. The hidden tax is invisible on any single team's P&L but adds up across the org. **Total cost: $800K-$1.5M/year in duplicated engineering effort for a 40-engineer org — effectively 8 FTE salaries burned on undifferentiated infrastructure work.** Fix: Fund a dedicated platform engineering team (4-6 engineers at 40-engineer scale); measure and report developer productivity metrics (DORA metrics: deployment frequency, lead time, MTTR, change failure rate); treat platform as a product with internal NPS.
+
+- **What:** Adopting technology because a FAANG company wrote a blog post about it. **Why:** FAANG companies operate at scales, team sizes, and problem spaces that share almost nothing with your context. Google's Borg (the precursor to Kubernetes) was designed for millions of machines; you have 12 EC2 instances. The tooling that solves their problems creates problems you don't have. **Instead:** Evaluate technology against YOUR requirements: team expertise, operational maturity, hiring market, integration surface area, and current pain points. If a technology doesn't solve a concrete problem you have today or in the next 12 months, it's technical tourism, not strategy.
+
+- **What:** Rewriting the system because "the current codebase is a mess." **Why:** Rewrites are the most expensive way to learn that the messy codebase encoded years of edge cases, regulatory requirements, and customer-specific behaviors you've forgotten. The average rewrite takes 3x longer than estimated and produces a system that doesn't handle 30% of the edge cases the old one handled. **Instead:** Use the Strangler Fig pattern — incrementally replace subsystems behind abstraction boundaries. Measure progress by features migrated, not lines rewritten. The old system retires only when zero traffic hits it.
+
+- **What:** Mandating microservices for a team of 8 engineers with a single product. **Why:** Microservices solve organizational scaling problems (teams deploying independently), not technical problems. For an 8-person team, microservices create distributed systems complexity (network failures, distributed transactions, eventual consistency) without the organizational benefit that justifies it. You're paying the cost but getting none of the value. **Instead:** Start with a well-structured monolith with clear module boundaries. Extract microservices only when: (1) a team is blocked on another team's deployment cadence, (2) a component needs independent scaling, or (3) you have 3+ teams working on the same codebase.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any CTO-level deliverable leaves this skill, verify:
+
+- [ ] Technology strategy starts with business outcomes, not technology choices — every recommendation traces to a business metric
+- [ ] Build-vs-buy analysis includes 36-month TCO with integration cost, maintenance burden, and switching cost provision
+- [ ] Technical debt register exists with principal (hours), interest rate (productivity loss), and payoff date for each item
+- [ ] Innovation portfolio balanced: H1 (70%) / H2 (20%) / H3 (10%) with measurable progress indicators for each horizon
+- [ ] Vendor selection includes documented exit strategy — data export, API access, transition plan
+- [ ] Architecture governance uses guardrails (allowed patterns, required SLAs), not gates (approval boards)
+- [ ] Team topology reviewed — each team's cognitive load is manageable (can explain system behavior in 15 minutes)
+- [ ] Engineering effectiveness measured with DORA 4 (deploy frequency, lead time, change failure rate, MTTR) + business metrics
+- [ ] Incident review process is blameless, timeline-based, and produces publicly shared learnings
+- [ ] Engineering organization designed for 2x current headcount (onboarding, dev environments, self-service infra, documentation)
+- [ ] Security review completed: OWASP Top 10, dependency audit, least-privilege access, encryption at rest/in transit
+- [ ] Scalability review: current capacity at N, target capacity at 10N, bottleneck identification, scaling plan
+- [ ] Disaster recovery plan tested within last 6 months with documented RPO/RTO targets
+- [ ] Technology radar published within last 6 months: Adopt / Trial / Assess / Hold for key technologies
 
 ## Verification
 
@@ -520,6 +573,52 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Scale Depth
+
+### Solo/Pre-Seed (Founder-CTO, 1-5 engineers)
+- Tech strategy: Pragmatic — choose what gets you to market fastest. One language, one framework, one database
+- Architecture: Monolith with clear module boundaries. No microservices, no Kubernetes
+- Build vs buy: Buy everything non-differentiating. Your competitive advantage is NOT your authentication system
+- Innovation: H1 only — survive to find product-market fit
+- Governance: None beyond code review and automated tests
+- Deliverable: Technology choices document (1 page) + architecture diagram (1 page)
+
+### Small (Series A, 5-25 engineers, $1M-$10M ARR)
+- Tech strategy: 18-month technology roadmap aligned to product strategy
+- Architecture: Modular monolith or 2-3 services. Extract services only at clear domain boundaries
+- Build vs buy: Formal TCO analysis for decisions > $50K annual spend
+- Innovation: H1 (80%) / H2 (20%). First adjacent bets
+- Governance: Architecture decision records (ADRs) for significant decisions
+- Deliverable: Technology strategy deck + ADR log + tech debt register
+
+### Medium (Series B/C, 25-100 engineers, $10M-$100M ARR)
+- Tech strategy: 3-year technology strategy with scenario planning
+- Architecture: Service-oriented or microservices where justified by team topology
+- Build vs buy: Formal procurement process with security review, vendor risk assessment, and exit planning
+- Innovation: H1 (70%) / H2 (20%) / H3 (10%). Dedicated innovation team or time allocation
+- Governance: Platform team with guardrails, self-service infrastructure, architecture advisory function
+- Deliverable: Annual technology strategy + quarterly tech review + technology radar + capacity plan
+
+### Enterprise (Series D+/Public, 100+ engineers, $100M+ ARR)
+- Tech strategy: 5-year technology strategy with M&A integration planning
+- Architecture: Multi-system architecture with formal interface contracts, API versioning, and deprecation policies
+- Build vs buy: Build-vs-buy committee with multi-year TCO modeling, make-vs-partner analysis
+- Innovation: Portfolio approach across multiple business units. Internal VC model for H3 bets
+- Governance: Federated architecture governance — central standards + BU autonomy within guardrails
+- Deliverable: 3-5 year technology strategy + annual operating plan + quarterly board technology review + technology due diligence capability
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Kubernetes migration took 18 months instead of 6; zero business value delivered | Adopted Kubernetes because "everyone uses it," not because it solved a business problem. Team of 10 engineers now spending 30% of sprint on cluster maintenance. | Assess whether you actually have the scaling problem Kubernetes solves. For ≤ 50 services on ≤ 100 nodes, a managed container service (ECS, Cloud Run, App Service) is usually sufficient. | Don't solve Google-scale problems with a startup-scale team. |
+| "Simple rewrite" of payment system took 2 years; original still handles 40% of traffic | Rewrite scope creep — "while we're at it, let's fix everything." Discovered 300+ undocumented edge cases during migration. | Apply Strangler Fig: migrate one endpoint at a time behind a routing layer. Decommission old code only when traffic drops to zero. Measure progress by decommissioned code, not new code written. | The mess you see encodes battles you forgot. |
+| Vendor critical to operations raised prices 400% at renewal; no alternative | No exit strategy negotiated at contract signing. Data in proprietary format with no export tooling. 18-month migration to alternative. | Negotiate data export (format, frequency, tooling), API access guarantees, and transition support period in every vendor contract. Maintain a ranked list of "vendor concentration risks." | Every vendor relationship is a marriage — plan the divorce before the wedding. |
+| 3 senior engineers quit in 2 months citing "boredom with maintenance work" | Innovation budget was 100% H1 — all work was incremental improvements and bug fixes. Zero H2/H3 allocation for 18 months. | Allocate 10-20% of engineering capacity to H2/H3 work. Make it visible — every sprint should have at least one non-maintenance item. Engineers join to build the future, not maintain the past. | Innovation allocation isn't a luxury — it's retention strategy. |
+| Architecture review board became bottleneck; teams shipping around it with "pilot" projects | Governance designed as approval gates rather than guardrails. Average review took 3 weeks. Teams built shadow systems to avoid the process. | Replace approval gates with clear guardrails: list of pre-approved patterns, required SLAs, and security requirements. Only escalate exceptions. Target guardrail compliance in minutes, not weeks. | Guardrails enable speed; gates create shadow IT. |
+| Post-incident review blamed "Senior Engineer X made a mistake" — they quit; incident repeated 3 months later | Blame culture. Root-cause analysis stopped at "human error" without asking why the system allowed a single mistake to cause an outage. | Implement blameless post-incident review: timeline reconstruction, contributing factors (not root cause), detection gap analysis. Share learnings publicly. Ask "how did our system make this error possible?" not "who caused this?" | You can either blame people or prevent recurrence. You can't do both. |
 
 ## References
 - **Consequences**: See [consequences.md](references/consequences.md)

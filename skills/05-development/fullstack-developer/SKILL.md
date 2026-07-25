@@ -151,6 +151,38 @@ Fullstack spans two disciplines, so level manifests in the sophistication of int
 
 **Usage**: Say "as an L3 fullstack developer, design the data flow for..." Default: **L2** (production-ready, independent execution).
 
+### Solo Developer
+- Next.js with SQLite or PostgreSQL via Docker Compose — single codebase, single deploy
+- tRPC for end-to-end type safety without code generation overhead
+- Prisma or Drizzle for schema management with auto-generated migrations
+- NextAuth.js for authentication with OAuth providers
+- Vercel + Supabase/Neon for hosting — no infrastructure management
+- Feature flags via environment variables, manual rollout
+
+### Small Team (2-5)
+- Monorepo with Turborepo: `/apps/web`, `/apps/api` (if separate), `/packages/shared`
+- Shared Zod schemas in `packages/shared` — single source of truth for validation
+- CI/CD with preview deployments, E2E tests on staging, automated migrations
+- Redis for session store and cache, shared across all environments
+- Structured logging with correlation IDs from browser to database
+- Contract tests between frontend and API using shared schemas
+
+### Medium Team (5-20)
+- Multi-app monorepo with Nx or Turborepo, shared packages for UI, types, config, database
+- API gateway for auth, rate limiting, routing across services
+- Feature flags with LaunchDarkly or GrowthBook for phased rollout and A/B testing
+- Distributed tracing with OpenTelemetry across frontend and all backend services
+- Database read replicas with automated read/write split at repository layer
+- Saga pattern for multi-service workflows with compensating transactions
+
+### Enterprise (20+)
+- Platform team maintaining internal fullstack framework, shared packages, and CI templates
+- Micro-frontend architecture with module federation for independent team deployment
+- SLO-driven reliability: error budget burn rate alerts, p95 latency tracked per endpoint
+- Automated canary deployments with health-based rollback across all services
+- Compliance automation (SOC2, GDPR) with audit trail from UI action to database write
+- Chaos engineering: regular cross-stack failure injection (DB failover, API degradation, CDN outage)
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -164,7 +196,7 @@ Fullstack spans two disciplines, so level manifests in the sophistication of int
 - <!-- DEEP: 10+min -->
 Debugging issues that cross the frontend-backend boundary
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Monorepo vs Polyrepo
@@ -287,7 +319,7 @@ Debugging issues that cross the frontend-backend boundary
 **When Vercel:** Next.js/SvelteKit app. Edge functions useful. Preview deployments needed. Team < 10. Don't want to manage infrastructure.  
 **When Docker/ECS:** Background workers, cron jobs, WebSocket servers. Specific networking requirements (VPC, service mesh). Compliance requires specific base images.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Monorepo Setup & Shared Contracts
@@ -343,7 +375,30 @@ Debugging issues that cross the frontend-backend boundary
 5. **Feature flags**: LaunchDarkly, GrowthBook, or homegrown. Wrap new features; toggle per environment, user segment, or percentage rollout.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Share validation schemas as the single source of truth across the stack.** Define Zod/Yup schemas in a shared `packages/shared` monorepo package. Both the API layer and the frontend form import from the same schema file. If tRPC, the procedure input IS the validation. Never duplicate validation logic or regex patterns between client and server — the divergence creates bugs where client says "valid" but server rejects.
+
+2. **Standardize on a consistent API response envelope.** Every endpoint returns `{ data: T, error?: { code: string, message: string }, meta?: { page, total } }`. Enforce with a shared response builder or middleware. Frontend error handling becomes a single `if (response.error)` check instead of per-endpoint conditional shape inspection. Type the envelope in shared types and import into both client and server.
+
+3. **Design the database schema first, then the API contract, then the UI.** Fullstack means you own the data model. Start migrations in `packages/database`, write the repository layer, define the API surface, then build the UI that consumes it. Bottom-up design prevents the UI from dictating a suboptimal data model and ensures the database schema supports all required queries without N+1 workarounds.
+
+4. **Use tRPC or end-to-end types for full-stack type safety without code generation.** tRPC propagates types from database queries through API procedures to the frontend — renaming a column in the schema produces a TypeScript error at every usage site. For REST, use OpenAPI-generated clients (`openapi-typescript` + `openapi-fetch`) from a shared spec. Type safety across the boundary catches mismatches at compile time, not in production.
+
+5. **Hydration is a contract, not an afterthought.** Server-rendered HTML must match the client's first render exactly. Mismatches (dates formatted differently, `typeof window` checks in render, random values) cause React hydration errors that degrade to full client re-renders. Test hydration by building for production (Strict Mode doesn't catch all mismatches) and checking the browser console for "did not match" warnings.
+
+6. **Keep the monorepo dependency graph strictly acyclic.** Apps depend on packages, never the reverse. A shared package importing from an app creates circular dependencies, breaks Turborepo caching, and makes CI pipelines non-deterministic. Enforce with ESLint rules (`import/no-restricted-paths`) that ban cross-boundary imports. Visualize the graph with `nx graph` or `turbo run build --graph`.
+
+7. **Propagate correlation IDs from the browser to the database.** Generate a `x-request-id` in the browser on page load (or the server on SSR). Pass it through every API call, background job, and database query. Structured logging at every layer includes the correlation ID — tracing a user action from button click to database write becomes a single log query, not a cross-service forensic investigation.
+
+8. **Authenticate at the edge, authorize at the data layer.** Middleware validates the session/JWT and rejects unauthenticated requests at the boundary. But authorization (can this user access this resource?) lives at the repository/service layer, not in middleware. Row-Level Security (RLS) in PostgreSQL for multi-tenant apps pushes authorization to the database where it can't be bypassed by a forgotten middleware check.
+
+9. **Environment parity is a productivity multiplier.** Every developer runs the same Docker Compose stack as CI and staging. Database version, Node.js version, package manager version, OS-level dependencies — all pinned. "Works on my machine" is a configuration divergence bug, not an acceptable state. Validate config on startup with strict schema checking (Zod, convict) that fails fast on missing or malformed variables.
+
+10. **Treat API response size as a client performance concern.** Next.js `getServerSideProps` serializes ALL returned data into `__NEXT_DATA__` in the HTML. Returning full database rows with 50 columns ships every unused column to the browser. Select only the fields the UI needs. Use `superjson` or sparse field sets (`?fields=id,name`) to keep the HTML payload lean — it affects First Contentful Paint directly.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -451,6 +506,26 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before any production deployment, verify ALL of:
+
+1. `npm test` / `pytest` — frontend and backend tests pass independently, E2E tests pass
+2. `npm run build` — frontend builds with zero errors, backend compiles, migrations are valid
+3. `npm run typecheck` — zero TypeScript errors across `apps/` and `packages/`
+4. `npm run lint` — zero ESLint errors, no `server-only` violations in client code, no `NEXT_PUBLIC_` secrets
+5. Shared validation schemas: all Zod/Yup schemas in `packages/shared`, imported by both client and server
+6. API response envelope: every endpoint returns `{ data, error?, meta? }` — verified by contract test
+7. Database migration tested against a clone of production: backward-compatible, rollback tested
+8. Secrets audit: `grep -r 'NEXT_PUBLIC_' --include='*.ts*' | grep -v 'NEXT_PUBLIC_APP_URL\|NEXT_PUBLIC_API_URL'` returns only intentional public values
+9. Environment config validated on startup: missing or malformed variables cause fast-fail, not runtime errors
+10. Docker Compose parity: `docker-compose up` locally matches staging/production — same images, same versions
+11. CORS configured: `Access-Control-Allow-Origin` matches frontend origin exactly, credentials enabled if using cookies
+12. Correlation ID propagation verified: client → API → database trace shows unified `x-request-id`
+13. Hydration tested: production build, zero "did not match" warnings in browser console on first load
+14. Client bundle audited: `source-map-explorer` shows no server-only code, no duplicate dependencies, no accidental large imports
+15. Runbook exists for top 3 cross-stack failure modes (DB unreachable, API down, auth provider outage)
+
 ## What Good Looks Like
 
 > Types flow end-to-end from database schema through API contracts to UI props — the compiler catches mismatches before they reach production.
@@ -489,19 +564,56 @@ Common chains:
 ### The One Thing
 **Ship a complete feature — database schema change through UI — in under 2 hours every month.** Speed reveals bottlenecks in your tooling, your understanding, and your stack. If you can't ship a complete feature in 2 hours, something in your stack is too complex. Find it. Simplify it. Repeat.
 
-## Gotchas
+## Anti-Patterns
 
-- **Duplicating validation logic client and server.** You write Zod schemas for the frontend form and Yup/Joi on the backend, or regex patterns that differ by one character between client and server. A field that passes client validation gets rejected by the server with an opaque error. Users see a green checkmark on their email, submit, and get "Invalid email" — they try retyping the same email three times and abandon the form. **Total cost: $15,000-$50,000 per year in inconsistent validation bugs, abandoned forms, and duplicated maintenance effort.** Fix: Share validation schemas between client and server (Zod/tRPC, shared npm package, or generated types from OpenAPI); validate on both sides but from ONE source schema; test the schema against both client and server environments.
-- **No API response envelope.** Every endpoint returns a different shape: `{ user: {...} }`, `{ data: {...} }`, `{ result: {...} }`, or `null` on error. The frontend error handling layer grows a maze of conditional checks: `if (res.user)`, `if (res.data)`, `if (!res.error)`. A new developer adds an endpoint returning `{ item: {...} }` and nothing handles the `item` key — silent data loss in the UI. **Total cost: $10,000-$30,000 in frontend error handling complexity, silent bugs, and onboarding friction over the project lifetime.** Fix: Standardize on a consistent envelope: `{ data: T, error?: { code, message }, meta?: { ... } }`; enforce it with a shared response builder or middleware; type the envelope in shared types.
-- **Time zones across stack**: The browser sends local time in forms. Node.js `new Date()` parses as UTC. PostgreSQL `timestamp` stores without timezone, `timestamptz` normalizes to UTC. Always store UTC, convert only at display layer.
-- **CSRF tokens** are validated by comparing the cookie value to the request header. If your cookie `SameSite` is `Lax` but your frontend is on a different subdomain, the cookie won't send on POST — silent 403s with no console error.
-- **API response size**: Next.js `getServerSideProps` passes all returned data to the client as `__NEXT_DATA__`. If you return full database rows with 50 columns, every one ships to the browser — even unused columns.
-- **Prisma/Drizzle relation queries** in a loop produce N+1 queries. `include` or `with` clauses batch the relation but only one level deep. Nested relations need explicit `.findMany()` with `where: { id: { in: [...] } }`.
-- **Session store** (Redis, DB, memory): if you use in-memory sessions during development, every server restart logs everyone out. Tests that depend on session state fail intermittently when the session store is not shared across parallel test workers.
-- **File uploads via `multipart/form-data`** bypass JSON body parsers. If your validation middleware assumes `req.body` is JSON, file upload endpoints will silently receive `{}` and pass validation on empty.
-- **Environment-specific configuration divergence between local and deployed environments.** The `.env` file in development has `DATABASE_URL=postgres://localhost:5432/dev` with no SSL, staging uses a different connection string format with TLS certificates, and production runs through a connection pooler with different parameter names. A feature passes locally but fails in staging because connection pooling behaves differently, or fails in production because the SSL certificate path is platform-specific. Developers burn days debugging "works on my machine" issues that only surface post-deploy. **Total cost: $10,000-$40,000 per year in team-wide debugging of environment-specific failures, delayed deployments, and context-switching overhead.** Fix: Use a single configuration library with strict schema validation (env-var validated by Zod, convict, or dotenv-safe that fails fast on startup); start every service with config validation that rejects missing or malformed variables before serving traffic; use Docker Compose locally to mirror staging/production configurations.
-- **Not handling partial failures in distributed multi-service transactions.** A checkout flow creates an order in the database, deducts inventory, charges the payment gateway, and sends a confirmation email — all in sequence. If the email service is down, the entire request returns 500, but the payment was already captured, inventory was already deducted, and the order record exists. No compensating transaction fires, and the customer's money is taken with no order confirmation or receipt. **Total cost: $50,000-$500,000 in financial reconciliation costs, customer refunds with chargeback fees, and permanently lost trust from double-charge or orphaned-transaction incidents.** Fix: Implement the Saga pattern for every multi-service workflow — each step has a defined compensating action that runs on failure; use the outbox pattern to guarantee at-least-once delivery of side effects; monitor and alert on stuck sagas that exceed a timeout threshold; design idempotency keys into every state-changing operation so retries are safe.
-- **Leaking server-side secrets to the client bundle.** Using `NEXT_PUBLIC_` prefix (Next.js) or importing a server-only module into a client component accidentally ships API keys, database connection strings, or internal service endpoints into the browser JavaScript bundle. A single `import { db } from '@/lib/db'` in a React component that tree-shaking doesn't remove exposes database credentials in every user's browser dev tools — accessible to anyone who inspects the page. **Total cost: $20,000-$200,000 in security breach response, rotating credentials across every service and integration, and potential data exfiltration from exposed database access that bypasses all API-level authorization.** Fix: Enforce server-only/client-only boundaries with ESLint rules (eslint-plugin-boundaries, `@next/next/no-server-import-in-page`); use the `server-only` npm package to mark modules that must never resolve in the browser; audit production client bundles with `source-map-explorer` to detect leaked server code; never use env var prefixes that bundle into client-side code for secrets, database URLs, or internal service addresses.
+### 1. Duplicated Validation Logic
+**What it looks like:** Zod schemas on the frontend, different Yup/Joi schemas on the backend, regex patterns that differ by one character. A field passes client validation, gets rejected by the server with an opaque error. Users see a green checkmark, submit, get "Invalid email," retype the same email three times, and abandon.
+**Cost:** $15,000-$50,000/year in inconsistent validation bugs and abandoned forms.
+**Fix:** Share validation schemas in `packages/shared`. Both client and server import from ONE source schema. tRPC makes this automatic — the procedure input IS the validation.
+
+### 2. No API Response Envelope
+**What it looks like:** Endpoints return `{ user: {...} }`, `{ data: {...} }`, `{ result: {...} }`, or `null` on error. Frontend error handling grows a maze of `if (res.user)`, `if (res.data)`, `if (!res.error)`. A new endpoint returning `{ item: {...} }` causes silent data loss.
+**Cost:** $10,000-$30,000 in error handling complexity and silent bugs.
+**Fix:** Standardize on `{ data: T, error?: { code, message }, meta?: { ... } }`. Enforce with shared response builder. Type the envelope in shared types.
+
+### 3. Time Zone Confusion Across the Stack
+**What it looks like:** The browser sends local time. Node.js `new Date()` parses as UTC. PostgreSQL `timestamp` stores without timezone, `timestamptz` normalizes to UTC. Dates drift by hours depending on which layer interprets them.
+**Fix:** Store everything as UTC. Use `timestamptz` in PostgreSQL. Convert to local time only at the display layer. Use `date-fns-tz` or `Intl.DateTimeFormat` for formatting.
+
+### 4. CSRF Token Subdomain Mismatch
+**What it looks like:** Cookie `SameSite=Lax` but frontend is on a different subdomain from the API. The cookie doesn't send on POST — silent 403s with no console error.
+**Fix:** Deploy frontend and API on the same domain (reverse proxy). Or use `SameSite=None; Secure` with explicit CORS configuration. Test cross-origin POST from the actual frontend origin.
+
+### 5. Oversized API Responses in SSR
+**What it looks like:** `getServerSideProps` returns full database rows with 50 columns. All of it serializes into `__NEXT_DATA__` in the HTML — every unused column ships to every browser. First Contentful Paint regresses proportionally.
+**Fix:** Select only the fields the UI needs. Use sparse field sets (`?fields=id,name`). Return DTOs, not raw database rows. Audit with `curl | wc -c` on production page HTML.
+
+### 6. N+1 Queries in ORM Relations
+**What it looks like:** `include` or `with` clauses batch relations one level deep. Nested relations (user → posts → comments → author) hit the database once per parent row per level. A page showing 20 posts with comments generates 20 × 20 = 400 queries.
+**Fix:** Use explicit `.findMany()` with `where: { id: { in: ids } }` for nested relations. Use DataLoader pattern for batching. Monitor query count with `pg_stat_statements` or Prisma query logging.
+
+### 7. In-Memory Sessions in Development
+**What it looks like:** Dev uses in-memory session store. Every server restart logs everyone out. Tests fail intermittently when parallel workers don't share session state.
+**Fix:** Use Redis or database-backed sessions even in development (Docker Compose makes this trivial). Configure test session store to be shared across parallel workers.
+
+### 8. multipart/form-data Bypasses JSON Validation
+**What it looks like:** File upload endpoints use `multipart/form-data`. JSON body parsers skip these requests — `req.body` is `{}`. Validation middleware passes on empty body, and the handler receives no data.
+**Fix:** Use dedicated multipart parsing middleware (multer, formidable, Busboy). Validate file fields separately from JSON fields. Test file upload endpoints with actual `FormData`.
+
+### 9. Environment Configuration Divergence
+**What it looks like:** `.env` in development, different connection strings in staging, different parameter names in production. "Works on my machine" debugging consumes days of team time.
+**Cost:** $10,000-$40,000/year in environment-specific debugging and delayed deployments.
+**Fix:** Single configuration library with strict schema validation (Zod + dotenv-safe). Fail fast on startup with clear error messages. Docker Compose locally mirrors staging/production configurations.
+
+### 10. Partial Failures in Multi-Step Workflows
+**What it looks like:** A checkout flow creates order → deducts inventory → charges payment → sends email. Email service is down, entire request returns 500, but payment was captured and inventory deducted. No compensating transaction.
+**Cost:** $50,000-$500,000 in financial reconciliation, refunds, and lost trust.
+**Fix:** Saga pattern — each step has a compensating action. Outbox pattern for at-least-once delivery of side effects. Idempotency keys on every state-changing operation. Monitor and alert on stuck sagas.
+
+### 11. Server Secrets Leaked to Client Bundle
+**What it looks like:** `NEXT_PUBLIC_` prefix or importing `@/lib/db` in a client component ships API keys and database credentials into the browser bundle. Anyone inspecting the page has database access bypassing all authorization.
+**Cost:** $20,000-$200,000 in security breach response and credential rotation.
+**Fix:** ESLint rules banning server imports in client code. `server-only` npm package for modules that must never resolve in the browser. `source-map-explorer` audit on production bundles. `NEXT_PUBLIC_` prefix only for intentional public values like app URL.
 
 ## Verification
 

@@ -77,6 +77,20 @@ You are a context preservation specialist. Your job is to make the next agent's 
 * **Cross-agent handoff (30 min):** For transferring work to a different agent or team. Includes everything in session handoff PLUS: project context summary, architecture decisions, dependency graph, testing strategy, and a 5-minute orientation section.
 * **Stakeholder handoff (20 min):** For status updates to non-agent consumers (PMs, tech leads). Progress summary with milestone tracking, risk register, and resource needs. Less technical detail, more decision context.
 
+### Scale Depth
+
+#### Solo
+Work-in-progress handoff for personal continuity. A single `.handoff/ledger.md` suffices — focus on current branch, current file+line, and the next 2-3 edits. No cross-agent formatting needed. The primary risk is losing context during compaction; the primary fix is ledger updates after every decision.
+
+#### Small Team (2-15)
+Team handoffs between collaborators. Standardized ledger templates, shared `.handoff/` conventions, and cross-agent compatibility. Focus: restartability in <5 minutes by any team member. Risk: stale ledgers from parallel work — validate ledger commit against HEAD before resuming.
+
+#### Medium Organization (15-100)
+Multi-team handoffs with formalized workflows. Handoff becomes a coordination protocol between squads. Focus: decision traceability across team boundaries, blocker escalation paths that cross org lines, handoff health metrics. Risk: ledger fragmentation — different teams evolve incompatible handoff conventions.
+
+#### Enterprise (100+)
+Organization-wide handoff infrastructure. Automated ledger tooling, CI-integrated handoff validation, and handoff quality dashboards. Focus: handoff as a compliance artifact for audits, cross-vendor agent handoff standards, institutional memory preservation. Risk: process ossification — handoff overhead exceeds its value. Keep the 5-minute restartability test as the invariant.
+
 ## When to Use
 
 Use handoff when the conversation context needs to survive beyond the current session or agent.
@@ -114,6 +128,8 @@ What kind of handoff do you need?
 ```
 
 ## Core Workflow
+
+**(STANDARD)**
 
 ### Phase 1: Initialize Workspace
 
@@ -195,6 +211,8 @@ When compaction is imminent or session is ending:
 ```
 
 ## Decision Trees
+
+**(QUICK)**
 
 ### Cross-Agent Handoff Depth
 
@@ -366,6 +384,8 @@ When compaction is imminent or session is ending:
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -482,7 +502,7 @@ Run the Ledger Health Check decision tree on your current `.handoff/ledger.md`. 
 ### Exercise 5: Compaction Drill (15 min)
 Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a handoff summary, and produce a resume command. Then start a fresh session and try to resume. What was missing?
 
-## Anti-Rationalization — No Excuses
+## Anti-Rationalization
 
 | Rationalization | Reality |
 |---|---|
@@ -492,7 +512,29 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 | "'Blocked on design review' is sufficient — they know about it" | Blocker without date, contact, and escalation path has <20% probability of resolution after 5 days — $2K-$10K in delayed launches from blockers that silently expire. |
 | "'Continuing the auth refactor' is enough context for the next agent" | A fresh agent has zero context on why the refactor started, what pattern was chosen, or what was tried and rejected — $400-$1.5K per handoff in re-orientation from missing 3-sentence summary. |
 
-## Gotchas
+## Best Practices
+
+1. **Update the ledger after every decision, not at session end.** After 5 turns without an update, 60% of micro-decisions are lost — which dependency version, why approach A over B, what test case was considered. The ledger is the source of truth; trust it over memory.
+
+2. **Write for a fresh agent with zero context.** Assume the receiving agent has never seen this conversation. Every reference must be self-contained: exact file paths with line numbers, complete commands, and rationale for decisions. "Fix the rate limit bug" is useless; "In `src/middleware/rate-limiter.ts:47`, replace `Date.now()` with `performance.now()` from `perf_hooks`" is actionable.
+
+3. **Every decision record must include options, chosen option, rationale, and tradeoffs.** A decision without rationale will be questioned and possibly reversed. Format: "DECIDED: [choice]. Options: [A, B, C]. Chose [X] because [reason]. Tradeoff: [what we gave up]."
+
+4. **Every blocker must have resolution condition, ETA, and escalation trigger.** "Blocked on API team" is not a blocker — it's an abandonment note. Format: "BLOCKED: [what]. RESOLUTION: [verifiable condition]. ETA: [date]. ESCALATION: [if not resolved by X, ping Y]." After 5 days without follow-up, blockers have <20% probability of resolution.
+
+5. **Handoff must be restartable — minimum: cwd, branch, resume command, 3 concrete next steps.** A fresh agent should identify the next action in <60 seconds. Test: can a colleague resume your work from just the handoff document without asking questions?
+
+6. **Cap active TODOs at 5.** A ledger with 40+ TODOs is not a progress tracker — it's a shame list. The receiving agent cherry-picks easy items or freezes. Everything beyond 5 goes to `backlog.md` with priority labels.
+
+7. **Validate the ledger against reality before every handoff.** Run `git diff --stat $(ledger_commit)..HEAD`. If >50 lines changed since the ledger's recorded commit, flag as STALE and rebuild context. A stale ledger gives false confidence — the receiving agent spends 15 minutes orienting to code that has moved on.
+
+8. **Test the resume command in the target environment.** When handing off between different agent types (Claude → Gemini, Copilot → Cursor), assume different tool preferences. A command that works in one agent's toolset may silently fail in another's. Test before finalizing.
+
+9. **Every handoff starts with a 3-sentence context summary.** (1) What problem we're solving, (2) approach chosen and why, (3) current state. This takes 60 seconds to write and saves the receiving agent 15 minutes of orientation.
+
+10. **Archive completed handoffs with a post-mortem note.** When work completes, add a final ledger entry: what shipped, what was deferred, what was learned. This closes the loop and builds institutional knowledge for future similar work.
+
+## Anti-Patterns
 
 - **The "I'll update the ledger later" trap.** Every turn you skip the ledger update is context that will evaporate on compaction. After 5 turns without a ledger update, 60% of micro-decisions are lost — which dependency version you chose, why you went with approach A over B, what test case you thought of but didn't write yet. **Total cost: $500-$2,000 in rework time per session when a fresh agent must re-discover 5+ lost decisions. Fix: update ledger after every decision, not at session end.**
 
@@ -505,6 +547,48 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 - **The "obvious context" assumption.** Writing "continuing the auth refactor" assumes the next agent knows there IS an auth refactor, why it started, what pattern is being followed, and what was tried and rejected. A fresh agent reading that phrase has zero of that context. **Total cost: $400-$1,500 per handoff in re-orientation when the receiving agent must reconstruct the "why" from git history and file comments. Fix: every handoff starts with a 3-sentence context: (1) what problem we're solving, (2) approach chosen and why, (3) current state.**
 
 - **The cross-agent trust gap.** When handing off between different agent types (e.g., Claude → Gemini), assume different training data, different reasoning patterns, and different tool preferences. A command that works in one agent's toolset may silently fail in another's. **Total cost: $500-$2,500 in debugging when the receiving agent runs a handoff command that fails due to tool incompatibility. Fix: test the resume command in the receiving agent's environment before finalizing the handoff.**
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Receiving agent spends 20+ minutes orienting before first productive edit | Handoff lacks restartability fields: no cwd, branch, resume command, or concrete next steps. Agent must reconstruct context from git history | Add minimum restartability fields: cwd, branch, resume command with exact file and line, 3 next steps with expected outcomes. Target: <5 minutes to first edit | A handoff without restartability fields is a conversation log, not a handoff. The difference is measured in orientation time — every missing field costs 5 minutes |
+| Ledger claims work is in progress but git diff shows 200+ changed lines since recorded commit | Ledger is stale — last updated before significant code changes. The recorded state no longer matches reality | Run `git diff --stat $(ledger_commit)..HEAD` at start of every handoff. Flag as STALE if >50 lines changed. Rebuild context: new commit hash, updated file manifest, current blocker status | A stale ledger is worse than no ledger — it provides false confidence. The receiving agent assumes accuracy and makes incorrect decisions based on outdated state |
+| Blocker unresolved after 7+ days with no update | Blocker lacks resolution condition, ETA, and escalation trigger. "Blocked on design review" with no contact is an abandonment note | Retrofit blocker: add specific resolution condition, ETA date, escalation contact. Set auto-reminder. After 5 days without resolution, probability of anyone remembering drops below 20% | Blockers without teeth are abandoned work. Every blocker needs: what must happen to resolve, by when, and who to escalate to if the deadline passes |
+| Receiving agent works on low-priority TODOs while launch blocker sits untouched | Ledger has 40+ un-prioritized TODOs. Receiving agent cannot distinguish P0 from P4 without original context | Hard cap: 5 active TODOs with explicit priority (P0-P4). Everything else goes to `backlog.md`. Top 3 TODOs must be ordered by dependency and impact | Too many TODOs is analysis paralysis. The ledger is a progress tracker, not a backlog. Prioritization is the handoff author's responsibility, not the receiver's |
+| Decision is reversed in next session because rationale wasn't recorded | Decision recorded as "DECIDED: Used Redis" without options, rationale, or tradeoffs. Receiving agent questions the choice and re-litigates | Format every decision: "DECIDED: [choice]. Options: [A, B, C]. Chose [X] because [reason]. Tradeoff: [what we accepted]." A decision without rationale will be reversed | Decisions decay without rationale. The receiving agent wasn't in the room when the tradeoff was made — if they can't reconstruct the reasoning, they'll make their own choice |
+| Cross-agent handoff command fails with tool incompatibility | Resume command uses tool syntax specific to the originating agent (e.g., Claude-specific MCP tools, Copilot-specific flags) | Test the resume command in the target environment before finalizing. Use tool-agnostic commands (`git`, `npm`, `node`) instead of agent-specific wrappers. Document any agent-specific setup needed | Different agents have different tool palettes. A command that works flawlessly in one environment may fail silently in another. Cross-agent handoffs require cross-tool testing |
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **Workspace exists:** `.handoff/` directory present and git-ignored. Run `ls .handoff/ && grep -q ".handoff/" .gitignore`
+- [ ] **Ledger initialized:** `.handoff/ledger.md` has all required sections: Context, Completed, In Progress, Remaining, Decisions, Blockers, Next Steps
+- [ ] **Restartability verified:** Handoff contains cwd, branch, resume command, file manifest, and 3 concrete next steps with expected outcomes
+- [ ] **Decision coverage complete:** Every non-trivial decision has DECIDED: entry with options, rationale, and tradeoffs
+- [ ] **Blocker quality verified:** Every BLOCKED: entry has resolution condition, ETA, and escalation path. Run `grep "BLOCKED:" .handoff/ledger.md | grep -v "RESOLUTION:\|ETA:"` — must return 0
+- [ ] **No vague TODOs:** Zero TODOs use "investigate", "look into", "figure out" without concrete commands. Run verification grep
+- [ ] **Fresh agent test passed:** A colleague can read the handoff and identify the next action in <60 seconds
+- [ ] **Ledger staleness checked:** `git diff --stat $(ledger_commit)..HEAD` shows <50 changed lines. If >50, flag as STALE
+- [ ] **Active TODOs capped at 5:** Run `grep -c "TODO:" .handoff/ledger.md` — must be ≤ 5. Overflow goes to `backlog.md`
+- [ ] **Decisions include tradeoffs:** Every DECIDED: entry documents what was given up, not just what was chosen
+- [ ] **Cross-agent compatibility tested:** Resume command tested in target agent's environment if cross-agent handoff
+- [ ] **Ledger committed to session state:** Decision ledger entries synced to `.copilot/session-state/decision-ledger.json` for cross-skill coordination
+- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
+
+### Scale Depth
+
+Handoff scales from a 5-minute pause between sessions to formal cross-agent transfer with stakeholder communication. Match the handoff depth to the recipient's context distance.
+
+| Scale | Recipient | Content | Duration |
+|-------|-----------|---------|----------|
+| **Quick pause** | Same agent, same day | Branch, file path, line number, next 1-2 edits. Minimal — just enough to resume without re-orientation | 5 minutes |
+| **End-of-session** | Same agent, next session (overnight/weekend) | Full ledger update: completed items, in-progress state, decisions, blockers, next 3 steps, file manifest | 15 minutes |
+| **Cross-agent transfer** | Different agent or team | Everything in end-of-session PLUS: project context summary (3 sentences), architecture decisions, dependency graph, testing strategy, 5-minute orientation section | 30 minutes |
+| **Stakeholder handoff** | PM, tech lead, or non-agent consumer | Progress summary with milestone tracking, risk register, resource needs. Less technical detail, more decision context and timeline impact | 20 minutes |
+
+**Scaling rule:** The recipient's context distance determines handoff depth. Same agent + same day = minimal (5 min). Different team + different tools = exhaustive (30 min). Over-producing handoff for a quick pause wastes time; under-producing for a cross-agent transfer wastes far more.
 
 ## Verification
 

@@ -139,6 +139,20 @@ Masters of release manager don't just build — they build **the right thing, at
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 engineer, 1 service)
+Deploy directly from `main` with feature flags. Weekly manual releases. Go/no-go = "does staging look OK?" Rollback = `git revert` and redeploy. Focus: ship working software safely, learn deployment fundamentals, set up automated CI that blocks on test failures. Conventional Commits with auto-changelog from day one.
+
+#### Small (2-10 engineers, 3-8 services)
+Weekly release train with release branch. Automated canary deploys (5% → 25% → 100%) with metric comparison. Go/no-go checklist in a shared doc. Feature flags via LaunchDarkly or Unleash. Rollback playbook tested monthly. Focus: release calendar predictability, cross-team dependency coordination, release notes automation. DORA metrics tracking (deploy frequency, change failure rate, MTTR).
+
+#### Medium (10-50 engineers, 8-25 services)
+Release train with multiple service coordination. Blue-green deployments for stateless services, canary for stateful. Automated go/no-go with metric thresholds gating stage transitions. Feature flag lifecycle management with automated cleanup. Rollback rehearsals quarterly. Focus: deployment strategy catalog per service, error budget integration into go/no-go, stakeholder communication templates, release retrospectives driving process improvement.
+
+#### Enterprise (50+ engineers, 25+ services, multi-region)
+Multi-region staged rollouts with region canary before global. Progressive delivery with automated analysis (Kayenta, Argo Rollouts). Change management integrated with ITSM (ServiceNow, Jira Service Management). Federated release coordination across business units with shared deployment calendars. Focus: compliance audit trails for every release decision, zero-downtime database migrations at petabyte scale, release governance framework. "This is how we ship — every team follows this release process, every release leaves an audit trail, every rollback is rehearsed."
+
 ## When to Use
 
 - Your team is shipping too infrequently (or too chaotically) and you need to establish a release cadence
@@ -150,7 +164,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are automating release notes, changelog generation, and version bumping from conventional commits
 - You need a rollback playbook — how to detect a bad deploy, who to notify, and how to revert safely
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Release Cadence Selection
@@ -268,7 +282,7 @@ Critical bug found in production:
 
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Release Planning
@@ -331,7 +345,30 @@ Critical bug found in production:
    - Output: Release archive for audit and future reference.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Choose deployment strategy by risk profile, not by habit.** Canary (5% → 25% → 50% → 100% with automated metric gates) for high-risk changes. Blue-green (instant cutover, instant rollback) for stateless services. Rolling deploy for low-risk patches. Recreate for stateful services that cannot run two versions simultaneously. Document the strategy per service in a deployment catalog.
+
+2. **Feature flags are temporary contracts with a kill date.** Every flag must have: an owner, a removal ticket created at flag creation, an expiry date (max 60 days post-100%-rollout), and a runtime kill switch that takes effect without a deploy. CI fails if a flag at 100% for >30 days has an open removal ticket. Stale flags rot the code paths they guard.
+
+3. **Rollback is a feature — design for it, test it, time it.** Rollback must execute in under 5 minutes for feature flags and under 15 minutes for deploy rollbacks. Never rename or remove API fields in a release — add-new-then-deprecate-old. Every release must include a rollback runbook with exact commands, environment prerequisites, and success criteria. Dry-run the runbook in staging within 7 days of launch.
+
+4. **Release calendar drives predictability, not rigidity.** Publish a quarterly release calendar with: release dates, code freeze deadlines, QA windows, deploy windows, and freeze periods (holidays, quarter-end, major events). Weekly release trains work for most SaaS teams. Monthly releases breed merge hell. The calendar is a commitment — missing a train means waiting for the next one, not squeezing in an off-cycle deploy.
+
+5. **Go/no-go decisions are data-driven, not calendar-driven or gut-feel.** CRITICAL gates (any NO = NO-GO): all tests pass, security scan clean, no P0/P1 bugs, rollback tested. CONDITIONAL gates (NO = documented risk acceptance): feature flags configured, dashboards updated, release notes drafted, support team briefed, DB migrations tested at scale. Decision deadline: 24 hours before deploy window.
+
+6. **Automate release notes from Conventional Commits with human augmentation.** Use `standard-version`, `semantic-release`, or `release-please` to auto-generate changelog sections (Added, Changed, Fixed, Breaking). Add a human-written summary, known issues list, and upgrade guide for breaking changes. Release notes must ship with the release, not as a follow-up task. "Updated payment response" is not a meaningful changelog entry.
+
+7. **Database migrations are the highest-risk part of any release.** Run migrations forward AND backward (rollback) in staging against production-scale data before every release. Never use `ALTER TABLE ADD COLUMN ... DEFAULT` on large tables without `ALGORITHM=INPLACE, LOCK=NONE`. Schema changes must be backward-compatible: add columns before removing old ones, deploy the application that writes to both, then clean up in a follow-up release.
+
+8. **Semantic versioning with automated enforcement.** `MAJOR.MINOR.PATCH` — bump MAJOR for breaking API changes, MINOR for new backward-compatible features, PATCH for backward-compatible bug fixes. Enforce via CI: compare release candidate API schema against previous version, flag field removals/renames as breaking changes requiring MAJOR bump approval.
+
+9. **Post-release monitoring window: 24-72 hours of active vigilance.** Watch error budgets, latency percentiles, throughput, saturation, and business metrics (signups, checkout success, payment volume). Compare against the 7-day baseline. Annotate the launch timestamp on all dashboards. The release commander stays on-call for the full monitoring window. Escalation path: metric anomaly → check dashboards → correlate with release → rollback if causal.
+
+10. **Release retrospective within 1 week: 3 questions, 5 action items max.** What went well? What went wrong? What do we change for next release? Produce ≤5 concrete action items with owners and dates. Track action item completion rate — if <80% of retro action items close before the next release, the retro process is broken.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -419,6 +456,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[REL1]** Release calendar published for the next quarter: release dates, code freeze deadlines, QA windows, deploy windows, freeze periods
+- [ ] **[REL2]** Go/no-go criteria documented with specific, measurable thresholds — CRITICAL gates (any NO = NO-GO) and CONDITIONAL gates (NO = documented risk acceptance)
+- [ ] **[REL3]** Deployment strategy documented per service: canary (%, stabilization periods), blue-green, rolling, or recreate — with automatic rollback thresholds
+- [ ] **[REL4]** Rollback procedure tested in staging within the last 7 days, timed at <5 minutes for feature-flag and <15 minutes for deploy rollback
+- [ ] **[REL5]** Feature flags: every flag has an owner, a sunset date, a runtime kill switch, and a linked monitoring dashboard — CI enforces flag cleanup intervals
+- [ ] **[REL6]** Database migrations tested forward AND backward (rollback) in staging against production-scale data — no blocking ALTER TABLE without INPLACE/LOCK=NONE
+- [ ] **[REL7]** Release notes auto-generated from Conventional Commits with human-written summary, known issues, and breaking change migration guide
+- [ ] **[REL8]** Stakeholder communication: pre-launch email sent 24-48h before, launch-day status updates per rollout stage, post-launch summary within 24h
+- [ ] **[REL9]** Post-release monitoring window: 24-72 hours with release commander on-call, dashboards annotated with launch timestamp
+- [ ] **[REL10]** Release retrospective scheduled within 1 week of launch: 3 questions, ≤5 action items with owners and dates
+- [ ] **[REL11]** Semantic versioning enforced in CI: API compatibility test compares release candidate schema against previous version, flags breaking changes
+- [ ] **[REL12]** Deployment freeze periods defined: holidays, quarter-end, major marketing events — exceptions require VP-level approval
+- [ ] **[REL13]** Change approval process documented: who approves, approval timeline, escalation path if approval is delayed
+- [ ] **[REL14]** Release metrics dashboard tracking: change failure rate, mean time to recovery (MTTR), deployment frequency, lead time for changes (DORA metrics)
+
 ## What Good Looks Like
 
 > Every release is predictable, reversible, and communicated to stakeholders before deployment begins. Release notes are auto-generated from commit history and are accurate and complete.
@@ -452,7 +506,7 @@ graph LR
 | "We can squeeze in one more commit — CI only takes 2 minutes." | Commit at 1:58 PM, release at 2 PM. CI actually takes 45 minutes. Release goes out with completely untested changes. $30K-$300K in post-deployment firefighting and customer-facing regressions from the untested commit. |
 | "Feature flag cleanup is housekeeping — we'll do it during the next quiet sprint." | Flag at 100% for 6 months. The old code path rots silently. Emergency toggle back to 0% hits broken code that was "safe" to refactor away. 2-hour outage because nobody maintained both paths. $50K-$250K per stale-flag kill-switch failure. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Release "go/no-go" decisions** based on test pass rate alone — tests pass because they test known scenarios. Unknown scenarios (the thing that will break) have no tests. A green test suite means "nothing we predicted broke" not "nothing broke." Go/no-go needs production canary data, not just test results. **Total cost: $50,000-$500,000 in incident response, lost revenue, and engineering firefighting per bad release.**
 - **Canary deployment duration** — if you canary for 10 minutes and your P99 latency is 500ms with 100 RPS, that's 60K requests. A 0.01% error rate bug appears once per ~17 minutes on average. Your canary will miss it. Duration must be long enough to see the target error rate at least 5 times. **Total cost: $10,000-$100,000 in rollback effort, customer-impacting errors, and reputational damage per missed canary bug.**

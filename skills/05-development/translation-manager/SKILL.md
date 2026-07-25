@@ -131,6 +131,15 @@ Masters of translation manager don't just build — they build **the right thing
 **Default level for this skill:** L2
 **Usage:** Invoke this skill with your target level, e.g., "as an L3 translation manager, design..."
 
+### Scale Depth
+**(STANDARD)**
+
+| Depth | Time | Scope | Artifacts |
+|---|---|---|---|
+| **QUICK** | 15-30 min | Single MT engine comparison, TM health check, glossary audit | MT quality report, TM leverage stats, termbase coverage score |
+| **STANDARD** | 2-4 hr | Full TMS pipeline setup, MT tier calibration, QA gate implementation | Configured TMS integration, locale files, CI quality gate config, MT tier budget |
+| **DEEP** | 1-3 days | Multi-team TM consolidation, localization analytics dashboard, org-wide MT standardization | Centralized TM with cross-team sharing, per-locale quality dashboard, MT engine selection decision record |
+
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
@@ -152,6 +161,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are evaluating whether to build vs. buy a localization automation platform
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- STANDARD: 3min -->
 
@@ -269,6 +279,7 @@ TM health degrading — where to start?
 <!-- DEEP: 10+min -->
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1: String Extraction & Key Design (~2 hours)
 Audit the codebase for hardcoded strings. Implement key-based extraction using the framework's native i18n library: `i18next` (React/Next.js), `vue-i18n` (Vue), `ngx-translate` (Angular), `flutter_localizations` (Flutter), `react-native-i18n` (React Native). Design the key naming convention: `{domain}.{feature}.{component}.{element}`. Example: `checkout.payment.creditcard.cvv_label`. Extract all source strings to a base locale JSON file (typically `en.json`). Verify no hardcoded strings remain using eslint-plugin-i18next or a grep for quote patterns.
@@ -284,8 +295,31 @@ Choose TMS: Lokalise (best UX, generous free tier), Phrase (most powerful API, b
 <!-- DEEP: 10+min -->
 Implement pre-commit and CI quality checks for translation files. Placeholder integrity: every `{0}`, `%s`, `{{variable}}` in the source must appear in the translation. ICU MessageFormat validation: parse ICU syntax and verify plural forms and selectors are intact. Length constraint check: flag translations exceeding UI element character limits (button: 30 chars, heading: 60 chars, body: 300 chars). Forbidden character detection: flag translations containing characters outside the target locale's expected character set. LQA scoring: automated score based on placeholder match (30%), length compliance (25%), ICU validity (25%), and termbase consistency (20%). Gate threshold: score ≥ 90 to pass, 80-89 warns, < 80 blocks.
 
+## Best Practices
+**(STANDARD)**
+
+1. **Centralize translation memory in one TMS.** Use Lokalise, Phrase, or Crowdin as the single source of truth for TM across all teams and projects. A 10,000-entry TM with 80% leverage across 5 new locales saves ~40,000 new translations. TM not shared across teams costs $30K-$150K/year in duplicate translation work. Set up automated TM maintenance: deduplication, stale entry pruning, and quarterly quality audits.
+
+2. **Enforce glossary and termbase compliance from day one.** Build a centralized termbase with approved translations for every product term, brand name, and domain concept. Enforce at the TMS level — flag or hard-block translations that deviate from approved terms. "Dashboard" rendered 3 different ways across web, mobile, and marketing fractures brand voice. Quarterly automated audits catch drift before it compounds.
+
+3. **Use ICU MessageFormat for all dynamic strings — never concatenate.** `'{count, plural, =0 {No items} =1 {1 item} other {# items}}'` handles all grammatical forms. String concatenation (`t('you_have') + count + t('items')`) breaks in 70%+ of non-English languages due to gender, dual/plural forms, and word order differences. The `=0` case must be explicit — English uses `other` for zero, not `zero` (which is for Arabic/Latvian CLDR forms).
+
+4. **Run pseudo-localization in CI, not locally.** Use `en-XA` or `en-XB` BCP47 pseudo-locale tags to simulate 30% text expansion, RTL layout, and non-ASCII characters. One developer running pseudo-loc locally catches only their bugs. CI-run pseudo-loc catches integration bugs — RTL calendars in LTR forms, expanded German buttons breaking flex layouts, concatenation-induced grammar errors. Walk through every screen quarterly and count layout breaks.
+
+5. **Segment languages into MT quality tiers and budget proportionally.** MT quality varies dramatically by pair: ES/FR/DE (Tier 1 — light post-editing needed), JA/ZH/KO (Tier 2 — full human review required), FI/HU/AR (Tier 3 — MT + mandatory native-speaking reviewer). Applying uniform post-editing to all pairs overpays on Tier 1 and ships poor quality in Tier 3. Budget post-editing based on actual MT error rates per pair.
+
+6. **Freeze UI copy before translation starts.** Implement a string freeze 2 weeks before translation. Every design copy change after translation invalidates strings across all locales. Tag strings as "locked" vs "can change" in the TMS. Changes post-freeze go into a "next release" batch. Use a freeze checklist signed by PM, design, and content.
+
+7. **Implement TM fuzzy match thresholds with context awareness.** Set `fuzzy_match_threshold ≥ 80%` for auto-population and `60-79%` for suggestion. But validate with context: "Delete account" and "Delete comment" have similar fuzzy scores but opposite meanings. High fuzzy thresholds without context validation produce comically wrong auto-translations. Implement a review gate for fuzzy matches in safety-critical strings (legal, medical, financial).
+
+8. **Monitor MT post-editing distance (HTR) per language pair.** Track the percentage of MT output that human post-editors change. If HTR < 10%, you're overpaying for MT+human vs human-only — the human isn't adding value. If HTR > 40%, the MT engine is wrong for your domain and training a custom model (or switching engines) is cheaper than paying for heavy post-editing. Reassess quarterly.
+
+9. **Integrate functional UI testing into the localization QA pipeline.** LQA scores that rate translations as linguistically correct are insufficient — test whether translated strings actually render in the application. Run automated screenshot comparisons in every target locale. Require QA sign-off in at least 2 non-English locales before release. Pseudo-localization in CI catches layout bugs before translators touch strings.
+
+10. **Standardize on one MT engine per language pair across the organization.** When mobile uses DeepL for German, web uses Google Translate for German, and marketing uses a human translator for German — the same product term gets 3 different translations. Consistency erodes trust. Feed MT post-editing corrections back into the engine's custom glossary to improve future output.
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -298,6 +332,18 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| TMS API returns 429 Too Many Requests during bulk push of 5,000+ strings | Rate limiting: Lokalise defaults to 6 requests/second, Phrase to 10/sec. Exceeding the limit triggers exponential backoff that the CI pipeline doesn't implement | Add request throttling in the CI integration script: implement Token Bucket rate limiter at 5 req/sec with max burst of 10. Batch strings into chunks of 100. Add `Retry-After` header parsing | Rate limits on TMS APIs are aggressive and poorly documented. Always throttle by default — every unthrottled CI push that works in dev (100 strings) will fail in production (5,000+ strings) |
+| Translation file merge conflict on every release after pulling from TMS | Multiple developers push source strings to TMS independently, TMS re-sorts all keys alphabetically, pull generates a diff even when no translations changed | Enforce TMS push as a serialized step: only CI on main branch pushes to TMS. Developers push string changes as PRs to the base locale file, CI syncs after merge. Never allow direct developer-to-TMS pushes | Parallel TMS access creates deterministic merge hell. The TMS is a shared state machine — serialize all mutations through CI on main branch |
+| `en.json` has 500 keys, `fr.json` has 483 — missing translations ship silently | String extraction tool doesn't enforce key parity across locale files. French translator missed 17 new keys. No CI check compares key count across locale files | Add CI parity check: `diff <(jq 'keys | sort' en.json) <(jq 'keys | sort' fr.json)` on every PR. Block merge if locale files have different key counts. Add Slack alert for untranslated keys in any locale | Key parity is the most basic invariant. If it's not enforced in CI, missing translations are guaranteed — translators are human and keys fall through cracks |
+| ICU MessageFormat parse error only in production Kazakh locale — all 12 test locales pass QA | `{count, plural, one {...} other {...}}` — Kazakh uses `one` and `other` but the test suite tests English (only `one`/`other`), Arabic (`zero`/`one`/`two`/`few`/`many`/`other`), and Russian (`one`/`few`/`many`/`other`). The edge case in Kazakh isn't tested because it shares forms with English | Test ICU validity against the CLDR supplement for every locale in the release, not just "top 3+English." Use `formatjs/cli` with `--ast` flag to validate all ICU forms against CLDR data for each locale | ICU coverage varies by locale. Testing "representative" locales misses real failures — Kazakh and English share plural forms but different grammar. Validate all locales, not a sample |
+| TMS auto-translate fills previously human-reviewed translations with MT output — QA scores drop 15 points overnight | "Overwrite on source change" setting enabled in TMS. When a typo is fixed in the source string ("Submti"→"Submit"), TMS re-translates from MT and discards the human-approved translation | Configure TMS with "Preserve approved translations on source update" and manual review required for any source string change that affects > 5 locales. Human-approved translations should never be overwritten without explicit approval | MT engines are tools, not authorities. A human-reviewed translation is better than an MT retranslation of a typo-fixed source. Protect approved translations from automatic overwrite at the TMS configuration level |
+| Pseudo-localized build passes CI but 3 German buttons overflow their containers in production | Pseudo-loc uses `en-XA` which adds brackets and accents to simulate expansion. It does NOT actually translate text. German real text ("Einstellungen speichern" for "Save Settings") is 40% longer but the pseudo-loc expansion was only 30% | Pseudo-loc is a first-pass filter, not a substitute for real-locale testing. After pseudo-loc passes, run automated screenshot tests with the 3 most expansive real locales (German: +35%, Finnish: +40%, Arabic for RTL). Measure actual overflow, not simulated | Pseudo-loc catches 80% of issues; real-locale testing catches the remaining 20%. German is consistently the most expansive real locale — always include it in visual QA regardless of market priority |
 
 ## Cross-Skill Coordination
 
@@ -427,21 +473,52 @@ Before beginning a new phase, verify:
 
 **The One Highest-Leverage Activity:** Every quarter, run a pseudolocalized build of your entire product and walk through every screen. Count the layout breaks. If the number isn't decreasing quarter-over-quarter, your localization pipeline has a feedback gap.
 
-## Gotchas
+## Anti-Patterns
 
-- **Machine translation without human review for legal content.** Running contracts, terms of service, privacy policies, or regulatory documents through MT engines (DeepL, Google Translate) without qualified human post-editing. A single mistranslated clause — "shall" becoming "may," "indemnify" becoming "hold harmless" with different legal meaning — creates binding obligations the company never intended. In regulated industries, this triggers compliance violations, lawsuits, and contract nullification. **Total cost: $50,000-$500,000 in liability from mistranslated legal documents, regulatory fines, and contract disputes.** Fix: Legal and compliance content must go through certified human translation with legal-domain expertise; never MT-only for binding documents; maintain a legal glossary with approved translations for all domain terms.
-- **Translation memory not leveraged.** Every new project starts from scratch: translators re-translate "Submit," "Cancel," "Sign up" across 12 languages for every feature release. At $0.15-$0.25 per word, re-translating 50,000 words of repetitive UI strings across 12 locales costs $90,000-$150,000 annually that a properly maintained TM would eliminate. The TM exists but wasn't shared across teams, wasn't updated, or wasn't connected to the translation pipeline. **Total cost: $30,000-$150,000 per year in duplicate translation costs.** Fix: Centralize TM in your TMS (Lokalise, Phrase, Crowdin); enforce TM lookup as the first step before any new translation; set up automated TM maintenance (deduplication, stale entry pruning); share TM across all product teams.
-- **Translation memory (TM) fuzzy match thresholds** — setting `fuzzy_match_threshold: 75%` captures "Hello World" → "Hello World!" (1 char difference = ~90% match) but also "Delete account" → "Delete comment" (same fuzzy score, completely different meaning). High fuzzy thresholds produce comically wrong translations that QA misses.
-- **Machine translation post-editing distance (HTR)** — if post-editors change < 10% of MT output, you're overpaying for MT+human vs human-only. If they change > 40%, the MT engine is wrong for your domain and training a custom model is cheaper than paying for heavy post-editing.
-- **ICU MessageFormat plural rules**: `{count, plural, one {# item} other {# items}}` — the `=0` case is NOT covered by `zero`. `zero` is for languages with a zero CLDR form (Arabic, Latvian). English uses `other` for zero. Missing `=0 {No items}` means English speakers see "0 items" instead of "No items."
-- **Pseudolocalization** with `en-XA` or `en-XB` BCP47 tags — if your UI doesn't handle 30% text expansion (English → German) or RTL layout, pseudo-localization reveals it before translators waste time. But pseudo must run in CI, not locally. One developer running pseudo-loc finds only their bugs, not integration bugs.
-- **String extraction from concatenation**: `t('views.') + viewName + t('.title')` — this produces 3 separate translation calls for ONE logical string. The concatenated result can't be in TM, can't benefit from context, and produces grammatically broken sentences in languages with different word order (Japanese, Korean, Turkish).
-- **No glossary or termbase enforcement across projects.** Translators render "dashboard" as "tableau de bord" in the web app, "panneau de contrôle" in the mobile app, and "tableau de commande" in marketing — all correct French but inconsistent. Users searching for "tableau de bord" can't find the feature on mobile, brand terminology fractures across surfaces, and support documentation references terms that don't match any actual product label. **Total cost: $10,000-$30,000 per year in terminology inconsistency remediation, customer confusion driving support escalations, and diminished trust in localization quality across international markets.** Fix: Build and maintain a centralized glossary/termbase with approved translations for every product and brand term; enforce glossary compliance at the TMS level — flag or hard-block translations that deviate from approved terms; run automated termbase coverage audits quarterly and before each release.
-- **Translation quality measured only by linguistic review without functional UI testing.** LQA scores rate translations as linguistically correct, but nobody tests whether the translated strings actually render and function in the application UI. A German button label grows 40% longer and breaks a flex layout constraint. An Arabic translation reverses the order of form validation messages — the error appears before the field label. QA passes (strings are correct), but the localized product is broken. **Total cost: $15,000-$50,000 in post-localization UI bug fixes per release, missed international launch dates, and hotfix deployments for translation-induced functional breakage.** Fix: Integrate localization testing into the QA pipeline — run automated screenshot comparisons in every target locale; require functional QA sign-off in at least 2 non-English locales before release; use pseudo-localization as a CI gate to catch layout issues before translators ever touch the strings.
-- **Using different MT engines per project with no consistency management.** The mobile team uses DeepL for German, the web team uses Google Cloud Translation for German, and marketing sends German copy to a human translator. The same English product term gets three different German translations across platforms because each engine has different training data, style biases, and terminology defaults. The product voice becomes fragmented — users notice and trust erodes. **Total cost: $5,000-$20,000 per year in inconsistency fixes, brand voice dilution across platforms, and user trust erosion from seeing different translations for identical features.** Fix: Standardize on one MT engine per language pair across the organization; when multiple engines are unavoidable, run all output through the shared glossary/termbase for post-processing consistency; maintain a per-language style guide with approved terminology for every product surface; feed MT post-editing corrections back into the engine's custom glossary to improve future output.
-- **Concatenating translated strings to form sentences.** "You have" + itemCount + "items" works in English but breaks in languages with grammatical gender, dual/plural forms, and different word orders. In Arabic: "لديك 3 عناصر" (you have 3 items) — but the word for "items" changes form. In Russian: different plural forms for 1, 2-4, and 5+. "You have 21 items" is singular in Russian grammar. String concatenation produces grammatically-incorrect output in 70%+ of non-English languages. **Total cost: $15K-$50K per incident — emergency retranslation, hotfix release, brand damage in localized markets.** Fix: Always use ICU MessageFormat with plural rules: `{count, plural, =0 {You have no items} =1 {You have 1 item} other {You have # items}}`. Never concatenate translated fragments.
-- **Translating UI strings before the design is finalized.** Every design change after translation starts invalidates translations. A button label expands from "Save" to "Save Changes" — now 32 languages need retranslation. A new error state adds 3 strings. The backlog of "minor copy changes" accumulates across sprints until the translation debt is larger than the initial translation investment. **Total cost: $8K-$20K per release for re-translation of changed strings, plus $5K-$15K in delayed release costs.** Fix: Freeze UI copy 2 weeks before translation starts. Any changes post-freeze go into a "next release" translation batch. Use a string freeze checklist signed by PM, design, and content. Tag strings that can still change vs locked strings in your TMS.
-- **Assuming machine translation quality is consistent across language pairs.** MT quality varies dramatically by language pair. English→Spanish (DeepL): near-human quality. English→Korean (Google Translate): requires significant post-editing. English→Finnish (any MT): high error rate due to complex morphology. Using the same MT engine and post-editing budget for all languages wastes money on easy pairs and underfunds hard ones. **Total cost: $10K-$30K/year in either overpaying for unnecessary human review on easy pairs OR shipping poor quality in hard pairs (resulting in user churn in those markets).** Fix: Segment languages into MT quality tiers: Tier 1 (ES, FR, DE, PT — light post-editing), Tier 2 (JA, ZH, KO, RU — full human review required), Tier 3 (FI, HU, AR, VI — MT + mandatory native-speaking reviewer). Budget post-editing proportionally.
+### Anti-Pattern: Machine translation without human review for legal content
+**What it looks like:** Running contracts, terms of service, privacy policies, or regulatory documents through MT engines (DeepL, Google Translate) without qualified human post-editing. A single mistranslated clause — "shall" becoming "may," "indemnify" becoming "hold harmless" with different legal meaning — creates binding obligations the company never intended.
+**Why it fails:** MT engines don't understand legal semantics. They translate words, not obligations. In regulated industries, a mistranslated legal clause triggers compliance violations, lawsuits, and contract nullification. The cost of certified human legal translation is $0.15-$0.25/word — the cost of a mistranslated contract is $50K-$500K in liability.
+**Do this instead:** Legal and compliance content must go through certified human translation with legal-domain expertise. Never MT-only for binding documents. Maintain a legal glossary with approved translations for all domain terms. Require legal review sign-off on translated regulatory documents.
+
+### Anti-Pattern: Translation memory not leveraged across teams
+**What it looks like:** Every new project starts from scratch. Translators re-translate "Submit," "Cancel," "Sign up" across 12 languages for every feature release. At $0.15-$0.25 per word, re-translating 50,000 words of repetitive UI strings across 12 locales costs $90K-$150K annually. The TM exists but wasn't shared across teams or wasn't connected to the pipeline.
+**Why it fails:** TM is the highest-ROI localization investment — it typically saves 40-60% of ongoing translation costs. When not centralized and shared, every team effectively pays the "first translation" tax on strings that were translated 50 times before. The savings compound with every release missed.
+**Do this instead:** Centralize TM in your TMS (Lokalise, Phrase, Crowdin). Enforce TM lookup as the first step before any new translation. Set up automated TM maintenance (deduplication, stale entry pruning). Share TM across all product teams with read access for consistency, write access for the owning team.
+
+### Anti-Pattern: Fuzzy match thresholds without context validation
+**What it looks like:** Setting `fuzzy_match_threshold: 75%` captures "Hello World" → "Hello World!" (1 char difference = ~90% match) but also "Delete account" → "Delete comment" (same fuzzy score, completely different meaning). High fuzzy thresholds produce comically wrong auto-translations that QA misses because they look technically correct.
+**Why it fails:** Fuzzy matching is character-level, not semantic. Two strings with similar character composition can have opposite meanings. Without context validation, a fuzzy-matched "Delete comment" translation applied to "Delete account" renders a dangerous UI — the button says one thing but does another.
+**Do this instead:** Set fuzzy match ≥ 80% for auto-population, 60-79% for suggestion-only. Implement a review gate for fuzzy matches in safety-critical strings (legal, medical, financial, destructive actions). Validate fuzzy matches against the string's key context before auto-applying.
+
+### Anti-Pattern: No glossary or termbase enforcement across projects
+**What it looks like:** Translators render "dashboard" as "tableau de bord" in the web app, "panneau de contrôle" in the mobile app, and "tableau de commande" in marketing — all correct French but inconsistent. Users searching for "tableau de bord" can't find the feature on mobile. Support documentation references terms that don't match any actual product label.
+**Why it fails:** Terminology inconsistency flags your product as untrustworthy in localized markets. Users perceive fragmentation as low quality. Support escalations increase because documentation and product use different words. The fix is a centralized glossary, but without enforcement at the TMS level, translators naturally diverge.
+**Do this instead:** Build and maintain a centralized glossary/termbase with approved translations for every product and brand term. Enforce glossary compliance at the TMS level — flag or hard-block translations that deviate from approved terms. Run automated termbase coverage audits quarterly and before each release.
+
+### Anti-Pattern: Concatenating translated strings to form sentences
+**What it looks like:** `t('you_have') + itemCount + t('items')` works in English but breaks in languages with grammatical gender, dual/plural forms, and different word orders. Arabic: "لديك 3 عناصر" — the word for "items" changes form. Russian: different plural forms for 1, 2-4, 5+. "You have 21 items" is singular in Russian grammar.
+**Why it fails:** String concatenation produces grammatically incorrect output in 70%+ of non-English languages. The concatenated result can't be in TM, can't benefit from context, and produces broken sentences in languages with different word order (Japanese, Korean, Turkish). The cost of fixing concatenation retroactively is 3x the cost of using ICU from the start.
+**Do this instead:** Always use ICU MessageFormat with plural rules: `'{count, plural, =0 {You have no items} =1 {You have 1 item} other {You have # items}}'`. Never concatenate translated fragments. The `#` placeholder is automatically replaced with the count value.
+
+### Anti-Pattern: Translation quality measured by linguistic review without functional UI testing
+**What it looks like:** LQA scores rate translations as linguistically correct, but nobody tests whether the translated strings actually render and function in the application UI. A German button label grows 40% longer and breaks a flex layout constraint. An Arabic translation reverses the order of form validation messages — the error appears before the field label. QA passes (strings are correct), but the localized product is broken.
+**Why it fails:** Linguistic correctness and functional correctness are orthogonal. A perfectly translated string that overflows its container or appears in the wrong DOM order is a broken user experience. QA that only checks translation files misses the 20% of localization bugs that are functional, not linguistic.
+**Do this instead:** Integrate localization testing into the QA pipeline — run automated screenshot comparisons in every target locale. Require functional QA sign-off in at least 2 non-English locales before release. Use pseudo-localization as a CI gate to catch layout issues before translators touch the strings.
+
+### Anti-Pattern: Using different MT engines per project with no consistency management
+**What it looks like:** Mobile team uses DeepL for German, web team uses Google Cloud Translation for German, marketing sends German copy to a human translator. The same English product term gets three different German translations across platforms because each engine has different training data, style biases, and terminology defaults.
+**Why it fails:** Inconsistent translations across platforms fragment brand voice. Users who switch between web and mobile see different terminology for the same feature and assume one is outdated or wrong. Trust erodes. The cost of retroactive consistency cleanup is higher than standardizing up front.
+**Do this instead:** Standardize on one MT engine per language pair across the organization. When multiple engines are unavoidable, run all output through the shared glossary/termbase for post-processing consistency. Maintain a per-language style guide. Feed MT post-editing corrections back into the engine's custom glossary.
+
+### Anti-Pattern: Translating UI strings before the design is finalized
+**What it looks like:** Every design copy change after translation invalidates strings across all locales. A button label expands from "Save" to "Save Changes" — now 32 languages need retranslation. A new error state adds 3 strings. The backlog of "minor copy changes" accumulates until translation debt exceeds the initial investment.
+**Why it fails:** Translation pipeline assumes strings are stable. Pre-freeze translation creates a moving target — every design iteration triggers re-translation cycles. The cost per changed string in a post-freeze pipeline is 5-10x the cost of translating it once. Agile's "embrace change" doesn't apply to translated strings — each change cascades across all locales.
+**Do this instead:** Freeze UI copy 2 weeks before translation starts. Any changes post-freeze go into a "next release" translation batch. Use a string freeze checklist signed by PM, design, and content. Tag strings that can still change vs locked strings in your TMS.
+
+### Anti-Pattern: Assuming uniform MT quality across all language pairs
+**What it looks like:** Applying the same MT engine and post-editing budget to all languages — English→Spanish and English→Korean get the same DeepL automatic translation with minimal review. Spanish output is near-perfect; Korean output requires significant post-editing that the budget doesn't cover. Korean users get poor quality.
+**Why it fails:** MT quality varies dramatically by language pair due to training data availability, morphological complexity, and linguistic distance from English. Uniform post-editing budgets overpay for easy pairs (ES, FR, DE) and underfund hard pairs (KO, FI, AR). The result: good quality in languages you overpay for, poor quality in languages that need more investment.
+**Do this instead:** Segment languages into MT quality tiers: Tier 1 (ES, FR, DE, PT — light post-editing), Tier 2 (JA, ZH, KO, RU — full human review required), Tier 3 (FI, HU, AR, VI — MT + mandatory native-speaking reviewer). Budget post-editing proportionally based on actual MT error rates per pair. Reassess quarterly.
 
 ## Anti-Rationalization — No Excuses
 
@@ -452,6 +529,27 @@ Before beginning a new phase, verify:
 | "Glossaries slow us down; translators know the terms" | Without a glossary, 3 translators produce 3 different translations for "dashboard" in German; inconsistency flags your product as untrustworthy across every localized surface |
 | "We'll review machine translations manually before each release" | Manual review of 5,000 strings takes 40-60 hours per language per release; at 10 languages, that's 500+ hours — QA automation catches 80% of errors in minutes |
 | "String freeze is a waterfall process; Agile teams don't need it" | Without string freeze, every sprint changes 5-10% of strings; translators redo work 3-4 times per release cycle, multiplying costs and delaying launch by 2-4 weeks |
+
+## Production Checklist
+**(STANDARD)**
+
+Before shipping any localized release, verify every item. Each unchecked item is a broken UI or wasted translation budget.
+
+- [ ] **TM centralized and accessible:** All teams push to and pull from the same TM in Lokalise/Phrase/Crowdin. TM fuzzy match rate for new strings exceeds 60%. Deduplication run within last 90 days.
+- [ ] **Glossary/termbase enforced:** Approved translations exist for every product term, brand name, and domain concept. TMS configured to flag or block deviations. Last termbase coverage audit completed.
+- [ ] **ICU MessageFormat valid in all resource files:** `formatjs/cli` or `icu-validator` reports zero parse errors across all locale files. `=0` case handled explicitly for all plural strings. `#` placeholder verified as the count variable.
+- [ ] **Pseudo-localization passes in CI:** `en-XA` pseudo-locale build completes without layout breaks. All 30%+ text expansion handled. RTL-rendered screens visually verified for flipped layouts.
+- [ ] **Key parity enforced:** All locale files have identical key counts. `diff <(jq 'keys | sort' en.json) <(jq 'keys | sort' fr.json)` passes for every locale pair. CI blocks PRs with key count mismatches.
+- [ ] **String freeze observed:** UI copy frozen for ≥ 2 weeks before translation. Freeze checklist signed by PM, design, and content. Post-freeze changes logged in "next release" batch.
+- [ ] **MT engine standardized per language pair:** One engine per pair across all teams. When unavoidable, glossary post-processing applied for consistency. MT custom glossary updated with last quarter's post-editing corrections.
+- [ ] **MT quality tier budget applied:** Tier 1 (ES/FR/DE/PT): light post-editing. Tier 2 (JA/ZH/KO/RU): full human review. Tier 3 (FI/HU/AR/VI): MT + native-speaking reviewer. Budget proportional to tier.
+- [ ] **HTR monitored per language pair:** Post-editing distance tracked quarterly. Pairs with HTR < 10% flagged for MT-only (overpaying for human). Pairs with HTR > 40% flagged for engine switch or custom model (overpaying for editing).
+- [ ] **Functional UI tests pass in top 3 real locales:** Automated screenshot comparisons for German (+35% expansion), Finnish (+40% expansion), and Arabic (RTL). No overflow, truncation, or layout break regressions.
+- [ ] **Legal/compliance translations human-certified:** Contracts, ToS, privacy policies, regulatory documents have certified human translation. Legal glossary applied. Legal review sign-off documented.
+- [ ] **Human-approved translations protected from MT overwrite:** TMS configured with "Preserve approved translations on source update." Manual review required for source changes affecting > 5 locales. No approved translation silently replaced by MT in last release cycle.
+- [ ] **TM stale entries pruned:** Translations unused for > 18 months flagged for review. Dead translation keys removed from codebase and TM. Locale file bloat under control — no locale file > 20% larger than source.
+- [ ] **Pipeline latency measured:** Time from source string push to translated locale file PR < 48 hours for Tier 1 languages, < 72 hours for Tier 2/3. Bottlenecks identified and escalated.
+- [ ] **Localization budget tracked per locale:** Cost per word, MT vs human split, and TM leverage savings calculated per locale per release. Budget variance > 20% triggers root cause analysis.
 
 ## Verification
 

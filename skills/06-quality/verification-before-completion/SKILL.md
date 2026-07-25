@@ -147,6 +147,35 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 
 **Usage**: Say "verify this at L2" or "I need L3 verification on this migration." Default: **L2** (feature-level verification).
 
+### Solo (Single-line fix)
+- Reproduce bug with reporter's exact steps; capture screenshot before fix
+- Apply minimal fix; verify reproduction case now passes; capture screenshot after fix
+- Run the test file covering the changed function; verify all pass
+- Attach BEFORE/AFTER evidence to issue closure comment
+- Self-review checklist: "Did I reproduce? Did I verify? Did I check for regressions? Did I attach evidence?"
+
+### Small Team (Feature implementation)
+- Map each acceptance criterion to a verification action — one test or manual check per criterion
+- Run full module test suite + dependent module suites
+- Cross-browser/platform check if applicable (Chrome, Firefox, Safari, mobile)
+- Document with test output + screenshots in PR description
+- Peer review sign-off on verification evidence before merge
+
+### Medium Team (Cross-module change)
+- Staged verification: reproduction → full regression suite → performance benchmark → API compatibility
+- Run contract tests between affected services; verify backward compatibility
+- Performance regression check: compare p95 latency before/after; fail if >20% degradation
+- CI pipeline as verification gate: all suites pass, coverage thresholds met, lint clean
+- Verification evidence packaged as release verification report
+
+### Enterprise (Platform-wide release)
+- Staged verification: dev → staging → canary → production — smoke tests at each stage
+- A/B metric comparison: canary vs baseline for error rate, latency, business metrics
+- Rollback plan verified: canary rollback tested before full rollout
+- Production verification window: 24-72 hour monitoring with automated rollback on anomaly detection
+- Verification audit trail: every stage logged with timestamps, evidence, and approver identity
+- Compliance verification: SOC2, PCI, HIPAA evidence collected automatically from verification pipeline
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -168,7 +197,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 - **Security penetration testing** — route to `security-reviewer`
 - **Performance benchmarking** — route to `performance-engineer`
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1: Reproduce (~5 min)
@@ -240,7 +269,21 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 
 **Output**: Closing comment with verification evidence.
 
-## Decision Trees
+
+## Best Practices
+
+1. **The self-verification checklist runs before you declare "done."** Before transitioning any task, run through: (a) Does the reproduction case pass? (b) Does the test suite pass? (c) Is evidence attached? (d) Did I check for regressions? If any answer is "no," you're not done — you're rationalizing. The checklist is not a suggestion; it's the gate between "works on my machine" and "verified."
+2. **Output validation: match the exact expected behavior, not approximate.** "The output looks right" is not verification. Compare the actual output against the expected output from the bug report or spec — character by character, pixel by pixel, field by field. An off-by-one, a missing field, or a slightly different error message means the fix is incomplete, even if it "looks about right."
+3. **Edge case testing is not optional — it's the difference between "fixed" and "actually fixed."** Every fix must be tested against: null/undefined inputs, empty collections, boundary values (0, -1, MAX_INT), invalid types, concurrent access, and timeout scenarios. The bug report describes one failure; edge cases describe the class of failures. Fix the class, not the instance.
+4. **Regression verification: run tests in modules that import the changed file.** Use `grep -r "import.*from.*'changed-file'"` to find all dependents and run their test suites. A one-line change in a shared utility can break 20 downstream modules. If you didn't run their tests, you didn't verify.
+5. **Peer review readiness: verification evidence is what the reviewer uses to approve.** Attach BEFORE/AFTER evidence to every PR and issue closure. A reviewer should be able to confirm the fix works without pulling the branch. Screenshots, test output, and CI links are auditable proof. "Verified locally" in a comment is not evidence — it's a claim.
+6. **Environment parity: verify in the environment closest to production you can access.** A fix verified on Node 20 with a fresh database may fail on Node 18 with a 2TB production database. Staging verification is the minimum for any change touching data, auth, payments, or infrastructure. "Works on my machine" is the most expensive four words in software.
+7. **Time-bound verification windows catch late-breaking regressions.** After deploying, monitor production metrics for 24-72 hours. Set alerts for error rate changes, latency spikes, and business metric deviations in the changed code path. If the fix causes a regression that appears 48 hours later under specific traffic patterns, you catch it in the verification window — not in the next incident.
+8. **Evidence must be immutable and auditable.** Attach screenshots, test output, and CI links directly to the issue tracker — not via links that can rot, expired CI artifacts, or Slack threads that scroll away. Six months later, when someone asks "was this actually fixed?", the evidence should still be there. Screenshots embedded in the issue body. Test output pasted as a code block. CI run permalink.
+9. **The anti-rationalization check is a mandatory phase gate.** Before closing any task, ask: "Am I making any of the classic excuses?" — "It's obviously correct," "I already tested it manually," "The CI will catch issues," "It's just a one-line change." If any excuse applies, you're rationalizing. Go back to Phase 1 and verify properly. Rationalization is the #1 cause of regressions that "should have been caught."
+10. **Verification scales with blast radius.** A CSS color change verifies with a screenshot. A shared utility change verifies with the full project test suite. A database migration verifies with integration tests + rollback test + staging smoke test. Match your verification effort to the risk: ask "what's the worst thing that happens if this is wrong?" and verify against that scenario.
+
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -332,7 +375,7 @@ Ready to mark this task as "done"?
 ```
 
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -507,6 +550,18 @@ For one week, require verification evidence (BEFORE + AFTER + TEST SUITE) on eve
 
 - **Verification in the wrong environment**: A fix is verified in the developer's local environment (Node 20, fresh database). In production (Node 18, 2TB database with specific data), the fix fails because of a runtime API difference. Cost: **$100,000+** in production incident response, rollback, and post-mortem process.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| The "obviously correct" one-line change that skips verification — introduces a regression from unhandled null that breaks the payment pipeline | Every change, no matter how small, follows the 5-phase verification workflow. One-line changes have caused billion-dollar outages. Verify proportionally to blast radius, never zero. |
+| Manual-only testing with no documented reproduction case — 3 months later, same bug resurfaces, nobody remembers how to reproduce or fix it | Attach BEFORE/AFTER screenshots, test output, and reproduction steps to every closed issue. Evidence must survive team turnover. |
+| Skipping the EXACT reproduction case — writing a test that exercises the general area but not the reporter's specific scenario | Use the reporter's EXACT steps. Same inputs, same environment, same expected output. A test that misses the exact failure path gives false confidence. |
+| Weak assertions that pass for wrong output — `expect(result).toBeTruthy()` passes for `{}` when it should be `{ price: 19.99 }` | Assert specific values, types, and structures. If the assertion doesn't distinguish between correct and incorrect output, it's not verification — it's ceremony. |
+| Unverified status transitions — moving issues to "Done" because the sprint ended, not because verification happened | Every status transition requires evidence. "Done" means "verified with BEFORE/AFTER evidence + passing test suite + regression check." No exceptions for sprint deadlines. |
+| Deferred verification — merging on Friday, planning to verify on Monday, 5,000 users hit the regression over the weekend | Verify BEFORE merge, not after. If merge is unavoidable, schedule a verification window within 2 hours of deploy with alerting on the changed code path. |
+| "It works on my machine" as verification — ignoring environment differences in Node version, database size, config values, and traffic patterns | Verify in staging with production-like data and config. The developer's machine is the least representative environment in the pipeline. |
+
 ## Verification
 
 Run these checks to verify this skill file itself:
@@ -550,6 +605,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **[VC1]** Phase 1 (Reproduce) complete: bug reproduced using the reporter's EXACT steps — evidence of failure captured BEFORE fix
+- [ ] **[VC2]** Phase 2 (Apply Fix) complete: fix is minimal — changes only what's necessary, no refactoring or unrelated changes mixed in
+- [ ] **[VC3]** Phase 3 (Verify Fix) complete: reproduction case now produces expected output — correct logic path confirmed, not just "test passes"
+- [ ] **[VC4]** Phase 4 (Regression Check) complete: full test suite for the module passes; dependent module suites run if changed code is imported elsewhere
+- [ ] **[VC5]** Phase 5 (Evidence Collection) complete: BEFORE/AFTER evidence attached to issue/PR — screenshots, test output, CI links (not rot-able URLs)
+- [ ] **[VC6]** Anti-rationalization gate passed: none of the classic excuses detected — "obviously correct," "tested manually," "CI will catch," "one-line change"
+- [ ] **[VC7]** Edge case testing completed: null/undefined, empty, boundary (0, -1, MAX), invalid type, concurrent, timeout — at least 3 edge cases beyond the reproduction scenario
+- [ ] **[VC8]** Environment parity verified: fix tested in staging or closest production-like environment — not just local development machine
+- [ ] **[VC9]** Output validation precise: actual output matches expected output character-by-character, field-by-field — not "looks about right"
+- [ ] **[VC10]** Regression scope correct: dependent modules identified (`grep -r "import.*from") and their tests run — no skipped dependents
+- [ ] **[VC11]** Evidence is immutable and auditable: screenshots embedded in issue body, test output pasted as code block, CI run permalink — no Slack-only or expiring links
+- [ ] **[VC12]** Verification summary written: "Verified on [date] by [method] against reproduction case [link]" — included in closing comment
+- [ ] **[VC13]** Post-deploy verification window defined: 24-72 hour monitoring with alerts on error rate, latency, and business metrics for the changed code path
+- [ ] **[VC14]** Status transition gate passed: all 5 phases + anti-rationalization + evidence sufficiency — task transitions to DONE only after all gates pass
 
 ## References
 

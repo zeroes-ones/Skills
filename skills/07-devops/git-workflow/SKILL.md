@@ -77,6 +77,20 @@ End-to-end Git workflow and versioning discipline covering trunk-based developme
 - **Deep dive (full session):** Audit full repository history for secrets and large files, restructure commit history for clarity, set up branch protection rules, configure Git hooks, establish versioning and changelog automation.
 - **Crisis mode (broken main, bad merge, lost work):** Triage: identify the breaking commit with `git bisect`, revert the breaking change, communicate to team. Use `git reflog` for lost commits. Never force-push to shared branches.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 engineer, 1 repo)
+Trunk-based development on `main`. Direct commits acceptable for small repos. Pre-commit hooks for secrets and formatting. Annotated tags for releases. Focus: atomic commits, Conventional Commits, `.gitignore` hygiene. `git bisect` should work — that's the only test that matters.
+
+#### Small (2-10 engineers, 1-5 repos)
+Feature branches with PR reviews required for `main`. Branch protection: require approvals, status checks, linear history. Pre-commit + pre-push hooks. Conventional Commits enforced. Focus: merge strategy consistency (rebase vs merge documented), CODEOWNERS for critical paths, automated changelogs, signed commits for supply chain integrity.
+
+#### Medium (10-50 engineers, 5-20 repos, possible monorepo)
+Monorepo: CODEOWNERS, affected-project detection in CI, sparse checkout for large repos. Branch protection with required linear history. Commit signing mandatory. `git worktree` for parallel work. Focus: stale branch automation, Git LFS for large assets, monorepo-specific merge strategy, commit history audits for secrets and large files quarterly.
+
+#### Enterprise (50+ engineers, 20+ repos, monorepo with 100+ contributors)
+Federated repository governance: shared `.github` repo with org-wide pre-commit configs, branch protection templates, and CODEOWNERS conventions. Monorepo: build graph with affected-project detection, merge queue for serializing `main` commits, remote caching for CI. Focus: supply chain security (SLSA Level 3+, signed commits + signed tags + signed builds), compliance audit trails (every merge to `main` has PR, review, CI pass, and approval record). "This is how we version control — every team uses these conventions, every commit is traceable, every release is reproducible."
+
 ## When to Use
 
 - Designing a branching strategy for a team or project
@@ -106,7 +120,7 @@ What Git task are you working on?
 |-- Recovering lost work -> Jump to "Decision Trees: Recovery"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1: The Atomic Commit (Save Point Pattern)
 
@@ -204,7 +218,7 @@ What Git task are you working on?
    |-- Push tags: git push origin v1.2.0 or git push --tags
 ```
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Branching Strategy
 
@@ -334,7 +348,30 @@ What did you lose?
 ```
 
 
-## Error Recovery
+## Best Practices
+
+1. **Trunk-based development with short-lived feature branches.** Branch from `main`, merge back within 1-3 days. Branches older than 5 days accumulate merge debt exponentially — a 3-week-old branch behind 200 commits generates 47 conflicts across 15 files. CI enforces: flag branches >5 commits behind main.
+
+2. **PR review workflow: small, focused, reviewed within 4 business hours.** PRs should be 200-400 lines (one logical change). Require ≥1 approval before merge. Stale reviews (>24 hours) trigger auto-reassignment. CODEOWNERS enforces domain expertise on critical paths. The review is about correctness and design intent — formatting and linting belong in pre-commit hooks.
+
+3. **Rebase for feature branches, merge for release branches, never squash blindly.** `git pull --rebase` keeps feature branch history linear and bisectable. `git merge --no-ff` for release branches preserves the merge commit as a release marker. Squash-merge only when individual commits are not independently meaningful — squashing a well-structured 15-commit feature destroys bisect granularity.
+
+4. **Conventional Commits enforced at the commit-msg hook level.** `type(scope): description` with type ∈ {feat, fix, docs, refactor, perf, test, build, ci, chore}. Subject line ≤72 chars, imperative mood, no period at end. Body after blank line: WHAT and WHY, not HOW. BREAKING CHANGE footer triggers MAJOR version bump. CI rejects commits that violate the format.
+
+5. **Monorepo: CODEOWNERS, sparse checkout, and affected-project detection.** In monorepos, `git add .` from root is catastrophic — it stages other teams' changes. Use `git add -p` or path-specific staging. CI must detect which projects changed and only build/test those. Polyrepo: enforce consistent conventions across repos with shared pre-commit configs and commit message templates.
+
+6. **Protected branches: require PR reviews, status checks, and linear history.** Enable on `main`, `master`, `develop`, `release/*`: require ≥1 approving review, dismiss stale reviews on new commits, require status checks (CI, lint, test), require branches to be up-to-date before merging, disallow force pushes. These 5 protections prevent 90% of git disasters.
+
+7. **Pre-commit hooks catch problems before they reach the PR.** Secret scanning (gitleaks, detect-secrets) blocks accidental credential commits. Linting and formatting (eslint, ruff, prettier) enforce style consistently. Forbidden patterns check (`console.log`, `debugger`, `.only` in tests) prevent development artifacts from shipping. Run on staged files only — full-repo scans belong in CI, not in the commit path.
+
+8. **Sign commits with GPG or SSH keys — verified commits are the supply chain baseline.** Configure `git config --global commit.gpgsign true`. GitHub displays "Verified" badge on signed commits. Unsigned commits cannot be proven authentic — they could come from anyone with commit access. For SLSA Level 2+ compliance, commit signing is mandatory.
+
+9. **Annotated tags (`git tag -a`) for releases, never lightweight tags.** Annotated tags include: tagger identity, timestamp, message (release notes). When debugging a production issue, `git tag -l -n1 v1.2.0` shows who created the tag, when, and what it contains. Lightweight tags are just a pointer — they answer none of these questions. Sign tags with GPG for supply chain integrity.
+
+10. **Git worktrees for parallel work — never stash, never context-switch.** `git worktree add ../feature-branch feature/branch` creates a parallel working directory. Work on a feature in one worktree, fix a critical bug on `main` in another, review a PR in a third. No stashing, no WIP commits, no lost context. Clean up stale worktrees with `git worktree prune` weekly.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -425,6 +462,22 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[GIT1]** Branch protection rules enabled on `main`, `master`, `develop`, `release/*`: require PR reviews, dismiss stale reviews, require status checks, require branches up-to-date, disallow force pushes
+- [ ] **[GIT2]** Required PR reviews: ≥1 approving review before merge, CODEOWNERS enforcing domain expertise on critical paths (auth, payments, infrastructure)
+- [ ] **[GIT3]** CI status checks required before merge: all tests pass, linting passes, build succeeds, no security vulnerabilities
+- [ ] **[GIT4]** Pre-commit hooks configured via `pre-commit`, `lefthook`, or `husky`: secret scanning, linting, formatting, forbidden pattern detection on staged files
+- [ ] **[GIT5]** Commit message convention enforced at commit-msg hook level: Conventional Commits format, subject ≤72 chars, imperative mood, body required for diffs >200 lines
+- [ ] **[GIT6]** Signed commits required: GPG or SSH key signing configured, GitHub displays "Verified" badge — unsigned commits blocked from protected branches
+- [ ] **[GIT7]** `.gitignore` maintained with OS, editor, language-specific, and framework-specific patterns — no `node_modules`, `dist`, `build`, `.env` in history
+- [ ] **[GIT8]** Git LFS configured for files >1MB: tracked patterns cover binaries, assets, datasets — CI validates LFS is tracking new large files
+- [ ] **[GIT9]** Stale branch cleanup: branches >14 days without activity flagged and archived, merged branches deleted automatically by CI
+- [ ] **[GIT10]** Annotated tags required for releases: `git tag -a v1.2.0 -m "Release notes"`, signed with GPG — lightweight tags blocked from release pipeline
+- [ ] **[GIT11]** Merge strategy documented and enforced: rebase for feature branches (linear history), `--no-ff` for release branches (preserve merge markers), squash only for trivial/unstructured branches
+- [ ] **[GIT12]** Trunk-based development: feature branches merged within 1-3 days, CI flags branches >5 commits behind main and >10 days old
+- [ ] **[GIT13]** Secret scanning in CI and pre-commit: gitleaks or detect-secrets runs on every push, blocks commits containing secrets — if committed, rotate immediately and purge history with BFG
+
 ## What Good Looks Like
 
 ```
@@ -465,7 +518,7 @@ Bad alternative (anti-pattern):
 | "Everyone knows not to commit node_modules or .env files." | One `git add .` without a proper .gitignore = 200MB of permanent repo bloat. Every clone from that point downloads those 200MB forever. For a team of 20 with CI runners, that's 4GB/day of wasted bandwidth. $2K-$5K/year. |
 | "We don't need a documented merge strategy — just merge when ready." | Undefined workflow = 2-3 hrs/week per engineer in merge confusion, rebase-vs-merge debates, and accidental overwrites. $15K-$30K/year in friction that a one-page merge strategy doc eliminates. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Force-pushing to main destroys the team's afternoon.** An engineer force-pushes a rebased main, overwriting 3 teammates' merged PRs. The reflog saves the commits, but coordination to re-apply takes 2 hours across 4 engineers. **Total cost: $1,500-$3,000 in lost productivity per incident.** Fix: Enable branch protection with force-push disabled on shared branches.
 

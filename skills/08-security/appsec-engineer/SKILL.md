@@ -110,6 +110,15 @@ You are an application security engineer who builds security into the SDLC, not 
 | **Startup** | $500-2K/mo | GitHub Advanced Security ($49/dev/mo for CodeQL + secret scanning), Snyk Team ($200/mo for 25 devs), OWASP DefectDojo ($0 self-hosted), Dependabot (free with GitHub) | CodeQL for deep analysis + Semgrep for custom rules. Snyk for reachability analysis. DefectDojo for centralized vulnerability management. Weekly DAST scans on staging. Security champions with 20% time allocation. Private bug bounty (HackerOne or self-managed VDP). SBOM generated at every build, verified at deploy. |
 | **Enterprise** | $50K+/mo | Veracode/Checkmarx ($30-80K/yr), Burp Suite Enterprise ($7K/yr), Synopsys Black Duck ($20-50K/yr), HackerOne Bounty ($15-50K/mo), Wiz/Aqua ($40K+/yr) | Full ASVS L2+ verification. IAST/SCA/SAST/DAST in CI with correlated findings. Centralized AppSec platform with deduplication and automated ticketing. Dedicated AppSec team (1 per 100 developers). Quarterly external pen tests (CREST-certified). Public bug bounty with $25K+/mo budget. SBOM registry with Dependency-Track. SLSA L3 build provenance. |
 
+### Scale Depth
+
+| Scale | AppSec Posture | You Focus On |
+|-------|---------------|--------------|
+| **Solo** | Single app, zero budget, no dedicated security personnel | Semgrep OSS SAST on PRs, OWASP ZAP baseline on staging, Trivy for dependency/container scanning, git-secrets pre-commit hook. Manual threat modeling with STRIDE-per-element. Manual code review for auth/crypto changes. Security debt tracked in same backlog as feature debt. |
+| **Small Team** (2-10) | 5-20 services, $500-2K/mo budget, part-time security champion | GitHub Advanced Security (CodeQL + secret scanning), Snyk Team for reachability analysis, DefectDojo for vulnerability management, Dependabot for automated updates. Weekly DAST scans. Security champions with 20% time allocation. Private bug bounty or VDP. SBOM at every build. |
+| **Medium** (10-50) | 20-100 services, $5K-15K/mo budget, 1-2 dedicated AppSec engineers | Burp Suite Pro, centralized SAST/SCA/DAST with correlated findings, OWASP ASVS L2 verification, automated security regression testing, fuzzing harnesses. Monthly pen tests on critical services. Security champions at 1:10 ratio. Public bug bounty. SBOM registry with Dependency-Track. SLSA L2 provenance. |
+| **Enterprise** (50+) | 100+ services, $50K+/mo, dedicated AppSec team (1 per 100 devs) | Veracode/Checkmarx + Burp Suite Enterprise + Synopsys Black Duck + Wiz/Aqua. Full ASVS L2+ with IAST/RASP in production. Centralized AppSec platform with deduplication. Bug bounty with $25K+/mo budget. Quarterly CREST-certified pen tests. SBOM registry with VEX. SLSA L3 build provenance. SOC 2 Type II + ISO 27001. |
+
 ## When to Use
 
 Use appsec-engineer when building or improving an application security program -- the focus is on scalable processes, developer enablement, and measurable risk reduction across the SDLC.
@@ -157,7 +166,7 @@ What application security task are you working on?
 |-- Complete appsec program from scratch -> Start at "Core Workflow: Phase 1"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- COMPRESSED: Full 172 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: SSDLC Foundation
@@ -168,7 +177,21 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (172 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees
+
+## Best Practices
+
+1. **Integrate SAST at PR time with diff-only scanning.** Run Semgrep or CodeQL on the changed lines only — scan must complete in under 5 minutes or developers will bypass it. Block merge on net-new HIGH/CRITICAL findings. Reserve deep branch-level SAST for nightly main-branch scans. Track false positive rate per rule; disable rules exceeding 70% FP rate.
+2. **Run DAST against staging with authenticated sessions.** OWASP ZAP baseline scans against unauthenticated endpoints find nothing useful. Configure ZAP with pre-authenticated test accounts, OpenAPI specs for API discovery, and crawl the full authenticated application surface. Schedule weekly DAST scans on staging and on every major release.
+3. **Scan dependencies at full transitive depth.** Default SCA configurations scan only direct dependencies — 78% of vulnerabilities live in transitive dependencies at depth 3+. Use `npm audit --all`, `trivy fs`, or `osv-scanner` with no depth limit. Block builds on any reachable vulnerability with CVSS ≥ 7 or any CISA KEV catalog entry.
+4. **Generate SBOMs at every build, verify at every deploy.** Use CycloneDX or SPDX format. Include VEX (Vulnerability Exploitability eXchange) statements: for every CVE, assert whether it's exploitable in your usage context. Store SBOMs in a registry (Dependency-Track) and query for exposure within 60 seconds of any new zero-day disclosure.
+5. **Mitigate OWASP Top 10 systematically.** Use parameterized queries for SQL injection — never string concatenation. HTML-entity-encode all user-controlled output for XSS. Implement strict Content Security Policy headers without `unsafe-inline`. Enforce authorization on every endpoint; never trust client-side checks. Rotate session tokens on login to prevent session fixation.
+6. **Build a security champions program with blocking authority.** Recruit volunteers (not appointees) — volunteers invest discretionary effort. Maintain 1 champion per 10-15 developers. Champions must have merge-blocking authority: their "security review required" label prevents merge. Without blocking authority, champions are a suggestion box, not a security control.
+7. **Design bug bounty programs with safe harbor language.** Without safe harbor, researchers face legal risk for reporting — 76% list it as the #1 factor in deciding whether to report. Start with a VDP (low volume), graduate to private bounty, then public. Pay for IMPACT (the breach cost if exploited), not "market rate." RCE on production: $5,000-$15,000 minimum.
+8. **Implement secure code review gates for auth/crypto/session changes.** Any PR touching authentication logic, cryptographic primitives, session management, or API key handling requires an independent security reviewer — never self-merge. One broken JWT validation = attacker impersonates any user. These are pattern-matchable, high-leverage review targets.
+9. **Tune SAST rules aggressively — false positives destroy programs.** A SAST tool with 70% false positives trains developers to ignore all findings. Track precision (true positives / total findings) as a KPI. Disable noisy rules in CI, run them only in nightly deep scans. Build trust by ensuring every CI-blocked finding is a true positive.
+10. **Automate security regression testing.** Write BDD security scenarios (Gherkin): "Given an unauthenticated user, when they access /admin, then the response is 401." Run these in CI alongside functional tests. Fuzz API endpoints with tools like `ffuf` or custom fuzzing harnesses. Security tests that aren't automated are security theater.
+
+## Decision Trees **(QUICK)**
 
 ### Threat Modeling Methodology
 
@@ -367,7 +390,7 @@ SBOM implementation decision tree:
 
 *   **AES-GCM nonce reuse completely breaks confidentiality (the Forbidden Attack).** Identical key + identical nonce = identical keystream. XOR two ciphertexts with the same nonce to cancel the keystream, revealing XOR of plaintexts. With known plaintext in one message, attacker recovers the keystream and decrypts everything. Mitigation: use AES-GCM-SIV (RFC 8452) for nonce-misuse resistance, or a monotonic nonce counter backed by persistent storage. **Total cost: $0 to use GCM-SIV; $200K-$2M if nonce reuse enables decryption of encrypted data in audit or breach.**
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -458,6 +481,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+- [ ] Every production repository has SAST running in CI with blocking mode enabled for net-new HIGH/CRITICAL findings on PRs; scan completes in under 5 minutes
+- [ ] Every production repository has SCA scanning at full transitive depth; CRITICAL CVEs and CISA KEV catalog entries block builds; auto-merge enabled only for patch-level updates with passing CI
+- [ ] Secret scanning runs as pre-commit hook AND in CI pipeline; GitHub push protection enabled; zero hardcoded secrets in any repository history
+- [ ] SBOM generated at every build in CycloneDX or SPDX format with VEX statements for all CVEs; SBOM stored in queryable registry (Dependency-Track); zero-day exposure queryable in under 60 seconds
+- [ ] Threat model exists for every Tier 1 service (auth, payments, PII, admin) and has been updated within the last 6 months; threat model includes STRIDE-per-element analysis with documented mitigations
+- [ ] Security review gate enforced on all PRs touching auth, crypto, session management, or API keys; labeled PRs blocked from merge without independent security reviewer approval
+- [ ] Bug bounty program or VDP active with safe harbor language published; security.txt present at standard path; all reports responded to within 24 hours
+- [ ] Security champions program active with at least 1 champion per 15 developers; champions have merge-blocking authority; champion roster reviewed quarterly for coverage gaps
+- [ ] DAST scanning runs weekly on staging environment with authenticated sessions and API discovery; critical findings triaged within 24 hours
+- [ ] OWASP ASVS level defined and verified quarterly; security controls mapped to ASVS requirements with evidence collected for each
+- [ ] Dependency update SLA enforced: CRITICAL CVEs with known exploits patched within 24 hours, HIGH within 7 days, MEDIUM within 30 days; SLA breach triggers escalation
+- [ ] SAST false positive rate tracked per rule; rules exceeding 70% FP rate disabled in CI and relegated to nightly deep scans only; overall precision KPI above 30%
+- [ ] Zero-day response readiness validated: dependency tree query returns exposure answer in under 60 seconds; on-call rotation defined; tabletop exercise conducted within last quarter
+- [ ] Security regression tests automated in CI: BDD security scenarios cover auth bypass, injection, IDOR, and session fixation; fuzzing harnesses run on API endpoints
+
 ## What Good Looks Like
 
 ```mermaid
@@ -487,7 +527,7 @@ graph LR
     G --> H[Month 6: 0 CRITICAL CVEs >7 days old, SAST blocks net-new on all repos, SBOMs for all 20 production services]
 ```
 
-## Gotchas -- Highest-Value Content
+## Anti-Patterns
 
 ### Threat Modeling Gotchas
 

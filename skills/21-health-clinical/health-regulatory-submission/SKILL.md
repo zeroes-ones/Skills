@@ -144,6 +144,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Clinical trial planning — IDE requirements for investigational devices
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- STANDARD: 3min -->
 
@@ -208,6 +209,7 @@ Starting point...
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- STANDARD: 5min -->
 
@@ -218,7 +220,31 @@ Document your software's intended use and indications for use. This is the most 
 ```markdown
 
 
+## Best Practices
+**(STANDARD)**
+
+1. **Start every regulatory engagement with a written, dated intended use statement.** FDA regulates based on INTENDED USE, not technical capability. The intended use statement should specify: clinical purpose, target population, mechanism of action, and user type (patient, HCP, or both). Without this document, classification is impossible — and classification without reviewing claims is regulatory malpractice. Update the intended use statement after every feature change that could affect clinical claims.
+
+2. **Submit a 513(g) Request for Classification for novel devices before committing to a pathway.** For devices that don't cleanly fit existing classification regulations, a 513(g) provides a binding FDA classification determination for a modest fee (~$5K-$10K). This de-risks the regulatory strategy before investing in a 510(k) or De Novo. Expect 60-90 days for FDA response.
+
+3. **Select predicate devices with identical intended use, not similar technology.** A 510(k) requires the SAME intended use as the predicate — technology can differ if it doesn't raise new safety/effectiveness questions. Different intended use = different predicate = invalid 510(k). Search the FDA 510(k) database with exact intended use language, not product category.
+
+4. **Write the Statistical Analysis Plan (SAP) before enrolling the first patient.** Pre-specify primary and secondary endpoints, analysis methods, handling of missing data, multiplicity adjustments, and subgroup analyses. Date-stamp and archive the SAP. Post-hoc selection of favorable methods is p-hacking and FDA will reject the submission. Have the SAP reviewed by an independent statistician blinded to the data.
+
+5. **Prepare clinical evidence proportionate to device risk — not minimum viable data.** Class I devices may need only bench testing; Class II typically requires analytical validation + clinical performance data; Class III demands pivotal clinical trials. Over-collecting costs money; under-collecting costs the submission. Map each claim in the intended use statement to the clinical evidence supporting it.
+
+6. **Validate eCTD submissions on a Linux environment before filing.** FDA's review systems run on Linux. Hyperlinks using Windows-style backslashes (`\`) break. SAS transport files (`.xpt`) have 8-character variable name limits. Run the FDA eCTD Validator and test all hyperlinks on a Linux VM before the submission date.
+
+7. **Engage a Notified Body for EU MDR at least 12 months before planned CE marking.** Notified Body capacity is severely limited post-MDR transition — some have 12-18 month waitlists. Designation scope (which device types they can certify) is narrow. Contact 3+ Notified Bodies simultaneously, confirm they have capacity and scope for your device class, and budget for 6-12 months of review after submission.
+
+8. **Maintain a living risk management file (ISO 14971) updated with every design change.** The risk management file is not a one-time submission document — it's a living record of hazards, harms, risk controls, and residual risk. Every software update, new feature, or post-market complaint should trigger a risk file review. FDA and Notified Body auditors will review the risk file for evidence of continuous risk management, not just initial assessment.
+
+9. **Implement a promotional review committee before the first marketing claim goes public.** Establish a review committee (regulatory, legal, marketing) that reviews ALL external communications against cleared indications. Create a "claims matrix" mapping every marketing claim to exact clearance language. FDA Warning Letters for off-label promotion are public, permanently damaging, and can trigger consent decrees.
+
+10. **Plan for post-market surveillance (PMS) from Day 1 of commercialization, not after launch.** FDA requires PMS for PMA devices; EU MDR requires PMS for all classes. Define PMS data sources (complaints, literature, registries, social media monitoring), analysis frequency (PSUR/PMSR schedule), and signal detection thresholds. PMS is not passive monitoring — it's an active system for detecting safety signals before they become recalls.
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -483,7 +509,8 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 
 ```
 
-## Gotchas
+## Anti-Patterns
+**(STANDARD)**
 
 - **FDA submission with incomplete data — the "we'll file and supplement later" trap.** You submit a 510(k) or PMA with 90% of the required biocompatibility data, reasoning that the FDA will issue a deficiency letter and you'll respond with the missing 10%. Instead, the FDA issues a Refuse to Accept (RTA) or Not Substantially Equivalent (NSE) determination, which resets the review clock entirely. A 510(k) that could have cleared in 90 days now takes 180-270 days for resubmission, and every month of delay costs $50K-$150K in lost market revenue if you're second-to-market, plus $30K-$80K in additional regulatory consulting and testing fees. For PMA submissions, the cost escalates dramatically due to advisory panel rescheduling and manufacturing facility re-inspections. **Total cost: $500K-$2M in rejection, resubmission, and delayed market entry when the FDA rejects an incomplete submission outright.** Run a pre-submission completeness checklist against the most recent FDA guidance for your submission type, and have an independent regulatory consultant audit the package before filing — the $15K-$25K audit cost is cheap insurance against a rejection.
 - **Missing predicate device analysis in 510(k) submission — "we assumed equivalence was obvious."** You identify a predicate device in the FDA's 510(k) database but don't perform a detailed side-by-side comparison of indications, technological characteristics, and performance testing. The FDA reviewer identifies a material difference — your device uses a different sensor technology that wasn't in the predicate — and issues an Additional Information (AI) letter requesting justification or new testing. The 90-day review clock stops, and responding with the required bench testing takes 4-6 months, during which competitors with properly documented equivalence capture the market. Each month of delay costs $25K-$80K in lost revenue for a mid-market device, plus $15K-$30K in retesting and regulatory support. **Total cost: $100K-$500K in delayed 510(k) clearance and lost first-mover advantage.** Perform a comprehensive predicate comparison table covering intended use, technological characteristics, materials, performance specifications, and labeling before submission preparation begins — and submit a pre-submission (Q-Sub) to the FDA if any characteristic is not clearly identical.
@@ -494,6 +521,25 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - **Dataset variable names** in `xpt` (SAS transport) format — variable names are truncated to 8 characters. `PATIENT_IDENTIFIER` becomes `PATIENT_` and `PATIENT_INTAKE_DATE` also becomes `PATIENT_`. Two different variables with the same name in the FDA's analysis tools. Define unique names within 8 characters: `PTID`, `PTINTDT`.
 - **Submission "day 0" vs "day 1"** — the clock starts at submission receipt, but if FDA has a question on day 28 and you respond on day 35, the clock STOPPED on day 28 and resumed on day 35. You didn't lose 7 days. But if you miss the response deadline by 1 calendar day, you DO lose those 7 days + penalties. Submission calendar management is non-trivial.
 - **"Reference Listed Drug" (RLD) in your ANDA** — you list a product that was discontinued, and the FDA can't obtain samples for bioequivalence testing. Your application is delayed 18 months while they figure it out. Verify the RLD is CURRENTLY MARKETED (check the Orange Book "RLD" flag AND "Discontinued" flag), not just approved.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Intended use statement written, dated, and reviewed by regulatory counsel — defines clinical purpose, population, mechanism, and user type
+- [ ] Device classification determined (Class I/II/III) with documented rationale and supporting FDA guidance references
+- [ ] Regulatory pathway selected: 510(k) with identified predicate(s), De Novo with special controls proposal, or PMA with clinical trial plan
+- [ ] 513(g) submitted for novel devices where classification is uncertain — FDA response received and documented
+- [ ] Predicate device comparison table completed: intended use, technological characteristics, materials, performance specs, labeling side-by-side
+- [ ] Statistical Analysis Plan (SAP) written, date-stamped, archived, and reviewed by independent statistician before first patient enrolled
+- [ ] Clinical evidence plan maps every intended use claim to supporting data source (bench, analytical validation, clinical performance, or pivotal trial)
+- [ ] eCTD submission validated with FDA eSTAR template — zero errors on eCTD Validator, all hyperlinks tested on Linux VM
+- [ ] SAS transport files validated: variable names unique within 8 characters, formats applied, labels present
+- [ ] EU MDR/IVDR classification completed per Annex VIII — Notified Body engaged with confirmed scope and capacity
+- [ ] ISO 13485 Quality Management System implemented proportionate to device class — internal audit completed within last 12 months
+- [ ] IEC 62304 software documentation prepared: development plan, SRS, architecture design, SDS, traceability matrix, version history
+- [ ] ISO 14971 risk management file current — updated after every design change, post-market complaint, and software update
+- [ ] Promotional review committee established — claims matrix mapped to cleared indications, training completed for sales and marketing
+- [ ] Post-market surveillance plan documented: data sources, analysis cadence, signal detection thresholds, PSUR/PMSR schedule
 
 ## Anti-Rationalization — No Excuses
 
@@ -526,6 +572,49 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+### Scale Depth
+
+#### Solo / Startup (Pre-Seed)
+- **Scope:** Device determination only. Is this regulated? Classification guess. Regulatory budget estimate.
+- **Architecture:** One-page regulatory strategy memo. Intended use statement draft. FDA guidance document collection for relevant product codes.
+- **Constraints:** No regulatory budget. Rely on FDA guidance documents and public 510(k) summaries. Seed-stage: complete device determination before fundraising.
+- **Deliverable:** "Is this FDA-regulated? What pathway? Rough timeline and budget?"
+
+#### Small / Seed-Stage
+- **Scope:** Single-market regulatory strategy (US-only). 510(k) preparation if Class II. QMS implementation (ISO 13485 light). Clinical evidence strategy for clearance.
+- **Architecture:** Regulatory strategy document. Predicate comparison table. eSTAR template populated. QMS SOPs for design control, CAPA, complaint handling. Clinical evidence plan (analytical validation + small clinical performance study).
+- **New concerns:** Investor due diligence readiness. FDA pre-submission meeting preparation. Labeling strategy (cleared claims vs marketing language). First BAA negotiations for cloud infrastructure.
+- **Deliverable:** "510(k) ready for submission. QMS auditable. Clinical evidence collected."
+
+#### Medium / Series A-B (Growth)
+- **Scope:** Multi-market regulatory strategy (US + EU). De Novo or PMA if applicable. Breakthrough Device Designation application. Clinical trial design with regulatory endpoints. Notified Body engagement for CE marking.
+- **Architecture:** Global regulatory strategy document. FDA Q-Sub meeting package. EU MDR Technical Documentation (Annex II/III). Clinical Evaluation Report (MEDDEV 2.7/1 Rev.4). ISO 13485 full QMS with design controls. Post-market surveillance system operational.
+- **New concerns:** Multi-jurisdiction clinical evidence harmonization. Notified Body audit preparation. UDI system implementation. Supply chain quality agreements. Pharma partnership regulatory requirements.
+- **Deliverable:** "FDA clearance + CE Mark strategy. Clinical trial protocol FDA-aligned. PMS system active."
+
+#### Enterprise / Series C+ (Scale)
+- **Scope:** Global regulatory portfolio (US, EU, Japan/PMDA, China/NMPA, Australia/TGA). Multiple product lines with different classifications. Post-market surveillance at scale. Regulatory intelligence function monitoring guidance changes across jurisdictions.
+- **Architecture:** Regulatory portfolio management system. eQMS with global design controls. Clinical evidence generation program (multiple trials, registries, publications). Health economics and reimbursement (HEOR) function integrated with regulatory. Regulatory intelligence dashboard tracking guidance changes, enforcement actions, and competitor clearances.
+- **New concerns:** Labeling harmonization across jurisdictions (different intended use statements allowed). Supply chain regulatory compliance (ISO 13485 across all suppliers). Mergers & acquisitions regulatory due diligence. FDA enforcement action response capability.
+- **Deliverable:** "Multi-product, multi-jurisdiction regulatory portfolio. Proactive regulatory intelligence. HEOR evidence for payer negotiations."
+
+**Transition Triggers:**
+- **Solo → Small:** Fundraising planned within 6 months → complete device determination. First customer asks "Are you FDA cleared?" → initiate regulatory pathway.
+- **Small → Medium:** EU launch planned within 18 months → begin MDR compliance. No predicate device exists → initiate De Novo strategy. Competitor receives FDA clearance → accelerate submission timeline.
+- **Medium → Enterprise:** Third product line launched → implement regulatory portfolio management. First FDA inspection → upgrade QMS to enterprise scale. Japan/Australia market entry → add PMDA/TGA regulatory expertise.
+
+## Error Decoder
+**(DEEP)**
+
+| Symptom | Real-World Cause | Diagnostic Steps | Resolution |
+|---------|-----------------|------------------|------------|
+| FDA Refuse to Accept (RTA) letter received 74 days after submission | Missing or incomplete eSTAR section — formatting/administrative deficiency, not scientific review. Most common: missing table of contents, broken hyperlinks, unsigned forms | Review RTA letter for specific section deficiencies. Check eSTAR template completion status against FDA checklist. Verify all signatures, dates, and pagination. | Complete missing sections per FDA deficiency list. Re-validate entire submission with FDA eCTD Validator. Re-submit with cover letter addressing each RTA item. Expected delay: 60-90 days to re-submission + 90-day review clock restart. |
+| 510(k) held for Additional Information (AI) — review clock stops at Day 75 | FDA reviewer identified a gap in predicate comparison or performance testing. The difference between subject and predicate device in technological characteristics wasn't adequately addressed. | Review AI letter for specific questions. Map each question to the submission section it references. Determine if additional testing is needed or if existing data can be re-analyzed to address the question. | Prepare AI response letter addressing each question point-by-point. If new testing required, estimate timeline and communicate to FDA. Submit AI response — review clock resumes. Budget 4-6 months for AI response if testing needed. |
+| De Novo classification request denied — FDA determines device is Class III (requires PMA) | The benefit-risk analysis didn't demonstrate that special controls adequately mitigate risks. FDA determined the device poses a potential unreasonable risk of illness or injury that general + special controls cannot reduce. | Review FDA's denial rationale. Assess if additional clinical data could support De Novo classification. Determine if PMA is feasible (cost, timeline, clinical evidence requirements). | Options: (1) Collect additional clinical evidence and resubmit De Novo with stronger benefit-risk case, (2) Transition to PMA pathway (18-36 months, $1M-$5M+), or (3) Pivot product design to reduce risk profile to Class II level. |
+| EU Notified Body audit identifies major non-conformity — CE marking delayed | QMS gap discovered during initial certification audit. Most common: incomplete design controls (IEC 62304), risk management not linked to design inputs, or clinical evaluation not updated with latest literature. | Review non-conformity report for root cause. Assess whether NC is systemic (process failure) or isolated (documentation gap). Determine if QMS requires process redesign or just documentation updates. | Submit corrective action plan within Notified Body's required timeframe (typically 30 days). Implement corrective actions. Schedule follow-up audit. Expected delay: 3-6 months depending on NC severity. Systemic NCs require evidence of process effectiveness over time. |
+| FDA Warning Letter received for off-label promotion | Marketing materials or sales communications made claims beyond cleared indications. Competitor complaint or FDA surveillance detected the violation. | Review all marketing materials, website content, sales collateral, and social media for claims exceeding cleared indications. Identify the specific language that triggered the Warning Letter. Audit sales training materials. | Issue corrective communications (retraction, website updates). Retrain sales force on cleared vs off-label claims. Submit response to FDA within 15 business days describing corrective actions. May require new 510(k) if expanded claims are desired. Warning Letter is public and permanently searchable. |
+| Post-market surveillance detects safety signal that may require field action | Adverse event trend in complaint data exceeds expected rate. PMS data source (MAUDE, literature, social media) shows emerging risk not documented in IFU. | Conduct health hazard evaluation (HHE) per ISO 14971. Classify severity and probability. Determine if risk exceeds acceptable thresholds in risk management file. Assess affected population size. | If risk is unacceptable: initiate correction or removal. Report to FDA (806 Report of Correction/Removal within 10 days). Update risk management file. Issue field safety notice. If recall: classify (Class I/II/III), notify FDA, notify affected customers. Recalls are public — transparency and speed reduce long-term reputational damage. |
 
 ## References
 

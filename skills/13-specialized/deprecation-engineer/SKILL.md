@@ -108,7 +108,7 @@ What deprecation/migration task are you working on?
 |-- Full deprecation audit -> Start at "Core Workflow: Phase 1 - Deprecation Audit"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1: Deprecation Audit
 
@@ -203,7 +203,7 @@ What deprecation/migration task are you working on?
    |-- Retro: was the deprecation smooth? What could be improved?
 ```
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### API Deprecation
 
@@ -349,7 +349,20 @@ Phase 3: EXECUTE
 ```
 
 
-## Error Recovery
+## Best Practices
+
+1. **Never delete based on intuition — instrument with counters first.** "Nobody uses that endpoint anymore" is a production outage waiting to happen. Add a runtime counter, monitor for 30+ days across all environments, and only delete after confirming zero invocations. Intuition-based deletion cascades through payment pipelines and costs $25K-$150K in downtime and SLA credits.
+2. **Replacement-first deprecation.** Never deprecate without a working, feature-complete replacement available on day one of the announcement. A "coming soon" v2 that's 6 months late drives enterprise customers with 12-month integration cycles to competitors. Cost: $100K-$1M in churned ARR. The replacement must be at least as capable as what it replaces.
+3. **Expand-Contract for every breaking schema change.** Phase 1: add new column/table alongside old. Phase 2: dual-write to both. Phase 3: migrate existing data. Phase 4: remove old after verification. Each phase deploys independently. Skipping Expand-Contract forces coordinated deploys across 8 services — one missed deploy window corrupts downstream analytics.
+4. **Communication cadence scales with deprecation severity.** Advisory deprecation: 90-180 days notice with migration guide. Compulsory deprecation: minimum 90 days from announcement to sunset. Send reminders at 60d, 30d, 14d, 7d, 1d before sunset. The sunset date should be `max(engineering_estimate × 3, slowest_customer_migration_time × 1.5, 90 days)`.
+5. **Migration tooling is the highest-ROI deprecation investment.** Automated codemods, lint rules with auto-fix, and compatibility shims reduce migration time by 80-95%. A 2-hour codemod script handles 2,000 call sites with zero human error. Manual migration of the same scope takes 40+ hours and misses 10-25% of call sites. Invest in tooling before announcing the deprecation.
+6. **Every feature flag needs a sunset date.** Flags ON at 100% for 60+ days are no longer flags — they're dead code masquerading as configuration. Track flag count as an engineering metric with a target ceiling. A codebase with 200+ flags where 80% are ON permanently creates a 2^200 combinatorial testing matrix that consumes 40% of QA time.
+7. **Zombie code hunts are recurring engineering work, not one-time cleanups.** Run `knip`, `vulture`, `deadcode`, or `ts-prune` quarterly. Instrument suspect paths with counters for 30-90 days. 12% dead code in a hot-path microservice wastes 1.2 servers continuously — $30K-$100K/year in unnecessary compute. Track zombie code percentage as a code health metric with a target of < 3%.
+8. **Direct consumer notification for every deprecation.** Automated announcements in changelogs are not enough. Direct-message every known consumer maintainer. For enterprise customers, dedicated migration support reduces churn risk. A deprecation that surprises a customer who built their business on your API destroys trust that takes years to rebuild.
+9. **Return 410 Gone with migration link, never 500.** When the sunset date arrives, return HTTP 410 Gone with the migration guide URL in the response body. A 500 error sends consumers debugging their own code. A 410 is explicit: "This endpoint was intentionally removed. Here's where to go instead." Include a 7-day grace period of 410 responses before removing the code.
+10. **Retro after every deprecation.** What went smoothly? What surprised us? Were migration tools adequate? Was the timeline realistic? Document lessons learned. Each retro improves the next deprecation. A deprecation without a retro repeats the same mistakes — timelines set by engineering convenience that force customer churn, zombie code that nobody instrumented, and breaking changes shipped without Expand-Contract.
+
+## Error Recovery **(DEEP)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -485,7 +498,7 @@ Bad alternative (anti-pattern):
 | "Let's just ship the breaking change — consumers can adapt." | Engineering sets a 30-day window because "the migration is simple." Enterprise customers with change control boards need 90-120 days. They can't meet the deadline and escalate to their account executives. Cost: **$50K-$200K** in account management time and potential customer churn. |
 | "That dead code isn't costing us anything — it's just sitting there." | 12% dead code in a high-traffic microservice still executes CPU cycles on every request. At 10K req/s, that's 1.2 wasted servers continuously. Across 50 services over a year: **$30K-$100K/year** in unnecessary cloud compute. Dead code is a recurring infrastructure tax. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Deleting code that is still called in production causes an immediate outage.** A developer deletes a deprecated endpoint that "nobody uses anymore" based on intuition, not data. Three critical internal services still call it, and the deletion causes a cascade of failures across the payment pipeline. **Total cost: $25,000-$150,000 in downtime, emergency fixes, and SLA credits.** Fix: Never delete based on intuition. Instrument with counters, monitor for at least 30 days across all environments. Only delete after confirming zero invocations.
 
@@ -524,6 +537,21 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(DEEP)**
+
+- [ ] **[S1]** Deprecation inventory complete: all deprecated surfaces (APIs, features, flags, libraries, endpoints) cataloged with sunset date, replacement, and migration guide. Audit refreshed within last 30 days.
+- [ ] **[S2]** Replacement available and feature-complete: every deprecated surface has a working replacement deployed to production before deprecation announcement. Replacement is at least as capable as what it replaces.
+- [ ] **[S3]** Runtime counters active on all deprecated surfaces: per-consumer usage metrics emitting to dashboards. Alert configured for non-zero traffic 14 days before sunset. Zero invocations confirmed for 30+ days before code removal.
+- [ ] **[S4]** Migration guides published for every deprecation: before/after code examples, common pitfalls with workarounds, timeline with specific dates, contact for migration support. Guides reviewed by a developer unfamiliar with the old API.
+- [ ] **[S5]** Sunset dates set with consumer input: timeline = max(engineering_estimate × 3, slowest_customer_migration_time × 1.5, 90 days). Heaviest users surveyed before setting dates. No deprecation window < 90 days.
+- [ ] **[S6]** Communication cadence executed: 60d, 30d, 14d, 7d, 1d reminders sent. Direct outreach to all known consumers. Enterprise customers offered dedicated migration support.
+- [ ] **[S7]** Feature flag hygiene maintained: zero flags ON at 100% for >60 days without a removal ticket. Zero orphaned flags. Flag count tracked as engineering metric with target ceiling. Sunset date on every new flag.
+- [ ] **[S8]** Zombie code percentage measured and trending downward: target < 3% of codebase. Quarterly zombie hunts scheduled. Instrumented suspect paths confirmed dead by 30+ days of zero-invocation counters.
+- [ ] **[S9]** Breaking changes use Expand-Contract: each phase independently deployable and reversible. No coordinated multi-service deploys required. Dual-write verified with diffing system.
+- [ ] **[S10]** Breaking change window scheduled and published: minimum 30 days advance notice. Next window date communicated to all teams. Migration experts on call during and after the window.
+- [ ] **[S11]** 410 Gone responses configured: sunset date returns HTTP 410 with migration link in body. 7-day grace period of 410 before code removal. No 500 errors returned for intentionally removed endpoints.
+- [ ] **[S12]** Rollback plan for every removal: revert path documented (restore from git history, re-deploy). Emergency contact list for unexpected breakage. Post-removal monitoring for 30 days with alert on related error spikes.
 
 ## References
 

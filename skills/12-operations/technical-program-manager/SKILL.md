@@ -133,6 +133,20 @@ Master technical program managers know that operational excellence is invisible 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 TPM, 1 program, 3-5 teams)
+Single program charter, dependency matrix in a spreadsheet, milestone plan in Notion. Weekly status email to sponsor and team leads. ADRs written in `docs/adr/` with PR review. Focus: disciplined charter writing, dependency mapping, and milestone exit criteria. Tools: Notion, Google Sheets, GitHub for ADRs.
+
+#### Small (2-3 TPMs, 3-5 programs, 5-15 teams)
+Standardized program templates (charter, dependency matrix, status report). Program portfolio view with cross-program dependency visibility. Bi-weekly program review with sponsors. PERT estimation on all programs with external deadlines. Focus: cross-program resource allocation, program risk aggregation, stakeholder communication cadence. Tools: Jira Advanced Roadmaps + Confluence, Linear + Notion.
+
+#### Medium (3-8 TPMs, 5-15 programs, 15-50 teams)
+TPM practice with methodology standards and tooling governance. Program portfolio dashboard with composite health scores. Quarterly program reviews with executive steering committee. Focus: program prioritization (which programs get resources?), dependency management at scale, TPM career ladder and mentoring, program ROI tracking. Tools: Jira Align, Planview, ServiceNow SPM, Airtable for program portfolio.
+
+#### Enterprise (8+ TPMs, 15+ programs, 50+ teams, multi-business-unit)
+Enterprise TPM organization with chief of staff or VP-level program leadership. Strategic program portfolio aligned to company OKRs. Stage-gate governance with executive steering committees. Focus: strategic alignment (do programs map to company strategy?), benefits realization (did programs deliver projected ROI?), TPM competency framework, program management platform standardization. Tools: Jira Align, Planview Enterprise, ServiceNow SPM, Clarity PPM.
+
 ## When to Use
 
 - You are launching a cross-team initiative that spans 3+ engineering teams with interdependent deliverables
@@ -145,6 +159,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - An external deadline (regulatory, contractual, market) is approaching and you need to assess the feasibility of the date
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
@@ -182,6 +198,8 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 ```
 
 ## Core Workflow
+
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -237,9 +255,44 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 4. **Metrics Retrospective** — Planned vs actual: timeline, resources, quality. Output: metrics summary for future estimation.
 
 
+## Best Practices
+
+1. **Start every program with a one-page charter signed by the sponsor.** Before dependency mapping, before ADRs, before timeline estimates — write the problem statement, success criteria, scope boundaries (what's IN and OUT), timeline estimate (P50/P90 range), resource ask, and named sponsor. Circulate for sign-off within the first week. Programs without charters drift because "everyone knows what we're building" — except everyone has a different version. **Tool:** Confluence program charter template, Notion program hub, or Google Docs with e-signature.
+
+2. **Map dependencies before building the schedule.** Every cross-team dependency needs: named owner on BOTH sides (blocking team and blocked team), committed date, buffer percentage (25-30% for cross-team, 50% for external), and a contract artifact (API spec, event schema, data format). A dependency without a contract is a hope, not a plan. Review the dependency matrix weekly — any dependency > 3 days past its committed date triggers escalation to the engineering manager of the owing team. **Tool:** Jira Plans dependency view, Linear project dependencies, or a dependency matrix in Notion/Confluence with automated status checks.
+
+3. **Use PERT for any program with an external deadline.** When regulatory, contractual, or market-window dates exist, a single-date estimate is a lie. PERT produces three estimates: optimistic (best-case, no surprises), most-likely (realistic, typical surprises), pessimistic (worst-case, multiple surprises). The critical path gets 25-30% buffer. If the buffer drops below 15% remaining, escalate to the sponsor with three options: cut scope, add resources, or push the date. **Tool:** Jira Advanced Roadmaps with PERT fields, Smartsheet PERT analysis, or Monte Carlo simulation in spreadsheet.
+
+4. **Write an ADR for every cross-cutting architectural decision.** If a technical decision affects 3+ teams, it must be documented as an Architecture Decision Record with: context, decision, alternatives considered, consequences (positive and negative), and approval. Verbal agreements between tech leads don't survive turnover — "we agreed in the hallway" is not discoverable 6 months later when a new team questions the choice. Circulate ADRs for 1-2 weeks of review before marking "Accepted." **Tool:** ADR template in `docs/adr/` directory, linked from Confluence program page, with GitHub PR-based review workflow.
+
+5. **Report status using milestone exit criteria completion, not gut feel.** "On track" means nothing without evidence. Every milestone has written exit criteria before the program starts. Status reports cite: milestone X is Y% through exit criteria, Z/N dependencies are ON_TRACK, risk register has W HIGH/MEDIUM/LOW risks. Team leads' self-reports are optimism-biased — verify with evidence. If the weekly dependency review hasn't happened this week, status is AT_RISK by default. **Tool:** Jira dashboard with milestone progress %, Notion status page with linked evidence, or Linear project updates with verification checkboxes.
+
+6. **Maintain a single source of truth for all program artifacts.** Schedule in one platform, dependencies in one matrix, risks in one register, decisions in one log, action items in one tracker. When information fragments across Jira + spreadsheets + Slack + meeting notes, the TPM burns 40% of their week reconciling data instead of managing the program. Choose a platform stack (Jira + Confluence, Notion, Linear + Notion) and enforce it — no rogue spreadsheets, no decisions made in Slack without being captured. **Tool:** Notion program hub with linked databases, Confluence space with standardized page templates, or Jira + Confluence integration with automated status rollup.
+
+7. **Escalate with options, not problems.** When a risk materializes or a dependency breaches, don't bring the sponsor a problem — bring three options: (a) cut scope → which features drop, timeline impact, (b) add resources → how many, from where, cost, (c) push the date → new date, market impact, contractual implications. The sponsor decides; the TPM presents the trade-offs with evidence. A TPM who escalates problems without options is a messenger, not a manager. **Tool:** Escalation template in Confluence/Notion with required sections: situation, impact, options (3 minimum), recommendation, decision needed, deadline for decision.
+
+8. **Run a program-level retrospective at every major milestone.** Don't wait until the program ends to learn. After milestone 1, 2, and 3: what went well, what went wrong, what will we do differently for the next milestone? Track these findings to process changes — if the same issue appears in two consecutive retrospectives, the process fix wasn't real. A program retro at the end that discovers issues from month 1 is a confession, not a lesson. **Tool:** Miro retrospective board with program-level template, Confluence retro page with action item tracker linked to Jira tickets.
+
+9. **Negotiate API contracts between teams before implementation starts.** When Team A needs an API from Team B, don't let both teams start coding and "integrate later." Define the contract first: OpenAPI spec, gRPC proto, or event schema with versioning, error codes, rate limits, and SLAs. Both teams sign off on the contract. Team B builds to the contract; Team A builds against a mock that implements the contract. Integration tests validate the contract, not the implementation. **Tool:** OpenAPI spec in shared repo, Stoplight/Postman for contract testing, or Pact for consumer-driven contract testing.
+
+10. **Quantify program health with a composite score, not a single RAG.** A simple GREEN/AMBER/RED masks what's actually happening. Compute: milestone completion rate (actual vs planned milestones), dependency health (on-track / total dependencies), schedule variance (actual vs baseline), risk score (weighted sum of probability × impact for active risks), and team health (self-reported across teams). Weight and combine into a single program health index. A program with 80% milestones on track but 40% dependencies at risk is not "green" — the composite score surfaces the truth. **Tool:** Jira dashboard with calculated fields, Notion formula properties, or a Power BI/Google Data Studio dashboard pulling from multiple sources.
+
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Program "on track" until 3 days before launch, then 4-week slip discovered | Status was measured backward ("are we past the date?") instead of forward ("will we hit the date at current velocity?"). Nobody computed remaining work ÷ remaining time. | All status reports must project forward using milestone exit criteria completion percentages and dependency status. "Green" requires ≥ 90% of exit criteria met and ≥ 90% of dependencies on track. | Status is a projection, not a rearview mirror. Forward-looking metrics prevent surprise misses. |
+| 5 teams each hit 99.9% availability but combined system is 99.5% | Availability multiplies across dependent services: 99.9%^5 = 99.5%. Cascading OKRs ignored system-level coupling. | Set system-level SLOs that account for dependency chains. Use synthetic monitoring of end-to-end user journeys, not per-service uptime. | System-level metrics cannot be decomposed by simple division. Composite systems need composite measurement. |
+| Team A says API is "ready" — Team B integrates and it doesn't work | No contract between teams. "Ready" meant "code compiles" to Team A and "integration tests pass at 2x load" to Team B. | Define API contracts (OpenAPI/gRPC/event schema) with acceptance criteria BEFORE implementation. Both teams sign off. Integration tests validate the contract. | Inter-team delivery is not "code complete" — it's "integration tests passing for 48 hours against a signed contract." |
+| Dependency has no owner after 3 weeks — nobody will claim it | Cross-team dependency was identified but no owning team was assigned. The TPM assumed "someone will pick it up." | Every dependency must have a named owner and committed date within 48 hours of identification. Unassigned dependencies escalate to the engineering manager of the most logical owning team. | A dependency without an owner within 48 hours has a > 90% chance of slipping. Ownership is the first gate. |
+| Risk register has 20 MEDIUM risks, zero HIGH, zero closed — for 3 months | Risk inflation without triage. The TPM added every risk as MEDIUM to avoid the hard conversation of what's truly HIGH. | Force triage: each MEDIUM risk is either downgraded to LOW, upgraded to HIGH (immediate mitigation activation), or closed. Target ≤ 10 active risks at any time with a clear distribution across severity levels. | A register with 10 decision-ready risks is more valuable than 45 T-shirt-sized worries. |
+| ADR was "agreed" in a meeting but 6 months later nobody remembers why | Verbal architectural decisions don't survive team turnover. No ADR was written because "everyone was in the room." | Write the ADR within 48 hours of the decision: context, decision, alternatives, consequences. Store in `docs/adr/` with sequential numbering. Circulate for review before marking "Accepted." | If it's not written down, it didn't happen. ADRs are the program's technical memory. |
+
+
 ## Error Recovery
 
-If a command or approach fails, follow this escalation path before giving up:
+**(STANDARD)**, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
 |---------|-------------|---------------|-------------|
@@ -357,6 +410,25 @@ The TPM-to-System-Architect relationship is the bridge between program execution
 | **Milestone definition** | Business milestones with hard external dates (regulatory, contractual, market window) | Technical milestones: architecture review complete, API contracts published, integration test passing, load test at 2x target |
 | **Architecture change management** | Change impact analysis (schedule delta, team reallocation, cost of delay); sponsor escalation | Why the change is necessary (new constraint, discovered limitation, better approach); what the migration path looks like; what breaks if we don't change |
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[TPM1]** Program charter signed by sponsor with problem statement, success criteria, scope (IN/OUT), P50/P90 timeline estimate, resource ask — linked from program hub
+- [ ] **[TPM2]** Dependency matrix established: every cross-team dependency has named owners on both sides, committed dates, buffer %, and contract artifact (API spec, schema) — reviewed weekly
+- [ ] **[TPM3]** ADRs written for all cross-cutting architectural decisions (affecting 3+ teams) — stored in `docs/adr/` with sequential numbering, circulated for 1-2 week review, marked "Accepted"
+- [ ] **[TPM4]** PERT estimates produced for any program with an external deadline — optimistic/most-likely/pessimistic with 25-30% buffer on critical path, buffer tracked weekly
+- [ ] **[TPM5]** Milestone exit criteria defined for all 5-8 program milestones before program start — milestones reported as % exit criteria complete, not binary gut-feel
+- [ ] **[TPM6]** Program health dashboard active: milestone completion rate, dependency health (% on track), schedule variance, composite risk score, team health — updated weekly
+- [ ] **[TPM7]** Status reporting cadence: weekly 1-page exec summary (top 3 wins, top 3 risks, decisions needed), monthly program review presentation, stakeholder format tailored to audience
+- [ ] **[TPM8]** Risk register maintained: top 10 risks with T-shirt sizing (probability × impact), named owners, mitigation plans, trigger conditions — reviewed bi-weekly, ≤ 10 active risks
+- [ ] **[TPM9]** Change control process operational: all scope/date/resource changes require impact analysis → 3 options → sponsor decision → change log entry
+- [ ] **[TPM10]** Escalation path defined with pre-written templates: risk materialized, dependency breached, deadline at risk, resource lost — each escalation includes 3 options with trade-offs
+- [ ] **[TPM11]** Program-level retrospective conducted at every major milestone — findings tracked to process changes, same issue appearing in 2+ consecutive retros triggers root cause investigation
+- [ ] **[TPM12]** API contracts signed between teams before implementation: OpenAPI/gRPC/event schema with versioning, error codes, SLAs — integration tests validate contract, not implementation
+- [ ] **[TPM13]** Single source of truth: all program artifacts (charter, dependencies, risks, decisions, status reports, change log) accessible from one platform without asking the TPM
+- [ ] **[TPM14]** Program closure checklist: all success criteria met, migrations complete, old systems decommissioned, knowledge transferred, postmortem published, metrics retrospective completed
+
 ## What Good Looks Like
 
 > When technical program management is done right, cross-team dependencies are mapped and tracked so that no team is blocked waiting on another, architectural decisions are documented as ADRs with clear
@@ -380,7 +452,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
-## Gotchas
+## Anti-Patterns
 
 - **Program Gantt chart with 100% dependency chaining** — if task B depends on A, C depends on B, ... Z depends on Y, any delay to A delays the entire program by the same amount. Every dependency is a single point of failure. Design programs with parallel tracks that merge only at integration milestones. **Total cost: $500,000-$3,000,000 per delayed quarter** — a single critical-path slip cascades to entire program delay, costing $2M+/month in 50-person engineering orgs.
 - **"On track" status report** based on milestones that are 3 weeks out — everything is "on track" until the day before the milestone. Status reports should project forward: "given current velocity and remaining work, will we hit the date?" not "are we past the date yet?". **Total cost: $300,000-$1,500,000 per surprise miss** — discovering a 4-week slip 3 days before launch forces crash resourcing, weekend war-rooms, and missed market windows.

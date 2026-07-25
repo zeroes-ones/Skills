@@ -117,6 +117,20 @@ If no auto-route matched, use this intent tree:
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo
+- Run a fundraise end-to-end solo: build the pitch deck, manage the data room, track the pipeline, coordinate diligence. You are founder-CEO-IR all in one. Focus on mastering the narrative, building a tight target investor list, and running an efficient process without staffing overhead.
+
+#### Small Team
+- Manage IR with a chief of staff or part-time CFO. Delegate data room maintenance and pipeline tracking. You focus on investor meetings, term sheet negotiation, and board-level IR strategy. Monthly investor updates become systematized with templated metrics collection.
+
+#### Medium Organization
+- Build a dedicated IR function with 2-5 people: IR lead, analyst, and coordinator. Produce quarterly earnings materials, maintain consensus models, run investor days, and manage shareholder engagement for a public or late-stage private company. Sell-side analyst relationships become a formal program.
+
+#### Enterprise
+- Lead a public company IR department reporting to the CFO. Manage quarterly earnings cycles, annual shareholder meetings, proxy statements, activist defense preparedness, and ESG investor engagement. You shape how the Street values the company — the IR narrative directly impacts the cost of capital and market multiple. Reg FD compliance, 10b5-1 plans, and insider trading policies are operationalized across the organization.
+
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -140,6 +154,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -196,6 +211,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Secondary transaction proposed without employee-wide communication plan | Insert communication design into process: who sells, how much, who's eligible next, rationale, impact on 409A — communicate before, not after | Secondaries create winners and losers; silence breeds resentment and attrition among those excluded |
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
@@ -323,6 +339,7 @@ Scenario 4: Acquisition (stock vs. cash deal)
 <!-- DEEP: 10+min -->
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1 (~120 min): Fundraising Preparation
 <!-- STANDARD: 3min -->
@@ -442,15 +459,21 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Gotchas
+## Anti-Patterns
 
-- **Earnings call script that sounds like a press release** — "We are pleased to announce robust top-line growth driven by strategic initiatives and operational excellence." Investors tune out corporate-speak in 8 seconds. "Revenue grew 32%. Here are the 3 things that drove it. Here's what we're worried about. Here's what we're doing about it."
-- **Guidance that's a single number** — "We expect revenue of $50-52M next quarter." When you report $51.2M, you "met guidance." But your internal forecast was $53M and you guided low to beat it. Investors see the pattern: beat-and-raise, beat-and-raise, miss. The miss tanks the stock 3x more than the beats lifted it. Guide honestly.
-- **Quiet period violation** — the CEO mentions at a conference "Q3 is looking great so far" 2 weeks before earnings. The stock moves 5%. That's selective disclosure (Regulation FD violation). During the quiet period (typically 2-4 weeks before earnings), NO ONE outside the company gets material non-public information.
-- **"One-time charges" that appear every quarter** — Q1: restructuring ($2M), Q2: acquisition costs ($3M), Q3: legal settlement ($1.5M), Q4: impairment ($4M). After 4 quarters of "one-time" charges, investors price them into the stock as recurring. Non-GAAP adjustments must be truly extraordinary, not recurring operational noise.
-- **Material non-public information (MNPI) leaked in 1-on-1 investor meetings** — the CEO casually mentions "supply chain costs are coming down faster than we expected" during a private meeting with a top-5 shareholder who owns 8% of the company. The fund analyst trades on the information before the next earnings call. The SEC's Market Abuse Unit detects the unusual trading pattern, launches an investigation, and traces it back to the 1-on-1. Regulation FD violation confirmed. **Total cost: $2M-$10M in SEC fines and disgorgement plus $500K-$2M in legal defense costs — and a 10-30% stock price decline when the investigation is disclosed, wiping out $50M-$500M in market cap from a single casual sentence in a private meeting.** Fix: every investor meeting has a pre-approved talking points document. Any discussion of forward-looking financials must reference publicly disclosed guidance ranges. If MNPI is inadvertently disclosed, file an 8-K within 24 hours (or within 4 business days if non-intentional) to broadly disseminate the information. Legal counsel attends or reviews notes from every 1-on-1 with top-20 shareholders.
-- **Guidance that misses by more than 10% after 8 quarters of consecutive beats** — the market has priced in "they always beat." Analysts model your guidance as the floor, not the midpoint. Q3 guidance is $50-52M; actual comes in at $42M (16% below the low end). Stock drops 25% in a single day. The credibility premium built over 2 years of consistent execution evaporates in one afternoon. Recovery takes 4-6 quarters of flawless execution — and even then, the stock trades at a permanent 10-15% discount due to the "credibility risk" premium the market now demands. **Total cost: $50M-$500M in market cap destruction from a single guidance miss — the lost credibility premium alone is worth $25M-$100M in permanent valuation compression.** Fix: guide to your 50th percentile forecast, not your 25th percentile. If you consistently beat by more than 5%, either your forecasting process is broken or you're sandbagging — both destroy credibility when discovered. Narrow guidance ranges over time as forecasting improves. Never let the "beat" streak become the goal — honest forecasting is the goal.
-- **No activist investor preparedness plan despite being in the crosshairs** — an activist fund quietly accumulates a 7% stake over 60 days. They file a 13D on Monday morning, demand 2 board seats, and publish a 50-slide deck detailing "5 ways management is destroying shareholder value." The company has no response plan. Legal scrambles for 72 hours. PR drafts a reactive statement. The stock drops 15% on uncertainty while the company is silent. By the time the response is ready (day 4), the narrative is set. **Total cost: $20M-$200M in market cap decline during the response vacuum plus $2M-$5M in advisory fees (investment bankers, proxy solicitors, PR firms, outside counsel) for reactive defense — 3-5x what proactive preparation would have cost.** Fix: annual activist vulnerability assessment — analyze your shareholder base, voting patterns, governance profile, and underperformance areas relative to peers. Prepare a "fight deck" rebutting the 5 most likely activist theses. Retain proxy solicitor and activist-defense counsel on standby (pre-negotiated rates). Have a board-approved response protocol: who speaks, when, and through which channels.
+1. **Corporate-speak in investor communications.** Scripting earnings calls like press releases — "robust top-line growth driven by strategic initiatives." Investors tune out in 8 seconds. Use plain language: what grew, why it grew, what you're worried about, what you're doing about it.
+
+2. **Sandbagging guidance to manufacture beats.** Guiding to the 25th percentile forecast so you can consistently beat by 5%+. The market prices in the pattern, and when you eventually miss, the stock drops 3x more than the beats ever lifted it. The credibility premium evaporates permanently.
+
+3. **Casual MNPI leakage in 1-on-1 investor meetings.** An offhand comment about supply chain improvements during a private investor meeting triggers a Regulation FD violation when the fund trades on it. Every investor meeting needs pre-approved talking points referencing only publicly disclosed guidance.
+
+4. **"One-time charges" that recur every quarter.** Labeling restructuring, acquisition costs, legal settlements, and impairments as "extraordinary" quarter after quarter. After four quarters, investors price them as recurring operational noise, and the credibility of your non-GAAP adjustments is destroyed.
+
+5. **Silence during quiet periods without published calendars.** An executive mentions "Q3 is looking great" at a conference during the quiet period. That's selective disclosure. Publish the quiet period calendar, notify all insiders of trading and communication restrictions, and enforce compliance.
+
+6. **No activist defense playbook.** An activist fund accumulates 7% and files a 13D with a 50-slide attack deck. The company has no response for 72 hours while the stock drops 15%. Proactive preparation costs 3-5x less than reactive defense and preserves market cap during the response window.
+
+7. **Data room disorder during fundraising.** Sending investors to a Dropbox folder with no index, customer-attributed revenue data, and mixed document versions. This signals operational chaos and kills deal momentum. A structured 14-folder data room with legal-reviewed content is fundraise table stakes.
 
 ## Anti-Rationalization — No Excuses
 
@@ -461,6 +484,110 @@ graph LR
 | "Our shareholder base is stable — no need for proactive engagement" | Passive shareholder bases attract activists precisely because management hasn't built relationships; investors who haven't heard from IR or management in 12 months are 3x more likely to support an activist campaign when approached. |
 | "The guidance model can wait for FP&A to update" | Stale guidance models produce earnings surprises that should have been visible 6 weeks earlier; IR must own the live guidance model independently and flag divergence from current quarter projections within 48 hours of month-end close. |
 | "We don't need an investor day — our quarterly calls are sufficient" | Quarterly earnings calls are 45 minutes of scripted theater with 3 analysts asking pre-vetted questions; investor days provide the deep-dive context — product demos, segment economics, multi-year strategy — that makes analysts and portfolio managers comfortable holding through volatility, reducing stock beta by 15-20%. |
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Data room: 14-folder structure complete with 00-index.md — all documents legal-reviewed before investor access
+- [ ] Pitch deck: updated within last 30 days — traction slide current, narrative consistent with latest strategy
+- [ ] Cap table: migrated from spreadsheet to purpose-built platform (Carta/Pulley) — pro forma fully diluted with ESOP
+- [ ] Investor pipeline tracker: CRM active with stage, last contact, and next steps for every target investor
+- [ ] Term sheet comparison matrix: one-page comparison of valuation, liquidation preference, board control, anti-dilution, participation, and protective provisions
+- [ ] Liquidation waterfall: modeled at $50M, $100M, $500M, and $1B exits — all shareholders understand payout at each level
+- [ ] Monthly investor update: sent by 5th business day — metrics, good news, bad news, asks, and cash runway
+- [ ] Guidance model: updated with actuals monthly — current quarter projection tracked against guidance range
+- [ ] Quiet period calendar: published for the year — all insiders notified of trading and communication restrictions
+- [ ] Consensus tracking: analyst estimates monitored — guidance range overlaps consensus, no sustained beat pattern
+- [ ] Shareholder engagement log: top 20 investors met within last 12 months — feedback documented and shared with board
+- [ ] Activist vulnerability assessment: conducted annually — fight deck prepared for 5 most likely theses
+- [ ] Reg FD compliance: talking points document for every investor meeting — no forward-looking statements beyond public guidance
+- [ ] Secondary transaction plan: employee communication strategy designed before any tender offer — impact on 409A assessed
+- [ ] Earnings prep: script, press release, and Q&A prep completed ≥ 1 week before earnings — 2+ dry runs completed
+- [ ] Guidance model: updated within 48 hours of month-end actuals — current quarter projection vs. guidance range tracked
+- [ ] Consensus: analyst estimates tracked — guidance range overlaps consensus, no hidden beats/raises strategy
+- [ ] Talking points: pre-approved for every investor meeting — no ad-libbing about forward-looking financials
+- [ ] Quiet period: calendar published, all insiders notified of trading and communication restrictions — enforced
+- [ ] Shareholder engagement: top 20 investors met within last 12 months — feedback documented in CRM
+- [ ] Activist preparedness: annual vulnerability assessment completed — fight deck updated, advisors on standby
+- [ ] Non-GAAP policy: documented and reviewed quarterly — recurring items reclassified as operating
+- [ ] Investor day: planned every 18-24 months — product demos, segment economics, multi-year strategy, unstructured Q&A
+- [ ] Reg FD compliance: 8-K template ready for inadvertent MNPI disclosure — file within 24 hours
+- [ ] IR website: current investor deck, earnings materials, SEC filings, governance docs, ESG report — all accessible
+- [ ] Shareholder targeting: buy-side and sell-side target lists maintained — engagement prioritized by ownership/AUM
+- [ ] Crisis communications: IR crisis protocol documented — who speaks, when, through which channels for material events
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|------------|-----|------------|
+| Fundraise stalls after 10 investor meetings — no term sheets | Pitch deck lacks clear "why now" or addresses too small a market; pipeline is cold outreach instead of warm intros | Rebuild pitch narrative with compelling "why now" slide; switch to 100% warm intro strategy via existing investors | Cold emails have <1% response rate; warm intros are 40-60% — a stalled raise is almost always narrative or pipeline |
+| Term sheet signed but diligence uncovers 2-week data room gap | Data room was incomplete — missing financials, customer contracts, or IP documentation | Build 14-folder data room BEFORE first investor meeting; have counsel pre-review all documents; maintain index with version dates | Incomplete data rooms cause 2-4 week fundraise delays — every day burns runway and signals disorganization |
+| Founder receives $0 from $40M exit | 2x participating preferred with no cap — investor liquidation preference consumed entire proceeds | Immediately: model all exit scenarios. Future: negotiate 1x non-participating as market standard for term sheets | Valuation is #4 on the term sheet priority list — liquidation preference structure determines who actually gets paid |
+| Stock drops 25% on guidance miss after 8 consecutive beats | Company guided to 25th percentile to manufacture beats; market priced in the pattern | Guide to 50th percentile forecast; narrow ranges over time; publicly commit to honest forecasting | Beat streaks that end in a miss destroy 3x more value than the beats created — credibility risk premium becomes permanent |
+| SEC investigation opened after CEO's casual conference comment | Reg FD violation — CEO mentioned "Q3 is looking great" during quiet period to a journalist | File 8-K within 24 hours; implement pre-approved talking points for all executive appearances | There is no "off the record" for material information — one sentence can trigger $2M-$10M in SEC fines |
+| Activist files 13D — company has no response for 72 hours | No activist preparedness plan; no fight deck; no pre-retained advisors | Activate proxy solicitor and defense counsel; release initial statement within 24 hours; deploy pre-built rebuttal deck | Proactive prep costs 3-5x less than reactive defense — annual vulnerability assessment is insurance, not overhead |
+| Excel cap table has accumulated errors over 4 funding rounds | Manual spreadsheet tracking across SAFEs, notes, option grants, and priced rounds — no audit trail | Migrate to Carta/Pulley immediately; backfill all transactions; reconcile against legal documents | Spreadsheet cap tables compound errors exponentially — a single conversion math error can cost $500K+ at exit |
+| Stock drops 25% on earnings despite "meeting guidance" | Market priced in a beat because you've beaten 8 quarters in a row; guidance was the floor, not the midpoint | Acknowledge forecasting process failure on call; commit to narrower, more accurate guidance; reset expectations with mid-quarter update | Guide to 50th percentile; narrow range as forecasting improves; never let "beat streak" become the goal |
+| SEC Reg FD inquiry after CEO's conference comment | CEO ad-libbed "Q3 is looking great so far" during panel; selective disclosure of MNPI to non-shareholders present | Engage SEC counsel immediately; file 8-K within 24 hours broadly disseminating the information; review insider communication policy | Pre-approved talking points for ALL external appearances; no discussion of forward-looking financials outside earnings calls |
+| Activist fund accumulates 7% and publishes 50-slide attack deck — no response for 72 hours | No activist preparedness plan; legal scrambles, PR drafts reactive statement, narrative set by activist in the vacuum | Activate pre-established response protocol: legal + PR + banker calls within 4 hours; CEO/board statement within 24 hours; substantive rebuttal deck within 48 hours | Annual activist vulnerability assessment; fight deck rebutting top 5 theses; proxy solicitor and defense counsel on standby |
+| Analyst consensus drifts outside guidance range — discovered week of earnings | IR dependent on FP&A for guidance model; month-2 actuals posted but IR didn't update; earnings surprise was "unexpected" | Flag during earnings prep; determine if guidance revision or pre-release needed; prepare explanation for call | IR owns independent guidance model; current-quarter projection vs. guidance range updated within 48 hours of month-end close |
+| Top-3 shareholder supports activist campaign — has never met management | No proactive engagement program; investor hadn't heard from IR or management in 18 months; activist approached first | Request meeting with investor to present strategy; understand their concerns; assess if settlement (board seat) is preferable to proxy fight | Meet top 20 shareholders twice/year minimum; document all engagement; track sentiment; flag declining confidence early |
+| "One-time charge" appears 5th consecutive quarter → analysts ignore all adjustments | Non-GAAP policy too permissive; restructuring, acquisition costs, legal settlements classified as non-recurring despite being predictable | Reclassify recurring items as operating; clean up non-GAAP policy; announce simplified reporting going forward | Non-GAAP policy: item qualifies only if not in prior 2 years AND not expected in next 2 years; external auditor reviews classification |
+
+## Best Practices
+**(STANDARD)**
+
+1. **Build the data room before the first investor meeting.** A structured 14-folder data room with a 00-index.md signals operational maturity. Investors who find everything on day one move faster. Incomplete data rooms cause 2-4 week delays — each week burns $50K-$200K in runway.
+
+2. **Write the pitch deck to answer one question per slide with a clear "why now."** No slide has more than 5 bullets; no bullet more than 2 lines. The "Why Now?" slide is most important — it answers: "Why hasn't someone already done this?" Technology shifts, regulatory changes, or behavioral shifts are the only acceptable answers.
+
+3. **Compare term sheets on a one-page matrix ranked by liquidation preference first, valuation fourth.** The founder who only looks at valuation signs participating preferred with no cap and walks with $0 from a $40M exit. Liquidation preference, board control, and protective provisions matter more than headline price.
+
+4. **Model the liquidation waterfall before signing any term sheet.** Run exits at $50M, $100M, $500M, and $1B. Show every shareholder class exactly what they receive. If you can't explain in one sentence who gets paid first and how much, you don't understand the deal you're signing.
+
+5. **Send investor updates by the 5th business day of every month — no exceptions.** Silence > 30 days triggers investor assumption of crisis. Every update includes: key metrics, good news, bad news, asks, and cash runway. A late update signals disorganization; a missing update signals hidden bad news.
+
+6. **Never put material non-public information in writing during 1-on-1 investor meetings.** Every investor conversation references only publicly disclosed guidance ranges. Pre-approved talking points for every meeting. Legal counsel reviews notes from top-20 shareholder meetings. One casual sentence = $2M-$10M SEC fine.
+
+7. **Guide to your 50th percentile forecast, not your 25th percentile.** Consistently beating by 5%+ means either your forecasting is broken or you're sandbagging — both destroy credibility when discovered. The goal is honest forecasting, not beat streaks. Narrow ranges as forecasting improves.
+
+8. **Migrate from spreadsheet cap tables to a purpose-built platform before your next fundraise.** Excel cap tables across SAFEs, convertible notes, option grants, and priced rounds accumulate errors exponentially. Carta or Pulley provide audit trails, reconciliation, and scenario modeling without formula errors.
+
+9. **Maintain an investor pipeline CRM with stage tracking from day one of a fundraise.** Every target investor has: introduction source, last contact date, meeting stage, follow-up due date, and notes. Without a CRM, you lose track of 30%+ of your pipeline within 3 weeks — fundraise momentum is perishable.
+
+10. **Prepare an activist defense playbook before you need one.** Annual vulnerability assessment: analyze shareholder base, voting patterns, governance profile, and underperformance relative to peers. Pre-build a fight deck rebutting the 5 most likely activist theses. Retain proxy solicitor and defense counsel on standby.
+
+11. **Earnings prep starts 3-4 weeks before the call — not the week before.** Script drafting, Q&A scenario modeling with 20+ "worst questions," messaging alignment with CFO/CEO, and 2+ dry runs. Last-minute prep produces script errors, rambling answers, and messaging inconsistencies that analysts exploit in their notes.
+
+12. **Guide to your 50th percentile forecast, not your 25th percentile.** Consistently beating guidance by 5%+ signals sandbagging — not competence. When the streak breaks (and it always does), the credibility premium evaporates. Narrow guidance ranges as forecasting improves. The goal is honest forecasting, not a beat streak.
+
+13. **Every investor meeting has pre-approved talking points — no ad-libbing about forward-looking financials.** A CEO's casual "supply chain costs are coming down faster than expected" to a top-5 shareholder is selective disclosure (Reg FD violation). Pre-approved talking points reference only publicly disclosed information. If MNPI is inadvertently disclosed, file an 8-K within 24 hours.
+
+14. **IR owns the live guidance model independently — not dependent on FP&A's schedule.** When month-end actuals post, IR updates the current-quarter projection vs. guidance range within 48 hours. A guidance miss should never be a "surprise" at earnings — it should be flagged the day month-2 actuals close and put you outside the range.
+
+15. **Meet top-20 shareholders at least twice per year and document feedback.** Investors who haven't heard from management in 12 months are 3× more likely to support an activist campaign. Structured engagement: 30-minute calls with prepared agenda, Q&A, and post-meeting feedback memo filed in CRM. Track sentiment trends over time.
+
+16. **Earnings call scripts are conversational, not corporate-speak.** "We are pleased to announce robust top-line growth driven by strategic initiatives" loses investors in 8 seconds. "Revenue grew 32%. Here are the 3 things that drove it. Here's what we're worried about. Here's what we're doing about it." Specific, honest, self-aware.
+
+17. **Prepare an activist defense plan BEFORE an activist accumulates a position.** Annual activist vulnerability assessment: analyze shareholder base, voting patterns, governance profile, underperformance relative to peers. Prepare a "fight deck" rebutting the 5 most likely activist theses. Retain proxy solicitor and activist-defense counsel on standby at pre-negotiated rates.
+
+18. **Non-GAAP adjustments must be truly extraordinary — not recurring operational noise.** "One-time" restructuring, acquisition costs, legal settlements, and impairments appearing every quarter train investors to ignore your adjustments entirely. Policy: an item qualifies as non-recurring only if it hasn't occurred in the prior 2 years AND is not expected to recur in the next 2 years.
+
+19. **Quiet period rules are enforced with a published calendar and mandatory insider training.** All insiders receive written notification of quiet period start/end dates, trading restrictions, and communication prohibitions. One executive's offhand comment at a conference triggers an SEC inquiry and 10-15% stock decline. Quiet period policies are worthless if only legal knows about them.
+
+20. **Investor days (every 18-24 months) provide the deep-dive context quarterly calls cannot.** 45-minute earnings calls with 3 analysts asking pre-vetted questions don't build conviction. Investor days with product demos, segment economics, multi-year strategy, and unstructured Q&A make analysts comfortable holding through volatility — reducing stock beta by 15-20%.
+
+### Scale Depth
+
+| Company Stage | IR Function | Key Activities | Tools/Platforms |
+|--------------|-------------|----------------|-----------------|
+| **Pre-IPO/Private** | Fractional IR consultant or CFO-led, 5-10 hours/month | Fundraising data room, investor pipeline CRM, pitch deck, cap table modeling | Carta, Affinity/Pitchbook, Notion data room, DocSend |
+| **IPO Year** | 1-2 dedicated IR hires, 40-60 hours/week during IPO process | S-1 drafting support, analyst day, roadshow logistics, allocation strategy, first earnings as public company | IHS Markit/IPO intelligence, Nasdaq IR Insight, Q4/Notified, earnings webcast platform |
+| **Small Cap ($100M-$2B market cap)** | 1-2 person IR team, CFO-led earnings | Quarterly earnings, 2-3 conferences/year, NDRs (non-deal roadshows), sell-side coverage building, retail investor outreach | Q4/Notified, IR Magazine/IR Magazine Awards benchmarking, AlphaSense for competitive intelligence |
+| **Mid/Large Cap ($2B+ market cap)** | 2-4 person IR team, dedicated IR officer | Quarterly earnings + guidance, 6-8 conferences/year, investor days every 18-24 months, ESG reporting, activist monitoring, shareholder perception studies | Bloomberg Terminal, IHS Markit, Nasdaq IR Insight, AlphaSense, Morrow Sodali/Georgeson for activism defense |
+
+
 
 ## Verification
 

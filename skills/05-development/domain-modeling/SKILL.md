@@ -93,6 +93,15 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 
 **Escalation rule**: If L1 term disputes can't be resolved without discussing aggregates, move to L2. If L2 aggregate conflicts stem from different assumptions about what "the system" means, move to L3.
 
+### Scale Depth
+**(STANDARD)**
+
+| Depth | Time | Scope | Artifacts |
+|---|---|---|---|
+| **QUICK** | 10-20 min | Single term definition, ambiguity resolution | CONTEXT.md term entry with negative space and validation rule |
+| **STANDARD** | 1-3 hr | Aggregate design, bounded context identification, context mapping | Aggregate diagram, context map, ubiquitous language glossary per context |
+| **DEEP** | 1-3 days | Enterprise context map, event storming workshop, core domain identification | Full context map, domain event catalog, aggregate inventory, strategic DDD decision record |
+
 ## When to Use
 
 - Onboarding new team members who need a mental model of the domain
@@ -161,6 +170,8 @@ User request
 ```
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- Full 128 lines extracted to references/core-workflow.md -->
 
 #
@@ -172,7 +183,31 @@ for each source in [code, docs, tickets, conversations]:
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 128 lines of detailed guidance
 
+## Best Practices
+**(STANDARD)**
+
+1. **Establish a ubiquitous language that lives in a living document.** Maintain a CONTEXT.md at the repository root with every domain-significant term, its precise definition, what it is NOT (negative space), and a validation rule. The document must be < 30 days fresh — stale glossaries cost $30K-$80K per onboarded developer in trial-and-error learning. Use `find . -name "CONTEXT.md" -mtime +30` in CI to flag staleness.
+
+2. **Identify bounded contexts before designing aggregates or databases.** A bounded context is a boundary within which a specific domain model applies. "Account" means different things in Identity (login, MFA, session) vs Billing (payment method, invoice, balance). Failing to separate these contexts early costs $100K-$500K in remediation when schemas inevitably collide. Draw a context map BEFORE any database schema.
+
+3. **Design aggregates around transactional consistency boundaries, not object graphs.** An aggregate is a cluster of entities treated as a single unit with a root entity as the entry point. The Order aggregate (Order, LineItems, Payment) ensures all-or-nothing transactional consistency. Design aggregates by asking: "What invariants must hold after any single transaction?" — not "what objects seem related?"
+
+4. **Use domain events to decouple bounded contexts.** When something significant happens in the domain (OrderPlaced, PaymentFailed, ShipmentDelivered), publish a domain event. Downstream contexts react independently. This avoids the distributed transaction tangle where Ordering directly calls Billing, which sends to Shipping. Events are the seams between contexts — design them before integration code.
+
+5. **Capture domain rules in code as explicit predicates, not implicit if-checks.** Every domain rule should be a named, testable predicate function: `isEligibleForDiscount(customer, order)` rather than `if (customer.age > 65 && order.total > 100)`. Named rules are discoverable (grep for the function name), testable in isolation, and linkable to CONTEXT.md. Encoded-only rules cost $20K-$60K per regulatory audit failure.
+
+6. **Use context mapping to define integration patterns between bounded contexts.** Each relationship between contexts has a pattern: Partnership (both teams cooperate), Customer-Supplier (upstream provides, downstream adapts), Conformist (downstream conforms to upstream model), Anticorruption Layer (ACL — downstream translates upstream model to protect its own). Document the pattern explicitly in a context map diagram.
+
+7. **Run event storming workshops to discover bounded contexts and domain events.** Event storming surfaces domain events, commands, aggregates, and bounded contexts through collaborative modeling with domain experts and engineers. The artifacts are sticky notes on a wall, not UML diagrams. The goal is shared understanding, not perfect notation. Run an event storming session before designing any new bounded context.
+
+8. **Identify core domain vs supporting vs generic subdomains.** Core domain is what makes your business unique — your competitive advantage. Supporting subdomains are custom but not differentiating (e.g., internal reporting). Generic subdomains are solved problems (e.g., authentication, payment processing). Invest engineering effort proportionally: 70% on core, 20% on supporting, 10% on generic (buy, don't build).
+
+9. **Maintain a term drift log to catch semantic evolution.** Document when a term's meaning changes across sprints: "Sprint 6: 'UserStatus' = account active/inactive. Sprint 12: feature treats it as online/offline presence." Term drift costs $10K-$25K per quarter in misdirected development. The drift log catches the second meaning before it becomes a conflicting implementation.
+
+10. **Write ADRs only for decisions that require the three-part test.** An Architecture Decision Record (ADR) is warranted only when: (a) the decision is architecturally significant (impacts structure, non-functional characteristics, or dependencies), (b) multiple viable alternatives exist, and (c) the decision is not easily reversible. Premature ADR creation costs $5K-$15K in decision debt — cluttering the register makes genuinely important ADRs harder to find.
+
 ## Decision Trees
+**(QUICK)**
 
 #
 
@@ -309,6 +344,7 @@ CONTEXT.md maintenance trigger
 ```
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -321,6 +357,18 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Two teams each use "Account" in their API but return completely different objects — Identity returns email + MFA state, Billing returns payment method + balance | Same term, different bounded contexts, no disambiguation. Both teams think the other team's "Account" is the same thing. Integration code silently maps between incompatible schemas — a time bomb | Run the term disambiguation protocol: identify all contexts where "Account" appears, namespace each meaning (Identity.Account, Billing.Account), update CONTEXT.md with negative space ("Identity.Account ≠ Billing.Account"), add validation to integration points | The most expensive bug in domain modeling is not a bug — it's a classification error. Two things that share a name but not a meaning produce correct-looking code that is semantically wrong. The fix is a CONTEXT.md entry, not a code change |
+| CONTEXT.md says "Customer: A paying user with an active subscription" — but the codebase has three different `isCustomer()` functions with different rules | CONTEXT.md not enforced as the single source of truth. The definition was written once, never maintained, and developers implemented their own interpretations. The document is dead — code is the de facto model | Audit all `isCustomer()` implementations. Align them to the canonical definition. If the definition is wrong, update CONTEXT.md first, then code. Add a CI check: `grep -r "isCustomer()"` validates against `CONTEXT.md` definition tag | A CONTEXT.md that code doesn't reference is worse than no CONTEXT.md — it creates the illusion of shared understanding where none exists. The document must be code-linked or it's a fiction |
+| Aggregate designed as the full object graph: Order → LineItems → Products → Categories → Suppliers. Every Order query pulls 10MB of data from 6 tables | Aggregate boundary too large — transactional consistency is needed only for Order + LineItems + Payment. Products, Categories, and Suppliers are reference data, not part of the transactional boundary | Redesign aggregate: Order aggregate contains only Order, LineItems, and Payment. Products and Suppliers are separate aggregates referenced by ID. Invariant check: "What must be consistent after a single transaction?" — only Order total, LineItem quantities, Payment status | Aggregates are transactional consistency boundaries, not navigation graphs. The test: can you enforce all invariants within a single database transaction for this cluster? If yes, it's an aggregate. If you need cross-aggregate coordination, use domain events |
+| CONTEXT.md 90 days stale — new hire spends 4 weeks building mental model through trial-and-error, reading outdated docs, and interrupting senior devs | No staleness enforcement. CONTEXT.md decays because nobody feels ownership. Each sprint touches terms, but updating the glossary is "not my job." The cost compounds with every hire and every sprint | Add CI staleness check: `find . -name "CONTEXT.md" -mtime +30`. Make glossary updates part of the "definition of done" for any story that introduces or changes a domain term. Assign a glossary steward per bounded context | CONTEXT.md maintenance is not documentation work — it's part of domain modeling. Treat it like tests: part of the feature, not an afterthought |
+| Domain rule "VIP customers get free shipping on orders over $50" enforced in 3 places: frontend validation, backend API, and checkout microservice — each with slightly different logic | Domain rules encoded only in code, not linked to a canonical source. When the rule changes (threshold from $50 to $75), one implementation is updated, two are missed. Inconsistent enforcement produces charging bugs | Extract domain rule as a named, testable predicate: `isEligibleForFreeShipping(customer, order)`. Document in CONTEXT.md and link to the enforcing function. Add a code audit: `grep -r "free.shipping" --include="*.ts"` to find all rule instances and verify canonical source | Domain rules are data, not code. They change independently of the code structure and must be discoverable across the codebase. If you can't find all instances of a rule with a single grep, it's not modeled — it's scattered |
+| Event storming session runs 4 hours, produces 200 sticky notes on a wall — two weeks later nobody can reconstruct the decisions | No artifact synthesis. Event storming produces raw material, not a finished model. Without synthesis into a context map or ubiquitous language glossary, the insights evaporate within days | Synthesize within 48 hours: produce a context map diagram, prioritized domain event catalog, aggregate inventory, and CONEXT.md update from the workshop. Share with all participants for async review. Schedule 1-hour follow-up to validate synthesis | Event storming is discovery, not design. The output of discovery is insight. The output of design is a context map. You need both — the workshop without synthesis is a team-building exercise, not domain modeling |
 
 ## Cross-Skill Coordination
 
@@ -489,39 +537,63 @@ Review the last 10 "architecture decisions" your team made informally (Slack thr
 ## Exercise 5: The Glossary Time Machine
 Open your CONTEXT.md (or create one). For each term, ask: "Would this definition have been correct 6 months ago? Will it be correct 6 months from now?" Terms that fail the time test need the term drift log.
 
-## Gotchas
+## Anti-Patterns
 
-These are the expensive mistakes — quantified in real costs.
+### Anti-Pattern: Ambiguous terminology across teams — "Account" means everything and nothing
+**What it looks like:** The Identity team's "Account" includes email, password hash, MFA state, and session tokens. The Billing team's "Account" includes payment methods, invoice history, credit balance. Both teams call their API `/accounts` and nobody realizes they're different things until the first integration breaks. Every cross-team feature requires a 2-hour discovery meeting to clarify which "Account" we're talking about.
+**Why it fails:** Ambiguous terminology costs $50K-$150K/year in wasted engineering time. Over a year with 8 cross-team features, that's ~200 hours of clarification meetings. At $250/hr fully loaded, that's $50K in direct cost — rework from misunderstandings doubles or triples it. The same word cannot serve two bounded contexts without explicit disambiguation.
+**Do this instead:** Run the term disambiguation protocol. Namespace terms by context: Identity.Account, Billing.Account. Update CONTEXT.md with negative space: "Identity.Account ≠ Billing.Account." Add validation at integration points. If a term needs "usually" or "typically" in its definition, it's too broad — split it.
 
-#
+### Anti-Pattern: Stale CONTEXT.md — the dead glossary
+**What it looks like:** CONTEXT.md was created enthusiastically 6 months ago during onboarding week. It hasn't been updated since. New terms from the last 5 sprints exist only in code and conversation. A new hire reads CONTEXT.md, builds a mental model from stale information, and spends 4 weeks discovering through trial-and-error which definitions are wrong. Senior devs lose 5-10 hours/week answering "what does X actually mean?"
+**Why it fails:** A stale glossary costs $30K-$80K per onboarded developer. With a maintained CONTEXT.md, onboarding compresses from 4 weeks to 1 week. At a $150K salary, each week saved is ~$3K. Across 10 hires, that's $30K saved — and senior devs reclaim their time. A CONTEXT.md that code doesn't reference is worse than no CONTEXT.md — it creates the illusion of shared understanding.
+**Do this instead:** Add CI staleness check: `find . -name "CONTEXT.md" -mtime +30`. Make glossary updates part of the definition of done for any story introducing or changing a domain term. Assign a glossary steward per bounded context. The document must be code-linked: every term entry references the enforcement code.
 
-## The Cost of Ambiguous Terminology Across Teams
-**$50,000–$150,000/year** in wasted engineering time. When "Account" means different things to the Identity team and the Billing team, every cross-team integration requires a discovery meeting. Over a year with 8 cross-team features, that's ~200 hours of clarification meetings. At $250/hr fully loaded, that's $50,000 in direct cost — and the rework from misunderstandings doubles or triples it.
+### Anti-Pattern: Premature ADR creation — the over-documented decision register
+**What it looks like:** Every design discussion ends with "let's write an ADR." The `adr/` directory grows to 47 entries in 8 months. 44 of them document decisions that either (a) have no viable alternatives so the "decision" was obvious, (b) are trivially reversible with no architectural impact, or (c) were never actually decided — the ADR was written to justify a choice already made in code.
+**Why it fails:** Each unnecessary ADR clutters the decision register, making it harder to find the 3 decisions that actually matter. A new architect joining the project reads 40 ADRs to understand the architecture — a full week of ramp-up wasted. Worse: important ADRs get skimmed because "they all look the same." Premature ADR creation costs $5K-$15K in decision debt.
+**Do this instead:** Apply the three-part test before writing an ADR: (a) Is the decision architecturally significant? (b) Are there multiple viable alternatives? (c) Is the decision not easily reversible? Only if all three are YES do you write an ADR. Otherwise, document as a code comment, a CONTEXT.md entry, or a team decision log — not an ADR.
 
-#
+### Anti-Pattern: Missing bounded context boundary — mixing Identity and Billing in the same model
+**What it looks like:** The system has one "Account" table that stores login credentials AND payment methods AND subscription tier AND usage limits. When Billing needs to add a new payment method type, the migration touches the Identity schema. When Identity adds MFA, Billing's invoice queries break. Every schema change is a cross-team negotiation because the boundary was never drawn.
+**Why it fails:** Missing bounded context separation costs $100K-$500K in remediation. When you finally separate them (and you will), the migration involves: data separation across tables, API versioning, client-side updates, and coordinated deployments across teams. This is 3-6 months of sustained effort that could have been avoided with a single context mapping session.
+**Do this instead:** Draw context maps before designing schemas. Identity and Billing are separate bounded contexts — they communicate through domain events (UserRegistered, PaymentMethodAdded), not shared tables. Each context owns its data exclusively. The ACL (Anticorruption Layer) translates between context models at integration points.
 
-## The Cost of a Stale CONTEXT.md
-**$30,000–$80,000 per onboarded developer**. A new hire spends their first 3-4 weeks building a mental model through trial-and-error, asking senior devs, and reading outdated docs. With a maintained CONTEXT.md, onboarding compresses to 1 week. At a $150,000 salary, each week saved is ~$3,000. Across 10 hires, that's $30,000 saved — and the senior devs get their time back.
+### Anti-Pattern: Domain rules encoded only in code — the invisible business logic
+**What it looks like:** "VIP customers with annual plans get 20% off renewals" is implemented as `if (customer.type === 'vip' && plan.billingCycle === 'annual') { discount = 0.2; }` — buried in a 400-line checkout service. When auditors ask "where is your policy for VIP renewal discounts?" the answer is "in the code." When the rule changes, nobody knows all the places it's implemented. Audit: FAIL.
+**Why it fails:** Encoded-only rules cost $20K-$60K per regulatory audit failure. The fine for a single compliance gap in regulated industries (finance, healthcare) starts at $20K. Beyond compliance, undocumented rules guarantee divergence — the same rule enforced differently in frontend validation, backend API, and reporting pipeline produces inconsistent behavior that looks like bugs.
+**Do this instead:** Extract every domain rule as a named, testable predicate: `isEligibleForVipRenewalDiscount(customer, plan)`. Document in CONTEXT.md with a link to the enforcing function. Audit with `grep -r "vip.*renewal.*discount"` to find all instances. The rule is discoverable, testable, and auditable.
 
-#
+### Anti-Pattern: Term drift over sprints — "UserStatus" means different things in different sprints
+**What it looks like:** Sprint 6 adds a `UserStatus` field meaning "account active/inactive." Sprint 12 builds an online presence feature that treats `UserStatus` as "online/offline/away." Nobody notices the conflict. The online presence feature writes "online" to the `UserStatus` field — the account management dashboard now shows "online" instead of "active." The bug takes 3 days to trace because "UserStatus" is used in 47 files with two incompatible meanings.
+**Why it fails:** Term drift costs $10K-$25K per quarter in misdirected development. The online presence feature was built on a false assumption — `UserStatus` means account state, not presence state. The rework costs 2-3 sprints. The bug report doesn't say "term drift" — it says "account management broken" and the root cause is a semantic collision invisible to tools.
+**Do this instead:** Maintain a term drift log in CONTEXT.md. When sprint 12 introduces a new meaning, log: "Sprint 12: ONLINE_PRESENCE feature uses 'UserStatus' differently than account management. RESOLVED: Renamed to 'PresenceStatus'." Add CI validation: `grep -r "UserStatus"` against CONTEXT.md definition tag to catch conflicting usages.
 
-## The Cost of Premature ADR Creation
-**$5,000–$15,000 in decision debt**. Each unnecessary ADR clutters the decision register, making it harder to find the decisions that actually matter. When a new architect joins and has to read 40 ADRs to understand the project — but only 3 are genuinely important — that's a full week of wasted ramp-up. Worse: important ADRs get skimmed because "they all look the same."
+### Anti-Pattern: Event storming without synthesis — sticky notes on a wall, no model emerges
+**What it looks like:** Team runs a 4-hour event storming session. 200 sticky notes on a wall. Lots of insight. Everyone leaves energized. Two weeks later, someone asks "what did we decide about the Order aggregate?" Nobody remembers. The sticky notes are gone — either photographed in a Slack thread nobody reads or physically discarded during office cleanup.
+**Why it fails:** Event storming is discovery, not design. The output of discovery is insight. The output of design is a context map + domain event catalog + aggregate inventory. Without synthesis within 48 hours, insights evaporate — participants forget the nuances, edge cases, and trade-off discussions that made the session valuable. The session cost 32 person-hours (8 people × 4 hours) — $8K+ — and produced zero persistent artifacts.
+**Do this instead:** Synthesize within 48 hours into: (a) a context map diagram showing bounded contexts and integration patterns, (b) a prioritized domain event catalog, (c) an aggregate inventory with invariants per aggregate, (d) a CONTEXT.md update reflecting new terminology and definitions. Share with all participants for async review. Schedule a 1-hour follow-up to validate the synthesis.
 
-#
+## Production Checklist
+**(STANDARD)**
 
-## The Cost of Missing a Bounded Context Boundary
-**$100,000–$500,000 in remediation**. Failing to separate "Identity Account" from "Billing Account" early on means every schema change to one breaks the other. When you finally split them (and you will), the migration involves: data separation, API versioning, client updates, and coordinated deployments across teams. This is 3-6 months of sustained effort.
+Before declaring a domain model complete or shipping any feature that depends on it, verify every item. Each unchecked item is a future integration failure or audit gap.
 
-#
-
-## The Cost of Domain Rules Encoded Only in Code
-**$20,000–$60,000 per regulatory audit failure**. When auditors ask "where is your policy for handling expired subscriptions?" and the answer is "it's in the code," you fail the audit. A documented domain rule in CONTEXT.md linked to its enforcing code passes. The fine for a single compliance gap in regulated industries (finance, healthcare) starts at $20,000.
-
-#
-
-## The Cost of Term Drift Over Sprints
-**$10,000–$25,000 per quarter** in misdirected development. When sprint 6 uses "User Status" to mean "account active/inactive" but sprint 12's feature treats it as "online/offline presence," the second feature is built on a false assumption. The rework costs 2-3 sprints. Maintaining a term drift log catches this before code is written.
+- [ ] **CONTEXT.md fresh:** `find . -name "CONTEXT.md" -mtime +30` returns empty. Every domain-significant term has an entry with precise definition, negative space (what it is NOT), a validation rule, and a reference to enforcing code.
+- [ ] **Ubiquitous language consistent:** `grep -r "Account" --include="*.ts"` across all bounded contexts reveals no term used with different meanings in different contexts without explicit disambiguation (e.g., Identity.Account vs Billing.Account).
+- [ ] **Bounded contexts mapped:** Context map diagram exists showing all identified bounded contexts and their integration patterns: Partnership, Customer-Supplier, Conformist, or Anticorruption Layer (ACL). No two contexts share database tables.
+- [ ] **Aggregate boundaries validated:** Each aggregate was tested with: "Can I enforce ALL invariants within a single database transaction for this cluster?" Aggregates reference other aggregates by ID only — no object-level navigation across aggregate boundaries.
+- [ ] **Domain events cataloged:** Every significant domain event (OrderPlaced, PaymentFailed, ShipmentDelivered) is cataloged with its triggering aggregate, payload schema, and consuming contexts. Cross-context communication uses events, not direct API calls.
+- [ ] **Core domain identified:** Core, supporting, and generic subdomains categorized. Investment follows the 70/20/10 split: 70% engineering effort on core domain, 20% on supporting, 10% on generic (buy, don't build).
+- [ ] **Domain rules extracted to named predicates:** Every business rule exists as a named, testable function discoverable via `grep`. Each rule is linked to its CONTEXT.md entry. No domain rule lives only as an inline conditional.
+- [ ] **ADR register audited:** Every ADR passes the three-part test (architecturally significant + multiple alternatives + not easily reversible). ADRs failing any test demoted to code comments or team decision log. Register index maintained with status per ADR.
+- [ ] **Term drift log active:** CONTEXT.md includes a term drift section. Any term whose meaning has changed across sprints is logged with date, old definition, new definition, and conflict resolution.
+- [ ] **Event storming synthesis exists (if applicable):** If event storming was conducted, synthesis artifacts (context map, domain event catalog, aggregate inventory, CONTEXT.md update) completed within 48 hours and shared with participants.
+- [ ] **Onboarding ramp validated:** A developer new to the domain can read CONTEXT.md and identify: key bounded contexts, primary aggregates, core domain concepts, and where to find the code that enforces the most important domain rule. Goal: mental model in < 1 week.
+- [ ] **CI glossary enforcement active:** CI pipeline checks: CONTEXT.md freshness (< 30 days), no term used in code that isn't defined in CONTEXT.md (advisory), no term used in two incompatible ways across contexts (blocking).
+- [ ] **Cross-team integration contracts documented:** Every integration between bounded contexts has a documented contract specifying: the integration pattern (Partnership/Customer-Supplier/Conformist/ACL), the data format, failure modes, and the owning team.
+- [ ] **Audit trail exists:** For regulated domains: every domain rule is traceable from CONTEXT.md definition → enforcing code → test coverage → compliance requirement. A single `grep` from the compliance requirement finds the code that enforces it.
+- [ ] **Glossary steward assigned:** One person per bounded context is accountable for CONTEXT.md freshness in that context. Steward rotation documented. No glossary section is > 30 days without a designated owner.
 
 ## Verification
 <!-- Full 40 lines extracted to references/verification.md -->

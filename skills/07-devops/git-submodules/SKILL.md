@@ -90,6 +90,20 @@ You are a Git internals expert who has recovered from every submodule disaster: 
 * **Deep workflow design (full session):** Full cross-repo code sharing architecture: decision matrix analysis, submodule/subtree/vendor selection, CI integration, disaster recovery playbooks, team training materials, migration plan.
 * **Crisis mode (submodule broken, CI red, deployment blocked):** Identify failure: detached HEAD? merge conflict? missing submodule? Apply the appropriate recovery from the Disaster Recovery decision tree. Get CI green first, then diagnose root cause.
 
+### Scale Depth
+
+#### Solo (1-3 repos, occasional code sharing)
+Use GitHub template repos or copy-paste with clear attribution. Avoid submodules entirely — the operational overhead exceeds the benefit. Pin shared code with a `SHARED_VERSION` comment and periodically diff against upstream.
+
+#### Small Team (3-10 repos, shared library co-developed by 2-3 engineers)
+Submodules with branch tracking (`branch = main`) plus a weekly automated CI job that opens PRs when submodule SHAs drift. One `.gitmodules` template copied across repos. Document the update cadence in the repo README.
+
+#### Medium Org (10-50 repos, 5-15 submodules across repos)
+Full submodule health monitoring: detached HEAD audit, reachability check, CI caching with `.gitmodules` hash. Pre-commit hooks for submodule hygiene. Disaster recovery playbook with documented runbooks for top-5 failure modes. **Transition trigger:** When submodule count exceeds 15 or consumer repos exceed 10, invest in automated health monitoring — manual audits cannot keep up.
+
+#### Enterprise (50+ repos, polyglot codebase, cross-team dependencies)
+Dedicated code-sharing architecture role. Submodule + subtree + package registry strategy per dependency type. Automated submodule update PRs with CI gating (Renovate/Dependabot configured per submodule). Submodule health dashboard visible to all teams. Migration playbook for subtree → submodule → package registry transitions. Annual re-evaluation: is submodule still the right pattern, or has the dependency matured to justify a package registry? **Transition trigger:** When multiple teams maintain separate submodule update cadences, invest in shared automation and a code-sharing governance board.
+
 ## When to Use
 
 Use git-submodules when sharing code across repositories and the alternatives (monorepo, package registry) are not viable — the focus is on Git-native code sharing mechanisms and their operational implications.
@@ -138,7 +152,7 @@ What git submodule/subtree task are you working on?
 |-- Auditing existing submodule health -> Go to "Core Workflow: Phase 1 — Health Audit"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- Full 131 lines extracted to references/core-workflow.md -->
 
 #
@@ -150,7 +164,7 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 131 lines of detailed guidance
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 #
 
@@ -350,7 +364,29 @@ How to migrate BETWEEN submodule-based and other code-sharing strategies:
 |   |-- Step 4: Major CI rework: submodule checkout + cache strategy
 |   |-- Caveat: this is almost always wrong. Package registries are the mature solution.
 
-## Error Recovery
+## Best Practices
+
+1. **Configure `branch = main` in `.gitmodules` for tracking submodules.** Without explicit branch configuration, `git submodule update` pins to a specific SHA and lands you in detached HEAD — the #1 source of submodule confusion. Add `git submodule set-branch --branch main <path>` during setup.
+
+2. **Use `git submodule update --init --recursive` in CI, never plain `checkout`.** GitHub Actions `actions/checkout` with `submodules: recursive`, GitLab CI `GIT_SUBMODULE_STRATEGY: recursive`. Without `--recursive`, nested submodules silently fail to initialize.
+
+3. **Cache `.git/modules` by `.gitmodules` hash in CI.** Submodule fetches are serial and slow. Cache the `.git/modules` directory keyed on the SHA of `.gitmodules`. This avoids re-cloning 20+ submodules on every CI run and cuts checkout time from minutes to seconds.
+
+4. **Never force-push to a repo used as a submodule.** A force-push orphans every consumer's pinned SHA. Use `git revert` for mistakes, not `git push --force`. If a rebase is unavoidable, notify all consumer teams, coordinate the SHA migration, and validate all consumers pass CI before merging.
+
+5. **Pin submodules to release tags for stability; track branches only for actively co-developed dependencies.** Tags (`v2.1.0`) give deterministic builds. Branch tracking (`.gitmodules` with `branch = main`) gives auto-updates but non-deterministic builds. Use branch tracking only for shared libraries developed alongside the consumer.
+
+6. **Run `git submodule status --recursive` in pre-commit hooks and CI.** Catch detached HEAD, uninitialized submodules, and SHA mismatches before they reach `main`. The hook should fail on any submodule without a branch or pinned-tag justification documented in `.gitmodules-commentary.md`.
+
+7. **Prefer `git subtree` over submodules for tightly coupled code co-developed daily.** Subtree merges the dependency's history into your repo — no detached HEAD, no serial CI fetches, no separate clone step. The trade-off is a larger repo history. Use subtree when teams modify the shared code every sprint.
+
+8. **Audit submodule health monthly: stale pointers, orphaned SHAs, uninitialized submodules.** Automate a monthly CI job that runs `git submodule foreach 'git cat-file -t HEAD'` and alerts on any "could not get object info" errors. A submodule pointing to a nonexistent SHA is a ticking time bomb.
+
+9. **Prefer absolute HTTPS submodule URLs for public repos; SSH for private repos behind a VPN.** Relative URLs (`url = ../dep.git`) break when developers mix HTTPS and SSH clones. Absolute URLs ensure every developer resolves the same remote regardless of their transport protocol.
+
+10. **Document the submodule update cadence.** For branch-tracking submodules: weekly automated PR (Renovate/Dependabot supports submodules). For tag-pinned submodules: manual update per release cycle. Undocumented cadence leads to 6-month drift and painful catch-up merges.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -444,6 +480,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[GS1]** `.gitmodules` has `branch` configured for all tracking submodules — no submodule is on detached HEAD without documented justification
+- [ ] **[GS2]** CI checkout configured with `submodules: recursive` (GitHub Actions) or `GIT_SUBMODULE_STRATEGY: recursive` (GitLab) — every submodule initializes correctly on clean clone
+- [ ] **[GS3]** `.git/modules` cached in CI by `.gitmodules` SHA — checkout time < 60 seconds for repos with 5-15 submodules
+- [ ] **[GS4]** `git submodule status --recursive` runs in pre-commit hook and CI — catches detached HEAD, uninitialized submodules, SHA mismatches
+- [ ] **[GS5]** Monthly submodule reachability audit: `git submodule foreach 'git cat-file -t HEAD'` — zero "could not get object info" errors, orphaned SHAs remediated within 24 hours
+- [ ] **[GS6]** Force-push protection enabled on all repo branches (`branch protection: block force pushes`) — no submodule ever points to a nonexistent SHA
+- [ ] **[GS7]** Submodule update cadence documented: weekly automated PRs for branch-tracking submodules (Dependabot/Renovate configured), per-release-cycle manual updates for tag-pinned submodules
+- [ ] **[GS8]** Submodule URLs use absolute HTTPS (public repos) or SSH (private repos) — no relative URLs that break across transport protocols
+- [ ] **[GS9]** Disaster recovery playbook linked in repo README — detached HEAD recovery, merge conflict resolution, missing submodule recovery all documented
+- [ ] **[GS10]** Submodule merge conflict resolution guide includes SHA comparison + CHANGELOG diff — prevents blind "ours looks right" resolutions
+- [ ] **[GS11]** Submodule add/remove procedure documented: the full `deinit → rm .git/modules → git rm → edit .gitmodules → commit → add` sequence
+- [ ] **[GS12]** Vendored dependencies (if any) have `VENDOR_VERSION` file and automated update check — no vendored code > 6 months behind upstream
+- [ ] **[GS13]** Subtree workflows (if any) verified: `git log --follow -- path/to/dep` shows correct history, subtree files identical to source
+- [ ] **[GS14]** Code sharing strategy decision documented (submodule vs subtree vs package registry) with rationale — re-evaluated annually
+
 ## What Good Looks Like
 
 ```
@@ -516,23 +569,42 @@ Phase 6: Subtree bidirectional
 | "Git subtree is too complex — we'll stick with submodules." | Submodules are the wrong tool for tightly coupled code. Merge pain, serial CI fetches, and detached HEAD support overhead cost $20K-$50K/year compared to subtree or monorepo tooling for the same use case. |
 | "We'll automate submodule updates in CI — manual coordination is just temporary." | Temporary becomes permanent. Without CI-enforced submodule sync, 20+ repos diverge within weeks. $15K-$40K/year in CI time from serial `--recursive` clones plus $10K-$30K in integration failures from stale submodule pins. |
 
-## Gotchas
+## Anti-Patterns
 
-* **Submodule detached HEAD is the default, not a bug.** Git submodules pin to a specific commit SHA by design. Without `branch = main` in `.gitmodules`, every `git submodule update` puts you back in detached HEAD. Teams waste hours on this because it looks like an error but is actually expected behavior. **Total cost: $10K-$30K in lost engineering time per year for a 20-person team debugging "mysterious" detached HEAD states.**
+### Anti-Pattern: Accepting Detached HEAD as Normal
+**What it looks like:** Teams see "detached HEAD" after `git submodule update` and either panic or ignore it. They make changes in detached HEAD state, then lose work when switching branches.
+**Why it fails:** Git submodules pin to a SHA by default. Without `branch = main` in `.gitmodules`, every update returns to detached HEAD. Teams waste $10K-$30K/year in a 20-person org debugging "mysterious" states.
+**Do this instead:** Run `git submodule set-branch --branch main <path>` during setup. Document which submodules should track branches vs. pin to tags. Add a pre-commit hook that warns on detached HEAD submodules without documented justification.
 
-* **Force-pushing to a repo used as a submodule destroys every consumer.** If you rebase or force-push to a repo that is a submodule of 5 other repos, all 5 repos now point to commits that do not exist. The fix requires every consumer to find the equivalent commit in the new history — a manual, error-prone process. **Total cost: $25K-$100K per force-push incident across all consumer teams, depending on consumer count and submodule criticality.**
+### Anti-Pattern: Force-Pushing to Submodule Repos
+**What it looks like:** Developer rebases a feature branch in the submodule repo and force-pushes. Five consumer repos now point to nonexistent SHAs.
+**Why it fails:** Every consumer's pinned commit is orphaned. Recovery requires manual SHA mapping across all consumers — an error-prone process costing $25K-$100K per incident.
+**Do this instead:** Enable branch protection with "block force pushes" on all submodule repo branches. Use `git revert` for mistakes. If rebase is unavoidable, notify all consumer teams, coordinate SHA migration, and validate all consumers pass CI before merging.
 
-* **`git submodule update --recursive` is secretly sequential.** Git updates submodules one at a time. With 30 submodules, each taking 5 seconds to fetch, that is 2.5 minutes of serial I/O on every clone. There is no built-in parallelism. Teams discover this at scale and have to write custom parallel clone scripts. **Total cost: $15K-$40K/year in wasted CI time for repos with 20+ submodules.**
+### Anti-Pattern: Serial Submodule Updates Without Caching
+**What it looks like:** CI clones 30 submodules one at a time with `git submodule update --init --recursive`. Each takes 5 seconds = 2.5 minutes of serial I/O on every CI run.
+**Why it fails:** Git has no built-in parallelism for submodule updates. At scale, this costs $15K-$40K/year in wasted CI time for repos with 20+ submodules.
+**Do this instead:** Cache `.git/modules` by `.gitmodules` hash in CI. Use `git submodule update --init --recursive --jobs 8` for parallel fetches (Git 2.8+). Consider subtree for repos with >15 submodules.
 
-* **Submodule merge conflicts look like binary gibberish to developers.** When two branches update the same submodule to different SHAs, the merge conflict is a raw SHA comparison. Most developers guess ("ours looks right?"), pick wrong, and ship broken dependencies. This is the #1 cause of post-merge submodule bugs. **Total cost: $20K-$50K/year in production incidents caused by incorrect submodule merge conflict resolution.**
+### Anti-Pattern: Guessing Submodule Merge Conflicts
+**What it looks like:** Two branches update the same submodule to different SHAs. The developer sees two commit hashes and picks "ours" because it looks right.
+**Why it fails:** The "right" SHA might revert a security patch or break a shared interface. This is the #1 cause of post-merge submodule bugs, costing $20K-$50K/year in production incidents.
+**Do this instead:** Always run `git log --oneline <ours-sha>..<theirs-sha>` to see what commits you'd lose/gain. Check CHANGELOGs between the two SHAs. Prioritize the SHA containing security patches. Document the resolution in a merge resolution log.
 
-* **Vendored code that is 12 months behind upstream contains known CVEs.** The average vendored dependency without automated update tracking falls 6-18 months behind upstream. During that window, multiple CVEs are disclosed and patched upstream while your vendored copy ships them to production. **Total cost: $50K-$500K+ per security incident depending on data exposure, plus regulatory fines if PII is involved.**
+### Anti-Pattern: Vendored Code Without Update Tracking
+**What it looks like:** Team vendors a dependency, commits it to the repo, and never checks upstream again. Six months later, the vendored copy is 3 major versions behind.
+**Why it fails:** Unpatched CVEs in vendored code ship to production because no scanning tool looks at vendored dependencies. $50K-$500K+ per security incident.
+**Do this instead:** Add a `VENDOR_VERSION` file tracking the upstream version. Schedule automated monthly checks against upstream. Use Renovate/Dependabot with submodule support for tracking-branch submodules.
 
-* **`git subtree push` silently drops commits if the split prefix is wrong.** If you specify `--prefix=lib` but the actual directory is `src/lib`, git subtree will split nothing and push an empty branch — overwriting the remote. Recovery requires restoring from the parent repo, which may itself be out of date. **Total cost: $10K-$30K in lost work and recovery effort when a subtree push overwrites the wrong remote branch.**
+### Anti-Pattern: Relative Submodule URLs in Mixed-Protocol Teams
+**What it looks like:** `.gitmodules` uses `url = ../dependency.git`. Alice clones via HTTPS, Bob via SSH. Alice gets HTTPS URLs, Bob gets SSH URLs — but only one works behind the VPN.
+**Why it fails:** Resolved URLs differ by protocol, causing "repository not found" errors that are environment-specific and nearly impossible to reproduce. $5K-$15K in debugging per incident.
+**Do this instead:** Use absolute URLs: HTTPS for public repos, SSH for private repos behind VPN. Use `insteadOf` in `.gitconfig` to redirect protocols consistently across the team.
 
-* **Relative submodule URLs break when the parent repo is cloned via SSH vs HTTPS.** If `.gitmodules` uses `url = ../dependency.git` (relative), and one developer clones via HTTPS while another uses SSH, the resolved URLs differ. This causes "repository not found" errors that are environment-specific and maddeningly hard to reproduce. **Total cost: $5K-$15K in debugging per incident across a team that uses mixed transport protocols.**
-
-* **`git submodule deinit` followed by `git submodule add` does NOT restore the submodule correctly.** The `.git/modules/<path>` directory retains stale config. The correct sequence is: `git submodule deinit -f <path>`, `rm -rf .git/modules/<path>`, `git rm -f <path>`, edit `.gitmodules` to remove entry, commit, THEN `git submodule add <url> <path>`. Missing the `.git/modules` cleanup causes confusing errors about existing repository. **Total cost: $8K-$20K per developer who attempts self-service submodule recovery and corrupts the repo state.**
+### Anti-Pattern: Incomplete Submodule Removal Sequence
+**What it looks like:** Developer runs `git submodule deinit <path>` then `git submodule add <url> <path>` — expecting a clean re-add. Gets confusing errors about an existing repository.
+**Why it fails:** `.git/modules/<path>` retains stale config after deinit. Without manual cleanup, the re-add fails. $8K-$20K per developer who attempts self-service recovery and corrupts repo state.
+**Do this instead:** Full removal sequence: `git submodule deinit -f <path> && rm -rf .git/modules/<path> && git rm -f <path>`, then edit `.gitmodules` to remove entry, commit, THEN `git submodule add <url> <path>`.
 
 ## Verification
 

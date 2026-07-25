@@ -82,6 +82,20 @@ End-to-end shipping and launch discipline: pre-launch readiness verification, st
 - **Deep dive (full session):** Full launch readiness audit: run through every checklist item with evidence, review staged rollout percentages and stabilization periods, validate feature flag lifecycle (creation through deprecation), dry-run rollback in staging, draft launch communication for stakeholders and users.
 - **Crisis mode (launch going badly):** Execute rollback immediately if any go/no-go threshold is breached. Do not debug in production. Rollback first, investigate in staging later. Communicate status to stakeholders within 5 minutes of rollback decision.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 engineer, 1 service)
+Staged rollout: canary (25% for 15min) → 100%. Feature flags = environment variables. Rollback = `kubectl rollout undo` or `git revert` + redeploy. Pre-launch checklist in a markdown file. Focus: ship safely, automate repeated steps, set up monitoring dashboards before launch. Dark launch all data-mutating changes.
+
+#### Small (2-10 engineers, 2-5 services)
+Staged rollout with defined percentages and automated metric gates. Feature flags via LaunchDarkly or Unleash with kill switches. Go/no-go with documented criteria. Rollback runbook tested monthly. Stakeholder communication template. Focus: launch checklist institutionalized, monitoring baselines established, error budget integration into go/no-go, post-launch retros with tracked action items.
+
+#### Medium (10-50 engineers, 5-20 services)
+Progressive delivery with automated canary analysis (Argo Rollouts, Spinnaker). Feature flag lifecycle management with automated cleanup in CI. Go/no-go integrated with deployment pipeline — gates automatically block progression if metrics regress. Launch communication automated: status page updates, Slack announcements at each rollout stage. Focus: runtime kill switches for every feature flag, dark launch for all data-mutating changes, launch metrics dashboard tracking DORA + SLO compliance per launch.
+
+#### Enterprise (50+ engineers, 20+ services, multi-region)
+Multi-region staged rollouts with regional canary before global expansion. Change management integrated with ITSM (ServiceNow). Federated launch coordination: central launch calendar, per-team go/no-go, shared monitoring war room. Focus: compliance audit trails for every launch decision (who approved, what criteria, when), zero-downtime data migrations at scale, launch governance framework. "This is how we launch — every team follows this checklist, every launch has a rollback plan, every go/no-go is data-driven."
+
 ## When to Use
 
 - Preparing a new feature or service for production launch
@@ -109,7 +123,7 @@ What launch activity are you working on?
 |-- Full launch readiness audit -> Start at "Core Workflow: Phase 1"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1: Pre-Launch Checklist
 
@@ -220,7 +234,7 @@ What launch activity are you working on?
    |-- Feature flag cleanup ticket created with owner and deadline
 ```
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Staged Rollout
 
@@ -382,7 +396,30 @@ Launch War Room Setup (for high/critical risk launches):
 ```
 
 
-## Error Recovery
+## Best Practices
+
+1. **Pre-launch checklist as a non-negotiable gate — not a suggestion.** Six mandatory gates: Code Quality (PRs approved, tests passing, no TODOs), Security (no CVEs, rate limiting, encrypted data), Performance (load tested, no memory leaks, query plans reviewed), Accessibility (zero critical a11y violations, keyboard nav verified), Infrastructure (IaC reviewed, autoscaling configured, health checks defined), Documentation (API docs updated, runbooks current, ADRs created). All six must show GREEN before any user sees the change.
+
+2. **Go/no-go criteria with specific, measurable thresholds — never "it feels ready."** CRITICAL (any NO = NO-GO): all automated tests pass, security scan clean, no known P0/P1 bugs, rollback tested in last 7 days, error budget ≥30% remaining. CONDITIONAL (NO = documented VP-level risk acceptance): feature flags configured with kill switches, monitoring dashboards with ≥24h baseline data, support team briefed, DB migrations tested at scale. Decision deadline: 24 hours before launch.
+
+3. **Rollback automation: one command, under 5 minutes, tested within 7 days of launch.** A feature-flag kill switch takes effect in <60 seconds without a deploy. A deploy rollback (`kubectl rollout undo`, `terraform destroy -target`, blue-green swap) completes in <15 minutes. The runbook must work from a fresh terminal with zero local state. Dry-run in staging and time it. If the runbook fails, the launch is NO-GO.
+
+4. **Launch communication: pre-launch, launch-day, post-launch — three distinct templates.** Pre-launch (24-48h before): stakeholder email with launch date, feature summary, rollback plan, escalation POC. Launch-day: status page update, internal Slack announcements at each rollout stage transition with go/no-go call. Post-launch (within 24h): launch summary with metrics, incident log, lessons learned, retro scheduled. Honesty in communication — never call an outage "routine maintenance."
+
+5. **Post-launch monitoring: 24-72 hours of active vigilance with annotated dashboards.** Watch error rates, latency (p50/p95/p99), throughput, saturation, and business metrics against the 7-day baseline. Dashboards must exist with baseline data at least 1 week before launch — an annotated launch timestamp tells you whether the launch caused the anomaly or inherited it. The launch commander stays on-call for the full monitoring window.
+
+6. **Phased rollouts with minimum stabilization periods per stage.** Dark launch (0% users, 100% mirrored traffic, 24h minimum) for data-mutating changes. Canary (5%, 30-min stabilization) → Beta (25%, 2h stabilization) → Majority (50%, 4h stabilization covering one peak period) → GA (100%, keep flag as kill switch for 2 weeks). Each stage has automatic rollback thresholds: error rate >2x baseline or p95 latency >3x baseline triggers immediate abort.
+
+7. **Dark launch every data-mutating change — never write to production without validating first.** Mirror production traffic to a shadow write path for 24-48 hours. Compare new vs. old responses for correctness. Validate data integrity before enabling real writes. The first time your code touches real data should not be the first time it runs in production. Skipping dark launch on a data pipeline change that writes 2M malformed records costs $20K-$100K in recovery.
+
+8. **Feature flags require four things: owner, sunset date, kill switch, monitoring dashboard.** A flag without an owner is orphaned the moment the creator changes teams. A flag without a sunset date lives forever — 6 months later, the "off" code path has rotted and the kill switch triggers a 2-hour outage. A flag without a kill switch turns a 1-minute fix into a 30-minute deploy. A flag without a dashboard is flying blind.
+
+9. **Error budgets are launch gates, not just SRE abstractions.** If remaining error budget is <30% for a service in the launch blast radius, the launch is NO-GO for that service. Launching into an exhausted error budget guarantees immediate SLO violation. The error budget policy must be documented: ≥50% = normal ops, 20-50% = risky deploys blocked, 5-20% = all deploys blocked, <5% = full freeze.
+
+10. **Post-launch retro within 1 week: small, blame-free, action-oriented.** Three questions: What went well? What went wrong? What do we change for next launch? Produce ≤5 concrete action items with owners and dates. Track retro action item completion rate across launches — the metric that measures whether your launch process is actually improving. A retro without tracked action items is therapy, not engineering.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -473,6 +510,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[SHIP1]** Pre-launch checklist: all 6 gates (Code Quality, Security, Performance, Accessibility, Infrastructure, Documentation) show GREEN — no exceptions, no "will fix after launch"
+- [ ] **[SHIP2]** Rollback procedure tested in staging within the last 7 days, timed at <5 minutes for feature flag and <15 minutes for deploy rollback — runbook works from a fresh terminal with zero local state
+- [ ] **[SHIP3]** Feature flags: every flag has an owner, a sunset date (max 60 days post-GA), a runtime kill switch (<60 second effect, no deploy required), and a linked monitoring dashboard
+- [ ] **[SHIP4]** Staged rollout plan documented with percentages and minimum stabilization periods: dark launch (0%, 24h), canary (5%, 30min), beta (25%, 2h), majority (50%, 4h), GA (100%)
+- [ ] **[SHIP5]** Automatic rollback thresholds configured: error rate >2x baseline OR p95 latency >3x baseline triggers immediate abort at every rollout stage
+- [ ] **[SHIP6]** Monitoring dashboards exist with ≥24 hours of baseline data: error rate, latency (p50/p95/p99), throughput, saturation, business metrics — launch timestamp annotated on all dashboards
+- [ ] **[SHIP7]** Go/no-go criteria documented with specific metric thresholds, signed off by engineering lead and product manager — decision deadline 24 hours before deploy window
+- [ ] **[SHIP8]** Stakeholder communication: pre-launch email sent 24-48h before, support team briefed with FAQ and escalation path, status page template prepared
+- [ ] **[SHIP9]** On-call coverage confirmed: engineer scheduled and available for full launch window plus 2 hours after final expansion — no Friday after 2pm launches without VP approval and 24/7 on-call
+- [ ] **[SHIP10]** Dark launch completed for all data-mutating changes: mirrored traffic validated for 24-48 hours, data integrity verified before enabling real writes
+- [ ] **[SHIP11]** Error budget check: all services in the launch blast radius have ≥30% remaining error budget — services with exhausted budgets require VP-level risk acceptance
+- [ ] **[SHIP12]** Post-launch retro scheduled within 1 week: 3 questions, ≤5 action items with owners and dates, tracked action item completion rate from previous launches
+- [ ] **[SHIP13]** Launch timeline published: pre-launch (T-48h), dark launch (T-24h), canary (T+0), beta (T+2h), majority (T+4h), GA (T+8h), monitoring window (T+8h to T+72h)
+- [ ] **[SHIP14]** Feature flag cleanup tickets created: one per flag, assigned to flag owner, due within 30 days of 100% rollout — CI enforces cleanup within 60 days
+
 ## What Good Looks Like
 
 ```
@@ -528,7 +582,7 @@ Bad alternative (anti-pattern):
 | "Feature flags are temporary — no need for a removal process." | Flag at 100% for 6 months. 40 commits later, someone refactors the "off" code path. Database migration failure triggers emergency toggle back to 0% — all users hit broken code, 2-hour outage. $50K-$250K per stale-flag incident. |
 | "Manual go/no-go based on the team's gut feel is faster than formal process." | A green test suite means "nothing we predicted broke," not "nothing broke." Go/no-go without production canary data is gambling. $50K-$500K in incident response and lost revenue per judgment-error release. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Launching on Friday at 5pm guarantees a weekend incident.** A team deploys a major feature Friday afternoon and leaves for the weekend. A latent bug surfaces Saturday morning when traffic patterns differ from weekday testing. No one is monitoring, and the first alert comes from a customer tweet 8 hours later. **Total cost: $15,000-$50,000 in weekend emergency response, customer trust damage, and potential SLA credits.** Fix: Launch Tuesday-Thursday before 2pm. Never launch on Friday without explicit executive approval and 24/7 on-call coverage.
 

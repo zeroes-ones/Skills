@@ -161,7 +161,7 @@ What cryptographic task are you working on?
 |-- Designing crypto-agile system from scratch -> Start at "Core Workflow"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- COMPRESSED: Full 103 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Cryptographic Inventory & Threat Model
@@ -172,7 +172,7 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (103 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Algorithm Selection Quick Reference
 
@@ -410,7 +410,29 @@ Hybrid scheme design:
 |-- Certificate: X.509 extension carrying PQ public key + PQ signature alongside classical.
 ```
 
-## Error Recovery
+## Best Practices
+
+1. **Algorithm selection: use only NIST/FIPS-approved, standards-track algorithms with known security proofs.** Symmetric: AES-256-GCM or XChaCha20-Poly1305. Asymmetric: ECDH X25519, EdDSA Ed25519. Hashing: SHA-384 or SHA-512 (SHA-256 acceptable for non-PQC). Password hashing: Argon2id (m >= 46MB, t >= 1, p >= 1). Never: SHA-1, MD5, RC4, 3DES, AES-ECB, RSA PKCS#1 v1.5, static RSA key exchange. Algorithms with known weaknesses don't become "okay for low-risk data" — they become attack vectors.
+
+2. **Key length standards: RSA >= 2048 (4096 for new), ECC >= 256-bit curve, symmetric >= 128-bit, HMAC >= 256-bit.** NIST SP 800-57 Part 1 provides the authoritative key strength guidance. RSA-1024 was factored in 2010; RSA-2048 is projected secure through ~2030. For data that must remain confidential beyond 2030, use RSA-4096 or ECC. 128-bit symmetric security is sufficient against classical attacks; 256-bit provides margin against Grover's algorithm (quantum) and multi-target attacks.
+
+3. **AES-GCM nonce management is the #1 cryptosystem killer — use a 96-bit deterministic counter, never random.** AES-GCM nonce reuse reveals the GHASH authentication subkey H, enabling arbitrary ciphertext forgery and decryption. A deterministic counter (stored atomically, persisted across reboots) prevents reuse. For systems that cannot maintain a counter, switch to XChaCha20-Poly1305 (192-bit random nonce, collision probability negligible). Never generate AES-GCM nonces with `Math.random()` or any non-cryptographic PRNG.
+
+4. **Side-channel mitigation: use constant-time operations for all cryptographic comparisons.** MAC verification, token comparison, hash comparison — all must use constant-time functions: `crypto.timingSafeEqual()` (Node.js), `hashlib.compare_digest()` (Python), `ConstantTimeCompare()` (Go), `hash_equals()` (PHP). `==`/`===` short-circuits on first byte difference, leaking timing information. Over a network, statistical sampling recovers values byte-by-byte in 100-1000 requests. This is not a lab curiosity — Lucky13, POODLE, and multiple JWT library CVEs exploit timing oracles.
+
+5. **RNG selection: use only the kernel CSPRNG.** `/dev/urandom` (Linux/macOS), `crypto.randomBytes()` (Node.js), `secrets.token_bytes()` (Python), `crypto/rand` (Go). Never: `Math.random()`, `rand()`, `java.util.Random`, or any non-cryptographic PRNG for key material, nonces, tokens, or session IDs. Non-CSPRNG use in cryptographic contexts is the root cause of the Okta 2022 incident, multiple cryptocurrency wallet thefts, and Figma's API token vulnerability. If your system generates ANY cryptographic material with non-CSPRNG, assume compromise and rotate everything.
+
+6. **Key rotation: automate, don't schedule manually.** DEKs (Data Encryption Keys): rotate per data item or per upload — encrypt the new DEK with the KEK, never re-encrypt data. KEKs (Key Encryption Keys): rotate annually or on compromise, whichever comes first. Master keys: stored in HSM, rotated via key ceremony (M-of-N custodians spanning org boundaries). Certificate private keys: rotate with certificate renewal (ACME or cron, max 90-day validity). Root CA keys: 5+ year rotation cycle, ceremony with external auditors. Every rotation must be automated — "we'll rotate keys manually every 90 days" becomes "we haven't rotated keys in 3 years."
+
+7. **TLS configuration: TLS 1.3 minimum, only AEAD ciphers, OCSP Must-Staple, HSTS preload.** Mozilla SSL Configuration Generator provides the authoritative intermediate configuration. TLS 1.0/1.1: disabled (RFC 8996 formally deprecates). Cipher suites: TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256. Key exchange: X25519 or ECDHE with secp256r1. OCSP Must-Staple: prevents soft-fail revocation bypass. HSTS: max-age >= 1 year, includeSubDomains, preload. Certificate Transparency: require SCTs from >= 2 independent log operators (Google + Cloudflare + DigiCert).
+
+8. **Post-quantum readiness: hybrid key exchange now, PQC-only after migration window.** Deploy X25519 + Kyber-1024 hybrid KEM (combine shared secrets with HKDF). If either primitive is broken, the combined key remains secure. NIST has standardized ML-KEM (FIPS 203) and ML-DSA (FIPS 204). Migration approach: (1) deploy hybrid for all new connections, (2) verifier accepts either during migration window, (3) PQC-only after all clients updated. Store-now-decrypt-later threat: any RSA/ECDH-encrypted data captured today will be decryptable by a CRQC (cryptographically relevant quantum computer) within 10-15 years.
+
+9. **Never roll your own crypto — use well-audited, standards-compliant libraries.** libsodium (binding available for every language), Go `crypto/` stdlib, Python `cryptography`, Node.js `crypto` (built-in), Bouncy Castle (Java), OpenSSL (C). These libraries have survived years of public cryptanalysis. Your custom AES wrapper with "just a small optimization" introduces padding oracle, timing side-channel, or nonce reuse vulnerabilities. If you're writing crypto primitives, you're building a footgun factory. Use `tink` (Google) or `libsodium` for high-level safe APIs that prevent misuse by design.
+
+10. **Cryptographic agility: every artifact includes algorithm ID, key ID, and protocol version.** Encrypted data blobs: prepend `{version: 2, alg: "AES-256-GCM", kid: "kek-2026"}`. Signed artifacts: include signing algorithm and key ID. This enables: (1) migration from deprecated algorithms without downtime, (2) key rotation without re-encrypting all data, (3) audit trails showing which key protected which data. Crypto-agile systems survive algorithm deprecation; rigid systems require forklift upgrades when SHA-1→SHA-256 or RSA→ECC.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -505,6 +527,36 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before deploying cryptographic systems to production, validate every item. Cryptography failures are irreversible — data encrypted with a broken scheme is data lost.
+
+1. **Deprecated algorithm audit:** Zero instances of SHA-1, MD5, RC4, 3DES, AES-ECB, RSA PKCS#1 v1.5, static RSA key exchange, SSLv3, TLS < 1.2. Flag any found as CRITICAL — these are cryptographically broken assets that must be remediated before deployment.
+
+2. **TLS compliance:** Minimum TLS 1.2 (TLS 1.3 preferred). Only AEAD ciphers. X25519 or ECDHE key exchange. OCSP Must-Staple enabled on all publicly-trusted certificates. HSTS with max-age >= 1 year and preload. Certificate Transparency: >= 2 SCTs from independent log operators.
+
+3. **Key size verification:** RSA >= 2048 (4096 for new keys). ECC >= secp256r1 (p256) for short-term, >= p384 for long-term. Symmetric keys >= 128 bits. HMAC keys >= 256 bits. All below-threshold keys flagged for rotation with a deadline.
+
+4. **Password storage audit:** Argon2id (m >= 46MB, t >= 1, p >= 1) OR bcrypt (cost >= 12) OR scrypt (N >= 2^17). Zero instances of SHA-256, SHA-512, MD5, unsalted, or single-iteration hashes. Algorithm identifier embedded in hash for future migration.
+
+5. **Nonce management audit:** AES-GCM: 96-bit deterministic counter, persisted atomically. XChaCha20-Poly1305: 192-bit random nonce from CSPRNG. Zero instances of random AES-GCM nonces or non-CSPRNG nonce generation. Documented nonce rotation/wrap strategy for counters.
+
+6. **Key hierarchy:** Root keys in HSM (FIPS 140-2 Level 3). KEKs separate from DEKs. Envelope encryption pattern for all data-at-rest. No keys in source code, config files, environment variables, or CI/CD pipeline logs.
+
+7. **Crypto agility:** Every encrypted/signed artifact includes: protocol version, algorithm identifier, key ID. Migration path defined for each algorithm. Multi-algorithm acceptance during transition periods. All clients support at least one common post-quantum algorithm.
+
+8. **Certificate lifecycle automation:** All certificates renewed via ACME or automated pipeline (cert-manager, certbot, step-ca). Expiry monitoring with alerts at 30, 14, and 7 days. Revocation workflow tested: OCSP responder reachable, CRL distribution points valid. Private keys generated in TPM/HSM or in-memory only — never on persistent disk.
+
+9. **Constant-time comparison:** All MAC, token, hash, and credential comparisons use `crypto.timingSafeEqual()`, `hashlib.compare_digest()`, `ConstantTimeCompare()`, or `hash_equals()`. Zero instances of `==`/`===` on security-sensitive values. Verify via code audit, not documentation — developers routinely use `==` despite docs.
+
+10. **CSPRNG compliance:** All key material, nonces, tokens, and session IDs sourced exclusively from kernel CSPRNG: `/dev/urandom`, `crypto.randomBytes()` (Node.js), `secrets` module (Python), `crypto/rand` (Go). Zero instances of `Math.random()`, `rand()`, `java.util.Random`, or any non-cryptographic PRNG. Any violation is CRITICAL — assume compromise and rotate all affected keys.
+
+11. **HSM access control:** Key ceremony procedures documented with M-of-N split across organizational boundaries (security + engineering + compliance + legal + external). Custodian rotation plan: at least one custodian rotated annually. Break-glass access documented with dual-authorization requirement. HSM audit logs shipped to immutable storage.
+
+12. **Post-quantum migration plan:** Hybrid key exchange (X25519 + Kyber-1024) deployed for all new connections. Migration timeline documented: hybrid now → hybrid + PQC-only accepted during migration window (2026-2028) → PQC-only after ecosystem readiness. Inventory of all long-lived encrypted data with "harvest now, decrypt later" risk assessment.
+
+If any checklist item fails: STOP. Cryptographic failures are irreversible. Fix the gap, re-verify, and then proceed.
+
 ## What Good Looks Like
 
 ```
@@ -539,6 +591,32 @@ TLS 1.3 Full Stack:
     |-- mTLS: both client and server present certificates
 ```
 
+### Scale Depth
+
+#### Solo
+
+**Cryptography for a solo developer, personal project, or prototype with basic security needs.** Use libsodium (NaCl) for all cryptographic operations — it provides safe defaults and prevents misuse by design. For TLS: Let's Encrypt via certbot with auto-renewal. Password storage: bcrypt (cost >= 12). Key storage: environment variables or `.env` files (acceptable for solo projects, not for teams). No HSM, no key ceremony, no PKI — these are overkill for a solo project. The biggest risk: using crypto primitives directly (AES.new() with manual IV generation) instead of libsodium's high-level APIs (crypto_secretbox, crypto_box).
+
+**Transition trigger:** You share code with other developers, store other people's data, or have paying customers → move to Small.
+
+#### Small
+
+**Small team (2-10 developers), startup with first customers, or internal tool with sensitive data.** Deploy a cloud KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) for envelope encryption. Use managed TLS: cloud provider certificate manager (ACM, Certificate Manager) with automatic renewal. Password storage: Argon2id with tuned parameters (profile on production hardware, target ~500ms). Secrets: inject via environment or secrets manager, never in config files. Key rotation: DEKs per data item, KEKs rotated annually via KMS automatic rotation. Audit: quarterly manual review of crypto dependencies for known vulnerabilities.
+
+**Transition trigger:** SOC 2, HIPAA, PCI, or other compliance requirements, or >100,000 users → move to Medium.
+
+#### Medium
+
+**Growing company (50-200 people), compliance-required, or multi-service architecture.** Deploy HashiCorp Vault for secrets management and PKI (Vault PKI backend for internal CAs). HSM: cloud HSM (AWS CloudHSM, GCP Cloud HSM, Azure Dedicated HSM) for root key protection. mTLS: SPIFFE/SPIRE for workload identity with short-lived certificates (24h). Automated key rotation: Vault auto-unseal with cloud KMS, dynamic database credentials. Post-quantum: deploy hybrid X25519 + Kyber for internal service-to-service TLS. Compliance: FIPS 140-2 validated modules for regulated workloads. Monitoring: Splunk/Datadog alerting on certificate expiry, HSM audit log anomalies, and crypto library CVEs.
+
+**Transition trigger:** Multi-cloud, >500 employees, FedRAMP/CMMC requirements, or on-premises HSM requirements → move to Enterprise.
+
+#### Enterprise
+
+**Large enterprise (500+), Fortune 500, government/defense, or fintech with crown-jewel data.** On-premises HSM: FIPS 140-2 Level 3 (Thales/Gemalto, Utimaco, Entrust) in geo-redundant configuration. PKI hierarchy: offline root CA in air-gapped facility, issuing CAs in HSMs, end-entity certs auto-rotated via ACME/SPIFFE. Key ceremony: M-of-N custodians across legal, security, engineering, and external audit — ceremonies recorded, witnessed, and audited. Post-quantum: full inventory of PQC-vulnerable systems, hardware-backed hybrid key exchange, migration to NIST PQC standards (FIPS 203/204). Crypto agility: centralized policy engine that rejects deprecated algorithms fleet-wide within 24h. Dedicated cryptography team: certifies crypto implementations, conducts side-channel assessments, maintains internal crypto library. Regulatory: FIPS 140-3 validation, CNSA 2.0 compliance for classified systems, GDPR/HIPAA encryption requirements.
+
+**Transition triggers:** Sovereign cloud requirements, classified data handling (TS/SCI), or operating critical national infrastructure.
+
 ## Deliberate Practice
 
 Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server/s_client`, `step-ca`, or `cert-manager` in a local Kind cluster.
@@ -553,7 +631,7 @@ Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server
 
 5. **Post-Quantum Hybrid KEM:** Implement X25519 + Kyber-1024 hybrid key exchange. Generate both shared secrets, combine with HKDF. Verify that if either primitive is broken (simulate by zeroing one shared secret), the combined key remains secure. Test in a lab TLS 1.3 implementation.
 
-## Gotchas
+## Anti-Patterns
 
 ### TLS Gotchas
 

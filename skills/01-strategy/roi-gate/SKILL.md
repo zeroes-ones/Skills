@@ -146,6 +146,7 @@ What ROI question are you trying to answer?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1: Cost of NOT Rewriting (~5 min)
 
@@ -229,6 +230,7 @@ cost, and risk-adjusted benefit.
 > 📎 **Full calculation templates:** See `references/roi-calculation-methods.md`
 
 ## Decision Trees
+**(QUICK)**
 
 ### Over-Engineering Detection
 
@@ -318,6 +320,7 @@ they removed it — deletion PR removed 2,400 lines and 15 files. Zero bugs from
 least 3 real implementations is premature. Delete it until it earns its keep.
 
 ## Error Recovery
+**(STANDARD)**
 
 | Error Message / Signal | Root Cause | Fix | Lesson |
 |---|---|---|---|
@@ -328,6 +331,7 @@ least 3 real implementations is premature. Delete it until it earns its keep.
 | "We need this for the big client" | Single-customer feature creep | Calculate: client revenue / feature cost. < 1-year payback → negotiate. > 1-year → push back. | One-client features are the most common B2B ROI trap. |
 
 ## Production Checklist
+**(STANDARD)**
 
 Before approving any non-trivial task (> 8 hours), verify:
 
@@ -383,6 +387,29 @@ Before approving any non-trivial task (> 8 hours), verify:
 - **"The code is legacy, modernize it"** → ⚠️ "Working legacy code has zero dev cost and positive business value. Quantify active pain before touching it." 🟠
 - **New dependency added** → ⚠️ "Run dependency ROI. Check: maintenance cadence, bus factor, supply chain risk. Dependencies are long-term commitments." 🟠
 
+## Best Practices
+**(STANDARD)**
+
+1. **Always calculate the cost of NOT doing the work first.** Before estimating the cost of a rewrite, refactor, or new feature, calculate what it costs to leave things as they are: ongoing bug fixes × fully-loaded engineer cost, customer churn attributable to the issue, opportunity cost of velocity drag on related work. The "do nothing" option has a price tag — surface it.
+
+2. **Use token economics as a first-class cost dimension for AI-assisted development.** When evaluating whether to refactor or rewrite code that an AI agent will work with, factor in token consumption: a messy 5,000-line file costs ~15K tokens to read (context), ~3K tokens per edit round (tool calls), and accumulates session cost. A well-factored 500-line module costs 1.5K tokens. Over 100 editing sessions, the delta is material.
+
+3. **Distinguish between refactor cost and rewrite cost explicitly.** Refactoring (incremental improvement within existing architecture) has lower risk but slower velocity. Rewriting (greenfield replacement) has higher upfront cost and higher risk but potentially lower long-term maintenance. Calculate both paths to a 3-year TCO before choosing.
+
+4. **Apply the abstraction cost test for every new layer, interface, or pattern.** For every abstraction proposed, ask: "How many concrete implementations currently exist?" If the answer is ≤ 1, the abstraction is premature. Abstractions carry a lifetime tax (every new team member must learn it, every change must navigate it). The tax is only worth paying when you have 2+ concrete cases.
+
+5. **Calculate dependency ROI for every new dependency added.** A dependency costs: initial integration time + ongoing update maintenance + vulnerability surface area + transitive dependency risk. It pays back: development time saved. If the payback period exceeds 12 months, the dependency has negative ROI unless it solves a problem you couldn't solve otherwise.
+
+6. **Model the over-engineering penalty in concrete terms.** Every unnecessary abstraction, pattern, or optimization costs: 15-30 minutes per day per developer in cognitive overhead (navigating indirection), 2-4x longer onboarding for new team members, and exponentially increasing testing surface area. Quantify these costs in engineering hours × fully-loaded rate before adding complexity.
+
+7. **Use a decision tree with dollar amounts, not intuition.** When choosing between options (refactor vs. rewrite, build vs. buy, add dependency vs. build in-house), structure the decision as a tree with probability-weighted outcomes. Assign real dollar amounts to each branch. Intuition says "rewrites are expensive"; a decision tree with your actual numbers might say "rewriting this specific module breaks even at 14 months."
+
+8. **Recalculate ROI after every major milestone.** ROI estimates made before work begins are optimistic by 30-50% on average (planning fallacy). Recalculate after each phase: Phase 1 completion, first integration test, first production deployment. Update the go/no-go decision with real data, not initial estimates.
+
+9. **Include maintenance burden in every ROI calculation.** The cost of building something is ~30% of its lifetime cost. The remaining 70% is maintenance, bug fixes, updates, and support. If your ROI calculation only uses build cost, you're missing 70% of the equation.
+
+10. **Prioritize work by ROI per unit of engineering time, not absolute ROI.** A feature with $500K ROI that takes 6 months delivers $83K/month. A feature with $200K ROI that takes 1 month delivers $200K/month. Prioritize by ROI velocity, not absolute ROI — this is the difference between busy and effective.
+
 ## Anti-Patterns
 
 <!-- STANDARD: 2min -->
@@ -397,6 +424,8 @@ Before approving any non-trivial task (> 8 hours), verify:
 | "Every other team uses this" | Cargo-cult engineering. Evaluate against YOUR context. |
 | "We'll figure out ROI later" | ROI becomes unknowable post-fact (sunk cost). Best time is before code. |
 | Building because "customer asked" | One customer ≠ business case. Revenue must cover cost. |
+| Calculating ROI using "developer hours saved × hourly rate" without accounting for what developers would have done instead. | Developers don't sit idle when not doing the work you're proposing — they work on the next highest-priority item. The real opportunity cost is the value of the displaced work, not the developer's salary (which is a sunk cost). Calculate ROI as (value generated by proposed work) - (value of displaced work). If you can't quantify the displaced work's value, you can't calculate real ROI. |
+| Approving projects because "everyone else is doing it" without running your own numbers. | Other companies have different contexts — different team sizes, different revenue per engineer, different existing technical debt, different growth trajectories. Their ROI-positive project may be ROI-negative for you. Run the decision tree with your actual numbers. The only context that matters for your ROI calculation is yours. |
 
 ## What Good Looks Like
 
@@ -447,6 +476,48 @@ Before completing any ROI gate analysis, verify:
 - [ ] **[VG6]** For STOP verdicts: a higher-ROI alternative is suggested (redirect, not just refuse)
 - [ ] **[VG7]** Security fixes, compliance mandates, and active incidents are correctly bypassing the gate
 - [ ] **[VG8]** Cold-path work is flagged if traffic < 1% and cost > $500
+
+## Scale Depth
+
+### Solo (1 engineer, pre-revenue)
+- ROI threshold: Does this save more hours than it costs to build? Any positive hour-save ROI is probably worth it at this stage
+- Decision framework: Simple cost-benefit — time to build vs. time saved over 6 months
+- Abstraction rule: No abstractions for single implementations. Write it directly.
+- Dependency rule: Add dependencies only when they solve a problem you can't solve in a day
+- Deliverable: 1-paragraph ROI justification in a PR description
+
+### Small (2-10 engineers, $1M-$10M ARR)
+- ROI threshold: Project must show positive ROI within 12 months AND not block higher-ROI work
+- Decision framework: Decision tree with probability-weighted outcomes for major decisions (>40 engineering hours)
+- Abstraction rule: Abstract only when 2+ concrete implementations exist OR domain boundary is clear and stable
+- Dependency rule: ROI calculation required for dependencies that add > 5KB to bundle or require ongoing maintenance
+- Deliverable: 1-page ROI analysis with decision tree for decisions > 40 hours
+
+### Medium (10-50 engineers, $10M-$50M ARR)
+- ROI threshold: Project must show positive ROI within 18 months, account for displaced work, and include maintenance burden
+- Decision framework: Full decision tree with sensitivity analysis for decisions > 80 engineering hours
+- Abstraction rule: Pre-commit to abstraction ROI — document expected concrete cases before building
+- Dependency rule: Vendor risk assessment + exit strategy + TCO for dependencies that cost money or have security surface area
+- Deliverable: ROI document with decision tree, sensitivity analysis, displaced work calculation, and maintenance burden
+
+### Enterprise (50+ engineers, $50M+ ARR)
+- ROI threshold: Multi-year ROI with scenario planning (base/downside/upside), capital allocation framework, and portfolio optimization
+- Decision framework: Portfolio-level ROI — optimize across all proposed projects, not each in isolation
+- Abstraction rule: Architecture review board evaluates abstraction proposals against enterprise-wide patterns
+- Dependency rule: Formal vendor evaluation with legal, security, procurement, and architecture review
+- Deliverable: Business case document with multi-year financial model, risk register, and portfolio impact analysis
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Rewrite approved at $200K estimated cost; actual cost $650K and 9 months late | Planning fallacy — initial estimate used best-case assumptions (no scope creep, no discovered edge cases, no integration surprises) | Recalculate ROI after each phase milestone. Apply a 1.5x-2x multiplier to initial estimates based on historical accuracy. Include "discovery buffer" of 20-30% for unknown edge cases. | Your first estimate is an aspiration, not a prediction. Recalculate with real data. |
+| "Simple abstraction" grew to 2,000 lines used by exactly 1 consumer | Premature abstraction — built for anticipated future needs that never materialized. The abstraction tax is being paid by every developer who has to understand the indirection. | Apply the rule: no abstractions until 2+ concrete implementations exist. Delete abstractions that serve ≤ 1 consumer after 6 months. | YAGNI isn't cynicism — it's ROI discipline. |
+| Dependency added to "save 2 weeks of work"; 18 months later, it's caused 6 weeks of maintenance and 2 security incidents | Dependency ROI calculated on build cost only, ignoring lifetime maintenance burden. No exit strategy for when the dependency goes unmaintained or changes its API. | For every dependency, calculate: integration cost + (monthly maintenance × 36 months) + vulnerability risk × incident cost. If this exceeds build cost, build it. | Dependencies are liabilities that masquerade as assets. |
+| Team spent 3 months optimizing a query that runs 10 times/day and takes 2 seconds | No ROI gate applied. "It's slow" triggered optimization without asking "how much does this slowness actually cost?" | Quantify: 2 seconds × 10 runs/day × 250 work days = 1.4 hours/year of total wait time. At $150/hr fully-loaded, that's $208/year. 3 months of engineering time = ~$60K. ROI: negative. | Not all "problems" are problems worth solving. |
+| Refactor vs. rewrite debate consumed 6 weeks of meetings with no decision | No decision framework. Debate was based on intuition and anecdotes, not numbers. Both sides had valid arguments with no way to resolve them. | Run a decision tree with probability-weighted outcomes. Assign dollar amounts to each branch (best case, expected case, worst case for both options). The tree either reveals one option as clearly superior or reveals that the difference is negligible — in which case, flip a coin and move on. | A decision framework doesn't guarantee the right answer, but it guarantees the conversation ends. |
+| Feature built because "competitor has it" — 2% adoption after 6 months | ROI analysis skipped because "competitive parity" was treated as inherently valuable. The competitor's feature solved THEIR customers' problems; your customers never asked for it. | Before building for competitive parity, validate demand with your actual customers. Run a fake-door test or concierge MVP. If < 20% of surveyed customers express interest, competitive parity has negative ROI. | Your competitor's roadmap is not your customer's wishlist. |
 
 ## References
 

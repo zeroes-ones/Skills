@@ -142,6 +142,21 @@ Masters of documentation engineer don't just build — they build **the right th
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1-person docs, early-stage project)
+Single SSG site (Docusaurus/VitePress). Focus: quickstart guide, API reference from OpenAPI, search setup, broken link checking. Docs in same repo as code. Content: tutorials + reference. No versioning yet — single version. No i18n. Tools: Docusaurus, Algolia DocSearch (free tier), lychee for links, Vale for prose.
+
+#### Small (1-2 technical writers, Series A, 5-20 services)
+Docs-as-code established. CI/CD pipeline with quality gates. Multi-service IA with Diátaxis categorization. Focus: content review workflow, CODEOWNERS, freshness automation, feedback widget. Content: tutorials, how-tos, API reference, concept docs. Versioning for current + 1 previous major version. Tools: Docusaurus/VitePress + GitHub Actions, Algolia, Crowdin (if i18n needed).
+
+#### Medium (2-5 technical writers, growth-stage, 20-100 services)
+Developer portal with unified IA across services. Multi-repo docs with shared content strategy. Dedicated docs platform. Focus: docs metrics dashboard, search satisfaction optimization, contributor program, multi-version policy, style guide enforcement. Content: all four Diátaxis quadrants, onboarding paths, certification docs. Tools: custom developer portal, Docusaurus multi-instance, Redocly for API, Algolia Enterprise, Crowdin/GitLocalize.
+
+#### Enterprise (5+ technical writers, public company, 100+ services)
+Developer portal as product — dedicated PM, engineering, and design. Focus: docs as competitive advantage, global i18n with translation memory, docs analytics integrated with product analytics (attribute docs-to-conversion), AI-assisted search and chatbot, automated API client SDK generation from OpenAPI. Content: comprehensive docs ecosystem — quickstart, SDKs, tutorials, API reference, concept architecture, runbooks, ADRs, incident postmortems, onboarding certification. Tools: custom platform, ServiceNow/ Salesforce integration, enterprise search, analytics pipeline.
+
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -157,6 +172,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Establishing documentation metrics: coverage, freshness, quality, usage, contribution
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. SSG Selection
@@ -310,7 +327,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Error Recovery
 
-If a command or approach fails, follow this escalation path before giving up:
+**(STANDARD)**, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
 |---------|-------------|---------------|-------------|
@@ -405,6 +422,8 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Docs Health Audit
@@ -435,6 +454,41 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 **Input:** Live docs site with analytics  
 **Steps:** 1) Set up freshness checks (flag pages >6 months stale) 2) Configure feedback widget on every page 3) Set up docs metrics dashboard (coverage, freshness, quality, usage) 4) Assign CODEOWNERS for docs paths  
 **Output:** Self-maintaining docs system with automated quality monitoring
+
+
+## Best Practices
+
+1. **Design information architecture before writing a single page.** Use the Diátaxis framework: tutorials (learning-oriented), how-to guides (task-oriented), reference (information-oriented), explanation (understanding-oriented). Without IA, docs become a junk drawer — 200 pages with no navigational logic. Navigation tree should max out at 4 levels deep; beyond that, no one finds anything. Validate IA with card sorting: give 10 users 30 content items and see how they group them. **Tool:** Docusaurus sidebar configuration, VitePress sidebar, or Notion databases for content inventory with IA tagging.
+
+2. **Docs-as-code: treat documentation like software — versioned, tested, reviewed, and deployed through CI/CD.** Every PR that changes an API must update the corresponding docs page in the same PR. Pre-merge validation: Vale prose linting, broken link checks (internal + external), code snippet validation against current API, frontmatter integrity. Deploy previews on every PR so reviewers see rendered output, not raw Markdown. A docs site that builds from a separate repo diverges within 6 months. **Tool:** GitHub Actions with Vale, lychee/ muffet for link checking, Netlify/Vercel deploy previews.
+
+3. **Auto-generated API reference is a supplement, not the strategy.** JSDoc/Javadoc/Sphinx/pdoc output produces 200 classes in alphabetical order with zero context. New developers land on a method-index page and close the tab within 30 seconds. The docs strategy needs: tutorials (5-minute quickstart), concept docs (what problem does this solve?), how-to guides (accomplish X task), THEN reference (API params). Reference-only docs see 50-70% lower adoption rates and 2-3x more support tickets. **Tool:** OpenAPI/Swagger UI or Redocly for reference, Docusaurus/VitePress for curated content, Mintlify for SDK-style docs.
+
+4. **Write for the reader who knows nothing, not for the engineer who built it.** Developer-written docs skip the "why" and reference internal acronyms that first-time users don't know. Test every page with a new hire who's never seen the system. Docs must answer "what problem does this solve?" before "what are the parameters?" Every acronym on first use gets expanded. Every concept introduced gets a 1-sentence definition. Developer-only docs have 40-60% higher bounce rates. **Tool:** Pair developer with technical writer, run "new hire test" on top 20 pages, Vale readability rules (target grade 8-10).
+
+5. **Version docs with the product, and deprecate aggressively.** When v2.0 ships, v1.0 docs get a deprecation banner with migration guide and sunset date. Version selector in the top nav lets users switch. Maintenance policy: support current + 1 previous major version. Older versions get "unmaintained" banner. Without versioning, users follow deprecated instructions and file bugs that aren't bugs. **Tool:** Docusaurus versioning (built-in), VitePress with versioned sidebar, Mintlify version dropdown — all with search scoped per version.
+
+6. **Automate freshness: stale docs are worse than no docs.** A page last updated 18 months ago showing deprecated API endpoints creates support tickets for "bugs" that were intentionally removed. CI pipeline that: flags pages >6 months without review, validates code samples compile against latest API, checks for broken internal and external links. Add "last reviewed" date to every page. Rotate ownership: each engineering team owns docs for their API surface. Stale docs cause 3-5x more support tickets. **Tool:** GitHub Actions scheduled workflow with lychee, Vale freshness rules, CODEOWNERS for docs paths.
+
+7. **Instrument docs search with analytics — optimize for what users actually search for.** Without tracking search queries and click-through rates, you optimize docs in the dark. Review top 50 queries monthly. For every query with zero results or zero clicks: create the page or improve the existing one. This single practice closes 25-40% more self-service resolutions. Report "most searched, not found" queries in monthly docs health review. **Tool:** Algolia Analytics, Pagefind with custom analytics, Google Programmable Search.
+
+8. **Use controlled language in source docs to reduce i18n costs by 40-60%.** Short sentences, no idioms ("ballpark figure" = "estimate"), defined glossary of 50-100 key terms, consistent terminology (always "delete," never mix "remove"/"erase"/"purge"). Controlled English makes machine translation 2-3x more accurate and reduces professional human translation costs from $0.25/word to $0.12/word through translation memory reuse. When >5% of visitors prefer a given language, translate top 20 pages first (covering ~80% of traffic). **Tool:** Crowdin, GitLocalize,/acrolinx for controlled language checking, Vale rules for terminology consistency.
+
+9. **Publish a public docs roadmap and measure contribution health.** Open-source projects with visible docs roadmaps get 2-3x more community contributions. Metrics to track: docs coverage (% of API endpoints documented), docs freshness (% pages reviewed in last 6 months), docs quality (Vale score, broken link count), docs usage (page views, search satisfaction), docs contribution (external PRs/month). Publish these publicly. A transparent docs program builds trust and attracts contributors. **Tool:** GitHub Projects for docs roadmap, docs metrics dashboard (custom or DocSearch analytics), community contribution tracking in GitHub.
+
+10. **Establish a content review workflow with the same rigor as code review.** Every docs PR gets: (1) technical accuracy review by subject matter expert, (2) editorial review for clarity/grammar/style guide compliance, (3) IA review for correct placement in navigation. CODEOWNERS map docs paths to owning teams. No docs PR merges without at least one approval. This sounds heavy but prevents the "docs junk drawer" — 200 pages that nobody owns and nobody trusts. **Tool:** GitHub CODEOWNERS, Vale in CI, PR template with docs checklist, staging deploy preview per PR.
+
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| User follows deprecated API endpoint docs, files bug — "your API is broken" | Version selector not visible or missing. User is on v2.0 site reading v1.0 docs. No deprecation banner. | Add prominent version selector to top nav. Add deprecation banner to all v1 pages: "This version is deprecated. Migration guide →." Scope search to current version. | Version confusion creates false bug reports. Versioning UI must be unmissable. |
+| Broken link check passes but users report 404 on docs pages | Internal link checker validates Markdown source, not rendered HTML. SSG generates URLs differently (trailing slash, `.html` extension). | Test rendered site, not source. Run link checker against deploy preview URL. Validate both `/page` and `/page/` resolve. Include external link check with 30-day scheduled run. | Source validation ≠ rendered validation. Always test what users see. |
+| OpenAPI reference docs are 15MB HTML — mobile users wait 30+ seconds | `redoc-cli` embeds full OpenAPI spec including all examples. 1,000-endpoint API = massive bundled file. | Split OpenAPI spec by tag into separate pages. Use `x-codeSamples` for examples instead of embedding. Enable server-side pagination for reference. Lazy-load examples. | Generated docs need performance budgets. Test on 3G mobile connection. |
+| Docs site search returns code variable names, not documentation | Search engine indexes rendered HTML including code blocks. Users search for "User" and get results from 50 code snippets, not the User API concept page. | Configure search to exclude `<code>` blocks by default. Boost title and H1/H2 headings. Add explicit search metadata (frontmatter `search.keywords`). | Search without content-type discrimination is noise. Code and prose must be indexed differently. |
+| Screenshot shows old UI — users follow instructions that reference buttons that no longer exist | Static screenshots rot silently. UI team ships redesign, nobody updates docs screenshots. No automated detection. | Automated visual diffing on docs screenshots (Percy/Chromatic). Add "screenshot last updated" metadata. Prefer text descriptions over screenshots for stable UI. | Screenshots are technical debt. Either automate their validation or minimize their use. |
+| "Docs-as-code with versioned branches" — fix to v1 docs doesn't propagate to v2 | Each major version is a branch. Common content duplicated N times. Fix applied to one branch, others diverge. | Shared content repository for cross-version docs. Backport workflow with cherry-pick tracking in commit messages. Version-specific content only in versioned directories. | Branch-per-version creates maintenance hell. Shared content with version overlays scales better. |
 
 
 ## State Log
@@ -483,6 +537,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[DE1]** Information architecture designed using Diátaxis framework — content categorized as tutorials, how-tos, reference, explanation — navigation tree max 4 levels deep
+- [ ] **[DE2]** Docs-as-code pipeline: docs in same repo as product, PRs include docs updates, pre-merge CI validates prose linting, broken links, code snippets, frontmatter
+- [ ] **[DE3]** SSG selected and configured with deploy previews: Docusaurus/VitePress/Mintlify/GitBook — preview on every PR before merge
+- [ ] **[DE4]** Search configured and instrumented with analytics: Algolia/Pagefind — top 50 queries reviewed monthly — "zero results" queries addressed
+- [ ] **[DE5]** Version selector implemented: current + 1 previous major version supported — older versions get deprecation banner with migration guide and sunset date
+- [ ] **[DE6]** Quality gates in CI: Vale prose linting (grade 8-10 target), broken link check (lychee/muffet), cspell with custom dictionary, frontmatter validation, code snippet validation
+- [ ] **[DE7]** Freshness automation: pages >6 months stale flagged — code samples validated against latest API — "last reviewed" metadata on every page
+- [ ] **[DE8]** CODEOWNERS configured: every docs path assigned to owning engineering team — no orphaned docs pages
+- [ ] **[DE9]** Content review workflow: technical accuracy review (SME), editorial review (clarity/grammar/style), IA review (correct navigation placement) — no docs PR merges without approval
+- [ ] **[DE10]** Auto-generated API reference supplemented with curated content: tutorials, quickstart guide (<5 min to first API call), concept docs, how-to guides — NOT reference-only
+- [ ] **[DE11]** Controlled language guidelines: short sentences, no idioms, defined glossary (50-100 key terms), consistent terminology — ready for i18n when needed
+- [ ] **[DE12]** Docs metrics dashboard: coverage (% endpoints documented), freshness (% pages reviewed in 6 months), quality (Vale score, broken links), usage (page views, search satisfaction), contribution (external PRs)
+- [ ] **[DE13]** Feedback widget on every docs page — "Was this helpful? Yes/No" with optional "what was missing?" — feedback reviewed weekly
+- [ ] **[DE14]** Screenshot management: visual diffing (Percy/Chromatic) OR minimize screenshots in favor of text descriptions — "screenshot last updated" metadata where used
+
 ## What Good Looks Like
 
 > When documentation engineering is fully realized, the docs site builds, tests, and deploys through the same CI/CD pipeline as the product, broken links are caught before merge not after publish, style
@@ -506,7 +579,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **Outdated docs worse than no docs.** When docs show deprecated API endpoints, removed configuration options, or workflows that no longer work, users follow the wrong instructions and file support tickets. Support engineers then spend time diagnosing "bugs" that are actually docs issues, and users lose trust in all documentation. **Total cost: $50K-$200K/year in unnecessary support tickets, developer time debugging non-bugs, and user churn from failed onboarding. Organizations with stale docs see 3-5x more support tickets for "how do I..." questions.** Fix: automate doc freshness checks — CI pipeline that validates code samples actually compile/run against the latest API. Add "last reviewed" dates to every page. Rotate docs ownership: each engineering team owns docs for their API surface area.
 - **Docs written by developers only.** Developer-written docs assume readers know internal concepts, acronyms, and system architecture that first-time users don't. Docs skip the "why" and jump straight to "how" — showing API parameters without explaining what problem the endpoint solves. **Total cost: $30K-$100K in wasted onboarding time, abandoned proof-of-concepts, and lost sales from prospects who couldn't evaluate the product. Developer-only docs have 40-60% higher bounce rates on first-time visits.** Fix: pair every docs page with a technical writer review, or at minimum test each page with a new hire who's never seen the system. Write docs that answer "what problem does this solve?" before "what are the parameters?".

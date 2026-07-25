@@ -139,6 +139,20 @@ Masters of finops engineer don't just build — they build **the right thing, at
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo ($1K-$10K/month cloud spend)
+Identify the top-3 cost drivers in your bill. Implement mandatory tags on new resources. Set one budget alert at 80%. Enable anomaly detection. Right-size the 3 most expensive underutilized instances. **Time to value: 2-4 hours.**
+
+#### Small Team ($10K-$100K/month spend, 5-20 engineers)
+Full tagging strategy with enforcement via SCP/Azure Policy. Budget alerts per team/environment at 50/80/100%. Savings Plan commitment analysis and purchase. Non-production auto-shutdown scheduler. Monthly cost report shared with all teams. **Time to value: 2-4 weeks.**
+
+#### Medium Org ($100K-$1M/month spend, 50-200 engineers)
+Dedicated FinOps practitioner (at least 0.5 FTE). RI/SP portfolio management with marketplace optimization. Unit economics dashboards (cost per customer, per transaction). Kubernetes cost allocation via kubecost. Cost gates in CI/CD pipeline. Quarterly FinOps review with finance and CTO. **Transition trigger:** When monthly spend crosses $100K, the noise from untagged spend exceeds one person's ability to triage — hire a dedicated FinOps practitioner.
+
+#### Enterprise ($1M+/month spend, 500+ engineers)
+Full FinOps team with dedicated tooling budget. Cloud provider EDP/private pricing negotiations. Multi-cloud cost aggregation and normalization. Chargeback/showback model with automated billing. Carbon-aware workload scheduling. FinOps embedded in architecture review board for all new services. Continuous optimization pipeline with automated right-sizing and commitment purchasing. **Transition trigger:** When cloud spend becomes a material line item on the P&L (>2% of revenue), FinOps needs executive sponsorship and a dedicated team with procurement authority.
+
 ## When to Use
 
 - Your monthly cloud bill (AWS/Azure/GCP) has spiked and you need to identify the root cause
@@ -150,7 +164,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are building unit economics dashboards to tie cloud spend to business metrics (cost per customer, per API call)
 - You need to reduce data transfer costs between regions, availability zones, or out to the public internet
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Reserved Instance vs. Savings Plan vs. On-Demand
@@ -314,7 +328,7 @@ Code change detected — what kind?
 
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -393,8 +407,29 @@ Code change detected — what kind?
 3. **Optimize for carbon**: schedule batch workloads during low-carbon-intensity hours; right-size reduces carbon proportionally.
    - Output: Carbon optimization playbook integrated into standard FinOps practices.
 
+## Best Practices
 
-## Error Recovery
+1. **Enforce mandatory tagging at provisioning time.** Use SCPs (AWS), Azure Policy, or GCP Org Policy to block resource creation without `Environment`, `Service`, `Team`, `CostCenter` tags. Retroactive tagging is 10x more expensive than prevention.
+
+2. **Implement the FinOps lifecycle: Inform → Optimize → Operate.** Start with visibility (Inform): every team sees their spend. Then reduce waste (Optimize): right-size, commit, spot. Finally govern (Operate): budgets, anomaly detection, unit economics. Skipping Inform means teams optimize what they cannot see.
+
+3. **Prefer Savings Plans over Regional Reserved Instances** for compute commitments. SPs auto-apply across instance families, regions, and OS types. RIs tie you to a specific instance type in a specific region — a modernization tax paid every time you upgrade.
+
+4. **Tag untagged spend with proportional allocation rules.** Not every team will achieve 100% tag coverage. Use allocation rules (by account, by resource type, by proportional distribution) to map untagged costs. A cost without an owner is a cost nobody optimizes.
+
+5. **Set budget alerts at multiple thresholds, not just 100%.** Configure alerts at 50% (awareness), 80% (action), 100% (urgent), and 120% (crisis). Budget alerts at 100% alone are too late — you already spent the money.
+
+6. **Pair anomaly detection with spend velocity monitoring.** Budget alerts fire after spend exceeds threshold. Anomaly detection catches run-rate changes: a cryptomining compromise burning $2K/day is visible in velocity before it breaks the monthly budget. Both signals together beat either alone.
+
+7. **Right-size in this order: idle resources → over-provisioned → committed discounts.** Idle resources (unattached EBS, idle load balancers, unused IPs) are pure waste with zero value. Over-provisioned instances deliver value but at unnecessary cost. Commitments lock in discounts on what remains. This order maximizes ROI per engineering hour.
+
+8. **Automate non-production shutdowns.** Schedule dev/staging environments to stop at 8 PM and restart at 7 AM weekdays, stay off weekends. A `db.r5.2xlarge` ($0.48/hr) running 24/7 instead of 40hrs/week wastes $3,360/year. Across 15 teams: $50K+/year.
+
+9. **Calculate unit economics: cost per customer, per transaction, per API call.** Cloud cost alone is meaningless — $100K/month could be catastrophic (100 customers) or excellent (100K customers). Unit cost ties infrastructure spend to business value and reveals the true cost of growth.
+
+10. **Run monthly FinOps reviews with cross-functional attendance.** Engineering, finance, and product must be in the room. Review spend vs. budget, optimization wins, commitment coverage gaps, and unit cost trends. Without regular reviews, FinOps decays into a once-per-quarter panic.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -482,6 +517,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[FC1]** Tagging policy enforced via SCP/Azure Policy/Org Policy — `Environment`, `Service`, `Team`, `CostCenter` mandatory on every resource, >95% compliance within 60 days
+- [ ] **[FC2]** Cost allocation rules defined for untagged spend — every dollar mapped to a team via proportional allocation or account-level defaults
+- [ ] **[FC3]** Budget alerts configured per team/environment at 50%, 80%, 100%, 120% thresholds — alerts routed to team Slack/email/PagerDuty channels
+- [ ] **[FC4]** Anomaly detection enabled (AWS Cost Anomaly Detection, Azure Anomaly Alerts, GCP Billing) — < 24-hour detection latency, >90% anomalies investigated within 48 hours
+- [ ] **[FC5]** Compute commitments (Savings Plans/RI/CUDs) cover >80% of steady-state workloads — RI marketplace utilization for unused standard RIs, break-even calculated before fleet migrations
+- [ ] **[FC6]** Non-production auto-shutdown scheduled (8 PM–7 AM weekdays, weekends off) — instance scheduler deployed, `schedule: office-hours` tag applied to dev/staging workloads
+- [ ] **[FC7]** Right-sizing pipeline running — Compute Optimizer/Recommender reviewed weekly, recommendations implemented within 14 days, idle resources at zero
+- [ ] **[FC8]** Storage lifecycle policies configured — S3 Intelligent-Tiering only for objects >128KB, auto-delete on temp buckets, glacier transitions for archival data
+- [ ] **[FC9]** Data transfer costs mapped — VPC Flow Logs analyzed for cross-AZ/cross-region traffic, VPC endpoints for S3/DynamoDB, CloudFront with origin shield where egress is material
+- [ ] **[FC10]** Kubernetes costs tracked — kubecost or equivalent per-namespace cost allocation, node/pod right-sizing implemented, spot instances for non-critical workloads
+- [ ] **[FC11]** Unit economics dashboard live — cost per customer, per transaction, per API call tracked monthly, anomalies investigated within 1 business day
+- [ ] **[FC12]** Monthly FinOps review scheduled — standing meeting with engineering, finance, and product; spend vs. budget reviewed; optimization actions tracked to completion
+- [ ] **[FC13]** Cost gate in CI/CD — PRs with >$100/month cost delta flagged for review, >$1000/month delta blocked, EXPLAIN ANALYZE required on new queries
+- [ ] **[FC14]** Carbon footprint tracked — cloud provider carbon dashboard enabled, monthly carbon report alongside cost report, low-carbon region preference for new workloads
+
 ## What Good Looks Like
 
 > Commitment discounts cover at least 80% of predictable workloads, and idle or over-provisioned resources are automatically identified and right-sized weekly.
@@ -515,16 +567,42 @@ graph LR
 | "We'll use On-Demand — Reserved Instances and Savings Plans are too complex." | On-Demand premium on steady-state workloads = 40-60% overpay. A $200K/year compute baseline costs $320K-$360K without commitments. $120K-$160K/year in pure waste for avoiding a one-time RI/SP analysis. |
 | "AWS Budget alerts will catch cost spikes — we're covered." | Budget alerts fire AFTER spend exceeds the threshold, not before. A cryptomining compromise can rack up $50K in 24 hours before the first email arrives. Anomaly detection and spend velocity alerts must complement budgets. |
 
-## Gotchas
+## Anti-Patterns
 
-- **AWS Savings Plans apply BEFORE reserved instances** in the discount calculation. If you buy a 1-year EC2 Savings Plan ($0.10/hr) AND a Reserved Instance for the same instance type, the Savings Plan discount is applied first and the RI sits unused. One or the other, not both.
-- **"Unattached" EBS volumes** that are $0/month in the console are NOT free. An `available` volume that was created from a snapshot still incurs snapshot storage costs AND the EBS volume itself is billed. The console shows $0 for the volume alone but doesn't include snapshot costs.
-- **S3 Intelligent-Tiering** moves objects between access tiers automatically, but the monitoring cost is $0.0025 per 1,000 objects. On 100 million small objects, that's $250/month in monitoring alone — more than the storage cost. Intelligent-Tiering only saves money for objects > 128KB.
-- **Data transfer costs within AWS** between AZs in the same region are $0.01/GB inbound AND outbound. A microservice that calls another service across AZs pays twice per request. Co-locate chatty services in the same AZ (via topology spread constraints) or use VPC endpoints.
-- **AWS Budget alerts** can only notify on FORECASTED or ACTUAL spend exceeding thresholds. If you set a $10K monthly budget alert and spend $9K in the first 5 days, the alert fires AFTER you've already spent $9K — not before. Use anomaly detection alongside budgets.
-- **Reserved Instance mismatch from instance family modernization** — your team buys 50 Standard RIs for `m5.xlarge` instances at a 30% discount ($0.134/hr vs $0.192/hr on-demand), saving $24,600/year. Six months later, the application team migrates to `m6i.xlarge` (20% better price-performance). The RIs for `m5.xlarge` continue billing at $0.134/hr for 50 instances that are no longer running, while the new `m6i.xlarge` instances bill at full on-demand rates — effectively paying twice. The combined cost is $135K/year instead of the $70K/year the workload should cost. **Total cost: $50K-$200K/year in double-billing from mismatched Reserved Instances after fleet migrations.** Fix: Use AWS Compute Optimizer to track instance type recommendations; before any fleet migration, calculate the RI break-even point and sell unused RIs on the AWS Reserved Instance Marketplace; use Savings Plans (Compute) instead of Standard RIs, as they automatically apply across instance families and regions.
-- **Idle RDS instances running 24/7 for development teams that work 8/5** — a team provisions a `db.r5.2xlarge` ($0.48/hr = $4,200/year) for development. The instance is actively used 40 hours/week and sits idle 128 hours/week. If shut down during off-hours, the instance would cost $840/year instead of $4,200. Across 15 dev teams, the annual waste is $50K+. But teams don't shut down because "it takes 5 minutes to start and we might need it." **Total cost: $30K-$100K/year in idle dev/staging database costs.** Fix: Implement an instance scheduler (AWS Instance Scheduler or cloud-custodian) that auto-stops instances during off-hours (8 PM-7 AM, weekends); apply a `schedule: office-hours` tag to dev workloads; publish a monthly cost-by-team dashboard that shows "avoidable spend" from idle instances — teams respond to visibility.
-- **Data transfer costs from cross-region replication without traffic analysis** — you enable S3 Cross-Region Replication (CRR) to a DR region for compliance, replicating 50TB/month. The CRR data transfer cost is $0.02/GB ($1,000/month for 50TB). But you also have CloudFront with origin shield distributing the same objects from the primary region — and every cache miss re-fetches from S3, generating GET requests that trigger cross-region transfer from the DR region back to the primary for consistency checks by an overzealous monitoring tool. The real data transfer bill is 3x the estimate because you're replicating data in circles. **Total cost: $15K-$80K/year in unexpected cross-region data transfer and inter-service traffic amplification.** Fix: Map ALL data flows (not just S3 replication) before enabling cross-region features; use VPC Flow Logs and Cost Explorer "Data Transfer" dimension to identify unexpected data movement; consolidate services in the same region wherever possible and only use cross-region replication for true DR requirements with explicit justification.
+### Anti-Pattern: Savings Plan + Reserved Instance Double-Purchase
+**What it looks like:** Team buys a 1-year EC2 Savings Plan ($0.10/hr) AND a Reserved Instance for the same instance type, expecting additive discounts.
+**Why it fails:** AWS applies Savings Plan discounts first; the RI sits unused. You pay for both but only receive one discount. One or the other, not both.
+**Do this instead:** Choose one commitment type. Use Savings Plans (Compute) for maximum flexibility across instance families and regions. Use Standard RIs only for specific instance types in a single region where you have multi-year certainty.
+
+### Anti-Pattern: Trusting $0 EBS Console Pricing
+**What it looks like:** The AWS console shows "unattached" EBS volumes at $0/month. Teams ignore them as cost-free.
+**Why it fails:** An `available` volume created from a snapshot incurs snapshot storage costs AND the EBS volume itself is billed. The console shows $0 for the volume alone but excludes snapshot costs.
+**Do this instead:** Run `cloud-custodian` or `aws-nuke --dry-run` weekly to identify all EBS volumes. Delete unattached volumes after snapshotting if needed. Zero unattached EBS volumes is the target.
+
+### Anti-Pattern: S3 Intelligent-Tiering on Small Objects
+**What it looks like:** Enabling Intelligent-Tiering on every S3 bucket as a "best practice" for cost optimization.
+**Why it fails:** Monitoring cost is $0.0025 per 1,000 objects. On 100 million small objects (<128KB), that's $250/month in monitoring alone — more than the storage cost. Intelligent-Tiering only saves money for objects >128KB.
+**Do this instead:** Apply Intelligent-Tiering only to buckets with objects >128KB. Use lifecycle policies to transition or expire small objects directly. Check object size distribution via S3 Inventory before enabling.
+
+### Anti-Pattern: Cross-AZ Microservice Chat Without Cost Awareness
+**What it looks like:** Microservices calling each other across AZs with no placement strategy, assuming network is "free inside the VPC."
+**Why it fails:** Cross-AZ data transfer costs $0.01/GB inbound AND outbound within the same region. A chatty microservice pair pays twice per request — costs balloon silently.
+**Do this instead:** Co-locate chatty services in the same AZ via topology spread constraints. Use VPC endpoints for S3/DynamoDB. Audit cross-AZ traffic quarterly via VPC Flow Logs and Cost Explorer "Data Transfer" dimension.
+
+### Anti-Pattern: RI Mismatch After Fleet Modernization
+**What it looks like:** Team buys 50 RIs for `m5.xlarge`, then migrates to `m6i.xlarge` six months later. The RIs keep billing while new instances run on-demand — paying double.
+**Why it fails:** Standard RIs are locked to a specific instance family and region. Fleet migrations without RI transition planning result in $50K-$200K/year in double-billing.
+**Do this instead:** Use Savings Plans (Compute) instead of Standard RIs — they auto-apply across instance families. Before any fleet migration, calculate RI break-even and sell unused RIs on the Reserved Instance Marketplace.
+
+### Anti-Pattern: Idle Dev/Staging Resources Running 24/7
+**What it looks like:** Dev RDS instances, staging EC2 clusters, and test environments running continuously because "someone might need them."
+**Why it fails:** A `db.r5.2xlarge` ($0.48/hr) used 40 hrs/week wastes $3,360/year running idle. Across 15 teams: $50K+/year in idle dev/staging costs.
+**Do this instead:** Deploy AWS Instance Scheduler or cloud-custodian with auto-stop during off-hours (8 PM–7 AM, weekends). Tag non-production resources with `schedule: office-hours`. Publish a monthly "avoidable spend" dashboard by team.
+
+### Anti-Pattern: Cross-Region Replication Without Traffic Analysis
+**What it looks like:** Enabling S3 CRR to a DR region plus CloudFront plus monitoring tools — creating circular data transfer patterns.
+**Why it fails:** Replicating 50TB/month costs $1,000/month. But overzealous monitoring tools re-fetch replicated objects back to the primary region, amplifying data transfer 3x. Real cost: $15K-$80K/year in unexpected cross-region data transfer.
+**Do this instead:** Map ALL data flows (not just S3 replication) before enabling cross-region features. Use VPC Flow Logs to identify unexpected data movement. Only use cross-region replication for true DR requirements with explicit cost justification.
 
 ## Verification
 

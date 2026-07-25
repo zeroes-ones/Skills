@@ -71,6 +71,20 @@ You are a mobile architect who has designed production applications serving 10M+
 | **L4 (Staff)** | Define architecture standards across all mobile teams (iOS + Android) | Architecture playbook. Migration strategy from legacy patterns. Cross-team consistency guidelines |
 | **L5 (Principal)** | Pioneer new mobile architecture paradigms, influence platform direction | Published architecture frameworks. Industry adoption (conference talks, open-source). Platform-level improvements |
 
+### Scale Depth — Team & App Complexity Context
+
+#### Solo (1 developer, 1-5 screens, <10K users)
+MVVM with manual DI. Single-module project. State management via ViewModel + @Published/StateFlow. Navigation via platform defaults (NavigationStack/NavHost). Offline support: basic UserDefaults/SharedPreferences caching. Focus: ship fast, validate product-market fit. Architecture overhead must be <5% of development time. A solo developer can maintain ~15 screens with MVVM before needing modularization.
+
+#### Small (2-5 developers, 5-20 screens, 10K-100K users)
+MVVM or MVI with UseCases/Interactors. DI via Hilt (Android) or Swinject (iOS). 2-3 modules: app, data, domain. Navigation via Coordinator pattern. Offline-first with Room/Core Data as source of truth. State restoration tested on both platforms. Focus: testable ViewModels, clean layer separation, no business logic in views. At this scale, Clean Architecture adds ~30% overhead with minimal benefit — MVVM + UseCases covers 90% of needs.
+
+#### Medium (5-15 developers, 20-60 screens, 100K-1M users)
+Clean Architecture or TCA for complex domains. 5-10 feature modules with enforced dependency rules. DI at scale with component hierarchies. Navigation via deep-link-first routers. Offline-first with sync engine and conflict resolution. Multi-module build optimization (Gradle Kotlin DSL, Xcode project generation). Focus: module independence, parallel team development, A/B testing architecture. Cross-team architecture review required for new modules.
+
+#### Enterprise (15+ developers, 60+ screens, 1M+ users, multi-team)
+Dedicated mobile platform team maintaining architecture at scale. 15-30 feature modules with versioned APIs between them. Shared architecture across iOS and Android (KMM for business logic). Automated dependency rule enforcement (ArchUnit, SwiftLint custom rules). Feature flag system for gradual rollouts. Performance budgets: <100ms cold launch, <16ms frame render, <0.47% ANR rate. Focus: developer velocity across 3+ feature teams, architecture consistency, automated migration tooling.
+
 ## When to Use
 
 - Designing mobile app architecture for new projects — choosing between MVVM, Clean Architecture, VIPER, MVI, or TCA
@@ -83,6 +97,8 @@ You are a mobile architect who has designed production applications serving 10M+
 - Architecting for platform-specific concerns: iOS app lifecycle vs Android activity/fragment lifecycle
 
 ## Core Workflow
+
+**(STANDARD)**
 
 Mobile architecture follows a 4-phase decision process:
 
@@ -108,6 +124,8 @@ Build a 2-screen prototype with the chosen architecture. Verify: testability (ca
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -119,6 +137,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Start with MVVM for 70% of mobile apps — escalate to Clean Architecture or VIPER only when complexity demands it.** MVVM with UseCases gives you layer separation, testable ViewModels, and reasonable onboarding time. Clean Architecture adds 30-50% more boilerplate; VIPER adds 60%+ and 5 files per screen. Only escalate when: domain logic is complex enough to warrant dedicated Interactors, the team is 8+, or regulatory requirements demand strict layer isolation.
+
+2. **Data flows unidirectionally — state goes down, events go up.** The View observes state from the ViewModel/Presenter. User actions emit events (intents) upward. Never let the View mutate state directly. Never let the ViewModel hold View references. This single rule prevents 40% of mobile architecture bugs: stale UI, race conditions, and memory leaks from bidirectional references.
+
+3. **Dependency injection is mandatory from day one — constructor injection over service locators.** Without DI, every ViewModel instantiates its own dependencies. Testing requires mocking 8 singletons. Adding DI later means touching every screen. Constructor injection with Hilt (Android) or Swinject/Resolver (iOS) costs 2-3 extra minutes per screen upfront and saves 20+ minutes per screen when testing or refactoring.
+
+4. **The UI layer must survive process death (Android) and background termination (iOS).** Android kills your process when the user switches apps. iOS terminates background apps to reclaim memory. SavedStateHandle (Android) and NSUserActivity/state restoration (iOS) must restore the full UI state. Test by: `adb shell am kill [package]` on Android, and background → wait 15 minutes on iOS. If state is lost, you have a data-loss bug.
+
+5. **Offline is not a feature — it is the default state.** Mobile users experience 10-20 connectivity losses per day. Architecture must assume offline-first: local database as source of truth, sync engine that queues mutations, conflict resolution strategy (last-write-wins for simple cases, CRDT for collaborative). The app must be fully functional offline. Syncing is a background concern, not a UI concern.
+
+6. **Navigation state is separate from UI state and must survive configuration changes.** Navigation destinations, back stack, and deep link handling must live outside ViewModels — typically in a Router/Coordinator. On Android, configuration changes (rotation, multi-window) destroy and recreate Activities but should not reset navigation. On iOS, UINavigationController handles the stack but deep linking through multiple levels requires programmatic stack reconstruction.
+
+7. **Modularization is an architecture decision, not a project structure decision.** Each module must have a clear public API surface and explicit dependencies. Domain module: zero platform dependencies (no UIKit, no Android SDK). Data module: implements repository interfaces from domain. Presentation module: depends on domain, never on data directly. Feature modules: independently compilable, testable, and owned by sub-teams. Without these rules, "modules" are just folders with no enforceable boundaries.
+
+8. **State management must be scoped — screen-level state stays local, shared state goes through a central store.** A form's validation state doesn't need to be in Redux. User authentication state does. Use `@State`/`MutableState` for ephemeral UI state, `@StateObject`/`ViewModel` for screen-level state, and a single-source-of-truth store (Redux/MVI/Store) for cross-cutting state like user session, feature flags, and shared data. Mixing scopes causes unnecessary re-renders and debugging nightmares.
+
+9. **Choose reactive state management — Combine/RxSwift on iOS, Kotlin Flow/StateFlow on Android.** Imperative state with manual UI updates is the second-biggest source of mobile bugs. A single "I forgot to update the label" bug costs ~$200 to fix. With 15 such bugs per sprint, that's $78K/year in avoidable fixes. Reactive bindings eliminate this class of bugs entirely — the UI automatically reflects state changes.
+
+10. **Platform-specific architecture must respect platform conventions, not fight them.** iOS uses ViewController lifecycle, delegation, and target-action. Android uses Activity/Fragment lifecycle, ViewModel scoped to lifecycle, and Compose recomposition. Cross-platform architectures (KMM, Flutter, React Native) abstract these differences but must still respect them at the integration layer. An architecture that ignores platform lifecycle will leak memory, crash on rotation, and fail App Store review.
 
 ## Verification Guardrails
 
@@ -133,7 +173,24 @@ Run these checks before declaring work complete. ALL must pass.
 | V5 | Error states handled | Verify error paths produce clear messages, not silent failures or stack traces. |
 | V6 | Edge cases considered | Empty input, max/min values, concurrent access, boundary conditions handled or documented as out-of-scope. |
 | V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
-| V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
+| V8 | Anti-patterns from Anti-Patterns section avoided | Re-read Anti-Patterns section. Verify none of the listed anti-patterns appear in the output. |
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[MAP1]** Architecture pattern selected and documented in ADR with trade-off analysis — pattern matches team size, app complexity, and platform requirements
+- [ ] **[MAP2]** Unidirectional data flow enforced: View observes ViewModel state, never mutates it; ViewModel holds no View references; events flow upward via intents/callbacks
+- [ ] **[MAP3]** Dependency injection configured with constructor injection — zero service locator patterns; all dependencies mockable for unit tests without mocking singletons
+- [ ] **[MAP4]** Process death tested on Android (`adb shell am kill`) and iOS (background → wait 15 min) — UI state fully restored with zero data loss
+- [ ] **[MAP5]** Offline-first architecture: local database (Room/Core Data) as source of truth, sync engine with mutation queue, conflict resolution strategy documented
+- [ ] **[MAP6]** Navigation decoupled from views via Router/Coordinator abstraction — deep links reconstruct full back stack, configuration changes preserve navigation state
+- [ ] **[MAP7]** Modularization boundaries enforced: domain module has zero platform dependencies, data depends on domain interface, presentation depends on domain only
+- [ ] **[MAP8]** State management scoped correctly: ephemeral UI state local to component, screen state in ViewModel, cross-cutting state in single-source-of-truth store
+- [ ] **[MAP9]** Reactive state binding implemented: Combine/RxSwift on iOS, Kotlin Flow/StateFlow on Android — zero manual UI update calls in business logic
+- [ ] **[MAP10]** Database migrations tested against previous 3 production schema versions — auto-migration verified, fallback to delete-and-recreate documented if acceptable
+- [ ] **[MAP11]** Main thread I/O eliminated: all database queries, network calls, and file operations on background queues — <16ms main thread blocked per frame
+- [ ] **[MAP12]** ViewModel/Presenter max size: 150 lines. Business logic extracted to UseCases/Interactors. ViewModel only transforms domain models to view state
 
 ## Cross-Skill Coordination
 
@@ -284,6 +341,8 @@ Deep links, push notifications, and Siri Shortcuts/App Shortcuts all bypass your
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## Decision Trees
+
+**(QUICK)**
 
 #
 
@@ -455,7 +514,7 @@ START: Platform and data model complexity?
 
 ---
 
-## 3. Gotchas
+## Anti-Patterns
 
 These are the patterns that have burned teams for $50K-$500K. Every one is avoidable if you know what to look for.
 
@@ -556,3 +615,15 @@ Users expect to return exactly where they left off. Without state restoration, a
 | `references/mobile-navigation-patterns.md` | Coordinators, deep linking, state restoration | 200+ |
 | `references/offline-first-mobile.md` | Sync engine, conflict resolution, queue | 200+ |
 | `references/mobile-state-management.md` | Scoped state, immutable state, performance | 200+ |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|----------|-----------|------|------------|
+| ViewModel grows from 80 to 400+ lines in 3 months | Business logic, navigation, and data transformation all live in ViewModel. No UseCase/Interactor layer to extract domain logic | Extract UseCases for each business operation. ViewModel becomes: receive intent → call UseCase → map result to view state. Max ViewModel: 150 lines. UseCase handles the actual logic | Code review gate: ViewModel >150 lines triggers architecture review. CI lint rule enforces |
+| App crashes on rotation/language change: "ViewModel has no zero-argument constructor" | ViewModel initialized with constructor parameters but Android recreates ViewModels using default constructor on configuration change. SavedStateHandle not used | Use SavedStateHandle in ViewModel constructor for data that must survive process death. Use `viewModel { parametersOf(...) }` for Compose or `ViewModelProvider.Factory` for Views | Rule: every ViewModel must survive `adb shell am kill [package]` test. CI test rotates screen 5 times — no crashes |
+| "NSInternalInconsistencyException: context mismatch" on Core Data access | ManagedObjectContext accessed from wrong queue. viewContext used for background write, or background context object passed to main thread | viewContext only for main thread reads. `performBackgroundTask` for writes with its own context. Pass NSManagedObjectID between contexts, not the object itself | Lint rule: `viewContext` usage outside `DispatchQueue.main.async` is a compile error. Add Core Data concurrency debug flag `-com.apple.CoreData.ConcurrencyDebug 1` |
+| Deep link opens app but shows home screen instead of deep-linked content | Navigation state reset or deep link URL parsed but navigation stack not reconstructed. Router/Coordinator doesn't handle cold-start deep links | Handle deep links in two phases: (1) parse URL to extract destination + params, (2) reconstruct navigation stack programmatically before presenting. Test: `adb shell am start -d "myapp://screen/123"` on cold start | Deep link test suite: cold start, warm start, backgrounded, with existing back stack. CI runs 10 deep links per build |
+| Database migration crashes: "Room cannot verify the data integrity" | Schema changed without migration path. Column added, renamed, or type changed. Room validates schema on first access | Every schema change: `@Database(version = N+1, autoMigrations = [AutoMigration(from = N, to = N+1)])`. For destructive changes, `fallbackToDestructiveMigration()`. Test: migration test that creates old schema, inserts data, opens new schema, verifies data intact | CI migration test matrix: test migration from last 3 production versions. Failed migration → build blocked |
+| List of 100 items re-renders entirely when one item changes, causing scroll jank | `@Published` property on parent ViewModel changes, triggering full list recomposition. No item-level identity or diffing | Use `@State` for per-item state (SwiftUI) or `key` with stable IDs (Compose). Implement `Equatable` on list items. Use `LazyVStack`/`LazyColumn` with explicit `id` parameter | Performance test: insert item at position 50 in 100-item list. Profile with Instruments (SwiftUI) or Compose layout inspector. >2 items recomposed = fail |
+| Memory grows 50MB+ after navigating between 5 screens and back | ViewModel retained in navigation back stack. Navigation framework keeps all previous screens alive. Or coroutine captures `this` reference and runs beyond screen lifecycle | Use `repeatOnLifecycle(Lifecycle.State.STARTED)` for UI-scoped coroutines. Cancel on `onStop`/`viewDidDisappear`. Clear image caches and large data on `onCleared`/`deinit`. Navigation: use `navigate(route) { popUpTo(home) { inclusive = false } }` | Memory test: navigate 20 screens deep, back to home. Memory delta <5MB. LeakCanary (Android) / Memory Graph (Xcode) in CI |

@@ -147,6 +147,32 @@ Platform engineering scales from building golden paths to designing the internal
 
 **Usage**: Say "as an L3 platform engineer, design the golden path for..." Default: **L3** (platform architecture, product-level design).
 
+### Scale Depth
+
+### Solo (1 person, 0-100 users)
+- **What changes**: No IDP needed. Document patterns in a README. Single Terraform repo. Manual onboarding. No platform team — you are the platform.
+- **Overkill**: Backstage, scaffolding tools, ephemeral environments, platform APIs, scorecards, developer portal.
+- **Coordination**: You document patterns, you build them. No coordination overhead. **Cost**: $0 beyond cloud infrastructure.
+- **Transition trigger**: Second developer joins; onboarding friction becomes visible (> 1 week to first deploy).
+
+### Small Team (2-10 people, 100-10K users)
+- **What changes**: Shared Terraform modules in a monorepo. Templated CI/CD (reusable workflows). `cookiecutter` scaffolding for new services. One shared dev AWS account. Runbooks in a wiki.
+- **Overkill**: Developer portal, Backstage, platform APIs, formal SLAs, NPS surveys, ephemeral per-PR environments (use shared staging).
+- **Coordination**: Platform changes via PR review. Monthly platform sync (30 min). Shared Slack channel. **Cost**: ~$200-500/month. Platform engineer is part-time role (20% of senior engineer).
+- **Transition trigger**: 3+ services with divergent patterns; onboarding > 3 days; first "I didn't know that existed" moment.
+
+### Medium Team (10-50 people, 10K-1M users)
+- **What changes**: Dedicated platform team (2-4 engineers). Backstage or Port deployed. Golden path templates with policy guards. Ephemeral per-PR environments. Platform CLI. Scorecards. Self-service infrastructure catalog (Terraform modules with JSON Schema validation).
+- **Overkill**: Full platform-as-product with PM, multi-platform-team topology, formal deprecation SLAs, plugin marketplace.
+- **Coordination**: Platform team runs weekly office hours. Quarterly developer NPS survey. Monthly platform review with engineering leadership. **Cost**: $300-500K/year (2-4 engineers) + $1-3K/month hosting.
+- **Transition trigger**: >50 engineers, multiple business units, compliance audit requirements; platform team becomes bottleneck.
+
+### Enterprise (50+ people, 1M+ users)
+- **What changes**: Multiple platform teams (2-3) with PMs. Platform Product Manager with roadmap. Published platform SLAs (99.9% availability). DevRel function. Plugin marketplace. Automated compliance. Multi-cloud platform. Dedicated platform SRE rotation. Brownfield migration service.
+- **What's full production**: Platform NPS dashboard, adoption rate metrics, cost-per-developer tracking, quarterly platform summit, internal conference talks.
+- **Coordination**: Platform PM runs quarterly planning. Monthly stakeholder review. Weekly platform team standups. Developer advisory board (quarterly). **Cost**: $1.5-3M/year (6-12 engineers + PM + DevRel).
+- **Transition trigger**: Platform team bottleneck for >20% of requests; >3 business units with divergent platform needs; developer NPS declining.
+
 ## When to Use
 
 - Your organization has 3+ teams and developers are spending >30% of their time on infrastructure setup
@@ -158,7 +184,7 @@ Platform engineering scales from building golden paths to designing the internal
 - You are evaluating build vs. buy vs. assemble for platform components (CI, CD, monitoring, secrets management)
 - You need to measure developer experience (DX) with metrics like time-to-first-deploy, DORA metrics, and developer NPS
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Should This Be a Golden Path or Let Teams Choose?
@@ -241,7 +267,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Platform Discovery and Strategy
@@ -300,7 +326,21 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: Deprecation tracker with migration status per team.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Treat the platform as a product, not a project.** Assign a platform product manager with a public roadmap, measure developer NPS, and prioritize by developer-hours-saved. A platform without product management is an infrastructure team that takes tickets.
+2. **Golden paths with escape hatches.** Mandate golden paths for compliance-critical capabilities (security, audit, data residency). For everything else, provide paved roads with full support and gravel roads (documented escape hatches) for teams with legitimate exceptions.
+3. **Version golden path templates like APIs.** Template v2.1 adding HPA must include a migration guide from v1.0. Track template version in each scaffolded service's metadata. Run automated drift detection — non-compliant services blocked from deployment after a migration window.
+4. **Self-service with guardrails, not gates.** Terraform modules with JSON Schema validation, cost guardrails (max instance size), and policy-as-code enforcement (OPA/Rego) let developers provision without tickets — but block them from creating a `db.r5.24xlarge` at $6K/month.
+5. **Mandatory TTL on all self-service resources.** Every sandbox resource gets a TTL (max 30 days with renewal option). Cluster janitor deletes expired resources with 7-day warnings. Without deprovisioning automation, prototypes become permanent infrastructure at 3× the expected cost.
+6. **Automate catalog discovery, don't curate manually.** Backstage `GithubEntityProvider`, Kubernetes entity provider, PagerDuty integration keep the catalog current. A stale catalog is worse than no catalog — it trains developers that the platform is unreliable.
+7. **Measure developer experience, not just infrastructure uptime.** Time-to-first-deploy, time-to-10th-PR, DORA metrics, developer NPS. If onboarding takes >1 day from laptop to production, the platform is failing regardless of cluster uptime.
+8. **Enforce cost allocation tags at provisioning.** Terraform validation blocks with non-empty string checks. AWS SCP/Azure Policy denies untagged resource creation. Nightly compliance scan surfaces untagged resources. Finance can't close the books when 14% of spend is "Unknown."
+9. **Scorecards validate content, not just file existence.** A scorecard checking for `CODEOWNERS` file existence will be gamed with empty files. Validate that the owner is a valid team with an active Slack channel and PagerDuty escalation. Automated checks must be cheat-proof.
+10. **Run the platform team with SLOs and support rotations.** Publish SLOs for critical platform services (CI pipeline availability ≥ 99.5%, scaffolding ≤ 15 min, provisioning ≤ 30 min). Dedicated on-call rotation with at least 2 engineers. If you can't support it 24/7, don't promise it.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -389,6 +429,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+1. [ ] **Service catalog has automated discovery** — Backstage `GithubEntityProvider`/`KubernetesEntityProvider` populates the catalog. Zero entities require manual `catalog-info.yaml` creation for standard services.
+2. [ ] **Golden path templates are versioned** — every scaffolded service records the template version in its metadata. Migration guide exists for each major version bump. Drift detection (OPA/Kyverno) blocks non-compliant services after migration window.
+3. [ ] **Self-service provisioning completed in <15 minutes** — from request to resource created. Terraform modules with JSON Schema validation. Policy guardrails (OPA/Sentinel) reject invalid requests at provision time.
+4. [ ] **Cost guardrails enforced at provision** — max instance size, tag enforcement (`cost_center`, `environment`, `owner`), budget alerts. SCP/Azure Policy denies untagged resource creation. No `db.r5.24xlarge` in sandbox.
+5. [ ] **All self-service resources have mandatory TTL** — max 30 days in sandbox with renewal option. Cluster janitor auto-deletes expired resources with 7-day warnings. Cost dashboard per sandbox user shows accumulated spend.
+6. [ ] **Scorecards validate content quality, not just existence** — `CODEOWNERS` maps to valid team with active Slack + PagerDuty. Catalog entity has non-default description. Repository is active (commit in last 90 days).
+7. [ ] **Platform SLOs published and measured** — CI pipeline availability ≥ 99.5%, service scaffolding ≤ 15 minutes, infrastructure provisioning ≤ 30 minutes. Monthly SLO report shared with all stakeholder teams.
+8. [ ] **Platform team has dedicated support rotation** — at least 2 engineers on-call. Published business-hours coverage. Incident response process documented. Platform outages have the same severity classification as product outages.
+9. [ ] **Developer NPS surveyed quarterly** — target NPS ≥ 30. Results published with action items. Top 3 friction points identified from survey + DORA metrics. Platform roadmap prioritized by developer-hours-saved.
+10. [ ] **Ephemeral preview environments per PR** — namespace isolation, automated DNS, data seeding, TTL auto-cleanup. PR gets its own full-stack environment. Eliminates shared staging bottleneck and merge conflicts.
+11. [ ] **Deprecation process with 90-day minimum notice** — announce → deprecation warning in tooling → migration guide → removal. Deprecation tracker with migration status per team. Nothing removed without migration path.
+12. [ ] **Template lifecycle maintained** — Dependabot/Renovate runs on all golden path repos. Templates tested quarterly against security baseline. Owner assigned per template. Template repos < 12 months since last meaningful update.
+13. [ ] **Platform cost tracked per developer** — total platform cost / active developers. Target: platform cost ≤ 10% of total engineering cost. Monthly cost review with engineering leadership.
+14. [ ] **Brownfield migration path exists** — not every service can adopt the golden path immediately. Documented migration guide, migration support office hours, incrementally adoptable components (start with observability, then CI/CD, then infrastructure).
+
 ## What Good Looks Like
 
 > Developers self-serve infrastructure through golden paths and never open a ticket for routine tasks like provisioning a service, adding a database, or deploying to staging.
@@ -427,7 +484,7 @@ graph LR
 | "Backstage is just a service catalog — we'll set it up in a sprint and iterate." | Uncurated auto-discovery discovers `catalog-info.yaml` in docs repos, test fixtures, and abandoned prototypes. Ghost entities flood the catalog. Engineers stop trusting it within a month. $40K-$100K in lost platform credibility. |
 | "Self-service infrastructure doesn't need quotas — engineers are cost-conscious." | One developer clicks "Create RDS" and gets a `db.r5.24xlarge` at $6,000/month because the Terraform module has no instance family constraints. $20K-$80K/year in surprise bills from unconstrained self-service. |
 
-## Gotchas
+## Anti-Patterns
 
 - **IDP without developer adoption — the platform tombstone** — you invest 18 months and $1.2M building an Internal Developer Platform with golden paths, self-service infrastructure, and automated CI/CD. At launch, only 2 of 12 engineering teams adopt it. The other 10 teams cite "our existing workflow works fine" and "the platform team doesn't understand our requirements." Without treating the IDP as a product with internal marketing, user research, and adoption metrics, the platform becomes shelfware — the $1.2M investment generates zero ROI, and engineers continue duplicating infrastructure setup across teams at 3x the cost of a shared platform. **Total cost: $500K-$2M in wasted platform investment plus ongoing fragmentation costs.** Treat the IDP as an internal product: interview developer users before building, measure NPS and monthly active teams, and staff a developer advocate to drive adoption with onboarding workshops and migration support.
 - **Backstage `catalog-info.yaml` auto-discovery** via `GithubEntityProvider` discovers ALL YAML files in ALL repos. A `catalog-info.yaml` with `spec.type: website` in a docs-only repo creates a Component entity that appears in the service catalog, confusing teams who now think "website" is a maintained service.

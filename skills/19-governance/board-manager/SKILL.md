@@ -131,6 +131,20 @@ Do not read the entire skill. Follow the route above.
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo
+- Manage governance for a Seed/Series A company with 3-5 directors. You run board meeting logistics, draft minutes, track action items, and coordinate pre-reads. D&O insurance is a checklist item handled personally. Board composition is driven by who you know in your network.
+
+#### Small Team
+- Govern a Series B/C company with 5-7 directors, formal committees, and institutional investors. You manage the annual governance calendar, run D&O renewals, oversee COI questionnaires, and support committee charters. A chief of staff or general counsel shares the load.
+
+#### Medium Organization
+- Lead governance for a late-stage private or newly public company. Full committee structure (audit, compensation, nominating/governance), independent director majority, board evaluations, and succession planning are ongoing programs. You coordinate across legal, finance, and HR to maintain compliance with exchange listing standards.
+
+#### Enterprise
+- Run governance for a public company with SEC reporting obligations, proxy season, shareholder engagement, and ESG governance. Board composition is managed against a formal skills matrix with professional recruiting firms. Activist preparedness, Say-on-Pay, and regulatory compliance are operationalized. The governance function directly mitigates shareholder litigation risk and shapes the company's reputation with institutional investors.
+
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -153,6 +167,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -207,6 +222,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Board deck circulated less than 5 days before meeting | Flag to CEO that late materials reduce decision quality; implement standing rule: materials <5 days = meeting rescheduled or limited to consent agenda only | Directors need time to read, reflect, and prepare questions — late materials guarantee superficial discussion |
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
@@ -286,6 +302,7 @@ What happened in the meeting?
 <!-- DEEP: 10+min -->
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1 (~90 min): Board Meeting Preparation
 <!-- STANDARD: 3min -->
@@ -419,7 +436,7 @@ graph LR
 | "Board consent via email is fine — everyone said yes" | "Looks good to me" from 4 of 5 directors in an email thread is NOT a formal unanimous written consent. Without executed documentation, an $2M acquisition is legally vulnerable to shareholder challenge. Cost: $50K-$200K in legal remediation + potential $500K-$2M in unwinding damages. |
 | "D&O insurance renewal — we'll handle it next week" | A 3-day lapse from one director's late questionnaire means ZERO coverage during an active shareholder suit. Defense costs: $500K-$5M across the board in personal liability. Renewal starts 90 days before expiration with a shared dashboard and 7-day escalation to the lead independent director. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Board deck sent 24 hours before the meeting** — board members have 4 other board meetings this month, run their own companies, and can't digest 80 slides in 24 hours. The deck arrives, they skim the executive summary, and ask questions that were answered on slide 47. Send deck 5-7 business days before. Pre-reads = better discussions.
 - **Board meeting that's a 2-hour CEO monologue** — the CEO presents slides for 110 minutes, board asks 10 minutes of questions, meeting ends. The board's value is in the DISCUSSION, not the presentation. 30 minutes of presentation, 90 minutes of discussion. Send the update in the pre-read; spend meeting time on decisions.
@@ -428,6 +445,65 @@ graph LR
 - **Not tracking board member conflicts of interest proactively** — a director invests in a competitor's Series A, sits on the advisory board of a supplier you're negotiating a $2M contract with, and their spouse works at a potential acquirer. None of this is disclosed because there's no annual COI questionnaire process. During Series B due diligence, the VC's legal counsel finds the competitor investment via Crunchbase. The round stalls for 6 weeks while the conflict is investigated. The delay costs negotiating leverage — the term sheet valuation drops 20%. **Total cost: $5M-$20M in lost valuation on a funding round killed or repriced due to governance red flags discovered in due diligence.** Fix: annual conflict of interest questionnaire for all directors and officers, updated within 30 days of any new board appointment, outside investment, or employment change. Maintain a COI register reviewed by legal counsel before each board meeting. Any director with a conflict on an agenda item recuses themselves from discussion and vote — documented in minutes.
 - **Missing D&O insurance renewal deadline by 3 days** — Directors & Officers insurance requires all board members to submit annual questionnaires. One director traveling internationally misses the deadline by 72 hours. The policy lapses. During those 72 hours, a shareholder derivative lawsuit is filed alleging breach of fiduciary duty in the last acquisition. No coverage. Defense costs are personal liability for each director — $50K-$200K in legal fees per director in the first 90 days alone. **Total cost: $500K-$5M in uninsured legal defense costs across the board plus potential personal liability — directors have been forced to sell homes to cover defense costs when D&O coverage lapsed.** Fix: D&O renewal process starts 90 days before expiration. Track questionnaire completion in a shared dashboard visible to the board chair. Escalate to the lead independent director after 7 days of non-response. Maintain a 30-day discovery period/grace period rider on the policy for gap coverage.
 - **Board consent resolutions approved via email without formal written consent documentation** — the board approves a $2M acquisition via an email thread: "Looks good to me" from 4 of 5 directors. No formal unanimous written consent is drafted, circulated, or executed. Eighteen months later, the acquisition underperforms and a new investor questions whether proper authority existed. Without a fully executed written consent, the transaction is legally vulnerable — a minority shareholder could challenge it as an unauthorized act, potentially unwinding the acquisition. **Total cost: $50K-$200K in legal remediation to reconstruct and ratify the consent retroactively plus potential $500K-$2M in damages if the transaction is successfully challenged.** Fix: any board action taken outside a meeting requires a formal unanimous written consent document signed by all directors. Email approval is the signal to circulate the consent, not the consent itself. Store executed consents in the corporate minute book with the same permanence as meeting minutes.
+
+## Best Practices
+
+1. **Send the board deck 5-7 business days before the meeting — not 24 hours.** Board members sit on 4-6 boards, run their own companies, and cannot digest 80 slides in one evening. Pre-reads enable better questions. Late decks signal disorganization and reduce meeting quality from strategic discussion to rushed presentation.
+
+2. **Structure board meetings as 30% presentation, 70% discussion.** The CEO's 110-minute monologue is a waste of the board's collective 200+ years of experience. Send operational updates in the pre-read. Spend meeting time on the 2-3 strategic decisions that actually move the company.
+
+3. **Board minutes record decisions, votes, and action items — nothing else.** "John said X, Sarah replied Y" is discoverable in litigation and can be taken out of context. Minutes are a legal document, not a transcript. Format: motion → second → vote count → outcome → action item owner + deadline.
+
+4. **Formal written consent documents are required for ALL board actions taken outside meetings.** Email approval ("Looks good to me" from 4 of 5 directors in a thread) is NOT a consent — it's the signal to CIRCULATE the consent. Without fully executed written consent, transactions are legally vulnerable to shareholder challenges.
+
+5. **Annual conflict of interest questionnaires for ALL directors and officers — updated within 30 days of any change.** A director investing in a competitor, sitting on a supplier's advisory board, or having a spouse at a potential acquirer is a governance landmine. Uncover it before VC due diligence does. Maintain a COI register reviewed by legal counsel before each meeting.
+
+6. **D&O insurance renewal starts 90 days before expiration.** Directors & Officers coverage requires questionnaires from all board members. One director traveling internationally and missing the deadline means the policy lapses — and each director faces personal liability for defense costs ($50K-$200K per director in the first 90 days). Maintain a 30-day discovery period rider.
+
+7. **Track board composition against a skills matrix — not just "who we know."** Does the board have: industry expertise, financial/audit capability, go-to-market experience, technical depth, public company experience (if pre-IPO), and diversity of perspective? Recruit to fill gaps, not to add another name. Independent directors should outnumber insiders by Series B.
+
+8. **Annual board calendar planned 12 months ahead.** Map: board meeting dates, committee meetings (audit, compensation, nominating), strategy offsite, shareholder meeting, D&O renewal, 409A refresh, audit engagement letter, and CEO performance review. Surprise board meetings signal crisis; scheduled meetings signal governance maturity.
+
+9. **"Any Other Business" at meeting end is where governance disasters are born.** A board member raises "I think we should explore a sale" with 3 minutes remaining — the only thing anyone remembers but zero time for discussion. Material AOB items get their own agenda slot or are deferred to the next meeting with pre-read materials.
+
+10. **Board consent resolutions and minutes are stored with the permanence of corporate records — because they ARE corporate records.** Store in the corporate minute book with backup copies. These documents are requested in every financing due diligence, acquirer review, and IPO filing. Missing consents = unapproved transactions = deal-killer in diligence.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Board deck: sent ≥ 5 business days before meeting — executive summary ≤ 3 pages, full deck ≤ 40 slides
+- [ ] Agenda: 70%+ meeting time allocated to discussion — operational updates in pre-read, decisions in meeting
+- [ ] Minutes: draft circulated within 1 week of meeting — approved at next meeting, decisions/votes/actions only
+- [ ] Written consents: all inter-meeting actions have fully executed unanimous written consent — stored in minute book
+- [ ] COI register: annual questionnaires completed by all directors and officers — updated within 30 days of any change
+- [ ] D&O insurance: renewal started 90 days before expiration — all director questionnaires collected, discovery period rider active
+- [ ] Board composition: skills matrix reviewed annually — independent directors ≥ insiders by Series B, audit committee chair financially literate
+- [ ] Committee structure: audit, compensation, and nominating/governance committees formed by Series B — charters documented
+- [ ] Annual calendar: 12-month schedule with all meetings, renewals, and governance events — no surprise meetings
+- [ ] Director onboarding: new director orientation packet with board book, committee charters, D&O policy, past minutes — delivered before first meeting
+- [ ] CEO evaluation: annual formal review process with board input — compensation tied to performance metrics approved by compensation committee
+- [ ] Succession planning: emergency CEO succession plan documented — reviewed annually by board
+- [ ] Compliance: annual governance review against applicable exchange rules, state law (DE corporate law), and investor expectations
+
+### Scale Depth
+
+| Company Stage | Board Structure | Key Governance Artifacts | Meeting Cadence |
+|--------------|----------------|-------------------------|-----------------|
+| **Seed/Pre-seed** | 1-3 directors (founders), informal meetings, no committees | Board consent for stock issuances, 409A grants, option grants | Quarterly, 1-2 hours, founder-led |
+| **Series A** | 3-5 directors (founders + lead investor + 1 independent), informal committees | Board deck, minutes, written consents, COI questionnaires, D&O insurance | Quarterly, 2-3 hours, CEO-led with investor participation |
+| **Series B/C** | 5-7 directors (founders + investors + 2+ independents), audit/comp committees formed | Above + committee charters, annual board calendar, CEO evaluation process, skills matrix, succession plan | Quarterly + committee meetings between, 3-4 hours, strategic discussion focus |
+| **Pre-IPO/Late Stage** | 7-11 directors (majority independent), full committee structure, lead independent director | Above + SEC-compliant governance, SOX readiness, formal risk oversight, investor engagement policy | Quarterly board + monthly committee calls, full-day strategy offsite, annual shareholder meeting |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| Board deck arrives 24 hours before meeting → wasted meeting | CEO/team didn't prioritize board prep; no timeline enforced; deck assembled in panic 2 days before meeting | Shorten deck to 25 slides for this meeting; send pre-read Q&A 48 hours before next meeting; delegate deck assembly to chief of staff | Board prep timeline: draft 3 weeks before → CEO review 2 weeks → distribution 1 week; chief of staff owns timeline |
+| 2-hour CEO monologue, zero strategic discussion | Agenda structured as information dump; no pre-read culture; CEO fills time because board hasn't read materials | Restructure next agenda: 15 min CEO update, 15 min financial review, 90 min on 2 strategic topics with pre-circulated discussion memos | Pre-read sent 1 week before; agenda explicitly allocates time to discussion topics; board chair enforces time allocation |
+| Director invested in competitor, discovered during Series B due diligence → round delayed 6 weeks | No annual COI questionnaire; director didn't think to disclose; VC legal counsel found it via Crunchbase | Director recuses from competitive discussions; legal counsel assesses anti-trust exposure; disclosure documented in minutes | Annual COI questionnaire for ALL directors/officers; 30-day update requirement for changes; COI register reviewed pre-meeting |
+| D&O policy lapsed 72 hours → derivative lawsuit filed during gap, no coverage | One director missed questionnaire deadline while traveling; no escalation process; $50K-$200K personal liability per director | Carrier notified of gap; seek retroactive reinstatement (rarely granted); directors fund personal defense; seek board indemnification | Renewal starts 90 days before; dashboard tracks questionnaire completion; escalate to lead independent director after 7 days of non-response |
+| $2M acquisition challenged as unauthorized — no written consent | Board approved via email thread ("Looks good"); no formal written consent executed; minority shareholder challenges 18 months later | Legal counsel reconstructs and ratifies consent retroactively; unanimous written consent executed now; shareholder settlement negotiation | All inter-meeting actions require formal unanimous written consent signed by all directors; email approval is signal to circulate consent, not consent itself |
+| Board minutes subpoenaed in litigation contain damaging casual quotes | Minutes captured every discussion detail as transcript; plaintiff counsel uses out-of-context quotes to establish pattern of negligence | Engage outside counsel to review discovery production; redact non-decision discussion; amend minute-taking policy going forward | Minutes = decisions + votes + actions only; no transcript, no attribution of discussion, no characterization of debate |
 
 ## Verification
 

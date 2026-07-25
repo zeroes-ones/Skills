@@ -153,6 +153,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+**Decision Trees** **(QUICK)**
+
 ### Sourcing Channel Selection
 <!-- QUICK: 30s — where to find this candidate type -->
 
@@ -255,6 +257,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Core Workflow
 
+**Core Workflow** **(STANDARD)**
+
 <!-- QUICK: 30s — scan phase titles to understand the process -->
 
 ### Phase 1 (~60 min): Role Definition & JD Writing
@@ -282,6 +286,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+
+**Error Recovery** **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -453,7 +459,29 @@ graph LR
 | "They'll understand — we're swamped with interviews" | Ghosting a final-round candidate for 18 days produces a Glassdoor review, a LinkedIn post to 800+ connections, and 3 pipeline withdrawals. One bad review reduces qualified applicants by 10-20% for 6-12 months. Cost: $50K-$200K/year in degraded pipeline. |
 | "Internal recruiting is expensive — agencies are faster" | 10 agency placements at $150K salary = $300K-$450K in fees vs. ~$180K for an in-house senior recruiter + sourcer. Referral hires cost $3K-$5K and ramp 25% faster with 45% lower first-year attrition. Agencies are 5-10x more expensive per hire. |
 
-## Gotchas
+## Best Practices
+
+1. **Write job descriptions with ≤5 must-haves and separate nice-to-haves.** A JD that reads "10+ years Kubernetes, 5+ Rust, 3+ WebAssembly" filters out 99% of qualified candidates who check 7/10 boxes. Must-haves are skills you will not hire without. Nice-to-haves can be learned in 3 months. This distinction alone increases qualified applicant volume by 40-60%.
+
+2. **Use structured interview scorecards with pre-defined competencies and behavioral anchors for every role.** Each interviewer rates candidates independently on the same dimensions before any group discussion. Debriefs must be written-first — every interviewer submits ratings plus justification independently, then discusses. Verbal-first debriefs are destroyed by anchoring effects where the most senior person's opinion biases everyone else.
+
+3. **Source through multiple channels simultaneously, not sequentially.** Launch: employee referrals (2-3 days), LinkedIn Recruiter outreach (1-2 days), job board posting (Day 1), and agency engagement (Day 1 for hard-to-fill roles). Referral hires cost $3K-$5K in bonuses vs. $30K-$45K for agency placements, ramp 25% faster, and have 45% lower first-year attrition. Tier referral bonuses: 50% on start, 50% after 6 months.
+
+4. **Automate candidate-status notifications at every stage with a hard 48-hour SLA for post-interview feedback.** A candidate who completes a 5-round loop and hears nothing for 18 days posts a Glassdoor review that reduces qualified applicant volume by 10-20% for 6-12 months. Send personalized rejection emails to all final-round candidates within 72 hours with constructive feedback — candidates receiving timely, respectful rejections are 4x more likely to reapply and refer others.
+
+5. **Measure time-to-fill from hiring-manager-completed intake to offer-accepted, not from req-posted.** If HR posts in week 1 and the hiring manager finishes the JD in week 4, standard time-to-fill reports the manager's delay as HR's problem. Track and publish hiring manager responsiveness as a metric — it's often the #1 bottleneck in recruiting velocity.
+
+6. **Conduct interviewer calibration sessions quarterly.** Review anonymized scorecards: are interviewers using the full rating scale (1-5) or clustering at 3? Are certain interviewers consistently harder or easier? Calibrate against actual hiring outcomes — if an interviewer's "Strong Hire" recommendations convert to top performers at 90% while another's convert at 30%, retrain or rotate the low-accuracy interviewer off the loop.
+
+7. **Build an employer brand through employee-generated content, not just corporate marketing.** Encourage employees to share their work on LinkedIn, write engineering blog posts, speak at conferences. 75% of job seekers research a company's reputation before applying. Authentic employee voices convert passive candidates 3-5x better than corporate careers-page content. Invest in a Glassdoor and Comparably presence — respond to every review, positive or negative.
+
+8. **Screen for impact within the candidate's context, not company pedigree.** "We only hire from FAANG" misses the startup engineer who scaled from 10 to 10M users with 3 people and no budget. Design interview questions that uncover what the candidate personally drove vs. what their team/company achieved. Company brand ≠ individual capability. Top-performer screening: "Tell me about something you built that wouldn't have happened without you."
+
+9. **Track pipeline diversity at the top-of-funnel stage, not just at hire.** If your sourcing channels produce a homogeneous pipeline, no amount of interview-process fairness will fix the outcome. Measure candidate demographics at: sourced → screened → interviewed → offered → hired. If diversity drops at any stage, investigate that stage specifically. Adjust sourcing channel mix based on data, not assumptions.
+
+10. **Never ghost candidates — especially final-round candidates.** A candidate ghosted after 3 weeks of interviews costs you: (a) one Glassdoor review seen by 800+ target-market connections, (b) 3 withdrawn applications from pipeline candidates who read the review, (c) $30K-$80K/year in additional sourcing spend to replace diminished inbound pipeline, (d) reputational damage that follows your employer brand for 6-12 months. Set a hard 72-hour SLA for rejection communications to every candidate who completed an interview.
+
+## Anti-Patterns
 
 - **The true cost of a bad hire isn't just severance.** A bad hire at a $150K salary costs 30-50% of first-year compensation in recruiting fees, onboarding, lost team productivity, manager time, and rehiring. For a $150K role, that's $45K-$75K in direct costs — and 2-3x that when factoring in team morale and missed deliverables. **Total cost: $45K-$150K per bad hire.** Use structured interviews with scorecards and reference checks; gut-feel hiring amplifies this risk.
 - **Every unfilled day has a hard dollar cost.** For revenue-generating roles, each vacant day costs $500-$1,000 in lost productivity and delayed revenue. A 90-day time-to-fill for a sales role at a $200K quota means $45K-$90K in missed pipeline. For engineering, it's delayed product velocity. **Total cost: $25K-$90K per prolonged vacancy.** Invest in a dedicated sourcer; cutting recruiting headcount to save $80K/year often costs $200K+ in unfilled-days drag.
@@ -464,6 +492,71 @@ graph LR
 - **Interview debrief that starts with** a senior engineer saying "I wasn't impressed" — every subsequent comment anchors to that opinion. Debriefs must be written FIRST (each interviewer submits rating + justification independently), then discussed. Anchoring effects make verbal-first debriefs unreliable.
 - **Pipeline metrics that report "time to fill"** from req open to offer accepted — but the clock starts when the hiring manager finishes the job description, not when HR posts it. If HR posts in week 1 and HM finishes in week 4, the "time to fill" reports the HM's delay as HR's problem.
 - **Ghosting candidates after interviews — especially final-round candidates.** A candidate completes a 5-round interview loop over 3 weeks, including a take-home project, then hears nothing for 18 days. They post a Glassdoor review detailing the experience, share it on LinkedIn (800+ connections in your target hiring market), and 3 other candidates in your pipeline withdraw their applications after reading it. Passive candidates who might have engaged through outreach now ignore your recruiter's InMails because your brand is associated with disrespect. **Total cost: $50K-$200K/year in degraded pipeline quality and increased sourcing costs — a single bad Glassdoor review can reduce qualified applicant volume by 10-20% for 6-12 months, and replacing that diminished pipeline requires $30K-$80K/year in additional sourcing spend and employer branding campaigns.** Automate candidate-status notifications at every stage, set a hard 48-hour SLA for post-interview feedback (even if it's "still debriefing"), and send personalized rejection emails to all final-round candidates within 72 hours with constructive feedback — candidates who receive timely, respectful rejections are 4x more likely to reapply and refer others.
+
+## Production Checklist **(STANDARD)**
+
+Before launching any recruiting search or process change, verify ALL of:
+
+1. Job description reviewed: ≤5 must-haves, nice-to-haves separated, no biased language (Gender Decoder or Textio validated), compensation band confirmed, hiring manager signed off
+2. Interview loop designed: structured scorecard with pre-defined competencies and behavioral anchors per role, written-first debrief format enforced, 4-6 interviewers assigned with diverse perspectives (peer, cross-functional, leadership)
+3. Sourcing channels activated: employee referrals launched, LinkedIn Recruiter outreach started, job boards posted, agency engaged for hard-to-fill roles — all channels live simultaneously within 72 hours of req approval
+4. Candidate communication SLA: auto-notifications configured for every stage transition, 48-hour max post-interview feedback window, 72-hour max personalized rejection for final-round candidates — Glassdoor and Comparably monitoring active
+5. Pipeline metrics tracking: sourced → screened → interviewed → offered → hired demographics tracked at each stage, time-to-fill measured from HM-completed intake to offer-accepted, conversion rates by sourcing channel
+6. Interviewer calibration: quarterly calibration sessions completed — scorecard distributions reviewed, inter-interviewer reliability validated, low-accuracy interviewers retrained or rotated
+7. Candidate NPS: survey sent to all final-round candidates within 24 hours of decision — target score ≥50, feedback loop to hiring team within 1 week
+8. Employer brand: Glassdoor rating monitored, employee-generated content program active, careers page updated, every review (positive/negative) responded to within 48 hours
+9. Compensation benchmarking: base salary, bonus%, and equity bands validated against Pave/Radford/Levels.fyi for role, level, and location — offer approval authority matrix current
+10. Referral program: tiered bonuses (50% on start, 50% after 6 months), program utilization tracked, referral hire quality metrics (ramp time, 1-year retention) benchmarked against other channels
+11. Offer process: verbal offer script prepared with comp breakdown, negotiation playbook with pre-approved counter parameters, written offer template reviewed by legal, decision deadline window defined (3-7 days standard)
+12. Agency spend threshold: trigger point for building internal capability defined (>5-8 hires/year = internal recruiter ROI positive), agency fees tracked as % of total hiring spend — target <15% for roles <$200K
+13. Background check compliance: FCRA-compliant disclosure and authorization forms in use, adverse action process documented and automated, turnaround time SLA with vendor <5 business days
+14. Diversity pipeline audit: top-of-funnel demographics benchmarked against market availability data, drop-off analyzed at each stage, sourcing channel mix adjusted quarterly based on diversity yield data
+
+## Scale Depth
+
+### Seed/Pre-Seed (1-25 employees, 0-5 hires/year)
+- **Sourcing**: Founder + employee referrals only. No dedicated ATS — Google Sheets + Gmail. LinkedIn personal outreach.
+- **Process**: 2-3 round interviews (founder → team → offer). No structured scorecards. Culture-fit emphasis.
+- **Compensation**: Market-informed but informal. Equity-heavy packages. No compensation bands.
+- **Tools**: LinkedIn (personal), Google Workspace. No Greenhouse/Lever needed.
+- **Skip**: Agency relationships, employer branding, candidate NPS, diversity pipeline analytics, calibration meetings.
+
+### Series A-B (25-100 employees, 5-20 hires/year)
+- **Add**: Greenhouse or Lever ATS. Dedicated recruiter (#1 hire). Structured scorecards. Referral program with bonuses.
+- **Sourcing**: LinkedIn Recruiter, job boards, 1-2 agency relationships for specialized roles. Employee referral program active.
+- **Process**: 3-5 round loops with written scorecards. Written-first debriefs. 48-hour SLA for candidate communication.
+- **Pipeline**: Basic metrics (time-to-fill, source effectiveness). Offer approval matrix defined.
+- **Skip**: Full employer brand program, interviewer calibration analytics, diversity yield analysis by channel.
+
+### Series C-D (100-500 employees, 20-100 hires/year)
+- **Add**: Recruiting team (3-5). Greenhouse/Lever advanced. Sourcer dedicated to passive candidates. Interviewer calibration program.
+- **Sourcing**: Multi-channel with attribution. Agency spend tracked and optimized. University/early-career pipeline. Conference recruiting.
+- **Process**: 4-6 round loops. Technical assessments standardized. Candidate experience program with NPS tracking. Diversity pipeline analytics.
+- **Employer Brand**: Employee-generated content program. Glassdoor management. Careers blog. Conference sponsorship.
+- **Skip**: Global mobility recruiting, executive search firm relationships, AI-driven candidate matching.
+
+### Enterprise (500+ employees, 100+ hires/year)
+- **Recruiting**: 10+ team. Recruiting operations function. University, experienced, and executive recruiting pods. Global recruiting coverage.
+- **Sourcing**: AI-driven candidate matching. Global sourcing with multi-language capabilities. Dedicated executive search team (or retained firm relationship).
+- **Process**: Specialized loops by function (engineering, sales, G&A). Panel interviews for leadership. Assessment validation studies.
+- **Analytics**: Full-funnel analytics with predictive modeling. Time-to-productivity tracking. Quality-of-hire measurement (1-year performance vs. interview ratings).
+- **Compliance**: Multi-country compliance. Work authorization tracking. OFCCP audit readiness.
+
+### Transition Triggers
+- Seed → Series A: First dedicated recruiter. >5 hires/year — internal capability cheaper than agencies.
+- Series A → Series B: First recruiting team lead. >20 hires/year — ATS and structured process become non-negotiable.
+- Series B → Series C: Dedicated sourcer. Passive candidate pipeline needed. >50 hires/year — interviewer calibration becomes ROI-positive.
+- Series C → Enterprise: Global hiring. >100 hires/year — recruiting operations and analytics function needed.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Candidate accepted our offer but quit after 4 months — 'wasn't what I signed up for'" | Job description was a wishlist, interview process tested different skills than the role requires, hiring manager oversold the role. | Re-write JD with ≤5 must-haves. Design interview around the actual work. Hold hiring managers accountable for realistic role previews — document what was promised in the offer stage. | A bad hire at $150K costs $45K-$150K in direct costs. The disconnect is always between what was sold and what was delivered. |
+| "Pipeline is 90% male for an engineering role — we can't find diverse candidates" | Sourcing channels are homogeneous. Job description has biased language. No diversity-focused sourcing strategy. | Audit JD with Gender Decoder/Textio. Add sourcing channels: Women Who Code, Black Tech Pipeline, Out in Tech, AfroTech. Track top-of-funnel demographics by channel — adjust mix quarterly. | "Pipeline problem" is usually a "sourcing channel problem." 5 new channels with diverse audiences produce a different pipeline than the same 3 channels you've always used. |
+| "Ghosted a final-round candidate — Glassdoor rating dropped from 4.2 to 3.4 in 3 months" | No candidate communication SLA. Manual process with no automation. No one owned the rejection communication. | Automate status notifications at every stage. Set 48-hour SLA for post-interview feedback, 72-hour for personalized rejection to final-round. Monitor Glassdoor and respond to every review within 48 hours. | One bad candidate experience costs $50K-$200K/year in degraded pipeline quality. Timely, respectful rejections create 4x reapplication and referral rates. |
+| "Job been open 120 days — HM keeps rejecting candidates who meet 8/10 requirements" | JD is a wishlist, not a must-have list. HM hasn't been calibrated on what's trainable vs. essential. No intake meeting set proper expectations. | Hold intake meeting before posting: define ≤5 must-haves (will not hire without), separate trainable skills (3-month ramp), set decision timeline. Track HM rejection reasons — if >50% are "not enough years in X," the JD is the problem. | Every unfilled day for a revenue role costs $500-$1,000. A 90-day delay = $45K-$90K in missed pipeline. Fix the JD, not the pipeline. |
+| "Spent $300K on agencies this year — could have hired 2 full-time recruiters for that" | No internal recruiting capability. Defaulted to agencies for every role. Never calculated agency spend vs. internal hire ROI. | Once you exceed 5-8 hires/year, hire an internal recruiter. Agency fees = 20-30% of first-year salary. 10 agency placements at $150K = $300K-$450K. One senior recruiter + sourcer = ~$180K. | Build internal capability before you need it. Agency spend is visible; internal recruiting cost is an investment with compounding returns. |
 
 ## Verification
 
@@ -497,6 +590,7 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Seed → Series A → Series C → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 

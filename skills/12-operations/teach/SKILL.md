@@ -79,6 +79,20 @@ You are a cognitive learning engineer. Your job is not to dump information — i
 * **Deep dive (90 min):** For complex concepts that need multiple examples and scaffolded practice. Same structure as standard session but with 3 increasingly difficult practice exercises.
 * **Multi-session curriculum (5-20 sessions):** Full learning path with pre-assessment, structured curriculum, progress tracking, spaced repetition scheduling, and capstone project. Coordinates with handoff for session continuity.
 
+### Scale Depth
+
+#### Solo
+Self-directed learning for one person. A single `.teach/` workspace, self-administered pre-assessment, and honest teach-back self-evaluation. Focus: discipline in sticking to one concept per session, scheduling and honoring spaced repetition reviews, and resisting the temptation to skip practice. The learner is also the teacher — the primary risk is self-assessment deception.
+
+#### Small Team (2-15)
+Team knowledge transfer with dedicated teaching sessions. Peer teach-back, pair practice, and shared progress tracking. Focus: distributing expertise systematically (not just "sit with the expert"), building team-wide foundational knowledge that later sessions depend on, and identifying prerequisite gaps across team members. Risk: varying pace — one team member's gap analysis can stall the group.
+
+#### Medium Organization (15-100)
+Structured learning programs across multiple teams. Curriculum design with dependency-aware concept sequencing, cohort-based delivery with standardized assessments, and teaching effectiveness metrics. Focus: scaling expertise without diluting quality, maintaining instructor consistency across cohorts, and measuring knowledge retention at 30/90/180 days. Risk: curriculum ossification — the learning path outlasts the technology it teaches.
+
+#### Enterprise (100+)
+Organization-wide learning infrastructure. LMS integration, certification-aligned curricula, automated spaced repetition scheduling, and learning analytics dashboards. Focus: learning as a strategic capability — reducing time-to-competency for new hires, preserving institutional knowledge during turnover, and measuring the ROI of training investment. Risk: compliance theater — completion rates replace demonstrated mastery. Keep teach-back as the invariant.
+
 ## When to Use
 
 Use teach when the goal is durable skill acquisition over multiple sessions — not quick answers.
@@ -116,6 +130,8 @@ What are you trying to learn?
 ```
 
 ## Core Workflow
+
+**(STANDARD)**
 
 ### Phase 1: Pre-Assessment
 
@@ -211,6 +227,8 @@ One concept per execution of this phase. Re-enter for each session.
 ```
 
 ## Decision Trees
+
+**(QUICK)**
 
 ### Gap Analysis
 
@@ -391,6 +409,8 @@ One concept per execution of this phase. Re-enter for each session.
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -548,7 +568,29 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 | "Let me just show you how — it's faster" | Giving answers immediately reduces retention by 40% compared to 3-5 minutes of productive struggle — $500-$2K per shortcut in lost learning depth that requires reteaching later. |
 | "They'll pick up the jargon from context" | Three unfamiliar terms in one explanation creates cognitive overload — the learner stops listening and starts managing anxiety at $1K-$5K in learner drop-off from exclusionary language. |
 
-## Gotchas
+## Best Practices
+
+1. **Pre-assess before teaching.** Always run a 5-8 question diagnostic before session 1. Mix beginner, intermediate, and advanced questions — ask for demonstrations, not self-ratings ("Write a function that..." not "Rate your Python 1-10"). Teaching at the wrong level wastes the session: too easy = boredom, too hard = frustration.
+
+2. **Teach one concept per session — no exceptions.** Cognitive load theory shows working memory holds 4±1 items. A new concept occupies 2-3 slots. Adding a second concept guarantees neither sticks. Split multi-concept tutorials into separate sessions with practice between each. Twelve 45-minute sessions over 6 weeks outperforms one 2-day workshop by 3x on long-term retention.
+
+3. **Require teach-back for every concept.** "I understand" is a social signal, not a learning signal. Learners systematically overestimate understanding by 30-50%. Teach-back — where the learner explains the concept in their own words — is the only reliable verification. Rate responses: 1 (cannot explain), 2 (can paraphrase), 3 (can explain with examples), 4 (can teach to others), 5 (can critique and extend).
+
+4. **Design practice with progressive difficulty.** Every concept needs at least 3 exercises: near-transfer (apply the concept in the same context), far-transfer (apply in a novel context), and composition (combine with previously mastered concepts). Practice is not assessment — it IS the learning. Without practice, retention drops from ~75% to ~10% after 24 hours.
+
+5. **Schedule spaced repetition at decreasing frequency.** After mastering a concept, schedule reviews at +1 day, +3 days, +1 week, +1 month, +3 months. Without reinforcement, 90% of new information is lost within 30 days. The `.teach/progress.md` file should auto-generate review dates. When a review is due, it IS the session — new material waits.
+
+6. **Connect every new concept to prior knowledge.** Learning is the process of connecting new information to existing mental models. Before introducing a concept, ask: "What do you already know that relates to this?" If the prerequisite concept is missing, teach that first — even if it's not in the curriculum. Prior knowledge is the foundation; skip it and the new concept collapses.
+
+7. **Limit jargon to one new term per explanation.** Three unfamiliar terms in one explanation creates cognitive overload — the learner stops listening and starts managing anxiety. Maintain a known-vocabulary list in `.teach/vocabulary.md`. Define every new term before using it. The goal is understanding, not demonstrating expertise.
+
+8. **Use concrete worked examples before abstract principles.** Learners build understanding from specific instances toward general rules. Show 3 worked examples with varying surface features before stating the principle. Then ask: "What do these examples have in common?" Let the learner induce the pattern — it sticks far better than being told.
+
+9. **Adapt the curriculum every 5 sessions.** After 5 sessions, run the Curriculum Adaptation decision tree: is the pace right? Are prerequisites holding? Is the goal still relevant? A learner who failed teach-back 3 times on "closures" doesn't need another closures session — they need "scope and execution context," the missing prerequisite. Adapt based on demonstrated mastery, not the original plan.
+
+10. **End every session with a concrete next step and preview.** Tell the learner exactly what to practice before the next session — a specific exercise, not "review the material." Preview the next session's topic in 1-2 sentences to activate prior knowledge schemas. The gap between sessions is where consolidation happens — structure it intentionally.
+
+## Anti-Patterns
 
 - **The "cram session" illusion.** Covering 3 concepts in one session FEELS productive — the learner nods along, the explanations are clear, everyone feels good. But 24 hours later, retention is <15% across all 3 concepts. A team that crammed a 2-day React workshop with 12 concepts found that 2 weeks later, developers could only demonstrate competence in 2 of the 12. **Total cost: $5,000-$15,000 per workshop in training investment with <20% ROI. Fix: one concept per session, spaced over time. Twelve 45-minute sessions over 6 weeks > one 2-day workshop.**
 
@@ -561,6 +603,47 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 - **The "just show me" shortcut.** When a learner gets stuck, the temptation is to show the solution. "Here's how you do it." This robs the learner of the productive struggle that builds deep understanding. Research shows that learners who struggle for 3-5 minutes before receiving a hint retain 40% more than those given the answer immediately. **Total cost: $500-$2,000 per shortcut in lost learning depth — the concept will need reteaching later. Fix: when stuck, ask guided questions ("What have you tried? What do you expect this line to do? What does it actually do?") before giving hints.**
 
 - **The jargon cascade.** Explaining "closures" using "lexical scope," "execution context," and "variable environment" teaches the learner that they don't belong here. Three unfamiliar terms in one explanation creates cognitive overload — the learner stops listening and starts managing their anxiety about not understanding. **Total cost: $1,000-$5,000 in learner drop-off when jargon-heavy explanations create an exclusionary learning environment. Fix: maintain a known-vocabulary list in `.teach/vocabulary.md`. Never use more than 1 new term per explanation, always define it first.**
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Learner says "I understand" but fails the exercise | Illusion of competence — the learner followed your explanation but cannot apply the concept independently. Self-assessment overestimates understanding by 30-50% | Require teach-back: "Explain this concept to me as if I'm a colleague who's never heard of it." Rate the response with the Teach-Back Quality Assessment tree. Do not advance until rating ≥ 3 | "I understand" is a social signal, not a learning signal. The only valid verification of understanding is the learner producing an explanation in their own words with examples |
+| Learner scores high on pre-assessment but struggles mid-curriculum | Pre-assessment questions tested declarative knowledge ("What is X?") but not procedural knowledge ("Apply X to solve Y"). The learner knows about the concept but cannot use it | Switch from explanation-heavy to practice-heavy sessions. Replace "Let me explain X" with "Here's a problem that requires X. Try to solve it. I'll guide you." Productive struggle (3-5 min before hints) improves retention by 40% vs immediate answers | Pre-assessment must test application, not recognition. "Write a function that uses closures to create a counter" reveals true understanding; "What is a closure?" reveals memorization |
+| Learner disengages mid-session — stops asking questions, gives minimal responses | Cognitive overload from jargon cascade — too many unfamiliar terms created anxiety. The learner is managing emotions, not processing content | Pause. Ask: "I just used [list jargon terms]. Which of these are new to you?" Define each new term. Check the known-vocabulary list — the session may have violated the one-new-term-per-explanation rule | Jargon is a wall, not a bridge. Three unfamiliar terms in one explanation shifts the learner from "I'm learning" to "I don't belong here." Maintain vocabulary awareness as rigorously as curriculum sequencing |
+| Spaced repetition reviews feel unnecessary — "I remember this" | Memory decay follows an exponential curve but feels linear. Confidence in recall remains high while actual recall drops sharply. At +7 days without review, 80% of the memory trace is gone | Trust the schedule, not the feeling. Reviews at +1, +3, +7, +30 days maintain ~90% retention. Skip one review and the next requires re-learning, not reviewing. Make reviews non-negotiable | The feeling of "I remember this" is the most dangerous signal in learning. It predicts exactly when forgetting will occur. Psychological research is unambiguous: spaced repetition is the difference between learning and forgetting |
+| Curriculum pacing feels wrong — either too fast or too slow | The original learning path was designed before the learner's actual pace and gaps were known. After 5+ sessions, the mismatch between planned curriculum and demonstrated mastery becomes significant | Run the Curriculum Adaptation decision tree: (a) Check prerequisite gaps — is the learner missing a foundational concept? (b) Check pace — compare planned vs actual sessions per concept. (c) Ask the learner: "What's working? What's not?" Update `.teach/learning-path.md` | A curriculum is a hypothesis, not a contract. It predicts what the learner needs to learn in what order. After 5 sessions, the data (teach-back scores, exercise completion, session duration) should override the original plan |
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **Workspace initialized:** `.teach/` directory exists with `.gitignore` entry. Contains: `pre-assessment.md`, `learning-path.md`, `progress.md`, `gap-analysis.md`, `vocabulary.md`, `goals.md`
+- [ ] **Pre-assessment complete:** 5-8 questions asked covering beginner through expert levels. Responses recorded. Gap analysis identifies prerequisite gaps that block later concepts
+- [ ] **Learning goal concrete:** Goal stated as observable capability ("Build a REST API with authentication" not "Learn FastAPI"). Recorded in `.teach/goals.md`
+- [ ] **Curriculum sequenced by dependency:** Concepts ordered so prerequisites are taught before dependents. No concept depends on a later concept. Validated by topological sort of concept dependency graph
+- [ ] **One concept per session:** Every session in `learning-path.md` covers exactly one concept. Split sessions that try to cover multiple concepts
+- [ ] **Practice exercises exist:** Every concept has minimum 3 exercises: near-transfer (same context), far-transfer (novel context), composition (combine with prior concepts). Exercises increase in difficulty
+- [ ] **Teach-back prompts defined:** Every concept has a teach-back prompt in `learning-path.md`. Prompt requires the learner to produce an explanation in their own words, not recite a definition
+- [ ] **Spaced repetition scheduled:** Every mastered concept has review dates at +1d, +3d, +1w, +1m, +3m. `.teach/progress.md` auto-generates review schedule. Review is non-negotiable when due
+- [ ] **Known-vocabulary tracked:** `.teach/vocabulary.md` lists all terms the learner has been taught. New sessions reference only known terms plus one new term per explanation
+- [ ] **Curriculum reviewed every 5 sessions:** After every 5 sessions, Curriculum Adaptation decision tree is consulted. Pace, prerequisite gaps, and goal relevance are reassessed
+- [ ] **Progress measurable:** `.teach/progress.md` shows: sessions completed, concepts mastered (with teach-back scores), concepts in-progress, review schedule adherence, time since last session
+- [ ] **Session state preserved:** Each session ends with: (a) concept taught, (b) teach-back score, (c) exercises completed, (d) next session preview, (e) practice assignment for the gap period
+- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass
+
+### Scale Depth
+
+Teaching scales from a single 15-minute micro-lesson to a multi-month curriculum with progress tracking and spaced repetition. Match approach to the learner's time commitment and goal complexity.
+
+| Scale | Scope | Structure | Duration |
+|-------|-------|-----------|----------|
+| **Micro-lesson** | One narrow concept (a single function, pattern, or command) | Pre-assess (1 question) → Explain (5 min) → Practice (7 min) → Teach-back (3 min) | 15 minutes |
+| **Standard session** | One concept with guided and independent practice | Review previous → Introduce concept → Guided practice → Independent practice → Teach-back → Preview next | 45 minutes |
+| **Multi-session sprint** | 3-5 related concepts over a week | Sessions daily with pre-assessment on day 1 and capstone on day 5. Spaced repetition reviews built into each session start | 5 sessions, 1 week |
+| **Full curriculum** | 10-20 concepts over 6-12 weeks | Pre-assessment → Learning path → Weekly sessions → Spaced repetition → Mid-curriculum adaptation → Capstone project | 10-20 sessions, 2-3 months |
+
+**Scaling rule:** Longer curricula require more adaptation. A 20-session path designed on day 1 will be wrong by session 10 because the learner has changed. Reassess pacing, prerequisites, and goals every 5 sessions. The curriculum is a hypothesis, not a contract.
 
 ## Verification
 

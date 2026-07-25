@@ -193,6 +193,7 @@ Common chains:
 - **M&A**: ceo-strategist → legal-advisor → business-strategist — Acquisition thesis → due diligence → integration model
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Fundraising: Should You Raise VC?
@@ -228,6 +229,7 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 | **80-200** (Series C+) | VPs with directors under them. COO runs ops. | 3-4 | CPO, CRO | $1.5M-4M |
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~20 min): Strategic Alignment and Vision
@@ -267,6 +269,7 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -415,7 +418,31 @@ graph LR
 
 **The One Highest-Leverage Activity**: Keep a decision journal. For every significant decision, write: what you decided, why, what you expect to happen, and your confidence level (60%? 90%?). Review quarterly. The gap between your expectations and reality is the most honest feedback you'll ever get.
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Set vision before strategy, and strategy before tactics.** Vision = where you're going (5-10 year destination). Strategy = how you'll get there (3-5 year plan). Tactics = what you do this quarter. Most CEOs jump to tactics because vision is hard. But without vision, your team optimizes locally — each department pulls in different directions. Write the vision memo first. If your VP of Engineering and VP of Sales describe different destinations, you haven't set vision.
+
+2. **Run board meetings as working sessions, not show-and-tell.** The standard board deck format (30 slides of good news, 5 of "challenges" at the end) trains your board to be passive. Instead, send the deck 72 hours before and spend meeting time on 2-3 strategic decisions where you need their judgment. Ask: "Here are 3 paths forward; which would you take and why?"
+
+3. **Fundraise before you need to, not when you have to.** The best time to raise is when you have 12-18 months of runway, strong metrics, and don't need the money. Desperation is priced in — investors can smell a down-round negotiation from the first slide. Build relationships with 5-10 target investors 6 months before you plan to raise.
+
+4. **Cascade OKRs from company to team to individual — but only after the strategy is set.** OKRs without strategy are a measurement treadmill. First define the strategy (what we're betting on), then set OKRs to measure progress against that bet. Company-level OKRs should be 3-5 objectives max. Every team OKR must trace to a company objective. If it doesn't, kill it.
+
+5. **Design the org for the company you're becoming, not the company you are.** The org structure that got you to $10M ARR won't get you to $50M. Reorganize proactively — when you feel the pain, you're already 6 months late. Key inflection points: first VP hire (20-30 people), first layer of directors (50-80 people), first GM/P&L owner (100-150 people).
+
+6. **Build a CEO dashboard with 5-7 metrics you review weekly, not 50 you review quarterly.** The dashboard should answer: Are we growing? Are customers staying? Are we burning the right amount? Is the team engaged? Are we shipping? What's the biggest risk? If you need more than 7 metrics, you're measuring activity, not outcomes.
+
+7. **Manage the board as a constituency, not a committee.** Each board member has different expertise, incentives, and attention spans. Meet with each board member 1:1 between meetings. Understand what each cares about. Pre-wire decisions with individual members before group discussions. A united board is built one relationship at a time.
+
+8. **Run a crisis playbook, not ad-hoc firefighting.** Every crisis follows a pattern: contain → communicate → investigate → remediate → prevent. Pre-assign roles (incident commander, communications lead, legal, technical lead). Pre-draft holding statements for the top 5 crisis scenarios. Speed of response matters more than perfection of response.
+
+9. **Hire executives for the next stage, not the current one.** The VP Sales who's great at $5M ARR may not scale to $50M — enterprise sales is a different skill than founder-led sales. When hiring executives, ask: "Have you done this at our next stage?" (e.g., $50M-$200M if you're at $20M). Pattern-matching is safer than betting on potential.
+
+10. **Conduct quarterly strategy reviews with a red-team mindset.** Assign one exec to argue against the strategy. Force the team to articulate: "What would have to be true for our strategy to fail?" and "What early warning signs would tell us we're wrong?" Strategy isn't a plan — it's a set of testable hypotheses.
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **Vision that doesn't constrain** — "we will be the leading provider of enterprise solutions" applies equally to a CRM company, a cloud provider, and a consulting firm. A vision that doesn't say NO to anything provides zero decision-making leverage. "We will be the CRM that sales teams love using" says NO to marketing, support, and HR use cases.
 - **OKRs set top-down without team input** — "VP sets OKRs → Directors cascade → Teams execute." The teams closest to the problem know what's achievable and what's delusional. Top-down OKRs ask for 40% revenue growth when the product can't handle 20% more users. Bottom-up input on feasibility prevents OKRs from being aspirational fiction.
@@ -424,6 +451,32 @@ graph LR
 - **Executive hire without reference calls to former direct reports.** The VP of Sales crushed their interview, has a great track record, and references (all peers/bosses) are glowing. Six months in, you discover they burned out their last two teams — 60% attrition in 18 months. Your top 3 AEs quit within the quarter. **Total cost: $150K-$300K in recruiting fees and severance, $1M-$3M in lost pipeline from departed AEs, and 12-18 months of lost sales momentum.** Fix: Always speak to 2-3 former direct reports during reference checks; ask "would you work for this person again?" and "how did they handle underperformance?"; include a 90-day probation clause with reduced severance.
 - **Acquisition integration treated as an afterthought.** You acquire a $5M ARR company for $50M. The deal closes, and nobody owns integration. Engineering teams clash over tech stacks, the acquired CEO leaves after 6 months of frustration, and 40% of the acquired customer base churns within 18 months because the product roadmap stalled. **Total cost: $20M-$35M in destroyed acquisition value — you paid $50M for what became $15M-$30M in retained ARR.** Fix: Appoint a dedicated integration lead 90 days BEFORE close; create a 100-day integration plan with cultural, technical, and customer retention workstreams; hold weekly integration reviews for the first 6 months.
 - **No succession plan for critical roles.** Your CTO gives notice — they're burned out and joining a startup. There's no #2 ready, no documented architecture decisions, and 3 senior engineers who know critical systems are also interviewing. The board demands an interim CTO search that takes 6 months, and 2 platform projects stall entirely. **Total cost: $500K-$1M in executive search fees and interim coverage, plus 6-9 months of engineering roadmap delay that pushes your Series B timeline back by 2 quarters.** Fix: Identify successors for every C-suite and VP role; require key-person documentation (ADR repos, runbooks, vendor contacts) updated quarterly; maintain relationships with 2-3 "break glass" interim executives.
+
+- **What:** Setting quarterly OKRs before annual strategy is finalized. **Why:** OKRs are execution metrics; without strategy, you're optimizing activity, not direction. Teams set OKRs that optimize their local function but conflict across departments — Sales OKRs for volume conflict with Product OKRs for quality. **Instead:** Finalize strategy in a 2-day offsite first. Set company-level OKRs (3-5 max). Then cascade to teams. Every team OKR must map to a company objective.
+
+- **What:** Delaying a difficult executive departure because "it'll disrupt the team." **Why:** A misaligned executive costs you 3-6 months of organizational progress per quarter they stay. Their direct reports know, their peers know, and your best people are updating their LinkedIn profiles. The disruption of keeping them exceeds the disruption of replacing them within 90 days. **Instead:** Make the decision within 30 days of recognizing the problem. Have a transition plan ready (internal interim, external search started). Over-communicate the rationale to the team.
+
+- **What:** Presenting board decks as "everything is great" narratives. **Why:** Boards don't expect perfection — they expect judgment. When you hide problems until they're un-hideable, you destroy trust. The board's relationship with the CEO is the company's most important governance mechanism; trust erosion there is catastrophic. **Instead:** Lead board meetings with: "Here's what we're worried about, here's what we're doing about it, here's where we need your help." Send bad news immediately — don't wait for the board meeting.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any CEO-level deliverable leaves this skill, verify:
+
+- [ ] Vision statement articulated in 1 paragraph that any employee can repeat from memory
+- [ ] Company strategy documented with specific bets, resource allocation, and success criteria
+- [ ] Board deck structure confirms to working-session format (pre-read sent, 2-3 decisions framed)
+- [ ] Fundraising readiness assessed: 12-18 months runway, data room complete, investor relationships warm (5-10 targets)
+- [ ] OKRs cascaded: company-level (3-5), each team OKR traces to a company objective
+- [ ] Org chart reviewed for stage-appropriateness — are spans of control and layers correct for current headcount?
+- [ ] CEO dashboard defined with 5-7 metrics covering growth, retention, burn, engagement, velocity, and risk
+- [ ] Board member 1:1 cadence established (at least quarterly between meetings)
+- [ ] Crisis playbook exists with pre-assigned roles, holding statements for top-5 scenarios, and communication templates
+- [ ] Executive team assessed against next-stage requirements — are your leaders scaled for the next 18 months?
+- [ ] Strategic risk register maintained with likelihood, impact, early warning indicators, and mitigation owners
+- [ ] Quarterly strategy review process defined with red-team format and hypothesis testing framework
+- [ ] Investor update cadence established (monthly for seed/A, quarterly for B+) with consistent format
+- [ ] CEO communication rhythm documented: all-hands cadence, written updates, skip-level schedule, AMA format
 
 ## Verification
 
@@ -445,6 +498,56 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Scale Depth
+
+### Solo/Pre-Seed (Founder + 0-5 employees)
+- Vision: 1-page founder memo — why this, why now, why you
+- Strategy: Hypothesis-driven — 3 bets with explicit validation criteria
+- Fundraising: Pre-seed/seed prep — pitch deck, data room, warm intros to 20-30 angels/seed funds
+- OKRs: Not yet — use "rocks" (3-5 quarterly priorities) until you have enough data for metrics
+- Org: Flat — everyone reports to CEO. No layers until 15+ people
+- Board: Advisors, not formal board. Monthly update emails
+- Deliverable: Founder memo + 12-month operating plan on one page
+
+### Small (Seed/Series A, 10-50 employees, $1M-$10M ARR)
+- Vision: 3-year vision with product-market and GTM hypotheses
+- Strategy: 3 strategic bets with quarterly review cadence
+- Fundraising: Series A/B prep — narrative built on metrics, not story. Warm relationships with 10+ target VCs
+- OKRs: Company-level only (3-5). Teams work from company OKRs without cascaded team-level OKRs
+- Org: First functional leaders (VP Eng, Head of Sales). CEO still directly manages 5-8 people
+- Board: 3-5 members. Formal quarterly meetings. Pre-wired decisions
+- Deliverable: Strategy memo + board deck + operating plan + fundraising narrative
+
+### Medium (Series B/C, 50-250 employees, $10M-$100M ARR)
+- Vision: 5-year vision with market leadership ambition
+- Strategy: Multi-year strategy with scenario planning (base/downside/upside cases)
+- Fundraising: Growth equity/late-stage prep. Data room with 3 years of audited financials
+- OKRs: Fully cascaded — company → department → team. Quarterly review with grading
+- Org: Second layer of management (Directors). CEO manages 5-7 direct reports (C-suite)
+- Board: 5-7 members including independents. Committee structure (comp, audit). Quarterly meetings
+- Deliverable: Annual strategy document + quarterly board package + monthly investor update + CEO dashboard
+
+### Enterprise (Series D+/Public, 250+ employees, $100M+ ARR)
+- Vision: 10-year vision with multi-product, multi-geography ambition
+- Strategy: Portfolio strategy — capital allocation across business units with hurdle rates
+- Fundraising: Public market readiness or late-stage private. Full IR function
+- OKRs: Multi-level cascade with calibration across business units. Annual + quarterly cycle
+- Org: Multi-layer management. CEO manages C-suite. President/COO role for operations
+- Board: 7-11 members with majority independent directors. Full committee structure. Quarterly + special meetings
+- Deliverable: 3-year strategic plan + annual operating plan + quarterly earnings/board package + investor day presentation
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Board blindsided by missed quarter; trust eroded | CEO filtered bad news from board, presenting only positive narrative | Send immediate "bad news" email to board within 24 hours of discovering a material miss. Include: what happened, what we're doing, what we need from you. Preempt the quarterly meeting surprise. | Speed of bad news delivery = trust preservation. |
+| Series A raise took 9 months instead of 3; terms worsened each month | Started fundraising with 6 months of runway. Investors could smell desperation. | Start relationship-building 6 months before you need capital. Track runway religiously. When runway hits 12 months, activate fundraising. Never let it drop below 9 months before close. | Fundraise from a position of strength, not necessity. |
+| All 3 co-founders quit within 12 months of Series B | Equity split was equal but responsibilities and contributions weren't. Built-up resentment from no performance-based adjustments. | Implement vesting with cliffs (4-year vest, 1-year cliff). Add performance-based equity refreshes. Conduct quarterly co-founder retrospectives. Have a co-founder separation agreement in place from day one. | Equal equity doesn't mean equal contribution over time. |
+| Company hit $50M ARR but growth stalled; org couldn't scale | Org structure still the same as at $10M — CEO managing 12 direct reports, no second-layer managers | Proactively redesign org at key headcount thresholds (20, 50, 100, 250). Add management layers before you feel the pain. Every manager should have 5-8 directs max. CEO should have 5-7. | Reorganize for the company you're becoming, not the one you are. |
+| Public crisis — data breach leaked to press before internal response started | No crisis playbook. CEO spent 4 hours deciding who should do what while Twitter narrative spiraled. | Pre-assign crisis roles (incident commander, communications, legal, technical). Pre-draft holding statements. Run a crisis simulation quarterly. The first 60 minutes determine the next 60 days of coverage. | Crisis speed beats crisis perfection. |
+| Hired VP Sales who crushed it at $5M but flamed out at $50M | Hired for current-stage competence, not next-stage experience. Pattern-matched to "built from scratch" story without verifying "scaled to enterprise" experience. | When hiring executives, ask "Have you done this at our NEXT stage?" Reference-check specifically for scale transitions. The best startup VP may not be the best growth-stage VP. | Hire for the stage you're entering, not the stage you're leaving. |
 
 ## References
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)

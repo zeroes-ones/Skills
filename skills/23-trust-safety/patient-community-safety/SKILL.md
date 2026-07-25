@@ -219,6 +219,8 @@ Health communities have a different threat model than general social apps. Map y
 
 ## Error Recovery
 
+<!-- STANDARD: 3min -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -366,7 +368,31 @@ graph LR
 
 ```
 
-## Gotchas
+## Best Practices
+
+<!-- STANDARD: 3min -->
+
+1. **Patient harm severity trumps policy violation severity in all escalation paths.** A suicidal ideation post flagged as "low-severity policy violation — mild" is a systems failure. Escalation must be bifurcated: policy violation severity AND clinical risk score. Clinical risk always overrides policy classification for routing priority.
+
+2. **Anonymous posting is not optional for health communities — it's a safety requirement.** Patients with stigmatized conditions (mental health, addiction, sexual health) will not post honestly under real names. Mandatory identity verification drives vulnerable patients to unmoderated platforms. Offer pseudonymous profiles with platform-verified identity behind them for crisis escalation only.
+
+3. **Crisis response SLAs must align with clinical risk windows, not business hours.** The suicide contagion window is 2-6 hours. A self-harm post flagged at 11 PM Friday that waits until Monday morning is a preventable death. 24/7 on-call clinical escalation with ≤15-minute acknowledgment and ≤2-hour clinical review is the minimum standard for health communities above 10K users.
+
+4. **Medical misinformation classifiers need disease-specific calibration — one model cannot cover all conditions.** A classifier trained on vaccine misinformation performs poorly on cancer treatment claims. Oncology misinformation ("turmeric cures stage 4") has different linguistic patterns than mental health misinformation ("antidepressants are poison"). Train and calibrate per therapeutic area, not across all medicine.
+
+5. **Survivor speech must be explicitly carved out of automated moderation.** A patient saying "chemotherapy ruined my quality of life" is survivorship, not misinformation. Automated classifiers that flag all negative treatment sentiment as "anti-medicine" silence the very patients the community exists to serve. Human-in-the-loop review for negative treatment sentiment with clinical context evaluation.
+
+6. **Community guidelines must differentiate between peer support, medical advice, and medical claims — and enforce each differently.** "This medication helped me" = peer support (allowed). "You should take this medication" = medical advice (remove, warn). "This medication cures X with 95% success" = medical claim (remove, escalate to clinical review, require citation). Each category needs distinct moderation workflow.
+
+7. **End-of-life content requires a specialized escalation path separate from suicide prevention.** A terminal patient saying "I'm stopping treatment" is exercising autonomy, not expressing suicidal ideation. Flagging this as "suicide risk" is harmful and alienating. Train moderators to distinguish end-of-life decision-making from acute suicidal ideation; involve palliative care expertise in protocol design.
+
+8. **Pediatric and adolescent communities need COPPA-compliant architecture before launch, not retrofitted.** Verifiable parental consent, data minimization for under-13 users, no behavioral advertising, age-gated features. Systems that add age gates post-launch inevitably fail to retroactively protect already-collected data. Architecture must assume under-13 users from day zero.
+
+9. **Survivor and lived-experience advisory boards should co-design safety protocols, not just review them.** Safety policies designed entirely by clinicians and lawyers miss the community's actual risk patterns. Patients know who the bad actors are, what content feels predatory, and which moderation approaches feel punitive vs. protective. Compensate advisors for their expertise — this is consulting, not volunteerism.
+
+10. **Transparency reports for health communities must include clinical outcomes, not just content action metrics.** "We removed 5,000 posts" is meaningless without "We escalated 127 crisis cases to clinical review, resulting in 89 successful interventions and 3 adverse outcomes under investigation." Health community safety is measured in lives protected, not content deleted.
+
+## Anti-Patterns
 
 - **Patient community that shares personal health data** — a member posts "I'm on 50mg of X and my side effects are Y." The post is now: (a) PHI under HIPAA if the community is run by a covered entity, (b) discoverable in litigation, (c) permanently indexed by search engines. Community rules must explicitly warn that posts are public and permanent, and the platform must offer anonymous posting. **Total cost: $50K-$250K in HIPAA penalties per violation, plus civil litigation and OCR investigation costs.**
 - **Moderation of terminal illness communities** — a member with stage 4 cancer posts "I'm stopping treatment, thanks for everything." Is this a goodbye post from someone entering hospice, or a suicide note? Moderators (often volunteers) are making life-or-death calls. Escalation protocols for end-of-life content must involve clinical professionals, not just community guidelines. **Total cost: $500K-$5M in wrongful death litigation, platform liability, and regulatory investigation per high-profile incident.**
@@ -405,6 +431,75 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+<!-- STANDARD: 3min -->
+
+| # | Item | Criticality | Validation |
+|---|------|------------|------------|
+| 1 | Crisis escalation: 24/7 on-call clinical review with ≤15-min acknowledgment, ≤2-hr clinical assessment for self-harm/suicide/CSAM content | 🔴 High | Drill: flagged crisis post → acknowledgment within 15 min → clinical call within 2 hr; tested quarterly |
+| 2 | Pediatric safety: COPPA-compliant architecture — verifiable parental consent, data minimization for under-13, no behavioral advertising, age-gated features | 🔴 High | Age verification flow tested; parental consent mechanism audited; data retention for under-13 verified |
+| 3 | Medical misinformation: disease-specific classifiers calibrated per therapeutic area (oncology, mental health, rare disease, vaccines) with human-in-the-loop review | 🔴 High | Per-classifier F1 ≥ 0.85; false negative audit on top 100 most-engaged posts per quarter |
+| 4 | Survivor speech protection: negative treatment sentiment excluded from automated moderation; human review with clinical context for flagged content | 🔴 High | Quarterly audit of automated flags vs. human review outcomes; false positive rate for survivor speech ≤ 5% |
+| 5 | Anonymous/pseudonymous posting available and functional across all community surfaces (posts, comments, DMs) | 🔴 High | Test: create pseudonymous profile → post in condition-specific community → verify identity not exposed |
+| 6 | End-of-life content: specialized escalation path (palliative care expertise, NOT suicide prevention) distinct from acute crisis protocol | 🔴 High | Drill: terminal illness discontinuation post → routed to end-of-life protocol → NOT flagged as suicide risk |
+| 7 | Direct message safety: abuse reporting in DMs, known-bad-actor pattern monitoring across public + private channels, predator detection heuristics | 🔴 High | Test: simulated predator DM → flagged within 1 hr → account suspended within 4 hr |
+| 8 | Moderator training: health-specific crisis escalation training completed within last 6 months; clinical professional available for consultation | 🟡 Medium | Training records current for all moderators; clinical consultant contract active |
+| 9 | Medical claim verification: evidence-based review workflow with citation requirements; AMA/expert presence in community ≥ 1 per quarter | 🟡 Medium | Top 20 most-engaged posts audited for medical claim accuracy; expert engagement logged |
+| 10 | Community guidelines: peer support vs. medical advice vs. medical claim distinction enforced with category-specific moderation workflows | 🟡 Medium | Guidelines published and version-controlled; moderation decision audit shows correct categorization ≥ 95% |
+| 11 | Public-and-permanent warning: community rules explicitly state posts are public and permanent; informed consent for health data sharing in community | 🟡 Medium | Warning displayed at post creation; acknowledged by user; tested across mobile and desktop |
+| 12 | Data portability: community closure plan includes patient data export (GDPR/CCPA right of access) with treatment logs, symptom timelines, peer support history | 🟡 Medium | Export tested end-to-end; export includes all user-contributed content in machine-readable format |
+| 13 | Vulnerable population protections: eating disorder, self-harm, addiction communities have heightened moderation (image scanning, trigger warnings, pro-recovery framing) | 🟡 Medium | Per-community safety configuration verified; image classifier tuned for eating disorder content |
+| 14 | Lived-experience advisory board: patients co-design safety protocols; advisors compensated for expertise | 🟢 Low | Advisory board roster current; meeting cadence documented; compensation records verified |
+| 15 | Transparency report: published quarterly with clinical outcomes (crisis interventions, adverse outcomes) in addition to content action metrics | 🟢 Low | Most recent report published within last quarter; includes clinical outcome section |
+| 16 | Alternative medicine monitoring: evidence-based stickied posts + expert AMAs counterbalance anecdotal cure claims in chronic illness communities | 🟢 Low | Evidence-based resources pinned per therapeutic area; expert AMA schedule maintained |
+| 17 | Cross-platform threat intelligence: predator/exploitation patterns shared with other health platforms; NCMEC reporting pipeline configured | 🟢 Low | Threat intel sharing agreement active; NCMEC reporting tested end-to-end |
+
+## Scale Depth
+
+<!-- STANDARD: 2min -->
+
+#### Solo Developer
+- **Safety**: Single-condition community (e.g., one rare disease) with volunteer moderation and manual crisis escalation to 988/crisis hotline
+- **Minimum**: Community guidelines with public-permanent warning, anonymous posting, crisis hotline auto-response, basic keyword flagging for self-harm/suicide/CSAM
+- **Add**: Clinical consultant (part-time, on-call for crisis escalation), disease-specific misinformation classifier
+- **Cost**: ~$200-1,000/mo (crisis hotline API + basic moderation tools + part-time clinical consultant)
+- **Coverage**: One condition community, < 5,000 users — sufficient for rare disease support groups
+
+#### Small Team (2-10)
+- **Safety**: Multiple condition communities with trained moderators and hybrid (automated + human) crisis response
+- **Minimum**: 24/7 on-call clinical escalation, per-condition misinformation classifiers, DM safety monitoring, COPPA-compliant pediatric architecture
+- **Add**: Lived-experience advisory board, evidence-based content library per condition, quarterly transparency reports
+- **Cost**: ~$3,000-8,000/mo (clinical on-call service + moderation platform + classifier hosting + advisory board stipends)
+- **Risk**: Without 24/7 clinical escalation, off-hours crisis posts may go unreviewed for 12+ hours — the suicide contagion window is 2-6 hours
+
+#### Medium Org (10-100)
+- **Priority**: In-house clinical safety team (not outsourced) with dedicated crisis response staff
+- **Minimum**: Full safety operations center with clinical + content moderation staffing, disease-specific ML classifiers with human-in-the-loop, image/video scanning for CSAM (PhotoDNA/Thorn integration), pediatric safety architecture
+- **Add**: Cross-platform threat intelligence sharing, NCMEC reporting pipeline, academic research partnerships for health misinformation detection, survivor speech classifier calibration
+- **Cost**: ~$15,000-40,000/mo (in-house clinical safety team of 2-4 + enterprise moderation platform + ML infrastructure)
+- **Coverage**: Multiple therapeutic areas, 10K-500K users — regulated health platform scale
+
+#### Enterprise (100+)
+- **Organization**: Dedicated trust & safety org with clinical safety, content policy, ML engineering, and crisis response teams; safety embedded in product development
+- **Minimum**: Real-time crisis detection with clinical triage, federated ML across therapeutic areas, regulatory-grade transparency reporting, NCMEC/Thorn/INHOPE integration, academic research consortium
+- **Add**: Predictive safety analytics (identifying at-risk communities before harm occurs), multi-language crisis detection, health outcome tracking linked to community participation, published safety research
+- **Cost**: $50,000-150,000+/mo (dedicated safety org of 8-20 + enterprise-grade infrastructure + research partnerships)
+- **Focus**: Setting industry standards for health community safety — publish protocols, share threat intelligence, advocate for patient-centered platform regulation
+
+## Error Decoder
+
+<!-- QUICK: 30s -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Terminal cancer patient's "I'm stopping treatment" post auto-flagged as suicide risk and escalated to crisis hotline — patient feels policed, leaves community | End-of-life and suicide prevention use the same escalation path; classifier trained on suicide ideation patterns flags treatment discontinuation | Implement separate escalation paths: end-of-life protocol (palliative care expertise, autonomy-respecting language, support resources) vs. suicide prevention protocol (immediate clinical triage, crisis hotline). Train classifiers to distinguish "stopping treatment" from "ending life" | One-size-fits-all crisis response harms the patients it's designed to protect. End-of-life and suicide prevention are distinct clinical domains requiring distinct protocols |
+| Eating disorder community becomes a pro-ana gathering space despite "pro-recovery" rules — moderation can't keep up with coded language | Moderation relies on keyword lists ("thinspo," "pro-ana") but community has evolved coded language ("butterfly," "ana buddy") that bypasses filters | Implement image-based detection (body-checking photos, before/after collages), behavioral signals (rapid weight-loss celebration patterns, meal-skipping encouragement), and recovery-oriented content amplification. Clinical advisor reviews emerging coded language monthly | Content safety is an arms race. Keyword filters lose within months. Behavioral and image-based signals are harder to evade |
+| Rare disease community with 5 years of patient-generated treatment data shut down without data export — patients lose treatment logs, symptom timelines, peer support | Platform had no community closure plan; deletion was treated as infrastructure decommissioning, not patient data stewardship | Implement community closure protocol: 90-day notice, data export tool (all user content in machine-readable format), referral pathway to alternative communities, permanent archive option with consent. Test annually | Health community data is clinical data to patients. GDPR/CCPA right of access applies. Destroying patient-contributed health data without export is both a compliance violation and a trust catastrophe |
+| Automated misinformation classifier flags 40% of survivorship posts as "anti-medicine" — cancer patients saying "chemo was brutal" get content warnings | Classifier trained on sentiment polarity (negative treatment sentiment = misinformation) without survivorship speech carve-out; no clinical context in classification pipeline | Implement survivorship speech whitelist: negative treatment experience ≠ misinformation. Human review required for all negative-sentiment treatment posts before flagging. Train classifier on labeled survivorship vs. misinformation datasets per therapeutic area | Sentiment-based classification silences patient voice. The difference between "treatment X didn't work for me" (survivorship) and "treatment X doesn't work" (misinformation) requires clinical context |
+| Predator exploits cancer support group DMs to sell dangerous "alternative treatments" — undetected for 6 months because moderation only covers public posts | Safety monitoring limited to public channels; DMs treated as private spaces outside moderation scope | Extend safety monitoring to DMs: abuse reporting with one-click flagging, known-bad-actor heuristics (new accounts DMing vulnerable-population members at high volume), pattern detection across public + private activity. Publish DM safety policy in community guidelines | Private channels are the highest-risk surface in health communities. Predators target DMs because that's where moderation doesn't look |
+| Pediatric diabetes community launches without COPPA compliance — collects data on 500+ under-13 users before legal review catches it | COPPA treated as launch checklist item rather than architectural requirement; age gates retrofitted post-launch cannot protect already-collected data | Build COPPA-compliant architecture from day zero: verifiable parental consent flow before any data collection, separate data storage for under-13 users, no behavioral advertising, automated age-up transition at 13. Retroactive compliance requires deletion of all under-13 data collected without consent | COPPA is an architecture constraint, not a legal checkbox. Retroactive compliance means data deletion — you cannot un-collect data from children |
 
 ## References
 

@@ -54,6 +54,15 @@ You are a senior netcode engineer who has shipped multiplayer games serving 100K
 | **L4 (Staff)** | Cross-project networking standards, custom transport layer, backend service mesh for game servers | Netcode SDK. Automated load testing framework. Latency budgets across all game systems |
 | **L5 (Principal)** | Novel networking paradigms (e.g., deterministic rollback for fighting games, mesh networking for AR), industry contributions | Published papers or GDC talks. Reference implementations that shift industry practice |
 
+### Scale Depth
+**(STANDARD)**
+
+| Depth | Time | Scope | Artifacts |
+|---|---|---|---|
+| **QUICK** | 15-30 min | Single RPC implementation, transport comparison, bandwidth profile | Working replication code, bandwidth measurement, transport selection rationale |
+| **STANDARD** | 2-4 hr | Full game mode netcode, prediction + reconciliation, interest management | Replication architecture, bandwidth budget, prediction error measurements |
+| **DEEP** | 2-5 days | Cross-project netcode SDK, custom transport layer, server mesh architecture | Netcode SDK, automated load testing framework, latency budget doc, GDC-style writeup |
+
 ## When to Use
 
 - Implementing multiplayer game networking: client-server, peer-to-peer, or hybrid architectures
@@ -67,6 +76,8 @@ You are a senior netcode engineer who has shipped multiplayer games serving 100K
 - Implementing anti-cheat at the network layer (server validation, replay verification)
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- Full 22 lines extracted to references/core-workflow.md -->
 
 Game networking follows a 6-phase pipeline. Each phase builds on the previous — skipping phases guarantees desync in production.
@@ -80,7 +91,31 @@ Choose UDP for real-time gameplay (FPS, fighting, racing), TCP for turn-based or
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 22 lines of detailed guidance
 
+## Best Practices
+**(STANDARD)**
+
+1. **Server-authoritative by default — never trust the client.** Every game state mutation that affects fairness or economy must be validated server-side. The client sends intent ("I want to fire"); the server validates cooldowns, ammo counts, line-of-sight, and applies damage. One client with Cheat Engine bypassing client-only validation ruins the experience for 1,000+ legitimate players. The cost of retrofitting server authority into a trust-based architecture is a full netcode rewrite.
+
+2. **Implement client-side prediction with server reconciliation from tick one.** Players perceive input lag starting at 50ms. Prediction hides latency by immediately applying local input while the server processes authoritatively. Without prediction, even co-op games feel like "wading through molasses." Reconciliation corrects mispredictions: the client replays inputs from the server-acknowledged tick forward. Glenn Fiedler's "Gaffer On Games" articles are the definitive reference.
+
+3. **Use UDP for real-time gameplay — TCP head-of-line blocking is fatal.** TCP guarantees ordered delivery at the cost of stalling all subsequent packets when one is dropped. A single lost packet at 2% loss freezes the game state until retransmission (~200ms+). UDP with a custom reliability layer gives you control: reliable-ordered for kill confirmations, unreliable-unordered for per-frame positions. Libraries like ENet, GameNetworkingSockets, or libjuice provide this out of the box.
+
+4. **Set per-player bandwidth budgets early and enforce in load tests.** A 64-player FPS at 60 tickrate sending full state to all players = 64 × 63 × 60 = 241,920 messages/second. At 200 bytes per update, that's 48 MB/s — far exceeding mobile and residential broadband. Interest management (spatial relevance, frustum culling, priority tiers) must reduce this to < 8 KB/s per player. Budgets are measured in bytes per second per player, not megabytes.
+
+5. **Serialize with flatbuffers or bit-packed custom formats — never JSON/XML at runtime.** JSON serialization of a {x, y, z, pitch, yaw} player state for 64 players at 60 tickrate produces 50+ MB/s of serialized data before compression. Flatbuffers or Cap'n Proto are zero-copy, schema-first, and produce 10-50× smaller payloads. Custom bit-packing (quantize floats to 16-bit fixed-point, delta-compress positions) achieves 5-10× further reduction.
+
+6. **Design interest management as a spatial problem — not an "all-to-all" broadcast.** Players don't need updates about entities 3 kilometers away. Implement grid-based spatial partitioning (simple, O(n)) or quadtree/octree (dynamic, O(log n)). Add priority tiers: Tier 1 (visible enemies, < 50m), Tier 2 (visible allies, < 200m), Tier 3 (audible events, < 500m), Tier 4 (world state changes only). Update rates scale inversely with distance.
+
+7. **Implement lag compensation as backward reconciliation, not forward prediction.** When Player A fires at Player B, Player A was aiming at B's position as seen on A's screen — which is B's position 100ms ago. Backward reconciliation rewinds B to that historical position, checks hits, and applies damage. Source Engine's lag compensation (Valve) remains the gold standard — every competitive FPS since has used this approach.
+
+8. **Plan NAT traversal and relay fallback from day one.** 30-50% of players are behind symmetric NATs that STUN cannot traverse. Without TURN relay fallback, these players cannot connect to P2P games. TURN is expensive ($0.02-$0.10 per GB per player), so implement SDR (Steam Datagram Relay) or libjuice ICE with relay escalation: try P2P → try STUN → fallback to relay. Budget relay as 5-15% of total player-hours.
+
+9. **Simulate network conditions in CI, not just localhost.** Every netcode feature must pass automated tests at 0ms (baseline), 50ms (good WiFi), 100ms (typical broadband), and 200ms (transcontinental/poor mobile) with packet loss at 0%, 1%, and 5%. Use `tc netem` on Linux or `Network Link Conditioner` on macOS/WinDivert. The game that's fun at 200ms with 2% loss is the game that keeps players across all network conditions.
+
+10. **Implement deterministic rollback for fighting games and RTS.** GGPO-style rollback networking: simulate ahead with predicted inputs, roll back and re-simulate when remote inputs arrive. This requires full game state serialization/deserialization every frame and deterministic simulation. The result is zero perceived input latency regardless of ping — essential for frame-perfect inputs in fighting games. The implementation cost is high but the player experience difference is transformative.
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -93,6 +128,18 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Players rubber-band on every packet loss spike — position snaps back 200ms every few seconds | Client-side prediction without reconciliation. Client predicts forward, server corrects by overwriting position. The player sees their character teleport backward every time prediction disagrees with authority | Implement reconciliation: client stores its unacknowledged inputs. When server sends authoritative state, client replays inputs from the ack'd tick forward. The result: correction is invisible unless prediction truly diverged | Prediction without reconciliation is worse than no prediction — the rubber-banding feels more broken than raw latency. Always implement both together; they're one feature, not two |
+| 64-player server CPU spikes to 100% at 40 players — tick rate drops from 60 to 12 | Interest management not implemented. Every player receives updates from every other player = 63 × 60 = 3,780 update messages per tick per player. Server is spending 80% of CPU on serializing and sending updates to players who can't see each other | Implement spatial interest management: divide world into grid cells, only replicate entities within N cells of the player. Add frustum culling: don't replicate entities behind the player. Reduce update rate for distant entities to 5Hz | Interest management is not optional for >16 players. The bandwidth/CPU curve is O(n²) without it. Implement before your first multiplayer playtest, not after |
+| Hit registration feels inconsistent — clean headshots miss, wild shots register | Client trusts its own hit detection and reports hits to server. Player A with 150ms ping sees Player B 150ms in the past, aims ahead, and sends "hit at (x,y,z)." Server has Player B at a different position and rejects the hit. Meanwhile, Player C with 20ms ping lands shots that look like whiffs on their screen | Implement server-side lag compensation via backward reconciliation: when server receives Player A's shot, rewind Player B's position to where B was at A's latency (150ms ago). Check hit against that historical position. VALVe's Source Engine approach | Hit registration is about time synchronization, not geometry. The question isn't "did the bullet intersect?" but "was the target where the shooter saw it at the shooter's time?" |
+| P2P game works flawlessly in-office but 30% of beta players cannot connect | Symmetric NAT traversal failure. ~30-50% of home routers use symmetric NAT which assigns a different external port for each destination. STUN cannot traverse symmetric NAT. Players behind these routers get "Connection failed" with no explanation | Implement TURN relay fallback: try P2P → try STUN hole-punch → escalate to relay server. Use libjuice for ICE with relay escalation. Budget 5-15% of player-hours through relay ($0.02-$0.10/GB/player). Add connectivity diagnostics in the lobby | Beta testing reveals NAT diversity that office networks hide. Never launch P2P without relay fallback — you're shipping a game that 30% of customers literally cannot play |
+| Dedicated server costs 3× budget projection — idle servers consuming 40% of spend | No game session lifecycle management. Servers spin up on demand but never spin down. Players log off, server keeps running. Match ends, server idles for 2 hours before timeout. Idle servers bill at full compute rate | Implement graceful shutdown: server monitors player count, starts 5-minute shutdown timer when last player leaves. Use Agones or GameLift for automatic allocation/deallocation. Add max session duration (2 hours for competitive matches). Alert on orphaned server processes | Cloud providers bill for running instances, not players. Every idle game server is burning budget. Auto-scaling must include auto-shrinking — the downscaling logic is harder and more important than upscaling |
+| 2% packet loss causes massive desync in "reliable" TCP game — players see diverging game states | TCP head-of-line blocking. A single dropped packet stalls the receive buffer. The game processes no new state for 200ms+ while TCP retransmits. During this stall, clients continue rendering from stale data. When the packet finally arrives, the state jump is massive — "desync" | Switch real-time state replication to UDP with a custom reliability layer. Use ENet or GameNetworkingSockets for reliable-ordered channels (kill confirmations, score changes) and unreliable channels (position updates). TCP remains for non-realtime concerns: chat, lobbies, matchmaking | TCP is not "more reliable" — it's differently reliable. It guarantees ordered delivery at the cost of timeliness. Real-time games need timeliness guarantees more than delivery guarantees for most state |
 
 ## Verification Guardrails
 
@@ -224,6 +271,7 @@ Before beginning a new phase, verify:
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## Decision Trees
+**(QUICK)**
 
 #
 
@@ -599,6 +647,64 @@ iperf3 -c gameserver.example.com -u -p 27015 -b 100K -t 30
 # Prometheus metrics endpoint check
 curl http://localhost:9090/metrics | grep gameserver
 ```
+
+## Anti-Patterns
+
+### Anti-Pattern: Trusting the client with authoritative state
+**What it looks like:** Server accepts client-submitted position, health, ammo, and score without validation. "We'll add server validation after we prove the gameplay is fun." One player downloads Cheat Engine on day 2 of launch — infinite health, teleport, unlimited currency.
+**Why it fails:** Client-trust architectures are irreversibly compromised the moment they launch. There is no "add validation later" — by the time fun is proven, the game's reputation (and economy) is destroyed by cheaters. Every client-trusted state variable is an attack surface that costs 1000× more to fix post-launch than to architect correctly from day one.
+**Do this instead:** Server is authoritative for all gameplay state that affects fairness or economy. Client sends intent ("I want to fire", "I want to move to X"). Server validates cooldowns, ammo, line-of-sight, collision, speed limits, and applies the result. Client prediction is purely visual — the server's version of reality always wins.
+
+### Anti-Pattern: Starting with TCP for "simplicity" — "we'll switch to UDP later"
+**What it looks like:** Team builds netcode on TCP sockets because "UDP is complex." Game works fine on localhost. First remote playtest: 2% packet loss causes 200ms stalls, rubber-banding, and desync. The entire networking stack — every send/recv, every reliability layer, every serialization path — assumes TCP's ordered delivery guarantees.
+**Why it fails:** Switching from TCP to UDP is not a port — it's a full rewrite. TCP provides ordered, reliable, connection-oriented streams. UDP provides unordered, unreliable, connectionless datagrams. Every assumption your code makes about delivery order, connection state, and backpressure must be re-implemented. The cost of switching is 100% of your networking code.
+**Do this instead:** Start with UDP from the first multiplayer prototype. Use a library that provides reliability layers over UDP: ENet, GameNetworkingSockets (Valve), or RakNet. These give you reliable-ordered channels for critical messages and unreliable channels for per-frame state without TCP's head-of-line blocking.
+
+### Anti-Pattern: No interest management — broadcasting all state to all players
+**What it looks like:** 64-player server sends every player's full state to every other player every tick. At 60 tickrate: 64 × 63 × 60 = 241,920 messages/second. At 200 bytes per update: 48 MB/s per server. Server CPU melts at 40 players. Players on mobile or slow connections get kicked.
+**Why it fails:** Bandwidth and CPU scale as O(n²) with player count. Every player added increases load on every other player's connection AND on the server's serialization pipeline. The game that works beautifully in 8-player testing collapses at 64 players during launch weekend.
+**Do this instead:** Implement spatial interest management: grid-based spatial partitioning. Only replicate entities within N cells of each player. Add priority tiers: Tier 1 (visible enemies, 60Hz), Tier 2 (visible allies, 30Hz), Tier 3 (audible events, 10Hz), Tier 4 (world state, 1Hz). Add frustum culling: don't replicate entities behind the camera.
+
+### Anti-Pattern: Skipping client-side prediction for "non-competitive" games
+**What it looks like:** Co-op game with 4 players uses server-authoritative movement without prediction. Player presses W, waits 50ms for server acknowledgment, character starts moving. Every input feels delayed by the player's ping. "The game feels sluggish" becomes the #1 complaint.
+**Why it fails:** 50ms of input latency without prediction makes movement feel like "wading through molasses" regardless of game type. Competitive or not, players judge game feel by responsiveness. A 10ms increase in perceived lag reduces session time by 7%. Co-op players leave just as fast as competitive players when the game feels unresponsive.
+**Do this instead:** Implement client-side prediction from the first playable prototype. The pattern is the same for co-op and competitive: client immediately applies local input, sends intent to server, server processes authoritatively, client reconciles. The only difference is that co-op can tolerate slightly looser reconciliation thresholds.
+
+### Anti-Pattern: Deploying dedicated servers without auto-scaling lifecycle management
+**What it looks like:** Dedicated servers launched for each match. Server starts on match creation, runs until someone manually kills it. Players log off, server idles. Match ends, server idles for hours before timeout. Idle servers bill at full compute rate. Cloud bill is 3× projection with 40% idle waste.
+**Why it fails:** Cloud providers bill for running instances, not active players. Every idle game server burns budget. Without graceful shutdown, orphaned servers accumulate. Without allocation/deallocation automation, scaling is manual, slow, and expensive.
+**Do this instead:** Use Agones (Kubernetes game server orchestration) or AWS GameLift for automatic allocation and deallocation. Implement graceful shutdown: monitor player count, start 5-minute shutdown timer when last player leaves. Add max session duration (e.g., 2 hours for competitive matches). Alert on orphaned server processes older than session timeout.
+
+### Anti-Pattern: Shipping P2P multiplayer without relay fallback
+**What it looks like:** P2P game uses STUN for NAT traversal. Works beautifully in the office. Beta launches, 30% of players report "Connection failed" — no error details, just can't join games. Support forums fill with refund requests from players who literally cannot play.
+**Why it fails:** 30-50% of home routers use symmetric NAT which assigns a different external port for each destination. STUN cannot traverse symmetric NAT because the port the server sees differs from the port the peer needs. These players are permanently locked out of P2P-only games with no diagnostic feedback explaining why.
+**Do this instead:** Implement TURN relay fallback with ICE negotiation via libjuice or WebRTC. Try P2P → try STUN hole-punch → escalate to relay. Budget 5-15% of player-hours through relay ($0.02-$0.10/GB/player). Add connectivity diagnostics in the lobby: show NAT type, connection path (direct vs relay), and ping to relay server.
+
+### Anti-Pattern: Testing netcode only on localhost or LAN
+**What it looks like:** All netcode development and QA happens on localhost (0ms latency, 0% loss) or office LAN (< 1ms, 0% loss). The game is buttery smooth. Launch day: players on WiFi, mobile, and transcontinental connections experience rubber-banding, desync, and unplayable input delay that nobody on the dev team ever saw.
+**Why it fails:** Network conditions are the primary variable in multiplayer game quality. Testing without them means you're testing a version of the game that doesn't exist for any real player. Every prediction error, reconciliation glitch, and bandwidth spike that would be caught by a 100ms/2% loss test ships to production.
+**Do this instead:** Simulate network conditions in CI for every netcode feature: 0ms/0% (baseline), 50ms/0% (good WiFi), 100ms/1% (typical broadband), 200ms/2% (transcontinental), 300ms/5% (poor mobile). Use `tc netem` on Linux or Clumsy/Network Link Conditioner. Test 64-player stress scenarios with varied per-player latency profiles.
+
+## Production Checklist
+**(STANDARD)**
+
+Before shipping any multiplayer game or netcode feature, verify every item. Each unchecked item is a launch-day disaster waiting to happen.
+
+- [ ] **Server authority verified:** Every state mutation affecting fairness or economy is validated server-side. `grep -r "trust.*client" server/` returns zero results. Client-predicted values are purely visual, never authoritative.
+- [ ] **Prediction + reconciliation implemented together:** Client predicts locally, server corrects authoritatively, client reconciles by replaying unacknowledged inputs. Prediction error < 50ms measured at 100ms simulated latency.
+- [ ] **UDP transport with reliability layers:** Real-time state replication uses UDP (not TCP). Reliable-ordered channel for critical events. Unreliable channel for transient state. ENet, GameNetworkingSockets, or equivalent library in use.
+- [ ] **Interest management implemented:** Spatial partitioning (grid/quadtree) limits replication scope. Per-player bandwidth < 8 KB/s at target player count measured via `iperf3` or custom telemetry.
+- [ ] **Lag compensation (backward reconciliation):** Server rewinds target positions to shooter's latency when validating hits. Tested with simulated 50ms, 100ms, and 200ms ping — hit registration feels consistent at all latencies.
+- [ ] **NAT traversal with relay fallback:** STUN attempted first, TURN relay fallback confirmed. Relay budget calculated at 5-15% of projected player-hours. Connectivity diagnostics visible in lobby UI.
+- [ ] **Network condition CI tests pass:** All netcode features pass automated tests at 0ms, 50ms, 100ms, 200ms latency with 0%, 1%, 5% packet loss. `tc netem` or equivalent in CI pipeline.
+- [ ] **Flatbuffers or bit-packed serialization:** No JSON/XML in runtime game state serialization. Schema-first serialization produces payloads < 200 bytes per player update. Delta compression verified.
+- [ ] **Dedicated server auto-scaling:** Agones or GameLift configured with automatic allocation and deallocation. Graceful shutdown on last player disconnect. Max session duration enforced. Orphaned server alerting active.
+- [ ] **Deterministic rollback (fighting/RTS):** If applicable, GGPO-style rollback implemented with full game state serialization every frame. Re-simulation verified deterministic across platforms.
+- [ ] **Bandwidth profiling per feature:** Every RPC, replicated variable, and state update profiled for bandwidth cost. Budget enforced in CI — PRs that exceed per-player bandwidth budget are blocked.
+- [ ] **Host migration designed (client-hosted):** If using listen servers, host migration protocol designed and tested. State transfer < 5 seconds. New host election logic verified under 3+ disconnection scenarios.
+- [ ] **Anti-cheat architecture documented:** Server-side validation points enumerated. Anomaly detection thresholds defined (impossible speeds, invalid state transitions). Replay verification system designed.
+- [ ] **Stress test at 2× target CCU:** 128-player load test for 64-player target. Tick rate maintained at ≥ 50% of target under 2× load for ≥ 30 minutes. Memory and CPU profiles reviewed.
+- [ ] **Observability dashboard live:** Tick rate, player count, bandwidth per player, prediction errors, reconciliation rate, server CPU/memory — all visible in Grafana/Prometheus. Alerts on tick rate drop > 20%.
 
 ## Anti-Rationalization — No Excuses
 

@@ -230,6 +230,8 @@ Architecture decisions compound — a decision made at L2 has L4 consequences. U
 
 ## Decision Trees
 
+**(QUICK)**
+
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -309,6 +311,8 @@ Synchronous or asynchronous between services?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Requirements & Constraints Gathering
 1. Identify functional requirements (use cases, user journeys, data flows).
@@ -340,7 +344,32 @@ Synchronous or asynchronous between services?
 6. Plan for resilience: circuit breakers, retries (with exponential backoff + jitter), bulkheads, timeouts, graceful degradation, chaos engineering.
 
 
+## Best Practices
+
+1. **Write ADRs for every irreversible decision.** Title must state the decision, not the topic. Include Context, Decision, Consequences, and rejected alternatives. Store in `docs/adr/` alongside code.
+
+2. **Start every design with C4 Context diagrams.** System boundaries and external actors before any implementation detail. A new team member should trace data flow from ingress to persistence in under 10 minutes.
+
+3. **Quantify NFRs before choosing patterns.** Peak QPS, P95 latency budget, availability target, and data volume drive architecture. Don't pick microservices because Google uses them — pick them because your NFRs demand them.
+
+4. **Default to a modular monolith.** Extract microservices only when independent deploy/scale is provably required and a dedicated team exists. Microservices add network latency, deployment complexity, and debugging overhead.
+
+5. **Specify resilience for every sync call.** Timeout (P95 × 2), circuit breaker (50% error → open), retry budget (max 3 with jitter), and bulkhead must be annotated on every communication line in architecture diagrams.
+
+6. **Perform a failure mode walkthrough for every review.** For each component, answer: "What happens when this fails?" No single point of failure accepted. The architecture is defined as much by its failure modes as its happy path.
+
+7. **Document trade-offs, not just decisions.** Every ADR must list alternatives considered and why they were rejected. "We chose X because Y and Z were rejected for reasons A, B, C." Future you will thank present you.
+
+8. **Bias toward simplicity.** The architecture that works is the simplest one that meets the NFRs. Complexity is a liability, not a credential. If you can't explain it to a new hire in 5 minutes, it's too complex.
+
+9. **Model capacity for 10x current load, not 1000x.** Over-provisioning kills time-to-market. Document extraction triggers: "When X metric exceeds Y threshold for 2 consecutive weeks, we'll extract component Z."
+
+10. **Instrument observability from day one.** Distributed tracing (OpenTelemetry), structured logging with correlation IDs, and RED metrics (Rate, Errors, Duration) per endpoint must be specified in the architecture — not bolted on during incidents.
+
+
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -449,7 +478,7 @@ Architecture guidance, review, or approval for team-level design
 ### The One Thing
 **Redesign a system you built 2 years ago using what you know now.** Would you make the same decisions? If yes: you haven't grown enough. If no: write down why. Your old architectures are a record of your thinking at that time. Revisiting them is the fastest way to see your own growth.
 
-## Gotchas
+## Anti-Patterns
 
 - **Microservices before product-market fit.** Startups with 10 users running 12 microservices on Kubernetes spend $200K-$2M/year on infrastructure, observability, and DevOps headcount — for a monolith that would run on a $50/month VPS. The complexity overhead (service mesh, distributed tracing, schema registry, CI/CD per service) consumes engineering capacity that should go to finding product-market fit. **Total cost: $200K-$2M in wasted infrastructure and engineering time over the first 18 months.** Fix: start with a well-structured monolith (modular, not big-ball-of-mud). Extract services only when you have a dedicated team for each bounded context and clear scaling pain points.
 - **No architecture decision records (ADRs).** Without ADRs, every new team member or returning architect re-litigates "Why did we choose Kafka over RabbitMQ?" in Slack threads, design reviews, and meetings. A 20-person engineering org spends 50-200 hours per quarter re-debating settled decisions. **Total cost: $50K-$200K/year in re-litigation overhead across the engineering org.** Fix: write an ADR for every significant architectural decision (Context, Decision, Consequences). Store them in the repo alongside code. Link ADRs from PR templates.
@@ -513,3 +542,21 @@ This section documents every irreversible decision made during the session. It i
 - Append a new row for each irreversible or hard-to-reverse decision
 - Never modify past rows — only append
 - If revisiting a decision, add a NEW row (do not edit the old one)
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[SA1]** C4 diagrams (Context, Container, Component) created and accurate — new hire traces data flow in <10 minutes
+- [ ] **[SA2]** ADRs for last 5+ major decisions written, reviewed, merged, and linked from PR template
+- [ ] **[SA3]** NFRs quantified: peak QPS, P95 latency budget, availability target, data volume, compliance requirements
+- [ ] **[SA4]** Failure mode walkthrough completed — every component has documented "what happens when this fails" with no SPOF
+- [ ] **[SA5]** Resilience patterns on every sync call: timeout (P95 × 2), circuit breaker, retry budget (max 3), bulkhead
+- [ ] **[SA6]** Observability specified: distributed tracing (OpenTelemetry), structured logging with correlation IDs, RED metrics
+- [ ] **[SA7]** Scaling strategy documented: read replicas, sharding key, cache layers, CDN — with extraction triggers
+- [ ] **[SA8]** Multi-tenancy isolation model chosen and documented (database/schema/RLS) with largest-tenant analysis
+- [ ] **[SA9]** Capacity model: 3-year storage projection, peak QPS with 2x headroom, hot/warm/cold data tiering
+- [ ] **[SA10]** Build-vs-buy analysis for all 3rd-party dependencies with TCO (3yr) comparison
+- [ ] **[SA11]** Security review: threat model, trust boundaries, encryption standards, compliance mappings completed
+- [ ] **[SA12]** Architecture review board sign-off with zero unresolved critical findings
+- [ ] **[SA13]** Cloud exit strategy quantified: 80% portability target, deliberate lock-in points with business justification

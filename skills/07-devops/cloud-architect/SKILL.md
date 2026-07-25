@@ -144,6 +144,20 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 
 **Usage**: Say "as an L3 cloud architect, design the landing zone for..." Default: **L3** (multi-account architecture, independent design).
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 engineer, 1 account)
+Single AWS account or GCP project. Root account with MFA, consolidated billing, one VPC. Manual terraform apply is acceptable. Focus: learn core services, avoid free-tier traps, set up budget alerts first. Deploy from templates, not from scratch.
+
+#### Small (2-10 engineers, 2-5 accounts)
+Separate production and non-production accounts under AWS Organizations or GCP folders. IaC-only policy for production, SCP guardrails denying public S3 buckets and open security groups. Single-region with multi-AZ. Focus: cost allocation tags, least-privilege IAM, backup policies. Manual Well-Architected reviews quarterly.
+
+#### Medium (10-50 engineers, 10-30 accounts)
+Hub-and-spoke networking with Transit Gateway, centralized egress inspection. Account-per-team-per-environment. OIDC for CI/CD pipelines, IRSA/Workload Identity Federation for pods. Multi-region DR with pilot-light minimum. Focus: SCP-based guardrails, FinOps anomaly detection, automated compliance scanning. Landing zone as a product managed by a platform team.
+
+#### Enterprise (50+ engineers, 30+ accounts, multi-cloud)
+Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Service Catalog or Developer Portal for approved architectures. Automated Well-Architected reporting, cost anomaly ML detection, cross-cloud networking with SD-WAN or dedicated interconnect. Focus: cloud financial operations at scale, compliance automation (SOC 2, HIPAA, PCI-DSS), cloud-agnostic abstraction layer decisions. "This is our cloud operating model — every team uses these patterns."
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -156,7 +170,7 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 - Implementing FinOps: cost allocation tags, budgets, reserved instances, savings plans, anomaly detection
 - Architecting for multi-region DR with RPO/RTO targets and automated failover
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Compute Selection: EC2 vs ECS vs EKS vs Lambda
@@ -276,7 +290,7 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 ```
 **When to choose Account-per-workload:** >3 teams, compliance isolation (PCI vs non-PCI), >$10K/month spend, need SCP-based guardrails per team. **When to choose few accounts:** <3 teams, <$5K/month, simple compliance, tagging sufficient for cost allocation.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Discovery and Requirements
@@ -331,7 +345,30 @@ Common chains:
 - **Chain**: system-architect → cloud-architect → finops-engineer — System design maps to cloud services; FinOps validates cost estimates and optimizes spend
 
 
-## Error Recovery
+## Best Practices
+
+1. **Design multi-account from day one.** Account per environment per workload with AWS Organizations or GCP folders. Blast radius isolation, SCP-based guardrails, and per-team billing. Consolidation is easy later; separation is traumatic.
+
+2. **Enforce tagging with SCPs, not documentation.** `Environment`, `Service`, `Team`, `CostCenter` must be present on every resource. Untagged resources get auto-shutdown after 24h in non-prod. Tags are the backbone of cost allocation and security incident response.
+
+3. **Implement IaC-only policy for production.** All changes via Terraform/CDK pipelines with PR review. Console access read-only with break-glass roles for emergencies. Click-ops creates unreproducible infrastructure that fails DR tests.
+
+4. **Use hub-and-spoke networking with Transit Gateway.** Centralized egress inspection, shared services in the hub VPC, workload isolation in spoke VPCs. Avoid VPC peering meshes beyond 3 VPCs — 4 VPCs = 6 peering connections; 10 VPCs = 45 connections.
+
+5. **Apply least-privilege IAM with workload identity.** No long-lived access keys anywhere. OIDC for CI/CD pipelines, IRSA/Workload Identity Federation for pods. Permission boundaries and SCPs to deny high-risk actions organization-wide.
+
+6. **Right-size before committing to reservations.** Run Compute Optimizer or Recommender for 2 weeks minimum. Purchase Savings Plans over standard RIs for workload flexibility. Unused commitments are dead money — 40% of RIs are underutilized.
+
+7. **Model data transfer costs before deploying.** Cross-AZ traffic ($0.01-0.02/GB), NAT Gateway processing ($0.045/GB), inter-region replication, and internet egress are silent budget killers. A single NAT Gateway per AZ costs $32/month idle before any data.
+
+8. **Design for region failure, not just AZ failure.** Pilot-light minimum for non-critical workloads; warm standby for customer-facing. Test regional failover quarterly — the runbook that's never been executed is fiction, not a plan.
+
+9. **Encrypt everywhere, by default.** KMS/Cloud KMS customer-managed keys for data at rest. TLS 1.2+ for all data in transit. S3 bucket policies that deny unencrypted uploads. Encryption is table stakes, not a feature to add later.
+
+10. **Run Well-Architected Framework reviews quarterly.** The gap between what you designed and what actually exists is where risk lives. Every review must produce a remediation plan with owners, severity ratings, and target dates.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -423,6 +460,22 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[CL1]** Multi-account organization: account per environment per workload, SCP guardrails denying high-risk actions
+- [ ] **[CL2]** IaC-only policy enforced — all production changes via Terraform/CDK pipeline with PR review, console read-only
+- [ ] **[CL3]** Tagging enforcement: `Environment`, `Service`, `Team`, `CostCenter` on all resources, untagged auto-shutdown in non-prod
+- [ ] **[CL4]** IAM least-privilege with workload identity — no long-lived access keys, OIDC for CI/CD pipelines
+- [ ] **[CL5]** Hub-and-spoke networking with Transit Gateway, centralized egress inspection, no VPC peering meshes >3 VPCs
+- [ ] **[CL6]** Multi-region DR: pilot-light minimum for non-critical, warm standby for customer-facing, failover tested quarterly
+- [ ] **[CL7]** Encryption everywhere: KMS CMK at rest, TLS 1.2+ in transit, S3 bucket policies deny unencrypted uploads
+- [ ] **[CL8]** Cost budgets set with alerts at 50%/80%/100%, anomaly detection enabled, RI/SP coverage reviewed monthly
+- [ ] **[CL9]** VPC flow logs, CloudTrail/Audit Logs, and DNS query logs enabled in all accounts
+- [ ] **[CL10]** Backup policies: all stateful resources (RDS, DynamoDB, S3) have automated backups with RPO ≤ 24h
+- [ ] **[CL11]** Well-Architected Framework review completed within last 90 days, remediation items tracked with owners and dates
+- [ ] **[CL12]** Incident response runbooks documented and tested annually: compromised credentials, exposed buckets, DDoS
+- [ ] **[CL13]** SCPs/Organization Policies deny public S3 buckets, unencrypted EBS volumes, and open security groups
+
 ## What Good Looks Like
 
 > Architecture decisions are documented as ADRs with clear trade-off analysis, and every decision traces back to a business requirement.
@@ -461,7 +514,7 @@ graph LR
 | "Infrastructure as Code is overhead — console changes are faster for small fixes." | Every untracked console change makes the environment unreproducible. When disaster recovery is needed, the IaC template deploys a version that doesn't match reality. $50K-$150K per DR event where console drift causes recovery failure. |
 | "Lambda cold starts are an edge case — not worth the optimization effort." | Cold starts add 500ms-2s to P99 latency. At scale with spiky traffic, 30% of requests hit cold starts. Users experience 3x latency variance. $20K-$60K/year in poor UX, increased churn, and engineering time investigating "intermittent slowness." |
 
-## Gotchas
+## Anti-Patterns
 
 - **IAM policy evaluation logic**: an explicit `Deny` ALWAYS overrides any `Allow`, even an `Allow` in a different policy attached to the same principal. A single `Deny` statement anywhere across all attached policies blocks the action — no warning, no log, just "Access Denied."
 - **AWS Lambda cold starts** are not just about initialization time. The Lambda execution environment is reused for ~5-45 minutes. During that window, global variables persist between invocations. A failed invocation that sets `global.isHealthy = false` poisons subsequent invocations.

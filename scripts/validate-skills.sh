@@ -131,7 +131,7 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
             if len(parts) < 3:
                 continue
             body = parts[2]
-            found = {m.group(1).strip() for m in re.finditer(r'^## (.+)$', body, re.MULTILINE)}
+            found = {re.sub(r'\s*\*\*\((?:QUICK|STANDARD|DEEP)\)\*\*\s*', '', m.group(1)).strip() for m in re.finditer(r'^## (.+)$', body, re.MULTILINE)}
             missing = REQUIRED - found
             if missing:
                 print(f'  MISSING SECTIONS {missing}: {path}', file=sys.stderr)
@@ -319,7 +319,7 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
             if len(parts) < 3:
                 continue
             body = parts[2]
-            found = {m.group(1).strip() for m in re.finditer(r'^## (.+)$', body, re.MULTILINE)}
+            found = {re.sub(r'\s*\*\*\((?:QUICK|STANDARD|DEEP)\)\*\*\s*', '', m.group(1)).strip() for m in re.finditer(r'^## (.+)$', body, re.MULTILINE)}
             if 'State Log' not in found:
                 print(f'  MISSING State Log section: {path}', file=sys.stderr)
                 errors += 1

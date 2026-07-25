@@ -136,6 +136,15 @@ Master security engineers think like attackers, not defenders. They don't ask "i
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+| Scale | Security Posture | You Focus On |
+|-------|-----------------|--------------|
+| **Solo** | Single app, single cloud account, $0 budget | OWASP ZAP for DAST, Semgrep OSS for SAST, gitleaks for secret scanning, manual threat modeling with pen and paper. Free tier of every tool. Monthly manual security review of critical paths. |
+| **Small Team** (2-10) | 5-20 services, one cloud account, $200-500/mo budget | CI-integrated SAST blocking on PRs, Snyk/Burp Suite Community, npm audit/trivy in CI, Wazuh SIEM, HashiCorp Vault Community. Quarterly pentests. One dedicated security engineer. |
+| **Medium** (10-50) | 20-100 services, multi-account cloud, $5K-20K/mo budget | Burp Suite Pro, Snyk Team, centralized SIEM (Elastic Security/Splunk), CSPM (Wiz/Prisma Cloud), bug bounty program (private), dedicated AppSec team. Continuous red team exercises. SOC 2 Type II. |
+| **Enterprise** (50+) | 100+ services, multi-account/multi-cloud, $50K+/mo | Full AppSec program: SAST + DAST + IAST + RASP, Veracode/Checkmarx, Synopsys Black Duck, HackerOne public bounty, dedicated SOC with 24/7 monitoring, continuous threat hunting. SOC 2 Type II + ISO 27001 + FedRAMP. |
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Conducting threat modeling sessions using STRIDE, PASTA, or attack trees
@@ -150,7 +159,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Use `/security-reviewer` instead** when: You need a code-level security review of a PR, dependency audit on a specific change, or SAST finding triage. Security-engineer builds the security program; security-reviewer inspects individual changes against it.
 - **Use `/incident-responder` instead** when: A security incident is in progress or has just been detected — active containment, eradication, and recovery. Security-engineer builds preventive controls; incident-responder handles active breaches.
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Threat Modeling Depth
 
@@ -183,7 +192,7 @@ Team size?
 
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Threat Modeling and Risk Assessment
@@ -248,6 +257,19 @@ Team size?
 ```
 
 
+## Best Practices
+
+1. **Threat model early and continuously.** Run STRIDE-per-element on every new feature before code is written. Schedule quarterly threat model reviews for all Tier 1 services — a threat model from 6 months ago is archaeology, not security. Use OWASP Threat Dragon or Microsoft Threat Modeling Tool to produce shareable, version-controlled diagrams.
+2. **Implement defense in depth.** Never rely on a single security control. Layer WAF at the edge, security groups at the network, IAM conditions at the identity layer, and parameterized queries at the application layer. When one control fails — and it will — the next layer must catch the threat. Attackers must defeat every layer; defenders only need one layer to hold.
+3. **Enforce least privilege by default.** Start with deny-all IAM policies and add only the permissions proven necessary through observed API calls. Use IAM Access Analyzer to identify overly permissive roles quarterly. Implement just-in-time access for privileged operations — nobody has standing admin access; elevation requires approval, is time-bound, and is auto-revoked.
+4. **Adopt secure defaults across the stack.** Enable S3 Block Public Access at the account level. Require MFA for all human users — hardware security keys for admins. Enforce IMDSv2 on all EC2 instances. Default to TLS 1.2+ with strong cipher suites. The best security control is the one the developer never has to remember to enable.
+5. **Never log, echo, or commit secrets.** Use pre-commit hooks (detect-secrets, gitleaks) to block secrets at commit time. Centralize all secrets in a dedicated vault (HashiCorp Vault, AWS Secrets Manager). Use dynamic, ephemeral credentials for databases — never static connection strings. For CI/CD, use OIDC federation instead of long-lived API keys.
+6. **Instrument security monitoring with a SIEM.** Aggregate CloudTrail, VPC Flow Logs, WAF logs, and application audit logs into a centralized SIEM (Splunk, Elastic Security, Microsoft Sentinel). Define detection rules for credential brute-force, privilege escalation, data exfiltration, and crypto mining. Tune alerting to maintain an actionable signal-to-noise ratio below 20% false positives.
+7. **Automate compliance with CSPM.** Deploy a Cloud Security Posture Management tool (Wiz, Prisma Cloud, AWS Security Hub) to continuously monitor for misconfigurations. Configure auto-remediation for critical findings (public S3 buckets, security groups open to 0.0.0.0/0, unencrypted data stores). Compliance-as-code means the control is enforced before the auditor asks.
+8. **Harden APIs against OWASP Top 10.** Implement rate limiting at the API gateway. Validate and sanitize all input against a strict allowlist schema. Use parameterized queries — never string concatenation for SQL. Enforce authorization on every endpoint; never rely on client-side checks. Run SAST (Semgrep, CodeQL) and DAST (OWASP ZAP, Burp Suite) in CI/CD.
+9. **Build a zero trust architecture.** Never trust, always verify — authenticate every request regardless of source network. Implement micro-segmentation with default-deny network policies. Use mutual TLS for service-to-service communication. Continuously verify device posture and session context before granting access.
+10. **Practice incident response before you need it.** Write runbooks for top 10 failure modes and test them quarterly with tabletop exercises. Conduct game days and chaos engineering experiments. Measure MTTD (detect), MTTA (acknowledge), and MTTR (resolve) — if you're not measuring response time, you're not managing it.
+
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -294,6 +316,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+- [ ] Every production repository runs SAST (Semgrep/CodeQL) in CI with blocking mode enabled for net-new HIGH/CRITICAL findings on PRs
+- [ ] SCA scanning (Dependabot/Snyk/Trivy) runs on every CI build with CRITICAL CVE blocking; CVEs in CISA KEV catalog trigger incident response within 24 hours
+- [ ] Secret scanning runs as pre-commit hook AND in CI pipeline — gitleaks, detect-secrets, or GitHub push protection blocks commits containing credentials
+- [ ] All secrets are centralized in a managed vault (HashiCorp Vault, AWS Secrets Manager, GCP Secret Manager) with automatic rotation enabled for database passwords, API keys, and TLS certificates
+- [ ] IAM hardened: zero IAM users with programmatic access keys older than 90 days, root account has hardware MFA and zero access keys, all human access uses SSO federation with MFA
+- [ ] Network security: no security group ingress rules with 0.0.0.0/0 on sensitive ports (22, 3389, 3306, 5432, 6379, 27017), WAF deployed on all public-facing endpoints, DDoS protection active
+- [ ] S3 Block Public Access enabled at the account level; all data stores encrypted at rest with KMS-managed keys and automatic key rotation
+- [ ] CloudTrail/Audit Logs enabled in all regions with log file validation, SSE-KMS encryption, and multi-region aggregation; SIEM ingests logs continuously
+- [ ] Zero standing administrative access: just-in-time elevation with approval workflow, time-bound grants, and automatic revocation; break-glass procedure documented and tested
+- [ ] Authentication hardened: MFA enforced for all human users, OAuth2/OIDC with short-lived tokens and refresh token rotation, session invalidation on logout
+- [ ] Incident response readiness: top 10 failure mode runbooks tested within last quarter, on-call rotation verified, game day exercise conducted within last 6 months
+- [ ] Dependency and container scanning: full-depth transitive dependency scan on every build, container images signed with cosign, admission control blocks unsigned images in production
+- [ ] Security review gate enforced on all PRs touching auth, crypto, session management, or API key handling — never self-merge without independent review
+- [ ] Vulnerability SLA enforced: CRITICAL CVEs patched within 24 hours, HIGH within 7 days, MEDIUM within 30 days; SLA breach triggers escalation to security leadership
+
 ## What Good Looks Like
 
 > Every pull request runs SAST, SCA, and container scanning in CI, and critical findings block merge without exception.
@@ -301,7 +340,7 @@ Before beginning a new phase, verify:
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -361,7 +400,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
-## Gotchas
+## Anti-Patterns
 
 - **`crypto.randomBytes()` vs `Math.random()`**: `Math.random()` is a PRNG seeded from the current time (predictable). Using it for token generation produces tokens that can be brute-forced in minutes. All security tokens MUST use `crypto.randomBytes()` or equivalent CSPRNG.
 - **`bcrypt` has a 72-byte input limit** for the password. Passwords longer than 72 bytes are truncated silently. `sha256(password)` before bcrypt avoids truncation but reduces entropy if the sha256 output has known patterns. Use `bcrypt(sha512(password))` or switch to `argon2`.

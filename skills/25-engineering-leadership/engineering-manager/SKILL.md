@@ -176,6 +176,20 @@ Engineering management skill scales from managing individuals to managing manage
 
 **Usage**: Say "as an L3 engineering manager, help me handle a performance issue with..." Default: **L2** (team-level management, independent execution).
 
+### Scale Depth — Team Size Context
+
+#### Team of 3-5 engineers
+Focus: individual relationships, 1:1 mastery, basic sprint process. Run: 30-minute weekly 1:1s with every report. Process: lightweight — daily standup, biweekly sprint planning, monthly retro. Hiring: EM does all sourcing and interviewing. Career: discuss growth goals in every 1:1. Key risk: micromanagement — EM still writing code "to help out" instead of enabling the team.
+
+#### Team of 6-10 engineers
+Focus: team dynamics, delegation, process optimization. Run: 1:1s weekly for new reports, biweekly for senior. Process: structured sprint planning with velocity tracking, quarterly OKRs. Hiring: EM + 1-2 senior engineers share interview load. Career: quarterly career checkpoints with documented growth plans. Key risk: becoming a bottleneck — all decisions flow through EM. Delegate technical decisions to tech lead, process decisions to team.
+
+#### Multiple teams (2-3 teams, 12-25 engineers)
+Focus: cross-team coordination, EM development, org design. Run: weekly tech leads sync, monthly EM peer group. Process: team-level autonomy with shared standards (code review, on-call, deployment). Hiring: recruiting pipeline managed by EM, interviews distributed across seniors. Career: promotion packets prepared quarterly, calibration across teams. Key risk: inconsistent standards across teams — one team ships fast with tech debt, another is paralyzed by process.
+
+#### Department (4+ teams, 25-50 engineers)
+Focus: organizational systems, culture at scale, manager development. Run: monthly all-hands, quarterly offsites, annual engagement survey. Process: platform team for shared infrastructure, architecture review board for cross-team decisions. Hiring: dedicated recruiting support, university pipeline, employer brand investment. Career: leveling guides with behavioral anchors, promotion committees, career tracks (IC and management). Key risk: loss of connection to individual contributors — Director level needs skip-levels to stay grounded.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -189,6 +203,8 @@ Engineering management skill scales from managing individuals to managing manage
 
 ## Decision Trees
 
+**(QUICK)**
+
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
 <!-- STANDARD: 3min -->
@@ -196,6 +212,8 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 ### 1. Performance Issue Handling... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+
+**(STANDARD)**
 
 <!-- STANDARD: 3min -->
 
@@ -243,6 +261,8 @@ Your team ships. You're accountable for what ships, when, and at what quality. Y
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -254,6 +274,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **1:1s are your most important meeting — 30 minutes weekly, never cancelled.** Structure: 10 minutes for them (what's on their mind), 10 minutes for you (feedback, alignment, coaching), 10 minutes for growth (career goals, skill development). Cancelling a 1:1 tells the report they're not a priority. The damage compounds: 3 cancellations in a row = the report stops bringing real issues because "it doesn't matter anyway." A 30-minute 1:1 costs $75-150; an engineer who leaves because they felt unheard costs $50K-$150K to replace.
+
+2. **Performance issues must be addressed within 2 weeks of detection, not at the next review cycle.** Waiting 6 months to address underperformance means: the report thinks everything is fine (no feedback = approval), the team wonders why you tolerate mediocrity, and the problem has compounded. The conversation framework: (1) specific behavior observed, (2) impact on team/goals, (3) clear expectation, (4) timeline for improvement (2-4 weeks), (5) consequences if not met. Document in writing after every conversation.
+
+3. **Team health is measured, not felt.** Track: eNPS (quarterly), attrition rate (monthly), 1:1 consistency (weekly), sprint predictability (biweekly), psychological safety score (quarterly survey: "I can raise problems without fear of blame" 1-5). A team that "feels fine" but has 30% attrition and 0% sprint predictability is not fine. Data reveals problems 3-6 months before they become obvious.
+
+4. **Sprint planning is a commitment, not a wish list.** Teams that consistently deliver <60% of sprint commitments lose trust with stakeholders and burn out engineers who feel like they're "always behind." Plan based on trailing 6-sprint average velocity. Leave 20% buffer for interruptions, on-call, and tech debt. If everything is P0, nothing is — the EM's job is to enforce priority, not accept all requests.
+
+5. **Career development is a weekly conversation, not an annual review.** Every 1:1 should include: "What skill are you building this month?" and "What project would stretch you?" By the time the annual review arrives, nothing should be a surprise. The EM who only discusses growth at review time is an EM whose reports are already interviewing elsewhere.
+
+6. **Psychological safety is the foundation — without it, all other practices fail.** Engineers who fear blame hide mistakes. Hidden mistakes compound into incidents. Incidents without blameless post-mortems breed more fear. Break the cycle: model vulnerability ("I was wrong about that architecture decision"), celebrate learning from failure, never punish honest mistakes. A team without psychological safety ships slower because every decision requires CYA documentation.
+
+7. **Delegate outcomes, not tasks.** "Implement this API with these 5 endpoints by Friday" is task delegation — the engineer learns nothing about why. "We need the checkout flow to support saved payment methods; what's your approach?" is outcome delegation — the engineer owns the problem and grows from solving it. Task delegation scales to ~3 reports before the EM becomes a bottleneck. Outcome delegation scales to 8-10 reports.
+
+8. **Hiring is the highest-leverage activity an EM does.** A great hire delivers 3-5x the output of an average hire over 2 years. A bad hire costs 12-18 months of team productivity (hiring time + ramp-up + managed-out time). EMs should spend 15-20% of their time on hiring: sourcing, interviewing, closing. Never delegate culture-fit assessment to a committee — the EM owns team composition.
+
+9. **Run blameless post-mortems for every incident, not just SEV-1s.** The goal is learning, not assigning fault. Every incident has a timeline, contributing factors, and action items. Without a post-mortem, the same incident class recurs within 90 days. The EM's role: ensure the process produces actionable learnings, not a list of "be more careful" items. Action items must be specific, assigned, and tracked to completion.
+
+10. **Your calendar reflects your real priorities — audit it quarterly.** If you say people development is priority #1 but your calendar shows 0 hours of 1:1 prep, 0 hours of career ladder work, and 30 hours of project management meetings, people development is not your priority. Match your calendar to your stated priorities. Delegate, decline, or delete everything that doesn't align.
 
 ## Cross-Skill Coordination
 
@@ -386,7 +428,7 @@ After every difficult conversation: write down what you said, what they said, an
 
 **Write a "user manual for working with me" and ask each report to write theirs.** Share yours first — include your communication preferences, pet peeves, how you like to receive feedback, and when you're at your best/worst. Vulnerability from the leader creates permission for the team.
 
-## Gotchas
+## Anti-Patterns
 
 - **Promoting your best IC to engineering manager without training — the "fail two ways" trap.** You take your strongest senior engineer — the one who ships 40% of the team's critical code — and promote them to engineering manager with a "you'll figure it out" handoff. Two bad things happen simultaneously: you lose your highest-output individual contributor (40% productivity gap that takes 6-12 months to backfill), and you gain an untrained manager who doesn't know how to run 1:1s, give feedback, or manage performance. The team's output drops 30-50% within two quarters as the new manager struggles and the remaining engineers lose their technical anchor. **Total cost: $200K-$500K in combined team productivity loss (lost IC output + reduced team velocity) over the first year.** Require a 90-day management training program with mentorship, coaching, and a gradual transition (30/60/90 day ramp from 80% IC to 80% manager) before any IC-to-manager promotion.
 - **1:1s without structure — the "status update only" meeting.** You run weekly 1:1s where the engineer recites Jira tickets for 25 minutes and you nod along. The real 1:1 value — career conversations, interpersonal friction, organizational blockers, feedback on YOUR leadership — never surfaces because there's no agenda, no trust-building framework, and no consistent cadence. A 7-person team with unstructured 1:1s accumulates 2-3 unresolved issues that fester for 6-12 months before becoming a resignation trigger, and replacing a single senior engineer costs $80K-$150K in recruiting fees, ramp-up time, and lost institutional knowledge. **Total cost: $50K-$150K in unresolved issues festering into preventable attrition.** Use a rotating 1:1 agenda structure (Career/Goals week 1, Team Dynamics week 2, Project Health week 3, Open Forum week 4) and spend 70% of the time on THEIR topics, not status.
@@ -421,6 +463,23 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[EM1]** 1:1 cadence healthy: every direct report had 30-minute 1:1 in last 2 weeks — zero cancellations without reschedule within same week
+- [ ] **[EM2]** Performance feedback documented: every direct report received written feedback in last quarter — strengths, areas for growth, specific examples
+- [ ] **[EM3]** Career development plans exist for every engineer: documented goals, skill gap analysis, stretch project identified, promotion timeline estimated
+- [ ] **[EM4]** Sprint predictability tracked: committed/delivered ratio 80-120% for last 6 sprints — persistent under-delivery addressed with team
+- [ ] **[EM5]** Team health metrics reviewed monthly: eNPS (target >30), attrition (<20% annualized), psychological safety (>80% agree "can raise problems without fear")
+- [ ] **[EM6]** Hiring pipeline active: open roles have job descriptions, interview panels assigned, sourcing channels active, time-to-fill <60 days
+- [ ] **[EM7]** Blameless post-mortems completed for all SEV-2+ incidents within 5 business days — action items assigned, tracked, and closed within 30 days
+- [ ] **[EM8]** Technical debt tracked and prioritized: top 3 items have owners, estimated effort, and quarterly remediation progress — interest rate (drag on velocity) quantified
+- [ ] **[EM9]** Team recognizes priorities: every engineer can articulate the team's #1 goal this quarter and how their work connects to it
+- [ ] **[EM10]** Recognition practiced: team members recognized for specific contributions at least monthly — in 1:1s, team meetings, or company channels
+- [ ] **[EM11]** No performance surprises: zero engineers receiving "needs improvement" rating who hadn't received documented feedback within 30 days of issue
+- [ ] **[EM12]** EM's calendar reflects stated priorities: 30%+ people development (1:1s, coaching, hiring), 30%+ delivery accountability, <20% "other"
+
 ## References
 
 Detailed reference material loaded on demand:
@@ -433,4 +492,15 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|----------|-----------|------|------------|
+| Engineer blindsided by "needs improvement" rating at review — "This is the first I'm hearing of any problem" | EM avoided difficult conversations for 6-12 months. Feedback was either not given or so softened the message was lost. The engineer genuinely believed they were meeting expectations | Immediate: acknowledge failure, apologize for lack of earlier feedback, shift conversation to forward-looking improvement plan. Retrospective: EM must give feedback within 2 weeks of observing issue, in writing, with specific behavior → impact → expectation → timeline | Rule: no "needs improvement" rating without at least 2 prior documented feedback conversations. EM coaching on delivering critical feedback in first 90 days as manager |
+| Sprint commitment 40 points, delivery 15 points — 5th sprint in a row | Team overcommitting because EM doesn't push back on product pressure. No historical data informing planning. "This sprint will be different" optimism bias | Freeze new commitments. Plan next 3 sprints at trailing 6-sprint average velocity. If average is 20 points, commit 18 max (with 20% buffer). Track committed/delivered ratio. EM's job: say no to product, protect team from overcommitment | Sprint review includes committed vs delivered chart. >2 sprints below 70% triggers EM development plan on stakeholder management |
+| Team of 8 engineers — 3 are interviewing elsewhere according to backchannel | Silent attrition brewing. 1:1s are status updates ("What are you working on?") instead of relationship-building. Engineers don't raise concerns because "nothing will change" | Run stay interviews this week with every engineer: "What would make you leave?" "What's frustrating you most right now?" "What decision do you wish leadership had made differently?" Address the #1 theme within 2 weeks and communicate what you're doing about it | 1:1 protocol: never start with status. Start with them: "What's on your mind?" Document themes monthly. >1 engineer citing same concern = systemic issue requiring action |
+| EM working 60+ hours, team working 40 — EM is the bottleneck for every decision | EM never delegated. Every technical decision, design review, and stakeholder update routes through EM. Team waits 2 days for EM approval on routine matters | Identify every decision you made this week. For each: could a senior engineer make this? A tech lead? Delegate with decision rights, not just tasks. "You own the architecture for this feature — I trust your judgment. Escalate only if it affects other teams or budget" | Rule: EM should not be the approver for any decision that a senior engineer is qualified to make. Delegate 1 decision type per month until EM workload drops to 45 hours |
+| Hiring pipeline: 3 open roles, 0 candidates in final stage after 2 months | EM treats hiring as "when I have time" activity. No dedicated sourcing time, no referral outreach, interview panel not calibrated — candidates have poor experience and drop out | Block 4 hours/week on calendar for hiring. Personally source 5 candidates/week (LinkedIn, GitHub, referrals). Ask every team member for 3 referrals. Calibrate interview panel: every interviewer knows what signal they're evaluating. Candidate experience: same-day feedback after every stage | Hiring dashboard: candidates in pipeline per stage, time-in-stage, source channel. <5 candidates in initial screen = sourcing problem. >50% dropout at any stage = process problem |
+| Post-mortem action items from 3 months ago still not done — same incident type recurred | Action items were generic ("improve monitoring," "add more tests") without owners or deadlines. No tracking system. No accountability for completion | Resurrect the action items. Rewrite as SMART: specific, measurable, assigned, realistic, time-bound. "Add P99 latency alert for checkout API — assigned to Alice, due March 15, alert fires if P99 >500ms for 5min." Track in same system as sprint work | Post-mortem template includes action item table with: description, owner, due date, status. Monthly review of open post-mortem items. >30 days overdue = escalation to Director |
 

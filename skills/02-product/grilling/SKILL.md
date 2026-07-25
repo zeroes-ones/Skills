@@ -137,6 +137,8 @@ What are you trying to do?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 ### Phase 1: Map the Tree
 
 Before asking any questions, understand the shape of the decision.
@@ -210,7 +212,42 @@ For each branch B in dependency order:
    |-- If restatement diverges → the branch was not truly resolved. Return to the divergent branch.
 ```
 
+## Best Practices
+
+1. **One question at a time — no exceptions.** The power of grilling comes from relentless focus on one branch until it's fully resolved. Batching questions buries the hard ones. The PM who asks "What's the problem, who has it, and how do we solve it?" will get an answer to the third question and build the wrong thing. Ground Rule R1 is non-negotiable.
+
+2. **Walk leaves before roots — dependency ordering is everything.** Resolve decisions that have no dependencies first. A team that debates "monolith vs microservices" before deciding "what scale do we expect?" is debating architecture in a vacuum. Topological sort the decision tree: leaves first, work upward, resolve the root last.
+
+3. **Every assertion is an assumption until proven otherwise.** When a stakeholder says "users need real-time updates," ask "Is that verified or assumed?" Unverified assertions become branches in the tree: "What would we do if users are fine with 30-second polling instead?" The most expensive mistakes trace back to assumptions that survived because nobody asked.
+
+4. **The root question frames the entire tree — get it right.** "Which database should we use?" is not a root question — it depends on "What kind of data do we have?" and "What scale do we expect?" The root is the ONE decision everything else depends on. A wrong root wastes the entire grilling session. Ask: "If this decision were resolved, would everything else become answerable?"
+
+5. **Surfacing hidden assumptions is more valuable than resolving stated questions.** The assumption nobody thought to question destroys more projects than the decision everyone debated. Before walking branches, ask: "What is the ONE thing that, if false, would invalidate this entire tree?" Make that the first branch. A team grilled their auth architecture for 18 branches — but never questioned "users have email addresses." 40% of their target market didn't.
+
+6. **Deferred decisions MUST have a resolution deadline, not "later."** A team deferred "monolith vs microservices" during grilling. Three months later, the codebase was structured around microservices by default. The decision was made by NOT deciding — and the most complex option was the one that silently won. Every DEFERRED branch gets a 2-week resolution deadline. After 2 weeks, the default is the SIMPLEST option.
+
+7. **Completion is objective — every branch marked, no exceptions.** "Feels done" guarantees unexplored branches. A startup declared their pricing model "grilled" after exploring 6 of 14 branches. The unexplored branch "what if a competitor drops prices by 50%?" happened 4 months later and cratered their conversion rate. The completion criterion: every branch RESOLVED, DEFERRED, or ASSUMED. Walk the tree and verify.
+
+8. **Grill with the decision-maker in the room.** A team lead grilled their team about a database choice, documented the tree, and presented it to the CTO. The CTO had different assumptions about scale (100K vs 10M users) that changed every branch. The entire session had to be redone at a cost of $6,500 in duplicated time. Identify who has veto power BEFORE starting.
+
+9. **The 15-branch limit — grilling has diminishing returns.** After branch #15 on a single decision tree, each additional branch contributes < 2% to decision quality. After 15 branches, run the completion check. If all CRITICAL and HIGH branches are resolved, stop. The remaining MEDIUM and LOW branches can be documented as residual uncertainty.
+
+10. **Shared understanding confirmation is the final gate.** After the tree is resolved, ask: "Restate the decision and its rationale in your own words." If the restatement diverges from the tree, the branch was not truly resolved. Return to the divergent branch. The tree is not complete until everyone can explain the decision without referencing the artifact.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Just one more question" — session runs 4 hours, 47 branches explored, final decision identical to branch #12 | Diminishing returns. After 15 branches, each additional branch contributes < 2% to decision quality. The extra 35 branches cost $4,200 in time with zero decision improvement. | After 15 branches, run the completion check. If all CRITICAL and HIGH branches are resolved, stop. Document MEDIUM/LOW as residual uncertainty. | Grilling is a tool, not a lifestyle. Know when to stop. |
+| External dependency chosen without asking "what happens when this fails?" | The assumption that survived because nobody asked. A payment provider with 99.5% uptime SLA produced 2 hours of downtime during Black Friday — $127K in lost revenue. | For every external dependency, the branch "what happens when this fails?" is mandatory, not optional. Explore fallback, degradation, and recovery. | Every dependency is a failure mode waiting to happen. Grill it or insure against it. |
+| Deferred architecture decision silently defaults to the most complex option | "We'll decide monolith vs microservices later." Three months of development assumed microservices. The deferred decision cost $180K in architectural lock-in. | DEFERRED branches get a 2-week resolution deadline. After 2 weeks, the default is the SIMPLEST option, not the one the code is drifting toward. | Not deciding IS a decision. It defaults to the path of least resistance — which is usually the most complex. |
+| Grilling session redone because decision-maker wasn't present | Team grilled database choice with their team. CTO had different scale assumptions (100K vs 10M users) that changed every branch. $6,500 in duplicated time. | Identify who has veto power BEFORE starting. If they cannot attend, document assumptions explicitly and get sign-off before walking branches. | Grilling without decision-makers is rehearsal, not decision-making. |
+| "We grilled it so it must be right" — architecture fails because of unexamined root assumption | The tree was thorough (18 branches, all resolved) but INCOMPLETE — a missing root branch. "Users have email addresses" was never questioned, and 40% of the target market didn't have one. | Before walking branches, ask "What is the ONE thing that, if false, would invalidate this entire tree?" Make that the first branch. | A perfectly grilled incomplete tree is more dangerous than an ungrilled decision — it produces false confidence. |
+| Batching questions: PM asks 3 questions at once, user answers only the last one | "What's the problem, who has it, and how do we solve it?" User answered "how to solve it" and ignored the actual problem. Team built a beautiful feature 2% of users needed. $140K wasted. | Ground Rule R1: one question, always. If the user tries to skip ahead, restate: "Before we get to the solution, I need to understand the problem." | Batching questions is the shortest path to building the wrong thing. |
+
 ## Decision Trees
+
+**(QUICK)**
 
 ### Dependency Graph Walking
 
@@ -384,6 +421,8 @@ For each branch B in dependency order:
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -525,7 +564,7 @@ Take a decision you think is "done." Walk the decision tree. For each branch, as
 ### Exercise 5: Circular Discussion Breaker (20 min)
 Next time your team is in a circular discussion, step in as the griller. Ask each person: "What is the ONE thing that, if resolved, would unlock this?" Grill that root. Time how long it takes to reach resolution vs the unguided discussion. Compare.
 
-## Gotchas
+## Anti-Patterns
 
 - **The "just one more question" trap.** Grilling has diminishing returns. After branch #15 on a single decision tree, each additional branch contributes < 2% to decision quality. A product team grilled a pricing model decision for 4 hours across 3 sessions — 47 branches explored. The final decision was identical to what they would have chosen after branch #12. The extra 35 branches cost $4,200 in engineering time with zero decision improvement. **Total cost: $2K-$8K per over-grilled decision in wasted time. Prevent: after 15 branches, run the completion check. If all CRITICAL and HIGH branches are resolved, stop.**
 
@@ -577,6 +616,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[GR1]** Root decision identified: ONE specific decision stated in one sentence; compound decisions split into separate branches
+- [ ] **[GR2]** Decision tree mapped: all branches documented with dependency arrows; leaf nodes identified for first walking
+- [ ] **[GR3]** Dependency order verified: branches walked from leaves to root; no branch resolved before its dependencies
+- [ ] **[GR4]** All branches explored: every branch has status RESOLVED, DEFERRED, or ASSUMED; no UNEXPLORED branches remain
+- [ ] **[GR5]** Assumptions surfaced: every statement made without evidence flagged and treated as a branch; assumption inventory complete
+- [ ] **[GR6]** Circular reasoning absent: for each decision, the "why" chain terminates in evidence or explicit assumption, not another decision
+- [ ] **[GR7]** Deferrals have dates: every DEFERRED branch has a concrete resolution date and responsible person; "later" is not a date
+- [ ] **[GR8]** 15-branch limit respected: if >15 branches on one tree, completion check run; CRITICAL/HIGH branches resolved, remainder documented
+- [ ] **[GR9]** Decision-maker present: veto-holder identified and participated; if absent, assumptions documented and sign-off obtained before walking
+- [ ] **[GR10]** Completion objective: decision tree artifact complete; no subjective "feels done" — every branch has a resolution status
+- [ ] **[GR11]** Root assumption challenged: "What is the ONE thing that, if false, would invalidate this entire tree?" answered and made first branch
+- [ ] **[GR12]** Shared understanding confirmed: user restated the decision and rationale in their own words; no divergence from documented tree
 
 ## References
 

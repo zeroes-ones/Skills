@@ -138,7 +138,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 - Migrating from Electron to Tauri for reduced bundle size and memory footprint
 - Implementing accessibility (screen readers, keyboard navigation) in desktop webviews
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- COMPRESSED: Full 188 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -149,7 +149,20 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 ...
 > 📎 **Full content (188 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees
+## Best Practices
+
+1. **Isolate the renderer process with `contextIsolation: true` and `nodeIntegration: false`** — Expose only needed APIs via `contextBridge.exposeInMainWorld()`. Each exposed method must validate its inputs. The preload script is the ONLY file that imports `electron`.
+2. **Typed IPC contracts with request/response pattern** — `ipcMain.handle('channel', async (event, args) => ...)` returns promises to the renderer. Define input schemas per channel; never use `ipcRenderer.sendSync()` which blocks the renderer thread.
+3. **Auto-update with differential updates using `electron-updater`** — Serve `latest.yml` with SHA512 hashes. For Tauri, use the built-in updater with `pubkey` verification. Always include a rollback mechanism — if the new version fails to launch N times, revert to the previous version.
+4. **Window state persistence across sessions** — Save bounds (`x`, `y`, `width`, `height`), `isMaximized`, and display ID. On restore, validate the window is fully visible on at least one connected display before positioning.
+5. **Code signing BEFORE your first public release** — EV code signing certificate for Windows SmartScreen reputation. macOS notarization via `xcrun notarytool`. Signing must happen in CI; never sign locally. Unsigned Windows builds lose 60%+ of installs at the SmartScreen warning.
+6. **File system operations use atomic writes** — Write to temp file, `fsync`, then `rename()`. Cloud-sync services (OneDrive, Dropbox) lock files during sync; retry `EBUSY` with exponential backoff (100ms→200ms→400ms→800ms).
+7. **GPU process crash recovery** — Check `canvas.getContext('webgl')` on startup; if null, fall back to 2D canvas or disable hardware acceleration. Track GPU crash count metric; if it exceeds threshold, auto-disable `--disable-gpu`.
+8. **Per-monitor DPI awareness on Windows** — Set `ENABLE_PER_MONITOR_DPI_AWARE_V2` manifest flag. Listen for `display-metrics-changed` events and re-render at native resolution. Use relative units (`rem`, `em`, `%`) in CSS, never pixel-based scaling via `transform: scale()`.
+9. **Native modules compiled for all target platforms in CI** — N-API for Electron (C/C++), `uniffi` or raw FFI for Tauri (Rust). Distribute prebuilt binaries via `@mapbox/node-pre-gyp` or `napi-rs`. Never require users to compile native code at install time.
+10. **Silent installer testing on clean VMs** — Test `start /wait MyAppSetup.exe /S` on a fresh Windows VM, `hdiutil attach MyApp.dmg` on a clean macOS VM. The installer IS the first product experience — SmartScreen or Gatekeeper warnings at install permanently reduce trust.
+
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -321,7 +334,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 **When AppImage:** Linux portable. Single file, no install needed. Works on any distro.  
 **When MSIX:** Windows Store. Sandboxed, clean install/uninstall. Automatic Store updates. Limited filesystem access.
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -423,7 +436,7 @@ Common chains:
 ### The One Thing
 **Ship a desktop app with auto-update, code signing, and crash reporting to 10 real users every quarter.** Nothing exposes gaps like real users on real hardware. Their antivirus will flag your unsigned build. Their HiDPI display will break your layout. Their corporate proxy will block your update server. You cannot simulate these — you must experience them.
 
-## Gotchas
+## Anti-Patterns
 
 > **NEVER enable `nodeIntegration: true` in production.** This is the single most dangerous Electron misconfiguration — it grants any XSS in your renderer full OS shell access. Audit: `grep -rn 'nodeIntegration.*true'` must return zero results in production configs.
 
@@ -497,6 +510,8 @@ Detailed reference material loaded on demand:
 | 10K-100K | Crash reports flood in, need telemetry | Sentry/Bugsnag native + JS, crash rate target <0.1%, automated crash triage |
 | 100K+ | Store compliance, legal review, localization | Microsoft Store ingestion, Mac App Store sandbox, GDPR consent, 12-language installer |
 
+**Transition Triggers:** When 10+ users report version-related bugs → add auto-update. When CDN bandwidth exceeds 100GB/month → differential updates. When crash rate exceeds 0.1% → Sentry/Bugsnag with automated triage. When legal/enterprise customers request GDPR compliance → dedicated compliance review with data audit.
+
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -543,7 +558,7 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
-## Production Checklist
+## Production Checklist **(DEEP)**
 
 - [ ] `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true` (Electron)
 - [ ] Preload script is the ONLY file importing `ipcRenderer` from `electron`

@@ -152,7 +152,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Use `/security-engineer` instead** when: You need to design or implement a detection rule, SIEM correlation, or security control. Threat intelligence informs what to detect; security engineering implements the detection.
 - **Use `/ceo-strategist` or `/cto-advisor` instead** when: You need to make a business decision based on threat intelligence (budget allocation, insurance coverage, market entry risk). Threat intelligence provides the threat picture; these skills translate it to business decisions.
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Intelligence Level Selection
 
@@ -253,7 +253,7 @@ Who needs to receive your intelligence?
       Two-way: You share indicators → government enriches and redistributes anonymized intelligence.
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~30 min): Direction — Defining Intelligence Requirements
@@ -344,6 +344,27 @@ Who needs to receive your intelligence?
 /threat-intelligence-analyst && /security-reviewer && /compliance-officer
 ```
 
+## Best Practices
+
+1. **IOC lifecycle management: every indicator has an expiration date and a confidence score.** Network IOCs (IPs, domains): expire in 14 days unless revalidated. Host IOCs (file paths, registry keys): 30 days. File hashes: 90 days. Confidence scores: High (multiple corroborating sources, consistent over time), Moderate (partially corroborated, plausible), Low (single source, uncorroborated — treat as a lead). Expired IOCs still have forensic value but should not generate active alerts.
+
+2. **TTP mapping is the gold standard — IOCs are the bottom of the Pyramid of Pain.** Mapping adversary behavior to MITRE ATT&CK technique → sub-technique → procedure enables detection engineering that forces adversaries to change TTPs. IOCs change within hours; tools change within weeks; procedures change within months; TTPs take years to evolve. Prioritize intelligence at the TTP level: an ATT&CK technique mapped to a specific adversary procedure is worth 10,000 IP addresses.
+
+3. **Intelligence source vetting: Admiralty Code for every source.** Grade sources by reliability (A=completely reliable, B=usually reliable, C=fairly reliable, D=not usually reliable, E=unreliable, F=cannot be judged) and credibility (1=confirmed by other sources, 2=probably true, 3=possibly true, 4=doubtful, 5=improbable, 6=cannot be judged). An A1 source produces high-confidence intelligence; an F6 source is noise. Document source evaluations — during post-incident review, you must know which sources were right and which led you astray.
+
+4. **Actionable vs. noise intelligence: every intelligence product must answer "what do I do with this?"** Tactical intelligence without detection rules is a news article. Operational intelligence without hunt hypotheses is context without application. Strategic intelligence without risk-to-business mapping is an academic paper. Before disseminating: can the consumer take a specific action based on this intelligence within the next 24 hours? If not, it's not intelligence — it's information.
+
+5. **STIX/TAXII sharing protocols: normalize all intelligence to STIX 2.1.** MISP, OpenCTI, and commercial TI platforms all support STIX 2.1 export. Normalizing to STIX enables: cross-platform IOC sharing, automated ingestion by SIEM/EDR, and ISAC/ISAO partner intelligence exchange via TAXII. Apply Traffic Light Protocol (TLP) markings to every STIX object: RED (named recipients only), AMBER (limited distribution), GREEN (community-wide), CLEAR (public). Sanitize before sharing: strip victim identity, internal IPs, specific hostnames.
+
+6. **Threat actor profiling: track adversary groups by motivation, capability, and targeting patterns.** A complete profile includes: known aliases, suspected nation-state affiliation (if any), primary motivation (financial, espionage, hacktivism, destructive), typical targets (sector, geo, tech stack), known TTPs mapped to MITRE ATT&CK, infrastructure patterns (bulletproof hosting, fast-flux DNS, domain generation algorithms), and historical campaigns with timelines. Profiles enable: attribution assessment during incidents, proactive detection engineering for likely adversaries, and strategic risk communication to leadership.
+
+7. **Campaign tracking: link related intrusions by infrastructure, TTP, and target overlap.** When multiple intrusions share C2 infrastructure, malware families, or targeting patterns, they likely belong to the same campaign. Maintain campaign timelines: first observed, peak activity, known victims, infrastructure changes over time. Campaign tracking reveals: adversary operational tempo (are they ramping up?), targeting shifts (new sector?), and infrastructure rotation patterns (predict next C2 domain). This is the difference between seeing individual attacks and understanding adversary operations.
+
+8. **Intelligence dissemination: format for the consumer, not the analyst.** SOC analysts get machine-readable STIX + SIGMA/YARA rules in near-real-time via TAXII. Threat hunters get hypothesis packages: "If [adversary] uses [technique], expect [artifacts] in [data sources] — hunt in [SIEM/EDR/data lake]." CISO gets executive summary: business risk, recommended actions, resource requirements — zero technical indicators. Board gets quarterly strategic brief: threat landscape for our sector, adversary capability trends, risk to business objectives. Intelligence in the wrong format is ignored intelligence.
+
+9. **Feedback loop: measure intelligence effectiveness, not intelligence production volume.** Track: (1) Prevention: how many IOCs were blocked before reaching your environment? (2) Detection: how many intrusions were detected via intelligence-driven rules vs. other means? (3) Time-to-operationalize: from intelligence creation to detection rule deployed — target <4h tactical, <48h operational. (4) Accuracy: false positive rate on intelligence-driven alerts — target <5%. Publishing 50 intelligence reports that nobody acts on is worse than publishing 5 that prevent intrusions.
+
+10. **Internal telemetry is your highest-fidelity intelligence source — integrate TI platform with SIEM/EDR.** External threat feeds tell you what's happening globally. Internal telemetry tells you what's happening in YOUR environment. Correlate external intelligence with EDR telemetry, firewall/proxy logs, DNS logs, and cloud audit trails. A C2 IP from a threat feed that's never been contacted by any internal system is low-priority. That same IP appearing in DNS query logs from a development server at 3 AM is a critical incident.
 
 ## State Log
 
@@ -391,14 +412,69 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before a threat intelligence program goes operational, validate every item. Intelligence failures during an active intrusion are catastrophic — the SOC is blind without current, relevant intelligence.
+
+1. **PIRs (Priority Intelligence Requirements) defined:** Every PIR has: a named consumer (SOC manager, CISO, threat hunting lead), the decision it informs, a collection-to-dissemination pipeline, and a delivery deadline. PIRs reviewed quarterly — are they still the right questions for the current threat landscape?
+
+2. **Collection pipeline healthy:** All feeds receiving data: MISP sync, OpenCTI connectors, commercial TI APIs, OSINT scrapers, internal telemetry (EDR, firewall, DNS, proxy, cloud audit). Any feed silent for >24 hours triggers an alert. API keys verified current, rate limits not exceeded, network egress paths confirmed.
+
+3. **IOC enrichment operational:** All ingested IOCs automatically enriched with: WHOIS, passive DNS, SSL certificate transparency logs, VirusTotal/GreyNoise/Shodan lookups. Enrichment completes within 5 minutes of ingestion. Enrichment API rate limits not exceeded at peak hours.
+
+4. **IOC aging and expiry:** Network IOCs auto-expire at 14 days, host IOCs at 30 days, file hashes at 90 days (unless revalidated). Expired IOCs archived but removed from active detection rules. IOC age distribution monitored — if >50% of active IOCs are >30 days old, collection or validation pipeline is broken.
+
+5. **Adversary profiles populated:** Top 5 relevant threat actors have complete profiles: aliases, motivation, targeting patterns, known TTPs mapped to MITRE ATT&CK, infrastructure patterns, historical campaigns. Profiles updated quarterly or on significant new intelligence about the actor.
+
+6. **STIX 2.1 normalization:** All intelligence normalized to STIX 2.1 for cross-platform compatibility. TLP markings applied to every STIX object. Sanitization checklist enforced before external sharing: strip victim identity, internal IPs, specific hostnames. Second-analyst review for inadvertent PII.
+
+7. **Detection rule deployment pipeline:** New tactical intelligence → detection rule (SIGMA/YARA/Suricata) created → tested against historical telemetry (zero false positives on known-good data) → deployed to SIEM/EDR. End-to-end pipeline target: <4 hours from intelligence creation to rule deployed.
+
+8. **Dissemination format compliance:** Every intelligence product matches consumer format: SOC gets machine-readable STIX + detection rules via TAXII, threat hunters get hypothesis packages, CISO gets executive summary (business risk, zero technical indicators), board gets quarterly strategic brief. Verify by sampling recent disseminations — format mismatch is a process failure.
+
+9. **Feedback loop operational:** Monthly solicitation from every consumer group. Metrics tracked: prevention rate (IOCs blocked before hitting environment), detection rate (intelligence-driven vs. other), time-to-operationalize, false positive rate (<5% target). Consumer feedback shapes next PIR iteration.
+
+10. **ISAC/ISAO participation active:** Membership verified, intelligence sharing operational in both directions (consuming AND contributing). Sanitization process tested: can you share an incident report within 4 hours of peer notification? Intelligence shared with partners within reciprocity agreements.
+
+11. **Intelligence accuracy calibration:** Quarterly accuracy review: compare key judgments against what actually happened. Track accuracy rate by confidence level — does "High confidence" correlate with high accuracy? Identify systematic biases (overestimating APT activity, underestimating cybercriminal innovation). Adjust analytic tradecraft based on findings.
+
+12. **Dark web monitoring operational:** Ransomware leak site monitoring (BlackCat, LockBit, Clop), underground forum monitoring (Exploit, XSS, BreachForums), Telegram channel monitoring for threat actor activity. Alert threshold: your organization or sector mentioned → immediate escalation to CISO and incident response.
+
+If any checklist item fails: STOP. Intelligence gaps during an active threat campaign cause the SOC to operate blind. Document the gap, its operational impact, and resolve before the program goes operational.
+
 ## What Good Looks Like
 
 > Every Priority Intelligence Requirement has a named consumer, a decision it informs, and a collection-to-dissemination pipeline that delivers intelligence before the decision deadline. Every IOC in the platform has an adversary context, a confidence score, an expiration date, and an automated path to operationalization in the SOC detection pipeline. Intelligence consumers receive products in their preferred format at their required cadence — SOC analysts get STIX and SIGMA rules in near-real-time, threat hunters get hypothesis packages weekly, the board gets a risk-focused strategic brief quarterly. The intelligence lifecycle is a continuous feedback loop: consumer feedback shapes the next iteration of PIRs, intelligence gaps are documented and managed as risk decisions, and every intelligence finding that warrants action produces at least one detection rule, prevention control, hunt hypothesis, or risk acceptance within 48 hours.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
+### Scale Depth
 
-## Error Recovery
+#### Solo
+
+**Threat intelligence for a solo security practitioner or small SOC (1-3 analysts).** Use free/open-source tools: MISP (community edition), OpenCTI (community), abuse.ch feeds (URLhaus, ThreatFox, SSL Blacklist), CISA KEV feed. Subscribe to sector-specific ISAC (free for small orgs). Focus: ingest high-confidence IOCs from vetted free feeds, deploy to firewall/proxy blocklists, and monitor for matches. No dedicated CTI analyst — intelligence is a SOC analyst side responsibility. Biggest risk: free feeds without validation produce 40-60% noise. Mitigation: only ingest feeds with documented false positive rates and community vetting.
+
+**Transition trigger:** Dedicated CTI analyst hired, or >100 employees with regulatory requirements → move to Small.
+
+#### Small
+
+**Small security team (3-10 people) with a dedicated CTI function.** Commercial TI feed: Recorded Future, Mandiant, or CrowdStrike Falcon Intelligence (base tier). OpenCTI for intelligence management with STIX 2.1 normalization. Integration: push IOCs to SIEM (Splunk/Elastic) and EDR (CrowdStrike/SentinelOne) via API. PIRs defined for SOC and vulnerability management consumers. Weekly intelligence summaries for security leadership. ISAC/ISAO membership active with two-way sharing. Biggest risk: treating CTI as a research function instead of an operational function — intelligence must drive detection rules, not just reports.
+
+**Transition trigger:** Multiple business units, >500 employees, or 24/7 SOC requiring real-time intelligence feeds → move to Medium.
+
+#### Medium
+
+**Mid-size enterprise (500-2000 employees), dedicated CTI team (3-5 analysts).** Commercial TI platform: Anomali ThreatStream, ThreatConnect, or EclecticIQ for multi-source intelligence management. Multiple TI feeds correlated: commercial (Recorded Future, Mandiant Advantage), open-source (MISP communities), government (CISA AIS, sector ISACs). Threat hunting integration: automated hunt hypothesis generation from adversary TTPs. Dark web monitoring: Recorded Future/Flashpoint/ZeroFox for brand monitoring and credential exposure. Strategic intelligence products: quarterly threat landscape brief for board. Metrics dashboard: prevention rate, detection rate, time-to-operationalize, accuracy.
+
+**Transition trigger:** Global operations, >2000 employees, or critical infrastructure designation → move to Enterprise.
+
+#### Enterprise
+
+**Fortune 500, global enterprise, government agency, or MSSP.** Full-scale TI program: dedicated strategic, operational, and tactical intelligence teams. Multi-source intelligence fusion: HUMINT (human intelligence via industry relationships), SIGINT (dark web/Telegram monitoring), OSINT (automated scraping of 100+ sources), TECHINT (malware reverse engineering). AI/ML: NLP-based threat report ingestion and automatic adversary profiling, anomaly detection in internal telemetry correlated with external intelligence. Red team/CTI feedback loop: CTI drives adversary emulation scenarios, red team findings feed back into adversary profiles. Global threat landscape: region-specific intelligence for APAC, EMEA, Americas. Government partnerships: CISA JCDC, NCSC CiSP, ENISA. Intelligence sharing: ISAC board membership, bi-directional STIX/TAXII with government CERTs.
+
+**Transition triggers:** National security responsibilities, operating critical infrastructure across 3+ continents, or threat intelligence as a revenue-generating service offering.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -466,7 +542,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain an "intelligence accuracy journal." For every key judgment you produce, record: what you assessed, your confidence level, the basis for that confidence, and the date. Review quarterly against what actually happened. Track your accuracy rate, calibration (does "high confidence" actually mean high accuracy?), and specific biases (do you overestimate APT activity? underestimate cybercriminal innovation?). This journal is your personal calibration instrument — in 12 months, you'll know exactly which types of judgments you're good at and which you consistently get wrong.
 
-## Gotchas
+## Anti-Patterns
 
 - **Treating MITRE ATT&CK technique coverage as a scorecard rather than an analysis framework.** "We have detection for 85% of techniques!" — but the 15% you're missing are the specific techniques used by the two APT groups actively targeting your sector. Coverage percentage without adversary context is a vanity metric. ATT&CK is a map for navigating adversary behavior, not a compliance checklist. **Total cost: $100K-$500K in undetected intrusions — an APT operating entirely within your coverage gap for 6+ months, exfiltrating intellectual property and customer data through techniques you don't monitor because the dashboard showed 85% green.** Fix: Overlay your ATT&CK coverage map with the specific techniques used by your top 5 relevant threat actors. Prioritize detection engineering for techniques where adversary usage AND your coverage gap overlap. Those are the techniques actively being used against you that you can't see.
 

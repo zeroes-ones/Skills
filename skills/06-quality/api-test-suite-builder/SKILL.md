@@ -134,7 +134,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Security audit prep — generate adversarial input tests
 - Onboarding new team members — auto-generated tests document expected API behavior
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- STANDARD: 3min -->
 
@@ -177,7 +177,7 @@ What's the goal?
 └── Pre-release (regression gate) → Verify every route has at minimum: auth test + happy path + 400/401/404
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- STANDARD: 5min -->
 
@@ -362,7 +362,30 @@ describe('POST /api/v1/users', () => {
 - Generate coverage baseline for future comparison
 
 
-## Error Recovery
+## Best Practices
+
+1. **Use test data factories, never copy production data.** Generate synthetic test data with Faker or factory functions — UUIDs, test emails (`test+{hash}@example.com`), Stripe test card numbers. Test fixtures built from production data will eventually leak PII into CI logs. Factories also ensure tests are reproducible and isolated: each test creates exactly the data it needs and no test depends on seeded data from another test.
+
+2. **Validate response schemas against the API contract.** Every test that checks `expect(response.status).toBe(200)` should also validate the response body against the OpenAPI schema. Use `ajv` (JSON Schema), `zod` schemas, or `expect(response.body).toMatchSchema(openApiSpec)` to catch field renames, type changes, and unexpected additions. Schema drift is the #1 cause of integration breaks between services — catch it in CI, not in production.
+
+3. **Manage auth tokens as test fixtures, not inline strings.** Factor auth token creation into a `createTestUser()` helper that returns `{ user, token }`. Rotate test secrets regularly. Never hardcode JWTs in test files (they expire and cause flaky CI). For OAuth2 flows, use client credentials with a dedicated test client ID and scope-limited permissions.
+
+4. **Isolate every test case with transactions or schema per test.** Tests that share a database produce flaky suites: Test A inserts a user, Test B counts seeded rows and gets an off-by-one. Wrap each test in a database transaction that rolls back, or clone a template schema per test file. Run tests in randomized order in CI to surface hidden ordering dependencies. Test isolation is not optional — a test suite without it has zero signal.
+
+5. **Test rate limiting and throttling behavior explicitly.** Rate-limited endpoints (429 Too Many Requests) need dedicated tests in a separate suite that runs after the main suite. Verify the `Retry-After` header is present and the limit resets after the configured window. Use mock rate limiter backends (not the real production limiter) to avoid cross-test contamination. A rate limit test that sleeps for 60 seconds in the main CI pipeline will cause everyone to hate the test suite.
+
+6. **Write contract tests for interservice communication.** When your API depends on another service (payments, auth provider, shipping), test against a contract — not a mock written from memory. Use Pact for consumer-driven contract testing, or record real responses with tools like `nock` (replay mode) or `msw`. A mock that returns `{ status: 'success' }` when the real service returns `{ outcome: 'authorized' }` gives false confidence. Contract tests catch integration drift before deployment.
+
+7. **Test async and event-driven endpoints separately.** Webhook receivers, message queue consumers, and Server-Sent Events endpoints need different testing patterns than REST endpoints. Test with controlled event emitters (`testcontainers` for Kafka/RabbitMQ, `supertest` with fake timers for SSE). Verify idempotency — the same event delivered twice should produce the same outcome. Verify dead-letter queue behavior when processing fails repeatedly.
+
+8. **Establish performance baselines and test response time regressions.** Assert on latency for critical-path endpoints: `expect(response.duration).toBeLessThan(500)` for user-facing P0 endpoints. Track per-endpoint P50/P95/P99 in CI and alert on statistical deviation from baseline. A dropped database index can degrade a query from 50ms to 3 seconds — and every status-code-only test will still pass green. Performance tests should live in the same suite, gated by a `PERF_TEST=true` flag to run on dedicated CI hardware.
+
+9. **Test error responses with the same rigor as happy paths.** For every endpoint, verify: 400 (invalid input shape), 401 (missing/expired token), 403 (insufficient permissions), 404 (resource not found), 409 (conflict), and 422 (validation failure). Error responses should include machine-readable error codes and human-readable messages — validate both. Production traffic is ~40% error paths; testing only 200 OK means you're testing less than half the system.
+
+10. **Keep the test suite fast — target < 5 minutes in CI.** Slow test suites get skipped. Profile test execution with `--verbose` to find the slowest tests. Move network-dependent tests to a nightly suite. Use in-memory databases (SQLite) for unit-level API tests. A test suite that takes 20 minutes will be run only at the last minute before deploy — and that's exactly when you can't afford to discover failures.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -454,6 +477,27 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+
+## Production Checklist **(STANDARD)**
+
+Before shipping API tests to production or as a CI gate, verify every item:
+
+- [ ] **Test data is 100% synthetic.** Zero PII, real emails, production tokens, or customer data in test fixtures — verified with `detect-secrets` and manual review. Use Faker, test card numbers, and `@example.com` domains.
+- [ ] **Every route has auth coverage.** Auth matrix covers: no token, expired token, wrong role, wrong tenant, and valid token. At minimum, test 401 (missing) and 403 (insufficient) for every endpoint.
+- [ ] **Every endpoint has error code coverage.** Happy path + 400, 401, 403, 404, 409, 422, and 500 (if applicable). Production traffic is ~40% error paths — test them all.
+- [ ] **Response schema validation gates every test.** Every response is validated against the OpenAPI spec using `ajv`, `zod`, or `expect(response.body).toMatchSchema()`. Catch schema drift in CI, not production.
+- [ ] **Test isolation is verified.** Tests pass in randomized order (`--shuffle` or `--random-order`) and on repeated runs (10/10 in CI). No shared database state between test cases.
+- [ ] **Rate limit tests are isolated in a separate suite.** Rate limit tests that sleep do not slow down the main CI pipeline. Run after the main suite with dedicated API keys.
+- [ ] **Contract tests pass against real service contracts.** Mock endpoints match recorded real responses (not memory). Use Pact or recorded fixtures (nock, msw). Run against sandbox/staging weekly.
+- [ ] **Performance baselines established and monitored in CI.** P50/P95/P99 response times tracked per endpoint. Alert on statistical deviation (>2σ) from baseline. `PERF_TEST=true` flag for dedicated CI runner.
+- [ ] **CI pipeline integration complete.** Test suite runs as a blocking gate on every PR. Coverage thresholds enforced (85%+). Coverage delta reported in PR comments.
+- [ ] **No hardcoded environment URLs or credentials.** All service URLs from environment variables. Zero hardcoded tokens, API keys, or JWTs in test files. Use test-specific credentials with scope-limited permissions.
+- [ ] **Async and event-driven endpoints tested separately.** Webhook receivers, message queue consumers, and SSE endpoints have dedicated tests with controlled event emitters. Idempotency verified for at-least-once delivery.
+- [ ] **Test suite runtime < 5 minutes in CI.** Profiled with `--verbose`. Slow tests (>2s each) flagged for optimization or moved to nightly suite. Network-dependent tests mocked in CI.
+- [ ] **Pagination tests exist for every list endpoint.** Verify: default page size, custom page size, first page, last page, out-of-bounds page, and empty results. Pagination bugs are the #1 source of silent data loss in list APIs.
+- [ ] **Security-sensitive fields verified absent from responses.** Assert that `password_hash`, `secret`, `internal_id`, and `admin_notes` are never present in API responses — not just that the response is 200 OK.
+
+
 ## What Good Looks Like
 
 <!-- STANDARD: 3min -->
@@ -487,7 +531,7 @@ graph LR
 | "The happy path test covers the endpoint — error cases are unlikely." | Production is 40% error paths: expired tokens, rate limits, invalid inputs, downstream timeouts. Without tests for 400, 401, 403, 429, and 500 responses, every error case is a production surprise. Cost: **$25K-$75K** per untested error path that fails under real traffic. |
 | "We can share a test database across test cases — setting up isolation is overhead." | Test A inserts a user. Test B asserts the users table has exactly 3 seeded rows. Test A's insert makes it 4. Test B fails with a mysterious off-by-one. Developers learn to ignore the "flaky suite" and real regressions ship undetected. Cost: **$10K-$40K/year** in developer trust erosion and CI re-run costs. |
 
-## Gotchas
+## Anti-Patterns
 
 - **API tests without contract validation.** You test that `GET /users/123` returns 200 and the response has `name` and `email` fields — but you never validate against the OpenAPI schema. The backend team adds a `middleName` field and changes `email` from a string to `{ address, verified }`. Your tests pass (200 OK, fields exist), but the frontend code that accesses `user.email.toLowerCase()` crashes in production because `email` is now an object. Schema drift accumulates silently across dozens of endpoints until integration breaks are discovered by users. **Total cost: $20,000-$100,000 in integration breaks from schema drift across services, emergency hotfixes, and triage time.** Fix: Add OpenAPI schema validation to every API test — validate that responses match the spec exactly (additionalProperties: false); run contract tests in CI before deployment; use tools like schemathesis or Dredd for automated schema compliance testing.
 - **Mocking external dependencies too loosely.** Your API test mocks the payment gateway with `jest.fn().mockResolvedValue({ status: 'success' })` — but the real payment gateway returns `{ result: { outcome: 'authorized' } }`. Every test passes, the deployment goes through, and the first real payment attempt crashes because `response.status` is undefined. The mock was written from memory of the API, not the actual contract. **Total cost: $30,000-$150,000 in production failures from untested real integrations, customer-impacting payment errors, and emergency rollbacks.** Fix: Mock external dependencies with contract-based fixtures derived from real API responses (record once, replay in tests); use wiremock or MSW with recorded traffic; run a subset of tests against sandbox/staging environments of real external services weekly.
@@ -519,6 +563,24 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+
+### Scale Depth
+
+#### Solo Developer
+Run axe-core in CI with zero-config defaults. Use `eslint-plugin-jsx-a11y` recommended ruleset. Test on one screen reader + browser combo (VoiceOver + Safari). No CI gating on a11y — informational only. Manual keyboard test before release. Lighthouse a11y score tracked as advisory metric.
+
+#### Small Team (2-10)
+Jest-axe on every component. axe-core in Playwright/Cypress E2E tests after every navigation. Lighthouse CI with minimum score 90 (advisory). Zero new critical violations blocks PR. Keyboard navigation automated via Playwright. Manual screen reader walkthrough on top 3 flows per release. eslint-plugin-jsx-a11y at pre-commit.
+
+#### Medium Team (10-50)
+Full CI/CD gates with stored violation baselines. Zero new critical/serious violations blocks merge. pa11y-ci on staging deploy with sitemap coverage. Lighthouse CI budget: score ≥ 95 + drops > 5 block. Production monitoring with daily scans and score trend alerts. Manual screen reader testing on top 5 flows (rotate 2 per release). Per-route accessibility dashboard. Accessibility debt ratio tracked monthly. VPAT updated per release.
+
+#### Enterprise (50+)
+All medium-team gates + quarterly external accessibility audit. VPAT accuracy verified for all third-party components. Procurement requires VPAT + independent verification. Board-level accessibility scorecard reviewed quarterly. Legal proactively monitors ADA Title II, Section 508, EN 301 549 updates. Dedicated accessibility engineer or rotating accessibility champion. Screen reader testing with actual assistive technology users (Fable, Access Works). Compliance evidence pipeline: CI audit trails → automated VPAT generation → auditor-ready reports.
+
+**Transition Triggers:** Scale up when: (a) your app is served to the public (not just internal users) — move from Solo to Small, (b) first ADA demand letter or legal inquiry — jump to Medium immediately, (c) revenue crosses $10M or user base exceeds 100K — move to Enterprise, (d) you ship to government, healthcare, or education — Enterprise required regardless of size.
+
 
 ## References
 

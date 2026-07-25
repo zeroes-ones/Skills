@@ -142,6 +142,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 <!-- STANDARD: 3min — concrete tradeoffs, not abstract advice -->
 
@@ -237,6 +239,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s — scan phase titles -->
 <!-- STANDARD: 3min — Do/Verify/Recover for every phase -->
 <!-- DEEP: 10+min -->
@@ -266,6 +270,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -277,6 +283,39 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Design the boot sequence with a secure boot chain from the start.** ROM bootloader → first-stage bootloader (verified) → second-stage bootloader (verified) → application (verified). Each stage verifies the signature of the next before jumping. Store public key hash in OTP or write-once fuses. Without a verified boot chain, any firmware modification — malicious or accidental — runs undetected. Retrofitting secure boot after hardware lock-in requires a silicon revision.
+
+2. **Architect OTA updates with A/B partitioning and atomic commit.** Two complete application slots, a bootloader that tracks boot attempts, and an atomic "commit" flag. New firmware writes to the inactive slot, verifies checksum and signature, sets a boot-pending flag, and reboots. Bootloader attempts boot of new slot up to 3 times; on failure, automatically rolls back to previous known-good. Staged rollout: 1% for 48h, 10% for 1 week, 100%. Without A/B, an OTA failure = bricked device in the field.
+
+3. **Master hardware interface protocol timing and error handling for I2C, SPI, and UART.** I2C: calculate pull-up resistors based on bus capacitance and speed (10KΩ at 100kHz with 1 slave is not 400kHz with 4 slaves). SPI: verify mode (CPOL/CPHA) matches the peripheral — a mode mismatch causes reliable operation at 25°C but intermittent failures at temperature extremes. UART: handle framing errors, parity errors, and overrun — a lost byte mid-packet must not desynchronize the protocol parser forever. Implement bus reset for I2C (clock SCL 9 times to release stuck SDA).
+
+4. **Implement watchdog monitoring at the system level, not just the hardware level.** Hardware watchdog with 1-2s timeout kicked by a dedicated watchdog task. Each system task (sensor polling, communication, control loop, logging) must post a heartbeat to the watchdog task within its deadline. If any task misses, the watchdog task deliberately stops kicking hardware watchdog → full system reset. Test by deliberately hanging each task individually. A watchdog kicked from a timer ISR protects against nothing — the ISR fires even when the system is frozen.
+
+5. **Design sensor fusion algorithms with cross-validation, not blind trust.** A 9-DOF IMU provides accelerometer, gyroscope, and magnetometer data. Gyroscope integration drifts over time — cross-validate with accelerometer (gravity vector for tilt) and magnetometer (heading reference). Implement outlier rejection: if one sensor reports a physically impossible value (500g acceleration on a consumer device), discard it and flag for diagnostics. Kalman or complementary filters must be tuned with real sensor noise characteristics, not datasheet ideal values.
+
+6. **Integrate security enclave or trusted execution environment for key material.** Never store private keys, firmware signing keys, or device-unique secrets in main application flash — they're extractable via JTAG, debug interface, or flash dump. Use a dedicated secure element (ATECC608, SE050) or TrustZone-M secure world. Keys generated in the enclave never leave it; all crypto operations happen inside. Factory provisioning writes unique device identity into the secure element — not into application firmware.
+
+7. **Implement flash wear leveling from day one for any configuration or state that persists across power cycles.** Calculate: flash endurance (cycles) ÷ writes per day = minimum lifespan. Add 3x safety margin. Use LittleFS, SPIFFS, or a custom ring-buffer across multiple sectors. Track erase counts in a reserved sector and log warnings at 80% of rated endurance. One write per minute to a 100K-cycle NOR flash sector = 69-day lifespan without wear leveling. The product spec says "5-year field life."
+
+8. **Prevent interrupt priority inversion by assigning priorities based on deadlines, not importance.** A low-priority SPI DMA ISR that holds a spinlock blocks a high-priority UART ISR that needs the same lock. The UART ISR (buffer overrun deadline: 86µs at 115200 baud) is blocked for 500µs while the SPI DMA completes. Assign interrupt priorities according to rate-monotonic scheduling: shorter deadline = higher priority. Avoid shared resources between ISRs of different priorities. If unavoidable, use lock-free data structures.
+
+9. **Sign and verify all firmware images before they execute.** Generate an Ed25519 or ECDSA key pair. Private key stored in HSM, never on developer machines. CI pipeline signs firmware as the final build step. Bootloader verifies signature using the public key hash fused in OTP. Reject any unsigned or signature-mismatched image. This applies to: application firmware, bootloader updates, factory test images, and OTA delta patches. One unsigned image in the field = entire fleet compromisable.
+
+10. **Design factory provisioning as a security boundary, not a convenience.** Each device gets a unique identity (serial number, certificate, key pair) injected at manufacturing. Provisioning data is encrypted and signed by the factory tool. The device verifies the signature before accepting provisioning data. Debug interfaces (JTAG, SWD) are permanently locked after provisioning. Test points and debug headers are physically removed or disabled in production units. A shared factory key extracted from one device compromises the entire fleet.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| OTA update bricks 2% of fleet | The new firmware image has a slightly larger bootloader that overwrites a worn flash sector on devices with 18 months of field wear — 2% of the fleet has this wear pattern | Implement A/B partitioning with boot count tracking: bootloader attempts new image up to 3 times, rolls back to known-good on failure. Staged rollout: 1% for 48h, 10% for 1 week, 100%. Monitor crash telemetry at each stage | Flash wear is heterogeneous across a fleet. Testing on 50 lab devices doesn't represent 100K field devices with diverse usage patterns. A/B + staged rollout + telemetry is the minimum viable OTA architecture |
+| Hardcoded credentials extracted from firmware binary | Developer left debug password in source; `strings firmware.bin | grep admin` finds it. The firmware update file is publicly downloadable from the support portal | CI pipeline scans firmware binaries for hardcoded strings matching credential patterns before release. Factory credentials are unique per device, printed on label, not in firmware. First-boot flow forces password change. Debug backdoors compiled out via `#ifdef DEBUG` | Firmware binaries are public — anyone can download the update file. Treat the binary as a publicly accessible artifact. Audit it for secrets the same way you audit open-source code |
+| Flash sector wears out at 69 days (100K writes) | Configuration state written every 60 seconds to the same NOR flash sector. 100,000 erase cycles ÷ 1,440 writes/day = 69 days until sector death | Use wear-leveling filesystem (LittleFS, SPIFFS) that distributes writes across blocks. For bare-metal without a FS, implement a ring buffer across multiple sectors. Calculate: flash endurance ÷ writes per day × safety margin. Track erase counts and warn at 80% | Flash endurance math is simple but unforgiving. The calculation must be done at design time for every persistent-write path. A 69-day failure in a product marketed for 5 years is a $200K-$1M recall |
+| Bootloader can't verify firmware signature | Public key hash in OTP doesn't match the key used to sign the firmware. Either the wrong key was fused at the factory, or the signing key was rotated without updating the bootloader | Verify key provisioning at factory: each device's OTP fuses are read back and compared against the expected hash before the device leaves the production line. Key rotation requires a signed transition firmware that updates the stored hash | Key management is the Achilles' heel of secure boot. The chain of trust starts at the fused key — if it's wrong, the device is permanently bricked. Factory validation is mandatory |
+| I2C bus hangs requiring power cycle | A slave device holds SDA low mid-transaction (clock stretch or stuck state). The master sees bus busy (SDA low) and waits forever — most I2C peripherals have no hardware timeout | Implement bus reset: toggle SCL 9 times to clock out any pending data and force the slave to release SDA, then send STOP. Check bus state before every transaction. Set a software timeout (e.g., 100ms) and reset the bus on timeout | I2C is a multi-master protocol that allows slaves to stretch the clock indefinitely. Without timeout + bus reset, a single stuck slave brings down the entire bus — permanently. Every I2C driver must defend against this |
+| Interrupt latency stacking misses motor control deadline | UART RX ISR (priority 2) fires inside SPI DMA ISR (priority 1). Then systick ISR (priority 3) fires. Three ISRs stacked, each adding latency. Motor control ISR (priority 0) is blocked for 47µs, missing its 50µs deadline | Assign interrupt priorities based on deadlines: motor control (50µs) = priority 0, SPI DMA (200µs) = priority 1, UART RX (500µs) = priority 2, systick (1ms) = priority 3. Avoid shared resources between ISRs of different priorities. Use lock-free ring buffers for ISR-to-task communication | Interrupt priorities must reflect real-time deadlines, not peripheral importance. A 47µs miss on a motor control loop means physical jitter, potential damage, and safety implications. Rate-monotonic priority assignment is the standard |
 
 ## Cross-Skill Coordination
 
@@ -438,7 +477,7 @@ graph LR
 | "The BOM cost is fixed — we can't afford better components" | A $0.50 capacitor instead of a $2.00 rated one saves $1.50/unit upfront. But a 2% field failure rate on 100K units = 2,000 returns at $75/unit in shipping, diagnosis, and replacement = $150K. The "$1.50 savings" cost $75K more than using the right part. Design-to-cost must account for total lifecycle cost, not just BOM. **Total cost: $100K-$500K in warranty claims and field returns from component cost-cutting that ignores reliability impact.** |
 | "We'll fix it in the next hardware revision" | Hardware revisions take 3-6 months and $50K-$200K in engineering + tooling + certification. Meanwhile, every unit shipped with the known issue generates warranty claims, support tickets, and customer churn. A $5 PCB respin becomes $50K when factoring in compliance recertification (FCC, CE, UL). If the issue causes field failures, add recall logistics. Fix it in THIS revision. **Total cost: $50K-$500K per deferred fix — "next revision" fixes cost 10-100x more than fixing it now, plus accumulated warranty and support costs on already-shipped units.** |
 
-## Gotchas
+## Anti-Patterns
 
 - **Firmware without OTA (Over-the-Air) update capability — the physical recall catastrophe.** You ship 50,000 IoT devices with firmware v1.0, and 8 months later a security researcher discovers a remote code execution vulnerability in the TLS handshake. Without OTA, your only remediation options are: (a) issue a physical recall at $15-$40 per unit in shipping, labor, and logistics ($750K-$2M), (b) accept the security liability and risk a breach that exposes customer data (potential class-action + regulatory fines), or (c) brick the devices remotely and face a consumer protection lawsuit. Consumer IoT companies that shipped without OTA have faced full product line recalls costing millions — the Peloton Tread+ recall cost $165M in revenue, and while that wasn't solely a firmware issue, the inability to remotely update safety thresholds was a contributing factor. **Total cost: $100K-$1M in physical device recalls, shipping, and remediation for embedded products without remote update capability.** Design OTA into the bootloader architecture from day one: implement dual-bank flash with a rollback-safe bootloader, signed firmware images with version checking, and a fail-safe recovery mode.
 - **Hardcoded memory addresses instead of linker script or device tree configuration.** Your firmware references peripheral registers at absolute addresses (`#define UART_BASE 0x40001000`), and when the SoC vendor releases a revised silicon with the UART block relocated to `0x40002000`, every hardcoded address in your codebase breaks. A 50-file firmware codebase with 200+ hardcoded addresses across I2C, SPI, GPIO, and DMA requires 4-6 weeks of rework to port to the new hardware revision — at $150/hour for embedded engineering time, that's $36K-$72K in rework for what should have been a 1-day configuration change. For products with multiple hardware revisions (industrial equipment, medical devices, automotive ECUs), the rework multiplies across each variant. **Total cost: $50K-$200K in hardware revision incompatibility rework from hardcoded addresses.** Use the vendor's CMSIS headers, device tree overlays, or a hardware abstraction layer (HAL) to define all peripheral addresses in a single configuration file that can be swapped per hardware revision.
@@ -471,6 +510,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[FW1]** Bootloader architecture verified: secure boot chain established (ROM → first-stage → second-stage → application), each stage verifies signature of the next before jumping, public key hash stored in OTP or write-once fuses
+- [ ] **[FW2]** OTA update path tested end-to-end: new firmware downloaded, signature verified, written to inactive slot, boot-pending flag set atomically, device reboots into new image — full round-trip confirmed on representative hardware
+- [ ] **[FW3]** A/B partitioning implemented and tested: two complete application slots, bootloader tracks boot attempts (increment on boot, clear on successful run), automatic rollback to previous image after 3 consecutive failures — tested by corrupting new image
+- [ ] **[FW4]** OTA rollback tested: push deliberately bad firmware (invalid checksum, wrong signature, corrupted image), verify bootloader rejects it and stays on current version, verify rollback telemetry is reported
+- [ ] **[FW5]** Flash wear calculation: total erase cycles over product lifetime calculated for every persistent-write path, 3x safety margin confirmed, wear leveling implemented (LittleFS/SPIFFS/custom ring buffer), erase counts tracked with warnings at 80% endurance
+- [ ] **[FW6]** Interrupt priority audit: all interrupt priorities assigned by deadline (rate-monotonic), motor control/safety-critical ISRs at highest priority, no shared resources between ISRs of different priorities without lock-free data structures, worst-case nesting depth measured
+- [ ] **[FW7]** Watchdog implementation verified: multi-level supervision with dedicated watchdog task monitoring all system tasks via heartbeat counters, hardware watchdog timeout appropriate for system, tested by deliberately hanging each task — watchdog triggers reset within deadline for every hang scenario
+- [ ] **[FW8]** Secure boot verified: bootloader rejects unsigned firmware, rejects firmware signed with wrong key, rejects firmware with corrupted signature — verified with deliberate tampering of each field
+- [ ] **[FW9]** Firmware signing automated in CI: Ed25519 or ECDSA signing as final build step, private key in HSM (never on developer machine), CI pipeline rejects unsigned builds
+- [ ] **[FW10]** Factory provisioning documented and tested: unique device identity (serial, certificate, key pair) injected at manufacturing, provisioning data encrypted and signed, device verifies signature before accepting, debug interfaces permanently locked after provisioning
+- [ ] **[FW11]** Protocol error handling: I2C bus reset implemented (SCL toggle 9 times + STOP), SPI mode verified at temperature extremes, UART framing/parity/overrun errors handled without desynchronization, all transactions have timeouts
+- [ ] **[FW12]** Brown-out protection: BOD enabled at threshold above flash minimum programming voltage, tested by ramping supply voltage down with programmable power supply during flash writes — BOD triggers before corruption, OTA writes protected against mid-write power loss
 
 ## References
 

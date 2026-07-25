@@ -165,6 +165,20 @@ Observability scales from instrumenting a single service to org-wide observabili
 
 **Usage**: Say "as an L3 observability engineer, design the monitoring for..." Default: **L3** (product-level observability, independent design).
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 engineer, 1-2 services)
+Prometheus + Grafana + Loki in Docker Compose. Single Grafana dashboard with RED metrics per endpoint. Alertmanager → personal email/Slack. Focus: instrument with OpenTelemetry SDK, learn PromQL, set up basic RED dashboards. Structured JSON logs from day one. No distributed tracing needed yet.
+
+#### Small (2-10 engineers, 5-15 services)
+Grafana LGTM stack (Loki, Grafana, Tempo, Mimir) on Kubernetes or Grafana Cloud free tier. SLOs defined for critical user journeys with burn-rate alerts. USE dashboards for infrastructure, RED for services. Alert routing: PagerDuty for SEV-1, Slack for SEV-2. Focus: end-to-end trace context propagation, dashboard-as-code in Git, alert review to eliminate noise monthly.
+
+#### Medium (10-50 engineers, 15-50 services)
+Grafana Mimir for HA metrics, Tempo for distributed tracing, Loki for centralized logs. OpenTelemetry Collector with tail-based sampling. SLO-based error budget policies enforced at deploy gates. Tiered alert routing with escalation chains. Focus: observability cost management (cardinality limits, retention policies, sampling rates), runbook automation, cross-service correlation dashboards. Observability platform as a product for the engineering org.
+
+#### Enterprise (50+ engineers, 50+ services, multi-cluster)
+Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming alert evaluation for sub-minute detection. Centralized OpenTelemetry Collector fleet with intelligent sampling and PII redaction. Observability as a platform: self-service dashboard provisioning, alert template library, automated runbook generation. Focus: observability data lake for long-term trend analysis, anomaly detection with ML, cost attribution per team, compliance retention (SOC 2, PCI-DSS audit trails). "This is how we observe everything — every team instruments with this SDK, ships to this pipeline, and alerts through this system."
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -177,7 +191,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 - Correlating metrics → traces → logs via exemplars and trace_id injection
 - Establishing observability as code: dashboards, alerts, recording rules in Git
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Metrics Backend: Prometheus vs SaaS
@@ -302,7 +316,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 ```
 **When to choose Tail-Based:** >10K spans/sec, need 100% error/slow traces, budget-constrained, can deploy OpenTelemetry Collector with tail sampling processor. **When to choose Head-Based:** <10K spans/sec, simpler to implement, 10-50% sampling rate sufficient, no Collector deployment desired.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Observability Strategy & SLO Framework
@@ -360,7 +374,30 @@ Observability scales from instrumenting a single service to org-wide observabili
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
-## Error Recovery
+## Best Practices
+
+1. **SLOs before alerts — define the target, then instrument the signal.** A 99.9% availability SLO with a 43-minute monthly error budget is concrete. "The service should be reliable" is wishful thinking. Every alert must tie to an SLO burn rate. Alerts without SLOs are noise.
+
+2. **USE for infrastructure, RED for services, golden signals for users.** USE (Utilization, Saturation, Errors) covers CPU, memory, disk, network on every host. RED (Rate, Errors, Duration) covers every service endpoint. Golden signals (latency, traffic, errors, saturation) from the Google SRE book tie it all together. Never mix methods on one dashboard — it confuses the diagnosis path.
+
+3. **Burn-rate alerts trump static threshold alerts.** "CPU > 80%" fires for batch jobs and self-resolves. "Error budget burn rate > 14.4x (1 hour to exhaust)" means the service is failing fast enough to blow the monthly SLO. Multi-window burn alerts (1h short-window, 6h long-window) catch both fast and slow failures with fewer false positives.
+
+4. **Structured JSON logs with consistent field names across all services.** `{"timestamp": "ISO8601", "level": "INFO", "service": "checkout", "trace_id": "abc123", "message": "order placed"}` enables correlation without regex parsing. Do this before metrics, before traces — it is the highest-ROI observability investment. Ship INFO-and-above to central platform; keep DEBUG/TRACE local with 24h rotation.
+
+5. **Distributed tracing requires end-to-end context propagation.** Propagate W3C `traceparent` headers through every hop — HTTP, gRPC, message queues, async workers. A trace that breaks at the message queue is a lie. Instrument Kafka consumers with `kind: CONSUMER` spans linking back to the producer span. Without this, 60% of async flows are invisible.
+
+6. **Dashboards as code, in Git, with CI validation.** Grafana dashboards as JSON in `grafana/dashboards/`, Prometheus rules in `rules/`, OpenTelemetry collector configs in `otelcol/`. PR review for dashboard changes. `grafana-dashboard-linter` in CI catches template variable typos before merge. No console-created dashboard survives.
+
+7. **Sampling strategy: never sample errors, sample by volume not percentage.** Tail-based sampling at the OpenTelemetry Collector captures 100% of errors and slow traces (>500ms), probabilistic sampling at 10-50% for normal traces. Never sample ERROR-level logs. At high volume, 1% uniform sampling loses the 1 error in 10,000 that diagnoses the outage.
+
+8. **Alert routing requires tiered severity with escalation paths.** PAGE (SEV-1: SLO burn rate critical, direct customer impact, < 5 min to ack) → PagerDuty. TICKET (SEV-2: SLO burn rate warning, no customer impact yet, < 30 min to ack) → Slack/Jira. INFO (SEV-3: anomaly detected, no action needed) → dashboard notification. Every alert must require human action — if automation handles it, it is a notification, not an alert.
+
+9. **Retention policies: design for incident window, not "keep everything forever."** Metrics: 13 months at 1m resolution (year-over-year comparisons). Logs: 30 days at INFO+, 7 days at DEBUG (enough for most incident investigations). Traces: 7 days (most debugging is within 72 hours). Cost scales linearly with retention; doubling retention doubles your observability bill.
+
+10. **Runbook automation: dashboards link to runbooks, runbooks link to dashboards.** Every alert annotation includes a direct link to the relevant runbook. Every dashboard panel has a "troubleshooting guide" link. During an incident, the on-call engineer should click from alert → dashboard → runbook → root cause without typing a single grep command.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -449,6 +486,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[OBS1]** SLOs defined for all critical user journeys (availability, latency, throughput, freshness, durability) — not just one SLO per service
+- [ ] **[OBS2]** SLIs instrumented with OpenTelemetry SDKs across all services — metrics, logs, and traces emitting from the same instrumentation library
+- [ ] **[OBS3]** Error budget policy documented with burn-rate thresholds: ≥50% normal ops, 20-50% risky deploys blocked, 5-20% all deploys blocked, <5% full freeze
+- [ ] **[OBS4]** Multi-window burn-rate alerts configured: short-window (1h at 14.4x burn rate) for fast failures, long-window (6h at 1.4x burn rate) for slow failures
+- [ ] **[OBS5]** Dashboards exist for golden signals (latency, traffic, errors, saturation) per service with RED and USE method panels
+- [ ] **[OBS6]** Structured JSON logging with consistent field names across all services, trace_id injection in every log line
+- [ ] **[OBS7]** Distributed tracing propagates W3C traceparent through HTTP, gRPC, message queues, and async workers — no broken traces at queue boundaries
+- [ ] **[OBS8]** Alert routing configured: PAGE (SEV-1, <5min ack) via PagerDuty, TICKET (SEV-2, <30min ack) via Slack/Jira, INFO (SEV-3) via dashboard
+- [ ] **[OBS9]** Runbooks exist for every SEV-1 and SEV-2 alert, linked from the alert annotation, tested within last 90 days
+- [ ] **[OBS10]** Log retention: 30 days at INFO+, 7 days at DEBUG, ERROR never sampled — PII redaction enabled at ingestion
+- [ ] **[OBS11]** Metrics retention: 13 months at 1m resolution for year-over-year comparisons, downsampled to 5m after 30 days
+- [ ] **[OBS12]** Observability as code: dashboards, alert rules, recording rules, and collector configs in Git with CI validation
+- [ ] **[OBS13]** Sampling strategy: tail-based for traces (100% errors, 100% slow >500ms, 10-50% normal), never sample ERROR logs
+- [ ] **[OBS14]** Capacity planning dashboards: disk usage forecasts, metric cardinality trends, log ingestion rate, query performance — reviewed weekly
+
 ## What Good Looks Like
 
 > Dashboards answer the golden signals for every service: latency, traffic, errors, and saturation.
@@ -477,7 +531,7 @@ graph LR
 
 **The One Highest-Leverage Activity**: During every incident, write down every question you asked that you couldn't answer with your current dashboards. After the incident, make those questions answerable. Over time, your dashboards evolve from "what looks nice" to "what actually saves time."
 
-## Gotchas
+## Anti-Patterns
 
 - **Alert fatigue causing missed critical incidents** — when on-call engineers receive 40+ alerts per day where 90% are false positives or non-actionable (e.g., CPU spikes from batch jobs, disk usage at 75% of a non-critical threshold), they train themselves to ignore or snooze everything. A genuine database corruption alert gets buried in the noise, the incident festers for 4 hours, and by the time someone notices, the customer-facing outage has impacted 50,000 users. Average cost of a major incident is $150K-$300K in revenue loss, SLA penalties, and engineering heroics; a prolonged undetected incident can exceed $1M in churn and brand damage. **Total cost: $150K-$1M per missed critical incident due to alert fatigue.** Mandate that every alert must require immediate human action — if automation handles it or it's informational, route it to a dashboard notification channel, not the pager.
 - **Prometheus `rate()` vs `irate()`**: `rate()` calculates the per-second average over the full range window. `irate()` uses only the last TWO samples. On a 5-minute window, `rate()` smooths spikes; `irate()` amplifies them. Dashboard spikes that appear in `irate()` but not `rate()` are often just two consecutive data points, not real spikes.

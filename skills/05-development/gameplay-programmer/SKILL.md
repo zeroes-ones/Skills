@@ -93,6 +93,17 @@ Competent gameplay programmers make features that work on their dev machine. Mas
 | **L4 — Lead** | Defines gameplay architecture across multiple titles. Custom netcode decisions. Engine-level optimizations (Jobs/Burst, compute shaders). Mentors team on performance patterns. Cross-discipline with design, art, audio. |
 | **L5 — Principal** | Industry-defining gameplay systems. Ships technology used by dozens of studios. Invents new gameplay paradigms. "This netcode architecture became the studio standard for the next 5 years." |
 
+### Solo / Small / Medium / Enterprise
+
+| Scale | Challenge | Solution |
+|---|---|---|
+| **Solo dev** | All gameplay systems, alone | Unity with Asset Store for non-core systems; simplify feature scope; focus on 1-2 tightly coupled mechanics that create depth |
+| **Small team (2-10)** | Merge conflicts on core gameplay scripts | Modular system boundaries; each system owner has clear interface contracts; weekly gameplay integration playtests |
+| **Medium (10-50)** | Multiplayer introduces exponential complexity | Dedicated netcode engineer; server-authoritative from day 1; client prediction + reconciliation tested in CI with 100ms simulated latency |
+| **Enterprise (50+)** | Cross-studio consistency; engine modifications | Shared gameplay framework with code review gates; ECS architecture mandatory for 500+ entity scenes; custom engine branch with contribution guidelines |
+
+**Transition Triggers:** When 3+ gameplay systems interact → system boundary docs with interface contracts. When multiplayer is announced → dedicated netcode engineer, not an afterthought. When entity count exceeds 500 per scene → ECS migration. When team exceeds 10 → per-system owners and weekly gameplay integration tests.
+
 ## When to Use
 
 - Building player controllers: first-person, third-person, top-down, vehicle, flight
@@ -104,7 +115,7 @@ Competent gameplay programmers make features that work on their dev machine. Mas
 - Building save/load: serialization, checkpoint systems, persistent world state
 - Implementing procedural generation: level generation, loot tables, enemy placement, terrain
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### ECS vs GameObject Architecture
 ```
@@ -194,7 +205,7 @@ START: AI complexity level?
 Rule: gameplay code must NEVER exceed 3ms at 60fps. If it does, profile and slice.
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1 (~20 min): Project Setup & Game Loop Architecture
 1. **Engine selection**: Unity (C#, best for mobile/indie/2D/3D), Unreal (C++/Blueprints, best for AAA/3D/FPS/photoreal), Godot (GDScript/C#, best for 2D/small team/open source)
@@ -226,7 +237,20 @@ Rule: gameplay code must NEVER exceed 3ms at 60fps. If it does, profile and slic
 - **What to save**: Player position (checkpoint), inventory, quest progress, world state (opened doors, killed enemies, collected items). NEVER save: visual effects, transient audio, temporary decals.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Input → Command → Controller architecture decouples input from action** — Unity Input System or Unreal Enhanced Input maps raw input to semantic commands (`Jump`, `Shoot`, `Interact`). Controllers consume commands, never raw key codes. This enables rebindable controls and multiplayer replay from input logs.
+2. **Behavior trees over finite state machines for AI with 10+ states** — Behavior trees compose reusable sub-trees (patrol, investigate, attack, flee). For Unity, use `BehaviorDesigner` or built-in `BehaviorTree` in Unity Muse; for Unreal, native `UBehaviorTree` with `UBTDecorator` and `UBTTaskNode`. State machines become unmaintainable spaghetti beyond ~15 states.
+3. **Animation state machine with blend trees for direction + speed** — `Idle → Walk → Run` transitions by `Speed` parameter. Blend tree maps `MoveDirection` to strafe/walk forward/backward. For Unreal, use `BlendSpace1D`/`2D`. Never use raw animation clips with hard cuts — instant transitions look robotic.
+4. **Server-authoritative with client prediction and reconciliation** — Server validates every `ServerRpc`, runs game logic, and broadcasts state. Client predicts movement locally, reconciles position on `ClientRpc` state update. Unity Netcode for GameObjects: `NetworkTransform` with `Interpolate = false` on owner, `true` on proxies; for Unreal: `bReplicateMovement = true` on `ACharacter`.
+5. **Hit detection: raycast for hitscan, sphere cast for melee AOE, physics projectile for grenades/rockets** — Raycast weapons fire instantly and register on the frame of the trigger pull. Projectile weapons use `Rigidbody` with continuous collision detection (`CollisionDetectionMode.ContinuousDynamic`). Never use `OnTriggerEnter` without proper layer mask filtering.
+6. **Object pooling for bullets, particles, enemies, UI elements with pre-warmed capacity** — `ObjectPool<T>` generic with `Get()` → reset state → use → `Release()`. For Unity: `PoolManager` Singleton with per-type pools. For Unreal: `UActorComponent` pools managed via `UWorld` subsystem. A bullet-hell game spawns 200 projectiles/second — without pooling, GC runs every 2 seconds.
+7. **Save architecture: atomic writes with version header and corruption detection** — Serialize `GameState` → JSON/binary → compress → write to temp file → fsync → rename over target. Include `saveVersion` in the header; every update ships a migration from `saveVersion-1`. SHA256 checksum at end of file detects corruption on load. Never write directly to the save file — a crash mid-write destroys the save.
+8. **Fixed timestep for physics and gameplay logic; variable deltaTime only for visual interpolation** — All gameplay code in `FixedUpdate()` (Unity) or tick callback (Unreal). Use `Time.deltaTime` (Unity) / `GetWorld()->GetDeltaSeconds()` (Unreal) ONLY for camera smoothing, particle effects, and UI animations. Physics behavior at 30Hz vs 120Hz must be identical.
+9. **`link.xml` for IL2CPP stripping preservation in Unity** — Add `[Preserve]` attribute to all types used via reflection (`StartCoroutine("MethodName")`, `SendMessage()`, custom serialization). Create `link.xml` in Assets root with `<assembly fullname="Assembly-CSharp"><type fullname="*" preserve="all"/></assembly>` for critical assemblies. Test on device, not Editor.
+10. **Network prediction error under 50ms at 100ms simulated latency** — Measure reconciliation error: `|clientPredictedPosition - serverAuthoritativePosition|`. Must converge within 3 physics ticks. If error exceeds threshold, increase update rate or reduce extrapolation duration. Players feel lag at >50ms reconciliation error, rage-quit at >100ms.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -279,7 +303,7 @@ Run these checks before declaring work complete. ALL must pass.
 | "We don't need object pooling — modern GC is fast." | Unity Mono GC collects 1MB in ~2ms. A bullet hell game spawning 200 bullets/second with `Instantiate`/`Destroy` generates 40KB garbage per bullet = 8MB/second. GC runs every 2 seconds = 15ms hitches. Players call it "stutter," reviewers call it "poorly optimized." |
 | "The AI behavior tree works in the test level — ship it." | Test levels have clean navmeshes, no dynamic obstacles, 3 enemies. Production levels have 20 enemies, destructible cover, dynamic navmesh obstacles, and 16ms frame budget. AI that takes 2ms in test takes 14ms in production — leaves 2ms for everything else. Profile on production levels, not test levels. |
 
-## Gotchas
+## Anti-Patterns
 
 - **FixedUpdate at wrong timestep — game plays in slow-mo or hyperspeed on different hardware.** Unity's `Time.fixedDeltaTime` defaults to 0.02 (50Hz). If your `FixedUpdate()` relies on this without multiplying forces by `Time.fixedDeltaTime`, physics behaves differently at 50Hz vs 30Hz vs 100Hz. A character that jumps correctly at 50Hz may barely leave the ground at 30Hz (mobile thermal throttling). **$20K-$80K in post-launch patches, negative reviews citing "floaty controls," and lost featuring on app stores for inconsistent physics behavior.** Test physics at fixedDeltaTime = 0.033 (30Hz), 0.02 (50Hz), 0.013 (75Hz).
 
@@ -352,7 +376,7 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
-## Production Checklist
+## Production Checklist **(DEEP)**
 
 - [ ] **[S1]** Player controller: input decoupled from action; works at 30/60/120/144fps with consistent feel
 - [ ] **[S2]** Zero per-frame allocations after scene load (confirmed with Unity Profiler Deep Profile)

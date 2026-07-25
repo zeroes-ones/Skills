@@ -164,6 +164,7 @@ Business strategy scales from a single product line to corporate strategy. The t
 - Fundraising preparation and investor materials
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Pricing Model Selection
@@ -274,6 +275,7 @@ Common chains:
 - **Pricing overhaul**: product-strategist → business-strategist → financial-modeling — Pricing hypothesis → pricing strategy + tiering → revenue projections
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Business Model Design
@@ -299,6 +301,7 @@ Common chains:
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -444,7 +447,31 @@ graph LR
 
 **The One Highest-Leverage Activity**: Write a one-paragraph business strategy for a real or hypothetical company every week. If the strategy doesn't fit in a paragraph, you haven't understood it yet. Share with a peer and ask: "What's wrong with this?"
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Start with the business model canvas, not the pitch deck.** Map all 9 building blocks (value propositions, customer segments, channels, customer relationships, revenue streams, key resources, key activities, key partnerships, cost structure) before writing a single slide. The canvas forces you to confront contradictions (e.g., enterprise pricing vs. self-serve channel) that slide decks let you gloss over.
+
+2. **Size the market bottom-up, not top-down.** "The CRM market is $80B and we only need 1%" is the most common investor eye-roll trigger. Calculate TAM as (number of target customers × annual contract value), SAM as (addressable segment × ACV), SOM as (reachable customers in year 1-3 × ACV). Bottom-up numbers survive diligence; top-down numbers don't.
+
+3. **Model unit economics before scaling spend.** Know your LTV:CAC ratio (target ≥ 3:1), CAC payback period (target ≤ 12 months for SaaS), and gross margin (target ≥ 70% for software) before committing to a GTM channel. Every dollar spent without unit economics is a dollar you can't attribute to ROI.
+
+4. **Sequence GTM channels; don't launch all at once.** Each channel (content, paid, outbound, partnerships, PLG) has different CAC, payback period, and scaling ceiling. Launch one, measure per-channel efficiency for 90 days, then add the next. Killing an underperforming channel is impossible when you launched five simultaneously and can't isolate performance.
+
+5. **Stress-test your competitive moat with the "why won't Google/Amazon crush this?" question.** If your moat is "better UX" or "first mover," you have no moat. Defensible moats include network effects, data network effects, high switching costs, economies of scale, and regulatory barriers. Write down which one you have and be honest.
+
+6. **Price on value delivered, not competitor-minus-X%.** If your product saves a customer $100K/year, charging $20K/year is a bargain — regardless of what competitors charge. Use value-based pricing: quantify the economic value your product creates, then capture 10-30% of that value as your price. Van Westendorp and conjoint analysis give you willingness-to-pay data; competitor benchmarking gives you anchoring bias.
+
+7. **Build a revenue concentration risk dashboard.** If any single customer exceeds 15% of ARR, you have a concentration risk that threatens your valuation. Track this monthly. Create contingency plans for each top-5 customer. Revenue diversification isn't optional — it's survival math.
+
+8. **Segment CAC by channel and cohort, not blended average.** Your "average CAC of $800" hides that content marketing brings leads at $200 while outbound costs $2,500. At scale, your mix shifts toward expensive channels, and your blended CAC doubles. Track CAC by channel, cohort, and quarter to see the trend before it bites you.
+
+9. **Revisit Porter's Five Forces quarterly, not annually.** New entrants, supplier consolidation, substitute products, buyer power shifts, and rivalry intensity change faster than annual planning cycles. A quarterly Five Forces review catches threats while they're still opportunities to adapt.
+
+10. **Document all strategic assumptions and assign an owner to validate each one.** Every business plan contains 20-50 unstated assumptions (market growth rate, customer willingness to switch, competitor response time, regulatory timeline). List them explicitly. Assign each to a named owner with a validation deadline. Track which assumptions have been validated, invalidated, or remain open. An invalidated assumption is a gift — it prevents a bigger mistake later.
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **Porter's Five Forces** analysis that's a one-time exercise — you do it in January, file it away, and the market shifts in March (new entrant, supplier consolidation, substitute product launch). The analysis is stale before it reaches the board. Five Forces must be a quarterly living document, not an annual ritual.
 - **"First mover advantage"** as universal truth — Google was the 18th search engine. Facebook was the 4th social network. Apple wasn't the first MP3 player, smartphone, or tablet. First movers pay the education cost; fast followers pay the execution cost. The winner is determined by execution quality, not chronological order.
@@ -453,6 +480,30 @@ graph LR
 - **Unit economics modeled on "first 100 customers" data.** Early adopters are 3-5x cheaper to acquire than mainstream customers. If your CAC from the first cohort is $500 and you extrapolate that to a $2M demand gen budget expecting 4,000 new customers, actual CAC for the next cohort will be $1,500-$2,500 as you exhaust the enthusiast channel and must pay for awareness. **Total cost: $750K-$1.5M in wasted ad spend and missed pipeline in the first scaling year.** Fix: Segment CAC by channel and cohort; model CAC increasing 20-40% year-over-year as you saturate early channels, and validate with industry benchmarks (SaaS CAC typically 1.5-3x higher at scale than at launch).
 - **Revenue concentration risk ignored in strategic planning.** Your top 2 customers represent 45% of ARR. One gets acquired and consolidates vendors — they're gone in 90 days. The revenue hole triggers a down-round, layoffs, and board panic because there was no diversification plan. **Total cost: $2M-$10M in lost ARR plus 30-50% valuation haircut at next raise.** Fix: Set a hard cap of 15% ARR from any single customer; build a concentration risk dashboard reviewed monthly at leadership meetings; create a "what if" contingency plan for each top-5 customer.
 - **GTM strategy without channel unit economics** — "we'll do content, paid ads, outbound, and partnerships." Each channel has different CAC, payback period, and scaling ceiling. Launching all four simultaneously without measuring per-channel efficiency means you can't cut the $50K/month channel that produces $10K in pipeline. **Total cost: $200K-$500K in wasted GTM spend over 12 months with no ability to attribute failure.** Fix: Launch channels sequentially, not simultaneously; establish per-channel CAC and LTV targets before scaling spend; kill channels that don't hit 50% of target efficiency within 90 days.
+
+- **What:** Pricing strategy anchored to cost-plus ("our cost is $X, let's charge $X + 30%"). **Why:** Cost-plus ignores willingness to pay entirely. If customers would pay $500 for a product that costs you $50 to deliver, cost-plus leaves $415/unit on the table. **Instead:** Use value-based pricing — quantify the economic value delivered (hours saved × hourly rate, revenue lift, risk reduction) and capture 10-30% of that value.
+
+- **What:** Building a GTM strategy by copying the market leader's playbook. **Why:** The leader optimized for their position (brand awareness, existing customer base, massive budget). You're optimized for a different position (zero awareness, zero customers, constrained budget). Copying their playbook is fighting their battle on their terms. **Instead:** Identify unoccupied GTM channels the leader ignores (communities, niche events, partner ecosystems, product-led growth loops) and dominate those before expanding.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any deliverable leaves this skill, verify:
+
+- [ ] Business model canvas complete with all 9 building blocks and identified contradictions resolved
+- [ ] TAM/SAM/SOM calculated bottom-up with documented assumptions, source data, and dated within last 90 days
+- [ ] Unit economics modeled: LTV:CAC ≥ 3:1, CAC payback ≤ 12 months, gross margin ≥ 70%, with per-channel breakdown
+- [ ] Competitive moat identified and stress-tested against the 5 moat types (network effects, data moats, switching costs, scale economies, regulatory barriers)
+- [ ] Pricing strategy validated with willingness-to-pay data (Van Westendorp, conjoint, or value-based calculation), not competitor benchmarking alone
+- [ ] Revenue concentration risk assessed — no single customer > 15% ARR, contingency plans for top-5 customers documented
+- [ ] GTM channels sequenced with per-channel CAC targets, 90-day kill criteria, and scaling ceilings identified
+- [ ] Strategic assumptions documented, risk-ranked, assigned to named owners with validation deadlines
+- [ ] Financial model includes base case, downside case (70% of base), and upside case with documented assumptions
+- [ ] Porter's Five Forces updated within last 90 days with specific recent events cited
+- [ ] Build vs. buy vs. partner analysis completed with 36-month TCO for each option
+- [ ] Revenue model designed with clear monetization mechanics, pricing tiers, and expansion revenue path
+- [ ] Stakeholder map identifies all key decision-makers, influencers, and blockers with engagement plan
+- [ ] Exit strategy or long-term value creation thesis documented (IPO path, strategic acquirer profile, or sustainable private model)
 
 ## Verification
 
@@ -474,6 +525,52 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Scale Depth
+
+### Solo (1-10 employees, pre-revenue)
+- Business model: Lean Canvas (1-page), not full business model canvas
+- Market sizing: Bottom-up SAM for initial beachhead only
+- GTM: Single-channel focus — pick the channel with lowest CAC for your ICP
+- Unit economics: Model on assumptions, validate with first 100 customer conversations
+- Moats: Focus on one defensible advantage; depth over breadth
+- Deliverable: 1-page strategy memo, not a 50-page business plan
+
+### Small (10-50 employees, $1M-$5M ARR)
+- Business model: Full business model canvas with validated assumptions
+- Market sizing: TAM/SAM/SOM with bottom-up methodology and external data sources
+- GTM: 2-3 channels running with per-channel unit economics tracked monthly
+- Unit economics: Cohort-based CAC/LTV with 12+ months of actual data
+- Moats: Active moat-building with measurable progress indicators
+- Deliverable: Strategy deck (10-15 slides) with financial model appendix
+
+### Medium (50-250 employees, $5M-$50M ARR)
+- Business model: Multi-product business model with cannibalization analysis
+- Market sizing: TAM expansion analysis (adjacent markets, new geographies, new segments)
+- GTM: Multi-channel orchestration with attribution modeling and channel conflict management
+- Unit economics: Predictive CAC modeling (CAC by channel as function of scale), LTV by segment
+- Moats: Defensible moat with switching cost quantification and competitive response modeling
+- Deliverable: Annual strategy document with quarterly refresh cadence, board-ready
+
+### Enterprise (250+ employees, $50M+ ARR)
+- Business model: Portfolio strategy — manage multiple business models under one corporate umbrella
+- Market sizing: Multi-market TAM with capital allocation framework across business units
+- GTM: Global GTM with regional P&L ownership, channel partner ecosystems, and M&A integration
+- Unit economics: Full P&L by product line, region, and segment with shared cost allocation
+- Moats: Multi-layered moat defense with regulatory strategy, IP portfolio, and ecosystem lock-in
+- Deliverable: 3-year strategic plan with annual operating plan, board-reviewed quarterly
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Investor calls your TAM "made up" during pitch | Top-down TAM ("$80B market × 1%") with no bottom-up validation | Recalculate TAM bottom-up: [number of target customers] × [ACV]. Show the math on one slide with source citations for each input. | Bottom-up TAM survives diligence. Top-down TAM signals naivete. |
+| LTV:CAC is 4:1 but you're burning cash | Blended CAC hides that paid channels cost 10x organic; as you scale, the channel mix shifts toward expensive channels | Break out CAC by channel and cohort. Model CAC as a function of scale (CAC increases 20-40% YoY as early channels saturate). Show the board your per-channel economics. | Blended metrics lie. Per-channel metrics tell the truth about scalability. |
+| Top customer (30% ARR) churns; stock drops 40% | No revenue concentration risk dashboard; no contingency plan for top customer loss | Implement hard cap: no customer > 15% ARR. Create 90-day contingency plan for each top-5 customer. Diversify pipeline toward ICP, not whales. | Revenue concentration is the silent valuation killer. |
+| Launched 4 GTM channels simultaneously; can't tell which works | No sequential channel testing; no per-channel attribution | Kill 3 channels. Run the remaining one for 90 days with clear CAC target. Add channels only after the current one hits efficiency targets. Measure per-channel, not blended. | Sequential GTM beats simultaneous GTM every time. |
+| Competitor launched a clone of your product; you lost 30% market share in 6 months | Your moat was "better UX" — not defensible | Identify which of the 5 moat types you can build: network effects, data moats, switching costs (integrations, workflows, data gravity), scale economies, or regulatory barriers. Invest 20% of engineering in moat-building. | "Better product" is not a moat. It's an invitation to compete on features. |
+| Board approved $5M GTM budget; 12 months later, pipeline is flat | Budget allocated without channel unit economics; spend distributed evenly across channels regardless of efficiency | Reallocate budget toward channels with proven CAC:LTV ratio. Require per-channel efficiency reporting before releasing next quarter's budget. Implement 90-day kill criteria for underperforming channels. | Budget without unit economics = gambling with other people's money. |
 
 ## References
 - **Financial Modeling Best Practices**: See [financial-modeling-best-practices.md](references/financial-modeling-best-practices.md)

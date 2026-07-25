@@ -157,7 +157,7 @@ Common chains:
 - **Chain**: system-architect → monorepo-manager → ci-cd-builder — Architect defines module boundaries; monorepo manager implements them in tooling; CI/CD builder optimizes the pipeline.
 - **Chain**: devops-engineer → monorepo-manager → frontend-developer — DevOps provisions infrastructure; monorepo manager configures the workspace; frontend dev benefits from shared tooling and fast builds.
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Monorepo Tool Selection
@@ -308,7 +308,7 @@ Common chains:
 **Root config change (tsconfig/eslint/CI) → build ALL packages.**
 **Package-level change → build only changed + dependents. Dramatically reduces CI time.**
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -352,7 +352,20 @@ Common chains:
 5. Automate changelog: link to PRs, categorize changes (feat/fix/breaking), notify affected teams.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Affected-detection is a hard requirement, not an optimization.** Without `nx affected` or `turbo run --filter`, every commit rebuilds and retests every package. A 20-package monorepo with 40-min test suites burns $50K-$200K/year in wasted CI compute. Implement affected detection before the CI bill forces a polyrepo split.
+2. **Remote caching pays for itself in the first month.** Turborepo Remote Cache or Nx Cloud eliminates redundant builds across CI runners and developer machines. A team of 20 developers rebuilding the same dependency graph 50 times/day saves 200+ hours of compute time per month. The license cost is a rounding error compared to the savings.
+3. **Enforce dependency boundaries from day one.** Use `eslint-plugin-import` `no-restricted-imports`, `@nx/enforce-module-boundaries`, or `dependency-cruiser` to prevent circular dependencies and cross-boundary imports. A circular dependency between `packages/ui` and `packages/auth` becomes a $30K-$100K refactoring problem when you need to extract either package.
+4. **Single version policy for shared dependencies.** Use `pnpm.overrides` or `resolutions` to force a single version of React, TypeScript, and other framework dependencies across all packages. Two different React versions in one bundle causes "Invalid hook call" errors with no stack trace. Run `syncpack list-mismatches` in CI and fail on any divergence.
+5. **Workspace organization by deployable vs library.** `apps/` for deployables, `packages/` for shared libraries, `tools/` for generators and scripts. This convention enables tooling to distinguish between packages that need deployment and those that don't. Every new developer should understand the structure in under 5 minutes.
+6. **CODEOWNERS granularity prevents review bottlenecks.** Never use `* @team-platform` at root — it means every README typo requires platform team review. Use directory-specific ownership: `packages/ui/** @team-design-system`, `packages/auth/** @team-security`. Allow escalation paths for cross-cutting changes.
+7. **Git performance at scale requires proactive maintenance.** A monorepo with 500K+ files and 2M commits slows `git status` to 10+ seconds. Deploy `git maintenance start`, enable `core.fsmonitor` (Watchman), use `--filter=blob:none` partial clones, and configure shallow clones in CI. Git performance erosion steals 2-5 hours/week/developer.
+8. **Merge queue for serializing dependency changes.** When 10 developers merge feature branches simultaneously, lockfile conflicts consume 10-20% of merge time. A merge queue serializes dependency changes, regenerates the lockfile on each merge, and eliminates parallel conflicts. Configure CI to regenerate and push fixup commits on lockfile conflicts.
+9. **Lockfile merge strategy must be automated.** Never resolve lockfile conflicts manually — the result is non-deterministic builds. Use `git merge-file` strategy for JSON lockfiles, or configure CI to regenerate the lockfile from scratch on conflict. A manual lockfile merge that passes CI but fails in production is a multi-hour debugging session.
+10. **Tool version alignment across all packages.** Enforce a single TypeScript/ESLint/Prettier version at the monorepo root. Use `syncpack` to ensure all `devDependencies` match. A package compiling with TS 5.4 generating declarations consumed by a package on TS 4.9 creates silent type mismatches that break external consumers.
+
+## Error Recovery **(DEEP)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -504,7 +517,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **`git clone` with full history** on a 5-year monorepo with 2M commits takes 45 minutes and 15GB. Every CI runner, every new hire, every `git bisect` pays this cost. Use shallow clones (`--depth=1`), file-system-level clones (reference repos), or `--filter=blob:none` (partial clone).
 - **Turborepo/Nx cache invalidation** — `turbo run build --force` rebuilds everything. But without `--force`, Nx's computation hashing includes `package.json` dependencies and source files but NOT environment variables. If you change `NODE_ENV` from `development` to `production`, the hash doesn't change and stale builds are served from cache.
@@ -541,6 +554,21 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(DEEP)**
+
+- [ ] **[S1]** Affected-detection operational: `nx affected:build --base=HEAD~1` or `turbo run build --filter=[HEAD^1]` builds only changed packages and their dependents. Verified with a test PR that changes a single package.
+- [ ] **[S2]** Remote caching configured and warmed: main branch builds populate the remote cache. PR builds achieve >80% cache hit rate. Second build with no changes reports FULL TURBO or 100% Nx Cloud cache hit.
+- [ ] **[S3]** Dependency boundaries enforced in CI: `eslint-plugin-import` `no-restricted-imports` or `@nx/enforce-module-boundaries` configured. Zero circular dependencies. CI fails on boundary violations.
+- [ ] **[S4]** Single version policy enforced: `syncpack list-mismatches` returns zero mismatches in CI. `pnpm.overrides` or `resolutions` force single versions of React, TypeScript, and framework dependencies.
+- [ ] **[S5]** Workspace structure follows convention: `apps/` for deployables, `packages/` for shared libraries, `tools/` for generators and scripts. `pnpm-workspace.yaml` with correct package globs.
+- [ ] **[S6]** Git performance monitored: clone completes in <2 minutes, repo size <500MB with `--depth=1`. `git maintenance start` enabled. `core.fsmonitor` active. Partial clones configured for CI.
+- [ ] **[S7]** Merge queue or lockfile merge strategy configured: CI regenerates lockfile on conflict. No manual lockfile merges. Developers never resolve lockfile conflicts by hand.
+- [ ] **[S8]** Build caching outputs defined per task: `.next/**`, `dist/**`, `coverage/**` in `turbo.json` or `project.json`. Environment variable changes invalidate cache correctly.
+- [ ] **[S9]** CI pipeline: changed `packages/ui/` only runs UI tests, not all packages. Matrix builds spawn one job per affected package. Integration tests run after all package-level tests pass.
+- [ ] **[S10]** Versioning and release automated: Changesets configured with changelog generation. Release workflow creates PR on merge to main. Publishing to registry with `--no-private` flag.
+- [ ] **[S11]** Tool version alignment: single TypeScript, ESLint, Prettier version at root. Pre-commit hook runs `syncpack fix-mismatches`. CI fails on version drift.
+- [ ] **[S12]** Strict dependency hoisting: `pnpm` with `hoist: false` or appropriate limits. ESLint `no-extraneous-dependencies` catches phantom imports. Production-mode install + start smoke test in CI.
 
 ## References
 - **Build System & CI/CD**: See [build-system-&-ci-cd.md](references/build-system-&-ci-cd.md)

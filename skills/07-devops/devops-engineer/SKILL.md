@@ -184,6 +184,33 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 
 **Usage**: Say "as an L3 DevOps engineer, design the deployment pipeline for..." Default: **L3** (product-level infrastructure, independent design).
 
+### Scale Depth
+
+### Solo (1 person, 0-100 users)
+- **What changes**: DevOps = PaaS (Vercel/Railway/Render). No IaC. No containers. No CI/CD pipeline. Manual `git push` deploy. Monitoring = built-in PaaS dashboard. Secrets in platform env vars.
+- **What to skip**: Terraform/Pulumi, Docker, Kubernetes, CI/CD pipelines, GitOps, observability stack (Prometheus/Grafana), secrets management (Vault), infrastructure monitoring.
+- **Coordination**: You are ops + dev. No coordination needed. **Cost**: $0-100/month.
+
+### Small Team (2-10 people, 100-10K users)
+- **What changes**: IaC for infrastructure (Terraform). Docker for consistent environments. CI/CD with test + deploy. Managed services for database, cache, queue. Basic monitoring (logs + uptime + basic metrics). Secrets in CI/CD secrets manager. Staging environment.
+- **What to skip**: Kubernetes, GitOps, service mesh, full observability (just logs + uptime + basic metrics), multi-region, self-hosted anything.
+- **Coordination**: DevOps tasks shared among developers. Weekly infra review. PagerDuty for production alerts (rotating). **Cost**: $200-1,000/month.
+
+### Medium Team (10-50 people, 10K-1M users)
+- **What changes**: Dedicated DevOps/SRE (1-2 people). Kubernetes or ECS. GitOps (Argo CD/Flux). Full observability (Prometheus + Grafana + Loki + Tempo). IaC per environment with state isolation. Secrets management (Vault or cloud KMS). CI/CD with security scanning. Auto-scaling. Blue-green deployments. SLOs defined.
+- **What to skip**: Multi-cloud, service mesh, chaos engineering, dedicated platform team.
+- **Coordination**: DevOps weekly planning. Monthly infrastructure review. On-call rotation (follow-the-sun if needed). **Cost**: $5,000-20,000/month.
+
+### Enterprise (50+ people, 1M+ users)
+- **What changes**: Platform engineering team (3+ engineers). Internal developer platform (Backstage). Multi-cloud infrastructure. Service mesh (Istio/Linkerd). Full GitOps. Secrets management with rotation. Chaos engineering. Multi-region active-active. SLOs with error budgets. FinOps practice. Compliance automation. Capacity planning.
+- **What's full production**: Developer platform as a product. Self-service infrastructure. Automated compliance. Cost optimization dashboard. Platform engineering metrics (DORA + platform adoption).
+- **Coordination**: Platform team weekly. Monthly infrastructure review. Quarterly capacity planning. On-call with escalation paths. **Cost**: $50,000-200,000+/month.
+
+### Transition Triggers
+- **Solo → Small**: Second developer joins. PaaS limitations hit (cost or features).
+- **Small → Medium**: 3+ services. Manual deploys causing issues. First production incident at 3 AM.
+- **Medium → Enterprise**: 10+ services with cross-team ownership. Multi-region or compliance required. >50 engineers.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -197,7 +224,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 - Enforcing policy as code: OPA/Checkov in CI pipelines, Sentinel in TFC/E, drift detection
 - Migrating from click-ops → IaC, or push-based CD → GitOps pull-based reconciliation
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### IaC Tool: Terraform vs Pulumi vs CDK
@@ -315,7 +342,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 ```
 **When to choose Active-Active:** RPO <1 min, >$1M/month revenue at risk, 99.99% SLA, budget for 3-5× cost. **When to choose Backup & Restore:** RPO 1-24hr acceptable, <$100K/month revenue at risk, cost-sensitive, 99.5% SLA adequate.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Discovery & Infrastructure Audit
@@ -362,7 +389,21 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Codify everything — no ClickOps.** Every resource from VPC to DNS record lives in Terraform/Pulumi/Crossplane. Manual console changes must be synced to IaC within 24 hours or auto-reverted by drift detection.
+2. **Use remote state with locking.** Store Terraform state in S3/GCS/Azure Storage with DynamoDB/Blob lease locking. Never commit state files to Git. Co-locate the lock mechanism with the state bucket.
+3. **Isolate blast radius via state separation.** Split Terraform state by environment (`prod`, `staging`, `dev`) and by concern (`network`, `compute`, `data`). A corrupted staging state should never block production changes.
+4. **GitOps is the reconciliation loop, not the deploy trigger.** Argo CD/Flux continuously reconcile cluster state with Git. Manual `kubectl apply` on a GitOps cluster must be treated as an incident — it creates drift that auto-heal will revert.
+5. **Enforce environment promotion gates.** Artifacts flow `dev → staging → prod`, never directly to prod. Staging runs production-data-mirrored integration tests. No cherry-pick to production without passing staging first.
+6. **Secrets never touch disk or Git.** Use Vault dynamic secrets, External Secrets Operator, or cloud KMS with short-lived tokens. Rotate credentials on a schedule — static credentials longer than 90 days are a finding.
+7. **Progressive delivery limits blast radius.** 5% canary → 25% → 100% with automated metric comparison. If canary shows >2× error rate, halt and rollback automatically. Blue-green for instant rollback when infrastructure budget allows 2× capacity.
+8. **Monitoring from the user's perspective.** Measure P95/P99 latency at the edge (CDN/ALB), not at the load balancer. SLO burn-rate alerts fire before the error budget exhausts. Synthetic probes test the full user journey every 60 seconds.
+9. **Immutable infrastructure — never patch in place.** Replace AMIs, container images, and server configs; don't SSH in to fix. Immutability eliminates configuration drift and snowflake servers, and makes rollback a redeploy of the previous artifact.
+10. **Run disaster recovery drills, not just DR plans.** Quarterly failover to DR region with production traffic. Measure RPO (actual data freshness) and RTO (time to fully operational). A DR plan that hasn't been tested in 6 months doesn't exist.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -454,6 +495,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+1. [ ] **Terraform state is remote with locking** — S3 + DynamoDB, GCS + object lock, or TFC/E — and state bucket has versioning enabled with MFA delete.
+2. [ ] **Terraform plan runs clean** — zero unexpected creates/destroys/drifts on `terraform plan` from a clean checkout against every environment.
+3. [ ] **Drift detection is enabled and alerting** — AWS Config rules, Terraform drift detection, or Argo CD `OutOfSync` alerts fire within the sync interval + 5 minutes.
+4. [ ] **Secrets never appear in plaintext** — `tfsec`/`checkov`/`detect-secrets` pass with zero findings. No `sensitive = false` on secret outputs.
+5. [ ] **IAM roles follow least privilege** — no `*` in Action or Resource for production roles. Service roles scoped to specific resources. Wildcard policies flagged as critical.
+6. [ ] **All infrastructure is tagged** — mandatory tags enforced by SCP/Terraform validation: `cost_center`, `environment`, `owner`, `compliance` at minimum. Nightly compliance scan auto-terminates untagged resources after 48 hours.
+7. [ ] **Encryption at rest is enabled** — S3 SSE-KMS, RDS encryption, EBS encryption by default in all regions, DynamoDB encryption. KMS key rotation enabled.
+8. [ ] **Encryption in transit enforced** — ALB HTTPS only with minimum TLS 1.2. Service mesh mTLS for inter-service traffic. Vault auto-unseal in production.
+9. [ ] **Rollback is tested and automated** — one-command rollback to previous deployment. Rollback smoke test verifies health. Rollback completes in < 5 minutes from trigger.
+10. [ ] **Disaster recovery documented and drilled** — DR runbook with RPO/RTO targets. Quarterly failover drill with production traffic. Recovery from backup tested monthly by restoring to a staging cluster.
+11. [ ] **Policy as code gates all deployments** — OPA/Checkov/Sentinel blocks non-compliant resources in CI. Production deploys require policy pass + human approval for infrastructure changes affecting security boundaries.
+12. [ ] **Alerting covers the golden signals** — latency (P95/P99), error rate (5xx), throughput (RPS), saturation (CPU/memory/disk). Alerts are multi-window burn-rate based, not raw threshold.
+13. [ ] **Runbooks are executable, not prose** — every alert links to a runbook where steps are scripts. Runbook validation runs weekly in staging. Any runbook not validated in 90 days is flagged.
+14. [ ] **Access to production infrastructure requires MFA** — IAM policies enforce MFA for console access. AssumeRole requires MFA context key. Break-glass procedures documented for MFA device loss.
+
 ## What Good Looks Like
 
 > Infrastructure is fully codified, versioned, and reproducible — nothing is created by hand and nothing drifts. Deployments are zero-downtime with automated rollback on health check failure.
@@ -486,7 +544,7 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 
 **Do a "walk the floor" tour of your infrastructure monthly.** Pick a random service. Can you find its: runbook? dashboards? recent deployment history? on-call rotation? If any of these takes more than 60 seconds, that's your next improvement.
 
-## Gotchas
+## Anti-Patterns
 
 - **Manual infrastructure changes (ClickOps) outside of IaC** — an on-call engineer manually increases an RDS instance size via the AWS console during a 2 AM incident to restore service, then forgets to update the Terraform config. The next `terraform apply` reverts the instance back to the smaller size, re-triggering the exact same outage during business hours when customer traffic is 10x higher. The resulting 4-hour production outage costs $50K in SLA credits, $30K in engineering firefighting time, and $120K in customer trust erosion. **Total cost: $50K-$200K per drift-related outage from manual infrastructure changes.** Immediately after any emergency manual change, create a Jira ticket to sync the change back into IaC within 24 hours, and enable AWS Config rules or drift detection to alert on infrastructure-state mismatches.
 - **Terraform `count` vs `for_each`**: When you remove an item from the MIDDLE of a count-based list, Terraform shifts all subsequent resource indices. The resource at index 3 gets destroyed and recreated as index 2 — potentially destructive. `for_each` with stable keys prevents index shifting.

@@ -118,7 +118,7 @@ The smart contract auditor's job is not to find bugs — it's to **think like an
 - Continuous audit program for protocols with frequent upgrades -- CI-integrated fuzzing pipeline
 
 <!-- STANDARD: 3min -->
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Tree 1: Vulnerability Detection Funnel
 
@@ -201,7 +201,7 @@ Flash loan vector identified
 ```
 
 <!-- STANDARD: 3min -->
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1: Automated Static Analysis (est. 1-2 hours)
 1. Run Slither detection suite: `slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-benign,reentrancy-events`
@@ -243,6 +243,20 @@ Flash loan vector identified
 **Completion criteria:** Final audit report. All Critical/High findings have PoCs. Remediation timeline agreed with development team.
 
 <!-- STANDARD: 3min -->
+## Best Practices
+
+1. **Every external call must follow Checks-Effects-Interactions.** Update state before making external calls. ReentrancyGuard is defense-in-depth, not a replacement for correct CEI ordering. ERC-777 and ERC-721 callbacks introduce reentrancy hooks on token transfers — assume ALL external calls are malicious.
+2. **Never use tx.origin for authentication.** Use `msg.sender` with OpenZeppelin's AccessControl for multi-role authorization. `tx.origin` bypasses all proxy and wallet contract protections, effectively delegating all user authority to any contract they interact with.
+3. **Never use single-DEX spot price as oracle.** Spot prices are manipulatable with flash loans in a single transaction. Use TWAP (>=30 min window) or Chainlink with staleness checks (answeredInRound) and deviation circuit breakers. Dual oracles with medianizer for high-value protocols.
+4. **Use Solidity >=0.8.x for built-in overflow protection.** For <0.8.0 codebases, verify SafeMath is applied to every arithmetic operation. Audit every `unchecked` block as a potential overflow vector — intentional bypass of overflow checks must be documented with rationale.
+5. **Collateral ratios must be recalculated atomically within each transaction.** Flash loans can manipulate collateral values between operations. Never cache collateral ratios or debt positions across external calls. Recalculate total collateral and total debt after every state-changing operation.
+6. **Upgradeable contracts need `_disableInitializers()` in the constructor.** Without it, anyone can call `initialize()` on the implementation contract and seize control. Verify `__gap` storage arrays for future variables. Run storage layout diffs on every upgrade. Remove `selfdestruct` from all implementation contracts.
+7. **Signatures require EIP-712 domain separators with chainId.** Include `block.chainid`, verifying contract address, deadline timestamps, and nonces in every signature payload. Verify signer is not `address(0)`. Structured data via EIP-712 prevents cross-contract replay and blind signing.
+8. **Governance proposals need timelock delays (48h+ minimum).** Flash loan governance attacks can pass malicious proposals in a single block by borrowing voting power. Use snapshot-based voting weight checkpointing. Timelock gives the community time to exit or block malicious proposals.
+9. **Bridge messages must be explicitly marked as processed before execution.** Cross-chain message replay can drain entire bridges if the processed flag is never checked. Include `chainId` in message hashes. Add rate limiting on message processing per block. Verify message authenticity at every layer of the bridge stack.
+10. **Delegatecall targets must be immutable or governance-controlled with timelock.** `delegatecall` to an attacker-controlled address grants full storage write access. Hardcode library addresses or store in immutable variables. If dynamic targets are required, maintain a whitelist managed by governance with timelock and verify target code hash before executing.
+
+<!-- STANDARD: 3min -->
 ## Error Recovery
 
 If a cryptographic implementation, verification, or deployment fails, follow this escalation path before giving up:
@@ -256,24 +270,8 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 
 **Hard failure boundary:** If 3 independent approaches all fail, STOP. Log what was tried, capture error output, and report the blocking issue with full context.
 
-
-| # | Domain | Best Practice |
-|---|--------|---------------|
-| 1 | Reentrancy | Every external call (.call, transfer, send) must follow Checks-Effects-Interactions pattern. State updates BEFORE external calls, not after. ReentrancyGuard is defense-in-depth, not a replacement for CEI. |
-| 2 | Access Control | Use OpenZeppelin's AccessControl (Ownable is insufficient for multi-signer protocols). Never use tx.origin for authentication. Audit every onlyOwner/admin function as a potential centralization risk. |
-| 3 | Oracle Safety | Never use single-DEX spot price. Chainlink feeds must have staleness checks (answeredInRound). TWAP windows must be >= 30 min. Dual oracles with medianizer for high-value protocols. |
-| 4 | Arithmetic Safety | Solidity >= 0.8.0 for built-in overflow checking. For <0.8.0, verify SafeMath or OpenZeppelin Math is used. Check for unchecked blocks that might intentionally bypass overflow protection. |
-| 5 | Flash Loan Resistance | Collateral ratios must be recalculated atomically within each transaction. Flash loan + oracle manipulation is the most common exploit pattern -- TWAP and circuit breakers are mandatory. |
-| 6 | Upgrade Safety | Implement _disableInitializers() in implementation constructor. Use __gap array for storage buffer. Verify storage layout diff on every upgrade. ERC-7201 namespaced storage for complex protocols. |
-| 7 | Signature Verification | Include block.chainid in EIP-712 domain separator. Validate deadline/expiry timestamps. Use nonces to prevent replay. Verify signer address is not address(0). |
-| 8 | Bridge Security | Validate message authenticity (not just origin). Include chainId in cross-chain messages. Verify adapter/relayer integrity. Monitor for message delays that indicate censorship. |
-| 9 | Gas Optimization Security | Assembly blocks must be carefully audited for storage slot correctness. Shortcut optimizations (unchecked math, unsafe casting) can introduce critical vulnerabilities. Gas optimization must never compromise safety. |
-| 10 | Timelock & Governance | Governance proposals need timelock delay (48h+ minimum). Flash loan governance attacks can pass malicious proposals. Use Snapshot for voting weight checkpointing. |
-| 11 | Fallback Functions | Receive() and fallback() functions can be called by anyone. Verify they don't perform state-changing operations or accept arbitrary calls. |
-| 12 | Event Emissions | Critical state changes must emit events for off-chain monitoring. Slither can detect missing events. Events are also used for reorg protection -- verify event ordering. |
-
 <!-- DEEP: 10+min -->
-## Error Decoder
+## Error Decoder **(STANDARD)**
 
 ### War Story 1: The DAO Reentrancy ($60M)
 
@@ -323,7 +321,29 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 | **L5 — Research auditor** | Publishes new vulnerability classes (read-only re-entrancy, cross-chain MEV). Contributes to formal verification tooling. Expert witness for major exploits and legal cases. |
 
 **Usage**: Say "at L3, audit this lending protocol..." or calibrate by protocol complexity. Default: **L3** (protocol-level audit).
-## Production Readiness Checklist
+
+### Scale Depth
+
+#### Solo (0-10 users)
+Run Slither and static analysis. Use OpenZeppelin contracts. Focus on known vulnerability patterns (reentrancy, access control, overflow). Single auditor, manual review only. No fuzzing infrastructure needed.
+
+#### Small Team (10-100 users)
+Add Echidna fuzzing with handcrafted invariants. Implement Foundry invariant tests in CI. Track findings in a structured database. Begin using Manticore for symbolic execution on critical paths. Two-reviewer policy for all Critical findings.
+
+#### Medium Team (100-10K users)
+Continuous fuzzing in CI with corpus management. Trail of Bits severity classification. Formal verification with Certora for economic invariants. Third-party audit firm engagement. Bug bounty program with defined scope. MEV and economic attack modeling.
+
+#### Enterprise (10K+ users)
+Dedicated internal audit team. Formal verification of all state transitions. Real-time monitoring with circuit breakers. Multiple independent audit firms. Public bug bounty with $1M+ maximum. Governance attack simulations. Cross-chain attack surface analysis. Incident response retainer.
+
+#### Transition Triggers
+- TVL exceeds $10M → add Echidna fuzzing and invariant tests
+- TVL exceeds $100M → engage third-party audit firm, add Certora formal verification
+- TVL exceeds $1B → establish internal audit team, continuous fuzzing, bug bounty
+- Governance token launched → add governance attack simulation, timelock review
+- Cross-chain deployment → add bridge security audit, message verification review
+
+## Production Readiness Checklist **(STANDARD)**
 
 | # | Item | Ref |
 |---|------|-----|
@@ -409,6 +429,38 @@ Before beginning a new phase:
 | Audit contest results published for a protocol you're about to audit | Review the winning findings before starting your audit to calibrate severity baseline | Independent auditors converge on the same Critical findings ~80% of the time |
 | Solidity/EVM upgrade introduces new opcodes or changes gas schedule | Test all audited contracts against the new EVM version | Gas schedule changes can break economic assumptions in liquidation and auction logic |
 | Governance proposal submitted to upgrade audited contracts | Audit the proposed upgrade code diff within 48 hours | Every upgrade invalidates the prior audit for the changed code paths |
+
+## Anti-Patterns
+
+### Anti-Pattern: Spot Price Oracle
+**What it looks like:** Using `getReserves()` from a single Uniswap pair as the price oracle for collateral valuation, liquidation thresholds, or trading.
+**Why it fails:** Anyone can flash-swap to manipulate the reserve ratio, artificially inflating or deflating the spot price within a single transaction. The manipulated price is then used to borrow against inflated collateral or trigger unfair liquidations. This is the most common DeFi exploit pattern.
+**Do this instead:** Use TWAP with >=30 min window. Add Chainlink price feed as secondary oracle with deviation check. Implement circuit breaker that pauses operations when oracle deviation exceeds 15%. Use medianizer for multi-oracle feeds.
+
+### Anti-Pattern: CEI Violation
+**What it looks like:** Making an external call (`.call`, `.transfer`, `.send`) before updating internal state, then updating state after the call returns.
+**Why it fails:** The external call can re-enter the same function (or any function sharing state) before the state update. The re-entered call sees the old state and can withdraw funds repeatedly (The DAO, $60M). ERC-777 and ERC-721 callbacks make this worse by introducing reentrancy hooks on token transfers.
+**Do this instead:** Follow Checks-Effects-Interactions: validate inputs (Checks), update all state variables (Effects), then make external calls (Interactions). Add ReentrancyGuard modifier as defense-in-depth. Prefer pull payment patterns where users withdraw rather than the contract pushing funds.
+
+### Anti-Pattern: `tx.origin` Authentication
+**What it looks like:** `require(tx.origin == owner)` to authorize privileged operations or verify caller identity.
+**Why it fails:** `tx.origin` is always the original EOA that initiated the transaction, not the immediate caller. If a user's wallet interacts with a malicious contract, that contract can call the victim's authorized functions and bypass `msg.sender` checks. This effectively delegates all user authority to any contract they interact with.
+**Do this instead:** Use `msg.sender` with OpenZeppelin AccessControl for role-based authorization. For multi-sig, use a proper multi-sig wallet (Safe). Never use `tx.origin` for any authentication or authorization decision.
+
+### Anti-Pattern: Uninitialized Proxy Implementation
+**What it looks like:** Deploying an upgradeable contract where the implementation has an `initialize()` function but no `_disableInitializers()` call in the constructor.
+**Why it fails:** Anyone can call `initialize()` directly on the implementation contract, setting themselves as owner/admin. They can then call `selfdestruct` (if present) to brick all proxies, or upgrade to a malicious implementation. The Parity multi-sig freeze froze $300M+ from this exact pattern.
+**Do this instead:** Call `_disableInitializers()` in the implementation contract's constructor. Use OpenZeppelin's Initializable with the reinitializer guard. Remove `selfdestruct` from all upgradeable contracts. Add `__gap[50]` storage arrays for future variables. Verify storage layout compatibility on every upgrade.
+
+### Anti-Pattern: No Range Check on User Inputs
+**What it looks like:** Accepting user-supplied values (collateral ratios, fees, token amounts, slippage) without verifying they fall within expected bounds.
+**Why it fails:** An attacker can supply extreme values — a 0% collateral ratio, a 100% fee, or an arbitrarily large token amount — that bypass protocol invariants. Integer overflow in older Solidity versions can also wrap values around to bypass checks. Missing range checks on exchange rate inputs have caused $100M+ oracle manipulation exploits.
+**Do this instead:** Add explicit range checks: `require(value >= MIN && value <= MAX, "Out of range")`. Use Solidity >=0.8.x for built-in overflow checks. Never trust user-supplied parameters without bounds validation. Add circuit breakers that revert when parameters deviate from expected norms.
+
+### Anti-Pattern: `delegatecall` to Untrusted Address
+**What it looks like:** Using `delegatecall` with a user-supplied or dynamically-resolved target address in a proxy, library, or plugin pattern.
+**Why it fails:** `delegatecall` executes the target contract's code in the caller's storage context. An attacker-controlled target can modify any storage slot, including owner, balances, and implementation address. This gives an attacker full control over the contract's entire state.
+**Do this instead:** Hardcode `delegatecall` targets or store them in immutable variables. If dynamic targets are required, maintain a whitelist managed by governance with timelock. Verify the target contract's code hash before `delegatecall`. Prefer storage-collision-free patterns like ERC-7201 namespaced storage.
 
 ## What Good Looks Like
 

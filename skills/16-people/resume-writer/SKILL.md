@@ -113,6 +113,8 @@ What are you working on?
 
 ## Core Workflow
 
+**Core Workflow** **(STANDARD)**
+
 ### Phase 1: Build from Scratch
 
 **Step 1 — Extract experience.** Interview the candidate. For each role, ask: What were you hired to do? What did you accomplish that you're proudest of? What numbers can you attach? Who did you work with? What tools/technologies did you use?
@@ -149,6 +151,8 @@ What are you working on?
 Ensure headline, about section, and featured content mirror resume keywords and accomplishments. Recruiters cross-reference — inconsistency is a red flag.
 
 ## Decision Trees
+
+**Decision Trees** **(QUICK)**
 
 ### 1. ATS Optimization Strategy
 
@@ -266,6 +270,8 @@ Should you write a cover letter?
 
 ## Error Recovery
 
+**Error Recovery** **(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -365,7 +371,29 @@ Before beginning a new phase, verify:
 | Skills: "Team player, hard worker, good communicator" | Skills: "Python, React, AWS, Docker, PostgreSQL" | Skills grouped by proficiency with evidence: "Python (6 yrs, built 12 production services), React (4 yrs, 3 products shipped to 500K+ users)" |
 | 3-page resume for 5 years experience | 1-page resume with 8 strongest bullets | 1-page resume where every bullet answers "So what?" with a number — recruiter can scan in 6 seconds and know exactly what you deliver |
 
-## Gotchas
+## Best Practices
+
+1. **Design resumes in single-column format for 100% ATS parse accuracy.** Multi-column layouts cause experience entries to land in the education field. Images, icons, text boxes, and headers/footers with contact info get stripped or garbled. Test: save as .txt and verify content is still in correct order. If not, ATS will garble it too. A resume rejected by ATS costs you a job you were qualified for — potentially $10K-$50K in lost salary differential per missed opportunity.
+
+2. **Mirror the job description's terminology verbatim in your resume.** ATS keyword matching is literal, not semantic. If the JD says "managed cross-functional teams" and your resume says "led multi-department groups," ATS scores it as zero match. Extract the top 10 keywords and phrases from each target JD and mirror them exactly. A resume scoring 50% match vs 85% match is the difference between a recruiter ever seeing your application or not.
+
+3. **Quantify every bullet with at least one of: dollars, percentages, time, scale, or headcount.** "Led engineering team" scores 2/5 on recruiter impact scoring. "Led 8-person engineering team that shipped payment processing rewrite, reducing chargeback rate from 3.2% to 0.8% and recovering $2.1M in annual revenue" scores 5/5. Recruiters scan for numbers before reading text. Quantification is the single highest-ROI resume improvement.
+
+4. **Tailor resumes for every application with a 15-minute keyword optimization pass.** Generic resumes average 2-4% interview rate (2 interviews from 50 applications). Tailored resumes with keyword-matched bullets average 40-50% interview rate (4-5 interviews from 10 applications). For a professional earning $8K/month, each additional month of job search costs $8K — the generic approach adds 2-3 months. Spend 30-45 minutes per application adapting bullets.
+
+5. **Remove GPA and graduation year after 3 years of professional experience.** For senior roles ($120K+), listing a GPA signals you haven't accomplished anything more recent or relevant to highlight. A senior engineer with a 3.2 GPA listed is perceived as 1-2 levels more junior than one with the same experience and no GPA — costing $10K-$30K in salary compression. Replace with "Key Achievements" or "Selected Impact" section leading with your strongest career metric.
+
+6. **Name resume files professionally: FirstName_LastName_Resume.pdf.** "resume_final_v3_UPDATED.pdf" signals disorganization before the file is opened. Recruiters receive 250+ resumes per role — they judge attention to detail from the filename. Include the company name for tailored versions: "FirstName_LastName_Resume_CompanyName.pdf" to help recruiters organize.
+
+7. **Use .docx format for ATS submissions, PDF for human-first channels.** Many ATS systems (especially government, university, and large enterprise legacy systems) cannot parse PDFs at all. Submitting PDF to a .docx-only ATS means your resume is blank to the system — 100% rejection rate. Check the job posting for format requirements. If unspecified, .docx is safer for ATS; PDF for email, LinkedIn, and direct recruiter channels.
+
+8. **Structure cover letters as Hook-Match-Close under 200 words with no resume rehash.** Hook: one sentence showing you understand the company's specific challenge. Match: 2-3 bullet points connecting your achievements to their needs, with metrics. Close: clear call to action. A cover letter that rehashes the resume is worse than no cover letter — it signals you don't understand the purpose of the format. Write a new letter for each role; templates are detectable and counterproductive.
+
+9. **Maintain 3 resume variants for your top role types, not one generic master.** A full-stack engineer applying to both backend-heavy and frontend-heavy roles needs different lead bullets and skill emphases for each. Similarly, an IC applying to both IC and management roles needs different achievement framing. Build: (1) a master resume with all achievements, (2) 2-3 variant resumes emphasizing different skill clusters. This makes the 30-45 minute per-application tailoring manageable instead of overwhelming.
+
+10. **Audit every line with the "So what?" test.** For each bullet: if a recruiter asks "So what?" does the next word answer the question? "Responsible for managing a team of 5" → So what? (You haven't answered). "Managed 5 engineers to ship 3 features that increased user retention 12%" → That's what. Every bullet must survive the so-what test. Generic soft-skill claims without evidence read as "I have nothing measurable to say" and land you in the "maybe" pile instead of "yes."
+
+## Anti-Patterns
 
 - **ATS systems parse your resume into fields — and they get it wrong 30% of the time.** Multi-column layouts cause experience entries to land in the education field. Images and icons become garbage characters. Headers/footers with contact info get stripped entirely. **A resume rejected by ATS costs you a job you were qualified for — potentially $10,000-$50,000 in lost salary differential per missed opportunity.** Test: save your resume as .txt and see if the content is still in the right order. If not, ATS will garble it too.
 - **"References available upon request" wastes the most valuable line on your resume.** Every recruiter knows references are available. This line signals you are following a 1995 template and haven't updated your approach. **It occupies space that could hold a metric-driven bullet — the difference between a "maybe" and a "yes" pile decision.**
@@ -394,6 +422,60 @@ Master resume writing through progressive difficulty:
 | "Responsibilities are enough, results are implied" | "Managed a team of 5" tells nothing; "Led 5 engineers to ship 3 features that increased retention 12%" tells everything |
 | "I'll tailor my resume for each application" | Manual tailoring for 50+ applications is unsustainable; without a tiered resume strategy (master + 2-3 variants), consistency collapses by week 2 |
 | "Gaps in employment need creative explanations" | Fabricated gap explanations surface in background checks; honest framing ("sabbatical: completed AWS certification, consulted for 2 startups") converts liability to asset |
+
+## Production Checklist **(STANDARD)**
+
+Before delivering any resume or cover letter, verify ALL of:
+
+1. ATS format check: single-column layout, standard headings (Experience, Education, Skills), no images/icons/text boxes — save as .txt and verify content order is correct and complete
+2. Contact information verified: name, phone, email, LinkedIn URL, portfolio/GitHub URL (if applicable) — all links tested and working
+3. Every bullet quantified: at least one of dollars, percentages, time, scale, or headcount per bullet — zero "Responsible for" or "Assisted with" language
+4. Keywords matched: top 10 keywords and phrases from target JD extracted and mirrored verbatim in resume — semantic equivalents flagged and replaced with exact matches
+5. Soft skills evidenced: zero generic soft-skill claims without metrics — every claim backed by a quantified achievement (not "excellent communicator" but "Presented quarterly reviews to C-suite, influencing $2M in budget allocation")
+6. Length compliance: 1 page (<10 years experience), 2 pages (10-20 years), 3 pages only for academic/executive with publications — trim if over
+7. File format: .docx for ATS submissions (check JD for requirements), .pdf for human-first channels (email, LinkedIn, direct recruiter) — correctly named: "FirstName_LastName_Resume.pdf"
+8. GPA removed: no GPA or graduation year listed for candidates with 3+ years professional experience — replaced with "Key Achievements" or "Selected Impact" section
+9. Cover letter (if applicable): Hook-Match-Close structure, company-specific first paragraph referencing their specific challenge, under 200 words, no resume rehash — each letter unique to the role
+10. Ground Rules audit: zero objective statements, zero "References available upon request," zero fabrications or embellishments — every claim defensible in a background check
+11. LinkedIn alignment: headline, About section, and featured content mirror resume keywords and metrics — profile and resume tell the same story
+12. Master + variants: master resume maintained with all achievements, 2-3 variant resumes tailored to primary role types — variants maintained in sync
+
+## Scale Depth
+
+### Entry-Level (0-3 years, internship to first job)
+- **Format**: 1 page. Chronological. Education at top (until 3 years experience).
+- **Content**: Academic projects, internships, relevant coursework, GPA optional (include if ≥3.5). Quantify wherever possible: "Built X that served Y users."
+- **Keywords**: Mirror internship JD language. Focus on technologies, tools, and frameworks listed in requirements.
+- **Tools**: Google Docs, Novoresume, Canva basic templates. ATS test: Jobscan free tier.
+- **Skip**: Executive summary, publications section, patents, board memberships.
+
+### Mid-Career (3-10 years, Senior/Staff IC or Manager)
+- **Format**: 1-2 pages. Reverse chronological. Experience-first (education at bottom). Key Achievements section at top.
+- **Content**: Every bullet quantified with business impact (revenue, cost savings, team outcomes). Leadership and cross-functional stories. No GPA.
+- **Keywords**: 10+ keyword match per JD. Customized master + 2-3 variants for primary role types. Professional resume writer review recommended.
+- **Tools**: Teal, Enhancv, Jobscan, Resume Worded. Professional resume writer for career transitions ($200-$500).
+- **Skip**: Full academic CV format, patents section (unless exceptionally relevant to target role).
+
+### Executive (10+ years, Director/VP/C-suite)
+- **Format**: 2 pages. Reverse chronological. Executive summary replaces objective. Board memberships and advisory roles included. Selected publications/patents if relevant.
+- **Content**: Strategic impact quantified: revenue growth, market expansion, organizational scale. P&L responsibility stated. Team sizes and budget scope. Exit outcomes for founder roles.
+- **Keywords**: Industry- and function-specific terminology. Target role language mirrors executive JD. Professional resume writer strongly recommended.
+- **Tools**: Executive resume writers ($500-$2,000). Personal website with portfolio. LinkedIn executive profile optimization.
+- **Add**: Press mentions, keynote speaking, industry awards, board service, thought leadership publications.
+
+### Transition Triggers
+- Entry → Mid-Career: You're targeting Senior+ roles. GPA no longer relevant. Experience section leads. Quantified impact becomes differentiating.
+- Mid-Career → Executive: You're targeting Director+. Board, P&L, and organizational-scale metrics expected. Professional writer ROI is 10-50x for executive comp packages.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Applied to 50 jobs with a great resume — got 1 response" | Generic resume, not tailored. ATS scored 40-60% match; competitors scored 85-95%. Recruiter never saw it. | For each application: extract top 10 keywords from JD, mirror them verbatim in your resume. Spend 30-45 minutes per application adapting bullets. | Generic resumes average 2-4% interview rate. Tailored resumes average 40-50%. The difference is whether a human ever sees your application. |
+| "Resume is beautiful — multi-column, icons, custom fonts — but ATS garbled it" | Multi-column layouts cause field misattribution. Images become garbage. Custom fonts aren't parsed. | Switch to single-column, standard fonts (Arial, Calibri, Garamond), no images/icons/text boxes. Save as .txt to verify content order. Submit .docx for ATS. | A beautiful resume that can't be parsed never reaches human eyes. ATS optimization is the first filter — pass it before optimizing for human readers. |
+| "Every bullet uses 'Responsible for...' — resume reads like a job description, not an achievement record" | Writing from job description mindset, not accomplishment mindset. No quantification habit. | Transform every bullet: "Responsible for [task]" → "[Action verb] + [what you built/changed] + [quantified result]." Example: "Led 5 engineers to reduce latency 40%, saving $2.1M annually." | Recruiters scan for numbers before reading text. A resume without metrics is invisible in a 6-second scan. The "So what?" test is your best editor. |
+| "GPA listed on resume with 8 years experience — perceived as more junior than I am" | Haven't updated resume since college. Default template included GPA. | Remove GPA and graduation year after 3 years professional experience. Replace with "Key Achievements" or "Selected Impact" leading with strongest career metric. | Listing GPA with 5+ years experience signals you haven't accomplished anything more recent to highlight. Cost: $10K-$30K in salary compression from being leveled lower. |
+| "Cover letter is just my resume in paragraph form — hiring manager didn't read it" | Misunderstood the purpose of a cover letter. It's a narrative pitch, not a prose resume. | Structure as Hook-Match-Close: (1) Hook: one sentence showing you understand their specific challenge. (2) Match: 2-3 bullets connecting your achievements to their needs. (3) Close: clear call to action. Under 200 words. No resume rehash. | A resume-rehash cover letter is worse than no cover letter — it signals you don't understand the format. Write a new letter for each role; templates are detectable and counterproductive. |
 
 ## Verification
 
@@ -429,7 +511,12 @@ Detailed reference material loaded on demand:
 - **Cover Letter Templates — Per Industry**: See [references/cover-letter-templates.md](references/cover-letter-templates.md)
 - **Action Verb Lexicon**: See [references/action-verbs.md](references/action-verbs.md)
 - **Anti-Patterns**: See [references/anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [references/best-practices.md](references/best-practices.md)
 - **Calibration — How to Know Your Level**: See [references/calibration.md](references/calibration.md)
+- **Production Checklist**: See [references/checklist.md](references/checklist.md)
+- **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [references/footguns.md](references/footguns.md)
+- **Scale Depth: Entry-Level → Mid-Career → Executive**: See [references/scale-depth.md](references/scale-depth.md)
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)

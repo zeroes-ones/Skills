@@ -152,6 +152,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Designing feature flags and progressive rollouts to de-risk product changes
 
 ## Decision Trees
+**(QUICK)**
 
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
@@ -162,6 +163,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
                      ┌──────────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -196,6 +198,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -403,7 +406,31 @@ graph LR
 | "We can run all 7 experiments at once — more learning" | Concurrent experiments with unmeasured interactions mean 3 'winners' at +5% each combine to -2% net — $60K-$250K in negative interaction effects from features that don't work together. |
 | "Analytics tracking is set up — the events are firing" | Silent event failures from a single misnamed property mean you optimize with incomplete data for weeks — $40K-$150K in misdirected effort on broken growth loops you can't see. |
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Design growth loops, not growth funnels.** Funnels are linear (acquire → activate → retain → revenue → refer) and leak at every stage. Loops are self-reinforcing: new users generate more new users (viral loops), usage generates content that attracts more usage (content loops), or paid acquisition funded by revenue that grows with user base (paid loops). A funnel requires continuous fuel; a loop generates its own.
+
+2. **Calculate viral coefficient (K-factor) with realistic assumptions, not hockey-stick projections.** K-factor = (invites sent per user) × (conversion rate of invites). If K > 1, you have viral growth. If K = 0.3, each cohort generates 43% additional users over time (1 / (1 - 0.3) = 1.43x). Most products overestimate invite-send rate by 3x and conversion by 2x. Use cohort data, not survey data.
+
+3. **Instrument everything before running experiments.** You can't optimize what you can't measure. Minimum instrumentation: acquisition source, activation event (time-to-value), retention by cohort (D1, D7, D30), referral tracking, revenue per user. If your experiment takes 2 weeks to build but 3 weeks to instrument, instrument first.
+
+4. **Run A/B tests with proper statistical rigor: pre-register metrics, calculate sample size, and don't peek.** The most common growth failures: (1) stopping tests early because "significance was reached" (peeking inflates false positive rate from 5% to 25%+), (2) testing too many variants with too little traffic (MAB or sequential testing needed), (3) measuring 20 metrics and celebrating the one that's "significant" (multiple comparisons problem). Pre-register your primary metric before the test starts.
+
+5. **Optimize for retention before acquisition.** Acquiring users into a leaky bucket is the fastest way to burn venture capital. Fix D1 retention (did they experience value on day 1?), D7 retention (did they form a habit?), and D30 retention (are they an engaged user?) before scaling acquisition spend. A 5% improvement in retention compounds; a 5% improvement in acquisition is linear.
+
+6. **Map the "aha moment" and time-to-value for every persona.** The aha moment is when a user first experiences your core value proposition. For Dropbox, it's the first file sync; for Slack, it's the first Search that finds something useful. Measure time-to-aha in minutes or sessions. Users who hit the aha moment in session 1 retain at 2-3x the rate of those who don't. Every experiment should ask: "Does this get users to their aha moment faster?"
+
+7. **Segment retention by acquisition channel, not blended average.** Users from paid search churn 2-3x faster than users from organic or referral. If you optimize blended retention, you're optimizing for the wrong behavior. Track retention by channel, by cohort week, and by persona. Kill channels where D30 retention is below threshold regardless of CAC.
+
+8. **Use the ICE framework (Impact, Confidence, Ease) for experiment prioritization, not gut feel.** Score each experiment 1-10 on all three dimensions. Impact = how much will this move the North Star metric if it works? Confidence = how certain are we it will work? (Data from similar tests = high; executive intuition = low.) Ease = how quickly can we ship the MVP? Prioritize by ICE score, not by who requested it.
+
+9. **Build growth models in spreadsheets before building them in code.** A growth model takes 2 hours in Google Sheets and answers: "If we improve activation by 20%, what happens to revenue in 12 months?" Before committing engineering resources to an experiment, model the expected impact. If the model says a 50% improvement in a metric produces a 2% revenue lift, the experiment has low leverage regardless of outcome.
+
+10. **Treat growth as a cross-functional discipline, not a marketing function.** Growth lives at the intersection of product, engineering, data, and marketing. A growth team without engineering resources is a marketing team running A/B tests on landing pages. A growth team without data resources is guessing. The most effective growth teams are embedded with product and have dedicated engineering, data, and design support.
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **A/B test without statistical significance — shipping on noise.** You run a checkout flow experiment for 3 days, variant B shows +8% conversion with p=0.12, and you declare it "directionally positive" and ship it. The p=0.12 means there's a 12% chance the observed lift is pure random noise — far above the standard α=0.05 threshold. Six weeks later, when the feature is fully rolled out with 50,000 users, the "8% lift" has regressed to a statistically insignificant 1.2%, but you've already committed engineering resources, written documentation, and trained the support team on the new flow. A single bad decision based on an underpowered test costs $50K in wasted engineering time and lost opportunity, and a growth team making 10 such decisions per year ships 3-4 features that have zero or negative impact. **Total cost: $50K-$200K in bad product decisions from false positives in underpowered or prematurely stopped A/B tests.** Pre-register every test with a required sample size (power=0.80, MDE defined), use sequential testing with adjusted stopping boundaries if peeking is necessary, and never ship a result where p > 0.05 or the confidence interval includes zero.
 - **Growth hacks without retention — the leaky bucket.** You run a viral referral campaign that drives 50,000 new signups in a month at $0.80 CAC — a spectacular "growth win." But 90-day retention for these users is 4% (vs 25% for organic users) because they signed up for the referral bonus, not because they needed your product. You spent $40K acquiring users who generate $8K in lifetime value (LTV:CAC = 0.2), and the churn spike dilutes your aggregate retention metrics, misleading investors and product teams about the health of the user base. Repeat this pattern across 3-4 campaigns and you've burned $150K-$300K in acquisition cost for users who don't stick, plus $100K-$200K in opportunity cost from not investing in retention improvements that would have increased organic LTV. **Total cost: $100K-$500K in leaky bucket acquisition where churn erases growth gains.** Track cohort retention separately for each acquisition channel and never declare a growth initiative successful until the 90-day cohort retention rate meets or exceeds the organic baseline.
@@ -415,6 +442,30 @@ graph LR
 - **Cookie-based user tracking** loses 30-50% of mobile users (Safari ITP blocks third-party cookies, Android app switches break continuity). Server-side identity resolution (email, user ID on login) is the only reliable cross-device tracking for growth experiments.
 - **`navigator.sendBeacon()` for event tracking** fires even when the page is unloading, but the payload size limit is 64KB. If your analytics payload is 70KB (e.g., full DOM snapshot for session replay), the beacon silently drops with no error callback.
 - **Funnel conversion rates** are ratios, not counts. A funnel that goes 1000 → 200 → 40 (4% overall) can't be decomposed as 20% × 20% = 4% if the 200 users who reached step 2 are DIFFERENT from the 200 in the 20% step-1-to-2 rate. Joined vs unjoined funnels produce different numbers — report both.
+
+- **What:** Running A/B tests without calculating required sample size first. **Why:** If your test needs 50,000 users per variant for statistical significance and you only get 5,000/week, you'll be "testing" for 10 weeks while making decisions on noise. Most declared "winners" in this scenario are false positives. The cost is shipping features that actually hurt metrics. **Instead:** Use a sample size calculator before every test. If traffic is insufficient, test bigger changes (higher MDE), use sequential testing, or accept that some hypotheses can't be tested with your current scale.
+
+- **What:** Celebrating a 20% lift in a secondary metric while the primary metric is flat or down. **Why:** Growth teams optimize themselves out of a job by chasing vanity metrics. "Click-through rate up 20%" while "purchases down 3%" means you optimized the wrong thing. The secondary metric improvement came at the expense of the primary. **Instead:** Pre-register ONE primary metric per experiment. If the primary metric doesn't move, the experiment is inconclusive regardless of secondary metric movement. Investigate why, don't ship.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any growth deliverable leaves this skill, verify:
+
+- [ ] Growth model built in spreadsheet with assumptions documented and sensitivity analysis run
+- [ ] North Star metric defined and instrumented — all experiments measured against it
+- [ ] Retention by cohort (D1, D7, D30) tracked by acquisition channel and persona
+- [ ] Aha moment identified for primary persona with time-to-value measured in sessions/minutes
+- [ ] Viral coefficient (K-factor) calculated using actual cohort data, not survey responses
+- [ ] Experiment backlog prioritized by ICE score with Confidence evidence for each item
+- [ ] A/B test plan includes: pre-registered primary metric, sample size calculation, minimum detectable effect, and stopping rule
+- [ ] Instrumentation verified before experiment launch — all funnel events fire correctly
+- [ ] Acquisition channels analyzed with per-channel CAC, D30 retention, and LTV — underperforming channels flagged
+- [ ] Growth loops identified and modeled: viral loops, content loops, paid loops, or product loops
+- [ ] Experiment results documented with statistical significance, confidence intervals, and practical significance assessment
+- [ ] Shipping criteria defined: what evidence threshold triggers full rollout vs. iteration vs. kill
+- [ ] Cross-functional resources confirmed: engineering capacity, data support, design allocation for experiment velocity
+- [ ] Experiment review cadence established: weekly results review, monthly portfolio review, quarterly strategy review
 
 ## Verification
 
@@ -437,6 +488,48 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Scale Depth
+
+### Solo/Pre-PMF (Founder + 0-5 employees)
+- Growth: Founder-led. Talk to every user. Manual outreach and personal onboarding
+- Experiments: None. Ship fast and watch metrics. Your sample size is too small for statistical tests
+- Instrumentation: Basic analytics (GA, Mixpanel, PostHog free tier). Track signups, activation, retention
+- Metrics: Weekly active users, D7 retention, referral source. Keep it simple
+- Deliverable: Weekly growth memo (1 page): what we tried, what we learned, what's next
+
+### Small (Post-PMF, 5-50 employees, $1M-$10M ARR)
+- Growth: 1-2 dedicated growth engineers or a growth PM + part-time engineering
+- Experiments: 1-2 experiments/week. A/B testing with sample size calculations. Pre-registered metrics
+- Instrumentation: CDP (Segment, Rudderstack) + product analytics (Amplitude, Mixpanel) + experiment platform (LaunchDarkly, Optimizely)
+- Metrics: Full funnel tracking. Cohort retention (D1/D7/D30). CAC by channel. LTV by cohort. K-factor
+- Deliverable: Weekly experiment review + monthly growth dashboard + quarterly growth strategy
+
+### Medium (50-200 employees, $10M-$100M ARR)
+- Growth: Dedicated growth team (PM + 3-5 engineers + data scientist + designer)
+- Experiments: 5-10 experiments/week. Multi-arm bandits for high-traffic surfaces. Sequential testing
+- Instrumentation: Full experimentation platform with feature flags, holdout groups, and long-term holdout measurement
+- Metrics: Multi-touch attribution. Incrementality testing. LTV prediction models. Cannibalization analysis
+- Deliverable: Weekly experiment review + monthly growth business review + quarterly board growth update
+
+### Enterprise (200+ employees, $100M+ ARR)
+- Growth: Multiple growth teams by product line or growth loop. Growth platform team for shared infrastructure
+- Experiments: 20-50 experiments/week. Portfolio optimization across teams. Meta-analysis of experiment results
+- Instrumentation: Experimentation platform with automated analysis, bias detection, and knowledge management
+- Metrics: Causal inference models. Long-term holdout measurement. Cross-product growth accounting
+- Deliverable: Weekly team reviews + monthly growth portfolio review + quarterly board presentation + annual growth strategy
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| "Winning" A/B test shipped to 100%; primary metric dropped 5% at scale | Test was stopped early at first sight of p < 0.05 (peeking). False positive rate inflated from 5% to 25%+. Novelty effect drove initial lift that decayed after week 2. | Use sequential testing or pre-register a fixed sample size with no peeking. Run holdout groups for 4+ weeks after "winning" before full rollout. Track novelty decay. | Don't peek. Novelty is not value. |
+| Viral coefficient modeled at 0.8; actual is 0.15 | Model used "invites sent per new user" from survey ("How many friends would you invite?") instead of cohort data. Survey respondents overstate by 3-5x. Real invite behavior is lower because most users don't invite anyone. | Calculate K-factor from actual cohort data: (total invites sent by cohort) / (cohort size) × (conversion rate of exposed users). If data doesn't exist, instrument before modeling. | Survey-based viral coefficients are fiction. |
+| Growth team doubled experiment velocity; North Star didn't move | Experiments were optimizing surface-level metrics (button color, copy tweaks) instead of core product experience. ICE scoring prioritized Ease over Impact — easy experiments shipped first, but easy ≠ valuable. | Re-prioritize backlog by forcing Impact to dominate. Set a minimum Impact threshold (must be ≥ 7/10 to enter backlog). Accept that high-impact experiments are harder and slower — that's the point. | Experiment velocity without experiment leverage is busywork. |
+| Paid acquisition scaled 3x; CAC increased 5x; unit economics broke | CAC modeled as constant — "each new user costs $50." In reality, the first 10,000 users come from the cheapest channels (brand, organic). The next 10,000 require expensive channels (paid search, display). CAC increases with scale as you exhaust low-hanging fruit. | Model CAC as a function of scale: CAC(N) = base_CAC × (1 + saturation_rate)^cohort_number. Identify CAC ceiling (point where CAC > LTV) before scaling spend. | CAC is a curve, not a constant. |
+| A/B test showed "significant" improvement on 3 of 20 metrics; team declared victory | Multiple comparisons problem — testing 20 metrics at p < 0.05 means you expect 1 false positive by chance alone. 3 out of 20 could all be noise. | Pre-register ONE primary metric. Apply Bonferroni correction or Benjamini-Hochberg for exploratory metrics. If primary metric doesn't move, the experiment is inconclusive regardless of secondary results. | Testing 20 metrics guarantees finding "significance." It doesn't guarantee finding truth. |
+| Retention curve flattened; invested 6 months in re-engagement campaigns; no improvement | Retention problem was activation, not re-engagement. Users who never experienced the aha moment churn regardless of re-engagement emails. The 6 months should have been spent on onboarding. | Analyze where users drop off in their first 3 sessions. Interview users who churned in week 1. Fix the core experience before building re-engagement campaigns. Re-engagement only works on users who already found value. | Re-engagement can't fix activation failure. |
 
 ## References
 

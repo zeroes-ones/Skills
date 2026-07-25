@@ -113,6 +113,20 @@ Master gdpr privacys understand that strategy is not about predicting the future
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo
+- Implement cookie consent for a single web property, write a privacy notice, and respond to DSARs manually — focus on getting the fundamentals right before scaling to programmatic compliance
+
+#### Small Team
+- Deploy a CMP for consistent consent management, automate DSAR workflows across data stores, maintain a data inventory, and establish privacy review as a pre-launch gate for new features
+
+#### Medium Organization
+- Run a full privacy program with DPO oversight, conduct DPIAs for high-risk processing, manage processor relationships with annual audits, and implement privacy-by-design across product teams with engineering-embedded privacy champions
+
+#### Enterprise
+- Operate a global privacy office covering multiple jurisdictions, manage cross-border transfer mechanisms with binding corporate rules or SCC frameworks, drive privacy engineering at the platform architecture level, and maintain regulatory horizon scanning across 30+ jurisdictions
+
 ## When to Use
 
 > **Token-saving rule:** The full GDPR skill covers 10+ areas (data inventory, consent, DPA, SAR, breach response, etc.). Load only the section relevant to your current task. If you need data inventory, skip consent law. Each section references the relevant GDPR articles — read the article reference, not the full GDPR text. A typical task requires ~1500 tokens, not the full 8000+.
@@ -129,6 +143,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Designing privacy-by-design into product architecture
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Legal Basis Selection
@@ -309,6 +324,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use Consent Mode:** Google services (GA4, Ads) — signals consent state without cookies, enables modeled data for non-consenting users, reduces gap.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -350,6 +366,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -478,11 +495,37 @@ graph LR
 - **Data retention: "we keep data forever just in case"** — GDPR requires specific retention periods. "Forever" or "until we don't need it" violates the storage limitation principle. Every data category must have: retention period, legal basis for that period, and deletion mechanism.
 
 ## Error Decoder
+**(STANDARD)**
 
-- **"Consent string not valid" from IAB TCF** → Your CMP (Consent Management Platform) is not registered in the IAB's Global Vendor List (GVL), or the consent string format doesn't match TCF v2.2 spec. Check: (1) Is your CMP on the GVL? (2) Does your consent string validate against `iabtcf.com` decoder?
-- **DPA rejected by EU customer: "Doesn't include Standard Contractual Clauses"** → Since Schrems II, SCCs are required for data transfers outside the EU. Even if the US is "adequate" now (EU-US Data Privacy Framework), many EU customers still require SCCs. Your DPA must reference the current SCCs (June 2021 version).
-- **"Right to erasure request denied: data required for legal obligation"** → You must name the SPECIFIC legal obligation. "Tax law requires 7-year retention" is valid. "We might need it" is not. The exception must reference a specific statute, regulation, or legal order with the mandated retention period.
-- **Cookie scan reports 30 cookies but you only set 5** → Third-party scripts (analytics, embeds, CDNs) set cookies you didn't know about. A consent banner that lists 5 first-party cookies but 25 third-party cookies drop silently = non-compliant. Scan after every third-party integration update.
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| "Consent string not valid" from IAB TCF | Your CMP is not registered in the IAB's Global Vendor List (GVL), or the consent string format doesn't match TCF v2.2 spec | Verify CMP is on the GVL and validate consent string against `iabtcf.com` decoder | Consent architecture requires both technical validity and framework registration — either gap breaks the entire consent mechanism |
+| DPA rejected by EU customer: "Doesn't include Standard Contractual Clauses" | Since Schrems II, SCCs are required for data transfers outside the EU; even under adequacy frameworks, many EU customers still require SCCs | Update DPA to reference the current SCCs (June 2021 version) and include a Transfer Impact Assessment | Cross-border transfer compliance is a moving target — adequacy decisions, Schrems rulings, and customer expectations all shift independently |
+| "Right to erasure request denied: data required for legal obligation" | Vague claims like "we might need it" don't satisfy the legal obligation exception under Art. 17(3) | Name the specific statute, regulation, or legal order with the mandated retention period in the denial response | Every erasure denial must cite a concrete, verifiable legal duty — generic "we need it" claims violate the accountability principle |
+| Cookie scan reports 30 cookies but you only set 5 | Third-party scripts (analytics, embeds, CDNs) set cookies silently without your knowledge or consent configuration | Scan after every third-party integration update; add all discovered cookies to CMP configuration with proper categorization | Third-party cookie proliferation is invisible without automated scanning — your consent banner is only as accurate as your last scan |
+
+
+## Best Practices
+
+1. **Map data flows before writing policies.** Conduct a complete data inventory across all systems before drafting privacy documentation — you cannot protect what you don't know exists. Every processing activity must be documented with purpose, legal basis, data categories, recipients, and retention periods.
+
+2. **Implement consent by purpose, not by category.** Each distinct processing purpose requires a separate, granular opt-in — bundling "marketing and analytics" into one checkbox fails the specificity requirement of Art. 7 GDPR. Design consent flows so users understand exactly what they're agreeing to.
+
+3. **Maintain a living data inventory synchronized with your data architecture.** Article 30 records must reflect reality at all times, not just at annual review. Automate data discovery where possible and trigger inventory updates on new system integrations, vendor onboarding, or feature launches.
+
+4. **Automate DSAR response workflows end-to-end.** Manual DSAR fulfillment misses data stores and blows the 30-day deadline. Pre-build data extraction queries for every system that stores personal data, automate identity verification, and maintain a real-time DSAR status dashboard.
+
+5. **Conduct Data Protection Impact Assessments before processing, not after.** DPIA is a pre-launch gate under Art. 35, not a retrospective exercise. Build DPIA triggers into your feature launch checklist: new technology, large-scale processing, systematic monitoring, or processing of special category data all require DPIA before the first byte is collected.
+
+6. **Build privacy into system architecture through data minimization and purpose limitation.** Every data field collected must have a specific, documented purpose. Storage duration must match purpose duration. Pseudonymize or anonymize where full identifiability isn't required. Privacy-by-design means engineering decisions that make non-compliance architecturally impossible.
+
+7. **Test cookie consent flows quarterly with automated scanning.** Cookie scan results drift as third-party scripts, CDNs, embeds, and analytics tags change. A consent banner that was accurate in January may be non-compliant by March. Schedule automated cookie scans after every deployment and at least monthly.
+
+8. **Maintain processor relationships actively, not passively.** DPAs expire, sub-processor lists change, and vendors add new data processing capabilities. Conduct annual processor audits, require notification of sub-processor changes, and maintain a processor register with current DPA status, transfer mechanisms, and security certifications.
+
+9. **Run data breach notification drills as tabletop exercises.** The 72-hour clock starts when you become aware — test your ability to detect, investigate, assess risk, notify the DPA, and notify affected data subjects within that window. Pre-draft notification templates, maintain 24/7 escalation contacts, and test the process at least semi-annually.
+
+10. **Track the regulatory horizon continuously.** EDPB guidelines, Schrems rulings, adequacy decisions, and new state-level US privacy laws change the compliance landscape quarterly. Subscribe to DPA enforcement newsletters, monitor EUR-Lex and Federal Register, and attend to regulatory developments in all jurisdictions where you process personal data.
 
 
 ## State Log
@@ -532,6 +575,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist
+**(STANDARD)**
 
 - [ ] Consent mechanism: Reject All is one click (or equally easy as Accept All). Consent is granular per purpose. Consent records are stored with timestamp and proof.
 - [ ] Cookie scan: completed within last 30 days. All cookies categorized. Third-party cookies identified with consent status.

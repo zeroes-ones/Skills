@@ -89,6 +89,26 @@ You are a developer productivity specialist who understands that repo scaffoldin
 * **Scaffolding design (full session):** Design template inheritance hierarchy. Select template engine. Specify template content for each level. Design downstream sync strategy. Implement template CI/CD (yes, templates need CI too). Create documentation and onboarding guide.
 * **Migration mode (converting copied repos to template-derived):** Audit existing repos for divergence. Identify common patterns worth templatizing. Create template. Migrate repos one at a time via automated PRs. Track drift reduction over time.
 
+### Scale Depth
+
+#### Solo
+A single developer with 1-5 repos. Start with a GitHub template repo containing `.github/`, a basic CI workflow, `.gitignore`, and a README template. No template engine needed — GitHub's native template feature is sufficient. Test manually: scaffold a new repo from the template, verify CI passes. No drift tracking needed at this scale.
+
+#### Small
+A small team (3-10 engineers) with 5-20 repos. Use GitHub template repos with a base + per-language variant. CI reusable workflows with `@v1` versioning. Pre-commit hooks in the template with auto-install. Monthly manual drift check: compare repos against their templates. No custom CLI needed — `gh repo create --template` is sufficient.
+
+**Transition trigger:** Engineers start copy-pasting from existing repos instead of using templates, or a security fix needs to be applied to 10+ repos manually — it's time for template inheritance and automated sync.
+
+#### Medium
+An organization with 10-50 engineers across 20-100 repos. Template inheritance hierarchy: base → language → service-type. Cookiecutter or Copier for interactive scaffolding. Automated drift detection with dashboard. Automated sync PRs for low-risk changes monthly. Monorepo and polyrepo support from the same template system. CI reusable workflows with semantic versioning and deprecation policy.
+
+**Transition trigger:** Multiple business units with different compliance requirements, or 100+ repos — centralized template governance becomes necessary to prevent fork-and-forget proliferation.
+
+#### Enterprise
+100+ repos, multiple business units, regulatory compliance requirements. Centralized template governance team. Custom scaffolding CLI with org-specific integrations (ticketing, monitoring, service catalog). Real-time drift dashboard with automated remediation. Policy-as-code: templates enforce SOC 2, HIPAA, FedRAMP controls automatically. Self-service developer portal for repo creation. Template metrics: time-to-green-CI, template adoption rate, drift percentage per BU. Quarterly template review with engineering leadership.
+
+**Transition trigger:** Regulatory compliance audit horizon — templates become the mechanism for enforcing and proving compliance controls across all repos. Templates must generate audit evidence automatically.
+
 ## When to Use
 
 Use repo-scaffolding when establishing or improving how new repositories are created — the focus is on consistency, speed, and governance.
@@ -139,7 +159,7 @@ What repo scaffolding task are you working on?
 |-- Migrating existing repos to template-based scaffolding -> Start at "Core Workflow: Phase 3"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- COMPRESSED: Full 106 lines extracted to references/core-workflow.md -->
 
 #
@@ -152,7 +172,7 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (106 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 #
 
@@ -393,7 +413,7 @@ How should CI/CD configurations be shared across repos?
 |   |-- Deprecate them gracefully (support window, migration path)
 |   |-- Monitor them (how many repos using each version? any breaking for anyone?)
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -406,6 +426,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Start with a GitHub template repo before building custom tooling.** A GitHub template repo with `.github/`, CI workflows, linter configs, and SECURITY.md provides 80% of scaffolding value at 5% of the effort. Iterate from there. Custom CLIs and cookiecutter templates add complexity that rarely justifies the ROI before you have 15+ repos.
+
+2. **Test your templates weekly with automated scaffold-then-build verification.** A broken template that generates repos with failing CI is worse than no template — it trains engineers to distrust automation. Run a cron job that scaffolds a new repo from each template, pushes, and verifies CI is green. Alert if any template produces a red build.
+
+3. **Limit template prompts to 3-5 inputs.** Every additional prompt increases abandonment rate. Name, description, and language version are sufficient. Team, Jira key, Slack channel, and PagerDuty service can be post-scaffolding configuration — or better, derived from org membership and existing conventions.
+
+4. **Use template inheritance, not fork-and-forget.** A single base template with organizational defaults (CODEOWNERS, SECURITY.md, CI foundation) is inherited by language-specific templates, which are inherited by service-type templates. Changes to the base propagate to all downstream repos via automated sync PRs. Forking creates divergent maintenance burdens.
+
+5. **Version CI reusable workflows semantically.** GitHub Actions reusable workflows or GitLab CI includes referenced by `@main` will break all downstream repos simultaneously on incompatible changes. Use `@v1`, `@v2` with deprecation notices. Never break a released major version. Downstream repos pin to a major and upgrade on their schedule.
+
+6. **Standardize .gitignore and .editorconfig at the org level before scaffolding.** These files should be identical across all repos. Include them in the base template. If a team needs an exception, it goes in a repo-local append file (`.gitignore.local`) — never edit the template-provided version.
+
+7. **Ship pre-commit hooks in the template, not as documentation.** A README saying "install pre-commit hooks" has 10% adoption. A template that includes `.pre-commit-config.yaml` and a setup script that runs `pre-commit install` has 90% adoption. Hooks for trailing whitespace, YAML linting, and secret detection catch issues before they reach CI.
+
+8. **Bootstrap CI in the template with a "green build within 5 minutes" goal.** The template's CI should run linters, a basic build, and a smoke test. A new engineer who scaffolds a repo, clones locally, and pushes should see a green CI build in under 5 minutes. This is the primary scaffolding quality metric.
+
+9. **Design for monorepo and polyrepo from the same template system.** If your org uses both patterns, the template engine should generate either a standalone repo or a monorepo package directory with equal ease. Monorepo tooling config (Nx project.json, Turborepo turbo.json, Bazel BUILD) should be template-generated, not hand-written.
+
+10. **Run automated drift detection monthly.** Compare each downstream repo against its template. Report: files added/removed/modified relative to template. A drift dashboard makes invisible divergence visible. Flag repos with >20% drift for manual review. Automated sync PRs for low-risk changes (linting rules, CODEOWNERS updates).
 
 ## Cross-Skill Coordination
 
@@ -501,6 +543,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[RS-01]** GitHub template repo(s) exist for each supported language/framework stack; template contains `.github/`, CI workflows, linter configs, SECURITY.md, CODEOWNERS, and `.gitignore`
+- [ ] **[RS-02]** Template CI is tested weekly: automated scaffold → push → verify green build; alert fires if any template produces a red build
+- [ ] **[RS-03]** Template prompts limited to 3-5 inputs (name, description, language version); no more than 5 prompts in any template flow
+- [ ] **[RS-04]** Template inheritance hierarchy designed: base template → language templates → service-type templates; changes flow downstream via automated sync PRs
+- [ ] **[RS-05]** CI reusable workflows are semantically versioned (`@v1`, `@v2`); `@main` references prohibited in production templates; deprecation notices for old versions
+- [ ] **[RS-06]** `.gitignore` and `.editorconfig` standardized across all repos via base template; local exceptions in `.gitignore.local`, not by editing template-provided files
+- [ ] **[RS-07]** `.pre-commit-config.yaml` included in template; setup script runs `pre-commit install`; hooks for trailing whitespace, YAML linting, and secret detection active
+- [ ] **[RS-08]** CI bootstrap goal met: new repo from template → clone → push → green CI in under 5 minutes; this is measured and tracked
+- [ ] **[RS-09]** Template engine supports both standalone repo and monorepo package directory generation; monorepo tooling config (Nx/Turborepo/Bazel) is template-generated, not hand-written
+- [ ] **[RS-10]** Automated drift detection runs monthly: compare each downstream repo against template; drift dashboard visible to all teams; repos with >20% drift flagged for review
+- [ ] **[RS-11]** Automated sync PRs for low-risk template changes (linting rules, CODEOWNERS, SECURITY.md) sent monthly; critical security fixes synced within 24 hours
+- [ ] **[RS-12]** Dependency freshness check on templates: weekly `npm audit`/`pip audit`; templates with critical CVEs blocked from use until resolved
+- [ ] **[RS-13]** Template onboarding documentation: engineer can scaffold a new repo without filing a ticket or asking for help; self-service is the goal
+- [ ] **[RS-14]** New language/framework stack gated on template availability: no repo for a new stack without a corresponding template; template created alongside first project
+
 ## What Good Looks Like
 
 * **Time-to-green-CI < 5 minutes:** A developer creates a repo from template, clones locally, runs setup command, pushes — CI is green in <5 minutes. This is the primary metric.
@@ -566,31 +625,47 @@ Before beginning a new phase, verify:
 | "Template testing is overkill — it generates code, if it compiles it works." | Broken template = every new service starts with a latent bug. 15 new services × 2 hours debugging template-generated issues = $4,500 per broken template. $10K-$25K/year if template validation isn't a CI gate. |
 | "The scaffolding tool is already picked — we don't need to compare alternatives." | Wrong template engine choice (cookiecutter vs copier vs custom CLI) locks in limitations for years. Migrating 30+ templates later costs $15K-$30K in one-time conversion. A 45-minute comparison session saves this. |
 
-## Gotchas
+## Anti-Patterns
 
-* **Template Drift as Technical Debt Accumulator:**
-  A template updated quarterly accumulates 4-6 months of drift per downstream repo. Each drifted repo needs manual reconciliation. At 15 minutes per drifted file per repo and 20 downstream repos, quarterly sync takes **50 engineer-hours per quarter. Total cost: $15,000-$25,000 in productivity loss per year.** Fix: Automated sync PRs with monthly cadence.
+### Anti-Pattern: Template drift as technical debt accumulator
+**What it looks like:** Template updated quarterly, downstream repos drift 4-6 months behind. No automated sync mechanism. Each drifted repo needs manual reconciliation at 15 minutes per drifted file.
+**Why it fails:** At 20 downstream repos, quarterly sync takes 50 engineer-hours per quarter. $15K-$25K/year in productivity loss. Over time, repos diverge so far that template updates become impossible — the template is effectively dead.
+**Do this instead:** Automated sync PRs with monthly cadence. Low-risk changes (linting, CODEOWNERS) auto-merged. Structural changes reviewed by each team. Drift dashboard tracks compliance.
 
-* **The "Just One More Field" Anti-Pattern:**
-  Templates with too many prompts (project name, description, team, tech lead, Jira key, Slack channel, PagerDuty service, etc.) cause engineers to abandon templates. When a template asks 12 questions, engineers copy-paste from an existing repo instead. **Total cost: $5,000-$10,000 in lost template ROI — the template exists but nobody uses it.** Fix: Maximum 3-5 prompts. Everything else is organizational default.
+### Anti-Pattern: The "just one more field" prompt explosion
+**What it looks like:** Template asks for project name, description, team, tech lead, Jira key, Slack channel, PagerDuty service, and a dozen more inputs. Engineers see 12 prompts and immediately copy-paste from an existing repo instead.
+**Why it fails:** $5K-$10K in lost template ROI — the template exists but nobody uses it. Every prompt beyond 5 reduces adoption rate by roughly 10%.
+**Do this instead:** Maximum 3-5 prompts. Everything else is organizational default derived from context (team membership, existing conventions) or post-scaffolding configuration.
 
-* **Broken CI in the Template (The Self-Defeating Pattern):**
-  A template with CI that fails on first push trains engineers that "the template is broken, just fix CI locally." Each engineer spends 10-15 minutes debugging template CI on their first push. At 50 new repos/year, that is 8-12 hours of wasted time. But the REAL cost: trust in templates is destroyed. **Total cost: $20,000-$30,000 in trust erosion and rework across the org over 2 years.** Fix: Template CI must be tested weekly. Automated test: scaffold repo, push, verify CI green.
+### Anti-Pattern: Broken CI in the template
+**What it looks like:** Template generates a repo whose CI fails on first push. Engineers spend 10-15 minutes debugging template CI, then fix it locally and never report upstream. Each new repo repeats the same debugging.
+**Why it fails:** At 50 new repos/year, 8-12 hours of wasted time. But the real cost is trust destruction — $20K-$30K in trust erosion and rework over 2 years. Engineers stop using templates.
+**Do this instead:** Test template CI weekly with automated scaffold → push → verify green. Alert on failure. Block template usage if CI is broken.
 
-* **Fork-and-Forget Template Proliferation:**
-  Team A forks the base template, customizes heavily, and never pulls upstream changes. Team B does the same. Now you have 5 "template" repos that share nothing. Each needs independent maintenance. Security fixes must be applied 5 times. **Total cost: $50,000-$100,000 in duplicated template maintenance over 3 years for a 50-repo org.** Fix: Template inheritance hierarchy. One source of truth per level. Automated downstream sync.
+### Anti-Pattern: Fork-and-forget template proliferation
+**What it looks like:** Team A forks the base template, customizes heavily, never pulls upstream. Team B does the same. Now 5 "template" repos share nothing. Security fixes must be applied to each manually.
+**Why it fails:** $50K-$100K in duplicated template maintenance over 3 years for a 50-repo org. Each template fork diverges further, making reunification impossible.
+**Do this instead:** Template inheritance hierarchy. One source of truth per level. Customizations via layered templates or post-generation hooks, not forks. Automated downstream sync keeps everyone current.
 
-* **Over-Engineering the Template Generator (Template-as-Product):**
-  A platform team spends 3 months building a beautiful CLI for repo scaffolding with interactive prompts, dependency graphs, and plugin architecture. Meanwhile, developers create repos by copy-pasting from existing repos because the CLI is not ready. **Total cost: $150,000-$250,000 in platform team salary spent on a tool that ships too late.** Fix: Start with a GitHub template repo. Iterate. Add tooling only when the simple approach hurts.
+### Anti-Pattern: Over-engineering the template generator
+**What it looks like:** Platform team spends 3 months building a beautiful CLI with interactive prompts, dependency graphs, and plugin architecture. Meanwhile, developers copy-paste from existing repos because the CLI isn't ready.
+**Why it fails:** $150K-$250K in platform team salary on a tool that ships too late. The perfect becomes the enemy of the good.
+**Do this instead:** Start with a GitHub template repo. Iterate. Add tooling only when the simple approach demonstrably hurts. The 80/20 rule applies: 80% of value from 20% of the effort.
 
-* **Unversioned CI Templates Breaking Downstream:**
-  A CI reusable workflow (GitHub Actions, GitLab include) is updated without versioning. All downstream repos that reference `@main` break simultaneously. Detecting which repos broke and rolling back takes hours of on-call time. **Total cost: $10,000-$20,000 per incident in engineering time and delayed CI across 50+ repos.** Fix: Semantic versioning for CI templates. Deprecate old versions, never break them.
+### Anti-Pattern: Unversioned CI templates breaking downstream
+**What it looks like:** CI reusable workflow updated without versioning. All downstream repos referencing `@main` break simultaneously. Detecting which repos broke and rolling back takes hours.
+**Why it fails:** $10K-$20K per incident in engineering time and delayed CI across 50+ repos. Trust in the CI platform team evaporates after 2-3 incidents.
+**Do this instead:** Semantic versioning for CI templates (`@v1`, `@v2`). Deprecate old versions, never break them. Downstream repos pin to a major and upgrade on their schedule.
 
-* **Template Content That Ages Poorly:**
-  A template includes `"axios": "^0.21.0"` which has known CVEs 6 months later. Every new repo created from the template starts with a vulnerable dependency. Fixing requires: update template + sync all downstream repos + verify no downstream fixed it already. **Total cost: $8,000-$15,000 in security remediation across repos that inherited the vulnerable dep.** Fix: Automated dependency freshness check on template. Weekly `npm audit` / `pip audit` on template. Block template usage if critical CVEs exist.
+### Anti-Pattern: Template content that ages poorly
+**What it looks like:** Template includes `"axios": "^0.21.0"` which has known CVEs 6 months later. Every new repo starts with vulnerable dependencies. Fix requires: update template + sync all downstream repos + verify no downstream already fixed it.
+**Why it fails:** $8K-$15K in security remediation across repos inheriting vulnerable deps. New repos start with security debt on day one.
+**Do this instead:** Automated dependency freshness check on templates weekly. Block template usage if critical CVEs exist. Include Renovate/Dependabot config in template itself so repos auto-update post-scaffolding.
 
-* **The "We Do Not Need Templates, We Are Small" Fallacy:**
-  A 5-person startup decides templates are overhead. 18 months later, they have 15 repos with 7 different CI configurations, 4 different linter setups, and 3 different TypeScript versions. Onboarding a 6th engineer takes a week of "here is how THIS repo works, different from the last one." **Total cost: $15,000-$25,000 in onboarding friction and the productivity tax of inconsistent environments over 2 years.** Fix: Even a 2-person team benefits from one consistent repo template. Start small. Scale.
+### Anti-Pattern: "We don't need templates, we are small"
+**What it looks like:** 5-person startup decides templates are overhead. 18 months later: 15 repos with 7 CI configurations, 4 linter setups, 3 TypeScript versions. Onboarding a 6th engineer takes a week of "here's how THIS repo works."
+**Why it fails:** $15K-$25K in onboarding friction and productivity tax of inconsistent environments over 2 years. The cost of templates is front-loaded; the cost of no-templates compounds monthly.
+**Do this instead:** Even a 2-person team benefits from one consistent repo template. Start with GitHub template repo (5 minutes to set up). Scale as the org grows. The smallest investment — a standard `.gitignore` and CI file — pays back in the first week.
 
 ## Verification
 <!-- Full 46 lines extracted to references/verification.md -->

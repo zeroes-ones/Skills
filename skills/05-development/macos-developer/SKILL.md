@@ -127,6 +127,15 @@ The same macOS development task produces fundamentally different output dependin
 
 **Usage**: Say "as an L3 macOS developer, design the architecture for..." or "give me an L2 implementation of this document window" to calibrate. Default: **L2** (production-ready, independent execution).
 
+### Scale Depth
+**(STANDARD)**
+
+| Depth | Time | Scope | Artifacts |
+|---|---|---|---|
+| **QUICK** | 5-15 min | Single view fix, entitlement check, signing issue | Working code snippet, corrected config line |
+| **STANDARD** | 30-90 min | Full feature window, notarization pipeline, XPC service | Tested SwiftUI/AppKit code, entitlement file, build script |
+| **DEEP** | 2-8 hr | Multi-app ecosystem, framework design, migration strategy | Architecture decision record, shared framework, CI/CD workflow |
+
 ## When to Use
 
 - Building a new native macOS application from scratch with SwiftUI or AppKit
@@ -143,6 +152,7 @@ The same macOS development task produces fundamentally different output dependin
 - Setting up Sparkle or in-app update mechanisms for direct-distribution apps
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -186,7 +196,30 @@ The same macOS development task produces fundamentally different output dependin
 4. **Touch Bar / Magic Keyboard**: Support `NSTouchBar` for MacBook Pro users. Map critical actions to the Touch Bar with fallback keyboard shortcuts.
 5. **Handoff & Universal Clipboard**: Use `NSUserActivity` to enable Handoff between Mac and iOS. Mark activities with `isEligibleForHandoff = true`.
 
+## Best Practices
+
+1. **Start with SwiftUI; bridge to AppKit only for the 20% SwiftUI can't handle.** SwiftUI covers 80%+ of typical macOS UI with 60% less code. Write settings windows in `Form` + `@AppStorage` (40 lines) instead of `NSViewController` + `NSTableView` datasource/delegate (200+ lines). Escape to AppKit via `NSViewRepresentable`/`NSViewControllerRepresentable` for `NSTableView` with 10,000+ rows, custom Core Animation layers, or Metal interop.
+
+2. **Sandbox from day one — it's architecture, not configuration.** Every file access must go through Powerbox (`NSOpenPanel`/`NSSavePanel`) with security-scoped bookmarks. Replace `Process()`/`NSTask` with `NSXPCConnection` to embedded XPC services. Retrofitting sandboxing onto a codebase with hardcoded absolute paths and direct `NSFileManager` access is a rewrite, not a flag flip.
+
+3. **Code sign in dependency order.** Sign frameworks first (deepest dependency up), then XPC services, then the main executable, then the app bundle. Never use `codesign --deep` — it overwrites framework signatures from original developers, breaking notarization. Verification: `codesign -dvvv YourApp.app` shows valid Authority chain and TeamIdentifier.
+
+4. **Notarize every build, even internal ones.** `xcrun notarytool submit` takes 2-5 minutes. Right-click bypass works for technical users; every other user sees "unidentified developer" and deletes your app. Staple the ticket: `xcrun stapler staple YourApp.app` embeds it for offline Gatekeeper verification.
+
+5. **Set `NSApp.setActivationPolicy(.regular)` explicitly for non-document apps.** Apps without `CFBundleDocumentTypes` or `NSDocument` default to `.prohibited` (accessory mode). No dock icon, no Command-Tab, unresponsive menus. Fix: call in `applicationWillFinishLaunching` before `activate(ignoringOtherApps: true)`.
+
+6. **Use `NSDocument`/`DocumentGroup` for document-based apps.** Benefits are free: autosave, versions, window restoration, duplicate, title bar proxy icon, and the "Save" prompt on close with dirty-state tracking. Don't reinvent document lifecycle — NSDocument handles it correctly for edge cases you haven't thought of.
+
+7. **Build Universal Binaries (arm64 + x86_64) for App Store distribution.** ~5-15% of App Store users still on Intel Macs in 2026, concentrated in enterprise fleets and high-end Mac Pro users. App Thinning delivers arch-specific slices automatically. Verify: `lipo -archs YourApp.app/Contents/MacOS/YourApp` outputs `arm64 x86_64`.
+
+8. **Accessibility is the baseline, not a feature.** VoiceOver turns on with ⌘F5 on every shipping Mac. Every control needs `accessibilityLabel`, `accessibilityRole`, and keyboard focus reachability. Test with Accessibility Inspector on every window. Respect Reduce Motion: `NSWorkspace.shared.accessibilityDisplayShouldReduceMotion`.
+
+9. **Sparkle updates MUST use EdDSA signing.** Without `SUPublicEDKey` in `Info.plist` and `<sparkle:edSignature>` in the appcast, your update mechanism is the primary attack vector. Generate keys with `generate_keys`, sign updates with `sign_update`. Verify the signature element is present before publishing.
+
+10. **Test on the latest macOS beta within 7 days of WWDC.** Apple changes superclass implementations, layer properties, and backing store configurations in macOS updates. A `draw(_:)` override without `super.draw(_:)` that works on macOS 14 may render as a black rectangle on macOS 15. Catch regressions before your users do.
+
 ## Decision Trees
+**(QUICK)**
 
 ### SwiftUI vs AppKit vs Catalyst — Framework Selection
 
@@ -330,6 +363,7 @@ See **references/xpc-services-patterns.md** for implementation patterns.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -342,6 +376,18 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Notarization fails with "The binary is not signed" — but `codesign -dvvv` shows valid signature | `codesign --deep` was used, overwriting framework signatures from original developers. Notary service expects frameworks signed by their original developers, then re-signed with `--preserve-metadata` | Sign in order: frameworks first, main binary last. Use `codesign --force --options runtime --timestamp --sign "Developer ID Application: Team" --preserve-metadata=identifier,entitlements,flags YourApp.app` | `--deep` is cargo-culted from Stack Overflow. It's never correct. Signing order matters |
+| App compiles, runs in Xcode, crashes on launch from Finder/App Store build | Sandbox violation. Xcode's dev provisioning profile includes `get-task-allow` and bypasses sandbox. `Process()`/`NSTask` works in Xcode but crashes with `POSIX error 1: Operation not permitted` in sandbox | Replace all `Process()`/`NSTask` with `NSXPCConnection` to XPC services. XPC is explicitly allowed in sandbox. Use `SMJobBless` for privileged helpers | "It works on my machine" is especially dangerous for sandboxing — Xcode deliberately bypasses restrictions during development |
+| Sparkle updates download but won't install — users stuck on old version | Sparkle configured without EdDSA signing. `SUPublicEDKey` missing from `Info.plist`. Appcast has no `<sparkle:edSignature>`. Attacker could push malicious binaries | Generate EdDSA keys with `generate_keys`. Add `SUPublicEDKey` to `Info.plist`. Sign every update with `sign_update`. Verify `<sparkle:edSignature>` present in appcast XML | Without EdDSA, your update mechanism is a MITM attack vector. This is one line of config that costs $100K+ to remediate post-breach |
+| `@Environment(\.colorScheme)` doesn't update when system appearance changes | `NSHostingView` sets `colorScheme` at creation time and never updates. Custom `NSWindow` hosting SwiftUI views stays in Light Mode when user switches to Dark Mode until window is closed/reopened | Observe `NSApp.effectiveAppearance` via KVO. Force-refresh: `hostingView.rootView = ContentView().environment(\.colorScheme, newColorScheme)`. Or use `NSWindow` subclass with `effectiveAppearance` observation | SwiftUI-in-AppKit bridging has lifecycle mismatches. Environment propagation is synchronous at view creation, not reactive to system changes |
+| App dock icon never appears — no Command-Tab entry, menus unresponsive | Missing `NSApp.setActivationPolicy(.regular)`. Apps without `CFBundleDocumentTypes` or `NSDocument` default to `.prohibited`. Accessory-only apps get no dock presence | In `applicationWillFinishLaunching(_:)`, call `NSApp.setActivationPolicy(.regular)` for standard apps, `.accessory` for menu bar-only apps | One line of code causes a completely invisible app to users. The default activation policy is counterintuitive for non-document apps |
+| Third-party plugins silently fail to load after notarization | Hardened Runtime blocks unsigned or third-party libraries via `dlopen`. Audio units, Photoshop plugins, Finder Sync extensions all fail. Development machines without hardened runtime don't reproduce | Add `com.apple.security.cs.disable-library-validation = true` if your app loads plugins. Pair with `com.apple.security.cs.disable-executable-page-protection = false` (never allow writable+executable). Document which library paths are validated | Hardened Runtime is secure by default — it blocks everything not explicitly allowed. Plugin loading requires explicit entitlement |
+| `NSView.draw(_:)` renders as black rectangle after macOS update | Developer overrode `draw(_:)` without calling `super.draw(_:)`. It worked on the dev macOS version. Apple changed superclass backing store setup in a macOS update — black rectangle | Always call `super.draw(dirtyRect)` at start of every `draw(_:)` override. If intentionally skipping (e.g., Metal rendering), document why and test on latest macOS beta within 7 days of WWDC | Apple changes superclass behavior in macOS updates. Non-standard overrides that "happen to work" are time bombs |
 
 ## Cross-Skill Coordination
 
@@ -508,21 +554,42 @@ Unlike iOS where UIKit/SwiftUI are the only game in town, macOS development requ
 - Debug run-loop issues that manifest as "hangs" in Instruments but look like normal code in the debugger
 - Understand that `NSApplication.shared` is a singleton with 30+ years of accumulated state — and respect that state instead of fighting it
 
-## Gotchas
+## Anti-Patterns
 
-- **Code signing with `--deep` flag.** `codesign --deep` recursively signs every binary in the bundle with the same identity, overwriting framework signatures from their original developers. This breaks notarization because the notary service expects frameworks to be signed by their original developers, then re-signed with your identity via the `--preserve-metadata` flag. Developers cargo-cult `--deep` from Stack Overflow and waste 4-8 hours debugging notarization failures that show no obvious error. **Total cost: $500-$2,000 in lost engineering time per notarization debugging session.** Fix: Sign in order — frameworks first, then the main binary. Use `codesign --force --options runtime --timestamp --sign "Developer ID Application: Team" --preserve-metadata=identifier,entitlements,flags YourApp.app`.
+### Anti-Pattern: Using `codesign --deep`
+**What it looks like:** Developer reads Stack Overflow, adds `codesign --deep` to the build script. It recursively signs every binary in the bundle with the same identity, overwriting framework signatures from their original developers.
+**Why it fails:** Notarization fails because the notary service expects frameworks signed by original developers, then re-signed with `--preserve-metadata`. The error message gives no indication that `--deep` is the cause. 4-8 hours wasted per debugging session.
+**Do this instead:** Sign in order — frameworks first (deepest dependency up), then XPC services, then main executable, then app bundle. Use `codesign --force --options runtime --timestamp --sign "Developer ID Application: Team" --preserve-metadata=identifier,entitlements,flags YourApp.app`.
 
-- **Sparkle update framework shipped without EdDSA signing.** The app downloads updates over HTTP or unsigned HTTPS without verifying the EdDSA signature in the appcast. An attacker who compromises the update server or performs a man-in-the-middle attack can push malicious binaries to every user. The app update mechanism — designed for security — becomes the primary attack vector because one line of configuration was skipped. **Total cost: $100,000-$2,000,000 in incident response, PR damage control, forced password resets for all users, and potential legal liability from compromised user machines.** Fix: Generate EdDSA keys with Sparkle's `generate_keys` tool. Add `SUPublicEDKey` to `Info.plist`. Sign every update binary with `sign_update`. Verify the `<sparkle:edSignature>` element is present in the appcast XML before publishing.
+### Anti-Pattern: Sparkle Without EdDSA Signing
+**What it looks like:** Sparkle configured to download updates over HTTPS without EdDSA signature verification. `SUPublicEDKey` missing from `Info.plist`. Appcast has no `<sparkle:edSignature>` element.
+**Why it fails:** An attacker compromising the update server or performing MITM can push malicious binaries to every user. The update mechanism becomes the primary attack vector because one line of configuration was skipped.
+**Do this instead:** Generate EdDSA keys with `generate_keys`. Add `SUPublicEDKey` to `Info.plist`. Sign every update with `sign_update`. Verify `<sparkle:edSignature>` present in appcast XML before publishing.
 
-- **Hardened Runtime without `com.apple.security.cs.disable-library-validation` blocks all plug-ins.** The Hardened Runtime, by default, prevents loading unsigned or third-party libraries via `dlopen`. Every audio unit, Photoshop plugin, Finder Sync extension, or scriptable plugin silently fails to load. Users report "the plugin doesn't work" and you can't reproduce it on your development machine (which doesn't have the hardened runtime). The bug report count climbs while you search for a code bug that doesn't exist. **Total cost: $10,000-$50,000 in wasted debugging time and customer support load over the app's lifecycle.** Fix: If your app loads third-party plugins, add `com.apple.security.cs.disable-library-validation = true` but pair it with `com.apple.security.cs.disable-executable-page-protection = false` (never allow writable+executable memory unless absolutely required for JIT). Document which library paths are validated.
+### Anti-Pattern: Hardened Runtime Without Plugin Validation Disabled
+**What it looks like:** App uses audio units, Photoshop plugins, or Finder Sync extensions. Hardened Runtime is on. All third-party plugins silently fail to load — `dlopen` blocked. Developer can't reproduce because dev machine doesn't use hardened runtime.
+**Why it fails:** Hardened Runtime, by default, prevents loading unsigned or third-party libraries. Every plugin silently fails. Bug reports accumulate while developer searches for a code bug that doesn't exist. 
+**Do this instead:** If your app loads plugins, add `com.apple.security.cs.disable-library-validation = true`. Pair with `com.apple.security.cs.disable-executable-page-protection = false` (never allow writable+executable memory unless required for JIT). Document validated library paths.
 
-- **`@Environment(\.colorScheme)` in SwiftUI doesn't update for custom AppKit windows.** When you create an `NSWindow` programmatically and host a SwiftUI view via `NSHostingView`, the `colorScheme` environment value is set at view creation time and never updates when the system appearance changes. Your app stays in Light Mode when the user switches to Dark Mode until the window is closed and reopened. **Total cost: $5,000-$15,000 in negative App Store reviews and support tickets for an app that "doesn't support Dark Mode" despite 40+ hours invested in Dark Mode color assets.** Fix: Observe `NSApplication.shared.effectiveAppearance` via KVO or `NSApp.effectiveAppearance` notifications. Force-refresh the hosting view: `hostingView.rootView = ContentView().environment(\.colorScheme, newColorScheme)`. Or use `NSWindow` subclass with `effectiveAppearance` observation.
+### Anti-Pattern: `NSHostingView` ColorScheme Never Updates
+**What it looks like:** SwiftUI view hosted in a custom `NSWindow` via `NSHostingView`. User switches to Dark Mode. The app stays in Light Mode. The `colorScheme` environment value was set at view creation and never updates.
+**Why it fails:** `NSHostingView` captures `colorScheme` at creation time but doesn't observe system appearance changes. The environment is static, not reactive. Users report "doesn't support Dark Mode" despite 40+ hours invested in Dark Mode assets.
+**Do this instead:** Observe `NSApp.effectiveAppearance` via KVO. On change: `hostingView.rootView = ContentView().environment(\.colorScheme, newColorScheme)`. Or subclass `NSWindow` with `effectiveAppearance` observation.
 
-- **Sandboxed app using `NSTask` / `Process` to launch helper tools — works in Xcode, crashes in App Store build.** Xcode launches apps with a development provisioning profile that includes `com.apple.security.get-task-allow` and bypasses sandbox restrictions. The same code using `Process()` to launch an external executable crashes with `POSIX error 1: Operation not permitted` in the sandbox. Developers ship the crash because "it worked on my machine." **Total cost: $3,000-$8,000 in App Store rejection cycles (2-3 submissions each taking 24-48h review), emergency patch releases, and user refunds for a non-functional feature.** Fix: Replace all `Process()` / `NSTask` calls with `NSXPCConnection` to an XPC Service bundled in the app. XPC services are explicitly allowed in the sandbox. Use `SMJobBless` for privileged helpers that need root.
+### Anti-Pattern: `NSTask`/`Process` in Sandboxed Apps
+**What it looks like:** Code uses `Process()` to launch external executables. Works fine in Xcode (dev provisioning profile bypasses sandbox). Crashes with `POSIX error 1: Operation not permitted` in App Store build.
+**Why it fails:** Xcode's dev profile includes `get-task-allow` that bypasses sandbox restrictions. The same code crashes in production. Developers ship the crash because "it worked on my machine."
+**Do this instead:** Replace all `Process()`/`NSTask` with `NSXPCConnection` to XPC services bundled in the app. XPC is explicitly allowed in sandbox. Use `SMJobBless` for privileged helpers needing root.
 
-- **`NSView.draw(_:)` override without calling `super.draw(_:)` — rendering breaks on newer macOS versions.** Developers override `draw(_:)` to do custom Core Graphics drawing but omit the `super.draw(_:)` call. The view draws correctly on the development macOS version, but Apple changes the superclass implementation in a macOS update to set up new layer properties or backing store configurations. Suddenly, the custom view renders as a black rectangle on macOS 15 after working perfectly on macOS 14. **Total cost: $8,000-$25,000 in emergency debugging, expedited App Store review requests, and user churn from a critical rendering bug in a point release.** Fix: Always call `super.draw(dirtyRect)` at the start of every `draw(_:)` override. If you intentionally skip it (e.g., for full-frame Metal rendering), document why and test on the latest macOS beta within 7 days of WWDC.
+### Anti-Pattern: Skipping `super.draw(_:)` in Custom Views
+**What it looks like:** Developer overrides `draw(_:)` for custom Core Graphics drawing, omits `super.draw(_:)`. Works perfectly on current macOS. Apple changes superclass backing store configuration in next macOS update — view renders as black rectangle.
+**Why it fails:** macOS superclass implementations evolve. Apple adds layer property setup and backing store configuration in `super.draw(_:)`. Code that "happens to work" without it is a time bomb tied to Apple's release schedule.
+**Do this instead:** Always call `super.draw(dirtyRect)` at the start of every `draw(_:)` override. If intentionally skipping (e.g., full-frame Metal rendering), document why and test on latest macOS beta within 7 days of WWDC.
 
-- **Missing `NSApp.setActivationPolicy(.regular)` for non-document-based apps.** Apps without a `CFBundleDocumentTypes` entry or `NSDocument` subclass default to `NSApplication.ActivationPolicy.prohibited` (accessory mode). The app's dock icon never appears, the app doesn't appear in the Command-Tab switcher, and menu bar items don't respond to clicks. Developers spend hours debugging NSApplication delegate methods and menu setup when the fix is one line in `applicationWillFinishLaunching`. **Total cost: $2,000-$5,000 in wasted debugging sessions and Stack Overflow bounties.** Fix: In `AppDelegate.applicationWillFinishLaunching(_:)`, call `NSApp.setActivationPolicy(.regular)` for standard apps, `.accessory` for menu bar-only apps, or `.prohibited` for daemons. This must be set before `NSApp.activate(ignoringOtherApps: true)`.
+### Anti-Pattern: Missing Activation Policy for Non-Document Apps
+**What it looks like:** App has no `CFBundleDocumentTypes` and no `NSDocument` subclass. No dock icon appears. App missing from Command-Tab. Menu bar items unresponsive. Developer debugs `NSApplication` delegate for hours.
+**Why it fails:** Default activation policy for non-document apps is `.prohibited` (accessory mode). The app is invisible to users — no dock presence, no app switcher entry. The fix is one line but the symptom sends developers on multi-hour debugging tangents.
+**Do this instead:** In `applicationWillFinishLaunching(_:)`, call `NSApp.setActivationPolicy(.regular)` for standard apps, `.accessory` for menu bar-only apps. Must be set before `NSApp.activate(ignoringOtherApps: true)`.
 
 ## Anti-Rationalization — No Excuses
 
@@ -533,6 +600,27 @@ Unlike iOS where UIKit/SwiftUI are the only game in town, macOS development requ
 | "I don't need to test on Intel — everyone has Apple Silicon now." | As of 2026, ~5-15% of active Macs are still Intel, concentrated in enterprise fleets and high-end Mac Pro users — exactly the customers who pay for professional software. Intel Macs have different GPU families, different memory pressure characteristics, and Rosetta 2 introduces subtle timing differences. One Intel-only crash in your crash reporter is a 1-star review from a paying customer. |
 | "Accessibility is nice-to-have — we'll add VoiceOver labels after the 1.0 launch." | macOS includes accessibility by default on every shipping Mac. VoiceOver turns on with ⌘F5. If your app is silent to VoiceOver on launch day, accessibility users can't use it. Adding labels post-launch is 3x the effort of adding them during development because you've forgotten what each custom control does. Accessibility is not a feature — it's the baseline. |
 | "The app doesn't need notarization — my users can right-click > Open to bypass Gatekeeper." | Right-click bypass works for technically literate users. Every other user sees "App can't be opened because it is from an unidentified developer" and either deletes your app or emails support. Notarization takes 2-5 minutes per build in CI. Skipping it saves zero development time and costs you users. |
+
+## Production Checklist
+**(STANDARD)**
+
+Before shipping any macOS app to users, verify every item on this checklist. Each unchecked item is a bug report or App Store rejection waiting to happen.
+
+- [ ] **Code signing identity valid:** `security find-identity -v -p codesigning` shows valid "Developer ID Application" certificate with at least 30 days until expiry. Expired certs halt all distribution instantly.
+- [ ] **Hardened Runtime enabled:** `codesign -d --entitlements - YourApp.app` shows `com.apple.security.hardened-runtime` in entitlements. Required for notarization.
+- [ ] **Notarization passed:** `spctl -a -v YourApp.app` reports `source=Notarized Developer ID`. Run in CI — notarization takes 2-5 minutes.
+- [ ] **Stapler attached:** `stapler validate YourApp.app` reports `The staple is valid`. Without stapling, Gatekeeper does online OCSP check on every launch.
+- [ ] **Universal Binary:** `lipo -archs YourApp.app/Contents/MacOS/YourApp` outputs `arm64 x86_64`. Intel machines still represent 5-15% of users.
+- [ ] **Sandbox configured correctly:** Entitlements match actual app behavior. No `com.apple.security.temporary-exception` entitlements without documented justification. Temporary exceptions age poorly across macOS updates.
+- [ ] **XPC services registered:** `YourApp.app/Contents/XPCServices/` contains all bundled XPC services. Each has its own `Info.plist` with `NSExtension` dictionary and unique `BundleIdentifier`.
+- [ ] **Sparkle EdDSA signing:** `SUPublicEDKey` present in `Info.plist`. Appcast contains `<sparkle:edSignature>` element. Tested update from current live version to new build.
+- [ ] **Launch time under 400ms:** Cold-launch to first meaningful paint under 400ms on test hardware. Post-user-defaults-reset test: `defaults delete com.yourcompany.yourapp` then launch.
+- [ ] **Accessibility audit passed:** Accessibility Inspector shows every interactive control has `accessibilityLabel` and `accessibilityRole`. Full Keyboard Access navigates to every control. VoiceOver announces all custom views correctly.
+- [ ] **Dark Mode verified:** All custom colors, images, `NSVisualEffectView` backgrounds, and `CALayer` content rendered correctly in both Aqua and Dark appearances. Tested via System Settings > Appearance toggle while app is running.
+- [ ] **Reduce Motion respected:** `NSWorkspace.shared.accessibilityDisplayShouldReduceMotion` checked before ALL animations. Custom transitions replaced with crossfade when enabled.
+- [ ] **High-resolution assets:** All image assets have `@2x` variants. `@3x` if supporting Pro Display XDR. `NSImage` uses `imageNamed:` with asset catalog lookup.
+- [ ] **Crash reporter configured:** Crash reports routed to a human-readable dashboard (Sentry, Crashlytics, or custom). Symbolication server configured. At least one team member receives email alerts on new crash types.
+- [ ] **App Store Review Guidelines checked:** App follows guidelines for data collection disclosure, privacy nutrition labels, in-app purchase rules, and content restrictions. Each rejection costs 24-48 hours and lost momentum.
 
 ## Verification
 

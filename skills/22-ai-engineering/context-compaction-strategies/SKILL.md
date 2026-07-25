@@ -75,6 +75,20 @@ Full compaction audit: redundancy detection (0.92 threshold), staleness scoring 
 ### Deep Dive (~30min)
 Architecture review of the entire compaction pipeline. Includes: progressive disclosure tier calibration with real workload traces, token budget optimization across a 5-skill pipeline, dual-representation compiler refinement for new skill types, and attention allocation modeling with exponential decay simulation across 50-turn conversations.
 
+### Scale Depth
+
+#### Solo (1 agent, 1 skill)
+Single-skill invocation, well under context budget. Progressive disclosure is optional — Tier 1 (overview) often sufficient. Focus: understand token consumption patterns, establish baseline attention budget. No compaction needed if context stays below 40% of window.
+
+#### Small (2-5 concurrent skills, 1-3 agents)
+Multi-skill pipeline with occasional context pressure. Implement Tier 1/2 progressive disclosure. Manual redundancy check before long conversations. Focus: prevent attention dilution from skill overlap, establish compaction trigger thresholds. Budget: minimal (compaction is mostly structural, not API-based).
+
+#### Medium (5-15 concurrent skills, production agents)
+Full three-tier progressive disclosure with automated context rotation. Dual-representation compilation with validation suite. Automated redundancy detection at 0.92 threshold. Attention zone optimization. Focus: consistent agent performance across multi-turn conversations, token cost optimization. Budget: $50-$200/month on compaction API calls.
+
+#### Enterprise (15+ skills, agent platform)
+Platform-wide compaction governance. Context budget allocation modeled across all skills. Compaction pipeline as infrastructure with CI/CD validation. Attention allocation modeling with exponential decay simulation. Cross-skill fragmentation prevention at scale. Focus: org-wide token economics, agent reliability standards. Budget: $200-$1,000/month on optimization infrastructure.
+
 ## When to Use
 
 **Triggers:**
@@ -123,6 +137,8 @@ Architecture review of the entire compaction pipeline. Includes: progressive dis
 - "Multiple skills conflicting" → Start at "Context Fragmentation Prevention" (Decision Tree 5)
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- COMPRESSED: Full 213 lines extracted to references/core-workflow.md -->
 
 ### Step 1: Progressive Disclosure Architecture
@@ -140,7 +156,7 @@ Design the three-tier loading system for every skill:
                                          </branch>
                                          </decision_tree>
 
-## Gotchas                               <gotchas_json>[
+## Anti-Patterns                         <gotchas_json>[
 {"id":1,"title":"Over-pruning decisions",
  "impact":"System inconsistency",
  "cost":"$10K-$50K","mitigation":"State ledger
@@ -188,6 +204,7 @@ references                    gotchas, reference docs   specifically needed
 ```
 
 ## Decision Trees
+**(QUICK)**
 
 ### Decision Tree 1: Token Budget Saturation Response
 
@@ -244,9 +261,9 @@ For each section in skill:
 │       ├── Decision trees: complete branch logic
 │       └── Core workflow steps: numbered procedure
 │
-├── Section is "Gotchas", "Examples", "Verification", "Deliberate Practice"?
+├── Section is "Anti-Patterns", "Examples", "Verification", "Deliberate Practice"?
 │   └── TIER 3 (lazy-loaded) — only on explicit branch traversal
-│       ├── Gotchas: full table with costs
+│       ├── Anti-Patterns: full table with costs
 │       ├── Examples: loaded when agent uncertainty detected
 │       └── References: loaded when decision tree references specific file
 │
@@ -389,7 +406,19 @@ Agent appears stuck in loop
     └── Complex tasks: > 4 identical = halt (allow more exploration)
 ```
 
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Agent forgot the architecture decision from turn 5 and proposes contradictory design on turn 18" | The decision was compacted out during context rotation without a state ledger entry. The agent's working memory has no record of the binding choice. | Log every pruned decision to the state ledger with a unique key. Before proposing architectural changes, the agent must check the ledger for prior decisions in the same domain. | Context rotation without a state ledger is amnesia. The ledger is the agent's long-term memory — compaction without it is irreversible information loss. |
+| "Compacted skill produces different behavior than original — agent fails tasks it previously passed" | Semantic drift in dual-representation compilation. A negation was dropped during minification: "Do NOT use for production" became "Use for production." | Run behavioral equivalence validation at >= 95% threshold. Test negations and constraints specifically — these are the most fragile during compilation. Add a negation-preservation check to the compiler pipeline. | Format transformation is not semantically neutral. Negations, constraints, and exceptions are the first things to break during compaction. |
+| "Agent repeats the same warning across 5 consecutive turns — context is 30% redundant" | Redundancy detection failed. The agent is retrieving the same skill instruction repeatedly because it appears in multiple skill fragments. The assembler doesn't deduplicate before context assembly. | Enable pre-assembly redundancy detection at 0.92 threshold. Cache deduplication results per skill fragment. If the same content appears in 2+ fragments, retain only the canonical copy with a cross-reference. | Redundancy is invisible to humans but devastating to attention. Sentence embedding dedup catches what manual review cannot. |
+| "Token budget shows 40% over target but compaction isn't triggering" | Compaction threshold is set too high (95%). The pipeline is running at 90% saturation — well above the recommended 70% proactive compaction threshold but below the emergency trigger. | Lower proactive compaction trigger to 70%. At 70%, compact Tier 3 content to headlines. At 85%, evict all Tier 3, compact Tier 2 to summaries. At 95%, emergency eviction — all non-critical content removed. | Proactive compaction at 70% produces better summaries than reactive compaction at 95%. The summarizer works better on less-saturated context. |
+| "Information density scoring marks a critical security constraint as low-priority" | The density scorer weights by token count, not semantic impact. "Use AES-256-GCM" is 4 tokens but carries more security weight than a 200-token code example. | Add a content category classifier BEFORE density scoring. Security constraints, auth patterns, and ground rules get an automatic priority boost regardless of token count. Density scoring applies only within the same category. | Token count ≠ information value. The shortest sentences are often the most important. Classify content by category before scoring by density. |
+| "Sliding window evicts the architecture decision from turn 3 but keeps verbose error logs from turns 7-10" | Pure recency-based eviction: the oldest context is dropped regardless of importance. The architecture decision on turn 3 is still binding; the error logs on turns 7-10 are obsolete. | Replace recency-only eviction with importance-weighted eviction. Score each segment: importance (is this decision still binding?) × recency (how old?) × uniqueness (is this info available elsewhere?). Evict lowest-scored segments — which may be recent but unimportant. | Recency is not relevance. A binding decision from turn 3 matters more than a resolved error from turn 9. |
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -474,7 +503,49 @@ If a command or approach fails, follow this escalation path before giving up:
 
 7. **Cross-Skill Fragmentation Test:** Load 8 skills simultaneously. Observe attention distribution. Detect keyword conflicts. Apply fragmentation prevention (Pattern 11). Measure: does consolidating to top 3 skills improve decision quality on the primary task?
 
-## Gotchas
+## Best Practices
+
+1. **Use structured summarization for decisions, not free-form prose.** "We chose PostgreSQL" is ambiguous. "Decision: database=PostgreSQL 16; rationale: team expertise + JSONB support; constraints: GDPR EU-only; reversible: true" is recoverable. Structured summaries enable automated context reconstruction; prose requires re-reading.
+
+2. **Implement sliding window with importance scoring, not simple recency truncation.** Dropping the oldest N turns loses early decisions that are still active. Score each context segment by: recency (how old?), relevance (does current task reference this?), decision impact (was a binding choice made here?), and uniqueness (is this information available elsewhere?). Evict lowest-scored segments first.
+
+3. **Prioritize information density over token count.** A 20-token decision record ("Use AES-256-GCM with random IV") carries more information than a 200-token prose explanation of encryption choices. When compacting, prefer dense formats (tables, key-value pairs, structured records) over narrative prose. Every token should earn its place by improving decision quality.
+
+4. **Balance lossiness tradeoffs explicitly per content category.** Security constraints: lossless (verbatim preservation). Architecture decisions: near-lossless (structured summaries with all key parameters). Code examples: lossy (reference by file:hash, not inline). Prose explanations: highly lossy (compress to one-sentence summaries). Never apply uniform compression — the cost of losing a security constraint is 1000x the cost of losing a verbose example.
+
+5. **Use dual-representation compilation for skills, not for conversations.** Skills are static — compile markdown → XML/JSON-LD once, validate semantic equivalence, deploy. Conversations are dynamic — use progressive summarization with turn-boundary compaction. Compiling live conversations introduces latency and risks misrepresenting evolving context.
+
+6. **Measure information density as decisions per token, not tokens per turn.** A 500-token turn with 0 decisions is waste. A 50-token turn with 1 binding architectural decision is gold. Track decision density over time — if it's declining, your compaction is preserving noise at the expense of signal.
+
+7. **Implement attention zone placement as a formal step in context assembly.** Primacy zone (first 200 tokens): ground rules, security constraints, task definition. Recency zone (last 100 tokens): output format, current step instruction. Mid-context (25%-75%): reference material, examples, supporting context. Critical guardrails in mid-context are invisible to attention — relocate or repeat them.
+
+8. **Use redundancy detection as a pre-assembly step, not a post-hoc audit.** Before assembling context for a new turn, detect and remove duplicate information across all candidate segments. Sentence embedding similarity at threshold 0.92 catches near-duplicates. This prevents the common failure mode of repeating the same ground rule across 5 turns while consuming 5x the attention budget.
+
+9. **Design compaction logs for recoverability, not just audit.** When you compact a decision out of context, log: what was removed, why, when it was last accessed, and a recovery path (state ledger key, file reference, or checkpoint number). An agent that needs the pruned information should be able to recover it without replaying the entire conversation.
+
+10. **Test compaction with behavioral equivalence suites, not token count checks.** A compaction that reduces tokens by 40% but drops a negation ("Do NOT use X" → "Use X") is a regression. Run the same 50-scenario eval suite against the compacted and original context. Pass threshold: >= 95% behavioral equivalence on all dimensions. Token savings without behavioral equivalence is compression, not compaction.
+
+## Production Checklist
+**(STANDARD)**
+
+Before deploying any context compaction pipeline to production, verify ALL of:
+
+1. Progressive disclosure tiers defined for all active skills: Tier 1 (overview), Tier 2 (decision trees), Tier 3 (full gotchas/examples)
+2. Context saturation monitoring active: alerts at 70% (warn), 85% (Tier 3 eviction trigger), 95% (emergency eviction)
+3. Redundancy detection running pre-assembly: sentence embedding dedup at 0.92 threshold, zero duplicates in assembled context
+4. Attention zones verified: guardrails in primacy zone (first 200 tokens), output format in recency zone (last 100 tokens)
+5. No security-critical sections compacted: all "NEVER," "MUST NOT," security, and auth constraints preserved verbatim
+6. Dual-representation compilation validated: behavioral equivalence >= 95% against original markdown, eval suite passing
+7. Compaction logged with recovery path: what was removed, why, when, and how to recover for every compaction event
+8. Unproductive loop detection active: < 3 identical (action, outcome) pairs in any 10-turn window, escalation context injected at halt
+9. Skill conflict detection active: no two active skills share > 3 domain keywords, or namespace prefixing mitigates
+10. State ledger populated: all pruned decisions have recovery path recorded, ledger integrity verified
+11. Context rotation defense tested: all 12 defense patterns validated against multi-turn conversation simulation
+12. Token budget per skill declared and monitored: actual usage tracked against budget, alerts on > 20% variance
+13. Compaction metadata recorded per event: timestamp, tokens before/after, method used, segments affected, recoverability status
+14. Recovery drill completed: simulate need for pruned information, verify successful recovery from ledger or file reference
+
+## Anti-Patterns
 
 | # | Gotcha | Impact | Cost |
 |---|--------|--------|------|

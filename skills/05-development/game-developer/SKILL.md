@@ -88,6 +88,27 @@ You are a game developer who has shipped titles, experienced crunch, debugged ph
 *   **Feature implementation (full session):** Implement a specific system: multiplayer with prediction/reconciliation, procedural dungeon generation, behavior tree AI, inventory system.
 *   **Full game architecture (multi-session):** Complete technical design: engine choice, systems breakdown, data flow, networking model, asset pipeline, performance budget, platform plan.
 
+| Level | Game Developer Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Follows engine tutorials. Builds simple prototypes. Learns game loop, component-based design, basic physics. Needs step-by-step guidance. |
+| **L2 — Practitioner** | Ships complete games independently. Implements networking, AI, save systems. Delivers to platform stores. Profiling and optimization routine. |
+| **L3 — Senior** | Architecture decisions: engine choice, ECS vs OOP, networking model, asset pipeline design. Multiplayer architecture with prediction/reconciliation. Frame budget enforced in CI. |
+| **L4 — Staff** | Cross-project engine architecture. Custom tooling for asset pipeline and build systems. Platform certification strategy. Mentors teams on performance and architecture patterns. |
+| **L5 — Principal** | Engine-level contributions. Novel rendering or networking approaches adopted industry-wide. Defines technical direction for studio or engine ecosystem. |
+
+### Solo / Small / Medium / Enterprise
+
+| Scale | Challenge | Solution |
+|---|---|---|
+| **Solo dev** | All systems, all platforms, alone | Unity/Godot; asset store for non-core systems; target 1-2 platforms initially |
+| **Small team (2-10)** | Integration between parallel feature streams | Modular architecture with clear system boundaries; per-system performance budgets; weekly integration builds |
+| **Medium (10-50)** | Build pipeline complexity; console cert | Dedicated build engineer; per-platform QA; certification test suite automated; CI with platform-specific profiles |
+| **Enterprise (50+)** | Multi-studio coordination; engine licensing; IP compliance | Shared engine fork with contribution guidelines; cross-studio code review; dedicated platform-relations team handling cert communication |
+
+**Transition Triggers:** When build times exceed 30 min → dedicated build pipeline with distributed compilation. When 3+ platforms targeted simultaneously → per-platform QA and automated cert testing. When team exceeds 10 → system-level architecture docs and per-system owners. When shipping to consoles → dedicated certification engineer.
+
+**Usage**: Say "as an L3 game developer, design the architecture for..." Default: **L2**.
+
 ## When to Use
 
 Use game-developer when building video game systems and architecture.
@@ -114,7 +135,7 @@ What game development task do you need?
 |-- Implementing a specific system → "Decision Trees: System Implementation"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Architecture Design
 
@@ -125,7 +146,20 @@ What game development task do you need?
 5. Scene/level management: streaming for open world, load/unload for linear, addressables for dynamic content.
 6. Asset pipeline: import settings, compression, build pipeline, hot-reload for iteration speed.
 
-## Decision Trees
+## Best Practices
+
+1. **Decouple update (fixed timestep) from render (variable frame rate)** — Run game logic in `FixedUpdate()` (Unity) or fixed-tick callback (Unreal). Use `Time.deltaTime` for visual smoothing/interpolation, never for physics or gameplay logic. Games running logic in `Update()` behave differently at 30fps vs 144fps.
+2. **Object pooling for all frequently spawned/destroyed objects** — Bullets, particles, enemies, UI elements. For Unity, use `ObjectPool<T>` class with pre-warmed capacity; for Unreal, use `UActorComponent` pools. A bullet-hell game spawning 200 bullets/second with `Instantiate`/`Destroy` generates 8MB garbage/sec — GC spikes every 2 seconds.
+3. **ECS (Entity Component System) for 500+ active entities** — Unity DOTS (`ISystem`, `IComponentData` in unmanaged structs) or Unreal Mass Entity. GameObject/MonoBehaviour overhead becomes measurable at ~500 entities; ECS scales to 10,000+ on the same hardware.
+4. **Server-authoritative networking with client-side prediction** — Server validates every gameplay action. Client predicts locally for responsiveness (Unity Netcode, Unreal Replication). Reconciliation error must converge within 3 physics ticks. Never trust client-reported position, health, or inventory.
+5. **Asset bundles / Addressables for non-critical content** — Load textures, audio, and level data asynchronously. For Unity, `Addressables.LoadAssetAsync<T>()` with progress callbacks. Never `Resources.Load()` — it blocks the main thread and prevents stripping unused assets.
+6. **Shader LODs and fallback variants per platform** — Desktop: high-quality PBR with compute shaders. Mobile: simplified shaders with `#pragma` directives stripping features per `shader_feature` keywords. Use `ShaderVariantCollection` to pre-warm shader compilation — avoid hitches from runtime compilation.
+7. **Memory budget per system enforced from pre-production** — Allocate: rendering 40%, AI 20%, physics 15%, audio 5%, misc 20%. Track weekly in profiler (Unity Profiler, Unreal Insights). A system that doubles its memory usage is caught in weekly review, not at launch certification.
+8. **Procedural content validation pipeline in CI** — Every generated level/quest must pass: connectivity check (path exists from start to goal), play-through simulation (AI-completeable), stat budget verification (no impossible enemy combinations). A procedurally generated game with 2% broken seeds generates 15,000+ support tickets.
+9. **Platform certification requirements known and tested pre-alpha** — Sony TRC, Microsoft XR, Nintendo lotcheck have specific requirements (save indicator, controller disconnect handling, user-generated content moderation). A cert failure costs 2-4 weeks of re-submission delay and can miss a launch window.
+10. **GC-free hot paths: zero allocations in `Update()`, `FixedUpdate()`, render loop** — No LINQ, no `foreach` over non-pooled collections, no boxing, no string concatenation. For Unity, pre-allocate arrays with `NativeArray<T>` (Jobs/Burst compatible). For Unreal, use `TArray` with `Reserve()`.
+
+## Decision Trees **(QUICK)**
 
 ### 1. Engine Selection
 
@@ -281,7 +315,7 @@ What do you want to generate procedurally?
 ```
 
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -376,7 +410,7 @@ Before beginning a new phase, verify:
 | Network game trusts client position — 5 minutes to first speed hack | Server-authoritative with client-side prediction and reconciliation | Server-authoritative + prediction/reconciliation + lag compensation + interest management + anti-cheat validation |
 | "We'll optimize later" — 15 FPS on target hardware at launch | Frame budget from day 1: 16.67ms split across systems, profiled weekly | Frame budget enforced in CI — build fails if budget exceeded + per-platform profiles |
 
-## Gotchas
+## Anti-Patterns
 
 - **Launch without server capacity.** Multiplayer games see 5-50x normal traffic on launch day. If your backend provisions for 10K concurrent users and 50K show up, matchmaking servers crash, sessions drop, and players can't connect. Steam refunds within the 2-hour play window spike as players who can't get online request refunds. **Total cost: $50K-$500K in refunds, negative reviews (a "Mixed" rating on Steam can halve sales), and permanent player churn — 80% of players who can't connect on day one never return.** Fix: load-test to 10x expected concurrency. Use auto-scaling cloud infrastructure (Agones, PlayFab, AWS GameLift). Have a queue system with estimated wait time so players see progress, not errors.
 - **Frame rate drops below target on launch.** A game targeting 60 FPS that regularly dips to 25-30 FPS on mid-range hardware gets review-bombed. Steam's refund window is 2 hours — players experiencing stutter refund within 30 minutes. **Total cost: $50K-$200K in lost sales from negative reviews. A "Mostly Negative" rating at launch reduces lifetime sales by 40-60% compared to "Very Positive" — recovery from a bad launch takes 6-12 months of patches and discounts.** Fix: lock frame rate targets early (30/60 FPS). Profile on min-spec hardware weekly, not just dev machines. Implement dynamic resolution scaling and LOD. Ship with a performance auto-detect preset that matches quality to the player's hardware.
@@ -409,6 +443,26 @@ Before beginning a new phase, verify:
 - [ ] Multiplayer uses server authority (if networked) with validation for all game actions
 - [ ] Procedural content validated: connectivity check, play-through simulation, stat budget verification
 - [ ] Platform certification requirements met for target platforms
+
+## Production Checklist **(DEEP)**
+
+- [ ] Game loop decoupled: physics/logic at fixed timestep; rendering at variable frame rate with interpolation
+- [ ] Frame budget per system: rendering < 8ms, AI < 3ms, physics < 3ms, audio < 1ms (at 60fps = 16.67ms total)
+- [ ] Zero per-frame allocations in hot paths (Update, FixedUpdate, render loop) — confirmed via profiler Deep Profile
+- [ ] Object pools for all frequently instantiated types; pre-warmed to peak capacity in loading screen
+- [ ] GC spikes < 2ms per frame averaged over 60 seconds — Unity Profiler GC Alloc column
+- [ ] Shader variants pre-warmed via `ShaderVariantCollection`; no runtime compilation hitches
+- [ ] Server-authoritative networking with input validation for every `ServerRpc`/RPC
+- [ ] Client prediction converges within 3 physics ticks at ≤ 100ms simulated latency
+- [ ] Mesh LODs configured (LOD0–LOD3); LOD group transitions tested at target rendering distances
+- [ ] Asset loading is async: Addressables (Unity) or async level streaming (Unreal); no `Resources.Load()` in gameplay
+- [ ] Occlusion culling enabled (Umbra in Unity, software occlusion in Unreal); verified with occlusion visualization
+- [ ] Procedural content validation in CI for every generated seed: connectivity, play-through, stat budget
+- [ ] Target frame rate tested on minimum-spec hardware weekly from pre-production; enforced in CI
+- [ ] Save system: version header in every save file; migrations idempotent; corruption detection via checksum
+- [ ] Platform certification checklist reviewed and all requirements addressed before submission
+- [ ] IL2CPP stripping tested on device build; `link.xml` preserving all reflection-used types
+- [ ] Cheat detection pipeline active: server-side validation, statistical anomaly detection, player reporting
 
 ## Verification Guardrails
 

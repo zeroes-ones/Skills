@@ -168,6 +168,8 @@ API design skill manifests in the scope of the API — from single endpoints to 
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### REST vs GraphQL vs gRPC
 
@@ -282,6 +284,8 @@ API design skill manifests in the scope of the API — from single endpoints to 
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): API Paradigm Selection
 1. **REST**: CRUD-heavy, document/collection-oriented, wide client audience, caching needs (HTTP caching), simple data shapes. Use when you need cacheability, discoverability (HATEOAS), and broad compatibility.
@@ -327,7 +331,32 @@ Common chains:
 - **Data-driven API**: database-designer → api-designer → frontend-developer — Schema shapes the resources, API exposes them, frontend consumes them
 
 
+## Best Practices
+
+1. **Specification-first, never code-first.** Write OpenAPI 3.1 before implementation. The spec is the contract — nothing ships that isn't documented. Generate mock servers from specs during development.
+
+2. **Use RFC 7807 Problem Details for all errors.** Consistent error schema with `type`, `title`, `status`, `detail`, and `instance` fields. Every 4xx and 5xx response conforms to the same envelope — no per-endpoint error formats.
+
+3. **Version with URL path for public APIs.** `/v1/users` is explicit, cacheable, and discoverable. Header versioning only for internal APIs with <10 consumers. Maintain N-1 version for the full deprecation window.
+
+4. **Cursor-based pagination for mutable datasets.** Stable sort order with tiebreaker column (UUID or `id`). Offset-based pagination acceptable only for static datasets <10K records with simple jump-to-page UX.
+
+5. **Require Idempotency-Key for all mutating endpoints.** Server-side key storage with 24h TTL in Redis. Payments, order creation, and resource provisioning must be idempotent — network retries are inevitable.
+
+6. **Rate limit at the gateway, not in application code.** Per-consumer quotas with burst allowance. Return `429 Too Many Requests` with `Retry-After` header. Use `RateLimit-*` IETF draft headers for transparency.
+
+7. **Deprecate before you remove.** Announce with `Sunset` and `Deprecation` HTTP headers. 6-month minimum grace period for public APIs, 3-month for internal. Enforce sunset dates in infrastructure — automated shutdown after deadline.
+
+8. **Design from the consumer's perspective.** Write the client code first before designing endpoints. If the consumer needs 3 API calls to assemble a single view, the API resource model is wrong.
+
+9. **Never expose internal database IDs.** Use UUIDv7 or ULID for all external-facing identifiers. Sequential IDs leak business metrics (customer count, growth rate) and enable enumeration attacks.
+
+10. **Rotate API keys with overlapping validity windows.** Short-lived access tokens (1-24h) with refresh token rotation. Log and alert on anomalous key usage patterns. Never accept API keys in URL query strings — they land in server access logs.
+
+
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -431,6 +460,24 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[API1]** OpenAPI 3.1 spec validated with zero errors (`redocly lint` or `spectral lint`)
+- [ ] **[API2]** All endpoints have request/response examples and complete error schemas (400, 401, 403, 404, 409, 422, 429, 500)
+- [ ] **[API3]** Pagination on all list endpoints — cursor-based for mutable data, offset-based only for static datasets <10K
+- [ ] **[API4]** Idempotency-Key required on all POST/PUT/PATCH/DELETE, server-side key storage with 24h TTL
+- [ ] **[API5]** Rate limiting at API gateway — per-consumer quotas, 429 with `Retry-After` header, `RateLimit-*` headers
+- [ ] **[API6]** Versioning strategy documented — URL path for public, header for internal. Deprecation: 6-month grace with `Sunset`/`Deprecation` headers
+- [ ] **[API7]** Public identifiers are non-sequential (UUIDv7/ULID) — no auto-increment database keys exposed in responses
+- [ ] **[API8]** Authentication: short-lived tokens (1-24h) with refresh rotation, API key rotation with overlapping validity windows
+- [ ] **[API9]** SDK generation pipeline from OpenAPI spec — OpenAPI Generator with CI validation on every spec change
+- [ ] **[API10]** Contract tests in CI: consumer-driven contract tests verify that responses match spec schemas
+- [ ] **[API11]** All breaking changes go through new API version — never remove, rename, or change types of fields in-place
+- [ ] **[API12]** `additionalProperties: false` set on all request body schemas — silent field acceptance caught at validation
+- [ ] **[API13]** API changelog published, consumer notification channel active, deprecation calendar visible to all integrators
+
 ## What Good Looks Like
 
 > API consumers integrate in hours, not weeks. The specification is the source of truth — nothing ships that isn't documented. Breaking changes are rare and always communicated 6+ months ahead.
@@ -457,7 +504,7 @@ Before beginning a new phase, verify:
 ### The One Thing
 **Design an API by writing the consumer code first.** Before you write a single endpoint spec, write the code you wish you could write as a consumer. `const order = await api.orders.create({...})`. Let the ideal consumer experience drive the API design. An API that's easy to consume was designed from the outside in.
 
-## Gotchas
+## Anti-Patterns
 
 - **Breaking API change without versioning.** Renaming a field, changing a type, or removing an endpoint without a deprecation window breaks every client that depends on the old contract. Mobile apps that update slowly, third-party integrations you didn't know existed, and internal services all fail simultaneously. The support tickets, incident response, and emergency hotfix cost dwarf the time saved by "just changing it." **Total cost: $50,000-$200,000 in client integration breaks, support escalations, and emergency rollbacks.** Fix: Never remove or rename — only deprecate with a documented sunset window; use API versioning (URL path or header-based) before any breaking change; run contract tests in CI.
 - **REST API without rate limiting.** An unauthenticated endpoint with no rate limit is a DDoS vector. A buggy client retrying in a loop, or a malicious actor, can saturate your API servers and database with trivial requests — taking down the entire service for all users. Cloud auto-scaling can amplify the cost into thousands of dollars in compute before you notice. **Total cost: $10,000-$100,000 in DDoS vulnerability, auto-scaling cost explosion, and incident response.** Fix: Apply rate limiting at the API gateway layer (per IP for unauthenticated, per API key/token for authenticated); implement exponential backoff guidance in error responses; set aggressive rate limits as the default, not an afterthought.

@@ -299,6 +299,8 @@ Analyst relations (AR) is a long game, not a deal-sprint. Strategy: (1) Identify
 
 ## Error Recovery
 
+<!-- STANDARD: Recovery patterns for common failures. -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -463,7 +465,22 @@ graph LR
 | "We'll write what's interesting — the blog team knows best" | 48 posts in 12 months from brainstorming vs keyword research: 1,200 visits/month vs 8K-15K visits/month. Same $120K-$180K budget, 10x difference in pipeline. Content without SEO intent research is corporate journaling, not marketing. |
 | "Trade shows generate leads — staff it with whoever's available" | $75K booth staffed by SDRs who can't answer technical questions: 200 badges scanned, 180 no-shows on follow-up. $75K-$120K per show wasted. Staff with SEs, pre-brief on top 10 technical questions, schedule meetings on the spot. |
 
-## Gotchas
+## Best Practices
+
+1. **Run the logo-swap test on every positioning statement.** If your positioning could appear on a competitor's website with the logo swapped, it's not positioning — it's category description. Positioning must be specific enough that only you can claim it. "Best," "leading," "innovative," and "comprehensive" fail this test every time.
+2. **Price to value delivered, never to cost-plus.** Your cost to build has zero relationship to what a buyer will pay. Anchor pricing to: (1) What problem does this solve? (2) What's the cost of NOT solving it? (3) What alternatives exist and at what price? Use Van Westendorp or conjoint analysis, not internal cost models.
+3. **Require external buyer validation before scaling any messaging.** Internal validation produces false confidence — your team fills gaps with product knowledge buyers don't have. Test messaging with 5-10 cold prospects using a blank-slate reaction and 5-second comprehension test before scaling to full campaigns.
+4. **Build battle cards from win/loss data, never internal opinions.** Your opinion of why you win is usually wrong. Conduct win/loss interviews for ≥5 won deals and ≥5 lost deals against each competitor. Battle cards without this data are fan fiction.
+5. **Give ≥90-day notice for price increases >15% affecting existing customers.** Surprise price changes trigger churn, customer outrage, and competitor poaching. Grandfather existing customers for ≥12 months. Prepare: customer FAQ, AE talking points, competitive response playbook.
+6. **Brief analysts on vision and execution (80%), not features (20%).** Analysts score companies on vision completeness and ability to execute. Feature-focused briefings result in lower-than-expected Gartner/Forrester placements. Structure: market vision (25%), customer momentum (25%), roadmap (20%), differentiation (20%), features (10%).
+7. **Every launch must answer "Why now?"** "New feature X" is not news. Every launch needs an urgency driver: market shift, competitive window closing, customer pain that just became acute, regulatory deadline. If none apply, defer until one does.
+8. **Staff trade show booths with SEs and senior AEs, not SDRs.** A $75K booth staffed by SDRs who can't answer technical questions produces 200 badge scans and 180 no-shows on follow-up. Staff with SEs who can qualify on the spot and AEs who can schedule meetings immediately. Pre-brief on top 10 technical questions.
+9. **Build content calendars from keyword research, not brainstorming.** Every piece must target a specific keyword with documented monthly search volume and buyer intent. Measure content ROI as pipeline generated per dollar spent, not pageviews. Blog posts without SEO research are corporate journaling.
+10. **A/B test brand changes on a landing page before full rollout.** A $200K rebrand without customer validation can drop demo requests 25%. Test concepts with 20+ current customers and 20+ ICP prospects. Run the 5-second test: can someone identify what you do in 5 seconds of viewing the homepage?
+
+## Anti-Patterns
+
+<!-- STANDARD: Common failure modes with cost estimates and fixes. -->
 
 - **"Brand awareness" campaigns** measured by impressions — 1M impressions with 0.01% CTR (100 clicks) and 0 conversions. Awareness without consideration or conversion metrics is a budget black hole. Every awareness campaign must have a downstream metric: website traffic increase, branded search volume increase, or retargeting pool growth.
 - **Content marketing that ranks for keywords** but the keywords are informational ("what is Kubernetes") and the audience is SREs researching a blog post — not buyers evaluating your Kubernetes management platform. The 10,000 visitors/month don't convert because they weren't in-market. Target BOTTOM-of-funnel keywords: "Kubernetes cluster management platform pricing."
@@ -472,6 +489,67 @@ graph LR
 - **Trade show booth staffed by SDRs who don't know the product.** You spend $75K on a booth at a major industry conference. Three SDRs work the booth who've been at the company 4 months and can't answer questions beyond the pitch deck. Attendees ask about API rate limits, SOC 2 status, and Salesforce integration depth — the SDRs scan badges and say "someone will follow up." Of 200 badges scanned, 180 are no-shows on follow-up because the interaction was forgettable. **Total cost: $75K-$120K per show in wasted booth + travel + sponsorship fees, plus 150-200 cold leads that should have been 30-50 warm conversations.** Fix: Staff booths with a mix of SEs and senior AEs; pre-brief all booth staff on the top 10 technical questions from the previous year's show; implement a "hot lead" handoff protocol (SE qualifies → AE schedules meeting on the spot).
 - **Rebranding project with no customer research.** Marketing spends 6 months and $200K on a new logo, color palette, website redesign, and messaging overhaul. The new brand is "bold and disruptive." Launch day: existing customers hate it ("looks like a crypto startup"), the new messaging confuses your ICP ("I thought you were an enterprise compliance tool"), and demo requests drop 25% month-over-month because the website no longer conveys what you actually do. **Total cost: $200K-$350K in agency and internal costs, $500K-$1.5M in lost pipeline from the conversion rate drop over 6 months, plus another $150K-$250K to partially revert.** Fix: Test brand concepts with 20+ current customers and 20+ ICP prospects before finalizing; run a 5-second test (can someone identify what you do in 5 seconds of viewing the homepage?); A/B test the new brand on a landing page before full rollout.
 - **Content calendar built around "what we want to say" instead of "what buyers search for."** You publish 4 blog posts/month on product features, company culture, and industry trends — all chosen in a Monday brainstorming session. Zero posts are keyword-researched. After 12 months, your blog has 48 posts, 1,200 total organic visits/month, and 3 demo requests attributable to content. **Total cost: $120K-$180K in content production costs (writers, designers, editors) for 48 posts that generate negligible pipeline, when the same budget invested in 12 SEO-researched, high-intent pieces could generate 8-15K monthly organic visits and 20-40 demo requests/month.** Fix: Build a content calendar from keyword research, not brainstorming; every piece must target a specific keyword with documented monthly search volume and buyer intent; measure content ROI as pipeline generated per dollar spent, not pageviews.
+
+## Production Checklist
+
+<!-- STANDARD: Pre-launch verification gate. All items must pass before delivering work. -->
+
+- [ ] Positioning statement passes logo-swap test — if competitor's logo replaces yours, it's no longer credible
+- [ ] Pricing anchored to value delivered, not cost-plus — Van Westendorp or conjoint analysis completed
+- [ ] Messaging tested with ≥5 cold prospects — 5-second comprehension test passed, blank-slate reaction documented
+- [ ] Battle cards built from win/loss data — ≥5 won and ≥5 lost deal interviews per competitor
+- [ ] Every launch plan includes "Why now" urgency driver — market shift, competitive window, customer pain, or regulatory deadline
+- [ ] Content calendar derived from keyword research — every piece targets a specific keyword with documented search volume and buyer intent
+- [ ] Trade show staffing plan: SEs + senior AEs, pre-briefed on top 10 technical questions, hot lead handoff protocol
+- [ ] Analyst briefing deck structured: vision/market (25%), customer momentum (25%), roadmap (20%), differentiation (20%), features (10%)
+- [ ] Price increase >15% for existing customers includes ≥90-day notice, ≥12-month grandfathering, customer FAQ, AE talking points
+- [ ] Brand change tested with 20+ customers and 20+ ICP prospects before rollout — 5-second homepage test passed
+- [ ] Campaign measurement framework: primary KPI + leading indicators + lagging indicators defined BEFORE launch
+- [ ] Competitive share of voice tracked quarterly — brand's share of total category conversation measured
+- [ ] Content audit: oldest 20% reviewed quarterly — outdated stats, broken links, deprecated features updated or archived
+- [ ] Case studies include named customers — anonymous "Fortune 500" references flagged for replacement or archival
+
+## Scale Depth
+
+<!-- DEEP: How this skill scales from solo to enterprise. -->
+
+### Solo PMM (Founder-led, pre-Series A)
+- **Tooling:** Google Slides for positioning, Google Docs for messaging, manual competitive research, founder runs all analyst briefings
+- **Process:** Founder = PMM; positioning and messaging from founder's vision; no formal competitive intelligence program
+- **Risk:** Positioning is founder's opinion, not market-validated; no systematic win/loss analysis
+- **Move to next level when:** You have ≥2 products to position OR preparing for first Gartner/Forrester evaluation
+
+### Small Team (1-2 PMMs, Series A-B)
+- **Tooling:** Competitive intelligence spreadsheet, basic win/loss interview cadence, Crayon/Klue for competitive monitoring, Canva/Figma for sales enablement
+- **Process:** Formal positioning framework (Message House), quarterly competitive analysis, launch checklist with gates, basic battle cards from win/loss interviews
+- **Key hire:** First dedicated competitive intelligence person (or PMM focused 50% on competitive)
+- **Move to next level when:** Running ≥4 launches/year OR managing analyst relations with ≥2 firms
+
+### Medium Team (3-6 PMMs, Series B-C)
+- **Tooling:** Competitive intelligence platform (Klue/Crayon Enterprise), win/loss analysis platform (Clozd/DoubleCheck), analyst relations management, sales enablement platform (Highspot/Seismic)
+- **Process:** PMMs dedicated to product lines, formal launch management process (tiered: Tier 1 company-wide, Tier 2 product-level, Tier 3 feature-level), quarterly analyst briefings, annual pricing review
+- **Metrics:** Launch pipeline influence, competitive win rate by competitor, analyst rating trajectory, sales enablement content utilization
+- **Move to next level when:** Positioning ≥5 distinct product lines OR preparing for Magic Quadrant/Forrester Wave submission
+
+### Enterprise (6+ PMMs, Series C+)
+- **Tooling:** Full competitive intelligence program with AI-powered battle cards, dedicated analyst relations team, global launch management platform, pricing optimization software (Vendavo/Pricefx)
+- **Process:** PMM leadership team, product-line PMM pods, dedicated competitive intelligence function, formal analyst relations calendar, annual global pricing strategy, regional market adaptation
+- **Metrics:** Category leadership score (analyst ratings + market share perception), win rate by competitor by region, launch ROI (pipeline generated / launch cost), pricing realization (actual vs list price)
+- **Governance:** Quarterly positioning audit across all products, monthly competitive intelligence briefing for executive team, annual brand health study, semi-annual pricing elasticity research
+
+## Error Decoder
+
+<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
+
+| Symptom | Diagnosis | Root Cause | Fix |
+|---------|-----------|------------|-----|
+| Positioning statement sounds like every competitor in the category | Logo-swap test failed — positioning is generic category description, not a unique claim | Positioning written without competitive differentiation research; internal team filled gaps with familiar category language | Identify 3 specific, provable differentiators that no competitor can claim; rewrite positioning around the one differentiator that matters most to your ICP; test with prospects |
+| Demo requests drop 25% after rebrand launch | New brand confuses ICP — messaging, visual identity, or value proposition no longer matches buyer expectations | Rebrand executed without customer research; internal team optimized for "fresh" not "clear" | Halt paid campaigns driving to new brand; A/B test old vs new messaging on landing pages; run 5-second comprehension test with 20 ICP prospects; revert if comprehension drops >20% |
+| Battle card says "we win because of better UX" but win/loss data shows we lose on pricing 60% of the time | Battle card built from internal opinions, not deal outcome data | No systematic win/loss interview program; PMMs relying on AE anecdotes which are biased toward product strengths | Launch win/loss interview program (≥5 won, ≥5 lost per competitor); rebuild battle cards from actual deal data; update quarterly |
+| Gartner places company as "Niche Player" despite strong product — CEO expected "Visionary" | Analyst briefing was 80% product demo, 20% vision — analysts score vision and execution, not features | PMM treated analyst briefing as an extended demo; no market vision narrative prepared | Reposition analyst briefing: market vision and trends (25%), customer momentum (25%), 12-month roadmap (20%), differentiation (20%), features (10%); practice with ex-analyst consultant |
+| Content generates 10K monthly visits but zero pipeline | Content ranks for informational keywords ("what is X") not buyer-intent keywords ("X pricing," "X vs Y") | Content calendar built from brainstorming, not keyword research; no buyer intent filtering | Audit content for buyer intent keywords; redirect 80% of content budget to bottom-of-funnel topics; measure pipeline per content dollar, not traffic |
+| Price increase announcement triggers 15% churn inquiry rate | Customers blindsided — no communication runway, no value-add narrative, no grandfathering | Price increase treated as financial event, not marketing event; no customer communication plan | Halt increase for existing customers; build 90-day communication plan: value-add narrative, grandfathering offer, customer FAQ, AE talking points; announce only after plan is complete |
+| Sales team ignores new battle cards and pitch deck — "the old one works fine" | Sales enablement created without sales input; content doesn't address real field objections | PMM built enablement in a silo; didn't interview AEs about what they actually need | Interview 10 AEs about top 5 objections they face; co-create enablement materials with top-performing AEs; pilot with 3 AEs for 2 weeks before full rollout |
 
 ## Verification
 

@@ -150,6 +150,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Conducting post-crisis reviews with root cause analysis and corrective action plans
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Safety Incident Classification
@@ -222,6 +223,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Immediate escalation (plan/intent/means):** Call 988 Suicide & Crisis Lifeline (US) or local crisis service. If patient identifiable, contact them by phone if safe. Notify clinical lead within 5 minutes. Do NOT leave patient with only an automated message. **Moderate risk (ideation without plan):** Administer C-SSRS screening. Provide warm handoff to crisis resources within 30 minutes. Follow up in 24 hours. **Low risk:** Document concern. Monitor. Follow up in 24 hours. If any escalation in language, move to moderate risk.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~25 min): Adverse Event Detection and Regulatory Reporting
@@ -282,6 +284,7 @@ def generate_medwatch_3500a_xml(ae_report: dict) -> str:
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -477,6 +480,87 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Best Practices
+
+1. **Deploy a standardized triage protocol for all safety incidents.** Use the S1-S5 severity taxonomy: S1 (Critical — death or life-threatening, activate within 15 minutes, CEO + Legal + Regulatory notified), S2 (Severe — requires hospitalization, activate within 1 hour, VP-level), S3 (High — affects >10 patients or has media potential, within 4 hours, Director-level), S4 (Medium — isolated event, <10 patients, within 24 hours), S5 (Low — near-miss, no patient impact, within 72 hours). Every incident must be classified before action.
+2. **Maintain an escalation matrix with role-specific activation triggers.** Map every incident type to: who is notified, within what timeframe, through which channel (phone for S1/S2, email + Slack for S3-S5), and who has decision authority at each level. The CEO is not the default approver for every crisis — pre-delegate communication authority to prevent the "CEO is on a plane for 6 hours with no statement" scenario.
+3. **Pre-draft crisis communication templates for the top 5 scenarios.** Templates must cover: data breach (HIPAA notification language, affected population scope, remediation steps), product recall (FDA notification, patient safety advisory, return/disposal instructions), adverse event cluster (acknowledgment, investigation status, patient guidance), executive departure (transition plan, continuity assurance), and public health emergency (CDC/WHO alignment, community guidance). Templates save 4+ hours in the first critical window.
+4. **Implement stakeholder notification with pre-defined cadences.** Internal: CEO, legal, regulatory, clinical leadership, board (if S1/S2). External: patients (if directly affected), healthcare providers (if clinical practice impacted), regulators (FDA, HHS OCR for breaches, state AGs), media (if public interest). Pre-map which stakeholder gets notified when — the first 4 hours define the narrative, and every hour without a statement increases negative coverage by 30%.
+5. **Apply psychological first aid (PFA) principles in mental health crisis response.** When a community member expresses suicidal ideation with plan/intent/means: (1) immediate human contact by phone if safe and identifiable — never leave a patient with only an automated message, (2) call 988 Suicide & Crisis Lifeline (US) or local crisis service, (3) administer C-SSRS screening, (4) warm handoff to crisis resources within 30 minutes, (5) document everything. Automated responses to suicidal content are contraindicated.
+6. **Conduct post-crisis debriefs within 30 days of incident closure.** Structure: timeline reconstruction (what happened, when, who knew), decision audit (which decisions were made, by whom, with what information), gap analysis (what failed: detection, escalation, communication, resolution), and action plan (process changes, template updates, training revisions). Organizations without formal post-incident review repeat the same crisis type at 3x the rate.
+7. **Integrate business continuity planning with crisis response.** For S1-S2 incidents: designate a crisis command center (physical or virtual), establish backup communication channels if primary systems are compromised, identify critical business functions that must continue (patient support, regulatory reporting, clinical operations), and pre-authorize emergency spending thresholds. Business continuity is not separate from crisis response — it is the operational backbone.
+8. **Track regulatory reporting timelines with automated countdowns.** FDA MedWatch: 15 calendar days for serious unexpected AEs, 7 days for death/life-threatening. EU EudraVigilance: 15 days for serious, 90 days for non-serious. HIPAA breach: 60 days to notify affected individuals, contemporaneous (or within 60 days) to HHS, immediate media notification if >500 affected. MDR: 30 days for death/serious injury, 30 days for malfunction likely to cause death/serious injury. Missing a regulatory deadline is a separate, compound violation.
+9. **Never minimize incident scope in initial communications.** "A minor service disruption affected a small number of users" followed by "We confirm unauthorized access to 10 million accounts" destroys credibility — each escalating correction faces 3-5x higher customer churn and 2x larger regulatory fines. If you do not know the full scope yet, say: "We do not know the full scope yet. Here is what we know, what we are doing, and when we will update."
+10. **Write all crisis communications as if they will be published on the front page.** There is no "internal only" during a crisis. A memo sent to 500 employees marked "Internal Only — Do Not Share" will be on Twitter within 15 minutes. Every communication — internal email, Slack message, draft statement — must be written to the standard of public disclosure. Leaked internal communications add 48-72 hours to crisis resolution as the team pivots to "respond to the leak about the response."
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
+|-----------------|---------------------|-----------|-------------------|
+| Crisis communication drafted from scratch during the crisis — CEO writing statement at 2 AM while CTO investigates | Pre-draft templates for top 5 crisis scenarios. Templates save 4+ hours in the critical first window when every hour of silence costs $50K-$200K in brand value | `grep -r 'template\|pre.draft\|holding.statement' crisis-plans/` — must have ≥5 templates | Pre-crisis audit: flag crisis plans without pre-drafted templates; auto-generate from scenario library |
+| First statement minimizes incident scope — "minor disruption" → "data breach" → "10M accounts exposed" destroys credibility | If full scope unknown, say: "We do not know the full scope. Here is what we know, what we are doing, and when we will update." Never minimize | `grep -r 'minor\|small.number\|limited.impact\|isolated' crisis-statements/` | Pre-release gate: block statements containing minimizing language without scope caveat |
+| Internal communications labeled "Do Not Share" sent to all 500 employees during active crisis | Write every communication as if it will be published on the front page. There is no "internal only" during a crisis. Assume every memo will leak | `grep -r 'internal.only\|do.not.share\|confidential' crisis-comms/` during active incident | Communication gate: flag any crisis communication marked "internal only" for mandatory public-suitability review |
+| No post-crisis review — crisis ends, everyone exhausted, move on. Same root cause triggers identical incident 6 months later | Conduct post-crisis debrief within 30 days: timeline, decision audit, gap analysis, action plan. Update templates, playbooks, and training based on findings | `grep -r 'post.crisis\|debrief\|after.action\|lessons.learned' --include='*.md'` — must exist for every S1-S3 incident | Post-incident gate: flag S1-S3 incidents >30 days without completed debrief documentation |
+| Single decision-maker authorized to approve public statements — CEO on plane for 6 hours, no communication released | Pre-delegate communication authority with escalation thresholds. Define who can release: holding statement, factual update, apology, commitment. Not every statement needs CEO approval | `grep -r 'approval\|authorized\|sign.off' crisis-plans/ \| grep -v 'delegat\|backup\|alternate\|deputy'` | Delegation audit: flag crisis plans with single-point-of-failure approval path |
+| AE report detected in community post — moderator deletes the post to "clean up" before investigation | Flag post. Do NOT delete. Document timestamp. Transfer for AE triage. Preserve content for regulatory record. Deletion is evidence spoliation | `grep -r 'delete\|remove\|clean.up' ae-procedures/ \| grep -v 'preserve\|retain\|do.not.delete'` | Auto-protect rule: posts flagged as potential AE are locked from deletion; deletion requires regulatory lead override |
+| Suicide risk post receives automated "We're here to help — call this number" response with no human follow-up | Immediate human contact by phone if safe and identifiable. Administer C-SSRS. Warm handoff to crisis service within 30 minutes. Automated responses to suicidal content are contraindicated | `grep -r 'automated\|auto.response\|bot' crisis-protocols/ \| grep 'suicide\|self.harm\|crisis'` | Response gate: block automated responses for suicide/self-harm content; require human escalation |
+
+## Production Checklist
+**(STANDARD)**
+
+| ID | Checklist Item | Validation | Auto-Fix |
+|----|---------------|------------|----------|
+| [CR1] | S1-S5 severity taxonomy defined with activation timeframes, notification targets, and decision authority per level | `grep -r 'S1\|S2\|S3\|S4\|S5\|severity\|activation\|notification' crisis-plans/` | Run `crisis-taxonomy-bootstrap --levels 5` |
+| [CR2] | Escalation matrix documented: incident type → who notified → timeframe → channel → decision authority | `grep -r 'escalation.matrix\|who.notified\|timeframe\|decision.authority' crisis-plans/` | Run `escalation-matrix-bootstrap --template healthcare` |
+| [CR3] | Pre-drafted crisis communication templates for top 5 scenarios (data breach, product recall, AE cluster, executive departure, public health emergency) | `grep -c 'template\|pre.draft' crisis-comms/` — must be ≥5 | Run `crisis-template-bootstrap --scenarios 5` |
+| [CR4] | Stakeholder notification map: patients, HCPs, regulators (FDA, HHS OCR, state AGs), media, board — with pre-defined cadences | `grep -r 'stakeholder\|notification.map\|patients\|HCPs\|regulators\|media\|board' crisis-plans/` | Run `stakeholder-map-bootstrap --template healthcare-crisis` |
+| [CR5] | Regulatory timeline tracking with automated countdowns: FDA 15-day/7-day, HIPAA 60-day, MDR 30-day, EudraVigilance 15-day/90-day | `grep -r 'FDA.15.day\|FDA.7.day\|HIPAA.60.day\|MDR.30.day\|EudraVigilance' crisis-plans/` | Run `regulatory-timeline-bootstrap --jurisdictions FDA,HIPAA,MDR,EU` |
+| [CR6] | AE reporting workflow: detect → triage (4 elements check) → seriousness assessment → report (correct form + timeline) → document → retain (10 years) | `grep -r 'AE.workflow\|detect\|triage\|seriousness\|report\|document\|retain' ae-procedures/` | Run `ae-workflow-bootstrap --regulator FDA` |
+| [CR7] | Mental health crisis escalation: C-SSRS administration, warm handoff to 988/crisis line within 30 min, human contact (not automated), follow-up at 24h | `grep -r 'C-SSRS\|988\|warm.handoff\|crisis.line\|follow.up' crisis-protocols/` | Run `mental-health-crisis-bootstrap --jurisdiction US` |
+| [CR8] | Crisis command center designation (physical or virtual) with backup communication channels and pre-authorized emergency spending | `grep -r 'command.center\|backup.communication\|emergency.spending\|war.room' crisis-plans/` | Run `command-center-bootstrap --template virtual` |
+| [CR9] | Communication delegation: pre-authorized signatories for holding statements, factual updates, apologies, and commitments — not just CEO | `grep -r 'delegat\|authorized.signatory\|backup.approver\|deputy' crisis-plans/` | Delegation audit: flag crisis plans with single-point-of-failure approval |
+| [CR10] | Post-crisis debrief process: timeline reconstruction, decision audit, gap analysis, action plan — completed within 30 days for all S1-S3 incidents | `grep -r 'post.crisis\|debrief\|after.action\|timeline\|decision.audit\|gap.analysis' crisis-plans/` | Post-incident gate: flag S1-S3 >30 days without completed debrief |
+| [CR11] | Pharmacovigilance signal detection: PRR/ROR disproportionality analysis, data mining methodology, signal validation process | `grep -r 'PRR\|ROR\|disproportionality\|signal.detection\|data.mining' pv-procedures/` | Run `pv-signal-detection-bootstrap --method PRR,ROR` |
+| [CR12] | Crisis communication written to public-disclosure standard — no "Internal Only" communications during active crisis | `grep -r 'internal.only\|do.not.share\|confidential' crisis-comms/` during active incident | Communication gate: flag internal-only crisis communications for public-suitability review |
+| [CR13] | AE content preservation: flagged posts locked from deletion, timestamps documented, content preserved for regulatory record | `grep -r 'preserve\|do.not.delete\|lock\|regulatory.record' ae-procedures/` | Auto-protect rule: potential AE posts locked; deletion requires regulatory lead override |
+| [CR14] | Tabletop crisis exercise conducted within last 6 months — simulated media inquiry, regulatory notification, and patient communication | `grep -r 'tabletop\|exercise\|drill\|simulation\|last.exercise.date' crisis-plans/ \| grep '202[5-6]'` | Scheduled audit: alert if no exercise in >6 months |
+
+### Scale Depth
+
+<!-- DEEP: 10+min -->
+<!-- QUICK: 30s -- how crisis response evolves with organizational scale -->
+
+#### Solo (1 person, no dedicated crisis function)
+**Approach:** Crisis response is ad-hoc. No pre-drafted templates. CEO/Founder handles all communications personally. Regulatory reporting done manually. No formal post-crisis review.
+**When to graduate:** First S1/S2 incident; first regulatory inquiry; patient safety event exposes lack of protocol.
+
+#### Small Team (2-5 people, part-time crisis responsibility)
+**Approach:** Designated crisis response lead (part-time). Basic templates for top 3 scenarios. Escalation matrix documented. Quarterly tabletop exercises. Regulatory timeline calendar with reminders. Post-crisis debriefs conducted but informally.
+**When to graduate:** Multiple simultaneous incidents; need for 24/7 coverage; regulatory reporting volume exceeds manual capacity.
+
+#### Medium Team (5-15 people, dedicated crisis function)
+**Approach:** Dedicated crisis response team with 24/7 on-call rotation. Automated AE detection and triage. Full template library for all scenarios. Formal post-crisis review with CAPA tracking. Pharmacovigilance signal detection capability. Crisis communication pre-cleared with legal. Quarterly multi-stakeholder drills.
+**When to graduate:** Global operations requiring multi-jurisdiction regulatory reporting; public company with SEC disclosure obligations; crisis response data used in regulatory submissions.
+
+#### Enterprise (15+ people, crisis response department)
+**Approach:** Chief Crisis Officer or VP Crisis Management. Global 24/7 crisis operations center. AI-assisted signal detection across all patient-facing channels. Integrated crisis management platform. Published crisis response research. Regulatory agency relationships. Board-level crisis governance committee. Annual external audit of crisis preparedness.
+
+#### Transition Triggers
+- **Solo → Small Team:** First S1/S2 incident; regulatory inquiry received; patient safety event without protocol
+- **Small Team → Medium Team:** Multiple simultaneous incidents; 24/7 coverage required; regulatory volume exceeds manual capacity
+- **Medium Team → Enterprise:** Global operations; SEC disclosure obligations; regulatory submission-grade crisis data
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| Crisis statement issued in Hour 1 minimizing scope ("minor disruption"). Hour 3: "investigating data breach." Hour 6: "10M accounts exposed." Each correction destroys more credibility | First responder felt pressure to say something definitive. Minimized scope without confirming facts. Statement was released before investigation completed | Pre-draft holding statements that acknowledge uncertainty: "We are aware of an incident affecting our systems. We do not yet know the full scope. We are investigating and will update within 2 hours. Here is what we know now: [confirmed facts only]." Train all authorized communicators to use uncertainty-acknowledging language | The pressure to say something definitive in Hour 1 creates the credibility-destroying correction in Hour 3. The only safe first statement is one that acknowledges what you do not yet know. "We don't know yet" is the most honest, least damaging thing you can say |
+| Regulatory deadline missed — FDA 15-day AE report filed on day 17. Two-day delay becomes separate compliance violation | Timeline tracking was manual. No automated countdown. Reporter was on PTO and no backup was assigned. The 2-day delay is now documented in the regulatory record | Implement automated timeline countdowns with escalation at 50%, 75%, and 90% of deadline. Pre-assign backup reporters for every regulatory obligation. Test backup coverage quarterly | Regulatory deadlines are absolute. "The reporter was on vacation" is not a defense — it is an admission of process failure. A missed deadline is a compound violation: the original incident plus the reporting failure |
+| Suicide risk community post receives automated "We care — call 988" response. Patient does not call. No human follow-up. Patient attempts suicide 48 hours later | Automated response system deployed without clinical oversight. No human review of crisis content. "We sent them the number" was treated as sufficient intervention | Remove all automated responses for suicide/self-harm content. Implement mandatory human review within 5 minutes. If patient identifiable and safe to contact, phone call by trained responder. Administer C-SSRS. Warm handoff — stay on the line until patient is connected to crisis service | An automated message to a suicidal person is not an intervention — it is an abdication. The standard of care for suicidal ideation in a community with constructive knowledge is human contact and warm handoff, not a phone number and a bot message |
+| Post-crisis review never conducted — "everyone was exhausted and we just wanted to move on." Six months later, identical root cause triggers identical incident | No post-crisis review requirement in crisis plan. No assigned owner for debrief process. Exhaustion was accepted as sufficient reason to skip the learning process | Implement mandatory post-crisis debrief within 30 days for all S1-S3 incidents. Assign debrief owner at incident activation, not after closure. Template the debrief: timeline, decision audit, gap analysis, action plan. Track action plan items to completion | The most expensive crisis is the one you have twice. Organizations without formal post-incident review repeat the same crisis type at 3x the rate. Repeat incidents face aggravated regulatory penalties — the regulator sees that you did not learn |
+| Community moderator deletes potential AE post to "keep the community clean" before pharmacovigilance team can review | No training on evidence preservation. Moderator applied standard content moderation workflow to AE content. Post deletion = evidence spoliation | Train all moderators: flagged potential AE posts must be LOCKED, not deleted. Document timestamp. Transfer for PV triage. Content preserved for regulatory record (10 years for FDA). Deletion requires regulatory lead documented override | AE content is not moderation content — it is regulatory evidence. Deleting it is not content management; it is evidence destruction. Every moderator who touches community content must be trained on the bright line between content moderation and evidence preservation |
+| Crisis communication sent as "Internal Only — Do Not Share" to 500 employees. Leaked to Twitter within 15 minutes. Comms team now responding to "respond to the leak about the response" | Internal communications during crisis treated as private. "Internal Only" label created false sense of security. Memo contained unvetted language not suitable for public consumption | Write every crisis communication — internal email, Slack, draft statement — as if it will be published on the front page of the New York Times. There is no "internal only" during a crisis. Assume every memo will leak, because it will | The "Internal Only" label is wishful thinking. In a 500-person organization during a crisis, someone will share it — out of concern, out of anger, out of a belief that transparency is the right thing. The only safe communication is one you would stand behind if published |
 
 ## References
 

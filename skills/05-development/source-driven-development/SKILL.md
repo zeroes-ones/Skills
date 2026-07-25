@@ -88,6 +88,15 @@ SOURCE AUTHORITY HIERARCHY
 
 ## Operating at Different Levels
 
+### Scale Depth
+
+| Depth | Time | Scope | Artifacts |
+|-------|------|-------|-----------|
+| **Quick Scan** | ~30s | Verify version, method signature, deprecation status for a known library | One-line citation |
+| **Standard Engagement** | ~5-10min | Full DETECT→FETCH→IMPLEMENT→CITE cycle for unfamiliar API | Cited code with version |
+| **Deep Dive** | ~30min+ | Major version migration, security-critical path, performance-sensitive integration | Full audit trail: release notes, source code verification, gap analysis |
+| **Enterprise Audit** | Multi-session | Framework governance across org: dependency inventory, version consistency audit, citation coverage report, migration planning | Dependency provenance report, framework upgrade runbook |
+
 ### Quick Scan (~30s)
 For well-known libraries the team uses daily. Verify: (a) version matches docs, (b) method signature hasn't changed, (c) no deprecation warnings in current version. Add a one-line citation.
 
@@ -170,6 +179,8 @@ REQUEST ROUTING DECISION TREE
 ---
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- COMPRESSED: Full 137 lines extracted to references/core-workflow.md -->
 
 ```
@@ -180,7 +191,28 @@ DETECT────────────────────────�
 ...
 > 📎 **Full content (137 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees
+## Best Practices
+
+1. **Citations are source code comments, not directory artifacts.** Every framework API call gets an inline citation: `// [Source: React Docs, v18.3, https://react.dev/reference/useDeferredValue]`. Citations live with the code they verify — not in a separate audit report that nobody reads after merge.
+
+2. **Verify version BEFORE reading docs.** Run `npm list <pkg> --depth=0` (or `pip show`, `go list -m`) and check the result against the docs URL. A Next.js 13 codebase reading Next.js 14 docs will produce silently broken patterns. The mechanical trigger: never navigate to docs without confirming installed version first.
+
+3. **Prefer source code over documentation when they disagree.** When `fetch('/api', { cache: 'no-store' })` behaves differently than docs describe, trust `node -e` behavior and cite the source code at the pinned commit. File a docs issue upstream — but ship based on reality, not documentation.
+
+4. **Frame citations as searchable breadcrumbs.** Format every citation so `grep -r "Source:" src/` produces a complete audit trail of all framework touchpoints. A new team member can audit every external dependency in 30 seconds: `grep -rn "Source:" src/ | sort`.
+
+5. **Treat LLM-generated framework code as Level 0 (untrusted) by default.** Every `import` suggested by an LLM triggers a compulsory verification against Level 1 docs. Never commit LLM code that calls a framework API you haven't personally verified. The cost: 30 seconds of doc lookup per import. The alternative: production incidents from hallucinated APIs.
+
+6. **Continuous spec-code sync via CI.** Add a CI job that checks: (a) every `// [Source:` comment's version matches the installed version in the lockfile, (b) no deprecated methods are called per the framework's changelog, (c) citation URLs resolve (no 404s). Fail the build on mismatch. Living documentation rots without automation.
+
+7. **Spec as the source of truth for implementation decisions.** When a team debate arises ("should we use `useMemo` or `useCallback`?"), the answer comes from the framework's official docs — not from the most senior engineer's preference. Cite the docs as the arbiter: "Per React docs v18.3, `useMemo` caches a computation result; `useCallback` caches a function definition."
+
+8. **Version-pin documentation bookmarks.** Browser bookmarks, team wiki links, and README references to docs must include the version: `https://nextjs.org/docs/app` is ambiguous; `https://nextjs.org/docs/14.2/app` is precise. Bookmark rot is silent — the URL still works, but describes the wrong API.
+
+9. **Generated code from spec must carry version provenance.** When generating code from OpenAPI specs, protobuf definitions, or database schemas, the generated file header must include: source file path, source version/tag, generation timestamp, and generator version. Without this, regenerated code is indistinguishable from manually-edited code.
+
+10. **Run spec validation in CI for every PR.** Schema files (OpenAPI, protobuf, GraphQL, JSON Schema) must pass validation against their specification version: `openapi-generator validate`, `buf breaking`, `graphql-inspector validate`. A malformed schema that passes CI is an undocumented breaking change waiting to happen.
+**(QUICK)**
 
 ### Source Authority Classification
 
@@ -293,7 +325,72 @@ Phase 2: Escalation path
 
 ---
 
+## Decision Trees
+**(QUICK)**
+
+### Spec-First vs Code-First: When to Write the Spec
+
+```
+Starting a new feature
+  │
+  ├─ Is this feature touching multiple bounded contexts or services?
+  │    └─ YES → Write the spec first (OpenAPI for API boundaries, Gherkin for behavior)
+  │
+  ├─ Is this feature implementing a well-understood pattern (CRUD, simple query)?
+  │    └─ YES → Code-first is acceptable. Document with inline comments and a 1-paragraph ADR
+  │
+  ├─ Will this feature require compliance review (GDPR, SOC2, HIPAA)?
+  │    └─ YES → Spec is MANDATORY. The spec IS the compliance artifact
+  │
+  └─ Is this feature for an external API consumed by third parties?
+       └─ YES → Spec-first. Breaking changes to external APIs require versioning and migration plans
+```
+
+### Spec Evolution: When to Version vs Backward-Compatibly Extend
+
+```
+API change requested
+  │
+  ├─ Adding a new optional field?
+  │    └─ Backward-compatible extension. No version bump. Add to spec, regenerate, ship
+  │
+  ├─ Adding a new required field?
+  │    └─ MINOR version bump. Existing clients continue working. New clients must provide it
+  │
+  ├─ Changing field semantics (e.g., "id" from integer to UUID string)?
+  │    └─ MAJOR version bump. This is a BREAKING CHANGE. Deprecate old endpoint, support both for migration window
+  │
+  ├─ Removing an endpoint or field?
+  │    └─ Deprecation process: (1) Mark deprecated in spec, (2) Add deprecation header in responses, (3) Monitor usage for 2 release cycles, (4) Remove only when usage drops to zero
+  │
+  └─ Changing auth requirements (e.g., adding required scope)?
+       └─ MAJOR. This denies access to previously authorized clients. Coordinate with all consumers before shipping
+```
+
+### Spec-Code Sync Failures: Decision Protocol
+
+```
+Spec and code disagree
+  │
+  ├─ Is the spec more recent than the code?
+  │    └─ Code is stale → update code to match spec. The spec IS the source of truth
+  │
+  ├─ Is the code more recent than the spec?
+  │    └─ Was the code change intentional?
+  │         ├─ YES → The spec is stale. Update spec to match code, then validate spec is still correct
+  │         └─ NO  → The code change was accidental or a workaround. Revert code to match spec, address root cause
+  │
+  ├─ Are spec AND code both recently updated but disagree?
+  │    └─ Concurrent work — teams didn't coordinate. Hold an immediate sync: which is the intended behavior? Update the wrong one. Then fix the process gap (no spec review on PR? no CI spec validation?)
+  │
+  └─ Neither is recent — discrepancy has existed for months?
+       └─ Audit both against actual runtime behavior. What does the system ACTUALLY do? That's the de facto spec. Document it formally, then decide what to change.
+```
+
+---
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -306,6 +403,17 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Code compiles but API silently does nothing | Docs describe v3 API; package.json has v2 installed. `deprecatedExport()` exists but is a no-op | Pin versions exactly. Verify installed version (`npm list`) before reading docs. Never trust search engine snippets | Version mismatch between docs and installed package is the #1 source of silent failures. Always confirm the version you read matches the version you run |
+| TypeScript types pass but runtime throws `TypeError: x is not a function` | LLM hallucinated an API that doesn't exist. The type assertion `as any` suppressed errors | Never accept LLM-generated framework calls without cross-referencing official docs. Every new `import` is a verification trigger | Framework APIs evolve faster than LLM training data. Hallucinated APIs are the most dangerous because they pass type checking |
+| `npm ci` produces different lockfile than CI | `package.json` uses `^` ranges; different `npm` versions resolve differently. Docs describe behavior from a version neither env actually has | Pin all dependencies with exact versions. Add `--save-exact` to `.npmrc`. Add CI check: `npm list --depth=0` vs documented versions | Non-deterministic dependency resolution means non-deterministic behavior. Exact pinning is the only defense |
+| CI passes locally, fails on GitHub Actions with identical environment | Different `node_modules` resolution order due to filesystem ordering differences. A transitive dep has a breaking change in a patch version | Use `npm ci` (not `npm install`) everywhere. Commit `package-lock.json`. Use `engines` field to pin Node/npm versions | "Works on my machine" in dependency management means your machine might resolve differently. Identical lockfiles are the only truth |
+| Docs describe `async function` but code is synchronous in your version | Framework deprecated the sync API in a minor release. Docs were updated prematurely before the deprecation shipped | Cross-reference release notes for every version between your installed version and the doc version. Test with `node -e` one-liner | Docs can describe the FUTURE, not the PRESENT. Trust behavior over documentation when they disagree |
+| Security vulnerability in transitive dep undetected for 6 months | Team used docs from framework v4 security guide, but v5 changed the CSP configuration API entirely. The old config silently became a no-op | Subscribe to framework security advisories. Run `npm audit` in CI with `--audit-level=high`. Re-verify security config after every major version bump | Security documentation for the wrong version is worse than no documentation — it creates a false sense of safety |
 
 ## Cross-Skill Coordination
 
@@ -506,33 +614,65 @@ For a new library integration, create a `docs/sources/{library}.md` file mapping
 
 ---
 
-## Gotchas
+## Anti-Patterns
 
-### Gotcha 1: Stale Official Documentation — $18,000
-The official React docs for `useDeferredValue` described behavior from v18.2, but v18.3 changed the bailout condition. A fintech team built a real-time trade blotter relying on the stale bailout behavior, causing 15-second UI freezes under load. **$18,000 in lost trades and 3 engineer-weeks to diagnose.**  
-*Prevention: Always check the "Last updated" date on doc pages. If >6 months old relative to the latest release, cross-reference release notes.*
+### Anti-Pattern: Trusting Search Engine Results for Documentation
+**What it looks like:** Developer Googles "Next.js generateStaticParams," clicks the top result, and implements based on whatever version Google indexed — without checking the version selector on the docs page.
+**Why it fails:** Google often indexes older or newer versions than what you have installed. The indexed v14 pattern silently fails in your v13 codebase because the API shape changed. No error — just empty results.
+**Do this instead:** Never navigate to docs from a search engine. Always start from the framework's official site root, select your version, THEN search within that version's docs. Bookmark version-specific doc roots: `https://nextjs.org/docs/14.2`.
 
-### Gotcha 2: Hallucinated API Usage — $42,000
-An LLM generated `prisma.$transaction([...])` with an array of raw SQL strings — an API that doesn't exist. The code passed TypeScript checks because the generated type cast suppressed errors. The transaction silently failed in production, causing split-brain data across 12,000 customer records. **$42,000 in data repair consulting fees.**  
-*Prevention: Every LLM-generated framework call must be verified against Level 1 docs before commit. The mechanical trigger is any `import` of a new package in LLM output.*
+### Anti-Pattern: Community Solutions Without Official Verification
+**What it looks like:** A Stack Overflow answer with 500+ upvotes recommends `app.use(multer().single('file'))` in Express. Developer copies it verbatim. Middleware silently corrupts request bodies.
+**Why it fails:** Highly-upvoted answers are often for older versions where the API worked. Community solutions accumulate inertia — they stay upvoted long after they become wrong. The upvote count reflects past correctness, not current correctness.
+**Do this instead:** Every Stack Overflow or blog-derived solution must be cross-referenced against the current version's official docs before commit. Add `// [Verified against X docs vY.Z]` as proof. If docs contradict the community answer, trust docs.
 
-### Gotcha 3: Deprecated Method in Active Docs — $7,500
-Lodash v4 docs still list `_.pluck()` as available, but it was removed in v4.0.0 and replaced with `_.map()`. The docs page hadn't been updated because the removal happened in a pre-release. A SaaS dashboard used `_.pluck()` in their subscription billing module, which failed silently (returned `undefined`) and undercharged 340 customers. **$7,500 in lost revenue before detection.**  
-*Prevention: When docs and behavior disagree, trust behavior. Verify with a one-line REPL test: `node -e "const _ = require('lodash'); console.log(typeof _.pluck)"`.*
+### Anti-Pattern: LLM-Generated Code Without Verification
+**What it looks like:** Copilot/Claude generates `prisma.$transaction([prisma.$queryRaw`...`, ...])`. It compiles, types pass, code ships. Production silently fails because the API doesn't accept that argument shape.
+**Why it fails:** LLMs are trained on a corpus that predates API changes. They confidently generate plausible-looking APIs that don't exist or have changed. The code often passes type checks because LLMs also generate type assertions.
+**Do this instead:** Every LLM-generated framework call is Level 0 (untrusted) until verified against Level 1 docs. The trigger: any `import` of a new package or unfamiliar API in LLM output triggers compulsory doc verification. 30 seconds of doc lookup prevents production incidents.
 
-### Gotcha 4: Version Mismatch Between Docs and Installed Package — $30,000
-A team read Next.js App Router docs at `nextjs.org/docs/app` (showing v14.2 patterns), but their `package.json` had `"next": "^13.4.0"`. They used `generateStaticParams` with the v14.2 async signature, which silently returned empty params in v13.4. Their e-commerce site shipped with 12,000 empty product pages. **$30,000 in SEO recovery and re-crawling costs.**  
-*Prevention: The mechanical trigger is `npm list next --depth=0` before reading docs. Never read docs without confirming the version you're reading matches the version you're running.*
+### Anti-Pattern: Reading Docs for the Wrong Version
+**What it looks like:** Team reads Next.js App Router docs at `nextjs.org/docs/app` showing v14.2 patterns. Their `package.json` has `"next": "^13.4.0"`. They use v14 async signatures that silently return empty in v13.4.
+**Why it fails:** Docs sites default to "latest" — which may be newer than your installed version. `^` ranges in `package.json` make the actual resolved version opaque. The mismatch is silent — no error, just incorrect behavior.
+**Do this instead:** Before reading any docs page: (1) Run `npm list <pkg>` to confirm installed version. (2) Check the docs URL for a version selector. (3) If docs have no version selector, cross-reference the page's "Last updated" date against the framework's release dates. (4) Pin exact versions in `package.json`.
 
-### Gotcha 5: Community Answer vs. Official Documentation — $14,000
-A highly-upvoted Stack Overflow answer recommended using `multer` middleware in Express 5 with `app.use(multer().single('file'))`. Express 5 changed middleware execution order, and this pattern caused request body parsing to silently fail for all routes below the multer middleware. An internal HR tool lost 8 weeks of uploaded resumes before anyone noticed the file corruption. **$14,000 in recruiting pipeline delays.**  
-*Prevention: Every Stack Overflow solution must be cross-referenced against the current version's official docs. The mechanical trigger catches `stackoverflow.com` in code comments.*
+### Anti-Pattern: No Citation Audit Trail
+**What it looks like:** A 50,000-line codebase with zero comments about framework version provenance. Onboarding devs can't tell which version of React patterns are used. Deprecation warnings go unnoticed. Dependencies upgraded without auditing API surface changes.
+**Why it fails:** Without citations, every dependency upgrade is a leap of faith. You can't `grep` for which code uses which version's API. Major version migrations require reading the entire codebase to find touchpoints.
+**Do this instead:** `grep -rn "Source:" src/` must produce a complete, current audit trail of every framework touchpoint. Citations are the index to your dependency surface — without them, you're navigating blind.
 
-### Gotcha 6: Docs Indexed by Google for Wrong Version — $22,000
-Google indexed the v2 docs for a payment SDK at the top result, but the team used v3. The v2 `createPayment(amount, currency, source)` signature was entirely different from v3's `payments.create({amount, currency, paymentMethod})`. The code compiled because v3 still exported a deprecated `createPayment` that did nothing. **$22,000 in failed payment processing over Black Friday weekend.**  
-*Prevention: Never follow search engine results to docs. Always navigate from the framework's official site root with version selector. Bookmark version-specific doc roots.*
+### Anti-Pattern: Docs vs Behavior — Trusting Documentation Over Reality
+**What it looks like:** Lodash v4 docs still list `_.pluck()` as available (it was removed in v4.0.0). Developer uses it, code runs without error (returns `undefined`), undercharges customers. Docs say it works; behavior says it doesn't.
+**Why it fails:** Documentation is a lagging indicator. Removals, deprecations, and behavioral changes can ship in the package before docs are updated. When docs and behavior disagree, docs are wrong.
+**Do this instead:** When docs describe an API but you're uncertain: verify with a REPL one-liner: `node -e "const _ = require('lodash'); console.log(typeof _.pluck)"`. If the result contradicts docs, trust the result and cite the source code at the pinned commit. File a docs issue upstream but ship based on behavior.
+
+### Anti-Pattern: Cherry-Picking Documentation to Justify Pre-Existing Decisions
+**What it looks like:** A developer wants to use `useReducer` over `useState` because they prefer the pattern. They find a React docs paragraph that says "useReducer is preferable for complex state logic" and cite it as justification — ignoring the preceding paragraph that says "useState is sufficient for simple cases."
+**Why it fails:** Confirmation bias in documentation reading leads to over-engineered solutions. The docs are a balanced resource; quoting selectively turns them into a weapon for winning arguments rather than a tool for making good decisions.
+**Do this instead:** When citing docs to support a decision, cite the FULL context — including any caveats, warnings, and alternatives mentioned on the same page. If the docs say "X is good for A but Y is better for B," you must establish that your case is A, not just quote the "X is good" part.
 
 ---
+
+## Production Checklist
+**(STANDARD)**
+
+Before any framework-dependent code reaches production:
+
+- [ ] Every third-party import has a `// [Source: ...]` citation comment with exact version
+- [ ] The installed version (from lockfile) matches the version in ALL citations — run `scripts/verify-citations.sh` in CI
+- [ ] No `^` or `~` ranges in production `package.json` dependencies — all pinned to exact versions
+- [ ] CI step validates: `npm list --depth=0` output matches documented versions in README/citations
+- [ ] Every method call's signature verified against official docs for that exact version
+- [ ] Every configuration option confirmed in the official config schema reference
+- [ ] Zero deprecated methods or options used (verified against framework changelog/release notes)
+- [ ] All Stack Overflow, blog, or community-derived solutions cross-referenced against official docs
+- [ ] Any unverifiable behavior flagged with `⚠️ UNVERIFIED` annotation and risk level (HIGH/MEDIUM/LOW)
+- [ ] Migration guide consulted and cited for any major version bumps in the dependency tree
+- [ ] CI pipeline warns or fails on version mismatches between lockfile and citation comments
+- [ ] All citation URLs resolve (no 404s) — `grep -oP 'https?://[^)\s]+' src/ | sort -u | xargs -I{} curl -sI {} | grep "HTTP/2 404"` returns empty
+- [ ] LLM-generated framework calls flagged and require manual Level 1 doc verification before merge
+- [ ] Generated code from specs (OpenAPI, protobuf) includes source provenance header with version, timestamp, and generator version
+- [ ] Spec files (OpenAPI, GraphQL schema, protobuf) pass validation in CI against their specification version
 
 ## Verification Checklist
 

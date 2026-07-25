@@ -139,6 +139,20 @@ Master project managers know that operational excellence is invisible when it wo
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 PM, 1-2 projects)
+Single project charter, WBS in a spreadsheet, RAID log in Notion or Excel. Critical path tracked manually. Weekly status email to 1-2 stakeholders. Focus: disciplined charter writing, WBS decomposition, and risk identification. Tools: Notion, Google Sheets, Excel.
+
+#### Small (2-5 PMs, 5-10 projects)
+Standardized templates (charter, WBS, RAID, status report). Portfolio view with resource allocation across projects. Bi-weekly portfolio review with sponsors. Focus: resource leveling across projects, earned value on high-risk projects, change control process. Tools: Jira + Confluence, Smartsheet, Asana portfolios.
+
+#### Medium (5-15 PMs, 10-50 projects)
+PMO established with standardized methodology (waterfall/agile-hybrid). Portfolio governance board with stage-gate reviews. Centralized RAID log with portfolio-level risk aggregation. Focus: portfolio optimization (which projects get resources?), EVM on all projects > $500K, capacity planning 6-12 months out. Tools: Jira Advanced Roadmaps + Confluence, ServiceNow PPM, Planview, or Monday.com portfolios.
+
+#### Enterprise (15+ PMs, 50+ projects, multi-department)
+Enterprise PMO with methodology office. Stage-gate governance with executive steering committees. Portfolio financial management with CapEx/OpEx tracking. Resource capacity planning across departments. Focus: strategic alignment (do projects map to OKRs?), benefits realization tracking (did we get the ROI we projected?), PM competency framework and career ladder, project management tooling and training. Tools: ServiceNow SPM, Planview Enterprise, Clarity PPM, SAP PPM, or Oracle Primavera.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -156,6 +170,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Use `/technical-program-manager` instead** when: You need to coordinate across multiple teams, manage cross-team dependencies, drive a program with a fixed timeline and multiple workstreams. TPM handles scope that spans teams; PM handles scope within a single project.
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Methodology Selection: Waterfall vs Agile vs Hybrid
@@ -322,6 +338,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Initiation & Planning
@@ -357,7 +375,44 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 5. **Celebration**: Acknowledge the team. Seriously — it matters for retention.
 
 
+## Best Practices
+
+1. **Start every project with a one-page charter.** Before WBS, before Gantt, before anything — write the problem statement, business case, success criteria, constraints, and assumptions in a single page. A charter that exceeds one page means scope isn't crisp. Use Confluence or Notion templates; circulate to the sponsor and all key stakeholders for sign-off within the first week. Projects without charters drift 30-50% in scope by month 3 because nobody agreed on what "done" means. **Tool:** Jira + Confluence integration links charter to epics for traceability.
+
+2. **Build the WBS before the schedule.** Decompose deliverables into work packages of 8-80 hours each. Use the 100% rule: the WBS must capture 100% of the work defined in the scope. Number every work package with a WBS code (1.0, 1.1, 1.1.1) for cost tracking and earned value management. Skip the WBS and you will forget integration testing, documentation, or deployment — every time. **Tool:** Microsoft Project, Smartsheet, or WBS Creator in Jira Advanced Roadmaps.
+
+3. **Identify the critical path and protect it ruthlessly.** The longest chain of dependent tasks IS your minimum project duration. Any delay on the critical path delays the project — period. Float on non-critical tasks gives you scheduling flexibility; zero float on critical tasks gives you zero room. Review the critical path weekly. When something slips ON the critical path, the sponsor knows within 24 hours. **Tool:** MS Project critical path view, or Jira Plans dependency view with forward/backward scheduling.
+
+4. **Maintain a live RAID log with owners and trigger dates.** Risks, Assumptions, Issues, and Decisions — one log, updated weekly. Every risk rated Medium+ has a named owner, response strategy (avoid/transfer/mitigate/accept), trigger condition, and review date. An issue is a risk that materialized — it moves from the risk register to the issue log with an owner assigned within 4 hours. A RAID log older than 14 days is a postmortem shopping list, not a management tool. **Tool:** Confluence RAID template, SharePoint list, or Jira issue type customized for RAID tracking.
+
+5. **Communicate status using RAG with SPI/CPI evidence.** Red/Amber/Green status must be backed by Schedule Performance Index (SPI) and Cost Performance Index (CPI). SPI < 0.85 or CPI < 0.95 = AMBER minimum, not GREEN. Status reports answer three questions: (a) where are we against the baseline? (b) what changed since last report? (c) what decisions do you need from stakeholders? Send to stakeholders on a fixed cadence — same day, same time, same format — predictability builds trust. **Tool:** Power BI dashboard, Asana status updates, or Jira dashboard shared with stakeholder group.
+
+6. **Track milestones as binary — met or not met.** A milestone is a significant event with zero duration and binary completion. "Code complete" is not a milestone — "Integration tests passing against staging with 100% pass rate" is. Every milestone has exit criteria written before the project starts. Milestones slipping by >2 weeks trigger a formal variance report to the sponsor with three recovery options: cut scope, add resources, or extend the date. **Tool:** Asana milestones, Jira fixVersion + release tracking, or Linear project milestones.
+
+7. **Gate every scope change through formal change control.** No matter how small. Every change request (SCR) requires: impact analysis (schedule delta + budget delta + risk delta), stakeholder approval, and documentation in the change log. Twenty "one-hour fixes" compound into 40% scope expansion. A change log that tracks who requested what, when, and with what impact is your defense when the sponsor asks why the budget is blown. **Tool:** Jira issue type "Change Request" with required fields for impact analysis, or ServiceNow change management.
+
+8. **Resource-level your schedule before baselining.** Assigning one person to two 100% tasks in the same week creates an instant 2-week slip. Resource leveling identifies overallocation before the project starts. Factor in PTO, holidays, company all-hands, and 20% interrupt buffer for unplanned work. A schedule that assumes 100% utilization is a fantasy — real capacity is 70-80%. **Tool:** MS Project resource leveling, Smartsheet resource management, or Float/Resource Guru for team-level allocation.
+
+9. **Run a structured postmortem for every project, regardless of outcome.** Postmortems on successful projects reveal what to replicate. Postmortems on failed projects reveal what to prevent. Follow a blameless format: timeline, what went well, what went wrong, root causes (5 Whys), and action items with owners. Publish the postmortem where the entire org can read it — organizational learning compounds. A skipped postmortem guarantees the same mistakes on the next project. **Tool:** Confluence postmortem template, Miro retrospective board, or EasyRetro.
+
+10. **Establish a single source of truth for project artifacts.** Schedule in one tool, RAID log in one place, decisions in one document, action items in one tracker. When the PM is the only person who knows where everything lives, the PM is a bottleneck. Choose a platform (Jira + Confluence, Asana, Notion, Linear + Notion) and enforce it — no rogue spreadsheets, no Slack-decision threads that aren't captured. The project should run for two weeks without you. **Tool:** Notion project hub, Confluence space with standardized templates, or Asana project with linked goals.
+
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Project is GREEN" for 11 weeks, then suddenly RED in week 12 | Status was measured by "are we past the deadline?" instead of "remaining work / remaining time." The math was always RED — nobody computed it. | Switch all status reports to SPI/CPI-based RAG. GREEN requires SPI ≥ 0.95 AND CPI ≥ 0.95. Compute remaining-work / remaining-time ratio weekly. | Status is a formula, not a feeling. SPI and CPI don't lie — humans do. |
+| Critical path task slips by 3 days but nobody escalates | Team member assumes "I'll make it up next week." But critical path has zero float — every day of slip is a day of project delay. No recovery is possible without intervention. | Every critical path task owner reports % complete and estimated remaining hours at standup. Any variance > 1 day triggers immediate re-forecast by the PM. | Critical path is the heartbeat. Monitor it more frequently than non-critical tasks. |
+| Stakeholder says "This isn't what I approved" at delivery | Approval was given for the idea, not the details. The spec was 50 pages and the stakeholder read the executive summary. | Write specs with section-level approval checkboxes. Each section must be explicitly approved. Build a prototype or wireframe for visual confirmation before build. | Approval without comprehension is not approval — it's a future rework ticket. |
+| Resource conflict: two projects claim the same engineer at 100% | Portfolio-level resource allocation wasn't visible. PMs independently scheduled without cross-project visibility. | Implement a resource management tool with cross-project visibility. Escalate to portfolio manager or PMO for arbitration. Use fractional allocation (60/40) when both projects are equal priority. | Resource conflicts are a portfolio problem, not a project problem. The PM's job is to surface them, not absorb them silently. |
+| Budget at 90% consumed with 40% of scope remaining | No earned value tracking. Costs were tracked against budget but not against progress. EVM (CPI/SPI) would have surfaced the variance months earlier. | Implement earned value management: track planned value (PV), earned value (EV), and actual cost (AC) monthly. CPI = EV/AC. CPI < 0.90 triggers a formal variance report. | Cost tracking without progress tracking is a rearview mirror. EVM gives you a windshield. |
+| RAID log has 25 risks, all marked MEDIUM, zero HIGH, zero closed in 3 months | Risk inflation without triage. The PM added every risk as MEDIUM to avoid the hard conversation of what's truly HIGH. | Force triage every review cycle: each MEDIUM risk is either downgraded to LOW, upgraded to HIGH (with immediate mitigation activation), or closed as no longer relevant. Target: ≤ 10 active risks at any time. | A register with 10 decision-ready risks is more valuable than 45 T-shirt-sized worries. |
+
+
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -516,6 +571,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[PM1]** Project charter signed by sponsor with problem statement, business case, success criteria, constraints — linked from project hub
+- [ ] **[PM2]** WBS decomposed to work packages of 8-80 hours each with 100% rule applied — every deliverable captured and numbered
+- [ ] **[PM3]** Critical path identified with zero-float activities flagged — reviewed weekly in status meetings
+- [ ] **[PM4]** RAID log established with all items rated (L/M/S by probability × impact), owners assigned, response strategies selected, trigger dates set — reviewed weekly
+- [ ] **[PM5]** Stakeholder communication plan documented: stakeholder → information need → format → frequency → owner — RACI for all key decisions
+- [ ] **[PM6]** Schedule baselined after resource leveling — no individual > 80% allocated, PTO and holidays factored, 20% interrupt buffer included
+- [ ] **[PM7]** Budget baselined with bottom-up estimation, 10-20% contingency reserve, management reserve — EVM tracking enabled (PV, EV, AC, SPI, CPI)
+- [ ] **[PM8]** Status reporting cadence established: weekly written report with SPI/CPI-backed RAG, monthly sponsor review, quarterly steering committee
+- [ ] **[PM9]** Change control process operational: every scope change requires impact analysis (schedule + budget + risk delta), written approval, and change log entry
+- [ ] **[PM10]** Milestone exit criteria defined for every milestone before project start — milestones reported as binary (met/not met) with >2-week slips triggering formal variance report
+- [ ] **[PM11]** Resource management: cross-project resource visibility established, overallocation alerts configured, fractional allocation agreements documented
+- [ ] **[PM12]** Single source of truth: all project artifacts (charter, WBS, schedule, RAID, status reports, change log) accessible from one platform without asking the PM
+- [ ] **[PM13]** Postmortem template ready: blameless format with timeline, what went well, what went wrong, root causes (5 Whys), action items with owners
+- [ ] **[PM14]** Project closure checklist: deliverables accepted, contracts closed, financials reconciled, team released, knowledge transferred, postmortem published
+
 ## What Good Looks Like
 
 > When project management is applied perfectly, every project has a clear charter with defined success criteria, the critical path is known and actively managed, risks are identified before they become
@@ -539,7 +613,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
-## Gotchas
+## Anti-Patterns
 
 - **Gantt chart with 100% dependency chaining** — task B → C → D → ... → Z. Any delay to B delays the entire project by the same amount. Every dependency is a single point of failure. Parallelize independent work streams and only chain them at integration milestones. The longest chain IS your minimum project duration. **Total cost: $50,000-$500,000 in delay penalties, missed market windows, and extended team burn — a 2-week slip on a fully-chained 12-person team at $150/hour loaded cost burns $144,000 in unplanned labor alone.**
 - **Status report: "Project is GREEN"** for 11 consecutive weeks, then "RED" in week 12 because the deadline is next week and the remaining work is 3 weeks. A project that's GREEN until the week before the deadline was never truly GREEN. Status = (remaining work / remaining time), not "are we past the deadline yet?" **Total cost: $100,000-$1,000,000 in blown deadlines — discovering a 3-week gap one week before launch forces triage: ship broken ($0 revenue), delay (lose market window), or crunch (burnout + attrition). All options cost 6-7 figures.**

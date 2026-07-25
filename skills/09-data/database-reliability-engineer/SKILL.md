@@ -153,6 +153,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are managing a fleet of 10+ databases and need standardized monitoring, maintenance, and lifecycle automation
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Replication Strategy Decision
@@ -250,6 +251,7 @@ Recovery requirements?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -297,7 +299,31 @@ Recovery requirements?
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
+## Best Practices
+
+1. **Backup strategy is a contract — define RPO and RTO before choosing technology.** Recovery Point Objective (how much data can you lose?) and Recovery Time Objective (how long can you be down?) determine backup method, frequency, and retention. Test restores quarterly — an untested backup is a hope, not a plan.
+
+2. **Connection pooling is non-negotiable for production.** PostgreSQL forks a process per connection — 500 direct connections consume GBs of RAM. PgBouncer transaction pooling multiplexes thousands of client connections onto tens of database connections. Set `idle_in_transaction_session_timeout` to prevent pool exhaustion from abandoned transactions.
+
+3. **Replication lag is measured in time, not bytes.** A single giant transaction (50M row DELETE) produces one WAL record but replays as 50M operations taking hours. Bytes-behind shows zero while the replica is hours behind. Monitor replication lag in seconds using `pg_stat_replication.replay_lag` or heartbeat tables.
+
+4. **Failover must be practiced, not planned.** A documented failover procedure that's never been tested will fail during an incident. Run gameday exercises quarterly: promote a replica, redirect traffic, verify application health. Measure time to detection + time to mitigation + time to recovery.
+
+5. **Query optimization starts with `pg_stat_statements`, not `EXPLAIN`.** Identify the top 10 queries by total_time, calls, and mean_time. Focus on queries with high total_time × calls — these consume the most cumulative resources. A query that runs 10,000 times/hour at 50ms is more impactful than one that runs hourly at 5 seconds.
+
+6. **Autovacuum is not optional — tune it for your workload, not the defaults.** Write-heavy tables need aggressive autovacuum (low `scale_factor`, low `naptime`). Monitor dead tuple ratios — anything above 20% on frequently scanned tables means autovacuum isn't keeping up. Transaction ID wraparound is an existential threat — monitor `age(datfrozenxid)` and alert at 200M.
+
+7. **Partial indexes for low-cardinality columns with skewed distributions.** An index on `status` with 3 values is ignored by the planner (low selectivity). But `CREATE INDEX ON orders (created_at) WHERE status = 'active'` on the 5% active subset IS selective and WILL be used. Partial indexes are the most underutilized PostgreSQL feature.
+
+8. **Connection timeouts at every layer.** Set `statement_timeout` (per-query), `idle_in_transaction_session_timeout` (abandoned transactions), and `connect_timeout` (connection establishment). A single long-running query without a timeout can saturate all available connections and cascade-fail every dependent service.
+
+9. **Disk space monitoring with headroom, not thresholds.** Alert at 70% usage, page at 80%, critical at 90%. WAL archiving failure can fill a disk in minutes. `VACUUM FULL` and `pg_repack` need free space equal to the largest table. Always maintain 30% free disk or configure auto-extend storage.
+
+10. **Major version upgrades via logical replication, not pg_dump/restore.** Logical replication enables near-zero-downtime upgrades with rollback capability. pg_dump/restore downtime scales with data size — multi-TB databases require hours or days of downtime. Test the upgrade procedure on a staging clone before touching production.
+
 ## Error Recovery
+**(STANDARD)**
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -428,13 +454,69 @@ graph LR
 | "Index everything — it can't hurt" | Low-cardinality indexes are ignored by the query planner — missing partial indexes on multi-TB tables cause full table scans 10-100x slower, burning $5K-$20K in compute waste. |
 | "autocommit is fine for this one UPDATE" | An UPDATE on 10M rows without explicit BEGIN...COMMIT runs as 10M individual transactions — 10-100x slower execution at $3K-$15K in cascading timeouts across dependent services. |
 
-## Gotchas
+## Anti-Patterns
 
 - **PostgreSQL `VACUUM` doesn't return disk space to the OS** — it marks dead tuples as reusable within the table file. The file stays the same size. Only `VACUUM FULL` (which locks the table exclusively) or `pg_repack` (online) shrinks the file on disk. **Total cost: $5,000-$25,000 in wasted provisioned storage — a table that doubles in size from bloat costs 2x in EBS/cloud storage fees indefinitely until someone runs `pg_repack` or provisions larger volumes.**
 - **MySQL `autocommit=1`** means every statement is a transaction. An `UPDATE` on 10M rows without explicit `BEGIN...COMMIT` runs as 10M individual transactions, taking 10-100x longer than wrapping in a single explicit transaction. **Total cost: $3,000-$15,000 in degraded application performance — a routine UPDATE that should take 30 seconds runs for 50 minutes, blocking dependent services and triggering cascading timeouts across the stack.**
 - **Connection pool exhaustion** from long-running transactions: if pool size is 20 and 15 connections are in `idle in transaction` state (client opened transaction but hasn't committed), only 5 connections are available. A deadlock on those 5 brings down the app. Set `idle_in_transaction_session_timeout`. **Total cost: $20,000-$200,000 in application downtime — connection pool exhaustion is a full outage, and every minute of downtime for revenue-generating services costs thousands in lost transactions.**
 - **Replication lag monitoring**: `SELECT pg_last_wal_receive_lsn() - pg_last_wal_replay_lsn()` gives bytes behind, but a single giant transaction (e.g., batch delete of 50M rows) produces ONE WAL record that replays as 50M operations, taking hours. Bytes-behind shows zero while the replica is actually hours behind in wall-clock time. **Total cost: $10,000-$100,000 in data loss risk — failover to a replica that's hours behind means losing hours of writes, with recovery requiring manual reconciliation of orders, payments, or user data.**
 - **Indexes on low-cardinality columns** (boolean, status with 3 values) are often ignored by the query planner because the selectivity is too low. But a partial index `WHERE status = 'active'` on the 5% active subset IS selective and WILL be used. **Total cost: $5,000-$20,000 in slow query degradation — missing partial indexes on low-cardinality columns cause full table scans on multi-terabyte tables, multiplying query times and compute costs 10-100x.**
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] **RPO/RTO defined and documented:** Recovery Point Objective and Recovery Time Objective agreed with stakeholders; backup strategy aligned
+- [ ] **Backup verified by restoration:** Full restore tested in staging within last quarter; backup integrity checks passing
+- [ ] **Replication lag < threshold:** Bytes-behind AND time-behind monitored; alert fires if lag exceeds RPO window
+- [ ] **Failover tested quarterly:** Gameday exercises with measured TTD (time-to-detect), TTM (time-to-mitigate), TTR (time-to-recover)
+- [ ] **Connection pooling configured:** PgBouncer or equivalent with transaction pooling; idle_in_transaction_session_timeout set
+- [ ] **Query performance baseline:** pg_stat_statements top 10 queries by total_time reviewed; all have appropriate indexes
+- [ ] **Autovacuum tuned:** Dead tuple ratio < 20% on active tables; transaction ID wraparound risk monitored; freeze age below 200M
+- [ ] **Disk usage < 70%:** Auto-extend or alerts configured; WAL archiving not backing up; 30% headroom maintained
+- [ ] **statement_timeout configured:** All connections have query timeouts; no unbounded queries in production
+- [ ] **Monitoring dashboard active:** Connections, QPS, replication lag, cache hit ratio, dead tuples, disk usage visible
+- [ ] **Upgrade procedure documented and tested:** Major version upgrade path tested on staging clone; rollback plan defined
+- [ ] **Access control audited:** Principle of least privilege; no shared superuser accounts; connection limits per role
+- [ ] **High availability architecture documented:** Patroni/Stolon/RDS Multi-AZ with automated failover; split-brain prevention configured
+
+## Scale Depth
+
+### Solo (1 person, 1-5 databases)
+- **Stack:** Managed service (RDS/Cloud SQL) with automated backups. pg_stat_statements for query analysis.
+- **Operations:** Manual vacuum and index maintenance. Alert-based monitoring (CPU, storage, connections).
+- **Key constraint:** You ARE the DBA. Automate everything you can — manual intervention doesn't scale past 3 AM pages.
+
+### Small Team (2-10 people, 5-20 databases)
+- **Stack:** Patroni/Stolon for HA. PgBouncer for pooling. Prometheus + Grafana for monitoring.
+- **Operations:** CI/CD for schema migrations. Automated vacuum tuning. Regular failover drills.
+- **Key constraint:** Schema change coordination across services. Migration backward compatibility is critical.
+
+### Medium Team (10-50 people, 20-100 databases)
+- **Stack:** Multi-region replication. Connection pool fleet. Centralized monitoring with cross-DB dashboards.
+- **Operations:** Automated capacity planning. Chaos engineering for failure modes. SLO-based alerting.
+- **Key constraint:** Cost optimization — per-database instance cost grows linearly. Consolidate where isolation requirements permit.
+
+### Enterprise (50+ people, 100+ databases)
+- **Stack:** DBaaS platform with self-service provisioning. Automated fleet management. Database mesh with service discovery.
+- **Operations:** Automated upgrade orchestration. Predictive capacity planning. Database reliability SRE team with on-call rotation.
+- **Key constraint:** Compliance and data residency. Multi-tenancy isolation. Audit logging at scale.
+
+### Transition Triggers
+- Solo → Small: First 3 AM page that manual intervention can't solve within 15 minutes.
+- Small → Medium: Schema change causes production outage. No one knows which team owns which database.
+- Medium → Enterprise: Compliance audit requires database inventory. Cost of idle/over-provisioned databases exceeds 30% of budget.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Replica is "caught up" by bytes but hours behind in time | Single giant transaction (bulk DELETE) produced one WAL record but replays millions of row operations. Bytes-behind is near zero while lag in wall-clock time is hours. | Monitor `pg_stat_replication.replay_lag` (PostgreSQL 14+) or use a heartbeat table with timestamps on the primary. Failover only when time-based lag is within RPO. | LSN-based lag measures bytes, not time. A single large transaction is invisible to byte-based monitoring. |
+| Connection pool at capacity but database CPU is idle | Connections stuck `idle in transaction` — client opened a transaction but never committed. Pool is full but connections do no work. | Set `idle_in_transaction_session_timeout` to 5-10 minutes. Query `pg_stat_activity` for state = 'idle in transaction'. | The most dangerous connections are the ones doing nothing — they consume a scarce resource (connection slot) without using it. |
+| `VACUUM` runs but disk usage keeps growing | VACUUM marks dead tuples as reusable but doesn't shrink the file. Bloat accumulates from UPDATE/DELETE-heavy workloads. | Run `pg_repack` (online) or `VACUUM FULL` (offline, exclusive lock). Monitor bloat with `pgstattuple` or check `n_dead_tup` vs `n_live_tup` in pg_stat_user_tables. | VACUUM is a garbage collector, not a disk defragmenter. Bloat accumulates silently until the disk fills. |
+| Query plan changes suddenly — 50ms query becomes 5 seconds | Statistics drift: `ANALYZE` not run after large data changes. Planner uses stale row count estimates and chooses a bad plan. | Run `ANALYZE table_name` after bulk loads. Set `autovacuum_analyze_scale_factor` lower for large tables. Consider `pg_stat_statements` plan tracking. | The query planner is only as good as its statistics. Stale stats = wrong plans = production incidents. |
+| Failover succeeds but application can't connect | DNS TTL too high or connection string hardcoded to old primary IP. Application resolves to failed primary. | Use short DNS TTL (30-60 seconds) for database endpoints. Configure client libraries with `target_session_attrs=read-write` and reconnect on failure. Test failover end-to-end, not just database promotion. | Database failover is only one piece — the application's ability to discover the new primary is equally critical. |
+| `autovacuum: VACUUM` runs constantly but dead tuples increase | Autovacuum can't keep up with write rate. Long-running transactions hold old snapshot preventing vacuum from cleaning dead tuples. | Tune `autovacuum_vacuum_cost_limit` higher. Kill or set timeout on long-running queries. Monitor `pg_stat_activity` for transactions older than 5 minutes. | A single long-running SELECT can block vacuum for an entire table, causing bloat that cascades into degraded performance for every other query. |
+| Index not used despite being "perfect" for the query | Low-cardinality column (boolean, status with 3 values). Planner estimates the index would return too many rows and chooses sequential scan instead. | Use partial index: `CREATE INDEX ON t (ts) WHERE status = 'active'` — only indexes the selective subset. Or use expression index for function-based queries. | The planner ignores indexes when they're not selective enough. Partial indexes fix this by indexing only the selective portion of the data. |
 
 ## Verification
 

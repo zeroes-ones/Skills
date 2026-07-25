@@ -170,6 +170,7 @@ Common chains:
 - **Venture debt:** fp-and-a-analyst → treasury-manager → legal-advisor → accountant — Runway model → term sheet negotiation → loan docs → liability recording
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
@@ -233,6 +234,7 @@ What's your risk profile?
 **What good looks like:** Cash forecast updated every Monday by 10 AM showing actual vs. forecast for prior week, reforecast for next 12 weeks. All bank accounts visible on a single dashboard with current balance, available balance, and FDIC/SIPC coverage status. Payment run happens twice weekly (Tuesday/Thursday), all payments above threshold have dual approval. Insurance certificates are issued within 24 hours of a customer request. You could survive your primary bank failing without missing payroll.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- STANDARD: 3min -->
 
@@ -255,6 +257,7 @@ What's your risk profile?
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -399,7 +402,7 @@ graph LR
 | "FX exposure is just translation — no cash impact" | A €2M contract at EUR/USD 1.10 dropping to 1.02 loses $160K in annual revenue with zero operational change. That's a 5-8% revenue guidance miss that triggers investor questions and a CFO credibility crisis. |
 | "Lock it up for maximum yield" | $8M invested in 12-month T-bills when burn rate is $1.5M/month means forced early liquidation at a 1.2% haircut ($96K) plus forfeited interest ($139K). Total loss: $235K — more than the incremental 60bp yield pickup justified. |
 
-## Gotchas
+## Anti-Patterns
 
 - **"We have $10M in the bank, we're fine"** — but $8M is in a 12-month CD that can't be broken without losing 6 months of interest, $1.5M is restricted cash (collateral for a letter of credit), and $500K is in a foreign subsidiary that can't be repatriated without tax consequences. Cash ≠ available cash.
 - **ACH fraud window** — an employee's email is compromised, attacker sends "please update my direct deposit to this new account." Payroll changes it. Next pay cycle, $5K goes to the attacker's account. The employee notices 3 days later. ACH reversal window is 5 business days but banks aren't obligated to recover funds. Two-factor verification for ALL payment detail changes.
@@ -408,6 +411,65 @@ graph LR
 - **FX exposure from a single large EUR-denominated contract left unhedged.** Your SaaS company signs a €2M annual contract with a European enterprise. The EUR/USD rate is 1.10 at signing (budgeted $2.2M revenue). Over 9 months, EUR/USD drops to 1.02. That €500K quarterly invoice now converts to $510K instead of $550K — a $40K/quarter shortfall. By year-end, you've lost $160K in revenue with zero operational changes. **Total cost: $80K-$200K in FX translation losses on a single large contract over 12 months, plus a 5-8% miss against revenue guidance that triggers investor questions.** Fix: Hedge 70-80% of forecasted foreign currency receivables using forward contracts at contract signing; set a materiality threshold (e.g., any single-currency exposure > $500K must be hedged); review FX exposure monthly, not quarterly.
 - **Bank relationship concentrated in a single institution.** All operating accounts, credit facility, and corporate cards are with one bank. The bank's risk department flags your industry sector for review after a competitor's fraud incident. Your credit line is frozen for 45 days during the review. Payroll is in 10 days, and you have no secondary banking relationship to bridge the gap. **Total cost: $50K-$200K in emergency bridge financing costs (higher interest, legal fees for rushed documentation), plus operational chaos if payroll is delayed even 3-5 days — employee trust damage is unquantifiable.** Fix: Maintain at least 2 active banking relationships with operating accounts at each; split credit facilities across institutions; keep 30 days of operating cash at a secondary bank; pre-negotiate a standby line of credit at the secondary bank.
 - **Investment policy that doesn't match cash flow timing.** Treasury invests $8M of a recent $10M fundraise in 12-month T-bills at 5.2% for "maximum yield." But the board-approved hiring plan requires $1.5M/month in burn rate over the next 6 months — $9M total. After 4 months, you need to liquidate T-bills early, taking a 1.2% principal haircut ($96K loss) plus forfeiting 4 months of accrued interest ($139K opportunity cost). **Total cost: $235K in combined losses on an investment that should have been structured as a 4-week T-bill ladder — more than the incremental 60bp yield pickup between 4-week and 52-week bills.** Fix: Build a cash flow waterfall that maps expected outflows to investment maturities; use a laddered portfolio (e.g., 4-week, 8-week, 13-week, 26-week) that rolls maturing tranches back into the ladder; never invest operating cash beyond the forecasted cash runway horizon.
+
+## Best Practices
+
+1. **Cash is not "available" until you verify: restrictions, location, and instrument liquidity.** $10M in the bank might include $8M in 12-month CDs (can't break without penalty), $1.5M restricted cash (collateral for a letter of credit), and $500K in a foreign subsidiary (can't repatriate without tax consequences). Classify cash by: operating (available within 24 hours), reserve (available within 30 days), restricted (contractual/regulatory constraints), and trapped (foreign subsidiaries with repatriation barriers).
+
+2. **Maintain at least 2 active banking relationships with operating accounts at each.** A single bank's credit review, compliance hold, or system outage can freeze your entire cash position for 45 days. Split credit facilities across institutions. Keep 30 days of operating cash at a secondary bank. Pre-negotiate a standby line of credit at the secondary bank.
+
+3. **Build a 13-week rolling cash flow forecast updated weekly.** This is the single most important treasury document. Map every expected inflow (customer payments by due date, probability-adjusted), every outflow (payroll, AP, Capex, debt service, tax payments), and every contingent item (undrawn LC, earnout payments). Week 1 accuracy target: ±5%; week 13: ±15%.
+
+4. **Hedge 70-80% of forecasted foreign currency receivables at contract signing.** A €2M contract at EUR/USD 1.10 budgets $2.2M. At 1.02, it's $2.04M — a $160K shortfall with zero operational change. Use forward contracts, not options (cheaper for known cash flows). Set a materiality threshold: any single-currency exposure > $500K gets hedged.
+
+5. **Match investment maturities to cash flow needs using a laddered portfolio.** Investing $8M of a $10M fundraise in 12-month T-bills when burn rate is $1.5M/month means liquidating at a loss in month 4-5. Build a ladder: 4-week, 8-week, 13-week, 26-week tranches that roll as they mature. Never invest operating cash beyond the forecasted cash runway horizon.
+
+6. **Every 100bps interest rate move should have a quantified P&L impact.** $50M in floating-rate debt at SOFR + 2.5%: a 300bps Fed tightening = $1.5M additional annual interest expense. Model rate sensitivity at +100, +300, and +500bps. The board should know the exposure before the Fed moves.
+
+7. **Two-factor verification for ALL payment detail changes — not just email confirmation.** An attacker compromises an employee's email, sends "please update my direct deposit to this new account," and payroll sends $5K to the attacker. ACH reversal window is 5 business days but banks aren't obligated to recover. Call the employee at a known number. For vendors, verify change requests through a secondary channel (phone, video call) using independently sourced contact info.
+
+8. **Cash sweep rules must leave a minimum operating balance and exclude known future outflows.** Automating sweeps into money market funds is great for yield — until the sweep executes at midnight and payroll ACH debit hits at 2 AM. $500K overdraft + $50 fee + relationship damage. Sweep rules: leave floor balance + known disbursements within 48 hours.
+
+9. **Monitor all bank covenants monthly — not quarterly.** Debt service coverage ratio, leverage ratio, minimum liquidity, and any affirmative/negative covenants. A single covenant breach can trigger acceleration of ALL debt (cross-default provisions). Monthly compliance certificate with CFO sign-off.
+
+10. **Insurance coverage is not "set and forget."** As the company grows, D&O limits, cyber coverage, and key person policies must scale. A $2M D&O policy for a $50M ARR company is dangerously underinsured. Review all policies annually with a broker who specializes in your industry — not the broker who handles your homeowners insurance.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Cash classification: all cash balances categorized (operating/reserve/restricted/trapped) — available within 24 hours explicitly identified
+- [ ] Banking redundancy: 2+ active banking relationships with operating accounts at each — secondary bank tested quarterly
+- [ ] Cash flow forecast: 13-week rolling, updated weekly — week 1 accuracy ±5%, week 13 ±15%
+- [ ] FX hedging: net exposure by currency quantified — 70-80% of forecasted receivables hedged with forward contracts
+- [ ] Investment ladder: maturities aligned to cash flow forecast — no operating cash invested beyond runway horizon
+- [ ] Interest rate sensitivity: every 100bps move has quantified P&L impact — floating-rate exposure documented
+- [ ] Payment controls: all payment detail changes verified via secondary channel (phone/video) — not email only
+- [ ] Sweep rules: floor balance + 48-hour disbursement buffer maintained — no overdrafts from sweep timing
+- [ ] Covenant monitoring: all bank covenants reviewed monthly — compliance certificate with CFO sign-off
+- [ ] Debt schedule: all debt instruments tracked (principal, interest, maturity, covenants, collateral) — upcoming maturities flagged 12 months ahead
+- [ ] Insurance review: all policies reviewed annually — D&O, cyber, key person, GL, property limits benchmarked to company stage
+- [ ] Signing authority: authorized signers list current — limits documented, segregation of duties enforced (initiator ≠ approver)
+- [ ] Bank fee analysis: quarterly review of all bank fees — ACH, wire, account maintenance, FX spread benchmarked and negotiated
+
+### Scale Depth
+
+| Company Stage | Treasury Complexity | Banking Setup | Key Instruments |
+|--------------|-------------------|---------------|-----------------|
+| **Seed/Pre-revenue** | Single bank, founder as signer, basic cash tracking | SVB/Mercury/Brex, operating account only, debit card | Checking account, basic ACH/wire capability |
+| **Series A ($1-10M raised)** | 2 banks, controller manages daily cash, basic forecasting spreadsheet | SVB + JPM/regional bank, operating + reserve accounts, corporate card program | Money market funds, 4-week T-bill ladder, basic FX spot for international customers |
+| **Series B/C ($10-50M raised)** | Multi-bank, treasury management system (TMS) or advanced spreadsheet, weekly forecasting | 2-3 banks, operating + reserve + investment accounts, credit facility, FX accounts | T-bill ladder (4/8/13/26 week), commercial paper, FX forwards, venture debt management |
+| **Growth/Late Stage ($50M+ raised)** | Dedicated treasury team, TMS (Kyriba/GTreasury), daily cash positioning, multi-currency | 3+ global banks, multi-currency accounts, revolving credit facility, supply chain finance | T-bills, agency bonds, corporate bonds, FX forwards/options, interest rate swaps/caps, share buyback execution |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|-----------|-----|------------|
+| Payroll ACH bounces despite $5M in the bank | Cash sweep moved all excess to MMF at midnight; payroll debit hit at 2 AM against zero balance | Reverse sweep + wire funds (same-day); set sweep rule to maintain floor balance + 48hr known outflows | Sweep rules incorporate forward-looking disbursement schedule; never sweep below floor + 48hr pipeline |
+| $160K revenue shortfall on €2M contract from FX move | EUR/USD went from 1.10 to 1.02; contract left unhedged; zero operational change created 7.3% revenue decline | Recognize loss in current quarter; implement hedging for remaining contract term; adjust guidance for FX impact | Hedge 70-80% of forecasted FCY receivables at contract signing; materiality threshold: any exposure > $500K hedged |
+| Credit facility frozen during bank's industry review — no backup | Single bank relationship; bank risk department flagged sector after competitor fraud incident; 45-day review hold | Draw emergency funds from investors/board bridge loan; open secondary bank account (expedited KYC); pre-negotiate standby line | 2+ active banking relationships; 30 days operating cash at secondary bank; pre-negotiated standby credit line |
+| $235K loss liquidating T-bills early to cover payroll | Invested $8M in 12-month T-bills for yield; burn rate $1.5M/month exhausted cash in 4 months; forced early liquidation | Take 1.2% principal haircut + forfeited interest; restructure remaining portfolio to laddered maturities aligned to cash flow forecast | Laddered portfolio: match maturities to forecasted outflows; never invest operating cash beyond runway horizon |
+| Attacker redirects $5K payroll via email compromise | HR received email "from employee" requesting direct deposit change; processed without secondary verification | File ACH reversal (5-day window, recovery not guaranteed); file police report; implement mandatory phone verification for ALL payment detail changes | Two-factor verification via secondary channel (phone/video) for ALL payment detail changes; independently sourced contact info only |
+| $50K overdraft from unexpected insurance premium debit | Annual D&O renewal auto-debited from operating account; cash forecast didn't include non-recurring annual payments | Transfer from reserve account; negotiate with bank to waive overdraft fee (first-time courtesy); update cash forecast with annual recurring payments | Annual recurring payments calendar maintained in cash forecast; reserve account for non-operating outflows; auto-debit listing reviewed quarterly |
 
 ## Verification
 

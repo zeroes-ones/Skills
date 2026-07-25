@@ -64,6 +64,20 @@ This skill operates differently depending on your evaluation maturity. Read the 
 
 **Level 4 — Production eval pipeline:** Add behavioral drift detection (Phase 5) and canary monitoring. Goal: detect silent degradation before users notice it.
 
+### Scale Depth
+
+#### Solo (1 engineer, 1 agent)
+Single agent, manual evals. Run L1 tool correctness tests locally before every push. No CI/CD gate — human judgment on deployment. Focus: get deterministic tests passing before touching LLM-as-judge. Budget: $0/month (use open-source eval tools).
+
+#### Small (2-5 engineers, 2-3 agents)
+L1+L2 automated in CI. One LLM judge (GPT-4o-mini for cost). Weekly calibration checks. Manual drift review when UI complains. Focus: establish baseline, automate the common path. Budget: $100-$300/month on eval API calls.
+
+#### Medium (5-20 engineers, 5-15 agents)
+Full L1+L2+L3 pipeline with CI/CD gates. SPRT-based deployment decisions. Daily drift detection against frozen baselines. Dedicated eval harness infra. Monthly judge recalibration. Focus: statistical rigor, preventing regressions at scale. Budget: $300-$500/month.
+
+#### Enterprise (20+ engineers, 15+ agents)
+Multi-model judge panel (3+ models voting). Canary-based gradual rollout with auto-rollback. Eval scenario diversity monitoring with embedding-based coverage tracking. Weekly drift reports to eng leadership. Cross-team eval standards enforced by platform team. Focus: organizational quality standards, cost optimization at scale. Budget: $500-$2,000/month.
+
 ## When to Use
 
 | Scenario | Action |
@@ -95,6 +109,8 @@ This skill operates differently depending on your evaluation maturity. Read the 
 | Building dashboards for eval metrics visualization | [Evaluation Metrics Dashboard](references/eval-metrics-dashboard.md) | Dashboard design and alert configuration |
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- COMPRESSED: Full 302 lines extracted to references/core-workflow.md -->
 
 <!-- STANDARD: 3min — Six phases to build a complete agent evaluation pipeline. Each phase has concrete steps, time estimates, and verification commands. -->
@@ -106,6 +122,7 @@ Build the three-tier testing pyramid adapted for stochastic AI agents.
 > 📎 **Full content (302 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- STANDARD: 5 trees with >= 4 branches each. See SKILL-QUALITY-STANDARDS.md Section IX. -->
 
@@ -291,7 +308,19 @@ Monthly eval spend hits $400 (80% warn threshold)
 
 **Expected outcome:** Budget reached 80% within 10-21 days of active development. Most common fix: limit L3 to merge + daily (saves ~$120/mo). Least common: request more budget (only when team doubles in size).
 
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "SPRT cannot decide after 50 tests — inconclusive" | Effect size too small for current alpha/beta bounds. The difference between candidate and baseline is real but smaller than configured MDE. | Widen alpha/beta (e.g., alpha=0.10, beta=0.30) for lower-stakes deployments, or increase scenario count. If neither is acceptable, the difference is practically insignificant — accept null. | SPRT indecision IS a result. It means the effect is smaller than your minimum detectable threshold. Ship or don't ship based on practical significance, not statistical. |
+| "Judge kappa dropped from 0.75 to 0.58 after model update" | The judge model (e.g., GPT-4o) received an update that changed its scoring distribution. The rubric that worked for the old model version no longer anchors the new version consistently. | Recalibrate against the same 50 human-rated examples. If kappa doesn't recover, adjust rubric wording or add more few-shot examples. Consider switching judge models if the new version fundamentally disagrees with human raters. | Judge models are moving targets. Monthly recalibration is not optional — it's infrastructure maintenance. |
+| "L1 tests pass but L2 scenarios fail on the same tool" | L1 tests verify single tool invocation correctness (was the right function called with right args?). L2 scenarios test multi-turn reasoning about WHEN to call the tool and HOW to interpret results. The agent knows the API but not the context. | Add L2 scenarios that vary the context around tool calls: ambiguous inputs, contradictory user instructions, error recovery paths. The gap between L1 and L2 is context reasoning, not tool correctness. | Tool correctness ≠ tool judgment. Test both. |
+| "Drift detection fires but no one can identify what changed" | Drift detection uses embedding similarity or distribution distance — it detects that outputs are different but not WHY. Without dimensional attribution, "drift detected" is a notification, not actionable intelligence. | Add per-dimension drift scoring: correctness drift, tool usage drift, efficiency drift, safety drift. Each dimension has its own threshold. When drift fires, the dimension tells you where to look. | Aggregate drift detection is a fire alarm without an address. Dimensional drift tells you which room is burning. |
+| "Eval passes but users report quality regression within hours of deploy" | Scenario coverage gap: your 50 scenarios don't include the input pattern that's failing. The 10-dimension generator missed a dimension (e.g., "multi-file refactoring with merge conflicts"). | Cluster user complaint embeddings, identify the novel input pattern, add 5 scenarios covering it, add it as a new dimension in the generator. Run back-test: would these scenarios have caught the regression? | Scenario coverage is a moving target. User complaints are your best scenario generator. |
+| "CI/CD eval gate takes 45 minutes — PRs are blocked waiting" | L3 E2E evals run against a full containerized environment with 50 scenarios and multi-model judging. This is the most expensive eval tier and shouldn't run on every PR. | Move L3 to post-merge (blocking) and daily cron (monitoring). Run L1+L2 on PR (pre-merge, blocking). Non-blocking L3 can run on PR as advisory. Optimize L2: use cheaper judge model, reduce scenario count with SPRT early stopping. | Not every eval tier belongs on the PR critical path. Triage by cost and detection value. |
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -432,47 +461,89 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a "missed regression" log. Every time a user reports an agent behavior degradation that your eval pipeline didn't catch, record: the input, the agent output, why it was wrong, and which eval dimension or scenario should have caught it. Before every eval pipeline improvement cycle, review this log and prioritize closing the highest-frequency gaps. A pipeline that catches 95% of regressions but misses the same 5% every month is the one that will cause your next incident.
 
-## Gotchas
+## Best Practices
 
-<!-- STANDARD: 6+ gotchas, each with dollar-quantified impact. See SKILL-QUALITY-STANDARDS.md Section VII. -->
+1. **Design evals around task-specific metrics, not generic quality scores.** A code-generation agent and a customer-support agent have fundamentally different success criteria. Define dimensions (correctness, tool usage, efficiency, safety) weighted by business impact. Generic "rate quality 1-5" judges produce scores that correlate with nothing useful.
 
-### Gotcha 1: Binary Pass/Fail Masks Real Regressions
+2. **Curate eval datasets from production traces, not synthetic scenarios.** Synthetic scenarios over-represent clean, unambiguous cases. Production traces contain the messy, ambiguous, and adversarial inputs that cause real failures. Sample from production logs weekly and rotate 20% of scenarios per month to prevent benchmark overfitting.
+
+3. **Use few-shot prompting in eval rubrics to anchor the judge.** A rubric that says "rate tool correctness 1-5" is ambiguous. A rubric with 3 few-shot examples (score=1, score=3, score=5) anchors the judge to concrete quality levels. Few-shot calibration reduces inter-rater variance by 30-40% compared to zero-shot rubrics.
+
+4. **Implement regression testing as a first-class CI concern.** Every bug fix must include an eval scenario that catches the regression. The "missed regression" log drives scenario creation. A pipeline that catches the same 95% of regressions while missing the same 5% every month is the one that will cause your next incident.
+
+5. **Select benchmarks that match your agent's deployment profile.** A benchmark of textbook coding problems doesn't predict real-world agent performance. Choose benchmarks by task distribution match: what percentage of real user requests does each benchmark scenario type represent? Weight eval results by this distribution.
+
+6. **Calibrate LLM-as-judge against human raters before trusting scores.** An uncalibrated judge produces numbers that feel precise but are meaningless. Require Cohen's kappa >= 0.70 on every dimension against 3+ human raters on 50+ examples. Recalibrate monthly — judge alignment drifts as models update and usage patterns shift.
+
+7. **Run evals at production temperature, not temperature=0.** Agents behave differently at temperature=0.7 (production) vs temperature=0 (deterministic). Temperature=0 evals eliminate stochastic variance but also mask real-world failure modes. Run L2/L3 evals at the same temperature your users experience.
+
+8. **Treat eval cost as a first-class infrastructure budget.** Eval API calls are not free. At 50 scenarios × 3 judge dimensions × daily runs × $0.01/token, you're spending $150-400/month on evals alone. Set budget caps, track utilization, and optimize: use cheaper judge models for L1/L2, reserve expensive models for L3 deployment gates.
+
+9. **Design for position bias mitigation from day one.** LLM judges consistently score the first output higher (0.3-0.8 points on a 5-point scale). Always present evaluation pairs in both orders (AB and BA). If the average score difference between AB and BA order exceeds 0.5 points, your judge has position bias that must be corrected before deployment decisions.
+
+10. **Version your eval scenarios alongside your agent code.** A scenario that tests "does the agent handle git merge conflicts?" depends on the agent's git integration. When the git tool changes, the scenario must change too. Store scenarios as versioned artifacts in the same repo as agent code. Tag scenario versions with the agent versions they validate.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any production agent deployment, verify ALL of:
+
+1. L1 deterministic tool tests pass: 100% pass rate, zero regressions from previous baseline
+2. L2 multi-turn scenario pass rate >= 90% against golden baseline, SPRT confirms no regression (p < 0.05)
+3. L3 E2E pipeline completion rate within 5pp of baseline, AgentAssay detects no behavioral drift (d < 0.2)
+4. LLM-as-judge calibration current: kappa >= 0.70 on all dimensions, calibration date within 30 days
+5. Position bias check: symmetric scoring difference < 0.5 points, judge model tested for position bias
+6. Drift detection baseline frozen: `baselines/golden_v{version}.json` committed and tagged in version control
+7. Canary deployment configured: 5% traffic for minimum 10 minutes with auto-rollback on quality degradation
+8. Eval budget within monthly cap: blocking evals continue, non-blocking evals become warn-only at 100%
+9. Scenario diversity validated: embedding-based coverage check shows >80% of 10 production dimensions represented
+10. Statistical method selected per use case: SPRT for sequential testing, bootstrap CI for small samples, fixed-N for budget-constrained
+11. CI/CD gates configured: L1+L2 block on PR, L3 blocks on merge, drift detection alerts on daily cron
+12. Eval harness healthy: Docker container builds, mock environments provision, judge API reachable
+13. Rollback plan documented: previous agent version artifact tagged, rollback procedure tested in staging
+14. Alert rules configured: L2 pass rate drop >5pp, L3 drift dimension alert, judge kappa < 0.65, budget >90%
+
+## Anti-Patterns
+
+<!-- STANDARD: 6+ anti-patterns, each with dollar-quantified impact. See SKILL-QUALITY-STANDARDS.md Section VII. -->
+
+### Anti-Pattern 1: Binary Pass/Fail Masks Real Regressions
 **What happens:** You compare two agent versions using "passed 85% vs passed 83%" — the difference looks like noise. You ship the new version. Users report degradation.
 **Cost:** AgentAssay on the same data would have detected d=0.35 at p<0.02. The 2pp drop was a real regression. Recovery: rollback (2 hours), incident review (4 hours), user trust erosion (unknown).
 **Estimated waste: $8,000 - $20,000** (engineering time + incident cost + user churn).
 **Fix:** Always use statistical evaluation (SPRT or AgentAssay). Never compare raw pass rates. The 2pp drop you dismissed? It was significant.
 
-### Gotcha 2: LLM-as-Judge Without Human Calibration
+### Anti-Pattern 2: LLM-as-Judge Without Human Calibration
 **What happens:** You set up a GPT-4o judge with a "rate quality 1-5" prompt. Scores look consistent. Six months later, you discover the judge has been rating all outputs at 4.0-4.3 regardless of quality — Cohen's kappa vs humans was 0.22.
 **Cost:** Six months of false confidence. Every deployment in that period was unvalidated. At least one regression shipped (see Gotcha 1). Recalibration: 40 hours (3 raters x 50 samples x 2 rounds).
 **Estimated waste: $15,000 - $35,000** (6 months unvalidated deployments + recalibration + potential regressions shipped).
 **Fix:** Run calibration BEFORE trusting judge scores. Require kappa >= 0.70 on all dimensions. Recalibrate monthly. If kappa drops below 0.65, halt all L3 evals until fixed.
 
-### Gotcha 3: Position Bias Corrupts Comparison Scores
+### Anti-Pattern 3: Position Bias Corrupts Comparison Scores
 **What happens:** Your eval always shows Agent A before Agent B. Judge consistently scores the first output higher (position bias effect: 0.8 points on a 5-point scale). You conclude Agent A is better. It isn't.
 **Cost:** Wrong deployment decision. Better agent version is blocked; worse version is deployed. User impact for 1 sprint (2 weeks) until detected.
 **Estimated waste: $7,000 - $15,000** (deploying inferior agent + re-deploying correct version + 2 weeks degraded UX).
 **Fix:** Enable symmetric scoring — present each pair in both orders. Verify position bias < 0.5 points. Test every new judge model for position bias before trusting.
 
-### Gotcha 4: Drift Detection Without Baselines
+### Anti-Pattern 4: Drift Detection Without Baselines
 **What happens:** You set up drift detection but never established a golden baseline. Every drift alert fires for the first run. You tune thresholds down until alerts stop. Drift detection is now blind — it will never detect anything.
 **Cost:** Drift goes undetected. Agent slowly degrades over 4-6 weeks. Users complain. You can't pinpoint when the degradation started because you have no historical baseline.
 **Estimated waste: $10,000 - $25,000** (undetected degradation window + bisecting commits to find regression + user trust).
 **Fix:** Establish golden baseline on the current stable version FIRST. Lock it in version control. Run drift detection daily against this frozen baseline. Rebaseline only intentionally (after verified improvements).
 
-### Gotcha 5: Eval Only Runs on Merge (Never on PR)
+### Anti-Pattern 5: Eval Only Runs on Merge (Never on PR)
 **What happens:** Eval is configured to run only post-merge on `main`. Developers push code, merge passes, then L3 detects a regression. But it's already in `main`. Now you're firefighting instead of preventing.
 **Cost:** Every regression that reaches `main` requires: revert PR (30 min), re-run CI (30 min), post-mortem (1 hour). At 3 regressions/month: 6 hours/month of firefighting.
 **Estimated waste: $4,500 - $9,000/year** (monthly firefighting x 12 months, plus compounding team context-switching cost).
 **Fix:** Run L1+L2 on every PR (pre-merge). Run L3 on PRs touching agent code (pre-merge, non-blocking). Reserve post-merge for canary monitoring only.
 
-### Gotcha 6: Scenario Coverage That Misses 80% of Real Failures
+### Anti-Pattern 6: Scenario Coverage That Misses 80% of Real Failures
 **What happens:** 50 "happy path" scenarios: clean codebases, clear instructions, no ambiguity. Pass rate: 95%. In production: messy codebases, ambiguous instructions, contradictory constraints. Real pass rate: 60%.
 **Cost:** Scenarios don't reflect real usage. You're optimizing for the wrong distribution. Every deployment decision is based on misleading data.
 **Estimated waste: $20,000 - $50,000** (building confidence in a broken eval + shipping regressions undetected + rebuilding scenario suite).
 **Fix:** Use the 10-dimension generator (see Phase 6). Include ambiguous, contradictory, and adversarial scenarios. Validate scenario diversity: cluster embeddings of scenario descriptions and verify coverage across all 10 dimensions.
 
-### Gotcha 7: Deploying Without Canary Monitoring
+### Anti-Pattern 7: Deploying Without Canary Monitoring
 **What happens:** All gates pass. You deploy to 100% of traffic. 15 minutes later, users report the agent is hallucinating file paths. No canary — no gradual rollout, no auto-rollback, no monitoring. Full outage.
 **Cost:** Full rollback (15 min), incident response (4 hours), post-mortem (2 hours), user trust impact (100% of users affected vs 5% in canary).
 **Estimated waste: $12,000 - $30,000 per incident** (full-outage cost vs canary-contained cost).

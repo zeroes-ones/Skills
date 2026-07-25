@@ -338,6 +338,8 @@ Track technical win rate = (deals where you were technical evaluator's choice) /
 
 ## Error Recovery
 
+<!-- STANDARD: Recovery patterns for common failures. -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -445,7 +447,22 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Gotchas
+## Best Practices
+
+1. **Pre-demo health check every time.** Run through the demo environment's critical path within 24 hours of every scheduled demo. Check API keys, database connections, SSO logins, and config files. Use an automated smoke test script that validates the top 5 demo workflows. A 15-minute check prevents a $200K+ deal from dying on a broken integration.
+2. **Tie every feature to a discovery finding.** Before showing any capability, restate the buyer's pain point: "You mentioned [pain X]. Here's how we solve that." Features without pain context are forgotten within 24 hours. Use a pain→feature mapping table in your demo script.
+3. **Customize demo data to the prospect's industry.** Generic "Jane Doe" data signals you didn't prepare. Use the prospect's terminology, their competitor names, their metrics. A healthcare demo with healthcare-specific data closes 40% faster than one with generic SaaS metrics.
+4. **Co-author PoC success criteria with the buyer's technical team.** Before any engineering work begins, define ≤3 measurable success criteria, a 2-week hard stop, and require buyer technical stakeholder sign-off. Scope creep outside the document is Phase 2 with a new timeline.
+5. **Use the "Tell-Show-Tell" demo structure.** Tell them what you're about to show, show it, then tell them what they just saw and why it matters. This triples retention versus "here's the product, let me click around."
+6. **Always answer "I don't know — let me verify" for uncertain technical questions.** Guessing kills credibility permanently. Say: "That's a great question. Let me verify with engineering and have a detailed answer by [end of tomorrow]." Then deliver. This builds more trust than a confident wrong answer.
+7. **Position competitors honestly using the "strong at X, we're strong at Y" frame.** Never bash competitors. Say: "[Competitor] is strong in [area]. Our customers typically choose us when [your differentiator] is critical." Prospects remember who bad-mouthed competitors long after they forget the product pitch.
+8. **Build ROI models with the buyer's actual numbers, not industry averages.** Use their employee count, their current spend, their pain costs. A model that says "$500K savings" based on an industry report is useless. A model that says "$127K savings based on your 47-person support team at $55/hour average" closes deals.
+9. **Maintain a security FAQ/RFP database reviewed by engineering quarterly.** Never let SEs answer security questionnaires from memory. A wrong answer about encryption at rest delays deals by 6+ weeks and creates permanent trust deficits. Validated source material only.
+10. **Use Gong/Chorus call recordings to study your own demos.** Review your top 3 won and top 3 lost demos every quarter. Identify patterns: where do prospects disengage? Which slides get questions? Which objections recur? Treat your demo as a product you continuously improve.
+
+## Anti-Patterns
+
+<!-- STANDARD: Common failure modes with cost estimates and fixes. -->
 
 - **Demo data that looks too perfect** — every user is "Jane Doe" with a profile photo from Unsplash, every chart shows hockey-stick growth. Buyers notice and distrust everything. Use realistic data with edge cases (long names, negative numbers, missing data) — it proves the product handles real-world messiness.
 - **"Just trust me on the API"** as answer to a technical question — the buyer's engineer will test it anyway. If the API documentation is wrong or the endpoint behaves differently than you said, you lose all credibility. Every claim you make about technical behavior must be demonstrable in the current build.
@@ -455,6 +472,66 @@ graph LR
 - **Security review completed by the SE without security team involvement.** The SE fills out the 200-question security questionnaire based on "what they think the architecture does." A statement about data encryption at rest is wrong — that feature shipped last week and the SE didn't know. The buyer's security team finds the discrepancy during their audit, flags it as "vendor misrepresentation," and the deal goes to legal review for 6 weeks. **Total cost: $150K-$500K in delayed or killed deals per quarter for mid-market organizations, plus a permanent trust deficit with that security team across all future procurement.** Fix: Maintain a security FAQ/RFP database reviewed by engineering and legal quarterly; never let SEs answer security questions without validated source material; flag any question you're less than 100% certain about for security team review — even if it delays the RFP by 48 hours.
 - **Dedicated demo environment shared across 8 SEs with no booking system.** SE #1 resets the environment mid-demo to show a clean state — and SE #2 loses their carefully configured scenario with 15 minutes of customer-specific data. SE #2's demo crashes in front of the CTO. The SE recovers, but the buyer's technical team now questions "stability." **Total cost: $300K-$800K in lost pipeline annually from demo failures — one crashed enterprise demo can kill a $200K+ deal, and the SE team averages 2-3 incidents per quarter.** Fix: Each SE gets an isolated demo environment (infrastructure-as-code, spun up/down per engagement) OR implement a shared environment booking system with config snapshots; run automated demo smoke tests 30 minutes before every scheduled demo.
 - **Proof of Concept that "succeeds" but doesn't map to the buyer's actual success criteria.** The PoC proves your API can ingest 10K records/minute. The buyer's actual requirement: 50K records/minute with 99.9% uptime during their Black Friday peak. The PoC checked your box but failed theirs — they discover this during production rollout, not during the PoC. **Total cost: $100K-$300K in wasted SE and AE time per failed PoC, plus a $500K-$2M deal that closes but produces a churn-risk customer within 90 days of go-live.** Fix: Co-author PoC success criteria with the buyer's technical team before any work begins; include load, scale, and failure-mode testing if relevant; require the buyer's technical stakeholder to sign off on results — not just your AE.
+
+## Production Checklist
+
+<!-- STANDARD: Pre-launch verification gate. All items must pass before delivering work. -->
+
+- [ ] Demo environment refreshed within last 24 hours — all integrations tested, config validated, no broken features
+- [ ] Automated smoke test passed on demo environment (login → core workflow → data display → logout)
+- [ ] MEDDIC/BANT score ≥ 4/5 on Metric and Economic Buyer dimensions before committing to PoC
+- [ ] Mutual Success Plan signed by both parties — ≤3 success criteria, 2-week hard stop, buyer technical stakeholder sign-off
+- [ ] PoC scope document includes: success criteria, timeline, exit conditions, what is explicitly OUT of scope
+- [ ] ROI model built with buyer's actual numbers — employee count, current spend, pain costs validated with prospect
+- [ ] Every demo slide maps to ≥1 discovery finding (pain→feature mapping table included)
+- [ ] Competitive positioning reviewed — no competitor-bashing language, "strong at X, we're strong at Y" frame used
+- [ ] Security questionnaire answers sourced from validated FAQ/RFP database, not SE memory
+- [ ] Technical discovery document includes: current stack, integration points, scale requirements, security requirements, timeline
+- [ ] RFP/RFI response reviewed by product management for roadmap claims and engineering for technical claims
+- [ ] Battle cards updated within last 90 days with win/loss data from ≥5 deals per competitor
+- [ ] Gong/Chorus recording reviewed for last 3 demos — patterns documented, objections catalogued
+
+## Scale Depth
+
+<!-- DEEP: How this skill scales from solo to enterprise. -->
+
+### Solo SE (1 person, pre-Series A)
+- **Tooling:** One demo environment (Docker Compose or VM snapshot), manual health checks, Google Slides for demos
+- **Process:** Founder runs demos alongside building product; no formal discovery framework
+- **Risk:** No backup if the solo SE is unavailable; demo environment is a single point of failure
+- **Move to next level when:** You miss a demo due to an environment issue OR you have ≥3 active PoCs simultaneously
+
+### Small Team (2-5 SEs, Series A-B)
+- **Tooling:** Infrastructure-as-Code demo environments (Terraform/CloudFormation), shared demo booking calendar (Calendly), Gong/Chorus for call recording, shared RFP answer library in Notion/Confluence
+- **Process:** Formal MEDDIC/BANT discovery, standardized demo scripts with pain→feature mapping, bi-weekly SE team knowledge sharing
+- **Key hire:** Hire for industry specialization (e.g., SE dedicated to healthcare vertical)
+- **Move to next level when:** SEs cover ≥3 distinct verticals AND demo environment management consumes >10 hours/week
+
+### Medium Team (6-15 SEs, Series B-C)
+- **Tooling:** Per-SE isolated demo environments (on-demand spin-up/down), demo automation platform (DemoStack/Navattic), Salesforce integration for technical win tracking, RFP automation (Loopio/RFPIO)
+- **Process:** Dedicated SE onboarding (2-week bootcamp), specialization by vertical AND product area, SE→Product feedback loop with quarterly roadmap input
+- **Metrics:** Technical win rate by SE, time-to-first-demo for new SEs, PoC conversion rate, demo no-show rate
+- **Move to next level when:** You need SE coverage across ≥3 time zones OR enterprise deals require multi-day on-site PoCs
+
+### Enterprise (15+ SEs, Series C+)
+- **Tooling:** Dedicated demo engineering team maintaining demo infrastructure, automated demo smoke tests (pre-flight checks 30 min before every scheduled demo), SE enablement platform (Highspot/Seismic), competitive intelligence tool (Klue/Crayon)
+- **Process:** SE career ladder (Associate → Senior → Principal → Distinguished), formal SE-to-PM rotation program, annual SE Summit for knowledge sharing, dedicated SE for top 20 enterprise accounts
+- **Metrics:** SE-influenced pipeline vs SE-attached pipeline, time-to-technical-win by deal size, SE utilization rate (demo hours / total hours), competitive win rate by SE
+- **Governance:** Monthly SE leadership review of demo quality (random sampling of 5 recorded demos/month), quarterly security FAQ refresh, annual SE compensation review tied to technical win rate
+
+## Error Decoder
+
+<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
+
+| Symptom | Diagnosis | Root Cause | Fix |
+|---------|-----------|------------|-----|
+| Demo crashes during live presentation | API key expired, database connection pool exhausted, or config file changed since last walkthrough | No pre-demo health check run within 24 hours; shared demo environment modified by another SE | Run automated smoke test script 30 min before every demo; move to isolated per-SE environments on-demand |
+| PoC runs 8 weeks with no end in sight | Scope creep — buyer keeps adding "one more use case" | No signed Mutual Success Plan with hard stop date and exit criteria | Halt PoC immediately; require signed MSP with ≤3 criteria and 2-week max before resuming; any additions go to Phase 2 |
+| Technical win claimed but deal goes dark | Buyer's technical stakeholder gave verbal "yes" but didn't sign off on documented requirements | Technical discovery was informal; buyer has unstated requirements not met by your solution | Require documented technical requirements sign-off as gate to "technical win" status; include explicit pass/fail criteria |
+| RFP response takes 3 weeks and loses | SE writing from scratch every time, pulling outdated answers from email threads | No centralized RFP answer library; no review process for technical claims | Implement RFP automation (Loopio/RFPIO); build answer library reviewed quarterly by engineering and legal; template responses for top 20 questions |
+| Security review delays deal by 6+ weeks | SE answered security questionnaire from memory; buyer's security team found discrepancies during audit | No validated security FAQ database; SE guessed at encryption/architecture details | Never answer security questions without validated source material; maintain quarterly-reviewed security FAQ; flag uncertain questions for security team review |
+| Competitive deal lost to "we didn't know they had that feature" | Battle card is 12 months old and based on SE opinions, not win/loss data | No systematic win/loss analysis; battle cards built from internal assumptions | Update battle cards quarterly with data from ≥5 won and ≥5 lost deals per competitor; use Gong call recordings for competitive intelligence |
+| Demo no-show rate > 20% | Prospects disengage between demo booking and demo day | No confirmation sequence; demo scheduled too far out; no pre-demo value reminder | Send calendar invite with agenda immediately; send "what to expect" email 48 hours before; send value-reminder email 2 hours before; call if no response |
 
 ## Verification
 

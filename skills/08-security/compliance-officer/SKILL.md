@@ -142,7 +142,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Addressing audit findings: remediation planning, management response, control improvement
 - Conducting internal readiness assessments before external audits
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Framework Selection
@@ -234,7 +234,7 @@ How should you assess third-party vendor risk?
 
 > **Key principle:** Vendor risk tier is determined by data access, not contract value. A $50/month SaaS tool that processes customer PII is high-risk. A $500K/year office furniture supplier that touches no data is low-risk. Classification by spend produces dangerous blind spots.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -293,6 +293,27 @@ How should you assess third-party vendor risk?
 # Map controls from security implementations. Coordinate with legal for regulatory interpretation and filing.
 ```
 
+## Best Practices
+
+1. **Control mapping: build a unified framework — one internal control maps to multiple compliance requirements.** SOC 2 CC5.1 (Access Control), ISO 27001 A.9, PCI-DSS 7, HIPAA 164.312(a), NIST 800-53 AC-family — these all require access control. Map them to ONE internal control: "Access Review — Quarterly with automated evidence." Don't duplicate effort per framework. Use Cloud Security Alliance CCM, NIST 800-53, or UCF Common Controls Hub as your mapping backbone. When an auditor asks for access control evidence, you produce one evidence set that satisfies all frameworks simultaneously.
+
+2. **Evidence collection: automate everything auditable, sample-test the rest monthly.** Connect your GRC platform (Vanta, Drata, Secureframe, ServiceNow GRC) to all infrastructure (AWS Config, CloudTrail, Azure Policy, GCP Audit Logs), identity (Okta, Azure AD, Google Workspace), HR (BambooHR, Workday), and code (GitHub, GitLab) systems. Evidence that requires manual screenshots is evidence that will be missing at audit time — automate or accept the risk. For evidence that can't be automated: assign an owner, schedule calendar reminders, and make evidence upload a condition of quarterly bonus eligibility.
+
+3. **Audit readiness is continuous, not pre-audit fire drill.** Monthly internal control health checks: pick 10 controls at random and trace evidence end-to-end. If evidence is missing, stale, or doesn't prove the control operated, fix the process before the auditor finds it. The auditor's job is to find control failures — your job is to find and fix them first. Two weeks before audit: do a full mock audit. If the mock finds gaps, the real audit will find them too — delay the audit if you can't close the gaps.
+
+4. **Gap analysis: prioritize by risk, not by framework requirements count.** A control gap that exposes customer PII to unauthorized access is CRITICAL regardless of which framework requires it. Use a risk matrix (likelihood × impact) to prioritize remediation: controls addressing high-likelihood/high-impact risks get immediate attention. Framework-specific gaps that address low-risk scenarios get lower priority. The goal is risk reduction, not checklist completion — a framework that has 100% compliance but hasn't addressed your actual top risks is a false assurance.
+
+5. **Compensating controls are legitimate when documented properly.** Can't implement the prescribed control? Document the compensating control with: (1) the original requirement, (2) why the prescribed control is infeasible (technical limitation, cost, operational impact), (3) the compensating control you've implemented, (4) how it achieves equivalent risk reduction, (5) residual risk assessment. Auditors accept compensating controls that provide equivalent protection. They reject compensating controls that are "we'll do it differently" without analysis. A WAF rule compensating for an unpatched CRITICAL CVE is valid if you can demonstrate the rule blocks the exploit.
+
+6. **Continuous compliance: drift detection alerts within 24 hours, not discovered at next audit.** A security group opened for testing and forgotten, an IAM policy that became over-permissive after a migration, an S3 bucket that went public after a Terraform apply — these are compliance drifts. Your GRC tool should detect and alert on drift within 24 hours. Without drift detection, you're compliant at audit time and non-compliant 48 hours later. The auditor tests the full audit period — one month of non-compliance in a 12-month SOC 2 Type II period is a finding.
+
+7. **Policy management: write for auditability, not for completeness.** Every policy statement must be testable: "All human user accounts must authenticate with SSO + MFA (hardware key or TOTP)" is testable. "Access should be appropriately secured" is not. Include: the control requirement, the verification method, the verification frequency, and the evidence artifact. Policies reviewed annually (with version history), employee acknowledgment within 90 days. Policy exceptions: documented, approved, expire after 90 days, reviewed quarterly. A permanent exception is a policy failure.
+
+8. **Regulatory change tracking: subscribe to regulatory update feeds and map to your control framework.** GDPR guidance updates from EDPB, HIPAA rule changes from HHS OCR, PCI-DSS v4.0 transition deadlines, state privacy laws (CPRA, VCDPA, CPA, CTDPA, etc.) — these change your compliance obligations. Assign an owner to monitor regulatory changes, assess impact on your control framework, and update controls within the regulatory transition period. Missing a regulatory change means your SOC 2 Type II report is technically correct but legally insufficient for the new requirement.
+
+9. **Vendor risk tiering: classify by data access, not contract value.** Tier 1 (Critical): vendors that process/store regulated data (PII, PHI, PCI) or provide critical infrastructure. Full due diligence: SOC 2 Type II review, DPA, pen test review, incident response plan review, continuous monitoring with exit plan. Tier 2 (High): vendors with access to sensitive but unregulated data. Questionnaire + SOC 2 review. Tier 3 (Medium): vendors with limited data access. Questionnaire only. Tier 4 (Low): no data access. Vendor inventory reviewed quarterly. A $50/month CRUD app that stores customer names and emails is Tier 1 — its $50 price tag is irrelevant to the data risk.
+
+10. **Audit communication: single point of contact, 48-hour evidence response SLA, proactive context.** Assign one person to coordinate all auditor requests — multiple points of contact lead to inconsistent answers. Respond to evidence requests within 48 hours with complete evidence packages, not partial responses. For every evidence package, include context: what control this evidence supports, when the control operated, and any anomalies (with remediation timeline). Auditors appreciate transparency — a control gap you've already identified with a remediation plan is a finding with context, not a surprise.
 
 ## State Log
 
@@ -340,6 +361,36 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before a compliance program goes operational or before an audit engagement, validate every item. This is the gate between preparation and audit — skip none.
+
+1. **Framework mapping complete:** Every applicable framework requirement (SOC 2 TSC, ISO 27001 Annex A, PCI-DSS, HIPAA, GDPR) maps to at least one internal control. No requirement is "covered by process" without evidence. Unified control matrix maintained in the GRC tool, updated quarterly.
+
+2. **Control ownership assigned:** Every control has a named owner (individual, not team) responsible for evidence collection, control execution, and auditor communication. Control owners notified of upcoming audit 90 days in advance. Owner departure triggers immediate reassignment — no orphan controls.
+
+3. **Evidence collection automated or scheduled:** >80% of evidence collected automatically via GRC integrations (identity provider, cloud provider, HRIS, code repository, vulnerability scanner). Manual evidence: owners scheduled with calendar reminders, evidence upload verified monthly. No evidence >90 days old for quarterly controls — stale evidence is a finding.
+
+4. **Access review current:** Most recent quarterly access review completed with 100% coverage. All accounts have documented business justification. No terminated employees with active accounts. Access review records include: reviewer, date, accounts reviewed, decisions (approved/revoked), and remediation actions. Audit trail preserved in the GRC tool.
+
+5. **Policy lifecycle managed:** All policies reviewed within last 12 months, version history shows updates, employee acknowledgment >95% within 90 days. Policy exceptions documented with business justification, approval, and expiration date (max 90 days). No permanent exceptions — permanent exceptions are policy failures.
+
+6. **Vendor risk assessments current:** All Tier 1 and Tier 2 vendors assessed within last 12 months. DPAs executed and current for all vendors processing regulated data. SOC 2 bridge letters collected for vendors with expired reports. Vendor certification monitoring: alerts configured for vendor SOC 2/ISO 27001 expiry.
+
+7. **Incident response tested:** Tabletop exercise conducted within last 6 months, including at least one regulatory scenario (GDPR 72-hour notification, HIPAA breach notification, PCI-DSS forensic investigation). Exercise findings tracked to remediation. IR plan tested against: data breach at a critical vendor, lost/unencrypted laptop, S3 bucket public exposure.
+
+8. **Continuous monitoring operational:** Drift detection alerts configured for top 20 controls. Test: make a deliberate non-compliant change (open a security group in a test account) and verify alert fires within 24 hours. Dashboard shows real-time control health. Monthly control health review scheduled with control owners.
+
+9. **Audit artifacts organized:** Evidence repository structured by control ID with clear naming conventions. Mock audit of top 10 controls within last quarter — all evidence traceable from control → evidence → artifact in <5 minutes per control. Auditor given read-only GRC access or organized evidence package — no frantic folder creation during audit.
+
+10. **Training compliance:** Security awareness training completed by all employees within required period. Role-based compliance training (HIPAA for healthcare staff, PCI for payment teams, GDPR for data processors) verified with completion records. Training gap >90 days is an audit finding — auto-escalation for non-completers.
+
+11. **Regulatory change impact assessed:** Regulatory subscriptions active (EDPB, HHS OCR, PCI SSC, state AG offices). Last quarterly regulatory change review completed — any new requirements mapped to controls, gaps identified, and remediation timeline documented. Unaddressed regulatory gap for >90 days escalates to legal counsel.
+
+12. **Audit readiness declaration:** Formal internal sign-off from CISO, legal counsel, and compliance lead that the organization is audit-ready. Sign-off includes: scope confirmed, evidence reviewed, known gaps documented with remediation plans, auditor engaged with kickoff scheduled, and single point of contact assigned. Audit readiness is a management assertion — make it with evidence, not hope.
+
+If any checklist item fails: STOP. Going into an audit with unchecked items guarantees findings. Resolve the gap, document the resolution, and re-verify before engaging the auditor.
+
 ## What Good Looks Like
 
 ### BEFORE (Novice) → AFTER (World-Class)
@@ -366,8 +417,33 @@ The vendor risk dimension is where most compliance programs fail silently — a 
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
+### Scale Depth
 
-## Error Recovery
+#### Solo
+
+**Compliance for a solo founder, freelancer, or 1-5 person startup preparing for first enterprise customer.** Focus on the one framework your customers actually ask for: usually SOC 2 Type II for US B2B SaaS. Use a compliance automation platform (Vanta, Drata, Secureframe — startup-tier pricing $5K-$15K/yr). Connect your core systems: identity provider (Google Workspace/Okta), cloud (AWS/GCP/Azure), HR (Gusto/Rippling), and code repository (GitHub/GitLab). The automation platform will tell you which controls you're failing. Fix the "must-pass" controls first: access reviews, background checks, MDM, incident response plan. Don't build a comprehensive ISO 27001 ISMS for your first audit — it's more than you need and delays the SOC 2 report your customer is waiting for.
+
+**Transition trigger:** First enterprise customer requiring SOC 2 Type II, or international customers requiring ISO 27001 → move to Small.
+
+#### Small
+
+**Small business (20-100 people) with first compliance hire or fractional CISO.** Maintain SOC 2 Type II with annual audit. Add ISO 27001 if selling to EU/APAC enterprises. Implement formal policy hierarchy: policy → standard → procedure. Quarterly access reviews with automated evidence. Tabletop exercises twice yearly. Vendor risk management: Tier 1 and Tier 2 vendors assessed annually, DPA repository maintained. GRC tool: Vanta/Drata/Secureframe with all integrations connected and evidence refreshing automatically. Compliance is 50% automated, 50% manual — the compliance hire's job is automating the remaining 50%.
+
+**Transition trigger:** >100 employees, multi-framework requirements (SOC 2 + ISO 27001 + HIPAA), or dedicated compliance team of 2+ → move to Medium.
+
+#### Medium
+
+**Mid-size company (100-500 employees) with dedicated compliance team (2-3 people).** Multi-framework compliance program: SOC 2 Type II + ISO 27001 + PCI-DSS + HIPAA (as applicable). Enterprise GRC platform (ServiceNow GRC, Archer, LogicGate) with custom control mapping. Continuous compliance monitoring with automated drift detection. Vendor risk: tiered program with continuous monitoring for critical vendors. Dedicated DPO (or external DPO service) for GDPR compliance. Internal audit function: quarterly internal audits against top 20 controls, findings tracked to remediation. Board reporting: quarterly compliance dashboard with control health, audit status, and regulatory changes.
+
+**Transition trigger:** >500 employees, public company (SOX), FedRAMP authorization, or operating in 3+ regulatory jurisdictions → move to Enterprise.
+
+#### Enterprise
+
+**Large enterprise (500+), public company, or regulated industry (finance, healthcare, defense).** Comprehensive compliance program: SOC 2, ISO 27001, PCI-DSS, HIPAA, SOX, FedRAMP, CMMC, GDPR, CCPA/CPRA, and sector-specific regulations. Dedicated compliance team with specialists per framework. Full-time DPO. Internal audit team: independent from compliance team, reports to audit committee. GRC platform: ServiceNow GRC or RSA Archer with custom integrations, automated evidence collection, real-time dashboards, and board reporting. Regulatory affairs: dedicated team monitoring 50+ jurisdictions for regulatory changes, impact assessments completed within 30 days of change. External audit coordination: parallel audit tracks (SOC 2 + ISO 27001 surveillance + PCI-DSS ROC) managed with shared evidence repository.
+
+**Transition triggers:** Global operations in 10+ countries, M&A activity requiring acquired company compliance integration, or operating under consent decree/regulatory settlement.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -420,7 +496,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **The One Highest-Leverage Activity:** Every quarter, pick 5 controls at random and trace their evidence end-to-end — from policy document → to implementation → to evidence collection → to the actual evidence file. If any link in the chain is broken (policy says quarterly, evidence is annual), the control is not operational. Sample-testing your own controls is what auditors do — do it before they do.
 
-## Gotchas
+## Anti-Patterns
 
 - **SOC 2 Type II** covers a period (usually 6-12 months), not a point in time. If you implemented a control on month 5, the auditor only tests months 5-12. Controls added mid-period have partial coverage, which may not satisfy the report's intended use. **Total cost: $50,000-$500,000 in re-audit fees, delayed enterprise deals, and lost revenue from prospects who require a clean SOC 2 report.**
 - **GDPR "right to erasure"** (Article 17) doesn't mean delete everything. You must erase personal data — but retain transaction records for tax law, fraud logs for security, and backup tapes that can't be surgically deleted. The exception for "legal obligation" must be documented per-request. **Total cost: €10,000,000-€20,000,000 or 2-4% of global annual revenue in GDPR fines for systematic non-compliance with data subject rights.**

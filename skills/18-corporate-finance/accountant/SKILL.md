@@ -171,6 +171,8 @@ Common chains:
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
 ### Revenue Recognition Path (ASC 606)
@@ -234,6 +236,8 @@ What's your stage and complexity?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- STANDARD: 3min -->
 
 ### Phase 1: Accounting Setup (~2 hours, one-time)
@@ -276,6 +280,8 @@ What's your stage and complexity?
 
 
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -432,7 +438,7 @@ graph LR
 | "Cash flow fixes itself" | 82% of small business failures cite cash flow issues, not profitability. A $50K receivable aging past 90 days has a 70% probability of becoming uncollectible — that's $35K in direct write-offs per overdue invoice. |
 | "It's immaterial — just book it" | Immaterial ≠ zero. $500/month in unrecorded subscriptions is $6K/year in hidden liabilities. Materiality is cumulative: 12 individually "immaterial" items create one material misstatement that triggers restatement. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Revenue recognition for SaaS** — a customer pays $120K upfront for a 12-month contract. You can't recognize $120K in month 1. ASC 606 requires ratable recognition: $10K/month over 12 months. The $110K you haven't recognized yet sits on the balance sheet as deferred revenue (a LIABILITY, not cash you've earned).
 - **Prepaid expenses amortization** — you pay $24K for annual software in January. Only $2K hits January P&L. The remaining $22K is a prepaid asset. If you forget to amortize, Q1 P&L is $18K understated ($2K/month × 9 remaining months), and your runway calculation is wrong.
@@ -441,6 +447,65 @@ graph LR
 - **Accrual vs cash basis confusion at year-end close** — a $50K customer invoice is issued December 28, payment arrives January 12. On cash basis, revenue hits January; on accrual, it's December revenue with a receivable. Get this wrong and your tax liability shifts across fiscal years. The IRS doesn't care about your basis methodology choice — they care about consistency. Switching methods without Form 3115 filing triggers automatic audit red flags. **Total cost: $12K-$50K in IRS penalties and interest for incorrect tax period recognition plus $10K-$30K in accounting restatement costs if financials were already shared with lenders or investors.** Fix: document your revenue recognition policy in writing. Run a year-end cutoff checklist that identifies all transactions straddling the fiscal year boundary. For any contract over $25K, confirm recognition treatment with the engagement partner before close.
 - **Capitalizing vs expensing software development costs incorrectly** — $200K spent building internal-use CRM software. Expensing all $200K hits current-year P&L, reducing EBITDA by $200K and potentially violating a debt covenant tied to EBITDA minimums. Capitalizing it spreads $200K over 3 years ($67K/year amortization). But ASC 350-40 has specific capitalization criteria (preliminary project stage vs application development stage). Wrong classification discovered during audit triggers restatement — and investors reprice the stock on "material weakness in internal controls" disclosure. **Total cost: $20K-$100K in audit defense costs plus potential debt covenant violation penalties ($50K-$250K) — and restated financials that permanently erode investor confidence.** Fix: for any software project over $50K, document the stage-gate analysis (preliminary vs development vs post-implementation) at project inception, not at audit time. Involve the external auditor in the classification decision before close.
 - **Intercompany transactions not eliminated in consolidation** — ParentCo lends $1M to SubCo. Both entities record the transaction: ParentCo shows a $1M receivable, SubCo shows a $1M payable. Without elimination entries at consolidation, the consolidated balance sheet overstates both assets and liabilities by $1M — and the consolidated P&L may double-count interest. A lender reviewing consolidated financials sees $1M in phantom assets and makes a credit decision on inflated numbers. When discovered, the lender calls a technical default on the credit agreement. **Total cost: $15K-$40K in audit adjustments to restate consolidated financials plus potential debt covenant violation triggering accelerated repayment — liquidity impact of $500K-$2M.** Fix: maintain an intercompany transaction log updated monthly. Every intercompany entry must have a corresponding elimination entry tagged with the same reference ID. Run a consolidation-level trial balance that sums to zero across all intercompany accounts before finalizing consolidated statements.
+
+## Best Practices
+
+1. **Close the books within 5 business days of month-end.** Every day beyond 5 is a day management operates without accurate financials. Automate: bank feeds (Plaid/Yodlee → QBO/Xero), recurring journal entries, prepaid amortization schedules, depreciation. Manual closes are error-prone and late closes compound across quarters.
+
+2. **Reconcile every balance sheet account monthly — no exceptions.** Cash, AR, AP, prepaids, fixed assets, debt, equity, intercompany. A $42 unreconciled difference that's "immaterial" this month becomes a $4,200 cumulative error by year-end. Use reconciliation templates with: beginning balance, activity detail, ending balance, reconciling items, resolution plan.
+
+3. **Deferred revenue is a liability, not cash you've earned.** Under ASC 606, revenue is recognized when (or as) performance obligations are satisfied — not when cash arrives. A $120K annual prepayment = $10K/month recognized, $110K sitting as deferred revenue (liability). SaaS companies that confuse cash and revenue misstate their financials by 11× in month one.
+
+4. **Run a year-end cutoff checklist for transactions straddling the fiscal year boundary.** A $50K invoice issued Dec 28, paid Jan 12 requires: accrual basis = December revenue with AR. Cash basis = January revenue. Wrong classification shifts tax liability between fiscal years. The IRS cares about consistency — switching methods without Form 3115 triggers audit flags.
+
+5. **Document your revenue recognition policy in writing before the first dollar of revenue.** ASC 606 five-step model: (1) identify contract, (2) identify performance obligations, (3) determine transaction price, (4) allocate price, (5) recognize as obligations satisfied. SaaS with usage-based billing, professional services bundled with subscriptions, and tiered pricing all have different recognition patterns.
+
+6. **Sales tax nexus is triggered by employees, not just revenue thresholds.** Hiring a remote employee in Colorado creates nexus even if no customers are there. Every state with an employee, contractor, inventory, or office needs a nexus review. Economic nexus thresholds (e.g., $100K revenue or 200 transactions) are an ADDITIONAL trigger, not the only one.
+
+7. **For any software development project over $50K, document the ASC 350-40 stage-gate analysis at inception.** Preliminary project stage (expense) vs. application development stage (capitalize) vs. post-implementation (expense). Wrong classification discovered at audit = restatement + "material weakness in internal controls" disclosure + potential debt covenant violation.
+
+8. **Maintain an intercompany transaction log with elimination entries tagged by reference ID.** ParentCo lends $1M to SubCo: both record the transaction, but consolidated balance sheet must eliminate both. Without proper tagging, the consolidated entity is overstating assets AND liabilities by $1M. Run a consolidation trial balance that sums to zero across all intercompany accounts before closing.
+
+9. **409A valuations expire after 12 months or a material event (whichever comes first).** A new funding round, material revenue milestone, or significant change in market conditions can render a 409A stale. Issuing options below FMV triggers IRC 409A penalties: immediate taxation + 20% federal penalty + potential state penalties for the optionee.
+
+10. **Bank reconciliation differences must be tracked and categorized, not force-balanced.** "Rounding difference of $3.51" × 12 months = $42, but it might be 12 micro bank fees you didn't record. Categorize every difference: timing (outstanding checks, deposits in transit) vs. errors (missing transactions, wrong amounts) vs. bank-initiated (fees, interest).
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Month-end close: completed within 5 business days — all reconciliations done, financial statements reviewed
+- [ ] Balance sheet reconciliations: every material account reconciled monthly — cash, AR, AP, prepaids, fixed assets, debt, equity
+- [ ] Revenue recognition: deferred revenue schedule updated — recognized revenue matches performance obligations satisfied
+- [ ] AR aging: > 90 days past due items reviewed with collection plan — allowance for doubtful accounts assessed
+- [ ] AP aging: all vendor invoices recorded in correct period — no unrecorded liabilities at month-end
+- [ ] Payroll: W-2/1099 classifications verified, equity compensation expensed (ASC 718), payroll taxes filed on time
+- [ ] Sales tax: nexus reviewed quarterly — new states from employee locations, revenue thresholds, or physical presence
+- [ ] Fixed assets: depreciation schedule updated, additions/disposals recorded, impairment assessed
+- [ ] Intercompany: all intercompany transactions eliminated in consolidation — consolidation trial balance sums to zero
+- [ ] 409A: valuation current (< 12 months old and no material event since) — option strike prices ≥ FMV at grant date
+- [ ] Prepaids: amortization schedules updated — no expired prepaids still on balance sheet
+- [ ] Accruals: accrued expenses reconciled to actual invoices when received — no stale accruals > 90 days
+- [ ] Audit readiness: all material balances have supporting schedules with source data references — PBC list pre-populated
+
+### Scale Depth
+
+| Company Stage | Accounting System | Close Process | Key Compliance |
+|--------------|-------------------|---------------|----------------|
+| **Pre-revenue startup** | QBO/Xero, $15-30K/year outsourced bookkeeping | Cash-basis, monthly close within 5 days, Excel-based schedules | Payroll taxes, 409A, sales tax nexus (remote employees), R&D tax credit eligibility |
+| **Seed/Series A ($1M-$10M ARR)** | QBO/Xero + Bill.com + Rippling/Gusto, $60-120K/year part-time controller | Modified cash-basis transitioning to accrual, deferred revenue tracking, AR/AP management | ASC 606 revenue recognition, 409A, ASC 718 stock comp, sales tax registration, first audit preparation |
+| **Series B/C ($10M-$50M ARR)** | NetSuite/Sage Intacct, $150-300K/year full-time controller + CPA firm audit | Full GAAP accrual, 5-day close, ASC 606 rev rec, ASC 842 lease accounting, intercompany eliminations | Annual GAAP audit, ASC 718/409A, multi-state sales tax, transfer pricing (if international), SOX readiness |
+| **Pre-IPO ($50M+ ARR)** | NetSuite/Oracle Fusion + FloQast/BlackLine, $500K-1M+/year controller + IA + SEC reporting | 3-day close, SOX controls, SEC reporting (10-K, 10-Q, 8-K), segment reporting | SOX 404(b), PCAOB audit, SEC filings, ASC 740 (tax provision), ESG reporting readiness |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|-----------|-----|------------|
+| Revenue looks great but company can't make payroll | Cash-basis vs. accrual confusion: $500K revenue on P&L is all AR with 90-day terms; AP due in 30 days creates cash gap | Run 13-week cash flow forecast alongside P&L — AR collection timing and AP payment terms must be explicit | Always pair P&L with cash flow statement; never make spending decisions from income statement alone |
+| "One-time charge" appears for 4th consecutive quarter | Non-GAAP adjustments disguising recurring operational costs as extraordinary; investors price them in after 2-3 quarters | Reclassify recurring "one-time" items as operating; only truly non-recurring items (disaster loss, major restructuring after acquisition) qualify | Define "non-recurring" threshold in policy: item must not have occurred in prior 2 years AND not expected to recur in next 2 years |
+| Deferred revenue on balance sheet doesn't match billing system | Revenue recognized without verifying performance obligation satisfaction; ASC 606 requires ratable recognition over service period | Reconcile billing system to GL: total invoices − recognized revenue = deferred revenue balance; investigate all differences > 5% | Monthly deferred revenue rollforward: beginning balance + new billings − recognized revenue + adjustments = ending balance |
+| Sales tax notice for a state where company has no customers | Nexus triggered by remote employee, not customer location; employee's home state considers company to have physical presence | Register in employee's state; file retroactive returns; negotiate penalty abatement for first-time filer (most states offer) | Quarterly nexus review: check ALL states where employees, contractors, inventory, or offices exist |
+| Option grant strikes below 409A FMV — IRC 409A penalty triggered | 409A valuation stale (12+ months old) when option granted; company raised Series A at higher valuation making 409A clearly outdated | Options are nonqualified (not ISOs); optionee owes immediate income tax on spread + 20% federal penalty; company must report on W-2 | 409A refresh trigger: new funding round, material revenue milestone, or 12 months since last valuation — whichever comes first |
+| Audit finds $200K software costs should have been capitalized, not expensed | ASC 350-40 stage-gate analysis not performed; preliminary project stage (expense) vs. development stage (capitalize) not distinguished | Restate financials; capitalize eligible costs with retroactive amortization; update debt covenants if EBITDA-based | Document ASC 350-40 analysis at project inception with stage-gate checklist; involve auditor in classification decision |
 
 ## Verification
 

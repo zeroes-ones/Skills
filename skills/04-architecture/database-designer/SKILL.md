@@ -168,6 +168,8 @@ Database design skill scales from single-table decisions to org-wide data strate
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### SQL vs NoSQL Database Selection
 
@@ -301,6 +303,8 @@ Database design skill scales from single-table decisions to org-wide data strate
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Requirements Analysis & Technology Selection
 1. **Identify access patterns**: Read-heavy vs write-heavy, query shapes (point lookups, range scans, aggregations, joins, full-text search), expected QPS and data volume.
@@ -364,7 +368,32 @@ Common chains:
 - **API-driven schema**: api-designer → database-designer → database-reliability-engineer — API resources define data shape, DB designs for those access patterns, DBRE ensures reliability at scale
 
 
+## Best Practices
+
+1. **Default to PostgreSQL unless a specific NoSQL advantage is clear.** PostgreSQL handles 90% of use cases: ACID transactions, complex JOINs, JSONB for semi-structured data, full-text search with GIN indexes, and PostGIS for geospatial.
+
+2. **Index every column used in WHERE, JOIN, and ORDER BY of frequent queries.** Verify with `EXPLAIN ANALYZE` — sequential scans on tables >10K rows in production-traffic queries are unacceptable. Monitor `pg_stat_user_indexes` for unused indexes and drop them.
+
+3. **Normalize to 3NF for OLTP; denormalize deliberately for read performance.** Document every denormalization with the query it serves, the staleness budget, and the refresh strategy. Never denormalize without a specific, measured read-performance problem.
+
+4. **Use expand-contract for zero-downtime migrations.** Add nullable column → backfill in batches → set NOT NULL → add DEFAULT → drop old column. Never rename or drop columns in a single deploy — it breaks running code.
+
+5. **Place PgBouncer between every application and PostgreSQL.** Transaction pooling mode, not session pooling. Calculate total connections: `(pool_size × service_instances) + (background_jobs × workers)`. Alert at 70% pool utilization.
+
+6. **Separate OLTP and OLAP workloads.** Reporting queries on production tables hold locks that block transactions. Use read replicas with materialized views or a dedicated columnar store (ClickHouse, Redshift) for analytics.
+
+7. **Set connection timeouts aggressively.** `idle_in_transaction_session_timeout = 30s`, `statement_timeout = 30s`. Long-running queries in idle transactions block vacuum, cause table bloat, and exhaust connection pools.
+
+8. **Test migrations on a production-scale copy.** The migration that took 3 seconds on a 10K-row dev database will acquire an `ACCESS EXCLUSIVE` lock on a 500M-row production table — blocking all reads and writes for minutes to hours.
+
+9. **Use partial indexes for low-selectivity columns.** `CREATE INDEX ON orders (id) WHERE status = 'active'` when 99% of rows are archived. The planner will sequential-scan a full index on a column with only 2 distinct values.
+
+10. **Backup and practice restore quarterly.** A backup you haven't restored is not a backup — it's a wish. RPO and RTO are measured from restore drills, not from backup configuration. Automate restore testing in a sandbox environment.
+
+
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -467,6 +496,24 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[DB1]** Every query in top-10 by frequency has `EXPLAIN ANALYZE` showing index scan — no Seq Scan on tables >10K rows
+- [ ] **[DB2]** Connection pooling (PgBouncer transaction mode) between all applications and PostgreSQL, pool utilization alert at 70%
+- [ ] **[DB3]** Migration scripts have both up and down paths tested in CI on a production-scale data copy
+- [ ] **[DB4]** Statement timeout configured (`statement_timeout = 30s`), `idle_in_transaction_session_timeout = 30s`
+- [ ] **[DB5]** Backup strategy: full daily, WAL continuous, point-in-time recovery tested quarterly — RPO and RTO measured
+- [ ] **[DB6]** Read replicas for read scaling, replication lag monitoring with alert at >5s
+- [ ] **[DB7]** Slow query log enabled (`log_min_duration_statement = 100ms`), top 10 reviewed weekly
+- [ ] **[DB8]** All external-facing identifiers are UUIDv7/ULID — no auto-increment integers exposed
+- [ ] **[DB9]** Partial indexes on low-selectivity columns, covering indexes on hot queries, unused indexes dropped monthly
+- [ ] **[DB10]** OLTP and OLAP separated — reporting/analytics never run on primary OLTP instance
+- [ ] **[DB11]** Foreign keys defined for referential integrity unless explicitly documented as intentionally omitted
+- [ ] **[DB12]** Encryption at rest (KMS-managed keys) and in transit (TLS 1.2+ enforced) — no unencrypted connections accepted
+- [ ] **[DB13]** Multi-tenant isolation strategy documented: database-per-tenant, schema-per-tenant, or RLS with `tenant_id`
+
 ## What Good Looks Like
 
 > Every query in the application is backed by an index that makes it run in single-digit milliseconds, and `EXPLAIN ANALYZE` output confirms index-only scans on every critical path — no sequential scans
@@ -493,7 +540,7 @@ Before beginning a new phase, verify:
 ### The One Thing
 **Restore last night's production backup to a staging server and run your application against it.** Not a synthetic dataset. Not a truncated copy. The real data, real volume, real distribution. Your queries that ran in 2ms on dev will show their true colors on 500GB of production data.
 
-## Gotchas
+## Anti-Patterns
 
 - **Missing indexes on production queries.** A query that should return in 2ms with an index instead performs a full table scan on a 50M-row table, consuming 100-500x more I/O and CPU. On cloud databases (RDS, Cloud SQL, Azure DB) where you pay for IOPS and compute, one missing index on a frequently-called endpoint can inflate your monthly bill by $1K-$50K. **Total cost: $1K-$50K/month in excess cloud database spend from sequential scans that indexes would eliminate.** Fix: run `EXPLAIN ANALYZE` on every query in production traffic (via pg_stat_statements or slow query log). Create indexes on every column used in `WHERE`, `JOIN`, and `ORDER BY` clauses of queries appearing more than 100x/day.
 - **ORM without query review.** ORMs like Hibernate, SQLAlchemy, and ActiveRecord mask the generated SQL — developers call `user.posts` in a loop and don't see the N+1 queries exploding behind the scenes. A single page load that should be 3 queries becomes 3,003 queries (1 parent + 1,000 children × 3 associations). **Total cost: $5K-$50K in inflated database tier costs, degraded user experience, and engineering time debugging "why is this page slow" — often 1,000x excess queries vs. a hand-written JOIN.** Fix: enable ORM query logging in development. Use `assert(num_queries < N)` in tests. Review every PR for N+1 patterns. Use `select_related`/`prefetch_related`/`eager_load` for associations.

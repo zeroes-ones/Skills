@@ -180,6 +180,8 @@ Common chains:
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
 ### Budgeting Method Selection
@@ -220,6 +222,8 @@ ARR growth < 30% YoY?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- STANDARD: 3min -->
 
 ### Phase 1: Model Architecture (~45 min)
@@ -258,6 +262,8 @@ ARR growth < 30% YoY?
 
 
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -448,7 +454,7 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 | "The CEO just wants a number for the board" | Presenting a single-point forecast without ranges is professional negligence. When the actual lands 20% below, the question isn't "what happened?" — it's "why didn't FP&A see this coming?" Credibility loss: permanent. |
 | "Cash flow forecast? The P&L looks fine" | $500K net income with $2M in 90-day AR and $1.5M in 30-day AP = insolvency next month. P&L profitability without 13-week cash flow forecasting has killed more companies than unprofitability ever has. Cost: $50K-$200K in emergency financing. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Annual budget built in September, approved in December, irrelevant by March** — the assumptions from Q3 are stale before Q1 starts. Rolling forecasts (updated quarterly) replace the annual budget as the primary planning tool. The annual budget sets the high-level target; rolling forecasts guide actual decisions.
 - **"Actual vs Budget" variance reports** that flag a 5% overage as "red" without context — Marketing is 5% over because they ran a campaign that generated 3x pipeline. The variance is a SIGNAL, not a problem. Variance analysis requires the question "why?" before the judgment "bad."
@@ -457,6 +463,65 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 - **Excel model with hardcoded assumptions in 47 cells** — "Revenue growth = 15%" is typed directly into 47 different formulas across 8 worksheet tabs. When the assumption changes to 12%, you update 3 cells and miss 44. The board presentation now contains numbers from two different scenarios (15% growth on the revenue sheet, 12% growth on the headcount sheet). A single "number doesn't match" moment in a board meeting destroys CFO credibility — and the investment decision based on wrong numbers cascades into misallocated capital. **Total cost: $10K-$50K per board presentation with erroneous data — a single bad investment or hiring decision made from incorrect model outputs costs $500K-$5M+ in wasted capital.** Fix: every assumption lives in exactly one cell on a dedicated "Assumptions" tab, colored blue, with source and date annotated. All formulas reference that single cell. Add a "consistency check" sheet that verifies key totals match across tabs. Have a second analyst rebuild the model independently and compare outputs.
 - **Modeling P&L without a corresponding cash flow forecast** — the P&L shows $500K net income for Q1. But $2M in accounts receivable has 90-day terms, $1.5M in accounts payable is due in 30 days, and a $300K Capex payment hits next week. Next month's cash position: -$800K. The company is profitable on paper and insolvent in reality. CFO presents "great quarter" to the board on Tuesday; on Friday, the controller discovers they can't make payroll. **Total cost: $50K-$200K in emergency bridge financing costs (factoring receivables at 15-20% discount, penalty-rate credit line draws) — or worse, a complete liquidity crisis that forces a fire-sale fundraise at punitive terms, costing founders 10-30% additional dilution.** Fix: every financial model must have a 13-week cash flow forecast that accounts for AR collection timing, AP payment terms, payroll cycles, and Capex. Cash flow forecast is updated weekly; P&L forecast is updated monthly. They live in the same workbook with a reconciliation tab.
 - **Forecasting revenue at too high an aggregation level** — "Total revenue = $10M next quarter, up 8% YoY." The aggregate hides that Product A is declining 30% (losing $1.5M) while Product B grows 40% (adding $2.3M). The net looks healthy. The components reveal Product A's decline — which, if caught 2 quarters earlier, could have been addressed with a pricing change or feature investment. Instead, Product A loses its last $500K customer in Q3 with no replacement pipeline. **Total cost: $100K-$2M in missed early-intervention opportunities for declining product lines — revenue that could have been saved with a pricing adjustment or retention campaign 6 months earlier.** Fix: forecast at the lowest meaningful level (product line × region × channel). Aggregate for reporting, analyze at the component level. Flag any component with > 10% quarter-over-quarter decline for a deep-dive variance analysis within 48 hours.
+
+## Best Practices
+
+1. **Build a 3-statement model (P&L + Balance Sheet + Cash Flow) — never model P&L alone.** The P&L shows $500K net income but says nothing about the $2M AR with 90-day terms vs. $1.5M AP due in 30 days. A company can be profitable on paper and insolvent in reality. The cash flow statement is the truth-teller.
+
+2. **Every assumption lives in exactly one cell on a dedicated "Assumptions" tab, colored blue, with source and date annotated.** "Revenue growth = 15%" typed into 47 cells across 8 tabs is a guarantee that 3 of them won't get updated. A single inconsistent number in a board presentation destroys CFO credibility. All formulas reference the single assumption cell.
+
+3. **Rolling forecasts updated quarterly replace the annual budget as the primary planning tool.** The annual budget built in September with Q3 data is stale by Q1. Budget = high-level target and resource allocation. Rolling forecast = what you actually use to run the business. Update within 2 weeks of quarter-end.
+
+4. **Headcount cost is salary + 50-70%, not salary + 30%.** Beyond benefits and payroll taxes: equipment ($3K/hire), software licenses ($500/person/month enterprise tools), office space ($500-$1,500/person/month), training ($2K/person/year), and recruiting fees (20% of first-year salary for agency hires). The 30% rule works only for companies with zero overhead.
+
+5. **Forecast at the lowest meaningful level (product line × region × channel).** "Total revenue = $10M, up 8%" hides Product A declining 30% (losing $1.5M) while Product B grows 40% (adding $2.3M). The net looks healthy; the components reveal Product A's death spiral. Aggregate for reporting, analyze at the component level. Flag any component with > 10% QoQ decline within 48 hours.
+
+6. **Variance analysis answers "why?" before "bad."** Marketing is 5% over budget because they ran a campaign generating 3× pipeline — the variance is a SIGNAL of ROI, not a problem. Flag the variance, ask the question, understand the context, THEN judge. Red/yellow/green without narrative is worth less than nothing — it's misleading.
+
+7. **Pipeline-weighted revenue forecasting amplifies errors.** Sales pipeline × historical close rate assumes: (a) pipeline is honest (it's inflated — reps enter anything), (b) close rate is stable (it's not — pre-recession rates don't apply in a downturn). Use committed (contract signed) + upside (verbal commitment) + pipeline (exploratory) categories with different probability weights.
+
+8. **Build a 13-week cash flow forecast updated weekly.** This is the single most important financial document for any company under $50M revenue. It catches the payroll-vs-AR-timing gap, the Capex payment that hits before the customer check clears, and the covenant breach 6 weeks before it happens. P&L updated monthly; cash flow forecast updated weekly.
+
+9. **Scenario planning is not "base, upside, downside" with ±10% on revenue.** Scenarios model structural changes: competitor launches a product at 30% lower price, your largest customer (25% of revenue) goes bankrupt, interest rates rise 300bps. Probability-weight scenarios. The board needs to know the range of outcomes, not just the midpoint.
+
+10. **Have a second analyst independently rebuild the model and compare outputs.** Spreadsheet errors are universal — even Goldman Sachs had a $10B model error from a formula mistake. An independent rebuild catches 80%+ of errors. For board-facing models, this is non-negotiable.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] 3-statement model: P&L, balance sheet, and cash flow statement all linked — balance sheet balances, cash flow ties to cash
+- [ ] Assumptions tab: all assumptions in single location, colored blue, with source and date — no hardcoded numbers in formulas
+- [ ] Rolling forecast: updated within 2 weeks of quarter-end — current quarter + 7 quarters forward
+- [ ] Headcount model: all-in cost at salary + 50-70% — equipment, software, office, training, recruiting all modeled
+- [ ] Revenue forecast: at product line × region × channel granularity — committed/upside/pipeline categories weighted
+- [ ] Cash flow forecast: 13-week rolling, updated weekly — AR/AP timing, payroll cycles, Capex all mapped
+- [ ] Variance analysis: monthly budget vs. actuals with narrative explanations — variance flags include "why" context
+- [ ] Scenario planning: 3+ scenarios modeled with probability weights — not just ±10% on revenue
+- [ ] Board package: ready 5 business days before meeting — executive summary, financials, KPIs, key decisions required
+- [ ] Model audit: second analyst independent rebuild comparison — outputs within 5% tolerance
+- [ ] SaaS metrics (if applicable): ARR, net revenue retention, CAC payback, LTV/CAC, magic number, Rule of 40 — all calculated consistently
+- [ ] Cap table: fully diluted shares outstanding updated — option pool, warrants, convertibles all modeled
+- [ ] Consistency check: cross-tab totals verified — revenue sheet total = P&L summary = board slide = cash flow input
+
+### Scale Depth
+
+| Company Stage | Model Complexity | Key Metrics | Cadence |
+|--------------|-----------------|-------------|---------|
+| **Pre-revenue/Seed** | Simple P&L + cash runway model, headcount plan, burn multiple | Months of runway, burn rate, cash-out date | Weekly cash update, monthly burn review |
+| **Series A ($1-5M ARR)** | 3-statement model, SaaS metrics dashboard, pipeline-weighted revenue forecast, headcount by department | ARR, NRR, gross margin, CAC payback, burn multiple, runway | Monthly close review, quarterly rolling forecast, monthly board update |
+| **Series B/C ($5-50M ARR)** | Full 3-statement + scenario planning, cohort-based revenue model, department-level budgeting, cap table + dilution modeling | Rule of 40, LTV/CAC, magic number, NRR by cohort, EBITDA margin, ARR per employee | Monthly close + reforecast, quarterly board, annual strategic plan |
+| **Pre-IPO ($50M+ ARR)** | Multi-entity consolidation, segment reporting, SOX-compliant forecasting, investor-grade guidance model | GAAP revenue, operating income, free cash flow, ARR + NRR, remaining performance obligations, fully diluted EPS | Monthly close + guidance update, quarterly earnings prep, annual budget + long-range plan |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|-----------|-----|------------|
+| Profitable company can't make payroll | Modeled P&L only; $500K net income is all AR with 90-day terms vs. $1.5M AP due in 30 days | Build 13-week cash flow forecast: map AR collection dates, AP payment dates, payroll cycles, Capex | Always pair P&L with cash flow statement; never make spending decisions from income statement alone |
+| Board presentation has inconsistent numbers across slides | Hardcoded assumptions: "Revenue growth = 15%" typed into 47 cells across 8 tabs; only 3 updated when assumption changed | Rebuild with single Assumptions tab; all formulas reference the one cell; add consistency check tab | Dedicated Assumptions tab with blue cells; model audit by second analyst before every board meeting |
+| Revenue forecast off by 30%+ for 3 consecutive quarters | Pipeline-weighted forecasting: inflated pipeline × historical close rate that no longer applies post-downturn | Switch to committed (weighted 95%) + upside (50%) + pipeline (15%) categories; update close rate assumptions quarterly | Monthly forecast vs. actuals review; adjust probability weights based on trailing 6-month actual close rates |
+| Headcount costs 40% higher than modeled | Used salary + 30% benefits; actual all-in cost is salary + 50-70% including equipment, software, office, training | Rebuild headcount model: salary + payroll taxes + benefits + equipment ($3K) + software ($500/mo) + office + training ($2K/yr) + recruiting (20%/hire) | Update all-in cost model quarterly with actual spend data per employee |
+| Q3 forecast misses by $1.5M due to Product A decline | Aggregated revenue forecast hides component-level dynamics; Product A declining 30% offset by Product B growing 40% | Disaggregate forecast to product line × region; flag any component with > 10% QoQ decline within 48 hours for deep-dive | Forecast at lowest meaningful granularity; aggregate for reporting, analyze at component level |
+| "One-time" items recur every quarter → investor credibility lost | Non-GAAP adjustments disguising recurring operational costs; investors price them in, stock trades at discount | Reclassify recurring items as operating; define non-recurring threshold: not in prior 2 years AND not expected in next 2 years | Non-GAAP policy documented and reviewed quarterly; external auditor concurs on classification |
 
 ## Verification
 

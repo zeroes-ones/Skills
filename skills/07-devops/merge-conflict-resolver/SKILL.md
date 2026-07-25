@@ -79,6 +79,26 @@ Interdependent conflicts across modules with different owners. Trace intent to m
 **L4 — Multi-Branch Merge (20+ files, multiple feature branches)**
 Dozens of conflicts from parallel development streams. Build a conflict dependency graph. Resolve in dependency order. Coordinate with branch owners for conflicting design decisions. Verify: full CI pipeline locally. Time: 4-8 hours.
 
+### Scale Depth
+
+#### Solo
+A single developer resolving conflicts between personal feature branches. Strategy: three-way merge tool, hunk-by-hunk resolution, run local tests between hunks. No branch owner coordination needed. No architecture-boundary checks needed unless the repo has them configured. Merge commit message: document what was resolved and why.
+
+#### Small
+A small team (3-10 engineers) with occasional cross-branch conflicts. Strategy: intent tracing via PR descriptions and `git log --graph`, resolve in dependency order, full test suite before push. Coordinate with branch owners via Slack/PR comments for design-level conflicts. Binary file protocol: informal (DM the designer). No automated semantic conflict detection yet.
+
+**Transition trigger:** Conflicts span 3+ branches regularly, or a semantic conflict reaches production — it's time for automated semantic detection and structured resolution workflows.
+
+#### Medium
+An organization with 10-50 engineers. Structured conflict-resolution workflow: intent tracing required, conflict classification before strategy selection, per-hunk verification, architecture-boundary checks in CI. Binary file merge protocol documented in CONTRIBUTING.md. Automated semantic conflict detection via integration tests that exercise both branches' changes together. Merge commit messages follow a template (conflicts encountered, strategies used, design decisions).
+
+**Transition trigger:** 50+ engineers or multiple teams owning overlapping code paths — conflict resolution quality variance becomes a reliability risk. Standardized merge verification gates become necessary.
+
+#### Enterprise
+100+ engineers, multiple teams, monorepo with high merge velocity. Automated conflict prediction: CI warns when two open PRs touch overlapping files. Merge queue with pre-merge verification (full test suite + architecture checks + semantic conflict detection). Merge commit template enforced via commit hooks. Conflict resolution metrics tracked: time-to-merge, rollback rate post-merge, semantic conflict escape rate. Dedicated merge rotation for release-critical merges. Post-merge audit: random sample of merge resolutions reviewed quarterly for quality.
+
+**Transition trigger:** Merge-related production incidents exceed 1 per quarter, or a merge resolution introduces a security vulnerability — merge verification gates become mandatory and automated.
+
 ## When to Use
 
 **Use this skill when:**
@@ -145,7 +165,7 @@ User says: "merge this branch"
        └─ NO → git-workflow (strategy selection, then merge)
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- Full 121 lines extracted to references/core-workflow.md -->
 
 #
@@ -157,7 +177,7 @@ git diff --name-only --diff-filter=U
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 121 lines of detailed guidance
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 #
 
@@ -299,7 +319,7 @@ Both sides introduce similar but incompatible implementations:
       5. Document the abstraction in the resolution log
 ```
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -312,6 +332,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Trace intent before touching a single conflict marker.** Run `git log --oneline --all --graph` to understand what each branch was trying to accomplish. Read the PR descriptions and commit messages for both sides. Document the intent in the merge commit message. Conflict resolution without intent tracing produces code that compiles but is semantically wrong.
+
+2. **Resolve conflicts hunk-by-hunk with verification between each.** Resolve one conflict hunk, save, run the build and relevant tests. If green, move to the next hunk. If red, you know exactly which resolution caused the failure. Batch resolution — resolving all 15 conflicts then testing — means 2 hours of unwinding to find which one broke.
+
+3. **Use a three-way merge tool, not a side-by-side diff.** Tools like `meld`, `kdiff3`, or VS Code's three-way merge show the common ancestor alongside both branches. This reveals what each side changed relative to the original — essential for understanding whether the conflict is additive (both sides added different features) or contradictory (one side fixed what the other refactored).
+
+4. **Classify each conflict before choosing a resolution strategy.** Syntactic conflicts (same line edited differently) are resolved with a merge tool. Semantic conflicts (both branches compile but produce contradictory behavior) require reading both implementations and possibly rewriting. Structural conflicts (file rename, directory move) need `git mv` awareness. Each type demands a different strategy.
+
+5. **Run the full test suite locally before pushing the merge.** CI is for verification, not discovery. If your merge breaks CI, you've blocked the team. Run `git merge --no-commit` followed by the full test suite. Only push when all tests pass locally. For large merges (>20 files), also run integration and E2E tests locally.
+
+6. **Write merge commit messages that explain the resolution, not just "merge branch X."** Document: which conflicts appeared, which strategy was used for each, and any design decisions made during resolution. This is the decision log for future investigators. A merge commit that says "fixed merge conflicts" is useless when someone asks "why does auth now depend on the billing module?"
+
+7. **Detect semantic conflicts that Git cannot see.** Two branches can merge cleanly but produce broken behavior: one adds a null check, the other removes the code that could produce null. Use `git diff A...B` (triple-dot) to see what changed on the merged branch since the common ancestor. Run integration tests that exercise both branches' changes together.
+
+8. **Treat `git merge --abort` as the last resort, not the first reflex.** Aborting discards every resolved hunk — 2 hours of careful work gone. Before aborting: save a patch file (`git diff > /tmp/merge-progress.patch`), document which hunks are resolved in the state log, and only abort if you've identified a fundamental incompatibility that requires branch restructuring.
+
+9. **Establish binary file merge protocols before they happen.** Git cannot meaningfully diff binaries (`.psd`, `.sqlite`, `.xlsx`). Establish a protocol: design files use "newest timestamp wins," databases require manual reconciliation, ML artifacts use DVC with content hashes. Document the protocol in CONTRIBUTING.md. Without one, each binary conflict becomes an ad-hoc negotiation at merge time.
+
+10. **Add architecture-boundary checks to your merge verification.** A merge that compiles and passes tests can still violate architectural constraints (a pure-logic package suddenly depends on a database driver). Run `dependency-cruiser` or `eslint-plugin-boundaries` during merge verification. If the merge introduces a new cross-package dependency, flag it for architectural review before pushing.
 
 ## Cross-Skill Coordination
 
@@ -396,6 +438,23 @@ Before beginning a new phase, verify:
 - [ ] Do any prior decisions constrain what I'm about to do?
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **[MC-01]** Conflict inventory captured: `git diff --name-only --diff-filter=U` lists all conflicted files with hunk counts; resolution order documented (shared utilities first, then consumers)
+- [ ] **[MC-02]** Intent traced for both sides of every conflict: `git log --oneline --all --graph` reviewed; PR descriptions and commit messages read; intent documented in merge commit or state log
+- [ ] **[MC-03]** Conflict classification complete before resolution: each conflict tagged as syntactic, semantic, or structural; resolution strategy chosen per classification
+- [ ] **[MC-04]** Three-way merge tool configured and used (meld, kdiff3, or VS Code three-way); side-by-side diff with common ancestor visible
+- [ ] **[MC-05]** Hunk-by-hunk resolution with verification: resolve one conflict → save → build → run relevant tests → green before moving to next hunk
+- [ ] **[MC-06]** Full test suite passes locally before push: unit + integration + relevant E2E tests; CI is for verification, not discovery
+- [ ] **[MC-07]** Architecture-boundary checks pass: `dependency-cruiser` or equivalent confirms no new cross-package dependencies introduced by the merge
+- [ ] **[MC-08]** Semantic conflict detection exercised: integration tests that specifically exercise both branches' changes together pass
+- [ ] **[MC-09]** Binary file merge protocol followed: design files use "newest timestamp wins," databases reconciled manually, ML artifacts use DVC content hashes
+- [ ] **[MC-10]** Merge commit message documents: conflicts encountered, strategies used per conflict, design decisions made during resolution; not "fixed merge conflicts"
+- [ ] **[MC-11]** No conflict markers remain in any tracked file: `grep -r "<<<<<<<" .` returns empty; verification script run
+- [ ] **[MC-12]** Submodule conflicts resolved with security-awareness: CHANGELOG diffed between SHAs; security patches prioritized; CI check confirms resolved SHA is not older than main minus security commits
+- [ ] **[MC-13]** Pre-merge checklist completed: branch owners notified for design-level conflicts, extract-to-shared decisions have consensus, `git merge --abort` considered only as last resort with progress saved as patch
+- [ ] **[MC-14]** Post-merge verification: CI pipeline green after push, deployment smoke tests pass, monitoring dashboards show no regression in error rates or latency
 
 ## What Good Looks Like
 
@@ -491,55 +550,57 @@ A colleague creates a deliberately difficult merge conflict (10+ hunks, semantic
 | "I don't need to understand what the other branch was trying to do — just resolve the markers." | Mechanical conflict resolution without understanding intent produces syntactically valid, semantically broken code. $5K-$25K in production bugs traced back to merge-resolution decisions made without context. |
 | "We'll handle the merge conflicts during the release window — there's not that many." | Late-stage merge under time pressure forces rushed decisions. Quality of resolution drops, testing gets skipped, and regressions slip through. $15K-$40K in post-release hotfixes and rollbacks that a calm, pre-window merge would have avoided. |
 
-## Gotchas
+## Anti-Patterns
 
-#
+### Anti-Pattern: The --abort reflex
+**What it looks like:** `git merge --abort` or `git rebase --abort` used as the first response when conflicts get messy. "It's cleaner to restart than work through this."
+**Why it fails:** Every resolved hunk is lost. 2 hours of careful work = $300 in direct time, plus $14,700+ in delayed feature delivery if the merge was on a release critical path. Abort trains the brain that conflict resolution is disposable.
+**Do this instead:** Before aborting: save a patch file (`git diff > merge-progress.patch`), document resolved hunks in the state log, escalate within the team. Only abort when a fundamental incompatibility requires branch restructuring — not when you feel overwhelmed.
 
-## Gotcha 1: The --abort reflex ($15,000+)
-The cost of `git merge --abort` or `git rebase --abort` as a reflex when conflicts get messy. Every hunk you've already resolved is lost. On a complex merge with 2 hours of work in, aborting means restarting from zero — that's $150/hr × 2 hours = $300 of direct time, plus $14,700+ in delayed feature delivery if the merge was on the critical path for a release.
+### Anti-Pattern: Accepting "mine" without reading "theirs"
+**What it looks like:** `git checkout --ours` applied to every conflicted file. "We'll review their changes later." The merge completes but the other branch's intent is discarded.
+**Why it fails:** If the other side fixed a critical bug or implemented a dependency your team needs, you've reintroduced the bug or lost the feature. $5K-$50K per incident. Blind ours-resolution is the fastest path to a broken merge.
+**Do this instead:** For each conflict, read both sides completely. Use a three-way merge tool to see the common ancestor. If ours is correct, document WHY in the merge commit — don't just assume.
 
-#
+### Anti-Pattern: Semantic conflicts that merge cleanly
+**What it looks like:** Git reports no conflicts, merge completes cleanly, CI passes. But one branch added a null check while the other removed the code path that could produce null. The bug reaches production silently.
+**Why it fails:** $20K-$100K per incident. Git only detects textual conflicts, not behavioral ones. The most expensive merges are the ones with zero conflict markers.
+**Do this instead:** Run `git diff A...B` (triple-dot) to see what changed since the common ancestor. Run integration tests that exercise both branches' changes together. Build semantic conflict detection into CI: flag merges where both branches touch the same function.
 
-## Gotcha 2: Accepting "mine" without reading "theirs" ($5,000-$50,000)
-Blindly `git checkout --ours` on every conflicted file discards the other side's intent entirely. If the other side fixed a critical bug or implemented a feature your team depends on, you've just re-introduced the bug or lost the feature. The cost ranges from a $5,000 bug-fix redo to a $50,000 production incident.
+### Anti-Pattern: Batching conflict resolution without per-hunk verification
+**What it looks like:** Resolve all 15 conflicts at once, save everything, then run the build. Build fails. Now binary-search through 15 resolutions to find the culprit.
+**Why it fails:** $3K-$10K in wasted debugging time. Each wrong guess costs 10-15 minutes. With hunk-by-hunk verification, you'd catch the issue immediately — 2 minutes of rework instead of 2 hours.
+**Do this instead:** Resolve one hunk → save → build → run relevant tests → green? Move to next hunk. Red? Fix immediately. Never resolve more than one hunk without verification.
 
-#
+### Anti-Pattern: No verification between resolutions
+**What it looks like:** Skipping the build-and-test step between hunk resolutions because "it's just a small change to a config file." Three hunks later, the build fails — and now you don't know which hunk broke it.
+**Why it fails:** $8K in wasted debugging time per incident. If the unverified merge reaches CI and breaks the pipeline for the team: $25K in blocked productivity for the entire engineering org.
+**Do this instead:** Verify after every hunk, no exceptions. "It's just a small change" is exactly when verification is fastest and most valuable. Skip verification only when you're willing to binary-search through your own work.
 
-## Gotcha 3: Semantic conflicts that merge cleanly ($20,000-$100,000)
-The most expensive gotcha. Git merges the text perfectly — no conflict markers, no warnings. But the merged code has contradictory logic: one side assumes a value is always defined, the other added a null path. The bug reaches production. Detection cost: $5,000 in debugging. Fix cost: $3,000. Reputation cost: $12,000+. If it causes a data loss incident: $80,000+.
+### Anti-Pattern: Lost intent context
+**What it looks like:** Conflicts resolved mechanically — markers removed, code compiles, merge pushed. Two months later someone asks "why did we resolve the auth conflict this way?" Nobody knows. The decision died with the resolver.
+**Why it fails:** $10K to re-investigate the original intent. If the wrong resolution causes a security vulnerability: $30K in audit, remediation, and compliance fallout.
+**Do this instead:** Document intent and resolution rationale in the merge commit message. Template: "Conflict in [file]: [branch A] was [intent], [branch B] was [intent]. Resolution: [strategy] because [reasoning]." This is the decision log for future investigators.
 
-#
+### Anti-Pattern: Extract-to-shared without consensus
+**What it looks like:** During conflict resolution, you notice both branches added similar utilities. You extract a shared module to avoid duplication, merge, and push. Neither original author was consulted.
+**Why it fails:** The new abstraction doesn't fit both use cases cleanly. One team works around it, introducing technical debt. The abstraction must be refactored or reverted. $15K-$40K in rework across both teams.
+**Do this instead:** Extract-to-shared is a design decision, not a merge tactic. File a follow-up issue. Defer the extraction to a separate PR with both original authors as reviewers. In the merge, keep both implementations and add a TODO linking to the extraction issue.
 
-## Gotcha 4: Batching conflict resolution ($3,000-$10,000)
-Resolving all conflicts at once without verifying between hunks. A resolution in file A breaks file B's assumption. You discover this only after resolving everything. Now you have to unwind: which of the 15 resolutions caused the failure? Each wrong guess costs time. With hunk-by-hunk verification, you'd catch the issue after the first bad resolution — 2 minutes of rework instead of 2 hours.
+### Anti-Pattern: Binary file conflicts without a resolution protocol
+**What it looks like:** Two designers commit different versions of `hero-banner.psd` or two data engineers update `seed-data.sqlite` on parallel branches. Git offers no meaningful diff — just "Binary files differ." Both contributors guess.
+**Why it fails:** $10K-$60K per incident. Wrong binary ships to production — corrupted SQLite with stale pricing data processes 1,200 orders at incorrect amounts over 4 hours.
+**Do this instead:** Store binary assets in content-addressable storage (S3 with versioning, DVC for ML artifacts). Commit only content hashes in Git. Establish protocol: newest timestamp wins for design files, manual reconciliation for databases. Pre-commit hook warns when binaries >1MB are staged without hash file.
 
-#
+### Anti-Pattern: Merge that compiles but violates architectural boundaries
+**What it looks like:** Conflict in `packages/auth` resolved by accepting both branches' changes — one added a database import, the other added Redis. Code compiles, tests pass. But now auth (a pure-logic package) has two infrastructure dependencies.
+**Why it fails:** $20K-$80K in architectural debt remediation. Three months later, `packages/ui` test fails because it transitively pulls in PostgreSQL driver through auth — a driver that doesn't compile on macOS CI. Two weeks to untangle.
+**Do this instead:** Run architecture-boundary checks during merge verification (`dependency-cruiser`, `eslint-plugin-boundaries`). If merge introduces a new cross-package dependency, flag for architectural review before accepting. Maintain a dependency graph as a build artifact.
 
-## Gotcha 5: No verification between resolutions ($8,000-$25,000)
-Skipping the build-and-test step between hunk resolutions because "it's just a small change." Three hunks later, the build fails. Was it hunk 1, 2, or 3? Without per-hunk verification, you're binary-searching through your resolutions. Cost: $8,000 in wasted debugging time. If the unverified merge reaches CI and breaks the pipeline for the team: $25,000 in blocked productivity.
-
-#
-
-## Gotcha 6: Lost intent context ($10,000-$30,000)
-Resolving conflicts without tracing intent. Two months later, someone asks: "Why did we resolve the auth conflict this way?" Nobody knows. The decision dies with the resolver. Cost: $10,000 to re-investigate. If the wrong resolution causes a security vulnerability: $30,000 in audit, remediation, and compliance fallout.
-
-#
-
-## Gotcha 7: Extract-to-shared without consensus ($15,000-$40,000)
-Extracting a shared abstraction during conflict resolution without consulting the original authors. The new abstraction doesn't fit both use cases cleanly. One team works around it, introducing technical debt. The abstraction must be refactored or reverted. Cost: $15,000-$40,000 in rework across both teams.
-
-#
-
-## Gotcha 8: Binary file merge conflicts without a resolution protocol ($10,000-$60,000)
-Two designers commit different versions of `hero-banner.psd` or two data engineers update `seed-data.sqlite` on parallel branches. Git marks the binary file as conflicted but offers no meaningful diff — you see "Binary files differ." Without a protocol (e.g., "designer B's version wins on even dates"), both contributors guess. One picks "theirs," the other rolls back and redoes their work. The wrong binary ships to production — in one case, a corrupted SQLite database with stale pricing data causes an e-commerce site to display 2022 prices for 4 hours, processing 1,200 orders at incorrect amounts. **Total cost: $10K-$60K per binary conflict from incorrect resolution, revenue loss from wrong data, and rework.** Fix: Store binary assets in a content-addressable system (S3 with versioning, DVC for ML artifacts); commit only content hashes in Git; establish a deterministic merge protocol for binaries (newest timestamp wins for design files, manual reconciliation required for databases); add a pre-commit hook that warns when binary files > 1MB are staged without a corresponding hash file.
-#
-
-## Gotcha 9: Conflict resolution that compiles but violates architectural boundaries ($20,000-$80,000)
-You resolve a conflict in `packages/auth` where one branch added a database import and the other added a Redis dependency. Both changes merge cleanly and the code compiles. But now `packages/auth` has two infrastructure dependencies, violating the layered architecture where auth was supposed to be a pure-logic package. Three months later, a `packages/ui` test fails because it transitively pulls in `pg` (PostgreSQL driver) through auth — a dependency that doesn't even compile on the CI macOS runner. Developers spend 2 weeks untangling the dependency graph, and the original merge decision was made in 30 seconds during conflict resolution without architectural review. **Total cost: $20K-$80K in architectural debt remediation from merges that pass tests but violate design constraints.** Fix: Add architecture-boundary checks to CI (e.g., `dependency-cruiser`, `eslint-plugin-boundaries`); during conflict resolution, if a merge introduces a new cross-package dependency, flag it for architectural review before accepting the resolution; maintain a dependency graph as a build artifact so merges that violate it fail CI even if they compile.
-#
-
-## Gotcha 10: Submodule conflicts from divergent `.gitmodules` updates ($8,000-$25,000)
-Two branches update the same Git submodule to different SHAs — one for a security patch (v2.1.1), the other for a feature release (v2.2.0). The conflict resolver picks the feature branch SHA without noticing the security patch is being reverted. The vulnerability — an authentication bypass in the submodule — goes live for 11 days before a security scanner catches it. The security team must now determine if any systems were compromised during the exposure window, triggering an incident response process that consumes 80 engineering-hours at $200/hr. **Total cost: $8K-$25K in security incident response and exposure period investigation from submodule conflicts that silently revert patches.** Fix: Configure `.gitmodules` with `fetchRecurseSubmodules = true` and enable Dependabot/Renovate on submodule references; during conflict resolution on `.gitmodules` or submodule pointers, always diff the CHANGELOG between the two SHAs and prioritize the one containing security patches; add a CI check that fails if the resolved submodule SHA is older than the current `main` branch SHA minus any security-related commits.
+### Anti-Pattern: Submodule conflicts that silently revert security patches
+**What it looks like:** Two branches update the same submodule to different SHAs — one for a security patch (v2.1.1), the other for a feature release (v2.2.0). Resolver picks the feature branch SHA without noticing the security patch reversion.
+**Why it fails:** $8K-$25K per incident. The vulnerability goes live for 11 days before a scanner catches it. Security team spends 80 engineering-hours at $200/hr investigating the exposure window.
+**Do this instead:** Diff CHANGELOG between the two SHAs. Prioritize the one containing security patches. Add CI check: fail if resolved submodule SHA is older than main minus security-related commits. Enable Dependabot/Renovate on submodule references.
 
 ## Verification
 <!-- Full 30 lines extracted to references/verification.md -->

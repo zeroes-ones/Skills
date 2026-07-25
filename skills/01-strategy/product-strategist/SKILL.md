@@ -175,6 +175,7 @@ Product strategy scales from individual product lines to company-defining bets. 
 - North Star metric definition and product metrics framework
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Product-Market Fit Assessment
@@ -212,6 +213,7 @@ Average deal size (ACV)?
 | Hybrid | Complex products | Maximized | Datadog, Snowflake |
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Discovery & Validation
@@ -245,6 +247,7 @@ Average deal size (ACV)?
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -403,7 +406,31 @@ Common chains:
 - **User-centered strategy**: ux-researcher → product-strategist → product-manager — User insights → product strategy → feature specs
 - **Pricing & GTM**: product-strategist → business-strategist → growth-engineer — Pricing model → GTM strategy → growth experiments
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Validate product-market fit with the Sean Ellis test, not gut feel.** Ask active users: "How disappointed would you be if this product didn't exist?" Target ≥ 40% answering "very disappointed." Run this survey quarterly, segmenting by cohort. PMF isn't binary — it degrades over time as market expectations rise and competitors improve.
+
+2. **Define your North Star metric as an input metric, not a revenue metric.** Revenue is a lagging indicator of value delivery. Your North Star should measure the core value exchange: daily active users completing the key action (Spotify: time listening; Airbnb: nights booked; Slack: messages sent). When the North Star moves, revenue follows. When revenue moves without the North Star, you're extracting value, not creating it.
+
+3. **Model product-led growth (PLG) and sales-led growth (SLG) as a spectrum, not a binary choice.** Pure PLG works for products with: low ACV (< $10K), short time-to-value (< 15 minutes), viral loops (collaboration invites). Pure SLG works for: high ACV (> $50K), long sales cycles, complex onboarding. Most products need a hybrid: PLG for bottoms-up adoption + SLG for enterprise expansion. Design the handoff deliberately.
+
+4. **Run competitive analysis against future-state competitors, not current-state.** Your competitor's v3 product exists today; their v4 ships in 6 months. Analyze their trajectory (hiring patterns, patent filings, conference talks, engineering blog) to forecast where they'll be when you launch. Time-shifted comparisons systematically understate competitive risk.
+
+5. **Price on value, not cost-plus or competitor-minus.** Use Van Westendorp price sensitivity analysis or conjoint analysis to understand willingness to pay. If your product saves a customer $100K/year, charging $20K/year captures 20% of value delivered — a bargain regardless of what competitors charge. Pricing is the highest-leverage profit lever; a 1% price improvement drives 11% profit improvement (McKinsey).
+
+6. **Use RICE scoring for prioritization but validate Confidence honestly.** RICE = Reach × Impact × Confidence ÷ Effort. The most common failure mode is overstating Confidence (rating everything 80% when actual certainty is 40%). Require evidence for Confidence ratings: A/B test results = 90%+, user interviews = 70%, competitor analysis = 50%, executive intuition = 20%.
+
+7. **Build platforms as point-solution → platform, not platform-first.** The winning sequence: (1) solve one painful problem better than anyone (point solution), (2) accumulate users and data, (3) identify adjacent problems those users have, (4) expand to platform. Starting as a platform without initial applications = chicken-and-egg death. Plan platform expansion seams from day one, but ship point solutions.
+
+8. **Track the "jobs to be done" (JTBD) that cause customers to "hire" your product, not demographics.** Demographics tell you who buys; JTBD tells you why. A 45-year-old VP and a 28-year-old founder may hire the same product for the same job. Interview customers about the moment they realized they needed a solution (the "struggling moment"), not their satisfaction with features.
+
+9. **Run a "kill the product" exercise annually.** Ask: "If we were a startup competing against our own product today, how would we beat it?" This reveals complacency blindspots, feature bloat, and pricing gaps. Most product teams never ask this question because they're optimists by training. Pessimism is a strategic tool.
+
+10. **Define OKRs with outcomes, not outputs.** "Ship onboarding v2" is an output. "Increase week-1 activation rate from 25% to 40%" is an outcome. Output-based OKRs measure activity; outcome-based OKRs measure value. When the team ships v2 and activation doesn't move, an output-based OKR says "success" while an outcome-based OKR says "we learned something — iterate."
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **TAM (Total Addressable Market)** top-down calculations: "Global CRM market is $80B, if we capture 1%..." — that 1% number is the most important variable and it's made up. Bottom-up TAM (number of target customers × annual contract value) is slower to calculate but 10x more defensible.
 - **Product-market fit surveys** asking "How disappointed would you be if X didn't exist?" — the "40% very disappointed" threshold (Sean Ellis test) only works AFTER the product has active usage. Pre-launch surveys return noise because respondents imagine an idealized product, not yours.
@@ -413,6 +440,30 @@ Common chains:
 - **Feature prioritization by "highest-paid person's opinion" (HiPPO).** The CEO wants an AI chatbot because competitors have one. The engineering team drops everything for a 3-month build. Launch day: 2% of users try it, 0.3% use it regularly. Meanwhile, the "boring" CSV export fix that 40% of power users requested sits in the backlog, and churn ticks up among your highest-value cohort. **Total cost: $180K-$250K in engineering time (3 engineers × 3 months) plus $300K-$800K in avoidable churn from neglected power users over 12 months.** Fix: Use a weighted scoring framework (RICE: Reach × Impact × Confidence ÷ Effort) for ALL prioritization decisions; validate demand with a concierge test or fake-door experiment before committing engineering resources.
 - **Pricing page that hides all prices behind "Contact Sales."** Enterprise buyers who prefer self-service (now 60%+ of B2B buyers according to Gartner) bounce immediately. Your competitor publishes transparent pricing and captures the evaluation while you're still routing the "Request a Quote" form to the right SDR. **Total cost: $500K-$2M in lost inbound pipeline annually — 15-30% of your addressable self-serve segment never enters the funnel.** Fix: Publish at least a "Starting at" price with a self-service tier or transparent pricing calculator; gate only the enterprise custom pricing; A/B test contact-sales vs transparent pricing on your pricing page.
 - **Roadmap driven entirely by customer requests without strategic filtering.** You build every feature the top 5 customers ask for. Two years later, your product is a Frankenstein of custom integrations that only those 5 customers use. New prospects see a cluttered product built for someone else's problems and choose a focused competitor. **Total cost: $1M-$3M in engineering investment in features with zero new-customer acquisition value, plus slowing growth as your product loses competitive differentiation.** Fix: Maintain a "strategic filter" — every feature must map to a company-level strategic goal; track feature adoption by customer segment; sunset features used by < 5% of customers annually; say no with data: "We're prioritizing X because it serves 60% of our ICP."
+
+- **What:** Setting product roadmap by copying the competitor's feature list. **Why:** You're fighting yesterday's battle on their terms. By the time you ship parity, they've moved to v4 — and you've invested $200K-$500K in features your customers never asked for. Feature parity is a strategy for perpetual second place. **Instead:** Identify the job your customers hire your product for that competitors serve poorly. Build depth in that job. Win on differentiation, not imitation.
+
+- **What:** Prioritizing features based on the loudest customer's request without strategic filtering. **Why:** The loudest customer represents exactly one data point with unknown representativeness. Building for them optimizes for retention of one account at the expense of acquisition of dozens. Two years later, your product is a Frankenstein of custom work that only 5 customers use. **Instead:** Use a weighted scoring framework (RICE or CD3). Validate demand with 10+ customers before committing. Every feature must map to a company-level strategic goal.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any product strategy deliverable leaves this skill, verify:
+
+- [ ] Product-market fit assessed with Sean Ellis survey (post-launch) or 20+ customer discovery interviews (pre-launch)
+- [ ] North Star metric defined as input metric measuring core value exchange, not revenue
+- [ ] TAM/SAM/SOM calculated bottom-up with documented assumptions, dated within 90 days
+- [ ] Competitive analysis includes competitor trajectory forecasting, not just current-state comparison
+- [ ] PLG vs SLG decision documented with product complexity, ACV, time-to-value, and viral coefficient analysis
+- [ ] Pricing strategy validated with willingness-to-pay data (Van Westendorp or conjoint), not competitor benchmarking
+- [ ] RICE or CD3 prioritization framework applied with documented Confidence evidence for each item
+- [ ] Jobs-to-be-done identified for primary customer segment with "struggling moment" interview data
+- [ ] Platform expansion seams designed (for point-solution products planning platform moves)
+- [ ] OKRs are outcome-based (measure value delivered), not output-based (measure activity completed)
+- [ ] "Kill the product" exercise completed within last 12 months with documented competitive vulnerability assessment
+- [ ] Customer journey map exists for primary persona covering acquisition, activation, retention, referral, revenue
+- [ ] Feature adoption tracked by cohort — features used by < 5% of customers flagged for sunset consideration
+- [ ] Product strategy document includes explicit assumptions, risk register, and early warning indicators
 
 ## Verification
 
@@ -434,6 +485,56 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Scale Depth
+
+### Solo (Founder-PM, pre-PMF, 0-5 customers)
+- PMF: Customer discovery interviews (20+), not surveys. Find the "struggling moment"
+- North Star: Leading indicator of value (daily active, core action completion) — simple enough to track manually
+- Prioritization: Founder judgment + customer urgency. No formal framework needed yet
+- Pricing: Cost-based or competitor-anchored — validate willingness to pay before scaling
+- OKRs: Not yet — use 3-5 quarterly rocks until you have reliable metrics
+- Competitive: Know 3-5 direct competitors. No formal analysis needed
+- Deliverable: 1-page lean product strategy canvas
+
+### Small (PM + 5-20 engineers, post-PMF, $1M-$10M ARR)
+- PMF: Quarterly Sean Ellis survey, cohort retention analysis, NPS by segment
+- North Star: Instrumented metric with dashboard. Weekly review cadence
+- Prioritization: RICE or CD3 scoring. Formal backlog with Confidence evidence
+- Pricing: Value-based pricing with Van Westendorp analysis. A/B test price points
+- OKRs: Company-level outcome-based OKRs (3-5). Quarterly review with grading
+- Competitive: Formal competitive analysis updated quarterly with trajectory forecasting
+- Deliverable: Product strategy document (5-10 pages) + roadmap (next 4 quarters)
+
+### Medium (PM team + 20-100 engineers, $10M-$50M ARR)
+- PMF: Multi-segment PMF analysis. Product-market-expansion-fit for adjacent markets
+- North Star: Cascaded — company NSM → product line metrics → feature-level metrics
+- Prioritization: Portfolio prioritization — optimize across products, not within one
+- Pricing: Multi-tier pricing with expansion revenue path. Price sensitivity by segment
+- OKRs: Fully cascaded (company → product → team). Quarterly review with calibration
+- Competitive: War-gaming exercises. "Kill the product" workshop annually. Win/loss analysis
+- Deliverable: Annual product strategy + quarterly business review + product portfolio roadmap
+
+### Enterprise (CPO + 100+ engineers, $50M+ ARR)
+- PMF: Multi-product PMF with cannibalization analysis. Platform PMF for developer ecosystem
+- North Star: Multi-metric dashboard with causal model linking input metrics to financial outcomes
+- Prioritization: Capital allocation framework across product lines. Investment committee process
+- Pricing: Global pricing with regional optimization, bundling strategy, and packaging science
+- OKRs: Multi-level cascade with cross-functional alignment. Annual + quarterly + monthly review
+- Competitive: Dedicated competitive intelligence function. Scenario planning for market shifts. M&A target identification
+- Deliverable: 3-year product strategy + annual operating plan + quarterly board review + analyst briefings
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| "Very disappointed" score is 45% but churn is 8%/month | PMF survey run on early adopters (enthusiasts), not mainstream users. Early adopters tolerate rough edges; mainstream users don't. | Segment survey by cohort: signup date, usage frequency, plan tier. PMF must hold across segments, not just in aggregate. Run the survey for each cohort separately. | PMF isn't binary and it isn't uniform — it degrades by segment. |
+| RICE-scored backlog has 47 "high priority" items | Confidence scores are inflated — everything rated 80-90% when actual evidence is thin. Reach and Impact are also inflated to justify pet projects. | Require evidence for every Confidence rating: A/B test = 90%, user interviews = 70%, competitor analysis = 50%, executive intuition = 20%. Enforce calibration — if > 30% of items score "high," the scoring system is broken. | RICE without evidence calibration is HiPPO with extra steps. |
+| Launched PLG motion; enterprise sales pipeline dropped 60% in 2 quarters | PLG and SLG motions conflicted — self-serve product undercuts enterprise pricing, enterprise sales team demoralized by product-led bypass | Design PLG→SLG handoff: free tier converts to sales-assisted at usage threshold. Enterprise features gated behind sales. Sales comp adjusted to credit product-sourced pipeline. | PLG and SLG need a handshake, not a handoff. |
+| Competitor launched feature you "knew about" but didn't expect for 12 months; you're 9 months behind | Competitive analysis compared their current product (v3) against your roadmap, ignoring their trajectory (hiring, patents, conference talks signaled v4 timeline) | Add trajectory analysis to competitive review: track competitor hiring (especially in specific domains), engineering blog posts, open-source contributions, conference talks. Forecast their next 2 releases. | Compete against their next version, not their current one. |
+| "Kill the product" exercise reveals you'd beat your own product on 4 of 7 axes | Product has accumulated feature bloat, onboarding friction, and pricing complexity over 3+ years. Incremental improvements haven't addressed structural issues. | Run the exercise seriously — assign one PM to build a competitive startup's product strategy against your own. If the startup wins on onboarding, pricing, or core workflow speed, those become Q1 priorities. | Your product's biggest competitor is the startup you're not building. |
+| Top-requested feature shipped after 6 months; 3% adoption at 90 days | Feature prioritized by request volume, not strategic fit. Vocal minority ≠ majority demand. No fake-door test or concierge MVP to validate before building. | Before building, run a fake-door test: add the feature to the UI with a "Coming Soon" notice and track clicks. If < 20% of target users click, don't build it. Interview the 3% who adopted to understand if the problem was the feature or the discovery. | Request volume measures noise, not demand. |
 
 ## References
 

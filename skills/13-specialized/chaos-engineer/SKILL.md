@@ -149,7 +149,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building resilience scoring for services to prioritize hardening efforts.
 - Preparing for AWS/Azure/GCP regional failures — testing multi-region failover.
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What to Chaos First
@@ -292,7 +292,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **AWS-only → AWS FIS** (IAM integration, pay-per-action).
 
 
-## Error Recovery
+## Error Recovery **(DEEP)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -374,7 +374,7 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Chaos tooling license exceeds quarterly budget by >20% | CTO Advisor, Finance | Budget reallocation or tooling evaluation needed |
 | Steady state hypothesis invalidated by infrastructure change | Service Owners, DevOps | Baseline metrics shifted; hypothesis rewrite and experiment revalidation required |
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -407,6 +407,19 @@ Chaos engineering is inherently cross-team — you break things that other teams
 **Steps:** 1) Document: what worked, what broke, what surprised us. 2) Create action items with owner + severity + due date. 3) Update experiment catalog status (designed → tested-staging → tested-prod → automated). 4) Share findings with service owners and leadership.  
 **Output:** After-action report, tracked action items, updated experiment catalog.
 
+
+## Best Practices
+
+1. **Start in staging, graduate to production.** Never run a first-time chaos experiment in production. Validate in staging at full blast radius first, then pre-production, then production at 1% blast radius with a human abort switch. Skipping environments turns a resilience test into the outage you're trying to prevent. Cost: $50K-$500K per unprepared production experiment.
+2. **Blast radius is defined by the dependency graph, not instance count.** Terminating 1 of 100 instances sounds safe (1%), but if that instance holds the sole Kafka partition leader, the impact is 100% outage for all producers and consumers. Map downstream dependencies before injecting failure into any service. Run dependency-discovery game days before production experiments.
+3. **Steady-state hypothesis must be measurable and falsifiable.** "The system will handle pod failures gracefully" is not a hypothesis. "When 50% of payment-service pods are terminated, p99 latency remains below 500ms and error rate stays below 0.1% for the 5-minute duration" is a hypothesis. Collect 5+ minutes of baseline metrics before injection. If the baseline isn't healthy, abort.
+4. **Every experiment needs numeric abort conditions.** Define specific thresholds that trigger immediate experiment termination: error rate > 1%, p99 latency > 3x baseline, or any customer-impacting alert firing. Never rely on "we'll know it when we see it." The abort mechanism must be tested in staging before production use.
+5. **Automated rollback must be faster than human reaction.** Chaos Mesh `duration` and Gremlin `halt` commands should auto-terminate experiments. But also verify that termination actually works — pods stuck in Terminating state awaiting an unreachable leader election mean the rollback itself has failed. Test rollback under degraded conditions.
+6. **Game Days are the highest-ROI chaos activity.** A structured 2-4 hour exercise with Scribe, Commander, and Observer roles uncovers more resilience gaps than a month of automated experiments. Run quarterly. Start with tabletop walkthroughs, graduate to live production experiments. Blind game days (where only the chaos engineer knows the injection) produce realistic responses.
+7. **Observability must be verified before any experiment.** If you can't see the impact of your injection in dashboards and alerts, you're not running an experiment — you're guessing. Verify that latency, error rate, and throughput dashboards show the affected service clearly. If observability doesn't detect the fault within 2 minutes, fix monitoring before running chaos.
+8. **Progressive blast radius: canary → 1% → 10% → full scope.** At each step, monitor for at least 15-30 minutes and compare metrics against baseline. If any gate fails, abort and investigate. Never jump from canary to 10% without validating the intermediate state. The progression builds confidence incrementally.
+9. **Stateful chaos is required, not optional.** Running pod-kill on stateless services while ignoring PostgreSQL primaries, Kafka clusters, and Redis caches creates a false sense of security. Design experiments for database primary failover, Kafka partition rebalancing, Redis sentinel promotion, and queue backpressure. Stateful infrastructure is where real incidents occur.
+10. **Every experiment result creates an action item with owner and deadline.** A chaos experiment that finds a resilience gap but generates no remediation ticket is wasted effort. File tickets with severity, assign an owner, and set a due date within 24 hours of the experiment. Track remediation completion rate as a team metric.
 
 ## State Log
 
@@ -475,7 +488,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **Your first chaos experiment should never run in production.** Running `chaos-mesh pod-kill` against production without prior staging verification is how a $50K/month SaaS product becomes a $0/month product for 4-8 hours. A DNS timeout injection that's intended to test 2% of traffic accidentally affects 100% because of an incorrect label selector — congrats, you just caused the outage you were trying to prevent. **Total cost: $50K-$500K per unprepared production experiment.** Start in staging → then pre-production → then production with 1% blast radius and a human abort switch. Never skip environments.
 - **A chaos experiment without blast radius containment is a cascading failure generator.** Killing pods in service A without understanding its downstream dependencies can trigger a chain reaction: A fails → B's circuit breaker trips → C's queue overflows → entire platform degrades. What starts as a controlled experiment becomes a $100K-$1M incident. **Total cost: $100K-$1M in cascading infrastructure failure.** Define blast radius by dependency graph, not instance count — and run dependency-discovery game days before injecting failure into any service with downstream consumers.
@@ -518,6 +531,21 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(DEEP)**
+
+- [ ] **[S1]** Observability verified before experiment: latency, error rate, and throughput dashboards show the target service clearly. Alerts configured and tested. Fault detection within 2 minutes confirmed.
+- [ ] **[S2]** Steady-state hypothesis defined with numeric thresholds: specific metric targets (e.g., p99 < 500ms, error rate < 0.1%) for the experiment duration. Baseline collected for 5+ minutes and confirmed healthy.
+- [ ] **[S3]** Blast radius defined by dependency graph: all downstream consumers mapped. Experiment targets ≤10% of instances or documented justification. Dependency-discovery game day completed for services with downstream consumers.
+- [ ] **[S4]** Abort conditions defined with specific numeric thresholds: error rate > 1%, p99 > 3x baseline, any customer-impacting alert. Abort mechanism tested in staging within 7 days.
+- [ ] **[S5]** Experiment validated in staging at full blast radius before production. Hypothesis holds in staging. Rollback tested under degraded conditions (pods in Terminating state, unreachable leader).
+- [ ] **[S6]** Progressive production rollout planned: canary (single pod, 15 min) → 1% traffic (30 min) → 10% traffic (30 min) → full scope. Monitoring gates with abort triggers at each step.
+- [ ] **[S7]** On-call and incident responder notified > 24 hours before experiment. 5-minute warning before injection begins. Abort command documented and accessible to all stakeholders.
+- [ ] **[S8]** Experiment manifest validated: `chaos-mesh validate` or equivalent passes. Duration set (not infinite). Auto-termination confirmed to work — experiment stops itself, doesn't rely on manual intervention.
+- [ ] **[S9]** Stateful infrastructure included in experiment catalog: database primary failover, Kafka partition rebalancing, Redis sentinel promotion, queue backpressure scenarios designed and scheduled.
+- [ ] **[S10]** Game Day scheduled quarterly: Commander, Scribe, and Observer roles assigned. Tabletop walkthrough completed before live production exercise. Blind experiments in the rotation.
+- [ ] **[S11]** After-action report completed within 24 hours: findings documented with severity, action items filed with owner and due date. Remediation tickets tracked to completion.
+- [ ] **[S12]** Experiment catalog maintained: each experiment tracked through lifecycle (designed → tested-staging → tested-prod → automated). Resilience score per service updated after each experiment.
 
 ## References
 - **Blast Radius (Military-Grade Controls)**: See [blast-radius-military-grade-controls.md](references/blast-radius-military-grade-controls.md)

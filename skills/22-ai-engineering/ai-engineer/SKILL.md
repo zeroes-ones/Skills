@@ -138,6 +138,8 @@ Do NOT use ai-engineer for model training, fine-tuning, or experiment tracking (
 
 ## Core Workflow
 
+**(STANDARD)**
+
 ### Phase 1: AI Feature Scoping
 
 Before writing code, answer these 4 questions in order:
@@ -221,7 +223,22 @@ DESIGN THE AGENT LOOP:
    └── Run validation: query 100 vectors, check recall@10 ≥ 0.99 vs brute-force
 ```
 
+## Best Practices
+
+1. **Start with evaluation, not architecture.** Define quality bar, test set, and metrics before writing a single line of AI code. Without evals, every prompt change, model swap, or retrieval tweak is a blind bet on quality. Minimum: 50 golden test cases with known correct answers.
+2. **Heuristic before AI.** Before reaching for LLMs, evaluate regex, keyword search, templates, and decision trees. Only proceed to AI if the heuristic fails on ≥20% of test cases. AI adds latency, cost, and non-determinism — don't pay that tax when a simpler solution exists.
+3. **Semantic chunking over fixed-size.** Fixed-size chunking breaks sentences mid-thought, producing irrelevant retrieval results. Use recursive character split with 10-20% overlap, or semantic chunking at sentence boundaries. Each irrelevant chunk wastes tokens and degrades answer quality.
+4. **Always re-rank retrieval results.** Vector search returns neighbors, not answers. Top-k similar chunks may all be irrelevant to the question. Apply a cross-encoder (e.g., ms-marco-MiniLM-L-6-v2) on top-20 results to improve answer quality by 15-25%. Cost: ~$0.001/query; savings: 1 in 5 fewer user abandonments.
+5. **Pin embedding model versions.** Store the embedding model name and version as metadata alongside every vector. When the provider updates the model, cosine similarity between old and new embeddings can drop to 0.3-0.5 — your RAG silently returns garbage. Re-embed incrementally and measure similarity before full migration.
+6. **Limit agent tools to ≤5 per sub-agent.** Each tool beyond 5 drops accuracy ~8%. A 10-tool agent has ~60% accuracy vs 85% with 5 tools. Group tools by category and use a router agent dispatching to sub-agents with focused tool sets.
+7. **Detect agent deadlocks.** If the last 3 observations are identical or all errors, abort and escalate. A deadlocked agent burns tokens until max_tokens or timeout. Tool errors should return actionable guidance, not raw stack traces.
+8. **Stream responses by default.** Users perceive streaming as 2× faster than batch. Use SSE (Server-Sent Events) for unidirectional LLM output — simpler than WebSocket. Design the frontend contract: `text` and `finish_reason` event types with typing indicators and error recovery on connection drop.
+9. **Track cost per agent run.** A 10-step agent using GPT-4o can burn $0.10+ per task. Implement cost attribution per feature and per user. Add hard budget limits: `if run_cost > $0.50: abort and escalate`. Use cheaper models (Haiku) for intermediate steps, reserve expensive models for final generation.
+10. **Maintain a central prompt catalog.** Hardcoded prompts in 15+ frontend components require app store deployment to fix a typo. Backend prompts with versioned templates allow hotfix in seconds. Versioning enables A/B testing and rollback. Each prompt change is a model behavior change — treat it like a deployment.
+
 ## Decision Trees
+
+**(QUICK)**
 
 ### Chunking Strategy
 
@@ -336,7 +353,37 @@ EVERY AI FEATURE MUST PASS THESE BEFORE DEPLOYMENT:
    └── Cost-per-query tracked and logged
 ```
 
-## Gotchas — Highest-Value Content
+## Anti-Patterns
+
+### Anti-Pattern: Ship Without Evals
+**What it looks like:** Building an AI feature, testing it against 10 manually crafted prompts, and declaring it production-ready because "the responses look good." No systematic evaluation, no test set, no metrics tracking.
+**Why it fails:** Manual testing of 10-20 prompts cannot detect long-tail failure modes. Without evals, you don't know if iteration is forward or backward — every prompt change, model swap, or retrieval tweak is a blind bet on quality. The long-tail failures that affect 0.5% of users generate 80% of support tickets.
+**Do this instead:** Create a golden test set of 50-100 queries with known correct answers before writing code. Run LLM-as-judge evaluation on every change. Gate deployment on metrics: faithfulness > 0.85, relevancy > 0.85, correctness > 0.85, safety injection pass rate = 100%.
+
+### Anti-Pattern: Over-Engineering the First Version
+**What it looks like:** Starting with a multi-agent architecture, LangChain orchestration, vector database cluster, and custom embedding fine-tuning for a feature that could be solved with a single LLM call and a well-crafted prompt.
+**Why it fails:** Complexity compounds — each additional component adds latency, cost, failure modes, and debugging surface. A simple prompt that works for 90% of cases is better than a complex RAG pipeline that works for 95% but costs 10× more and fails silently on 3% of edge cases.
+**Do this instead:** Start with single LLM call + prompt. Measure quality. Only add RAG if hallucination rate > threshold. Only add agents if multi-step reasoning is required. Only add fine-tuning if prompt engineering + RAG can't reach the quality bar. Complexity is earned through demonstrated need.
+
+### Anti-Pattern: Ignoring Token Budget in Agent Loops
+**What it looks like:** Agent runs a 10-step loop with full conversation history appended at each step. By step 8, the context window contains 20K tokens of history, costing $0.10+ per task and degrading reasoning quality due to context dilution.
+**Why it fails:** Cost spirals silently — 100,000 tasks/day at $0.10/task = $10,000/day in LLM costs. Context dilution causes the agent to forget earlier observations and make wrong decisions. A customer service agent issues wrong refunds or incorrect policy answers.
+**Do this instead:** Summarize intermediate results every 3 steps and prepend to the next prompt. Use cheaper models (Haiku at $0.25/1M tokens) for intermediate steps, reserve expensive models (Sonnet/Opus) only for final generation. Add hard budget limits per run.
+
+### Anti-Pattern: Unstructured Output Parsing
+**What it looks like:** Using regex or string splitting to extract structured data from LLM text output. The prompt says "respond in JSON format" but the code relies on `json.loads()` catching malformed output with a try/except.
+**Why it fails:** Models change output format between versions. A regex that works on GPT-4-0613 may fail on GPT-4-0125 because the model added an extra newline or explanatory prefix. These failures are silent — the except block returns a default value, and the system operates on wrong data for weeks.
+**Do this instead:** Use structured output APIs (function calling with strict mode, JSON mode with schema validation). Force the model into a schema that's validated at the API level, not in application code. Reject any output that doesn't conform — never fall back to a default.
+
+### Anti-Pattern: Chat-Specific Context Management for All Use Cases
+**What it looks like:** Using `ConversationBufferMemory` for every LLM interaction, appending every message to history without bound. A 100-message support session has 20K tokens of just history before the current query.
+**Why it fails:** Token costs scale linearly with conversation length. Context dilution degrades answer quality as the model struggles to find relevant information in a sea of history. At 100K requests/day, unbounded memory costs 10× more than windowed memory.
+**Do this instead:** Match memory strategy to use case. For chat: `ConversationSummaryBufferMemory` or sliding window with `max_tokens=2000`. For RAG: no conversation memory, retrieve fresh context per query. For agents: summarize intermediate results, don't accumulate raw history.
+
+### Anti-Pattern: Single-Region Deployment for Global Users
+**What it looks like:** Deploying the LLM API endpoint in us-east-1 for a global user base. Users in Asia-Pacific experience 800ms-2s additional latency from cross-continent round trips.
+**Why it fails:** LLM latency is additive — 500ms inference + 800ms network = 1.3s before the user sees the first token. At 2s+ total latency, user abandonment rates spike 30-40%. The AI feature is perceived as "slow and broken" when the issue is deployment geography, not model performance.
+**Do this instead:** Deploy inference endpoints in each geographic region with active users. Use edge routing to direct users to the nearest endpoint. If multi-region deployment isn't feasible, use a CDN for static assets and consider edge-compute for simple classification/routing before forwarding to the central inference endpoint.
 
 ### RAG Gotchas
 
@@ -367,6 +414,26 @@ EVERY AI FEATURE MUST PASS THESE BEFORE DEPLOYMENT:
 - **Streaming with `openai.chat.completions.create(stream=True)` returns chunks, not the full response.** `response.choices[0].message.content` is None. Iterate: `for chunk in response: content = chunk.choices[0].delta.content or ''`. Not handling chunks properly → memory leak from accumulating partial responses → OOM kills 50% of pods. At enterprise scale, that's **$10,000-$100,000/hour in downtime**. Test streaming end-to-end in staging with load: `wrk -t4 -c100 -d60s --script=stream.lua $ENDPOINT`.
 - **LangChain's `ConversationBufferMemory` grows unbounded.** Every message is appended, blowing up token usage. A 100-message conversation has ~20K tokens of just history. With GPT-4o at $2.50/1M input tokens: $0.05/request vs $0.005 with windowed memory (last 10 messages). At 100K requests/day, that's **$5,000/day vs $500/day → $1.64M/year difference**. Switch to `ConversationSummaryBufferMemory` or implement sliding window with `max_tokens=2000`.
 - **Anthropic's `max_tokens` is REQUIRED, not optional.** Forgetting it throws a 400 error: "`max_tokens` is required." OpenAI defaults to model max; Anthropic does not. Discovery in production = **3am pager, 1-2 hours to diagnose, $500-$2,000 in engineer time** + revenue lost during partial outage. Always set `max_tokens` explicitly for every LLM call — it's good practice across all providers. Add to your integration checklist: ☐ `max_tokens` set on every call.
+
+## Production Checklist
+
+Before any AI feature reaches production, verify:
+
+- [ ] Golden test set created: 50-100 queries with known correct answers and expected behavior
+- [ ] Evaluation suite passing: faithfulness > 0.85, relevancy > 0.85, correctness > 0.85
+- [ ] Safety evaluation passing: 100% prompt injection blocked, toxicity score < 0.1
+- [ ] Latency benchmark: p95 < 5s total, first-token p95 < 500ms under target load
+- [ ] Cost projection: monthly cost estimate within budget, cost-per-query tracked and logged
+- [ ] All LLM API calls use `max_tokens` explicitly set (required for Anthropic, best practice for all)
+- [ ] Streaming implemented where user-facing: SSE or WebSocket with `text` and `finish_reason` event types
+- [ ] All prompts versioned in a central catalog with A/B testing capability
+- [ ] Model versions pinned (not `latest`), with migration plan when provider deprecates
+- [ ] Agent termination conditions defined: max_iterations, timeout, deadlock detection
+- [ ] Embedding model version stored as metadata alongside every vector
+- [ ] Re-ranking active: cross-encoder applied to top-20 retrieval results
+- [ ] Cost tracking implemented: per-feature, per-user attribution with budget alerts
+- [ ] Health check endpoint: `/health` returns model version, latency, and error rate
+- [ ] Fallback behavior defined: what happens when the LLM API is unavailable (graceful degradation, not crash)
 
 ## Anti-Rationalization — No Excuses
 
@@ -422,6 +489,8 @@ These reactive checks fire automatically in any conversation. They require no in
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -433,6 +502,17 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| RAG system returns confident wrong answers with plausible-sounding citations | Retrieved chunks are semantically similar but factually irrelevant; no re-ranking or factuality verification | Add cross-encoder re-ranking on top-20 results. Implement entity grounding: verify answer claims appear in retrieved chunks. Add a "no answer" response when confidence is low instead of forcing a guess. | Vector similarity ≠ answer relevance. Embedding models retrieve "what looks similar" not "what answers the question." Without re-ranking and verification, your RAG is a confident bullshitter with citations. |
+| Agent repeatedly calls the same tool with the same input, burning tokens in an infinite loop | No deadlock detection; agent receives the same error from a tool and retries identically | Detect if last 3 observations are identical or all errors. Abort and escalate to human. Tool errors must return actionable guidance: "Search failed because X. Try Y instead." Not raw stack traces. | Agents don't know when they're stuck. They'll retry the same failing action until max_tokens or timeout. Deadlock detection is not optional — it's the difference between a $0.02 task and a $0.50 infinite loop. |
+| OpenAI SDK upgrade breaks all LLM calls in production | `openai.ChatCompletion.create()` changed to `openai.chat.completions.create()` in SDK v1.0; no version pinning | Pin SDK versions: `openai>=1.0.0,<2.0.0`. Check `pip show openai` version before writing any integration code. Test SDK upgrades in staging with full evaluation suite before production. | LLM SDKs have breaking changes. OpenAI v1.0 was a complete rewrite — every pre-1.0 code path broke. Version pinning isn't optional for LLM dependencies; it's the difference between a planned migration and a 3am incident. |
+| Embedding similarity scores drop from 0.9 to 0.3 overnight; RAG returns garbage | Provider silently deprecated `text-embedding-ada-002` and code started using `text-embedding-3-small`; old vectors in DB use old model, new vectors use new model | Store embedding model name + version as metadata on every vector. When model changes, re-embed 10% of vectors and measure cosine similarity between old and new. If similarity < 0.95, trigger full re-embedding. | Embedding model changes are invisible data corruption. The system doesn't crash — it just silently returns wrong results. Version metadata on every vector is the only way to detect and manage this migration. |
+| User reports "AI got dumber" after a prompt update; no way to compare old vs new behavior | Prompt changed without versioning; no A/B test; no evaluation run against golden test set before deploy | Version every prompt in a central catalog. Run evaluation suite before deploying any prompt change. Implement A/B testing: 5% traffic to new prompt, compare metrics (accuracy, latency, user satisfaction) before full rollout. | Prompts are code — they need versioning, testing, and staged rollout. A prompt change that "looks better" in 5 manual tests may degrade performance on 15% of real-world queries. Without evals, you're flying blind. |
+| Streaming endpoint works in dev but hangs in production under load | `response.choices[0].message.content` is None when streaming — the code accesses `.content` without iterating chunks. In dev, single-request testing doesn't trigger the memory leak from accumulating partial responses. | Iterate chunks: `for chunk in response: content += chunk.choices[0].delta.content or ''`. Test streaming end-to-end in staging with load: `wrk -t4 -c100 -d60s --script=stream.lua $ENDPOINT`. | Streaming is a different code path than batch. The same LLM call with `stream=True` returns a generator, not a response object. Load testing must simulate concurrent streaming connections — single-request manual testing won't catch memory leaks or connection drops. |
 
 ## Cross-Skill Coordination
 
@@ -534,6 +614,23 @@ graph LR
 ```
 
 Progress from "it works on my 10 test queries" to "it works on 10,000 daily queries at p95 < 2s with 95%+ answer quality." The gap between these two states is AI engineering.
+
+### Scale Depth
+
+#### Solo Developer
+**Budget:** $0-$500/month. Use OpenAI/Anthropic API directly (no orchestration framework). Single prompt template with versioning via git. ChromaDB for vector storage (embedded, zero infra). Manual evaluation: 25 test queries run before each deploy. Deploy as a single FastAPI endpoint on a $20/month VPS.
+**Transition trigger:** First 100 DAU or second AI feature → move to Small Team.
+
+#### Small Team (2-10)
+**Budget:** $500-$5K/month. Introduce LangChain or LlamaIndex for RAG pipelines. Automated evaluation with LLM-as-judge on 100+ test cases. Pinecone or Qdrant Cloud for vector DB. Implement streaming (SSE). Add cost tracking per feature. Centralized prompt catalog with versioning.
+**Transition trigger:** 1K+ DAU or 3+ AI features → move to Medium Org.
+
+#### Medium Org (10-50)
+**Budget:** $5K-$50K/month. Multi-model routing (cheap model for classification, expensive for generation). Semantic caching at API gateway (40-60% cache hit rate). A/B testing framework for prompts and models. GPU-optimized serving (vLLM) for custom models. Automated CI/CD evaluation gates. Cost attribution per user/feature with anomaly detection.
+**Transition trigger:** 10K+ DAU or 10+ AI features → move to Enterprise.
+
+#### Enterprise (50+)
+**Budget:** $50K+/month. Dedicated AI platform team. Multi-region inference deployment with edge routing. Custom fine-tuned models with continuous evaluation against baseline. Real-time guardrails on input and output. Federated prompt catalog with approval workflows. SOC 2 / HIPAA compliance for AI pipelines. GPU cost optimization with spot/preemptible instances and dynamic batching.
 
 ## Verification Guardrails
 

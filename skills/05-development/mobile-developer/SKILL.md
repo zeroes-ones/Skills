@@ -151,6 +151,38 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 
 **Usage**: Say "as an L3 mobile developer, design the navigation architecture for..." Default: **L2** (production-ready, independent execution).
 
+### Solo Developer
+- React Native or Flutter for cross-platform — single codebase for both stores
+- Expo managed workflow for zero-config builds, OTA updates via EAS Update
+- SQLite (WatermelonDB or drift) for local persistence with sync queue
+- Firebase Authentication + Firestore for backend-less MVPs
+- TestFlight Internal + Google Play Internal Testing for distribution
+- Manual store submission — no CI/CD pipeline yet
+
+### Small Team (2-5)
+- React Native CLI or Flutter with platform-specific native modules as needed
+- TanStack Query + Zustand for state management, SQLite + MMKV for storage
+- GitHub Actions or Codemagic for CI/CD: lint → test → build → deploy to TestFlight/Play Console
+- Feature flags via Firebase Remote Config or LaunchDarkly for phased rollout
+- Maestro or Detox for E2E testing on both platforms
+- Device lab: top 5 devices by market share, automated perf tests on lowest-spec device
+
+### Medium Team (5-20)
+- Native modules for performance-critical features (camera, AR, Bluetooth LE)
+- Shared business logic in Kotlin Multiplatform (KMM) or C++ for truly cross-platform logic
+- Design system with platform-adaptive components (iOS HIG + Material Design 3)
+- Over-the-air updates with CodePush or EAS Update for JS bundle changes
+- Automated store submission with Fastlane: screenshots, metadata, phased rollout
+- Performance regression CI gate: cold start, scroll FPS, memory on low-end device
+
+### Enterprise (20+)
+- Native iOS (Swift/SwiftUI) and Android (Kotlin/Compose) teams with shared KMM business logic
+- Microfeature architecture with SPM (iOS) and Gradle modules (Android)
+- Platform team maintaining internal framework, CI templates, and device lab
+- Automated accessibility CI gate blocking merges on violations
+- SLO-driven reliability: crash-free rate >99.9%, cold start p95 < 2s
+- A/B testing framework with feature flags, phased rollout, and automated rollback on crash rate spike
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -165,7 +197,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 - Setting up CI/CD pipelines for TestFlight, App Store, Google Play, and over-the-air updates
 - Implementing security: certificate pinning, secure storage, code obfuscation, root/jailbreak detection
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Offline-First Strategy
@@ -288,7 +320,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 **When TanStack Query:** API-driven data that needs caching, pagination, and optimistic updates. Server is source of truth. Background refetch on focus.  
 **When Zustand/Riverpod:** Client-only global state (auth token, theme mode, feature flags). Cross-screen persistence without API round-trip. Lightweight (< 5KB).
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 0 (~15 min): Native vs Cross-Platform Decision Framework
@@ -322,7 +354,30 @@ Before writing a single line of code, select the right technology for the job. T
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Design for offline-first from day one, not as a retrofit.** Cache last-known-good data locally using SQLite (React Native), Hive/Isar (Flutter), or Core Data/SwiftData (native). Show cached content with a discreet "offline" indicator — never a white screen or crash. Queue mutations locally and sync when connectivity returns. Test every screen in airplane mode before merge.
+
+2. **Respect the app lifecycle on every platform.** iOS: handle `scenePhase` changes (active → inactive → background). Android: handle `onPause`/`onStop`/`onDestroy` and process death. Save critical state in `onPause` because `onStop` is not guaranteed. React Native: use `AppState` listener but remember it fires `"inactive"` during Control Center pull-down on iOS — don't pause media on inactive, only on background.
+
+3. **Test on the lowest-spec target device, not the flagship on your desk.** If your target is $200 Android devices with 2GB RAM, test on one. Cold start times, scroll FPS, and memory usage on low-end devices are what your real users experience. Gate every release on performance metrics measured on a representative low-end device. A 10-second cold start on a budget phone drives 53% user abandonment.
+
+4. **Minimize wake locks and background processing.** Every background task drains battery. Use `WorkManager` (Android) or `BGTaskScheduler` (iOS) for deferrable work — the OS batches these for optimal battery. Never hold a wake lock longer than necessary. Avoid polling in the background — use push notifications to wake the app. Profile battery impact with Xcode Energy Log or Android Battery Historian.
+
+5. **Design navigation with deep linking from day one.** Every screen should be reachable via a URL scheme or universal link. Push notification payloads must carry deep-link data (`{ screen: "ChatDetail", params: { chatId: "123" } }`). Test deep links from cold start, warm start, and when the app is not installed (deferred deep links via branch.io or Firebase Dynamic Links). Navigation without deep linking locks you out of re-engagement campaigns.
+
+6. **Keep the app bundle under 150MB to avoid cellular download warnings.** iOS and Android both warn users when downloading apps >150MB over cellular — and many abandon. Use App Thinning (on-demand resources, asset catalogs), compress images to WebP/AVIF, remove unused native libraries. Audit bundle size every release with APK Analyzer or `du -sh` on the .ipa.
+
+7. **Implement biometric auth with platform-native APIs, not third-party wrappers.** iOS: LocalAuthentication framework with Face ID/Touch ID. Android: BiometricPrompt API with `BIOMETRIC_STRONG` for crypto-backed auth. Store tokens in Keychain (iOS) or EncryptedSharedPreferences/Keystore (Android) — never in AsyncStorage or plain SharedPreferences. Fall back to device passcode gracefully and never as a first-choice alternative.
+
+8. **Use platform-appropriate navigation patterns.** iOS: hierarchical drill-down with a back swipe gesture, tab bar at bottom. Android: Navigation drawer or bottom navigation with back button (system or in-app). React Native: `react-navigation` with platform-appropriate defaults (`Platform.select`). Flutter: `go_router` or `auto_route` with platform adaptive transitions. Cross-platform UI that ignores platform conventions feels alien in both ecosystems.
+
+9. **Implement certificate pinning for sensitive apps (finance, health, enterprise).** Without pinning, a compromised CA can MITM your app's traffic. Pin against the public key hash (SPKI), not the certificate — certificates expire; public keys can be reused across renewals. Include a backup pin. Test with proxy tools (Charles, mitmproxy) to verify pinning works. OWASP MASVS L2 requires pinning.
+
+10. **Profile scroll performance with platform tools, not just the naked eye.** iOS: Instruments Core Animation tool (Color Blended Layers, Color Offscreen-Rendered). Android: GPU Rendering Profile Bars (ensure each frame is under 16ms). React Native: Flipper performance plugin or `react-native-performance`. Flutter: performance overlay (rebuild counts, raster times). Jank visible to the eye is already >100ms of dropped frames.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -433,6 +488,27 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before any app store submission or production release, verify ALL of:
+
+1. `npm test` / `flutter test` / XCTest — all tests pass, both platforms
+2. Build for both platforms: iOS and Android both compile without error from clean checkout
+3. Cold start time under 1.5s on low-end target device (not simulator)
+4. Scroll performance: locked 60fps on low-end device, zero dropped frames in GPU profiling
+5. Memory: under 50MB baseline, no leaks after navigating core flow 20×
+6. Offline test: airplane mode on every screen — cached data shown, no crash/white screen, "offline" indicator visible
+7. Bundle size: .ipa < 150MB, .aab < 150MB — audit with APK Analyzer / App Thinning report
+8. App Store Review Guidelines checklist completed: no private APIs, privacy labels complete, permission descriptions accurate
+9. Accessibility: TalkBack/VoiceOver navigates every screen, all elements have `accessibilityLabel`, minimum 4.5:1 contrast
+10. Permissions: deny each permission — app degrades gracefully with explanation, no crash, no infinite spinner
+11. Deep links: test every deep link from cold start, warm start, push notification, and universal link
+12. Biometric auth: Face ID/Touch ID and fallback to passcode both work; tokens stored in Keychain/Keystore
+13. Push notifications: FCM/APNs token registered, deep-link payload routes to correct screen, rich media attachments render
+14. Crash reporting: Firebase Crashlytics/Sentry initialized, symbolication working, test crash appears in dashboard
+15. Certificate pinning verified (if applicable): proxy tools cannot intercept traffic
+16. Release notes, screenshots, and promotional text ready for App Store Connect and Google Play Console
+
 ## What Good Looks Like
 
 > The app launches cold in under 1.5 seconds, scrolls at a locked 60fps, and stays under 50MB of memory on low-end devices.
@@ -471,20 +547,56 @@ Common chains:
 ### The One Thing
 **Delete your app and reinstall it. On a device you've never used for development. On a slow network. With no account pre-created.** The first-run experience you see is what every new user sees. If it's not delightful, nothing else in the app matters.
 
-## Gotchas
+## Anti-Patterns
 
-- **App store rejection at launch.** Apple and Google reject apps for common violations: using private APIs, missing privacy labels, incomplete permission descriptions, or placeholder content. Each rejection adds 1-3 days to the review queue. At launch, every day of delay costs revenue, marketing spend (ads already running with no product), and team morale. **Total cost: $10K-$50K per rejection in delayed revenue, wasted marketing spend, and rework by the engineering team racing to fix and resubmit.** Fix: submit for review 2 weeks before launch date. Run through the full App Store Review Guidelines checklist before submission. Budget for at least one rejection in your launch timeline.
-- **No offline mode.** Apps that show a white screen or crash when connectivity drops get 1-star reviews mentioning "doesn't work on the subway/plane." These reviews persist forever and directly reduce conversion from search results. Apps with no offline support see 25-40% lower ratings in regions with patchy connectivity (emerging markets, rural areas). **Total cost: $15K-$50K in lost downloads from negative reviews — a 0.5-star rating drop can reduce install conversion by 30%.** Fix: implement a local-first architecture. Cache last-known-good data. Show cached content with a "you're offline" banner instead of errors. Test every screen in airplane mode.
-- **App bundle size above 150MB (cellular download limit).** Both Apple and Google show a warning when users try to download apps over 150MB (iOS) or 150MB (Android Play Store) via cellular. Users on metered connections — the majority in many markets — abandon the install. **Total cost: $20K-$100K in lost installs. App install conversion drops 1% for every 6MB over 100MB (Google internal data).** Fix: use App Thinning/Slicing (on-demand resources, asset catalogs). Compress images to WebP/AVIF. Remove unused native libraries. Audit bundle with `npm run bundle-analyzer` or Android Studio's APK Analyzer every release.
-- **Missing accessibility on mobile.** The ADA and Section 508 apply to mobile apps — not just websites. A lawsuit or DOJ demand letter over an inaccessible app costs $10K-$50K to settle (legal fees + remediation), plus mandated accessibility fixes under court order. **Total cost: $10K-$50K in settlements and remediation per complaint, before accounting for lost users (15% of the population has a disability).** Fix: enable TalkBack/VoiceOver and navigate your entire app. Set `accessibilityLabel` on every interactive element. Maintain minimum 4.5:1 contrast ratio. Test with Accessibility Scanner (Android) and Accessibility Inspector (iOS) before every release.
-- **Developing and QA-testing exclusively on flagship devices.** The engineering team tests on iPhone 15 Pro and Pixel 9 — but 40% of the user base runs a $200 Android device with 2GB RAM and a slow eMMC storage chip. Features that render at 60fps on flagship hardware drop to 8fps on low-end devices. A 10-second cold start on a budget device drives a 53% user abandonment rate (Google research). The Play Store fills with "laggy, crashes constantly" 1-star reviews from the majority of actual users while the team insists "it works fine on our devices." **Total cost: $20K-$100K in lost installs and review-driven rating erosion from users on untested device tiers, plus $15K-$50K in emergency performance sprints when low-end crash rates spike post-launch.** Maintain a device lab covering the top 5 devices by market share in your target region (not the latest flagships), run automated performance tests on the lowest-spec target device, and gate every release on cold-start time, scroll FPS, and memory usage measured on a representative low-end device.
+### 1. App Store Rejection at Launch
+**What it looks like:** Submitting to review the day before launch. Apple/Google reject for private APIs, missing privacy labels, or placeholder content. Each rejection adds 1-3 days to review queue. Marketing spend burns with no product live.
+**Cost:** $10K-$50K per rejection in delayed revenue, wasted marketing, and emergency rework.
+**Fix:** Submit 2 weeks before launch. Run through the full App Store Review Guidelines checklist. Budget for at least one rejection in your timeline. Test with TestFlight internal/external before submission.
 
-- **React Native's `console.log`** in production builds on iOS appears in the device logs — it doesn't get stripped. Sensitive data logged during development ships to production if not behind `__DEV__` guards.
-- **`AsyncStorage`** has a 6MB limit on Android (varies by device). Large JSON blobs silently fail with no error callback. Chunk data over 1MB or use SQLite for structured storage.
-- **iOS Simulator networking** uses the host Mac's network directly. `localhost` works. Android Emulator uses a virtual router at `10.0.2.2` to reach host `localhost`. Code that works in iOS sim will silently fail on Android em.
-- **Keyboard avoidance**: `KeyboardAvoidingView` with `behavior="padding"` works on iOS but not Android (Android adjusts the window size automatically). Using `padding` on Android double-shifts the content.
-- **`Image.prefetch()`** has a 50MB disk cache on iOS and no disk cache on Android (Android clears on app close). Don't rely on prefetch for offline image availability on Android.
-- **App State (`AppState.currentState`)** on iOS reports `"inactive"` during Control Center pull-down. If you pause video on `"background"` only, your video keeps playing when the user opens Control Center.
+### 2. No Offline Mode
+**What it looks like:** White screen or crash when connectivity drops. 1-star reviews: "doesn't work on the subway." Apps without offline support see 25-40% lower ratings in regions with patchy connectivity.
+**Cost:** $15K-$50K in lost downloads from negative reviews. A 0.5-star drop reduces install conversion by 30%.
+**Fix:** Local-first architecture. Cache last-known-good data. Show cached content with an offline banner. Queue mutations for retry. Test every screen in airplane mode.
+
+### 3. Bundle Size Over 150MB Cellular Limit
+**What it looks like:** App bundle exceeds 150MB. iOS and Android warn users on cellular download — most abandon. Install conversion drops 1% for every 6MB over 100MB.
+**Cost:** $20K-$100K in lost installs.
+**Fix:** App Thinning/Slicing, on-demand resources. Compress images to WebP/AVIF. Remove unused native libraries. Audit bundle every release with APK Analyzer or `du -sh` on .ipa.
+
+### 4. Missing Mobile Accessibility
+**What it looks like:** ADA and Section 508 apply to mobile apps. Inaccessible app invites lawsuit or DOJ demand letter. 15% of the population has a disability — they can't use your app.
+**Cost:** $10K-$50K in settlements and remediation per complaint.
+**Fix:** Enable TalkBack/VoiceOver, navigate entire app. Set `accessibilityLabel` on every interactive element. Maintain 4.5:1 contrast ratio. Test with Accessibility Scanner (Android) and Accessibility Inspector (iOS) before every release.
+
+### 5. QA Only on Flagship Devices
+**What it looks like:** Team tests on iPhone 15 Pro and Pixel 9. 40% of users run $200 devices with 2GB RAM. Features at 60fps on flagships drop to 8fps on low-end. Cold start at 10s drives 53% abandonment.
+**Cost:** $20K-$100K in lost installs and rating erosion from untested device tiers.
+**Fix:** Device lab covering top 5 devices by market share in target region. Automated performance tests on lowest-spec device. Gate releases on cold-start time, scroll FPS, and memory on representative low-end device.
+
+### 6. console.log Shipping to Production (React Native)
+**What it looks like:** `console.log` in React Native iOS production builds appears in device logs — it doesn't get stripped. Sensitive data logged during development ships to every user's device.
+**Fix:** Wrap all logging behind `__DEV__` guards. Use `react-native-logs` or `babel-plugin-transform-remove-console` in production builds. Never log API responses, user data, or tokens.
+
+### 7. AsyncStorage 6MB Limit on Android
+**What it looks like:** `AsyncStorage` has a ~6MB limit on Android (device-dependent). Large JSON blobs silently fail with no error callback. Data is lost without the developer knowing.
+**Fix:** Chunk data over 1MB. Use SQLite (WatermelonDB, `expo-sqlite`) for structured storage. Monitor storage usage. Migrate to MMKV for larger key-value needs (react-native-mmkv).
+
+### 8. iOS Simulator vs Android Emulator Networking
+**What it looks like:** iOS Simulator uses host Mac's network — `localhost` works directly. Android Emulator uses virtual router at `10.0.2.2` to reach host. Code that works on iOS sim silently fails on Android emulator.
+**Fix:** Use `Platform.select({ ios: 'localhost', android: '10.0.2.2' })` for local dev API URLs. Test networking on both platforms before merge. Use actual device testing for final verification.
+
+### 9. Platform-Specific Keyboard Avoidance
+**What it looks like:** `KeyboardAvoidingView` with `behavior="padding"` double-shifts content on Android because Android already adjusts window size automatically. iOS needs it; Android breaks with it.
+**Fix:** Use `Platform.select` for behavior prop: `behavior={Platform.OS === 'ios' ? 'padding' : undefined}`. Or use `react-native-keyboard-aware-scroll-view` which handles both platforms correctly.
+
+### 10. Image.prefetch() Platform Inconsistency
+**What it looks like:** `Image.prefetch()` has 50MB disk cache on iOS, but Android clears its cache entirely on app close. Relying on prefetch for offline image availability silently fails on Android.
+**Fix:** Use `react-native-fast-image` with consistent disk caching across platforms. Implement explicit image cache management. Never assume prefetched images survive app restart on Android.
+
+### 11. AppState "inactive" During Control Center
+**What it looks like:** `AppState.currentState` on iOS reports `"inactive"` when user pulls down Control Center or Notification Center. Pausing video on `"background"` only means video keeps playing during Control Center interaction.
+**Fix:** Listen for `"inactive"` state and handle it explicitly. Pause playback on both `"inactive"` and `"background"`, or check `"active"` explicitly and pause on anything else.
 
 ## Verification
 

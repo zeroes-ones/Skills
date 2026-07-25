@@ -153,7 +153,7 @@ What are you trying to simplify?
 └── Not sure where to start → "Core Workflow > Phase 0" — run complexity analysis on the whole file
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 0: Measure Baseline
 
@@ -292,7 +292,7 @@ Naming is the highest-leverage simplification. A good name eliminates the need f
 - **Remove redundant comments:** If the code says `// iterate over users` above `for user in users:`, delete the comment
 - **Add one critical comment:** One comment explaining WHY (not what) if the logic is genuinely non-obvious
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Decision Tree 1: Cyclomatic Complexity Reduction
 
@@ -397,7 +397,30 @@ Phase 2: Unify Strategy
 ```
 
 
-## Error Recovery
+## Best Practices
+
+1. **Measure cyclomatic complexity before and after every simplification.** Run `radon cc -a [file]` (Python), `eslint --rule 'complexity: [error, 10]'` (JS/TS), or `gocyclo` (Go) to get baseline scores. Target: every modified function should show decreased CC. If CC increased, your "simplification" added complexity — revert. Complexity below 5 is excellent, 6-10 is acceptable with clear naming, 11+ must be decomposed.
+
+2. **Delete dead code aggressively — git remembers.** Dead code still executes CPU cycles, consumes cache space, confuses every reader, and dilutes grep results. Use `git log -S "[code snippet]" --all` to confirm a code block hasn't been modified since its creation. If the commit history shows no meaningful changes and the feature is gone, delete without hesitation. Coverage tools (Istanbul, coverage.py) complement this — uncovered code is candidate dead code.
+
+3. **Remove an abstraction if it's used only once.** A helper function called from exactly one location with no planned second caller is an abstraction without leverage. Inline it. The reader gains locality (everything in one place) and loses nothing. Every extraction has a cost: signature, JSDoc, export, import, call site. If the cost exceeds the deduplication benefit (single caller → zero deduplication), the abstraction is net-negative.
+
+4. **Use early returns to eliminate `else` blocks.** An early return (or guard clause) handles the exceptional case at the top and lets the main logic flow linearly. This reduces nesting by one level per guard. Pattern: validate inputs first, then handle edge cases, then do the work. A function with 3 guards and a 5-line body is easier to read than one with 3 levels of nesting spread across 20 lines.
+
+5. **Replace deep conditionals with guard clauses and lookup tables.** `if-else if-else` chains on the same variable should become a map/dictionary lookup. Nested `if` blocks (2+ levels) should be flattened with guard clauses. Boolean flag parameters (`doThing(data, true, false, true)`) should become an options object (`doThing(data, { validate: true, notify: true })`). Each pattern reduces cognitive load by collapsing branches into data.
+
+6. **Extract a function when it passes the "describe in one sentence" test.** If you need "and" or "or" to describe what a block of code does, extract it. "This validates the input AND transforms it for the API" → two functions. "This calculates the discount OR falls back to the default" → one function with a clear return. Function extraction is not about line count — it's about naming a concept that currently lacks a name.
+
+7. **Reduce cognitive complexity, not just cyclomatic complexity.** Cognitive complexity (measured by SonarQube, CodeClimate) penalizes nesting, recursion, and boolean operators more heavily than CC. A flat switch statement scores low on CC but may still confuse readers. Target both: CC ≤ 10 AND cognitive complexity ≤ 15. If they disagree, trust cognitive complexity — it correlates better with developer confusion.
+
+8. **Name for clarity — comments are failure modes of naming.** If you need a comment to explain what a variable holds, rename the variable. `data` → `validatedOrderPayload`. `result` → `shippingCostEstimate`. `flag` → `shouldRetryOnTimeout`. After renaming, delete the now-redundant comment. Comments rot faster than code; names are maintained by the compiler. A codebase where names tell the story needs fewer than 10% comment lines.
+
+9. **Run the full test suite after every simplification, even "trivial" ones.** A rename, extraction, or early return can change closure scope, break a downstream consumer's assumption about the original variable binding, or alter error propagation in ways tests catch. The "small refactor that couldn't possibly break anything" causes more production incidents than large refactors — because large refactors are tested carefully and small ones are not. Zero test changes = zero behavioral changes (verify this).
+
+10. **Simplify incrementally — one seam at a time, commit after each.** Identify the smallest independent unit (single function, < 20 lines). Write characterization tests if none exist. Simplify that unit. Run all tests. Commit. Repeat. The alternative — simplifying 500 lines in one pass — creates a diff that no reviewer can meaningfully assess and a bug surface that no test suite can fully cover. Small commits are reversible, reviewable, and safe.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -486,6 +509,27 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+
+## Production Checklist **(STANDARD)**
+
+Before merging a simplification PR, verify every item:
+
+- [ ] **Cyclomatic complexity decreased for every modified function.** Measured before and after with `radon`, `eslint complexity`, or `gocyclo`. If CC increased on any function, revert that change — the "simplification" added complexity.
+- [ ] **Cognitive complexity decreased or remained stable.** Measured with SonarQube or CodeClimate. Nesting depth reduced. Boolean operators consolidated. Recursion eliminated if unnecessary.
+- [ ] **All existing tests pass with zero changes to test files.** If a test needed modification, the simplification changed behavior — which means it wasn't pure simplification. Investigate and either fix the test or revert the behavioral change.
+- [ ] **Test coverage did not decrease.** Run coverage before and after. Any coverage drop is intentional (dead code removal) and documented with justification in commit message.
+- [ ] **Chesterton's Fence check completed for every removed line.** `git log -S` and `git blame` run on every deleted code block. Purpose understood before deletion. Load-bearing code preserved with comment explaining why.
+- [ ] **Rule of 500: no modified file exceeds 500 lines.** Files over 500 lines after simplification must have a documented decomposition plan filed as a follow-up ticket. No "I'll split it later" exceptions.
+- [ ] **Comment ratio decreased or remained stable.** Net removal of comments (renamed variables/functions to eliminate the need for comments). No new comments added to explain complex code — simplify the code instead. Target: < 10% comment-to-code ratio.
+- [ ] **Line count: net-negative or neutral.** `git diff --stat` shows more deletions than additions. Exceptions: extracting shared utilities from duplicated code may add lines to a new file while deleting more from callers — net system reduction is acceptable.
+- [ ] **No premature abstraction.** Every extracted function/module has ≥ 2 callers or a planned second caller documented in the same PR. Single-caller extractions reverted (inlined). Abstractions justify their overhead (signature + import + export + call site).
+- [ ] **Naming clarity verified.** Every changed variable, function, and file passes the "would a new team member understand this without reading the implementation?" test. Renamed identifiers follow the project's naming conventions.
+- [ ] **Guard clauses and early returns used where applicable.** Nested `if` blocks (2+ levels) flattened. `else` blocks eliminated by early returns. Boolean flag parameters replaced with options objects. Long `if-else if` chains on the same variable converted to lookup tables.
+- [ ] **Error handling strategy unified within each file.** Mixed patterns (some throw, some return null, some return Result) consolidated to one consistent strategy per file. Library code: Result<T, E>. Application code: structured error classes. API handlers: error middleware.
+- [ ] **No behavioral changes.** Same outputs for same inputs. Same exceptions thrown under same conditions. Same side effects in same order. This is refactoring, not reimplementation.
+- [ ] **Code review confirms readability improvement.** At least one other engineer has read the diff and agrees it's simpler. If the reviewer says "I don't understand this new version," simplify further or revert.
+
+
 ## What Good Looks Like
 
 **Before — Complex nested conditional (CC=12):**
@@ -556,7 +600,7 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 | "That comment explains why the code is complex — I'll leave the complexity in place." | Comments rot faster than code. Three refactors later, the comment describes behavior that no longer exists, and the reader is more confused than if there were no comment at all. Simplify the code until the comment is redundant, then delete both. Cost: **$2.5K-$10K/year** in engineer confusion from stale comments. |
 | "The team won't understand this functional refactor — better to keep the imperative style." | Converting a `for` loop to `reduce` without team buy-in guarantees a revert next sprint. Code simplification must be a team sport — unilaterally changing the paradigm wastes effort and creates friction. Cost: **$500-$2K** in wasted effort + team churn per rejected refactor. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Deleting error-handling code because "it never happens."** Production logs show the "impossible" null pointer happens 10,000 times per day at scale. Every `catch` block, null guard, and defensive check exists because someone got paged at 3 AM. **Total cost: $15,000-$50,000 per incident in engineering hours + revenue loss.**
 - **Golfing code so aggressively it becomes unreadable.** A 3-line ternary chain with nested destructuring and a spread operator is NOT simpler than a 10-line function with named intermediates. The reader loses 5 minutes decoding the trick every time they encounter it. **Total cost: $2,500-$10,000/year in cumulative engineer confusion across a 10-person team.**
@@ -590,6 +634,24 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+
+### Scale Depth
+
+#### Solo Developer
+Simplify as you go — no formal process. If a function is hard to read while you're debugging, clean it up before fixing the bug. Run existing tests manually. No complexity metrics. Trust your judgment on what's "simpler." Commit small, revertable changes.
+
+#### Small Team (2-10)
+Lint-enforced complexity thresholds (CC ≤ 10) in CI advisory mode. Rule of 500 tracked as informational metric (no block). Dead code removal encouraged during any file touch. Chesterton's Fence applied to code > 1 year old. PR review includes "could this be simpler?" as a standard question. Monthly complexity trend review.
+
+#### Medium Team (10-50)
+CC ≤ 10 enforced as blocking gate on new/modified code. Rule of 500 blocks new files > 500 lines without decomposition plan. Guard clause and early return patterns codified in style guide. Cognitive complexity tracked per module with quarterly reduction targets. Dead code removal tracked as engineering metric. Simplification time budgeted in each sprint (10-15%).
+
+#### Enterprise (50+)
+Complexity budgets per service with quarterly reviews. Automated simplification suggestions from AI-assisted refactoring tools validated by human review. Technical debt quantified in $ (developer-hours lost to complexity). Complexity scorecard at VP level: avg CC, % files over 500 lines, dead code %. Cross-team simplification guild shares patterns and tools. Onboarding includes "simplify-first" culture training.
+
+**Transition Triggers:** Scale up when: (a) junior engineers regularly struggle to understand existing code → Small, (b) average bug-fix time exceeds 4 hours → Medium, (c) technical debt visibly slows feature velocity (2+ sprints delayed by complexity) → Enterprise, (d) codebase exceeds 500K lines → Enterprise.
+
 
 ## References
 

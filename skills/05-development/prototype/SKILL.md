@@ -90,6 +90,15 @@ You are an experimentalist who treats every prototype as a disposable scientific
 
 **Default level for this skill:** L2
 
+### Scale Depth
+**(STANDARD)**
+
+| Depth | Time | Scope | Artifacts |
+|---|---|---|---|
+| **QUICK** | 5-10 min | Single API call or library function test | Working code snippet, yes/no answer to hypothesis |
+| **STANDARD** | 15-20 min | Feature spike or single-hypothesis test | Disposable prototype code, decision document committed to main repo |
+| **DEEP** | 2-3 × 20 min | Multi-component architecture spike, linked prototypes | Comparison matrix, full decision document with evidence quality ratings for each sub-hypothesis |
+
 ## When to Use
 
 - Two approaches seem equally valid and static analysis cannot decide between them
@@ -134,6 +143,7 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1: Form the Hypothesis
 
@@ -210,7 +220,31 @@ Before writing any code, define what you are testing and why.
    |-- The decision document IS the artifact. The code was the instrument.
 ```
 
+## Best Practices
+**(STANDARD)**
+
+1. **Time-box ruthlessly with a hard stop.** Set a timer for 20 minutes or less per prototype. When the timer ends, stop typing — regardless of how close you are. The extra 3.5 hours of "polishing throwaway code" produces zero new information. Use `timeout` command or a phone timer to enforce the boundary. If the question isn't answered after two 20-minute spikes, the scope is too broad and must be narrowed.
+
+2. **Use disposable environments — never the main repo.** Create prototypes in `/tmp/prototypes/`, a git worktree, or a separate Codespace. R6 of the ground rules is non-negotiable: prototype code must never touch the main repository. Main-repo contamination is the #1 cause of prototype-in-production incidents. `git worktree add` or `mkdir` in a disposable location every time.
+
+3. **Fake backends with deterministic mock data.** Use `json-server` for REST APIs, `msw` (Mock Service Worker) for browser apps, or inline JSON mocks. Implement WireMock or Mountebank for complex service virtualization with state transitions. Prototypes answer design questions — not infrastructure questions. A working fake backend that returns known responses isolates the design hypothesis from network instability.
+
+4. **Start with the falsifiable hypothesis, not the code.** Write "We believe X will work because Y. Disproven if Z happens" before opening an editor. The hypothesis format enforces that you're testing a falsifiable claim, not exploring. Every prototype that starts with code before question formation answers the wrong question.
+
+5. **One prototype, one question — compound questions confound results.** Never test "can Kafka handle streaming AND request-response" in one spike. The streaming success masks the request-response failure. You ship both patterns and one requires a rewrite 8 weeks later. If you have two questions, you have two prototypes with two time boxes.
+
+6. **Document shortcuts explicitly — they're the bridge to production.** Every implementation shortcut (in-memory queue instead of persistent, hardcoded credentials, synchronous instead of async) must be recorded. Write "We used X as a shortcut. In production, replace with Y." The decision document is the only artifact that survives prototype disposal.
+
+7. **Celebrate negative results — they save more money than positive ones.** The prototype that proves "this approach won't work for our constraints" saves $40K-$200K in wasted development. Negative results prevent ships heading for icebergs. Log them with the same rigor as positive results. "DISPROVEN" is the most valuable output quality rating.
+
+8. **Scope-box with surgical precision.** Narrow the question to the smallest testable unit. Not "does WebSocket scale?" but "can 100 concurrent WebSocket clients on a single Node.js process maintain < 50ms latency with 1KB payloads?" A scoped question produces a testable hypothesis. A vague question produces an exploration that drifts into implementation.
+
+9. **Use mock data generators, not production data.** Generate realistic test data with Faker.js, `chance`, or domain-specific generators. Never copy production data into a throwaway prototype — the disposable environment has none of the security, access control, or audit logging of production. A prototype credential leak is still a data breach.
+
+10. **Feedback from the prototype feeds into the architecture decision, not the codebase.** The prototype output is a decision document (ADR), not production source code. Route findings through the relevant decision-making skill (system-architect for architecture decisions, api-designer for API choices). The prototype is an instrument for measurement, not a draft for implementation.
+
 ## Decision Trees
+**(QUICK)**
 
 ### Approach Comparison
 
@@ -366,6 +400,7 @@ Before writing any code, define what you are testing and why.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -378,6 +413,18 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| "The prototype is almost done — give me 20 more minutes" repeated 4 times | Scope creep disguised as "polishing." The hypothesis was answered at minute 12; the remaining time was making the code presentable, adding edge cases, refactoring for readability | Call "time's up" immediately. Read the hypothesis aloud. If it's answered, dispose the prototype. If it's not, the scope was too broad — narrow and run a second 20-minute spike | Polishing throwaway code is a cognitive trap. At $150/hr, 40 minutes of polishing per prototype × 50 prototypes/year = $5K/year burned making disposable code look nice |
+| Prototype produced a clear result, but the team debates its validity for 45 minutes | The prototype tested the wrong variable. WebSocket latency on gigabit WiFi doesn't answer "can mobile users on 3G maintain connections?" The result is valid but irrelevant to the actual decision | Before debating results, re-read the hypothesis together. If the hypothesis doesn't match the actual decision, the prototype was a red herring — discard results and run a new prototype with the correct variable | Wrong-variable prototypes are more dangerous than no prototype — they produce confident wrong answers. Verify the hypothesis maps to the actual business decision before running code |
+| Two engineers built prototypes for the same question and got opposite results | Different experimental conditions: one tested with 100 records, the other with 100K. One measured cold starts, the other measured warm caches. The prototypes tested different things but both claim to answer the same question | Run a joint prototype session with both engineers present. Agree on experimental parameters (dataset size, measurement point, environment) before any code is written. Make the hypothesis falsification criteria identical and shared | Without shared experimental parameters, prototype results are not comparable. A disagreement about "which approach is faster" is usually a disagreement about experimental conditions in disguise |
+| Production incident traced to prototype code that "should have been deleted" | A developer built in the main repo, didn't follow disposal protocol, the PM shipped it. Six months later the developer left and nobody knew the caching layer was a prototype. Hardcoded TTL expired, site went down | Git-bisect to find the original commit. Check the decision document to understand the intended production replacement. If no document exists, treat it as production debt: write tests, add error handling, document the assumptions | R6 (never prototype in main repo) exists because this has happened hundreds of times. The most expensive prototype isn't the one that takes too long — it's the one that becomes production code without anyone noticing |
+| Prototype "proved" an approach works, but the production implementation failed | The prototype tested the happy path with ideal conditions, no error handling, and fresh caches. Production encountered cold caches, network partitions, malformed inputs, and concurrent writes — conditions the prototype never exercised | Augment prototype scope with failure-mode testing in the next spike. Not "does this approach work?" but "does this approach survive X, Y, Z failure modes?" Explicitly list what was NOT tested in the decision document | Prototype results are only as good as the failure modes they test. A "HIGH" quality result that only tests the happy path should be downgraded to "MEDIUM — happy path only, no failure mode testing" |
+| Stakeholder sees the prototype and says "this is great, ship it next sprint" | The prototype UI looks polished because the developer spent 30 minutes making it presentable. Stakeholder perceives a nearly-finished product, not a throwaway spike. The time spent "making it presentable" directly causes the prototype-in-production trap | Show prototypes as ASCII diagrams, CLI output, or rough sketches. Never present a polished prototype UI to a non-technical stakeholder. If UI feedback is needed, use wireframes or Figma mockups — not running code | The visual quality of a prototype is inversely correlated with the likelihood of proper disposal. The uglier the prototype looks, the less likely anyone will ask to ship it. Ship ugly prototypes for internal consumption |
 
 ## Cross-Skill Coordination
 
@@ -523,21 +570,60 @@ Review your last 5 prototype-based decisions. Rate each as HIGH/MEDIUM/LOW evide
 | "I'll extend the time box by an hour — I'm almost there." | The answer was clear at 18 minutes. The extra 3.5 hours polished throwaway code that produced zero new information. At $150/hr across a team, that's **$5K-$20K/year/engineer** in prototype creep. The time box is a HARD STOP — when the timer ends, you stop typing. |
 | "We can answer two questions with one prototype — it's more efficient." | Mixing use cases confounds results. Streaming success masks request-response failure. You ship both, and the broken pattern requires a $65K rewrite 8 weeks later. Cost: **$30K-$100K** per confounded prototype. One question per prototype. ALWAYS. |
 
-## Gotchas
+## Anti-Patterns
 
-- **"I'll just clean this up later" — the $500K lie.** The most expensive four words in prototyping. A fintech startup built a "prototype" payment integration to test an API. The prototype had no idempotency handling, no retry logic, and hardcoded test credentials. The PM said "ship it and we'll clean it up next sprint." Next sprint became next quarter. Six months later, a network blip caused duplicate charges. Refunds, compliance fines, and lost merchant trust: $340K. The cleanup would have taken 3 days. **Total cost: $200K-$500K per prototype-that-shipped in duplicate charges, data corruption, compliance fines, and customer trust erosion. Prevent: enforce disposal protocol. Prototype code is deleted before production code is written.**
+### Anti-Pattern: "I'll just clean this up later"
+**What it looks like:** A fintech startup builds a "prototype" payment integration with no idempotency, no retry logic, hardcoded test credentials. PM says "ship it and we'll clean it up next sprint." Next sprint becomes next quarter. Six months later, a network blip causes duplicate charges — $340K in refunds, fines, and lost merchant trust.
+**Why it fails:** Prototype code has zero production safeguards. The cleanup that would take 3 days during development takes 3 weeks when retrofitted under incident pressure. The most expensive four words in software: "we'll fix it later."
+**Do this instead:** Enforce the disposal protocol: prototype code is deleted before production code is written. The decision document IS the deliverable. If a prototype proved the approach, implement the production version from scratch following production standards — no prototype code reused.
 
-- **The prototype that answered the wrong question.** A team prototyped WebSocket performance to answer "can we do real-time updates?" The prototype showed 10K concurrent connections with < 5ms latency. They shipped WebSockets. The real question should have been "can our mobile users on 3G in rural areas maintain WebSocket connections?" Battery drain and connection drops made the feature unusable for 60% of users. The prototype tested the wrong variable. **Total cost: $80K-$200K in misdirected development effort and feature rollback. Prevent: Phase 1, Step 1 — verify the question is what you actually need to know, not what's easiest to prototype.**
+### Anti-Pattern: Testing the easiest variable, not the right one
+**What it looks like:** Team prototypes WebSocket performance on gigabit WiFi, achieves 10K connections at < 5ms latency, ships WebSockets. Real users are on 3G in rural areas. Battery drain and connection drops make the feature unusable for 60% of users. The prototype tested "is this fast on ideal conditions?" when the real question was "does this work for our actual users?"
+**Why it fails:** Prototypes gravitate toward the cleanest, fastest, most impressive result — which is almost never the condition that matters. The variable that's easiest to test is rarely the variable the business decision hinges on.
+**Do this instead:** Phase 1, Step 1: identify the riskiest assumption, not the easiest test. Ask "what condition makes this fail for our users?" and test that. If mobile users on poor connections are 60% of revenue, test on simulated 3G latency and packet loss — not gigabit WiFi.
 
-- **The prototype that became the architecture.** A team prototyped an event-driven architecture with a simple in-memory message bus to answer "does event-driven fit our mental model?" The prototype was clean and simple. They adopted the pattern but never replaced the in-memory bus with a persistent one. First production restart: all unprocessed events lost. Customer orders disappeared. The prototype's architecture choice (in-memory) was an implementation shortcut, not a design decision — but it became both. **Total cost: $50K-$150K in lost data, recovery effort, and architecture remediation. Prevent: document prototype shortcuts explicitly. "We used X as a shortcut. In production, replace with Y." The document is the bridge between prototype and production.**
+### Anti-Pattern: Prototype shortcut becomes the architecture
+**What it looks like:** Team prototypes event-driven architecture with an in-memory message bus. The pattern works cleanly. They adopt event-driven but never replace the in-memory bus with a persistent one. First production restart: all unprocessed events lost, customer orders disappear. The in-memory shortcut was an implementation convenience that silently graduated to architectural decision.
+**Why it fails:** Prototype shortcuts are not documented as shortcuts. When the prototype "works," the shortcut and the design decision merge in everyone's mental model. The code is adopted wholesale, shortcut included, because nobody documented "replace in-memory bus with persistent queue before production."
+**Do this instead:** Document every shortcut in the decision record: "We used X as a shortcut. In production, replace with Y." The document is the bridge between prototype and production. If a shortcut would take more than 2 days to undo, stop the prototype and fix it now.
 
-- **The time-box that someone "extended by an hour."** A developer's 20-minute prototype to test a database query pattern turned into a 4-hour "deep dive" because they "were almost there." The additional 3.5 hours produced zero new information — the answer was clear at 18 minutes (the query pattern works). The extra time was spent making the prototype "nicer" — refactoring, adding comments, making it "presentable." At $150/hr, that's $525 of engineering time spent polishing throwaway code. **Total cost: $5K-$20K per year per engineer in prototype overruns from "just a few more minutes" creep. Prevent: the time box is a HARD STOP. When the timer ends, you stop typing. No exceptions. No "one more minute."**
+### Anti-Pattern: Time-box creep — "just one more hour"
+**What it looks like:** Developer's 20-minute prototype turns into a 4-hour deep dive. The answer was clear at 18 minutes (yes, the query pattern works). The additional 3.5 hours were spent refactoring, adding comments, making it "presentable." At $150/hr, $525 of engineering time burned polishing throwaway code.
+**Why it fails:** The time box is a soft boundary without enforcement. "Just one more minute" compounds into hours. The additional time produces zero new information — the hypothesis was already answered. Every minute beyond the time box is code golf, not prototyping.
+**Do this instead:** The time box is a HARD STOP enforced by a timer. When the timer ends, stop typing. No exceptions. No "one more minute." If the question genuinely isn't answered after 20 minutes, end the session, narrow the scope, and start a fresh 20-minute spike with a tighter hypothesis.
 
-- **The two-questions-in-one-prototype trap.** A team prototyped "can we use Kafka for both event streaming AND request-response patterns?" The prototype mixed both use cases. Kafka worked for streaming but the request-response pattern required unnatural workarounds. The team couldn't separate the results — the streaming success masked the request-response failure. They shipped Kafka for both, and the request-response system required a $65K rewrite to REST 8 weeks later. **Total cost: $30K-$100K per confounded prototype in reimplementation cost. Prevent: one question per prototype. ALWAYS. If you have two questions, you have two prototypes.**
+### Anti-Pattern: Two questions in one prototype
+**What it looks like:** Team prototypes "can we use Kafka for both event streaming AND request-response patterns?" The streaming test succeeds, the request-response test requires unnatural workarounds — but the streaming success masks the request-response failure. Product ships with Kafka for both patterns. The request-response system requires a $65K REST rewrite 8 weeks later.
+**Why it fails:** Combined results are confounded results. When one sub-question succeeds and the other fails, the overall result is "mixed" — which stakeholders interpret as "good enough." Disentangling the two questions after the fact requires re-running separate prototypes anyway.
+**Do this instead:** One question per prototype. ALWAYS. Two questions = two prototypes with two time boxes and two decision documents. If the questions are interdependent (answer to Q1 determines what Q2 should be), run them sequentially — Q1 first, document the result, then design Q2 based on the outcome.
 
-- **The "the docs say it works, we don't need a prototype" assumption.** A team read the Stripe Connect docs and decided it would work for their multi-vendor marketplace. Skip the prototype, start building. Two sprints in, they discovered Stripe Connect's onboarding flow required every vendor to have a US bank account — 40% of their vendors were international. The assumption "docs imply it works for us" cost $120K in wasted development and a 6-week delay while they switched to a different payment provider. **Total cost: $40K-$150K per skipped prototype based on documentation assumptions. Prevent: docs describe what an API CAN do. A prototype tests what it CAN do FOR YOUR USE CASE. These are different things.**
+### Anti-Pattern: "The docs say it works — we don't need a prototype"
+**What it looks like:** Team reads Stripe Connect docs, concludes it works for their multi-vendor marketplace. Skip the prototype, start building. Two sprints in, they discover Stripe Connect's onboarding requires every vendor to have a US bank account. 40% of their vendors are international. $120K in wasted development, 6-week vendor switch delay.
+**Why it fails:** Docs describe what an API CAN do generically. A prototype tests what it CAN do FOR YOUR SPECIFIC USE CASE. These are fundamentally different things. Documentation generalizes; your constraints are specific and often edge cases.
+**Do this instead:** Always run at least one 20-minute prototype even when documentation looks perfect. Test with your actual constraints, data shapes, and edge cases — not the documentation's happy-path examples. The prototype that takes 15 minutes and reveals a dealbreaker saves 2+ sprints of wasted implementation.
 
-- **The prototype-in-prod that nobody knew was a prototype.** A senior engineer built a "quick prototype" of a caching layer to test Redis. They used the main repo because "it was just for testing." Six months later, the engineer had left the company. The caching code was in production with no tests, no documentation, and a hardcoded TTL that expired during peak traffic. On-call had no idea the caching layer was a prototype. Incident cost: $85K in downtime and emergency fix effort. **Total cost: $50K-$200K per undocumented prototype-in-production in incident response and institutional knowledge loss. Prevent: Ground Rule R6 — NEVER prototype in the main repo. Isolation is not optional.**
+### Anti-Pattern: Prototype in the main repo — the invisible landmine
+**What it looks like:** Senior engineer builds a "quick prototype" caching layer directly in the main repo because "it's just for testing." Six months later, engineer has left the company. Caching code is in production with no tests, no docs, hardcoded TTL. TTL expires during peak traffic, site goes down. On-call has no idea the caching layer was a prototype.
+**Why it fails:** Main-repo prototypes have no disposal trigger, no documentation, and no ownership. They survive because nobody knows they should be deleted. When the author leaves, the institutional knowledge that "this was a prototype" leaves with them.
+**Do this instead:** Ground Rule R6 is non-negotiable: NEVER prototype in the main repo. Use `git worktree add`, a separate Codespace, or a directory outside the repo. Isolation forces explicit disposal. The extra 30 seconds to create a separate workspace prevents $50K-$200K in future incident response.
+
+## Production Checklist
+**(STANDARD)**
+
+Before concluding any prototype session, verify every item. An unchecked item is a future production incident or a wasted spike.
+
+- [ ] **Hypothesis stated in falsifiable format:** "We believe X because Y. Disproven if Z." The Z condition is specific and testable — not "it doesn't work" but "latency exceeds 50ms at 100 concurrent connections."
+- [ ] **Single question verified:** Exactly one design question is being tested. No compound questions, no bundled explorations. If a second question emerged during the spike, it's logged for a separate prototype.
+- [ ] **Time box set and honored:** Timer was started before any code was written. No extensions granted. Dispose triggered at the hard stop regardless of perceived "closeness to answer."
+- [ ] **Isolation confirmed:** Prototype code lives outside the main repository. `git status` in main repo shows zero prototype files. A `git worktree add` or `/tmp/prototypes/` directory was used.
+- [ ] **Mock data is synthetic:** No production data, credentials, or PII exists in the prototype environment. All data is generated via Faker.js, chance, or hardcoded mock responses.
+- [ ] **Shortcuts documented in decision record:** Every implementation shortcut (in-memory queue, hardcoded config, synchronous-where-async) is explicitly listed with the intended production replacement.
+- [ ] **Decision document committed:** `docs/decisions/YYYY-MM-DD-[topic]-prototype-result.md` exists in the main repo. Contains hypothesis, approach, results, decision, evidence quality rating (HIGH/MEDIUM/LOW), and shortcut inventory.
+- [ ] **Evidence quality rated honestly:** HIGH only if conditions matched production reality. MEDIUM if tested with ideal conditions. LOW if inconclusive. Production decisions never made on LOW-quality evidence without a confirmation spike.
+- [ ] **Prototype disposed:** Prototype directory deleted. `rm -rf` or `git worktree remove` confirmed. No trace of prototype code remains in any persistent storage.
+- [ ] **Negative results celebrated:** If the hypothesis was DISPROVEN, the decision document explicitly frames this as valuable: "This prototype saved $X in avoided development by proving approach Y doesn't work for constraint Z."
+- [ ] **Next action clear:** Decision document ends with: (a) proceed to production implementation with path Y, (b) run confirmation prototype with broader conditions, or (c) abandon approach Z permanently.
+- [ ] **No prototype UI shown to non-technical stakeholders:** If a visual prototype existed, it was destroyed before stakeholder demos. Any UI feedback needed was gathered through wireframes, mockups, or static comps — not running code.
 
 ## Verification
 

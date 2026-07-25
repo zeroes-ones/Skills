@@ -131,6 +131,20 @@ Master account managers know that operational excellence is invisible when it wo
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo
+- Manage 5-15 accounts personally. Run all renewals, build account plans from scratch, handle every negotiation yourself. No delegation — you are the entire account management function. Focus on mastering the renewal cadence and learning to spot expansion signals.
+
+#### Small Team
+- Oversee a team of 2-5 AMs managing 20-50 accounts collectively. Standardize account planning templates, define renewal playbooks, and build a forecasting cadence. Your leverage shifts from doing the work to enabling the team with process and coaching.
+
+#### Medium Organization
+- Lead a department of 10-30 AMs across segments (Enterprise, Mid-Market, SMB). Design tiered account coverage models, implement CRM-driven forecasting with commit/upside/pipeline categories, and own NRR as a company-level metric. Executive sponsor program becomes a formal function.
+
+#### Enterprise
+- Run a global AM organization with 50+ people across multiple regions and product lines. Account management is a revenue center with dedicated renewal specialists, expansion reps, and executive sponsor coordinators. You design compensation plans, territory models, and the technology stack. The chief customer officer role sits at the executive table with quota for GRR and NRR.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -146,6 +160,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are transitioning from a land-and-expand motion to a broader enterprise deployment
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -232,6 +247,7 @@ Which competitor is threatening?
 **What good looks like:** Account plan with 10+ named stakeholders mapped. Renewal forecast with commit/upside/pipeline categories and objective criteria per stage. Every expansion pitch grounded in adoption data. ROI document with customer-specific metrics and ROI > 300% over 3 years.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -268,6 +284,7 @@ Build a comprehensive account plan for each strategic account. **Account Plan St
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -428,7 +445,21 @@ graph LR
 | "A discount will save this account" | Unsolicited 10% goodwill discount becomes the customer's anchor — procurement demands 20%. Cascading precedent across 10-15 accounts via the procurement grapevine: $150K-$350K in margin erosion over 12 months. |
 | "NPS is 65 — retention is fine" | Surveying only renewing customers inflates NPS. A CEO-given 9 hides 12 end-users giving 4s. Revenue-weighted, role-stratified NPS reveals the real story — and the silent churn risk hiding in "satisfied" aggregate scores. |
 
-## Gotchas
+## Anti-Patterns
+
+1. **Single-threaded accounts.** Relying on one contact — typically your champion — as the sole relationship at an account. That person leaves, and the entire commercial relationship evaporates overnight. Multi-thread with at least 3 active contacts across procurement, economic buyer, and power users.
+
+2. **Price-before-value renewal proposals.** Leading the renewal with "here's the new price" before establishing what the customer gained from the current contract. This frames the renewal as a cost, not an investment, and invites commodity price-shopping against competitors.
+
+3. **Expansion pitching without adoption proof.** Proposing seat growth, module upsells, or department expansion when current user adoption is below 70%. The customer's first reaction is "why would I buy more of something my team doesn't fully use?" Prove adoption before pitching expansion.
+
+4. **Industry-average ROI in business cases.** Using "companies like yours save 30%" instead of customer-specific metrics. Procurement teams reject generic claims immediately. Every ROI number must trace to the customer's own data or be labeled as an adjustable assumption.
+
+5. **QBR as feature showcase.** Running quarterly business reviews as product demonstrations of existing features. The customer already has the product — they need to see the business outcomes. Frame QBRs around: what you achieved, what you can achieve next, what's blocking you.
+
+6. **Unsolicited discount anchoring.** Offering a preemptive goodwill discount before the customer raises a pricing concern. This establishes a lower anchor price that procurement will use as the starting point in every future negotiation, compounding margin erosion across renewal cycles.
+
+7. **Late renewal conversations.** Starting renewal discussions 30 days before contract end when the customer's procurement cycle requires 90+ days. The customer has already evaluated alternatives, secured budget for a competitor, and your "let's talk renewal" arrives as they're signing elsewhere.
 
 - **QBR (Quarterly Business Review) as a product demo** — you spend 45 minutes showing features they already have, 10 minutes on new features, and 5 minutes on "any questions?" The customer learned nothing about the VALUE they got. QBR should be: "Here's what you achieved with our product this quarter (with data), here's what you could achieve next quarter, what's blocking you?"
 - **Renewal conversation that starts 30 days before renewal date** — the customer has been silently unhappy for 11 months, built a business case for a competitor, and secured budget. Your "let's talk renewal" arrives as they're signing with the competitor. Renewal is a continuous conversation starting day 1, not a Q4 event.
@@ -437,6 +468,59 @@ graph LR
 - **Renewal negotiation that starts with a discount to "make up" for an outage.** The customer had 4 hours of downtime last quarter. You proactively offer 10% off renewal ($12K on a $120K contract) as a goodwill gesture. The customer's procurement team now knows your walk-away number and demands 20% off, citing "unreliability." The concession you offered as goodwill became their anchor. **Total cost: $12K-$24K in unnecessary discount on a single renewal, plus precedent-setting across 10-15 similar accounts when the procurement grapevine shares the discount — $150K-$350K in cascading margin erosion over 12 months.** Fix: Never open renewal conversations with an unsolicited discount; address service failures with a service credit tied to the specific SLA breach (e.g., "per our SLA, 4 hours of downtime = 5% credit") rather than a blanket renewal discount; separate the service-recovery conversation from the renewal conversation entirely.
 - **Account plan built without procurement timeline awareness.** The AM builds a beautiful expansion plan targeting Q3 close. But the customer's procurement cycle requires 90-day notice, legal review, security re-assessment, and budget committee approval — a 5-month process that must start by April. The AM discovers this in June. The deal slips to Q1 of next year, missing the annual budget window. **Total cost: $150K-$500K in slipped expansion revenue per account, missed quarterly forecast by 8-15%, and CEO/board credibility damage from the "surprise" miss.** Fix: Map every strategic account's procurement calendar (budget cycle, vendor review cadence, legal review SLA) in the CRM; work backwards from the desired close date using the customer's timeline, not yours; set a "point of no return" date after which the deal misses the current budget cycle.
 - **Customer saved from churn with a "save team" that offers deep discounts but no root-cause fix.** A $200K account threatens to leave. The save team offers 35% off ($70K discount) and a dedicated CSM. The customer stays. Six months later, the same root cause (poor onboarding, unused features) triggers another churn threat. The cycle repeats — this time the discount is 45%, and the customer tells peers "just threaten to leave, they'll cut your bill in half." **Total cost: $70K-$160K in compounding discounts for a single account, plus 2-4 copycat renegotiations from word-of-mouth worth $200K-$500K in additional margin loss over 18 months.** Fix: Every save must include a documented root-cause analysis and a remediation plan with milestones; tie the discount to specific adoption milestones (e.g., "20% now, 15% refunded when you hit X usage threshold in 90 days"); track save-to-second-churn rate and intervene if an account hits the save process twice.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Every strategic account has a documented account plan with stakeholder map — updated within last 90 days
+- [ ] Health scores (green/yellow/red) updated monthly for all accounts with ACV > $50K
+- [ ] QBR conducted for every strategic account within last 120 days — outcomes and action items recorded
+- [ ] Renewal pipeline reviewed weekly — all renewals within 90 days have active engagement within last 30 days
+- [ ] Multi-threading verified: minimum 3 active contacts per strategic account, decision-maker engaged within last quarter
+- [ ] NPS response rate ≥ 40%, results segmented by revenue tier and user role — churned customer survey data included
+- [ ] Value log maintained for every account — documented wins, metric improvements, and success stories since last renewal
+- [ ] Procurement timeline mapped for every strategic account — budget cycle, legal review SLA, vendor review cadence in CRM
+- [ ] Expansion targets validated against adoption data — current usage ≥ 70% before pitching seat or module growth
+- [ ] ROI business cases use customer-specific data — industry averages labeled as adjustable assumptions if used
+- [ ] Competitive defense playbooks prepared for top 10 accounts — competitor presence documented with counter-positioning
+- [ ] Executive sponsor program active — every top-20 account has an internal executive paired to a customer executive
+- [ ] Save process includes root-cause analysis and milestone-based recovery plan — save-to-second-churn rate tracked
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| Renewal at risk 30 days before expiration | Engagement started too late; customer already evaluated alternatives | Executive-to-executive call within 48 hours; value delivery summary; save offer if health is critical | Renewal is a continuous conversation — 120-day pre-renewal cycle is non-negotiable, start on day 1 |
+| Expansion pitch rejected despite high NPS | Adoption rate below 70%; customer doesn't fully use current product | Pull expansion pitch; present adoption acceleration plan; resume when usage crosses 70% threshold | NPS alone doesn't justify expansion — adoption data is the gating metric |
+| ROI business case rejected by procurement | Industry-average benchmarks instead of customer-specific data | Rebuild ROI with customer-provided metrics; label all assumptions as adjustable; get customer finance team validation | Generic ROI claims are instantly dismissed — every number must be customer-attributed or transparently estimated |
+| Champion leaves and account goes dark | Single-threaded account — only one relationship existed | Emergency multi-threading: identify power users, request intro to new contact, escalate to executive sponsor | Minimum 3 active contacts per strategic account, relationship score ≥ 3, contacted within last 30 days |
+| Unsolicited 10% discount becomes 20% demand | Goodwill discount anchored the negotiation floor | Separate service recovery from renewal; tie concession to specific SLA breach with documented credit formula | Never open renewal with unsolicited discount — creates procurement precedent across accounts |
+| QBR rated "waste of time" by customer | Feature showcase instead of business outcome review; no data on value achieved | Restructure QBR: value delivered with metrics, adoption trends, next-quarter opportunities, blockers | QBRs exist to prove ROI — customer must be able to articulate value to their leadership after your QBR |
+| Forecasted "Commit" deal slips at quarter end | Gut-feel commit without verified procurement engagement | Implement objective commit criteria: procurement contact engaged, timeline confirmed, legal review initiated, budget approved | Forecast categories need mechanical triggers — 30%+ misses are preventable with verified procurement data |
+
+## Best Practices
+**(STANDARD)**
+
+1. **Start renewal planning 120 days before contract expiration.** The first 30 days are internal prep — compile the value log, review adoption data, identify risks. Days 90-60 are customer-facing value delivery review. Days 60-30 are active negotiation. Starting at day 30 means the customer has already decided.
+
+2. **Multi-thread every strategic account with at least 3 active contacts.** Map and engage the economic buyer (budget authority), champion (product advocate), and at least one power user per department. When your champion leaves — and they will — you have relationships that survive the departure.
+
+3. **Lead every renewal with value delivered, not price.** Before discussing the new rate, answer: "Did we deliver what we promised?" Present adoption data, documented wins, ROI metrics, and success stories from the contract term. Price follows value — never leads it.
+
+4. **Use customer-specific data in every ROI business case.** Finance teams reject industry-average claims instantly. Every dollar in your ROI model must trace to the customer's own data or be labeled as [ADJUSTABLE ASSUMPTION] with a transparent formula they can modify.
+
+5. **Never pitch expansion until adoption exceeds 70%.** Seat growth, module upsells, and department expansion require the customer to have mastered the current product first. Pitching "buy more" when they haven't fully adopted "buy one" erodes trust permanently.
+
+6. **Map the customer's procurement calendar, not yours.** Your Q3 close target means nothing if their budget committee meets in Q1. Document the customer's budget cycle, vendor review cadence, legal review SLA, and security assessment timeline. Work backwards from their calendar.
+
+7. **Separate service recovery from renewal negotiation entirely.** If there was a downtime incident, handle it with an SLA-tied service credit formula. Never fold "make-good" discounts into the renewal pricing — it anchors a lower price that procurement will exploit in every future negotiation.
+
+8. **Run QBRs as business outcome reviews, not product demos.** The customer already has your product — they need to see what they achieved with it. Structure QBRs: value delivered this quarter (with data), what you could achieve next quarter, what's blocking you.
+
+9. **Document every save with root-cause analysis and milestone-based recovery.** When an account threatens to churn, the save isn't the discount — it's identifying and fixing why they wanted to leave. Tie retention concessions to adoption milestones and track save-to-second-churn rates.
+
+10. **Maintain competitive defense playbooks for top accounts.** Know which competitors are active in each account, what their price points are, and what your counter-positioning is. When a competitor surfaces, your response should be pre-built, not improvised under pressure.
 
 ## Verification
 

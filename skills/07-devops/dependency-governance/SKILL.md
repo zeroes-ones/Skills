@@ -89,6 +89,26 @@ You are a dependency governance specialist who understands that dependencies are
 * **Governance design (full session):** Establish version alignment policy. Design Renovate shared presets with grouping, scheduling, and auto-merge rules. Build CVE triage workflow with CVSS + exploitability + reachability. Implement license compliance scanning and approval workflow. Design SBOM generation, signing, and verification pipeline.
 * **Crisis mode (critical CVE, supply chain attack, breaking change cascade):** Triage: identify affected repos via dependency graph, assess reachability, deploy fixes to highest-risk repos first, verify fix deployment, post-incident: why was this not caught by existing governance?
 
+### Scale Depth
+
+#### Solo
+A single developer managing dependencies for 2-3 side projects. Tool: `npm outdated`, `pip list --outdated`, or `cargo update --dry-run`. Process: manually review changelogs before upgrading. CVE scanning via GitHub Dependabot default alerts. License check: glance at the license field in package.json. SBOM: not needed at this scale unless shipping to regulated customers.
+
+#### Small
+A small team (3-15 engineers) with 5-20 repos. Tool: Renovate with repo-local configs. Process: weekly dependency review meeting, manual CVE triage from Dependabot alerts, license check at PR review. SBOM: manual generation using `syft` or `cyclonedx-npm` per release. No shared presets yet — each repo configures independently.
+
+**Transition trigger:** Engineering team grows past 15 or repos exceed 20 — repo-local configs diverge, CVE response becomes inconsistent, onboarding new engineers requires teaching dependency policy verbally.
+
+#### Medium
+An organization with 15-50 engineers across 20-100 repos. Shared Renovate presets deployed org-wide. CVE triage workflow with CVSS + reachability scoring. License scanning automated in CI. SBOM generated in CI on every release and attached to release artifacts. Dependency inventory report generated monthly. Auto-merge for patch updates enabled.
+
+**Transition trigger:** 50+ repos or multiple business units — dependency sprawl accelerates, different teams develop divergent policies, CVE response requires dedicated rotation, SBOM verification for compliance (FedRAMP, SOC 2, ISO 27001) becomes mandatory.
+
+#### Enterprise
+100+ repos, multiple business units, regulatory compliance requirements. Centralized dependency governance team. Real-time dependency inventory with dashboard. CVE response with automated fix deployment and rollback. License compliance with legal review workflow and exception management. Signed SBOM with policy-engine enforcement at deploy time. Dependency confusion and typosquatting detection. Breaking change detection with canary tests. Quarterly dependency health report to CISO/CTO. Dedicated dependency governance engineer.
+
+**Transition trigger:** Regulatory compliance audit horizon (FedRAMP, HIPAA, SOC 2) — SBOM signing and verification moves from nice-to-have to audit requirement. Supply chain security becomes board-level concern after a notable industry incident.
+
 ## When to Use
 
 Use dependency-governance when managing dependencies at organizational scale — the focus is on policy, automation, and risk reduction across many repos.
@@ -139,7 +159,7 @@ What dependency governance task are you working on?
 |-- Complete dependency governance program -> Start at "Core Workflow: Phase 1"
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- Full 103 lines extracted to references/core-workflow.md -->
 
 #
@@ -151,7 +171,7 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 103 lines of detailed guidance
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 #
 
@@ -345,7 +365,29 @@ Building a supply chain security program around SBOM.
 |   |-- An unsigned, unverified SBOM is documentation, not security. It proves nothing.
 ```
 
-## Error Recovery
+## Best Practices
+
+1. **Pin all direct dependencies to exact versions, not ranges.** `^1.2.3` or `~1.2.3` allows silent upgrades that break reproducibility. Use exact versions (`1.2.3`) with lockfiles (`package-lock.json`, `Cargo.lock`, `poetry.lock`) committed to the repo. Ranges are for libraries; pinned versions are for applications.
+
+2. **Group Renovate/Dependabot PRs by ecosystem and update type.** Default Renovate creates one PR per dependency — a 500-dependency project gets 20-50 PRs/week. Configure groups: `renovate.json` with `"groupName": "all minor and patch"` for non-breaking updates, separate groups for framework majors. Auto-merge patch updates that pass CI.
+
+3. **Define a tiered version alignment policy.** Tier-1 frameworks (React, Spring, Django) within 1 MAJOR version across 95% of repos. Tier-2 utilities (lodash, Guava) within 1 MINOR. Tier-3 dev tools: latest stable. Any repo out of alignment needs a documented exception and upgrade plan.
+
+4. **Triage CVEs by reachability, not just CVSS score.** A CVSS 9.8 in a transitive dev dependency that never executes in production is lower priority than a CVSS 6.5 in your auth library. Use `npm audit --production`, `cargo audit`, or OWASP Dependency-Check with reachability analysis to prioritize.
+
+5. **Generate and sign an SBOM on every release.** Use CycloneDX or SPDX format. Cryptographically sign with cosign or in-toto. Verify SBOM at deploy time — a policy engine must block deployments without a valid, signed SBOM. Unsigned SBOM is documentation, not security.
+
+6. **Scan licenses at CI gate, not pre-launch review.** Discovering a GPL transitive dependency after 3 months of integration means ripping it out and rewriting. Block PRs that introduce unapproved licenses (GPL, AGPL) unless a documented exception exists. Rescan monthly — projects relicense.
+
+7. **Automate dependency freshness checks.** A dependency not updated in 12 months is a security risk. Use Renovate's `stabilityDays` and `minimumReleaseAge` to avoid brand-new releases, but flag dependencies > 6 months behind upstream. Weekly stale-dependency report to engineering leads.
+
+8. **Protect against dependency confusion and typosquatting.** Configure package managers to resolve private registries first (`npm config set registry`, `.npmrc` with scoped registries). Use Socket.dev or Snyk to detect suspicious package metadata. Block packages from unmaintained repos (>1 year since last commit).
+
+9. **Test framework major upgrades in staging before auto-merging.** React 17→18 passing unit tests does not catch CSS breakage, deprecated API behavioral changes, or ecosystem plugin incompatibility. Auto-merge patches; manual review + staging verification for majors. Never auto-merge framework majors.
+
+10. **Scan the full transitive dependency tree, not just direct deps.** A CVE 4 levels deep is just as exploitable. Tools that only scan `package.json` miss 60-80% of the dependency tree. Use `npm ls --all`, `cargo tree`, or dedicated SCA tools that traverse the full graph.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -443,6 +485,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+- [ ] **[DG-01]** Dependency inventory script runs across all repos, outputting full transitive tree (not just direct deps), with version counts for each unique package
+- [ ] **[DG-02]** Tier-1 frameworks within 1 MAJOR version across 95%+ of repos; any outlier has a documented exception and upgrade plan with target date
+- [ ] **[DG-03]** Shared Renovate/Dependabot presets deployed to 100% of repos with grouping rules (minor/patch grouped, framework majors separate), scheduling, and auto-merge rules
+- [ ] **[DG-04]** Auto-merge enabled for patch updates that pass CI; disabled for framework major versions; auto-merge success rate above 60%
+- [ ] **[DG-05]** Critical CVEs triaged with reachability analysis within 24h, fixed within 72h; High CVEs fixed within 14 days; no CVE older than 30 days without triage
+- [ ] **[DG-06]** Full transitive dependency tree scanned for CVEs; scanner configured to traverse all levels, not just direct dependencies
+- [ ] **[DG-07]** License compliance gate active in CI: PRs blocked if they introduce unapproved licenses (GPL, AGPL, SSPL); exceptions documented in a license exception registry
+- [ ] **[DG-08]** Monthly license re-scan configured; any project that re-licensed is flagged within 5 business days; copyleft contamination detected before merging
+- [ ] **[DG-09]** SBOM generated in CycloneDX or SPDX format on every release; cryptographically signed with cosign or in-toto; verified at deploy time by policy engine
+- [ ] **[DG-10]** Dependency confusion protection enabled: private registries configured first in resolution order; scoped packages pinned to private registry; typosquatting detection active
+- [ ] **[DG-11]** New dependency approval workflow: PR adding a new dependency must include justification, bundle size impact, and license verification; reviewer gate before merge
+- [ ] **[DG-12]** Dependency freshness dashboard: red flag for packages >6 months behind upstream, >1 year since last commit (unmaintained), or with deprecated notices
+- [ ] **[DG-13]** Breaking change detection: canary tests or compiler-based detection run against framework MAJOR upgrades before auto-merge; results posted to PR as comment
+- [ ] **[DG-14]** Quarterly dependency health report automated: version alignment trend, CVE SLA compliance, license violation count, removal candidates (unused/duplicate), and dependency bloat trend
+
 ## What Good Looks Like
 
 ```mermaid
@@ -504,35 +563,47 @@ Exercise 4: LICENSE COMPLIANCE SCENARIO (30 min)
 | "We'll review licenses during the legal review phase before launch." | Discovering a GPL transitive dependency after 3 months of integration means ripping it out and rewriting that functionality. $20K-$50K in rework. License scanning must be a CI gate, not a pre-launch checkbox. |
 | "Internal packages can't be compromised — they're behind our firewall." | Dependency confusion and typosquatting attacks target internal package names. If your CI resolves `company-utils` from a public registry before your private one, the attacker's package runs with full CI privileges. $15K-$40K per incident. |
 
-## Gotchas
+## Anti-Patterns
 
-#
+### Anti-Pattern: Pin everything and never update
+**What it looks like:** A dependency graph frozen for 6-18 months. Engineers say "if it works, don't touch it." Lockfiles committed but never regenerated.
+**Why it fails:** When a critical CVE hits, you must update 200 packages at once — every one is a potential breaking change. The emergency remediation effort across 50 repos costs $150K-$500K when Log4Shell-level CVEs hit and you have 18 months of unpulled updates.
+**Do this instead:** Establish a regular update cadence (monthly for patches, quarterly for minors). Use Renovate with grouping and auto-merge for patches. Freeze only with a documented exception and sunset date.
 
-## Version Management Gotchas
+### Anti-Pattern: Default Renovate without configuration
+**What it looks like:** Renovate installed with default config, creating one PR per dependency. 20-50 PRs per week in a 500-dependency project. Engineers learn to close bot PRs on sight. Within 3 months: 200+ open dependency PRs.
+**Why it fails:** $80K-$200K per year in wasted CI minutes, review cycles, and accumulated security debt. The exact opposite of what Renovate is supposed to achieve — it trains teams to ignore dependency updates entirely.
+**Do this instead:** Configure grouping rules: all minor/patch updates in one PR group per ecosystem. Framework majors in separate, well-labeled PRs. Set `automerge: true` for patches that pass CI. Add `stabilityDays: 3` to avoid brand-new releases.
 
-* **"We will pin everything and never update."** A dependency graph frozen for 6 months is a security incident waiting to happen. When a critical CVE hits, you must update 200 packages at once — every one is a potential breaking change. **Total cost: $150,000-$500,000 in emergency remediation effort** when Log4Shell-level CVE hits and you have 18 months of unpulled updates across 50 repos.
+### Anti-Pattern: Auto-merging framework major versions
+**What it looks like:** React 17→18, Spring Boot 2→3, or Django 4→5 auto-merged because CI passes. "The tests are green" used as justification.
+**Why it fails:** Unit tests don't catch CSS breakage, deprecated API behavioral changes, ecosystem plugin incompatibility, or runtime performance regressions. A broken production checkout flow costs hours of debugging, rollback, and team trust in automation. $25K-$75K per incident.
+**Do this instead:** Auto-merge patches only. Framework majors require manual review + staging environment verification for at least 24 hours. Post results of canary tests as PR comment. Never auto-merge framework majors.
 
-* **"Renovate will handle it" without configuration.** Default Renovate creates one PR per dependency. For a medium-sized project with 500 dependencies, that is 20-50 PRs per week. Engineers learn to ignore them. Within 3 months, you have 200+ open dependency PRs and a culture of "just close the bot PRs." **Total cost: $80,000-$200,000 per year in wasted CI minutes, review cycles, and the security debt of ignored updates** — the exact opposite of what Renovate is supposed to achieve.
+### Anti-Pattern: Treating every Dependabot alert as P0
+**What it looks like:** Every Dependabot alert triggers an incident response. Medium-severity CVEs in transitive dev dependencies that never execute in production get the same urgency as critical CVEs in auth libraries.
+**Why it fails:** 10 such alerts per week across 30 repos = 320 engineering hours/month wasted. $200K-$500K per year in misallocated CVE response. Teams burn out and stop taking alerts seriously.
+**Do this instead:** Triage by reachability: can this code path actually be invoked in production? If no, downgrade to P3 with a documented analysis. Reserve P0 for CVEs in production-reachable code with known exploitability (CISA KEV catalog).
 
-* **Auto-merging a React major version update because "the tests pass."** Unit tests do not catch subtle runtime behavior changes, deprecated API removals, or CSS breakage. A React 17->18 auto-merge that passes CI but breaks the production checkout flow costs hours of debugging, a rollback, and team trust in automation. **Total cost: $25,000-$75,000 per incident** in debugging, rollback, and lost engineering trust. Auto-merge framework majors only after a manual review + staging verification.
+### Anti-Pattern: Declaring CVE fixed after merging the Dependabot PR
+**What it looks like:** Dependabot PR merged, alert closed, team moves on. But the same dependency is pinned separately in a Dockerfile, CI config, or monorepo root package.json that wasn't updated.
+**Why it fails:** The CVE persists in production despite being "fixed." Discovering a "fixed" CVE is still exploitable 3 months later destroys security credibility. $50K-$150K per incident in response, disclosure, and remediation.
+**Do this instead:** After merging a CVE fix, verify across all lockfiles, Dockerfiles, and configuration files that the vulnerable version is absent. Run `npm ls [package]` or `cargo tree | grep [crate]` across the full build graph. Automate this verification in CI.
 
-#
+### Anti-Pattern: Scanning only direct dependencies for CVEs
+**What it looks like:** CVE scanner configured to check `package.json` or `requirements.txt` only. Transitive tree ignored because "we don't directly depend on that."
+**Why it fails:** A CVE 4 levels deep is just as exploitable. Tools scanning only the top level miss 60-80% of the dependency tree. $100K-$300K in undetected risk exposure.
+**Do this instead:** Always scan the full transitive tree. Use `npm audit --all`, `cargo audit` (traverses full graph), or dedicated SCA tools (Snyk, Black Duck) that build the complete dependency graph. Configure CI to fail on critical/high CVEs in any transitive dependency.
 
-## CVE Response Gotchas
+### Anti-Pattern: "It was MIT when we added it" — ignoring license changes
+**What it looks like:** License checked once at dependency addition time. No periodic re-scan. Packages sit in the dependency tree for years with no license verification.
+**Why it fails:** Projects relicense. A package that was MIT 2 years ago may be GPL today. Or it may have added a GPL dependency transitively. GPL contamination discovered during due diligence (fundraising, acquisition) can block or devalue the deal. $250K-$2M in legal exposure and remediation.
+**Do this instead:** Monthly automated license re-scan of the full dependency tree. Configure CI to block PRs introducing unapproved licenses. Maintain a license exception registry with documented rationale for each exception, reviewed quarterly.
 
-* **Treating every Dependabot alert as a P0 incident.** A medium-severity CVE in a transitive dev dependency that is not reachable from production code consumes 4-8 engineering hours if treated as critical. At 10 such alerts per week across 30 repos, that is 320 engineering hours/month. **Total cost: $200,000-$500,000 per year in wasted CVE response** — triage is not optional, it is the difference between security engineering and security theater.
-
-* **"We fixed the vulnerability — closed the Dependabot PR."** Merging the Dependabot PR updates the lockfile. But if you also have the dependency pinned in a Dockerfile, a CI config, or a monorepo root package.json that was not updated, the CVE persists in production. **Total cost: $50,000-$150,000 per incident** — discovering a "fixed" CVE is still exploitable in production, 3 months after you declared it resolved, destroys security credibility.
-
-* **Checking only direct dependencies for CVEs.** A CVE in a transitive dependency 4 levels deep is just as exploitable as one in a direct dependency — your application executes that code. Tools that only scan package.json miss 60-80% of the dependency tree. **Total cost: $100,000-$300,000 in undetected risk exposure** — every CVE scanner is only as good as its depth. Always scan the full tree.
-
-#
-
-## License & Compliance Gotchas
-
-* **"It was MIT when we added it."** Projects relicense. A package that was MIT 2 years ago may be GPL today. Or it may have added a dependency that is GPL. Without monthly re-scans, you are blind to license changes. **Total cost: $250,000-$2,000,000 in legal exposure and remediation** — GPL contamination discovered during due diligence (fundraising, acquisition) can block or devalue the deal.
-
-* **Ignoring devDependencies in license scans.** DevDependencies are not shipped to production, but they ARE executed during builds. A GPL build tool that injects GPL code into your output is a contamination risk. Most license scanners have a --dev flag for a reason. **Total cost: $75,000-$250,000 in legal remediation** — "it was only a dev dependency" is not a universal defense against copyleft claims.
+### Anti-Pattern: Ignoring devDependencies in license scans
+**What it looks like:** License scanner configured with `--production` flag, skipping devDependencies. Justification: "devDependencies aren't shipped to production."
+**Why it fails:** DevDependencies execute during builds with full repo and credential access. A GPL build tool that injects GPL code into your output is a contamination risk. $75K-$250K in legal remediation. "It was only a dev dependency" is not a universal defense against copyleft claims.
+**Do this instead:** Scan devDependencies too. Use separate license policy tiers: production = strict (no copyleft), dev = cautious (copyleft allowed only with documented review that it doesn't inject code into build output).
 
 ## Verification
 

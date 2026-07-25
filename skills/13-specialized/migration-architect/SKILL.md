@@ -148,7 +148,7 @@ Common chains:
 - **Chain**: system-architect → migration-architect → devops-engineer — Architect defines what to build; migration architect plans how to get there; DevOps builds the pipeline.
 - **Chain**: database-designer → migration-architect → database-reliability-engineer — Schema design flows into migration plan; DBRE ensures reliability during and after the migration.
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Migration Strategy Selection
@@ -309,7 +309,7 @@ Common chains:
 **P95 >3x baseline or error rate >1% → roll back after confirming non-transient.**  
 **Everything else → extend bake period. Never roll back on the first small anomaly.**
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -343,7 +343,20 @@ Common chains:
 **Output:** Old system decommissioned, migration complete, retrospective document
 
 
-## Error Recovery
+## Best Practices
+
+1. **Strangler Fig over big-bang cutover.** Incrementally replace system components behind a routing layer. Each replaced component is independently verifiable and reversible. Big-bang migrations fail 60% of the time — a 4-hour window becomes a 28-hour outage when the untested rollback path doesn't work at production scale.
+2. **Expand-Contract for every schema change.** Phase 1 (Expand): add new column/table alongside old, nullable with defaults. Phase 2: dual-write to both old and new. Phase 3: migrate existing data, backfill with checkpointing. Phase 4 (Contract): remove old column/table after verification. Each phase deploys independently without coordination.
+3. **Traffic splitting with graduated monitoring gates.** Route 1% → 10% → 25% → 50% → 100% of traffic to the new system. At each gate, compare P95 latency, error rate, and throughput against baseline for at least 30 minutes. If any metric exceeds 110% of baseline, halt and investigate — never proceed past a red gate.
+4. **Rollback automation per migration phase.** Every phase needs a documented, tested rollback procedure executable by the on-call engineer — not just the migration architect. Feature flags for instant traffic reversion. Database rollback via blue-green or reverse migration scripts. Practice the rollback in staging before production.
+5. **Data migration with checksum validation on 100% of rows.** Row counts must match within 0.01%. Run `CHECKSUM TABLE` or `MD5(CONCAT_WS(...))` on both source and target. Compare null ratios, value distributions, and edge cases (non-ASCII, very long strings, boundary numerics). Application-level spot-checking 50 rows on a 500M-row migration misses the 0.1% corruption that affects 500,000 records.
+6. **Dual-write during transition, never single-write to either system.** During the migration window, write to both old and new systems. Compare responses with a diffing system. If writes diverge, the old system is authoritative until cutover. Single-write with fallback creates silent data drift that is discovered weeks later when the old system is gone.
+7. **Bake periods scale with component criticality.** Database migration: 24h minimum. API migration: 48h minimum. Full-stack migration: 72h minimum. During bake, the old system runs read-only. Do not decommission anything until a full business cycle (including batch jobs, end-of-month processing, and compliance reports) has completed on the new system.
+8. **Performance regression testing at 150% of peak production load.** "Same database version on faster hardware" is not a guarantee — the new query planner may choose different execution plans. Run `ANALYZE` on all tables post-migration. Replay production query samples and compare execution plans. A query that took 50ms in the old system taking 8 seconds in the new one is a migration failure, not a performance observation.
+9. **Decommission checklist with connection audit.** Before shutting down the old system, audit all connections: grep for IPs and hostnames across all repos, check network logs for 30 days, verify zero traffic for one full business cycle. A batch job with a hardcoded IP nobody documented will be discovered at the worst possible time.
+10. **Dry run on production-scale data before every migration.** A migration script tested on a 1GB dev database behaves completely differently on 5TB of production data. Dry runs catch timeout, OOM, lock-contention, and replication-lag issues before they become outages. The dry run must use a production snapshot or equivalent scale.
+
+## Error Recovery **(DEEP)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -540,7 +553,7 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - **Bake period minimums:** DB migration 24h → API migration 48h → Full stack 72h
 - **Rollback trigger #1:** Data corruption anywhere = immediate rollback
 
-## Gotchas
+## Anti-Patterns
 
 - **Big bang migration without rollback.** Planning to cut over an entire system in one maintenance window — database, application, DNS, everything — with no tested path back to the old system. When the new database schema has a subtle incompatibility or the load balancer config is missing a rule, the system is down with no way back except restoring from backup. **Total cost: $500K-$5M in extended downtime. A 4-hour planned maintenance window that becomes a 48-hour outage costs $10K-$100K/hour in lost revenue for mid-market SaaS, plus regulatory fines in finance/healthcare, plus permanent customer churn.** Fix: every migration step must have a documented, tested rollback procedure. Practice the rollback in staging. Implement feature flags that can instantly revert traffic to the old system. The rollback runbook must be executable by the on-call engineer — not the migration architect who wrote it.
 - **Data migration without integrity validation.** Migrating millions of records without checksum verification or row-count reconciliation means data corruption is discovered weeks later — when customer reports surface mysterious data inconsistencies. A single character encoding issue during ETL can corrupt every non-ASCII name in the database, and by the time it's noticed, the old system has been decommissioned. **Total cost: $100K-$1M in corrupted data discovered post-migration. Fixing corrupted production data after the old system is gone requires forensic data reconstruction, manual customer outreach, and in regulated industries, mandatory breach notification.** Fix: run checksum validation on every table after migration: `CHECKSUM TABLE` / `MD5(CONCAT_WS(...))` on 100% of rows. Compare row counts, null ratios, and value distributions between source and target. Run application-level validation — a sample of customers should see identical data on both systems before cutover.
@@ -585,6 +598,21 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(DEEP)**
+
+- [ ] **[S1]** Migration runbook exists with per-phase rollback plan, step-by-step timing estimates, and rollback triggers for each phase. Runbook executable by on-call engineer, not just the migration architect.
+- [ ] **[S2]** Dry run completed on production-scale data (snapshot or equivalent). No timeouts, OOM, lock contention, or replication lag issues detected. Results documented.
+- [ ] **[S3]** Data integrity validation: row counts match within 0.01% for every migrated table. Checksum validation on 100% of rows. Null ratios, value distributions, and edge cases compared between source and target.
+- [ ] **[S4]** Dual-write verified: writes to both old and new systems produce identical results. Diffing system confirms no divergence. Error rate < 0.1% on either target.
+- [ ] **[S5]** Performance tested at 150% of peak production load. P95 latency on target within 110% of source. `ANALYZE` run on all tables. Query execution plans compared between old and new.
+- [ ] **[S6]** Traffic splitting gates: graduated rollout path (1% → 10% → 25% → 50% → 100%) with 30-minute monitoring at each gate. Abort conditions defined with numeric thresholds.
+- [ ] **[S7]** Bake periods respected: database 24h minimum, API 48h minimum, full-stack 72h minimum. Old system running read-only during bake. Full business cycle (including batch jobs) completed on new system.
+- [ ] **[S8]** Decommission checklist: all connections audited (grep for IPs/hostnames across repos, network logs for 30 days). Zero traffic verified for one full business cycle. Old system in "dark mode" with zero requests before shutdown.
+- [ ] **[S9]** Rollback tested in staging within 7 days of production migration. Feature flags for instant traffic reversion. Database rollback via blue-green or reverse migration scripts verified.
+- [ ] **[S10]** Application smoke test: core flows (login, create, read, update, delete) verified on target system. Identical data visible on both systems for sample customers before cutover.
+- [ ] **[S11]** Monitoring and alerting operational on new system before decommissioning old. All dashboards, alerts, and logs verified. Replication lag alert configured for CDC-based migrations.
+- [ ] **[S12]** Retrospective completed: what went well, what went wrong, what would we do differently. Lessons documented. Migration artifacts (runbook, validation reports, decision records) archived.
 
 ## References
 

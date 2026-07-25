@@ -115,6 +115,35 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 - **Deep dive (full session):** For bugs that resist standard debugging: git bisect across commits, delta debugging (binary search on inputs), log injection (add targeted logging at each layer), dependency isolation (does it happen without Redis? without the CDN?), and comparative analysis (what changed between working and broken states?).
 - **Critical incident (SEV1/P0):** Stop-the-line protocol. All hands on deck. Goal: restore service, not find root cause. Mitigate first (rollback, feature flag off, traffic shift), then investigate. Post-incident: blameless postmortem with timeline, 5 Whys, and action items.
 
+### Solo Developer
+- Reproduce locally with exact inputs; use `console.log`/`print` for quick local debugging (never in production)
+- Git bisect for regression introduction; binary search on code sections for isolation
+- Rubber duck debugging: explain the code line by line to a colleague or write it out
+- Stack traces as primary navigation tool; grep codebase for error messages
+- Root cause documented in commit message with "why" not just "what"
+
+### Small Team (2-5)
+- Structured logging with correlation IDs across services
+- Centralized error tracking (Sentry, DataDog) with alert rules on error rate spikes
+- Blameless postmortem template for all SEV2+ incidents
+- Debugging runbooks per service: common failure modes, diagnostic commands, rollback procedures
+- Weekly bug triage: prioritize by user impact, assign with reproduction requirements
+
+### Medium Team (5-20)
+- Distributed tracing (OpenTelemetry, Jaeger) across all services — trace ID propagation mandatory
+- Git bisect automated in CI for regression detection on performance/latency regressions
+- Chaos engineering in staging: regular fault injection (latency, packet loss, service kill) to validate debugging tooling
+- Production-safe diagnostics: read-only debug endpoints, sampled verbose logging, feature-flagged instrumentation
+- Incident command training for all senior engineers; quarterly fire drills
+
+### Enterprise (20+)
+- Automated root cause analysis (RCA) pipelines: anomaly detection → correlated events → suspected commit → auto-rollback
+- Centralized debugging platform: unified log search, trace viewer, metrics correlation across all services
+- Chaos engineering in production: controlled experiments with automated abort criteria
+- Bug tax budget: 15% of engineering capacity allocated to bug fixing and test gap closure
+- Postmortem culture: every incident produces dated action items; quarterly review of recurrence patterns
+- Debugging certification: L1 (local) → L2 (distributed) → L3 (incident command) training tracks
+
 ## When to Use
 
 Use debugging-and-error-recovery when existing code is not behaving as expected and you need to find and fix the root cause -- systematically, not through trial and error.
@@ -168,7 +197,7 @@ What kind of bug are you dealing with?
 └── I'm not sure where to start → "Core Workflow > Phase 0" — clarify the bug description
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- Full 168 lines extracted to references/core-workflow-1.md -->
 
 #
@@ -180,7 +209,21 @@ BUG TRIAGE TEMPLATE
 ...
 > 📎 **[references/core-workflow-1.md](references/core-workflow-1.md)** — 168 lines of detailed guidance
 
-## Decision Trees
+
+## Best Practices
+
+1. **Reproduce before you investigate.** Every debugging session starts with reproduction. If you cannot reproduce the bug, you cannot confirm the fix. Capture exact inputs, environment state, and steps. A non-reproducible bug is not a debugging task — it's an observability gap. Instrument the code and wait for the next occurrence.
+2. **Binary search narrows the search space exponentially.** Whether it's git bisect on commits, delta debugging on inputs, or commenting out half the code — each step eliminates 50% of possibilities. A 1024-commit range resolves to the exact commit in 10 bisect steps. A 500-line function resolves to the buggy line in 9 halvings. Never linearly scan when you can binary search.
+3. **The 5 Whys trace symptoms to root causes.** "The app crashed" → Why? "NullPointerException in checkout" → Why? "User object was null" → Why? "Database returned no rows" → Why? "The user was deleted during checkout by a concurrent admin action" → Why? "No optimistic lock on the user row." Root cause found. Stop at the process or system level — not at "the developer made a mistake."
+4. **Log analysis: timestamp correlation before content correlation.** When debugging distributed failures, align logs by timestamp across services before reading content. A 503 in Service A at 14:32:01.234 correlates with a connection timeout in Service B at 14:32:01.228 — 6ms earlier. Content confirms what timing suspected. Without timestamp alignment, you're reading 10,000 log lines hoping for a pattern.
+5. **Rubber duck debugging works because it forces structured reasoning.** Explain the bug to a colleague (or a literal rubber duck) line by line. When you reach a line where you say "and then... it should..." — STOP. That "should" is an unverified assumption. Test it. 30-50% of bugs are found during the explanation phase alone, before the listener responds.
+6. **Fix root cause, not symptom — then write the regression test that proves it.** A symptom fix (adding a null check) masks the root cause (why was it null in the first place?). After finding the root cause with 5 Whys, write a test that reproduces the exact failure chain, apply the minimal fix, and leave the test in the suite permanently. If the test suite didn't catch this bug, the test suite has a gap — fix the suite too.
+7. **Critical incidents: mitigate first, investigate second.** The goal of incident response is restoring service, not finding root cause. Rollback, feature flag off, traffic shift — any action that restores service in under 5 minutes. Investigation begins after users stop experiencing the outage. Post-incident: blameless postmortem with timeline, 5 Whys, and dated action items.
+8. **Never debug with `console.log` in production.** Logging PII violates GDPR/CCPA. Logging in hot paths 10x your log volume, drowning real signals and exceeding retention limits. Use structured logging (JSON, correlation IDs, sampling) and a debug-level log level that's disabled in production. If you must add temporary instrumentation, use a feature-flagged debug endpoint that auto-disables after 1 hour.
+9. **The fix must be minimal — no refactoring mixed into a bug fix.** A bug fix PR that also renames 12 variables, extracts 3 helper methods, and reformats the module is a regression risk. The reviewer can't distinguish the fix from the refactoring. Ship the minimal fix first, verify it in production, then refactor in a separate PR. Separation of concerns applies to commits too.
+10. **Close the loop: if the bug was non-reproducible, add instrumentation before closing.** A bug closed as "cannot reproduce" without added logging, metrics, or a Sentry alert will recur with zero additional data. Add structured logging at every decision point in the suspect code path. Set an alert for the error signature. The next occurrence should auto-create a ticket with a full trace — not another "cannot reproduce."
+
+## Decision Trees **(QUICK)**
 #
 
 ## Decision Tree 1: Non-Reproducible Bug Strategy
@@ -320,7 +363,7 @@ Phase 2: Explain to the Duck (or colleague)
 └── If not, your colleague/duck now has enough context to help effectively.
 ```
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -468,6 +511,18 @@ Total time: 25 minutes. Regression protection: permanent.
 - **Closing a bug as "cannot reproduce" without instrumenting the code.** A non-reproducible bug is not fixed — it is waiting. Adding structured logging, metrics, or a sentry alert at the suspect site converts "cannot reproduce" into "will catch next time." Without instrumentation, the bug will recur with zero additional data. **Total cost: $5,000-$25,000 for each recurrence that could have been caught.**
 - **Running a diagnostic query on a production database during peak traffic.** A `SELECT * FROM large_table` without `LIMIT` or on an unindexed column can cause a table scan that locks rows and blocks writes, turning a debugging session into a production outage. **Total cost: $30,000-$150,000 in downtime from a self-inflicted incident.**
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| Adding try/catch that swallows the exception (empty catch block) — converts a visible error into silent data corruption | Always log the error with full context. If the error is expected, handle it explicitly. If unexpected, re-throw or propagate to the error boundary. Empty catch = bug incubator. |
+| Reverting the wrong commit during an incident panic — makes things worse without fixing the original issue | Verify the commit is the cause before reverting. Use `git bisect` to confirm. Rollback should be a deliberate action, not a panic reaction. |
+| Fixing a bug without understanding why the test suite didn't catch it — same class of bug will ship again | After fixing, identify the test gap and add a regression test. If no test covers this code path, that's the real root cause. Fix the suite, not just the code. |
+| Debugging with `console.log` in production — PII exposure, log volume explosion, signal drowning | Use structured logging (JSON, correlation IDs) with debug-level disabled in production. Temporary instrumentation via feature-flagged debug endpoint with 1-hour auto-disable. |
+| Closing a bug as "cannot reproduce" without instrumenting the code — bug will recur with zero additional data | Add structured logging at every decision point. Set a Sentry/DataDog alert for the error signature. The next occurrence should auto-create a ticket with a full trace. |
+| Fixing the symptom (null check) without finding root cause (why was it null?) — the same null appears elsewhere tomorrow | 5 Whys from symptom to system-level root cause. If the answer is "the developer made a mistake," ask why the mistake wasn't caught — missing test, missing lint rule, missing code review? |
+| Mixing refactoring into a bug fix PR — reviewer can't distinguish fix from refactoring, regression risk multiplies | Ship the minimal fix first. Verify in production. Refactor in a separate PR. A 5-line fix with a 200-line refactor is a 200-line regression risk, not a 5-line fix. |
+
 ## Verification
 
 - [ ] Bug reproduction test written and FAILS before the fix
@@ -492,6 +547,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **[DB1]** Bug reproduction confirmed: exact steps, inputs, environment state captured — bug manifests before any fix is applied
+- [ ] **[DB2]** Root cause identified via 5 Whys — traced past symptom to system/process level (not "developer made a mistake")
+- [ ] **[DB3]** Fix is minimal — changes only what is necessary to resolve the root cause; no refactoring, reformatting, or unrelated changes mixed in
+- [ ] **[DB4]** Regression test written that reproduces the exact failure chain and FAILS before the fix, PASSES after
+- [ ] **[DB5]** All existing tests pass — no regressions introduced; dependent module suites run if changed code is imported elsewhere
+- [ ] **[DB6]** Fix tested in production-like environment: matching data shapes, config values, concurrency patterns, and network latency
+- [ ] **[DB7]** Rollback plan documented and tested — can revert the fix without side effects if it causes downstream issues
+- [ ] **[DB8]** If production bug: blameless postmortem scheduled with timeline, 5 Whys, and dated action items with owners
+- [ ] **[DB9]** If non-reproducible: instrumentation added (structured logging, metrics, alert) to catch next occurrence with full trace
+- [ ] **[DB10]** Test suite gap identified: why didn't existing tests catch this? Gap documented and scheduled for closure
+- [ ] **[DB11]** Debugging artifacts cleaned: temporary log statements, debug endpoints, feature flags removed or disabled
+- [ ] **[DB12]** Root cause documented in issue tracker and/or code comment — future developers can understand why the fix exists, not just what it does
+- [ ] **[DB13]** If database query changed: EXPLAIN plan verified, index usage confirmed, no full table scans on production-sized data
+- [ ] **[DB14]** If distributed system bug: distributed tracing correlation verified; fix validated across all affected service boundaries
 
 ## References
 

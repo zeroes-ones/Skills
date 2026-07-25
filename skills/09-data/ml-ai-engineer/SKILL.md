@@ -148,6 +148,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Implementing AI safety: guardrails, red-teaming, hallucination detection, content filtering
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### ML vs Heuristic vs LLM
@@ -307,6 +308,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to scale infra:** P99 latency > 2× SLA — model isn't broken, infrastructure is. Add replicas, optimize model with quantization.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -362,7 +364,31 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
+## Best Practices
+
+1. **Feature store over ad-hoc feature engineering.** Reusable features defined once and served consistently for training and inference prevent training/serving skew — the #1 cause of silent model degradation in production. Feast, Tecton, or a data warehouse-based feature store ensures the model sees the same feature computation path in both environments.
+
+2. **Experiment tracking is non-negotiable — log everything.** Every training run gets a unique ID with: hyperparameters, dataset version, code commit hash, evaluation metrics, and environment. MLflow, Weights & Biases, or Neptune. Without this, you cannot reproduce results or debug production degradation. "I think this model was trained with learning_rate=0.001" is not a production posture.
+
+3. **Model registry with staged lifecycle.** Models progress through: development → staging → production → archived. Each transition requires documented evaluation results and approval. MLflow Model Registry or Vertex AI Model Registry. Rollback to any previous version must be a single API call, not a code deploy.
+
+4. **Training/serving skew detection is a production requirement.** Monitor feature distributions between training and serving data using KS-test, PSI, or Jensen-Shannon divergence. A model trained on summer data fails silently in winter if nobody checks for seasonal drift. Evidently AI, WhyLabs, or NannyML for drift monitoring.
+
+5. **Hyperparameter tuning uses Bayesian optimization, not grid search.** Grid search is exponential in parameters — 5 params × 10 values = 100,000 combinations. Optuna/Hyperopt with TPE or Bayesian optimization converges on optimal values in 10x fewer trials. Reserve 20% of compute budget for the final training run with tuned parameters.
+
+6. **Model cards for every production model.** Document: intended use, out-of-scope use cases, training data characteristics, evaluation results by subgroup, ethical considerations, and limitations. Model cards are a governance requirement under the EU AI Act and build organizational trust. Google's Model Card Toolkit or Hugging Face model cards.
+
+7. **Bias and fairness evaluation before deployment, not after incidents.** Evaluate model performance across demographics (gender, race, age, geography). Disaggregated metrics reveal 95% overall accuracy hiding 70% accuracy for a minority subgroup. Use Fairlearn, AI Fairness 360, or What-If Tool.
+
+8. **Shadow deployment before canary, canary before full rollout.** Deploy the new model in shadow mode (log predictions, don't serve them) for 1-2 weeks. Then canary to 5% of traffic and compare against production baseline. Gradual rollout catches performance regressions before they affect all users.
+
+9. **GPU memory discipline — profile before training.** Use `torch.cuda.memory_summary()` or `nvidia-smi dmon` to profile memory usage. Batch size × sequence length × hidden dim determines memory footprint. OOM mid-training wastes hours of GPU time. Mixed precision (fp16/bf16) cuts memory in half with minimal accuracy loss for most architectures.
+
+10. **LLM-specific: RAG over fine-tuning as the default, not the exception.** For most enterprise use cases, RAG provides grounded, updatable responses at lower cost than fine-tuning. Reserve fine-tuning for domain-specific behavior patterns that RAG cannot capture (tone, format, instruction-following style). Prompt engineering alone works for < 5 examples of desired behavior.
+
 ## Error Recovery
+**(STANDARD)**
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -475,13 +501,59 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **Model checkpoint callbacks** trigger on every N steps, but if your training crashes at step 4,999 and checkpoint interval is 5,000 — you lose 4,999 steps of work. Also: `save_best_only=True` with a validation metric prevents saving intermediate checkpoints entirely. The best model may not be the last. **Total cost: $50-$500 per GPU-hour wasted — losing 4,999 steps on an 8×A100 cluster at $30/GPU-hour means $1,200-$12,000 in burned compute with zero recoverable output.**
 - **`torch.no_grad()` doesn't mean zero memory** — tensors still accumulate on the computation graph if created inside `with torch.no_grad():` but used outside it with `requires_grad=True`. Inference memory leaks happen silently this way. **Total cost: $10-$100 per GPU-hour in wasted memory overhead — a slow memory leak that OOMs after 48 hours of inference on a $3/GPU-hour instance wastes $144 in compute and requires a restart that delays serving by hours.**
 - **Mixed precision (float16) training** can produce NaN gradients when activation values exceed 65,504 (float16 max). Loss scaling (multiplying loss by 1024, dividing gradients) hides underflow but can't fix overflow. Monitor `grad_norm` — NaN gradients after a spike usually mean overflow. **Total cost: $100-$1,000 in wasted GPU time per failed run — a NaN at step 8,000 of a 10,000-step training run on 8×H100s at $25/GPU-hour wastes $4,500 in compute with no usable checkpoint.**
 - **Transformer attention masks** — a mask of `0` means "attend to this token" in Hugging Face, but `0` means "ignore this token" in most PyTorch implementations. Mixing libraries silently inverts the attention pattern, producing models that attend to padding tokens instead of real content. **Total cost: $5,000-$50,000 in wasted training runs — a model trained with inverted attention masks converges to garbage, wasting an entire training budget before anyone notices the validation metrics are nonsensical.**
 - **GPU memory fragmentation**: `empty_cache()` frees memory but doesn't defragment. After 100 cycles of allocating/deallocating different-sized tensors, you may have 4GB "free" but can't allocate a 2GB contiguous tensor. Restart the process or use `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. **Total cost: $20-$200 per restart cycle — each fragmentation-induced OOM requires a full process restart on multi-GPU nodes, costing 5-15 minutes of idle GPU time at $20-$200 per node-hour depending on GPU tier.**
+
+## Production Checklist
+**(STANDARD)**
+
+Before any model reaches production, verify ALL of:
+
+1. Model card documented: intended use, out-of-scope use cases, training data characteristics, evaluation results by subgroup, ethical considerations, and limitations
+2. Experiment tracking configured — every training run has: hyperparameters, dataset version, code commit hash, evaluation metrics, and environment
+3. Model registered in model registry with staged lifecycle: development → staging → production → archived, with documented evaluation results at each transition
+4. Training/serving skew monitoring deployed: KS-test or PSI on feature distributions between training and inference, alerting on drift
+5. Shadow deployment completed for 1-2 weeks before canary: log predictions, compare against production baseline
+6. Canary deployment to 5% traffic with automated comparison against production model, auto-rollback on regression
+7. Bias and fairness evaluation across demographics completed: gender, race, age, geography — disaggregated metrics documented
+8. Feature store serving features identically for training and inference — no duplicate feature computation paths
+9. GPU memory profiling completed: batch size × sequence length verified to fit in available memory with headroom for gradients and optimizer states
+10. Mixed precision (fp16/bf16) evaluated with loss scaling — NaN gradient monitoring enabled via grad_norm alerts
+11. Hyperparameter tuning completed with Bayesian optimization — grid search considered insufficient justification for production
+12. Inference latency and throughput benchmarks met: p50, p95, p99 latencies under SLO, throughput supports peak traffic × 1.5
+13. Rollback plan verified: single API call to revert to previous model version, end-to-end rollback tested in staging
+14. Monitoring dashboards live: prediction distribution, feature drift, latency, error rate, and business KPIs
+
+## Scale Depth
+
+| Scale | Scope & Complexity | Key Considerations |
+|---|---|------|
+| **Solo** | 1-2 models, personal projects or research | Jupyter notebooks with MLflow for experiment tracking. Single GPU (Colab, Lambda Labs, or local RTX). Manual deployment via Flask/FastAPI. Focus on reproducibility: every notebook cell runs top-to-bottom without modification. |
+| **Small Team (2-10)** | 5-20 models, single business domain | MLflow or Weights & Biases for experiment tracking and model registry. Feature store (Feast lightweight). CI/CD pipeline for model training and deployment. Kubernetes or SageMaker for serving. Shadow + canary deployment pattern. |
+| **Medium (10-100)** | 50+ models, multiple business domains | Centralized ML platform (Kubeflow, Vertex AI, SageMaker). Automated retraining pipelines triggered by data drift. Feature store with point-in-time correctness (Feast, Tecton). Model monitoring with automated rollback. MLOps maturity: Level 2 (automated CI/CD + continuous training). |
+| **Enterprise (100+)** | 500+ models, multi-cloud/hybrid, regulatory compliance | Federated ML platform — central platform team owns infrastructure, domain teams own models. Real-time model monitoring with automated incident response. Model governance board for ethical review. EU AI Act compliance program. GPU cluster management with priority scheduling and cost allocation. |
+
+**Transition Triggers:**
+- Solo → Small Team: > 3 models requiring production serving; need for experiment tracking beyond spreadsheet
+- Small Team → Medium: > 20 models across > 2 domains; need for shared feature store and automated retraining
+- Medium → Enterprise: > 500 models or regulated industry requiring formal model governance and EU AI Act compliance
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Training loss decreasing but validation loss increasing from epoch 3 | Overfitting — model memorizes training data, won't generalize | Add regularization (dropout, weight decay), reduce model capacity, increase training data, add data augmentation, early stopping with validation patience | The gap between training and validation loss is the generalization gap. A widening gap means your model is memorizing noise. |
+| Model performs well in training but fails in production — same metrics, different data | Training/serving skew — feature computation differs between offline training pipeline and online inference pipeline | Audit feature computation code in both paths; implement feature store that serves identical transformations; monitor feature distribution drift (PSI > 0.1 is a warning) | The #1 cause of silent model failure in production. The model didn't degrade — it's solving a different problem than the one it was trained on. |
+| GPU OOM during training even though batch_size × seq_len × hidden_dim fits in memory | Memory accounting ignores optimizer states and gradients — Adam stores 2× parameters (m, v), amortized gradients use memory, and activation checkpointing adds overhead | Reduce batch size, enable gradient checkpointing, use mixed precision (fp16 cuts memory ~50%), use DeepSpeed ZeRO or FSDP for distributed training | Allocated memory = model params + gradients + optimizer states + activations. The model parameters are only ~1/4 of total memory: 1× params + 1× gradients + 2× Adam states + N× activations. |
+| NaN loss at step 4,500 of training | Gradient explosion or fp16 overflow — activation values > 65,504 exceed float16 max | Enable gradient clipping (max_norm=1.0), switch to bf16 (wider range), add loss scaling, monitor grad_norm and alert on spikes | NaN after thousands of steps usually means a rare input triggered an extreme activation. Log the input batch when NaN occurs for root cause analysis. |
+| Model deployed but prediction latency 10x higher than benchmark | Inference was benchmarked on GPU with batch_size=64 but production serves single requests on CPU; different hardware and batching pattern | Benchmark on production hardware with production batch sizes; use ONNX Runtime or TensorRT for optimization; consider model distillation for latency-sensitive deployments | Inference benchmarks must match production conditions. A model that runs in 10ms with batching on A100 can take 200ms for single requests on CPU. |
+| Bias audit reveals model is 30% less accurate for minority subgroup | Training data underrepresenting the subgroup; proxy variables (e.g., ZIP code correlating with race) leaking protected attributes | Oversample underrepresented groups, remove proxy variables, apply fairness constraints during training (Fairlearn, AIF360), evaluate disaggregated metrics before deployment | Models learn the biases in your data. A "99% accurate" model that fails for 10% of your users is not ready for production. |
+| Experiment tracking shows 50 runs, MLflow server is slow, "which run was production?" | No naming convention, no tagging, no lifecycle status. Every run is named `run_20240315_142432` and nobody knows which is which. | Implement naming convention: `{model}-{dataset_version}-{description}`. Tag every run with status (production, staging, deprecated, experiment). Archive runs > 30 days old with no status tag. | Experiment tracking without naming discipline is worse than no tracking — it creates the illusion of traceability without actually enabling it. |
 
 ## Anti-Rationalization — No Excuses
 

@@ -129,6 +129,36 @@ TDD skill manifests in the sophistication of test design — from writing tests 
 
 **Usage**: Say "as an L2 practitioner, TDD this feature" or "as an L3 senior, help me design this for testability." Default: **L2** (independent TDD execution).
 
+### Solo Developer
+- Classic TDD: RED → GREEN → REFACTOR cycle for every function and module
+- Vitest or Jest for JavaScript/TypeScript; pytest for Python; `go test` for Go
+- Test files co-located with source (`foo.test.ts` next to `foo.ts`)
+- Coverage tracked locally; 80% target on new code
+- Git hooks: pre-commit runs unit tests (<5s suite); pre-push runs integration tests
+- Bug fixes always start with a reproduction test
+
+### Small Team (2-5)
+- Outside-in TDD for API endpoints: acceptance test → controller → service → model
+- Shared test factories (Fishery, factory_boy) and fixtures across the team
+- CI quality gate: lint → unit → integration → E2E — block merge on failure
+- Contract tests between frontend and backend; schema validation in CI
+- Test review as part of code review: assertion quality, mock boundaries, test isolation
+
+### Medium Team (5-20)
+- TDD standards documented: naming conventions, mock policies, coverage targets per layer
+- Property-based testing (fast-check, hypothesis) for complex business logic
+- Mutation testing (Stryker, pitest) run weekly; score trend tracked as quality metric
+- Test infrastructure platform: shared CI runners, test DB provisioning, fixture management
+- TDD coaching: pair programming sessions, test design reviews, anti-pattern detection in code review
+
+### Enterprise (20+)
+- TDD certification program: L1 (classic TDD) → L2 (outside-in) → L3 (testable architecture design)
+- Test pyramid enforced organization-wide: layer time budgets, coverage thresholds, test count ratios
+- Centralized test data management with production-like anonymized datasets
+- Cross-team test strategy reviews for shared libraries and platform components
+- TDD metrics dashboard: cycle time, refactor ratio, test-to-code ratio, defect escape rate by team
+- "Testability by design" reviews as part of architecture RFC process
+
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide -->
@@ -141,7 +171,7 @@ TDD skill manifests in the sophistication of test design — from writing tests 
 - Complex business logic — property-based testing catches edge cases manual testing misses
 - API or library design — outside-in TDD produces usable APIs by design
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- STANDARD: 3min -->
 
@@ -170,7 +200,7 @@ Do you see these signals?
 └── None of the above → Don't refactor. Move to next test.
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- STANDARD: 5min -->
 
@@ -343,7 +373,20 @@ def test_transfer_preserves_total_money(amount, initial_balance):
 This single test explores thousands of random input combinations. Use for: financial calculations, data transformations, parsers, serializers, any pure function with clear invariants.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Red-Green-Refactor is a 2-10 minute cycle, not a phase.** Each cycle produces exactly ONE passing test. If you've been in RED for more than 5 minutes, your test is too large — split it. If you've been in GREEN for more than 5 minutes, you're over-engineering — stop, commit, and write the next test. The rhythm matters more than the code: fast cycles build momentum; slow cycles breed doubt.
+2. **Test names document behavior, not implementation.** `test_transfer_moves_money_between_accounts()` not `test_transfer_calls_validateBalance_and_updatesRows()`. A test name should survive a refactor that changes implementation but preserves behavior. If you rename the test when you refactor, the test was testing implementation details.
+3. **Mock external boundaries, not internal collaborators.** Mock HTTP clients, databases, file systems, and clocks — the edges of your system. Never mock the module you're testing, and prefer real objects for value types and pure functions. A test that mocks `OrderService` to test `CheckoutService` validates choreography, not outcome — it breaks on any refactor, even behavior-preserving ones.
+4. **Unit tests verify behavior in isolation; integration tests verify contracts between modules.** A unit test for `calculateTax(order)` uses real tax logic with controlled inputs and no I/O — runs in <5ms. An integration test for `POST /checkout` hits a real database with a test transaction — runs in <200ms. Label them clearly, run them separately, and never call a database-backed test a "unit test."
+5. **Outside-in TDD starts at the acceptance test and works inward.** Write the outermost test first (what the user sees), let it fail, then write the next layer's test, let that fail, and so on until you reach a unit-sized problem. This ensures you build only what the outer layer actually needs — no speculative inner-layer features that "might be useful later."
+6. **Bug fix TDD: reproduce the bug as a failing test before touching any code.** The test must fail for the exact reason the bug report describes — not a compilation error, not a different assertion failure. This proves you understand the bug. Fix the code, watch the test pass, then add 2-3 edge-case variants around the fix area. Leave the bug-reproduction test permanently: it's now a regression test.
+7. **Refactoring has exactly 3 triggers — nothing else.** (1) Duplication: same logic in 2+ places → extract. (2) Poor expressiveness: code doesn't clearly say what it does → rename, restructure. (3) Test structure smell: setup >10 lines, magic numbers, unclear test name → extract factory or clarify. If none of these triggers fire, skip refactor and write the next test. Unnecessary refactoring is premature optimization by another name.
+8. **Coverage measures which lines executed, not which behavior verified.** `expect(service.getUser(1)).toBeDefined()` "covers" `getUser` but passes for null, wrong IDs, and missing fields. Track mutation testing score (Stryker, pitest) periodically: if deleting a line of production code doesn't fail a test, coverage is cosmetic. Use coverage to find untested code, not to validate test quality.
+9. **The Rule of Three governs extraction timing.** First use: write inline. Second use: copy with slight modification — tolerate the duplication. Third use: now you understand the pattern — extract and parameterize. Extracting at first use creates the wrong abstraction; waiting for fourth use accumulates technical debt. Three is the Goldilocks number.
+10. **Tests are the executable specification.** A new team member should understand what the system does by reading the test names, not the implementation. Arrange test files to mirror the module structure. Group related tests with `describe` blocks that form a narrative. When tests are the spec, deleting a test is a product decision, not a cleanup task.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -490,6 +533,18 @@ graph LR
 - **REFACTOR phase skipped because "it's just a small function"** — 50 small functions with duplicated patterns, inconsistent naming, and no shared utilities. The codebase becomes a museum of individual decisions. Refactoring happens at the SUITE level: after 3 similar functions emerge, extract the pattern.
 - **Unit test that hits the database** — it's not a unit test. It's called a "unit test" but takes 200ms (network call), fails when the DB is down (external dependency), and CI reports "unit test failure" when the DB container didn't start. Unit tests touch NO external resources. If it needs a database, call it an integration test.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| Writing tests after implementation — tests ratify existing behavior, bugs become test-validated | Write the test first, watch it FAIL for the expected reason, then implement. If you must test after, deliberately break the implementation to verify the test catches it. |
+| Mock-heavy suites with 95% coverage that don't catch integration failures — every dependency returns perfect canned data | Reserve mocks for external boundaries only (payment gateways, third-party APIs). Use real/in-memory databases for data layer. Write contract tests validating mocks match real dependency behavior. |
+| 100% line coverage as a goal — `expect(result).toBeDefined()` "covers" the line but verifies nothing | Track mutation testing score, not line coverage. Set minimum assertion count per test. Ban coverage-only tests in code review. Coverage finds untested code, not test quality. |
+| Over-mocking the code under test — testing choreography (`paymentGateway.charge() was called`) not outcome (`order.status === 'paid'`) | Test behavior, not implementation. Mock only external boundaries. If a refactor that preserves behavior breaks the test, the test was wrong — rewrite it. |
+| Skipping refactor on tight deadlines — 200-line method with 8 levels of nesting ships because "tests pass" | No merge without refactor for non-trivial changes. Rule of three: extract at second duplicate anticipating third. Allocate 20% of every sprint to refactoring as part of the task. |
+| RED phase: test passes without implementation — `add(1, 2)` returns `3` but `add()` is hardcoded | RED phase test must fail for the RIGHT reason. After writing the test, verify it fails because the feature is missing or the logic is wrong — not because of a typo. Then write a second input to confirm the hardcoded answer breaks. |
+| GREEN phase: over-engineering — adding validation, error handling, and abstraction "I'll need later" | Write the absolute minimum to pass the test. Copy-paste is fine. The next test will demand the abstraction. YAGNI is enforced by the next failing test. |
+
 ## Verification
 
 - [ ] RED phase: test fails for the expected reason (not compilation error, not different test) before implementation
@@ -510,6 +565,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **[TDD1]** RED phase verified: test fails for the expected reason (missing feature/logic error) — not compilation error, not a typo, not a different test
+- [ ] **[TDD2]** GREEN phase verified: minimal implementation passes ONLY the test case — no over-engineering, no "I'll need this later" code, no validation the test didn't demand
+- [ ] **[TDD3]** REFACTOR phase verified: only triggered by duplication, poor expressiveness, or test structure smell — not "it could be cleaner" without a specific trigger
+- [ ] **[TDD4]** Test isolation: every test independently runnable, shardable, no shared mutable state, no test-order dependency — `parallel` mode passes consistently
+- [ ] **[TDD5]** Test categorization: unit (no I/O, <5ms) vs integration (with I/O, <200ms) vs E2E (full system) — labeled, run separately in CI
+- [ ] **[TDD6]** Mock boundaries correct: only external systems mocked (HTTP, DB, filesystem, clock) — internal collaborators use real objects; no mocking the module under test
+- [ ] **[TDD7]** Test naming documents behavior: `test_transfer_moves_money_between_accounts()`, not `test_transfer_calls_validateBalance()` — survives behavior-preserving refactors
+- [ ] **[TDD8]** Bug fix pattern: reproduction test FAILS before fix, PASSES after fix, 2-3 edge-case variants added — test stays in suite permanently as regression guard
+- [ ] **[TDD9]** Coverage as information, not target: mutation testing score tracked quarterly; no coverage-only tests (weak assertions for line count) in suite
+- [ ] **[TDD10]** Rule of three observed: first use inline, second use copy with modification, third use extract — no premature abstraction, no accumulated duplication
+- [ ] **[TDD11]** Test data deterministic: factories with fixed seeds, no `Date.now()`, no random without logged seed — any failed run is reproducible
+- [ ] **[TDD12]** Test suite runs on every commit: fast feedback (<5s unit, <30s integration) — developer never waits >1 minute for test results
+- [ ] **[TDD13]** Outside-in TDD layers verified: acceptance test → controller test → service test → model test — each layer fails before its implementation exists
+- [ ] **[TDD14]** Property-based tests for complex logic: invariants tested across thousands of random inputs — financial calculations, parsers, serializers, pure functions
 
 ## References
 

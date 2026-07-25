@@ -133,7 +133,7 @@ The ZKP engineer's job is not to write circuits — it's to **encode computation
 - Building zk-rollup infrastructure (validium, zkEVM, custom application-specific rollups)
 
 <!-- STANDARD: 3min -->
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Tree 1: Proof System Selection
 
@@ -235,7 +235,7 @@ Need to prove N sequential computations
 ```
 
 <!-- STANDARD: 3min -->
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1: Proof System & Language Selection (est. 1-2 hours)
 1. Identify the proving goal: private computation, rollup, identity, zkML
@@ -287,6 +287,20 @@ Need to prove N sequential computations
 **Completion criteria:** Security audit report. Production readiness checklist completed. Incident response plan documented.
 
 <!-- STANDARD: 3min -->
+## Best Practices
+
+1. **Every output signal with `<--` must have a corresponding `===` constraint.** Missing the equality constraint allows a malicious prover to assign any field element to the output while still generating a valid proof. This is the #1 cause of ZKP circuit exploits — the prover can forge outputs at will.
+2. **Every bit signal must have the Boolean constraint `signal * (signal - 1) === 0`.** Without this, a "bit" can hold any field element as long as the weighted sum constraint holds. The quadratic constraint forces the signal to 0 or 1 — it's the mathematical definition of binary in a finite field.
+3. **All public inputs must have range checks.** Missing range checks allow overflow attacks where a maliciously large public input wraps around in the field to bypass protocol invariants. Use `Num2Bits`, `LessThan`, or custom range templates. Every public input is an attack surface.
+4. **Trusted setup ceremonies must end with a public random beacon contribution.** The last participant in a non-beaconed ceremony can compute the toxic waste by subtracting their own contribution. Always append a recent Ethereum/Bitcoin block hash or NIST randomness beacon as the final contribution. Verify each contribution with on-chain attestations.
+5. **Always benchmark verifier gas with production-representative proofs on testnet.** Theoretical gas estimates for pairing-based verification consistently underestimate by 2-3x. Production proofs often have higher constraint counts than test proofs. Gas exhaustion halts the entire rollup and can cost $200K+ in delayed finality.
+6. **Use snarkjs-generated verifiers for Groth16 production deployments.** Hand-optimized pairing checks have introduced verifier bugs that accept invalid proofs by omitting one of the eight required pairing equations. The 2-3x gas savings from manual optimization is never worth the loss-of-soundness risk.
+7. **Include unique application scope in nullifier and commitment computations.** Without domain separation, cross-application replay attacks break privacy — a nullifier from application A can be replayed in application B. Hash a unique application identifier into every nullifier: `hash(app_scope, secret, external_nullifier)`.
+8. **Set FRI parameters using provably sound formulas, not performance heuristics.** Query count must satisfy: `queries >= log2(security_level) + log2(blowup_factor)`. Use established parameter sets from ethSTARK or RISC Zero rather than custom calculations. Soundness is monotonic with query count — when in doubt, query more.
+9. **Fuzz test circuits with valid random inputs AND invalid witness data.** Proofs must verify for valid witnesses AND fail verification for invalid witnesses. Negative test coverage is as important as positive — many exploits target the verifier's acceptance of invalid proofs. Run 10K+ test cases for each.
+10. **Document all security assumptions in a single auditable file.** Soundness model (computational vs statistical), zero-knowledge property, trusted setup assumptions, FRI parameters, curve security, and witness privacy guarantees. A proof system is only as secure as its weakest documented assumption.
+
+<!-- STANDARD: 3min -->
 ## Error Recovery
 
 If a cryptographic implementation, verification, or deployment fails, follow this escalation path before giving up:
@@ -300,24 +314,8 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 
 **Hard failure boundary:** If 3 independent approaches all fail, STOP. Log what was tried, capture error output, and report the blocking issue with full context.
 
-
-| # | Domain | Best Practice |
-|---|--------|---------------|
-| 1 | Circuit Safety | Every output signal must have both `<--` and `===`. Missing the constraint allows arbitrary forgery of the output value. This is the #1 cause of ZKP circuit exploits. |
-| 2 | Input Validation | All public inputs must have range checks (bit decomposition or LessThan). Missing range checks allow overflow attacks that bypass protocol invariants. |
-| 3 | Boolean Enforcement | Every bit signal must have `signal * (signal - 1) === 0`. Without this, a "bit" can hold any field element as long as the weighted sum constraint holds. |
-| 4 | Trusted Setup | Production deployments require Phase 2 ceremonies with independent, verifiable contributions. Never use test ceremony parameters in production. |
-| 5 | Gas Optimization | Always deploy Solidity verifiers to testnet and measure actual gas before mainnet. Theoretical estimates underestimate by 2-3x consistently. |
-| 6 | Domain Separation | Nullifiers and commitments must include a unique application identifier. Without domain separation, cross-application replay attacks break privacy. |
-| 7 | Constraint Verification | Use `circom --r1cs` to verify constraint count matches expectations. Oversized circuits waste proving resources; undersized circuits indicate missing constraints. |
-| 8 | Recursive Proving | Nova folding is fastest for IVC with uniform computation. SuperNova supports non-uniform IVC with multiple instruction sets. Protostar supports maximal parallelism. |
-| 9 | Benchmarking | Measure proving time, verification time, and proof size for realistic inputs before production. Performance varies significantly with circuit complexity and field size. |
-| 10 | Upgrade Safety | Proof system migration requires redeploying verifiers. Plan for verifier contract upgradeability from day one. |
-| 11 | Testing | Fuzz test with valid random inputs AND invalid witness data. Proof must verify for valid and fail for invalid. Negative test coverage is as important as positive. |
-| 12 | Documentation | Document all security assumptions: soundness, zero-knowledge, trusted setup, FRI parameters. A proof system is only as secure as its weakest documented assumption. |
-
 <!-- DEEP: 10+min -->
-## Error Decoder
+## Error Decoder **(STANDARD)**
 
 ### War Story 1: Under-Constrained Output Signal ($10M+)
 
@@ -367,7 +365,30 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 | **L5 — Novel proof system designer** | Designs new arithmetizations, folding schemes, or proof systems. Publishes research. Sets new efficiency records for prover time, proof size, or verification cost. |
 
 **Usage**: Say "at L2, help me integrate Groth16 with this circuit..." or calibrate by experience. Default: **L2** (proof system integration).
-## Production Readiness Checklist
+
+### Scale Depth
+
+#### Solo (0-10 users)
+Write circuits in Circom 2. Use Groth16 with existing Powers of Tau ceremony output. Deploy snarkjs-generated verifier to testnet first. No recursion needed. Run basic constraint audits with `circom --inspect`. Single-prover architecture.
+
+#### Small Team (10-100 users)
+Add Noir for Rust-based toolchain integration. Implement FROST-based trusted setup with independent contributions. Fuzz testing with 10K+ valid and invalid witnesses. Verifier contract with proxy upgrade pattern. Document security assumptions. Negative test coverage for all critical paths.
+
+#### Medium Team (100-10K users)
+STARK-based proving with Plonky3 for transparent setup. Recursive proving with Nova or Halo2 for proof aggregation. Continuous fuzz testing in CI. External ZKP security audit. Prover infrastructure with horizontal scaling. Verifier gas benchmarking with production-representative proofs. Circuit breaker for proof verification failures.
+
+#### Enterprise (10K+ users)
+Dedicated ZKP research team. Custom proof systems with novel arithmetizations. Multi-prover architecture with fraud proofs. Formal verification of constraint systems. HSM-backed proving keys. Continuous side-channel analysis of prover infrastructure. Bug bounty for constraint vulnerabilities. Incident response for proof system zero-days. zkEVM or zk-rollup at scale.
+
+#### Transition Triggers
+- First mainnet verifier deployment → snarkjs-generated verifier, testnet gas benchmark, proxy upgrade
+- Trusted setup ceremony scheduled → participant verification, beacon finalization, ceremony documentation
+- Verifier gas near block limit → constraint optimization, proof batching, recursive aggregation
+- Proof system vulnerability disclosed → circuit audit for same pattern, verifier upgrade path
+- Proving infrastructure at >80% capacity → horizontal scaling, circuit optimization, GPU acceleration
+- Multi-application deployment → domain-separated nullifiers, per-application ceremony, constraint reuse audit
+
+## Production Readiness Checklist **(STANDARD)**
 
 | # | Item | Ref |
 |---|------|-----|
@@ -452,6 +473,38 @@ Before beginning a new phase:
 | Trusted setup ceremony scheduled | Pre-ceremony: verify ceremony toolchain, participant list, entropy source requirements, and backup procedures | A single compromised contribution can compromise the entire proof system |
 | Verifier contract deployment on mainnet | Pre-deployment: verify bytecode matches audited source, set circuit breaker parameters, test upgrade path | Verifier bugs are irreversible without upgrade capability |
 | Proving infrastructure at capacity (>80% utilization) | Scale horizontally immediately: add prover nodes, optimize circuit constraints, or batch proofs | Proof generation backlogs directly impact user experience |
+
+## Anti-Patterns
+
+### Anti-Pattern: `<--` Without `===`
+**What it looks like:** `out <-- expr;` in a Circom circuit without a subsequent `expr === out;` constraint on the same signal.
+**Why it fails:** `<--` assigns a value to the signal for witness generation only — it adds no constraint. The prover can assign ANY value to `out` while still generating a valid proof. This enables forging outputs: proving you know a preimage when you don't, or proving a zero balance when you have millions. Multiple $10M+ exploits trace to this single pattern.
+**Do this instead:** Always follow `<--` assignments with `===` constraints: `expr === out;`. Use automated linting in CI to detect `<--` without subsequent `===`. Prefer `<==` (which bundles assignment and constraint) whenever the right-hand side is a quadratic expression. Run the pre-deployment check: `grep '<--' circuit.circom` and verify each has a matching `===`.
+
+### Anti-Pattern: Missing Boolean Constraints
+**What it looks like:** Using bit decomposition (`Num2Bits`) but omitting `bit * (bit - 1) === 0` on each decomposed bit signal, assuming decomposition implicitly constrains bits.
+**Why it fails:** Without the Boolean constraint, a "bit" signal can hold any field element. An attacker sets a "bit" to a large field element, making the weighted sum produce an arbitrary value while still looking like bit decomposition. This enables vote manipulation in anonymous voting, forged membership proofs, and bypassed amount limits.
+**Do this instead:** Always add `signal * (signal - 1) === 0` for every bit signal after decomposition. Use Circom's built-in `Bits2Num` and `Num2Bits` templates that include Boolean checks by default. Run `circom --inspect` to verify generated constraints include Boolean enforcement on all bit signals.
+
+### Anti-Pattern: Manual Verifier Optimization
+**What it looks like:** Hand-writing or hand-optimizing a Groth16 verifier in Solidity to save gas, removing or inlining pairing checks from the snarkjs-generated verifier.
+**Why it fails:** Groth16 verification requires 8 pairing equations. Removing even one breaks soundness completely — the verifier accepts proofs of false statements. Manual optimization introduces subtle bugs invisible to standard testing (valid proofs still verify). A production zk-rollup lost $5M+ from omitting one pairing check during refactoring.
+**Do this instead:** Always use snarkjs's generated verifier for production. If gas optimization is essential, benchmark the generated verifier first, then incrementally optimize with differential testing against the reference verifier. Never change the pairing check count or structure. Test: (1) valid proofs pass, (2) proofs with modified public inputs fail, (3) proofs with swapped elements fail, (4) random-element proofs fail.
+
+### Anti-Pattern: Test Ceremony Parameters in Production
+**What it looks like:** Reusing Powers of Tau ceremony parameters from a test or community ceremony (with unknown participants or fewer contributions) for mainnet deployment.
+**Why it fails:** Test ceremonies often have fewer participants, weaker contribution verification, and may lack public beacon finalization. A compromised test ceremony parameter gives the attacker knowledge of the toxic waste, enabling proof forgery for any circuit using those parameters. The attacker can generate valid proofs for any statement.
+**Do this instead:** Run a dedicated Phase 2 ceremony for each production circuit with at least as many independent participants as the protocol's security level requires. Verify each contribution on-chain with attestations. Always append a public random beacon as the final contribution. Never reuse ceremony output across different circuits or deployments.
+
+### Anti-Pattern: FRI Parameters Tuned for Speed
+**What it looks like:** Reducing FRI query count or blowup factor to improve prover performance without recalculating concrete soundness bounds.
+**Why it fails:** FRI soundness depends on query count logarithmically — halving queries doesn't halve security, it can collapse it completely below the target level. Parameters that appear safe based on field size alone can have hidden soundness gaps. A STARK rollup suffered soundness collapse from insufficient FRI queries, allowing proof forgery.
+**Do this instead:** Use established FRI parameter sets from ethSTARK, RISC Zero, or Polygon Hermez. When customizing, calculate concrete soundness: `queries >= log2(security_bits) + log2(blowup_factor)`. Soundness is monotonic with query count — err on the side of more queries. Never tune FRI parameters for performance without independent cryptographic review.
+
+### Anti-Pattern: No Domain Separation in Nullifiers
+**What it looks like:** Computing nullifiers as `hash(secret, external_nullifier)` where the same hash function and nullifier derivation is used across multiple applications.
+**Why it fails:** A nullifier from application A can be replayed in application B, breaking privacy guarantees across applications. If both applications use the same hash function and nullifier derivation, a de-anonymization in one application reveals activity in all applications sharing the nullifier scheme.
+**Do this instead:** Include a unique application scope identifier in every nullifier: `hash(app_scope, secret, external_nullifier)`. The `app_scope` should be a constant unique to the application (e.g., `poseidon("my-app-v1")`). Domain-separate commitments similarly to prevent cross-application binding attacks. Never reuse the same nullifier derivation across different circuits.
 
 ## What Good Looks Like
 

@@ -326,6 +326,8 @@ Design nurture sequences, not email blasts. Architecture: (1) Welcome sequence (
 
 ## Error Recovery
 
+<!-- STANDARD: Recovery patterns for common failures. -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -489,7 +491,22 @@ graph LR
 | "Broad webinars fill the funnel — cast a wide net" | 800 registrations for "Future of Supply Chain": 40% students, 30% junior practitioners, 20% vendors, 10% buyers. $15K + 40 team hours = $500+ per relevant attendee. ABM webinars for 50 named accounts at $8K produce 8-15 qualified opportunities. |
 | "UTM tracking is admin — we'll fix the taxonomy later" | Three teams produce `utm_source=linkedin`, `linkedin_paid`, and `li` — $105K in unaggregatable spend. VP presents channel ROI on incomplete data, CFO finds $30K discrepancy. Cost: $15K-$25K in analytics cleanup + $50K-$200K in misallocated budget. |
 
-## Gotchas
+## Best Practices
+
+1. **Never spend a dollar on paid acquisition without a tracking plan.** UTM taxonomy, conversion tracking (Google Ads pixel, LinkedIn Insight Tag, Meta Pixel), and CRM integration must be live and validated before campaign launch. Closed-loop attribution from impression → click → form fill → CRM → closed-won is non-negotiable. Spend without tracking is buying vanity metrics.
+2. **Bid toward conversions, never clicks or impressions.** Google Ads "maximize clicks" and LinkedIn "maximize impressions" optimize for volume, not quality. Use Target CPA or Maximize Conversions bidding with proper conversion tracking. The same $50K budget produces 2 demo requests on clicks vs 25-40 pipeline opportunities on target CPA.
+3. **Define MQL and SQL criteria with signed agreement from both sales and marketing leadership.** If the two teams disagree on what "qualified" means, the handoff breaks and pipeline numbers are fiction. Document rejection reasons for every lead sales rejects, build a recycle path, and review definitions quarterly.
+4. **Run 10% holdout groups on all email nurture sequences.** If you can't measure incremental lift vs a control group that receives nothing, you don't know if nurture is adding value or just annoying people who would have bought anyway. Kill nurture sequences that can't beat "do nothing" at 90 days.
+5. **Score leads on clicks, form fills, and site visits — never email opens.** Apple Mail Privacy Protection inflates open rates by 30-40% via proxy pre-fetching. A lead who "opened every email" may have never seen your brand. Open rates are a vanity metric in the post-MPP era.
+6. **Launch paid campaigns with ≥5 ad variants per channel.** Running a single creative indefinitely guarantees creative fatigue, rising CPL, and diminishing returns. Kill variants after $500 spend if CTR < 2× channel average. Replace killed variants weekly. Never run a single creative for more than 14 days without refresh.
+7. **Target webinars at specific job titles with budget authority (Director+ in ICP function).** Broad "everyone interested in [industry]" webinars produce audiences of 40% students, 30% junior practitioners, and 10% actual buyers. ABM webinars for 50 named accounts at $8K produce 8-15 qualified opportunities — 5× the ROI of broad webinars.
+8. **Implement UTM governance with mandatory taxonomy and automated validation.** Without governance, three teams produce three different `utm_source` values for the same channel. Create a UTM taxonomy document; enforce via marketing automation platform validation; audit monthly and reject non-compliant campaigns.
+9. **Report attribution with the model name and lookback window stated explicitly.** "Campaign X drove $500K" is meaningless without methodology. State: "Reported using U-shaped attribution with 90-day lookback. Multi-touch models distribute credit differently than first-touch. Attribution is directional — use for budget allocation, not absolute truth."
+10. **Build an ABM program that includes a sales follow-up SLA.** Marketing warms the account but sales doesn't follow up within 48 hours — the engagement signal decays and ABM investment is wasted. Sales must commit to 48-hour follow-up on all ABM signals. If SLA breached, pause ABM program until capacity is restored.
+
+## Anti-Patterns
+
+<!-- STANDARD: Common failure modes with cost estimates and fixes. -->
 
 - **B2B LinkedIn ads targeting "CEO" title** at companies with 50-200 employees — half of those profiles list "CEO" but are actually solopreneur consultants, not your buyer. Combine title + company size + industry; title alone is a vanity metric.
 - **Email nurture sequence that doesn't suppress existing customers or active opportunities** — a customer in contract renewal gets "Want to learn about our platform?" and forwards it to their account manager. Every nurture email must suppress: current customers, open opportunities, and anyone who unsubscribed from THAT topic (not just global unsubscribe).
@@ -498,6 +515,67 @@ graph LR
 - **Google Ads budget left on "maximize clicks" bidding for 6 months.** The algorithm optimizes for cheap clicks, not quality. You get 15,000 clicks at $3.50 CPC ($52,500 spend) — from India, Indonesia, and students researching for term papers. Two demo requests. If switched to "maximize conversions" or "target CPA" with proper conversion tracking, the same $52,500 could have generated 175-250 MQLs at $210-$300 CPL — and 25-40 pipeline opportunities. **Total cost: $50K-$80K in wasted ad spend over 6 months, plus the opportunity cost of 25-40 deals that didn't enter the pipeline.** Fix: Always bid toward a conversion goal (demo request, trial signup, contact sales), never toward clicks or impressions; install conversion tracking before spending a dollar; review search term reports weekly and add negative keywords aggressively.
 - **Webinar strategy that targets "everyone interested in [industry]."** You promote a webinar on "The Future of Supply Chain" and get 800 registrations. 300 attend. The audience mix: 40% students, 30% junior practitioners with no budget authority, 20% vendors selling INTO supply chain, 10% actual buyers. You spent $15K on promotion and 40 hours of team time for 30 potential buyers — a $500+ cost per relevant attendee. **Total cost: $20K-$35K per broad webinar with near-zero pipeline conversion, when a tightly targeted Account-Based webinar for 50 named accounts at $8K cost could produce 8-15 qualified opportunities.** Fix: Target webinars at specific job titles with budget authority (Director+ in your ICP function); cap registrations and vet attendees; use webinars as ABM tools for named accounts, not top-of-funnel awareness.
 - **No UTM governance across the marketing team.** The content team uses `utm_source=linkedin`, the paid team uses `utm_source=linkedin_paid`, and the social team uses `utm_source=li`. Reports show three different "LinkedIn" sources with $50K, $35K, and $20K spend respectively — and nobody can aggregate them. The VP of Marketing presents channel ROI to the board based on incomplete data and loses credibility when the CFO finds a $30K discrepancy. **Total cost: $15K-$25K in analytics cleanup consulting fees to retroactively fix 12 months of data, plus $50K-$200K in misallocated budget because you can't reliably compare channel performance.** Fix: Implement a UTM taxonomy document with mandatory values for source, medium, campaign, and content; enforce via automated validation in your marketing automation platform; audit UTMs monthly and reject non-compliant campaign launches.
+
+## Production Checklist
+
+<!-- STANDARD: Pre-launch verification gate. All items must pass before delivering work. -->
+
+- [ ] Conversion tracking installed and validated for all paid channels (Google Ads, LinkedIn, Meta) before any ad spend
+- [ ] UTM taxonomy documented with mandatory values for source, medium, campaign, and content — enforced via automation
+- [ ] MQL and SQL definitions signed by both sales and marketing leadership — documented in shared location
+- [ ] Lead scoring model validated: top 20% of scored leads account for ≥80% of pipeline generated
+- [ ] Suppression lists active: current customers, open opportunities, and topic-level unsubscribes excluded from all campaigns
+- [ ] 10% holdout group configured for every email nurture sequence — incremental lift measurable at 90 days
+- [ ] Paid campaigns launched with ≥5 ad variants per channel — kill criteria defined (CTR < 2× channel average at $500 spend)
+- [ ] Attribution model selected and documented (first-touch, last-touch, U-shaped, W-shaped, multi-touch) with lookback window
+- [ ] ABM program includes sales follow-up SLA (48-hour max) with pause mechanism if SLA breached
+- [ ] MQL-to-SQL rejection reasons tracked for every rejected lead — recycle path exists and is actively used
+- [ ] Campaign ROI dashboard live: cost per MQL, cost per SQL, cost per opportunity, cost per closed-won by channel
+- [ ] Creative refresh cadence defined: new ad variants weekly, no creative running >14 days without A/B test
+- [ ] Negative keyword lists reviewed weekly for paid search campaigns — search term reports audited
+- [ ] Webinar targeting criteria defined: job title (Director+), ICP industry, budget authority — attendee vetting process in place
+
+## Scale Depth
+
+<!-- DEEP: How this skill scales from solo to enterprise. -->
+
+### Solo Demand Gen (Founder-led, pre-Series A)
+- **Tooling:** Google Ads with manual bidding, Mailchimp for email, Google Sheets for attribution, Google Analytics for web tracking
+- **Process:** Founder runs LinkedIn ads and writes email sequences personally; no formal lead scoring; attribution is last-touch only
+- **Risk:** No holdout groups; no suppression lists; no A/B testing — every campaign is a single-variant gamble
+- **Move to next level when:** Monthly ad spend exceeds $5K OR you have ≥2 active channels (paid + email + webinar)
+
+### Small Team (1-2 Demand Gen, Series A-B)
+- **Tooling:** HubSpot/Marketo for marketing automation, Google Ads + LinkedIn Campaign Manager, basic UTM governance spreadsheet, Google Data Studio for dashboards
+- **Process:** Formal UTM taxonomy, lead scoring model (fit + engagement), email nurture with basic suppression, monthly campaign performance review
+- **Key hire:** First marketing operations person to manage HubSpot/Marketo, UTM governance, and CRM integration
+- **Move to next level when:** Monthly ad spend exceeds $50K OR running campaigns across ≥4 channels simultaneously
+
+### Medium Team (3-6 Demand Gen, Series B-C)
+- **Tooling:** Marketo/Pardot Enterprise, multi-touch attribution platform (Bizible/Full Circle Insights), ABM platform (6sense/Demandbase), dedicated analytics (Tableau/Looker)
+- **Process:** Multi-touch attribution (U-shaped or W-shaped), formal ABM program with sales SLA, weekly campaign optimization cadence, channel-level ROI reporting, dedicated CRO specialist for landing pages
+- **Metrics:** MQL → SQL → Opportunity → Closed-Won conversion rates by channel, CAC by channel, pipeline velocity, attribution-weighted ROI
+- **Move to next level when:** Running ABM for ≥100 named accounts OR annual marketing spend exceeds $2M
+
+### Enterprise (6+ Demand Gen, Series C+)
+- **Tooling:** Full marketing cloud (Marketo Engage + Salesforce Marketing Cloud), CDP for audience segmentation, AI-powered bidding (Google Smart Bidding + LinkedIn Predictive Audiences), dedicated MOPs team, media mix modeling
+- **Process:** Predictive lead scoring, real-time personalization, automated multi-channel orchestration, global campaign governance (regional teams follow central framework), quarterly media mix modeling
+- **Metrics:** Marketing-influenced pipeline vs marketing-sourced pipeline, LTV:CAC ratio by channel, incrementality testing results, brand lift studies, media efficiency ratio (MER)
+- **Governance:** Monthly marketing leadership review of channel performance, quarterly attribution model audit, annual media agency performance review, global UTM governance enforced via marketing automation
+
+## Error Decoder
+
+<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
+
+| Symptom | Diagnosis | Root Cause | Fix |
+|---------|-----------|------------|-----|
+| $50K ad spend, 15,000 clicks, 2 demo requests | Campaign bidding on "maximize clicks" instead of "maximize conversions"; traffic from low-intent audiences | No conversion tracking installed; campaign optimized for volume, not quality | Switch to Target CPA or Maximize Conversions bidding; install conversion tracking; review search term reports weekly; add negative keywords for students, jobs, free, tutorial |
+| Email nurture: 40% open rate, 0.5% click rate, zero pipeline | Open rates inflated by Apple Mail Privacy Protection; emails not driving action | Lead scoring uses opens as primary signal; content not mapped to buyer journey stage | Remove opens from lead scoring; score on clicks, form fills, site visits only; audit nurture content for buyer-stage relevance; add 10% holdout group to measure true incrementality |
+| 100 MQLs passed to sales, 40 accepted, 60 rejected with no feedback | MQL definition doesn't match what sales considers qualified; no rejection reason tracking | Sales and marketing never aligned on MQL criteria; no recycle path for rejected leads | Hold joint MQL definition workshop; document and sign shared criteria; require rejection reason for every lead; build automated recycle path (6-month re-nurture with additional qualification gates) |
+| UTM reports show 3 different "LinkedIn" sources, can't aggregate | No UTM taxonomy governance; each team uses different utm_source values | UTM parameters treated as optional; no automated validation in marketing platform | Create UTM taxonomy document with mandatory values; enforce via HubSpot/Marketo field validation; audit monthly; reject campaigns with non-compliant UTMs |
+| Attribution report shows "Campaign X drove $500K" but model is unspecified | Single number reported without methodology or lookback window | Attribution model not selected or documented; stakeholders don't understand model differences | Always report: model name (U-shaped/W-shaped/multi-touch), lookback window (90/180/365 days), and disclaimer that attribution is directional for budget allocation |
+| ABM program: 500 target accounts engaged, 3 opportunities created | Marketing generated engagement signals but sales didn't follow up within 48 hours | No sales follow-up SLA in ABM program; signal decay exponential after 48 hours | Implement 48-hour sales follow-up SLA; auto-escalate breaches to sales leadership; pause ABM spend if SLA breach rate exceeds 20%; add sales capacity check before launching new ABM campaigns |
+| LinkedIn ads: CPL rising 15% month-over-month, CTR declining | Creative fatigue — same ads running for 6+ weeks without refresh | No creative testing cadence; single variant per campaign; no kill criteria | Launch ≥5 variants per campaign; kill variants after $500 spend if CTR < 2× channel average; refresh weekly; never run same creative >14 days |
 
 ## Verification
 

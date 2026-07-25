@@ -121,6 +121,16 @@ Masters of localization engineer don't just build — they build **the right thi
 
 ## Operating at Different Levels
 
+### Scale Depth
+
+| Depth | Time | Scope | Artifacts |
+|-------|------|-------|-----------|
+| **L1 — Single Component** | ~15min | Implement one well-defined i18n piece following established patterns | Localized component with tests |
+| **L2 — Full Feature Pipeline** | ~1-2hr | Design and build complete i18n pipeline: extraction, TM setup, TMS integration, QA gates | CI-integrated localization pipeline |
+| **L3 — Multi-Platform Strategy** | Multi-session | Define i18n architecture across web, mobile, and API: format standardization, locale data distribution, cross-platform consistency | Platform-agnostic localization architecture |
+| **L4 — Enterprise Globalization** | Multi-sprint | Org-wide i18n standards, shared TM infrastructure, locale budget modeling, build-vs-buy TMS decisions | Globalization platform with ROI tracking |
+| **L5 — Industry Leadership** | Ongoing | Novel localization paradigms, framework-level i18n contributions, published reference architectures | Industry-adopted patterns and open-source tools |
+
 | Level | Scope | You... |
 |-------|-------|--------|
 | **L1** | Single component/module | Implement a well-defined piece following established patterns |
@@ -146,6 +156,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You need to build a continuous localization pipeline that pushes source strings and pulls translations automatically
 
 ## Decision Trees
+**(QUICK)**
+
+### 1. i18n Library Selection
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
@@ -216,6 +229,7 @@ LOCALE DETECTION — How should we decide which language to show?
 **What good looks like:** The app renders correctly in all 10+ target locales including RTL languages (Arabic, Hebrew) without a single text truncation or layout break. String extraction covers 100% of user-facing text — verified by automated scan that compares source strings to translation files. Date, number, currency, and pluralization formatting matches every locale's expectations (d/m/y vs m/d/y, 1.000 vs 1,000). Translation files are complete, reviewed, and shipped in the same deploy as the code — no lag, no missing strings.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): i18n Foundation — Externalize & Standardize
@@ -272,8 +286,31 @@ LOCALE DETECTION — How should we decide which language to show?
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+## Best Practices
+
+1. **Start i18n on day one, even for single-language apps.** Wrap every user-facing string in `t()` or `<Trans>` before the first feature ships. Retrofitting i18n onto a 500-string codebase costs 2-4 engineer-weeks; building it in from day one costs zero extra time per string. Use `eslint-plugin-i18next` in CI to enforce.
+
+2. **Use ICU MessageFormat for anything beyond simple key-value.** English plural "1 item, 2 items" becomes 6 forms in Arabic, 3 in Russian, and 0 in Japanese. ICU `{count, plural, =0 {No items} one {# item} other {# items}}` handles all languages. Never concatenate: `t('you_have') + count + t('items')` breaks in 70%+ of languages.
+
+3. **Pseudo-localize in CI, not locally.** Run a pseudo-localized build (`en-XA` or custom with 30% expansion + diacritics) on every PR. One developer testing locally catches only their bugs. CI catches integration bugs: truncated buttons, broken flex layouts, text overlapping icons. The cost of catching a text-overflow bug in CI: zero. The cost of catching it post-launch in German: emergency redesign sprint.
+
+4. **Design UI components for 30-40% text expansion from English.** German averages 30% longer than English; Finnish 40%+; Arabic adds width from script complexity. Use `min-width`/`max-width` with `text-overflow: ellipsis` as last resort. Never use fixed-width containers for text-bearing elements. Pseudo-localization validates this automatically.
+
+5. **Build proper locale fallback chains.** `fr-CA` (French Canadian) should fall back to `fr` (French), then to the source language. But Android, ICU, and Unicode CLDR resolve fallback chains differently. Configure your i18n library explicitly: `['fr-CA', 'fr', 'en']`. Test fallback behavior for 0, 1, and 2 levels of fallback depth.
+
+6. **Automate placeholder integrity validation.** Every `{name}`, `%s`, `{{variable}}` in the source must appear in every translation. A missing placeholder renders literal `{name}` in the UI or — worse — crashes with a template error. Run placeholder matching in CI: validate that every translated string has exactly the same set of placeholders as the source.
+
+7. **Standardize on one interchange format, then generate platform formats.** i18next JSON for web, Android XML with `%1$s`, iOS `.strings` with `%@` — three formats, one truth. Use XLIFF 2.0 or ICU MessageFormat as the canonical interchange format. Auto-generate all platform-specific formats from it. Validate placeholder integrity in every generated file before merge.
+
+8. **Test RTL (right-to-left) from day one of i18n setup.** Set locale to `ar` and test every screen, every animation, every carousel. CSS `direction: rtl` doesn't mirror icons, SVGs, illustrations, or custom-drawn components. Use logical properties: `margin-inline-start`/`margin-inline-end` instead of `margin-left`/`margin-right`.
+
+9. **Localize locale-aware data, not just strings.** Names (Icelandic patronymics have no "last name"), addresses (Japanese order: prefecture→city→district), phone numbers (varying lengths and formats), postal codes (alphanumeric in UK, numeric in US). Use `libphonenumber-js` and `i18n-iso-countries`. Make culturally-specific fields adaptive or optional.
+
+10. **Continuous localization pipeline: push on merge, pull on schedule.** Source strings pushed to TMS on merge to main. Translated strings pulled back as locale JSON files on a cron schedule or webhook trigger. Automated PRs from TMS when translations are ready. Never let the translation pipeline be a manual step that someone forgets before release.
+
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -286,6 +323,17 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| RTL layout: icons and SVGs face wrong direction; carousels scroll backwards | CSS `direction: rtl` flips text and layout but does NOT mirror custom-drawn elements, SVG paths, or icon fonts. Arrow icons still point LTR | Add `transform: scaleX(-1)` to directional icons in RTL. Use `dir="auto"` on text containers. Test with `html[dir="rtl"]` selector for all directional CSS | RTL is not "flip everything." ~40% of UI elements need manual RTL adaptation. Testing `ar` locale from day one prevents costly post-launch redesign |
+| UI breaks in German: buttons overflow, table columns truncate, labels overlap | English "Submit" (6 chars) → German "Absenden" (8 chars, +33%). Fixed-width containers clip text. No layout testing for text expansion | Design all UI with 30-40% expansion headroom. Use `min-width`/`max-width` with `text-overflow: ellipsis` as last resort. Pseudo-localize with length expansion in CI | Text expansion is predictable (German +30%, Finnish +40%, Arabic +25%). Designing fixed-width containers for English text guarantees breakage in other locales |
+| Translation shows literal `{name}` or `%s` instead of substituted value | Translator accidentally deleted or modified a placeholder. `Hello {name}` → `Bonjour` — the `{name}` is missing. Template resolution fails | Validate placeholder integrity in CI: every translated string must have the EXACT same set of placeholders as the source. Use ICU MessageFormat parser to validate syntax | Placeholder validation must be automated — manual review of 5,000 strings across 12 locales will miss 3-5% of missing placeholders |
+| `Intl.NumberFormat('fr-FR').format(1234.5)` produces different whitespace across browsers | Chrome uses narrow non-breaking space (U+202F), older Safari uses regular space. Visual snapshot tests fail intermittently across browser matrix | Normalize whitespace in visual regression tests: replace all non-breaking spaces with regular spaces before comparison. Document browser-specific formatting differences per locale | Locale-aware formatting APIs are correct but not identical across implementations. Visual diff tools must account for whitespace variation |
+| App translates correctly in dev but shows English in production | `fr-CA` fallback chain resolves differently in production build. Dev uses full locale data; production tree-shaking removed `fr` locale data, leaving only `fr-CA` | Configure locale data import explicitly: import both `fr` and `fr-CA` locale data. Set fallback chain: `['fr-CA', 'fr', 'en']`. Test production build locale resolution | Tree-shaking and bundle optimization silently remove locale data that "isn't directly imported." Explicit imports + integration test in production build mode catch this |
+| Plural forms render incorrectly for zero count in English | ICU `{count, plural, one {# item} other {# items}}` — `zero` is not for English. CLDR defines `zero` only for Arabic, Latvian. English uses `other` for 0 → shows "0 items" not "No items" | Add explicit `=0 {No items}` match. ICU exact matches (`=0`, `=1`) take precedence over CLDR category matches (`one`, `other`). Test plural forms for 0, 1, 2, 5, 21 for every language | ICU plural rules are language-specific. `zero` is a CLDR category (used by Arabic), not a universal catch-all. Always add explicit `=0` case for human-readable zero states |
 
 ## Cross-Skill Coordination
 
@@ -455,20 +503,42 @@ graph LR
 
 **Recommendation:** Buy a TMS if you have >2 target languages AND use professional translators. The break-even point is roughly 3 languages with 1,000+ source strings — at that scale, the engineering time saved in a single release cycle covers the annual subscription. If you're a solo developer with 1-2 languages, start in-house and migrate to a TMS when you hire your first translator or add your third language. Crowdin's free OSS tier is an excellent bridge — zero cost until you outgrow it.
 
-## Gotchas
+## Anti-Patterns
 
-- **RTL layout not tested before Arabic/Hebrew launch.** Launching into RTL markets (Arabic: 400M+ speakers, Hebrew: 9M+) without testing reveals that CSS `direction: rtl` doesn't mirror everything — icons, illustrations, SVGs, carousels, and custom-drawn components stay LTR. Every affected screen needs CSS overrides, component refactors, and QA cycles under launch pressure. **Total cost: $10K-$50K in emergency engineering and QA to fix RTL layout bugs post-launch, plus lost trust in markets where competitors already ship polished RTL.** Fix: build and test your app in `ar` locale from day one of localization work. Use `margin-inline-start`/`margin-inline-end` instead of `margin-left`/`margin-right`. Test every screen and every animation in RTL before declaring localization complete.
-- **Hardcoded strings in UI code.** When every label, button, error message, and toast is hardcoded as `"Submit"` or `"Error: Invalid input"`, localization requires engineers to find every string across the codebase, wrap it in a translation function, extract to resource files, and re-test every screen — all after the app is built. **Total cost: $15K-$75K in extract-and-retranslate labor costs. Converting a medium-sized app (500+ strings) from hardcoded to i18n-ready takes 2-4 engineer-weeks in addition to translation costs, and every change risks breaking UI layout.** Fix: wrap every user-facing string in `t()` or `<Trans>` from day one — even if you only support English. Use eslint-plugin-i18next to enforce no-hardcoded-strings in CI.
+### Anti-Pattern: Retrofitting i18n After the App Is Built
+**What it looks like:** Shipping an English-only app, then deciding to "add localization later." Every label, button, error message, and toast is hardcoded. Engineers must grep the entire codebase, wrap every string in `t()`, extract to resource files, and re-test every screen.
+**Why it fails:** Converting a medium app (500+ strings) from hardcoded to i18n-ready takes 2-4 engineer-weeks. 15% of strings are missed entirely — permanently untranslatable. Every UI change during extraction risks layout breakage.
+**Do this instead:** Wrap every user-facing string in `t()` or `<Trans>` from day one — even for English-only. Use `eslint-plugin-i18next` to enforce `no-hardcoded-strings` in CI. The cost is zero per string. The retrofit cost is $15K-$75K.
 
-- **`Intl.NumberFormat` and `Intl.DateTimeFormat`** output the correct format but vary in whitespace across browsers. `new Intl.NumberFormat('fr-FR').format(1234.5)` produces `1 234,5` with a narrow non-breaking space in Chrome but a regular space in older Safari. Visual snapshot tests will fail.
-- **ICU MessageFormat plural rules** use CLDR data. `{count, plural, one {# item} other {# items}}` — the `one` rule activates for 1, but also for 0 in some languages (French, Brazilian Portuguese) where CLDR defines 0 as `one` category. Test plurals for 0, 1, 2, and many.
-- **RTL (right-to-left) text direction** doesn't flip everything. Numbers and Latin text remain LTR inside RTL paragraphs. CSS `direction: rtl` flips the layout but not the text direction of neutral characters like `+`, `-`, `/`, which stay LTR.
-- **Locale fallback chains** don't follow the obvious pattern. `fr-CA` (French Canadian) does NOT fall back to `fr` on all platforms — Android and ICU use `fr-CA → fr → root`, but Unicode CLDR uses `fr-CA → fr → und`. Resource bundle lookup must test both paths.
-- **Translation keys with interpolation** `Hello {name}` — if the translator omits `{name}`, the app shows literal `{name}`. Validate that every translated string has exactly the same placeholders as the source.
-- **Pseudo-localization** doubles string length and adds diacritics. But it doesn't catch: missing plural forms, date formats, currency codes, or word-order issues. Pseudo-loc is necessary but not sufficient.
-- **Not accounting for text expansion in UI layout at design time.** English source text "Submit" (6 chars) becomes "Absenden" (8 chars, +33%) in German, "Enviar" (6 chars) in Spanish, but "Soumettre" (9 chars, +50%) in French. Buttons break across lines, labels overflow fixed-width containers, and table columns truncate critical action labels. The UI looks broken and untrustworthy in every non-English locale, directly reducing conversion in localized markets. **Total cost: $15,000-$50,000 in UI redesign and QA cycles per locale to fix overflow bugs, plus diminished conversion rates in international markets.** Fix: Design all UI components to accommodate 30-40% text expansion from English as the baseline minimum; use CSS `min-width`/`max-width` with `text-overflow: ellipsis` as a last resort; pseudo-localize with 30% length expansion and run visual regression tests in CI; avoid fixed-width containers for any text-bearing element.
-- **Resource file format fragmentation across platforms.** The web team stores translations as nested JSON (i18next `{"checkout": {"button": {"label": "Buy"}}}`), Android uses XML with `%1$s` positional placeholders, and iOS uses `.strings` files with `%@` format specifiers. Every new string must be manually reformatted per platform, translators re-validate context across three formats, and a single placeholder typo on one platform causes silent string corruption that QA discovers weeks later. **Total cost: $10,000-$40,000 per year in manual format conversion labor, placeholder-corruption bugs requiring emergency fixes, and per-platform QA overhead that multiplies with each additional locale.** Fix: Standardize on a single interchange format (XLIFF 2.0, ICU MessageFormat) and auto-generate all platform-specific formats from it; use a TMS (Lokalise, Phrase, Crowdin) that exports to all target formats from one source; validate placeholder integrity in every generated file with automated CI checks before merging.
-- **Ignoring locale-specific data formatting beyond dates and numbers.** Names, addresses, phone numbers, and postal codes are formatted differently worldwide. A form demanding "Last Name" blocks Icelandic users (who use patronymics, not family names), a "State" dropdown limited to US states blocks Canadian and Australian users, and phone validation hardcoded to `+1` blocks every international customer from signing up. **Total cost: $20,000-$80,000 in permanently lost international customer acquisition, abandoned signup and checkout flows, and a growing backlog of support tickets from blocked legitimate users in target markets.** Fix: Use locale-aware input masks and validators (libphonenumber-js, i18n-iso-countries); make culturally-specific fields like "State/Province," "Last Name," and "ZIP Code" locale-adaptive or optional based on the user's country; test signup and checkout flows with personae from at least 5 countries representing different name, address, and phone number patterns.
+### Anti-Pattern: RTL Tested After Launch
+**What it looks like:** Building the app in LTR (English), shipping to Arabic/Hebrew markets, and discovering that CSS `direction: rtl` doesn't mirror icons, SVGs, carousels, or custom-drawn components. Every affected screen needs CSS overrides under launch pressure.
+**Why it fails:** RTL affects every CSS property with left/right, every icon direction, every text alignment, and every custom drawing — 40% of UI elements need manual RTL adaptation. "Just flipping" is an architectural lie.
+**Do this instead:** Build and test in `ar` locale from day one of localization work. Use logical CSS properties: `margin-inline-start`/`margin-inline-end` not `margin-left`/`margin-right`. Use `dir="auto"` on text containers. Test every screen and animation in RTL before declaring localization complete.
+
+### Anti-Pattern: Fixed-Width UI Designed for English Text
+**What it looks like:** English "Submit" (6 chars) becomes German "Absenden" (8 chars, +33%), French "Soumettre" (9 chars, +50%). Fixed-width buttons break across lines, table columns truncate labels, the UI looks broken in every non-English locale.
+**Why it fails:** Text expansion is predictable and consistent. Designing for English-only guarantees breakage in every other language. The UI looks untrustworthy — directly reducing conversion in localized markets.
+**Do this instead:** Design all UI components to accommodate 30-40% text expansion. Use `min-width`/`max-width` with `text-overflow: ellipsis` as last resort. Pseudo-localize with 30% length expansion and run visual regression tests in CI. Never use fixed-width containers for text-bearing elements.
+
+### Anti-Pattern: Platform-Specific Translation File Formats
+**What it looks like:** Web team uses nested JSON (`{"checkout": {"button": {"label": "Buy"}}}`), Android uses XML with `%1$s`, iOS uses `.strings` with `%@`. Every new string manually reformatted per platform. One placeholder typo on one platform causes silent corruption.
+**Why it fails:** Format fragmentation multiplies QA overhead with each additional locale. A single placeholder typo discovered weeks later requires emergency fixes on that platform. Manual conversion is error-prone at scale.
+**Do this instead:** Standardize on one interchange format (XLIFF 2.0, ICU MessageFormat). Auto-generate all platform-specific formats. Use a TMS (Lokalise, Phrase, Crowdin) that exports to all targets from one source. Validate placeholder integrity in every generated file in CI.
+
+### Anti-Pattern: Ignoring Locale-Specific Data Beyond Dates and Numbers
+**What it looks like:** A form demands "Last Name" — blocking Icelandic users (patronymics, no family name). "State" dropdown limited to US states — blocking Canadian and Australian users. Phone validation hardcoded to `+1` — blocking every international customer.
+**Why it fails:** Names, addresses, phone numbers, and postal codes follow locale-specific conventions. Hardcoding any of these to one country's format permanently blocks international customers from signup and checkout.
+**Do this instead:** Use locale-aware validators (`libphonenumber-js`, `i18n-iso-countries`). Make culturally-specific fields adaptive or optional based on country. Test signup with personae from at least 5 countries representing different name, address, and phone patterns.
+
+### Anti-Pattern: Concatenating Translated String Fragments
+**What it looks like:** `t('you_have') + ' ' + count + ' ' + t('items')` works in English. In Arabic "لديك 3 عناصر" — word order differs. In Russian: different plural for 1, 2-4, 5+. Grammatically broken output in 70%+ of languages.
+**Why it fails:** Different languages have different word orders, grammatical gender, and plural rules. String concatenation assumes English sentence structure universally — it doesn't.
+**Do this instead:** Always use ICU MessageFormat: `{count, plural, =0 {You have no items} =1 {You have 1 item} other {You have # items}}`. The entire sentence is one translatable unit. Never concatenate translated fragments.
+
+### Anti-Pattern: Pseudo-Localization Run Only Locally
+**What it looks like:** One developer runs pseudo-loc `en-XA` build, finds their own bugs, commits. Integration bugs — truncated text from component composition, overlapping elements from layout interaction — remain undiscovered.
+**Why it fails:** One developer testing locally finds only their bugs. Pseudo-loc in CI catches integration bugs: a global header component that truncates in German, a sidebar that overlaps the main content in French, a modal that breaks when the close button label expands.
+**Do this instead:** Run pseudo-localized build (`en-XA` with 30% expansion + diacritics) on every PR in CI. Visual regression tests compare screenshots of English vs pseudo-localized. Fail the build on layout breakage. Pseudo-loc is necessary but not sufficient — combine with real locale testing.
 
 ## Anti-Rationalization — No Excuses
 
@@ -487,6 +557,27 @@ graph LR
 - [ ] Check ICU MessageFormat: validate all `{count, plural, ...}` and `{gender, select, ...}` syntax with `icu-messageformat-parser`
 - [ ] Test RTL layout: set locale to `ar` or `he` — all layouts mirror correctly, no hardcoded `left`/`right` CSS
 - [ ] Spot-check 3 languages in staging: login, main flow, error screen — no English fallback strings visible
+
+## Production Checklist
+**(STANDARD)**
+
+Before any localized application reaches production:
+
+- [ ] All user-facing strings externalized — zero hardcoded strings verified by `eslint-plugin-i18next` in CI
+- [ ] ICU MessageFormat used for all plural, select, and interpolation cases — no string concatenation for translatable content
+- [ ] Pseudo-localization build runs in CI on every PR — catches layout breaks from 30% text expansion before translators touch strings
+- [ ] Placeholder integrity validated in CI: every translated string has the exact same set of placeholders as the source
+- [ ] Locale fallback chain configured explicitly: `['fr-CA', 'fr', 'en']` — tested for 0, 1, and 2 levels of fallback depth
+- [ ] RTL layout tested: `ar` and `he` locales — all screens, animations, carousels, and custom components render correctly
+- [ ] CSS uses logical properties: `margin-inline-start`/`margin-inline-end`, `padding-inline`, `inset-inline` — no hardcoded `left`/`right`
+- [ ] Locale routing configured: subdirectory (`/en/`, `/fr/`), subdomain, or TLD — SEO-friendly, simple infrastructure
+- [ ] Locale-aware data validated: names (no mandatory "Last Name"), addresses (adaptive country formats), phone numbers (`libphonenumber-js`), postal codes
+- [ ] Translation pipeline automated: push source strings to TMS on merge to main; pull translations on cron/webhook; automated PRs for new translations
+- [ ] Translation format standardized: one interchange format (XLIFF 2.0, ICU MessageFormat) generates all platform-specific formats automatically
+- [ ] ICU syntax validated in CI: `icu-messageformat-parser` or equivalent — zero parse errors in any locale file
+- [ ] Visual regression tests run across at least 3 locales (source + 2 target) — automated screenshot comparison catches layout breakage
+- [ ] Continuous localization configured: TMS API integration, webhook-based PR creation, CI gating before merge
+- [ ] Locale-specific plural rules tested for 0, 1, 2, 5, 21 for every supported language — explicit `=0` case for human-readable zero states
 
 ## Verification Guardrails
 

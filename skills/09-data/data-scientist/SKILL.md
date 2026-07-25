@@ -164,6 +164,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are setting up an experiment design with proper randomization, control groups, and statistical power
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Choosing the Right Statistical Test
@@ -226,6 +227,7 @@ What question are you answering?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -282,8 +284,31 @@ What question are you answering?
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+## Best Practices
+
+1. **Frame before you analyze.** Write down hypothesis, null, alternative, and decision criteria before opening the dataset. Prevents p-hacking and confirmation bias. A pre-registered analysis plan is the single best defense against fooling yourself with data.
+
+2. **Always report effect size + confidence interval.** A p-value alone is insufficient. "Statistically significant" with a 0.01% lift on a $10 test is useless. Communicate uncertainty visually — error bars, confidence bands, prediction intervals. Point estimates alone mislead decision-makers.
+
+3. **CUPED by default for experiments.** Pre-experiment covariates reduce variance 10-30%, cutting required sample size proportionally. The single highest-ROI technique in online experimentation. Collect pre-period data for all primary metrics.
+
+4. **Train/test split before ANY preprocessing.** Scaling, imputation, encoding — all must happen after the split. `StandardScaler.fit_transform(X)` before `train_test_split` leaks test data mean and variance into training, producing unrealistically optimistic validation results.
+
+5. **Chronological splits for time series, never random.** Random train/test split leaks future into past. Always split by time. Backtest on expanding or rolling windows. Random shuffling on temporal data is one of the most common and costly ML mistakes.
+
+6. **Imbalanced classification demands precision-recall, not accuracy.** A 99.9% accuracy fraud model that predicts "not fraud" on everything is useless. Use precision-recall AUC, F1, or Cohen's Kappa for imbalanced datasets. Accuracy is misleading anytime class distribution exceeds 80/20.
+
+7. **Interpretability is not optional for high-stakes decisions.** If your model affects humans (loans, hiring, healthcare), you MUST explain predictions. Use SHAP for global + local explanations, but remember SHAP explains correlation, not causation. Always include a baseline model for context — 82% accuracy sounds great until you learn the baseline is 81%.
+
+8. **Notebook hygiene: Restart kernel and "Run All" before sharing.** Jupyter cell execution order is not guaranteed by numbering. Kernel state persists across cell re-runs. A variable defined in cell [5] still exists when you re-run cell [3]. Unreproducible notebooks have caused $20K-$100K in bad decisions.
+
+9. **Simpson's paradox lurks in every aggregate.** Always check if trends reverse within subgroups. Analyze both overall and segmented. A treatment that "lifts conversion 3% overall" might be losing 5% for your highest-value customers.
+
+10. **Reproducibility through fixed seeds — but different seeds for different sources.** `random_state=42` everywhere couples train/test split, model init, and data shuffling to one seed, producing unrealistically consistent results. Use different seeds for different randomness sources and report variance across seeds.
+
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -405,7 +430,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **Train/test leak through scaling**: If you call `StandardScaler.fit_transform(X)` before `train_test_split`, the scaler has "seen" test data mean and variance. Predictions look better during evaluation but fail in production. Always `train_test_split` FIRST, then `fit_transform` on train, `transform` (only) on test. **Total cost: $10,000-$100,000 in model retraining, production rollback, and lost trust when a model that scored 0.95 AUC in validation degrades to 0.70 in production due to data leakage.**
 - **Imbalanced classification accuracy is misleading**: A model that predicts "not fraud" 100% of the time has 99.9% accuracy if fraud rate is 0.1%. Use precision-recall AUC or F1, not accuracy, for imbalanced datasets. **Total cost: $50,000-$500,000 in undetected fraud, churn, or failures — a model with 99.9% accuracy that misses all positive cases costs real money when those positives are fraudulent transactions or at-risk customers.**
@@ -413,6 +438,66 @@ graph LR
 - **Jupyter notebook cell execution order** is NOT guaranteed by numbering. Kernel state persists across cell re-runs. A variable defined in cell [5] still exists when you re-run cell [3]. Restart kernel and "Run All" before sharing results — otherwise the output is unreproducible. **Total cost: $20,000-$100,000 in bad decisions from unreproducible analyses — stakeholders act on results that cannot be recreated, discovered only when the model fails in production or an auditor asks for the methodology.**
 - **SHAP values for tree models** with correlated features produce misleading importance scores. If `income` and `credit_score` are 0.7 correlated, SHAP splits importance between them arbitrarily. Use permutation importance as a sanity check. **Total cost: $10,000-$50,000 in misdirected feature engineering effort — teams spend weeks optimizing features that SHAP said were important but were just correlated proxies for the real driver.**
 - **`random_state=42` everywhere** means your cross-validation folds, model initialization, AND data shuffling all use the same seed. This produces unrealistically consistent results. Use different random seeds for different sources of randomness. **Total cost: $15,000-$75,000 in overconfident model deployment — a model that appeared stable in validation (CV std < 0.01) shows 5%+ variance in production because all randomness sources were coupled to one seed.**
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] **Analysis plan pre-registered:** Hypothesis, null/alternative, decision criteria, and primary metric documented before data access
+- [ ] **Train/test split verified:** Split performed before any preprocessing; scaler fit only on training data
+- [ ] **Effect size and confidence interval reported:** Point estimate + 95% CI + practical significance assessment included in every result
+- [ ] **Cross-validation strategy appropriate:** Time series uses TimeSeriesSplit; independent groups use GroupKFold; IID data uses StratifiedKFold
+- [ ] **Feature importance validated:** SHAP/PFI sanity-checked against a random feature baseline; correlated features noted
+- [ ] **Model compared to simple baseline:** Dummy classifier/regressor, last-value, or rule-based heuristic included in evaluation
+- [ ] **Imbalanced classification handled:** Precision-recall AUC or F1 used instead of accuracy; class weights or resampling applied if needed
+- [ ] **Data leakage audited:** No future information in training features; no target-derived features without proper cross-validation
+- [ ] **Notebook reproducible:** Kernel restarted and "Run All" executed; all outputs regenerated from scratch
+- [ ] **Uncertainty communicated visually:** Error bars, confidence bands, or prediction intervals on all key charts
+- [ ] **Segment analysis performed:** Results checked across key subgroups — no Simpson's paradox hiding in aggregates
+- [ ] **Model card documented:** Intended use, limitations, evaluation metrics, training data characteristics, and ethical considerations
+- [ ] **Code version controlled:** Analysis scripts and notebook committed with clear commit messages; environment pinned (requirements.txt/conda.yml)
+
+## Scale Depth
+
+### Solo (1 person, 0-100 analyses/year)
+- **Stack:** Jupyter + pandas/scikit-learn. CSV/Parquet files. Git for version control.
+- **Workflow:** Notebook-based exploration → manual report generation. No automated pipelines.
+- **Validation:** Manual spot checks. Cross-validation within notebook.
+- **Key constraint:** Reproducibility is entirely on you. Document every decision and assumption inline.
+
+### Small Team (2-10 people, 100-1K analyses/year)
+- **Stack:** JupyterHub/Colab Enterprise + MLflow for experiment tracking. Feature store (Feast/Tecton) for reusable features.
+- **Workflow:** Notebook-driven with experiment tracking. Model registry with staging/production lifecycle.
+- **Validation:** Automated data validation (Great Expectations). Scheduled model retraining with drift detection.
+- **Key constraint:** Multiple data scientists overwriting each other's experiments. MLflow experiment naming conventions become critical.
+
+### Medium Team (10-50 people, 1K-10K analyses/year)
+- **Stack:** Kubeflow/SageMaker + feature store + model registry. CI/CD for model training pipelines.
+- **Workflow:** Pipeline-driven model development. Peer review required before production deployment.
+- **Validation:** Automated bias/fairness evaluation. A/B testing framework for model comparison. Data drift monitoring.
+- **Key constraint:** Model governance — who approved this model for production? Implement model cards and approval workflows.
+
+### Enterprise (50+ people, 10K+ analyses/year)
+- **Stack:** Multi-cloud ML platform with centralized feature store, model registry, and monitoring. Federated learning where privacy requires.
+- **Workflow:** Platform team provides self-serve infrastructure. Data scientists focus on modeling, not infra.
+- **Validation:** Real-time model monitoring with automated rollback. Continuous evaluation pipelines. Regulatory compliance automation.
+- **Key constraint:** AI risk management — model inventory, bias audits, explainability requirements, and regulatory reporting (EU AI Act, NYC Local Law 144).
+
+### Transition Triggers
+- Solo → Small: You've overwritten your own results more than once. Stakeholders ask for reproducibility.
+- Small → Medium: Model deployment is a bottleneck. Two models in production have conflicting predictions.
+- Medium → Enterprise: Regulatory inquiry about model decisions. Model incident affects revenue or users.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Validation AUC 0.95, production AUC 0.70 | Train/test leakage: scaler fit on full dataset before split, leaking test distribution into training | Always split first: `train_test_split` → `scaler.fit(X_train)` → `scaler.transform(X_test)`. Never call `fit_transform` on full X. | Leakage is invisible in validation because the model legitimately learned the leaked information. Only production reveals the cheat. |
+| p-value < 0.05 but effect size is 0.01% | Large sample size makes trivial effects statistically significant. A 0.01% lift with N=10M has p<0.001 but zero business value. | Always report effect size with confidence interval. Ask: "Is this effect large enough to matter?" before asking if it's significant. | Statistical significance ≠ practical significance. Large N inflates significance. |
+| "Significant" A/B test winner regresses post-launch | Peeking: checked results daily and stopped when p<0.05. Actual false positive rate is 26-40%, not 5%. | Pre-register sample size and duration. Use sequential testing with adjusted boundaries. Or: don't look until the timer goes off. | The p-value assumes you look exactly once. Every additional peek compounds the false positive risk. |
+| Model with 99.9% accuracy predicts nothing useful | Imbalanced classification: 99.9% of samples are negative. Model achieves 99.9% by always predicting negative. | Use precision-recall AUC, F1, or Cohen's Kappa. Set `class_weight='balanced'` or use SMOTE. | Accuracy on imbalanced data measures class distribution, not model skill. |
+| SHAP says feature X is most important, but removing it doesn't change predictions | Correlated features: SHAP splits importance between X and its correlated proxy Y. Individually both look moderate, together they're critical. | Use permutation importance as sanity check. Group correlated features and report group-level importance. | SHAP explains prediction, not causation. Correlated features create attribution ambiguity. |
+| Notebook cell [3] output doesn't match when re-run | Out-of-order execution: cell [5] ran first, defined a variable, then cell [3] used it. State persists but execution order is invisible. | Kernel → Restart & Run All before sharing. Use `%autoreload` for external modules. | Notebook state is a hidden dependency. The only reliable notebook is one that runs top-to-bottom from a fresh kernel. |
+| Time series model perfect on test but fails in production | Random train/test split leaked future into past. Model learned to predict tomorrow from tomorrow's features. | Use `TimeSeriesSplit` or manual chronological split. Never `shuffle=True` for temporal data. | Temporal leakage is subtler than feature leakage because the split "looks" random but the time index carries information. |
 
 ## Verification
 

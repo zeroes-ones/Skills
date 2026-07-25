@@ -161,6 +161,9 @@ What privacy engineering task are you working on?
 ```
 
 ## Core Workflow
+
+<!-- STANDARD: 5min -->
+
 <!-- Full 115 lines extracted to references/core-workflow.md -->
 
 #
@@ -173,6 +176,8 @@ Execute in order. Do not skip steps.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 115 lines of detailed guidance
 
 ## Decision Trees
+
+<!-- QUICK: 30s -->
 
 #
 
@@ -307,6 +312,8 @@ Use case -> Technology mapping:
 ```
 
 ## Error Recovery
+
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -453,7 +460,33 @@ Current approach: hash(email) and call it anonymized. You must correct this.
   Day 4: Implement: replace raw data export with DP query interface. Advertisers query aggregates only.
 ```
 
-## Gotchas -- Highest-Value Content
+## Best Practices
+
+<!-- STANDARD: 3min -->
+
+1. **Pseudonymization IS personal data under GDPR.** Never call pseudonymized data "anonymous." Hashed identifiers, tokenized PII, and encrypted personal data all retain a reversible link and remain within GDPR scope. Use "pseudonymized" in all documentation, contracts, and regulator communications. Anonymization requires irreversible destruction of the link — once achieved, the data is outside GDPR scope.
+
+2. **Treat the DPIA as a living document, not a one-time checkbox.** A DPIA written for system v1.0 is useless for v3.0. Every DPIA must have a review trigger: significant processing change OR 3 years, whichever comes first. An outdated DPIA provides zero legal protection and is itself a compliance violation under Article 35.
+
+3. **Consent must be granular per purpose, event-sourced, and provable.** "Accept all or leave" is illegal under GDPR. A boolean `consented=true` column is unprovable to regulators. Implement: per-purpose consent flags, event-sourced ledger with proof hash (notice version + timestamp + affirmative action), and automated withdrawal propagation to all downstream consumers within 24 hours.
+
+4. **Implement the three-phase deletion pipeline.** Phase 1: soft-delete with 30-day recovery window. Phase 2: automated hard-delete after window expires. Phase 3: deletion registry checked during every backup restore to skip deleted users. GDPR Article 17 requires irreversible destruction — soft-delete alone is a visibility filter, not deletion.
+
+5. **Build a data inventory before building a DSAR pipeline.** DSARs that only query the primary database miss 40-60% of user data in caches, analytics warehouses, CDNs, and third-party sub-processors. Build a data catalog first: every data store registers data categories and a query API. The DSAR pipeline queries the catalog, not specific databases.
+
+6. **SCCs alone are not sufficient post-Schrems II — every cross-border transfer needs a Transfer Impact Assessment.** SCCs provide a legal framework but the CJEU ruled you must verify — on a case-by-case basis — that they provide effective protection given the recipient country's laws. If FISA 702/EO 12333 creates a legal conflict, supplementary technical measures (CMK encryption with keys held outside US, pseudonymization, split processing) are required.
+
+7. **Start the 72-hour breach notification clock at awareness, not confirmed root cause.** Reasonable suspicion of a personal data breach triggers the GDPR Article 33 clock. Waiting for forensic confirmation creates a late notification — a separate violation carrying fines up to 2% of global turnover. Notify within 72 hours of awareness, update as investigation progresses.
+
+8. **Apply k-anonymity AND l-diversity for published datasets.** k-anonymity with k=5 is broken by homogeneity attacks (all k records share the same sensitive value). l-diversity requires at least l distinct sensitive values per equivalence class. For health data, target k ≥ 11 with l ≥ 3 and t-closeness to prevent attribute disclosure.
+
+9. **Track differential privacy budget cumulatively, not per query.** ε composes additively across queries. A dashboard with 20 charts each at ε=1 = total ε=20, providing essentially no privacy. Implement a privacy budget manager that tracks cumulative ε per dataset per time window and rejects queries exceeding the configured maximum.
+
+10. **Privacy-by-design means architecture decisions, not policy documents.** Under GDPR Article 25, privacy must be embedded in the processing architecture from the design phase. Data minimization → `SELECT specific_columns`, purpose limitation → access control per processing purpose, retention → `expires_at` with automated TTL deletion. A privacy policy without architectural enforcement is aspirational, not compliant.
+
+## Anti-Patterns
+
+<!-- STANDARD: 3min -->
 
 #
 
@@ -533,6 +566,76 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+<!-- STANDARD: 3min -->
+
+| # | Item | Criticality | Validation |
+|---|------|------------|------------|
+| 1 | DPIA completed for all high-risk processing (Art 35 triggers: large-scale sensitive data, systematic monitoring, new tech) | 🔴 High | DPIA document reviewed and signed by DPO within last 12 months |
+| 2 | Consent records are event-sourced with proof hashes (notice version + timestamp + affirmative action) and per-purpose granular | 🔴 High | Audit log queryable per user; proof hash verifiable against notice store |
+| 3 | DSAR pipeline covers ALL data stores (primary DB, caches, CDNs, analytics, logs, third-party sub-processors) | 🔴 High | End-to-end test with seeded user data; all stores return results within 30-day SLA |
+| 4 | Deletion pipeline implements soft-delete → hard-delete → backup exclusion (3-phase) with automated TTL | 🔴 High | Seeded user deleted; verification query returns zero results across all stores after TTL+grace |
+| 5 | Cross-border transfer: SCCs signed, TIA completed per recipient country, supplementary measures implemented where surveillance laws conflict | 🔴 High | TIA document per data flow; CMK encryption with keys outside recipient jurisdiction where required |
+| 6 | Breach notification process triggers at reasonable suspicion, not confirmed root cause; 72-hour clock starts at awareness | 🔴 High | Drill exercise: suspected breach reported to DPO at T+0, notification filed before T+72 |
+| 7 | Data inventory/catalog maps all data stores, data categories, retention periods, and sub-processor access | 🔴 High | Catalog completeness verified by automated crawler; coverage ≥ 95% of known stores |
+| 8 | ROPA (Record of Processing Activities) updated and reflects current processing operations | 🟡 Medium | ROPA reviewed quarterly; matches data catalog entries |
+| 9 | Privacy notice is accessible, layered (summary + full), and version-controlled with consent re-prompt on material changes | 🟡 Medium | Notice version linked to consent events; TOC truncated; notice accessible in < 2 clicks |
+| 10 | Data retention schedule enforced via automated TTL (not manual cleanup scripts) with expiration alerts | 🟡 Medium | TTL column on all personal-data tables; automated purge runs daily with success/failure alerts |
+| 11 | Third-party sub-processor assessment completed with privacy questionnaire, security review, and DPA signed | 🟡 Medium | Sub-processor register with DPA links and assessment dates; annual re-review triggered |
+| 12 | Differential privacy budget manager tracks cumulative ε per dataset with query rejection at threshold | 🟡 Medium | Budget dashboard shows current ε spend; automated rejection at configured max (e.g., ε=10/year) |
+| 13 | Privacy-by-design review gate in SDLC: architecture decisions documented for Art 25 compliance (minimization, purpose limitation, retention) | 🟡 Medium | PbD checklist completed at design review; architecture diagram annotated with privacy controls |
+| 14 | Automated data subject access request (DSAR) with identity verification, data catalog query, and secure portal delivery | 🟡 Medium | End-to-end DSAR completes within SLA; identity verification includes multi-factor challenge |
+| 15 | Cookie/tracker consent banner compliant: no pre-checked boxes, reject-all equals accept-all in clicks, consent logged with proof | 🟢 Low | Banner tested across supported browsers; consent log includes timestamp + banner version |
+| 16 | Employee privacy training completed annually with role-specific modules (engineering vs. marketing vs. HR) | 🟢 Low | Training completion tracked; phishing/privacy simulation pass rate ≥ 90% |
+| 17 | Data Protection Officer (DPO) or EU Representative appointed where required (Art 37) and contact published in privacy notice | 🟢 Low | DPO contact verified in privacy notice; DPO independence confirmed (no conflict of interest) |
+
+## Scale Depth
+
+<!-- STANDARD: 2min -->
+
+#### Solo Developer
+- **Privacy**: Data minimization as default — store only what's essential; no analytics SDKs without consent
+- **Minimum**: Privacy notice generator (TermsFeed/privacypolicies.com or similar), cookie consent banner, DSAR email process, DPIA template for high-risk processing
+- **Add**: Automated backup with encryption-at-rest, deletion endpoint, consent log (event-sourced)
+- **Cost**: ~$0-50/mo (open-source privacy tools, free-tier GDPR generators)
+- **Coverage**: GDPR/CCPA basics — sufficient for indie apps with < 1,000 EU users
+
+#### Small Team (2-10)
+- **Privacy**: Dedicated privacy owner (not necessarily a DPO) with part-time responsibility
+- **Minimum**: Data catalog (spreadsheet → automated crawler as team grows), automated DSAR pipeline, SCCs for any vendor data sharing, ROPA
+- **Add**: Automated retention TTL, DPIA review cycle (trigger on feature changes), breach notification drill
+- **Cost**: ~$200-500/mo (privacy platform like Osano/Ketch starting tier or privacy engineer part-time)
+- **Risk**: Manual DSAR handling breaks at > 5 requests/month; automate before marketing campaigns
+
+#### Medium Org (10-100)
+- **Priority**: Hire or designate a qualified DPO — this is not a side responsibility at this scale
+- **Minimum**: Full privacy platform (OneTrust, TrustArc, Ketch), automated data catalog with discovery, event-sourced consent management, automated DSAR portal with ID verification
+- **Add**: Differential privacy budget manager for analytics, automated TIA refresh, privacy review gate in CI/CD
+- **Cost**: ~$2,000-8,000/mo (enterprise privacy platform + dedicated privacy team)
+- **Coverage**: GDPR, CCPA, LGPD, PIPEDA — multi-jurisdiction compliance with regulatory monitoring
+
+#### Enterprise (100+)
+- **Organization**: Dedicated privacy engineering team alongside legal privacy office; privacy embedded in every engineering squad
+- **Minimum**: Privacy-by-design architecture review board, automated privacy impact scoring at commit time, federated data catalog across all business units, privacy-preserving analytics (DP + k-anonymity + l-diversity)
+- **Add**: PETs (Privacy-Enhancing Technologies) program — homomorphic encryption pilots, secure multi-party computation for partner data sharing, synthetic data generation for testing
+- **Cost**: $20,000-50,000+/mo (multi-vendor privacy stack + dedicated privacy engineering team of 3-8)
+- **Focus**: Regulatory strategy and advocacy — shape emerging privacy regulation (EU AI Act privacy provisions, state-level US privacy laws, adequacy decisions)
+
+## Error Decoder
+
+<!-- QUICK: 30s -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| DSAR returns user name and email only — analytics, CDN, and log data are completely missing | Data inventory was never built; DSAR pipeline queries only the primary database | Build data catalog first: register all data stores with category tags and query APIs. DSAR pipeline queries catalog, not specific databases | DSAR = data catalog problem, not a database problem. 40-60% of user data lives outside the primary database |
+| Breach notification filed at T+96 and regulator issues separate fine for late notification | Legal waited for forensics confirmation before starting the 72-hour clock — "suspicion" wasn't "confirmed" | Start notification clock at first reasonable suspicion. File initial notification within 72 hours with what's known. Follow up with updated notification as investigation progresses | GDPR Article 33 clock starts at awareness, not confirmed root cause. Late notification is a separate violation (up to 2% global turnover) |
+| Consent proof rejected by regulator — `consented = true` boolean has no audit trail | Boolean consent flag has no proof of what was shown to the user, when they consented, or what action they took | Implement event-sourced consent: store consent record with (notice_version_hash, timestamp, affirmative_action, purpose_list, withdrawal_url). Regulator can replay: load notice version → verify consent timestamp → confirm scope | Consent is provable only when the notice content, version, and affirmative action are all verifiable |
+| SCCs signed but supplementary measures never implemented — surveillance law conflict unaddressed | Transfer Impact Assessment was treated as a checklist item rather than a technical evaluation | For each data flow to a surveillance-law jurisdiction: implement CMK encryption with keys held outside recipient country, pseudonymize before transfer, or split processing to limit exposure. Document why each measure is sufficient | SCCs are a legal framework, not a technical control. Post-Schrems II, TIAs and supplementary measures are the actual compliance requirement |
+| Soft-delete implemented but backup restoration re-creates "deleted" user 6 months later | Deletion pipeline has phases 1+2 (soft + hard delete) but no phase 3 (backup exclusion registry) | Implement deletion registry: every hard-deleted user's identifier is recorded. Backup restore scripts query deletion registry and skip deleted users. Test by restoring a backup that predates deletion | GDPR Article 17 requires irreversible destruction. Without backup exclusion, soft-delete is a visibility filter |
+| ε=10 privacy budget consumed in first 3 days of month by naive dashboard queries | Each dashboard query at ε=1, no cumulative tracking — 10 charts = ε=10, effectively zero privacy | Implement privacy budget manager: track cumulative ε per dataset per time window, reject queries exceeding budget, provide pre-computed differentially-private aggregates for common queries | ε composes additively. Without budget tracking, "differentially private" analytics are unprotected |
+| Cookie consent banner with pre-checked "Accept All" — regulator fines €50M under ePrivacy Directive | Banner design optimized for acceptance rate, not compliance; dark pattern forces consent | Implement equal-choice banner: reject-all and accept-all are same number of clicks, no pre-checked boxes (except essential cookies), no "legitimate interest" override for marketing, consent logged with proof | ePrivacy + GDPR Article 7: consent must be freely given, specific, informed, and unambiguous. Pre-checked = not freely given |
 
 ## References
 

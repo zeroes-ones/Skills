@@ -189,6 +189,38 @@ The same backend task produces fundamentally different output depending on the p
 
 **Usage**: Say "as an L3 backend developer, design the API for..." or "give me an L2 implementation of this endpoint" to calibrate the response. If no level is specified, defaults to **L2** (production-ready, independent execution).
 
+### Solo Developer
+- FastAPI or Express with SQLite/PostgreSQL — keep the stack simple
+- Auto-generated OpenAPI docs at `/docs` for frontend handoff
+- Environment variables in `.env`, validated on startup with Pydantic/Zod
+- Background tasks via simple in-process queue (FastAPI `BackgroundTasks`, Bull)
+- Health check endpoint only — no distributed tracing yet
+- Migrations run manually before deploy: `alembic upgrade head`
+
+### Small Team (2-5)
+- Shared OpenAPI spec as source of truth, code-generated types for client/server
+- Redis for caching and session storage, connection pooling with PgBouncer
+- Structured logging with correlation IDs propagated via `X-Request-ID`
+- Async task queue (Celery, BullMQ) with dead-letter queue and retry policies
+- CI runs tests, linters, and OpenAPI validation on every PR
+- Circuit breakers on all external service calls
+
+### Medium Team (5-20)
+- API gateway (Kong, Envoy) for auth, rate limiting, and routing
+- Database read replicas with read/write split at the repository layer
+- Distributed tracing with OpenTelemetry across all services
+- Contract testing between services (Pact or schema-based)
+- Feature flags for phased rollout and dark launches
+- Automated canary deployments with health-based rollback
+
+### Enterprise (20+)
+- Multi-service architecture with dedicated service mesh (Istio, Linkerd)
+- Centralized secrets management (Vault, AWS Secrets Manager) with rotation
+- SLO-driven alerting: error budget burn rate alerts, p95 latency SLOs
+- Chaos engineering: regular GameDays injecting latency, packet loss, node failure
+- Compliance automation: PCI/HIPAA/SOC2 evidence collected in CI pipeline
+- On-call rotation with runbooks, incident command, and blameless postmortems
+
 ## When to Use
 
 - You are building a new REST API or GraphQL service and need to choose the right language and framework
@@ -200,7 +232,7 @@ The same backend task produces fundamentally different output depending on the p
 - You are preparing a service for production with rate limiting, graceful shutdown, and deployment checklists
 - You need to add resilience patterns — circuit breakers, retries with backoff, graceful degradation
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Language & Framework Selection
@@ -237,7 +269,7 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): API Design
@@ -280,6 +312,29 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 | HTTP/2 Friendly | Re
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+
+## Best Practices
+
+1. **Design APIs contract-first with OpenAPI 3.1.** Share the spec with frontend/mobile teams before writing a single route handler. Use `openapi-generator` or `fastapi-codegen` to generate typed server stubs and client SDKs. The spec IS the source of truth — code that diverges from it creates integration bugs.
+
+2. **Centralize error handling in middleware, not route handlers.** Every route handler should throw or return a domain error; middleware translates it to a consistent HTTP response envelope (`{ error: { code, message, details } }`). Never `res.status(500).json({ error: err.message })` inline — stack traces leak implementation details and error shape inconsistency forces frontend teams to write brittle parsing logic.
+
+3. **Set explicit timeouts on every external call.** HTTP clients, database queries, cache operations — all need timeouts configured (e.g., 5s for DB queries, 10s for upstream HTTP). Unbounded waits during cascading failures exhaust connection pools and block health checks. Combine with circuit breakers (50% failure rate over 30s → open circuit) to prevent thundering-herd retries.
+
+4. **Validate at the boundary, not in business logic.** Use Pydantic (FastAPI), Zod (Express/Hono), or `go-playground/validator` (Go) at the API layer to reject invalid data before it reaches services. Business logic should operate on validated, typed data. Never validate inside service functions — it mixes concerns and leads to duplicated validation across callers.
+
+5. **Apply database query hygiene as a first-class practice.** Use parameterized queries always — never string-interpolate SQL. Explicitly `.select()` columns with ORMs to avoid `SELECT *` pulling large TEXT/BLOB columns. Set statement timeouts: `SET statement_timeout = '5s'` in PostgreSQL session config. Monitor slow queries with `pg_stat_statements` and set alerts on p95 > 100ms.
+
+6. **Cache with intent, not as a band-aid.** Choose cache strategy by read:write ratio and staleness tolerance. Read-heavy (>100:1): aggressive Redis caching with TTL-based invalidation. Write-heavy (<10:1): skip caching, optimize write path. Always populate cache on read (cache-aside), never on write — write-triggered cache updates create inconsistency when the write succeeds but cache update fails.
+
+7. **Implement structured logging with correlation IDs from day one.** Every log line must include `request_id`, `user_id` (if authenticated), and `service`. Propagate `request_id` via headers (`X-Request-ID`) to all downstream services. Use structured JSON logging (Pino for Node.js, `structlog` for Python, `zerolog` for Go) — never `console.log` string interpolation. PII redaction must be configured in the logging pipeline, not left to developer discipline.
+
+8. **Design database migrations to be backward-compatible with the currently deployed code.** Add columns as nullable first; deploy code that writes to both old and new; deploy code that reads from new only; drop the old column in a follow-up migration. Never rename or drop a column in the same migration that adds its replacement. Rolling deployments guarantee old code + new schema will coexist for minutes.
+
+9. **Use connection pooling appropriate to your runtime.** Async runtimes (Node.js event loop, Python asyncio, Go goroutines): pool size = `(CPU cores × 2) + 1`. Sync runtimes (WSGI, Rails): pool size = `2 × CPU cores + 1`. Serverless/lambda: use external poolers (PgBouncer, RDS Proxy) because connection count multiplies by concurrent invocations. Monitor pool utilization — >80% is a warning, >95% means requests are queuing.
+
+10. **Graceful shutdown is not optional.** Handle SIGTERM: stop accepting new requests, drain in-flight requests (with a configurable deadline, e.g., 25s for a 30s Kubernetes `terminationGracePeriodSeconds`), close DB connections and message queue consumers. Liveness probes (`/health`) should return 200 until the process exits; readiness probes (`/health/ready`) should return 503 during draining so the load balancer stops routing new traffic.
 
 
 ## State Log
@@ -328,6 +383,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist **(STANDARD)**
+
+Before any production deployment, verify ALL of:
+
+1. `npm test` / `pytest` / `go test ./...` — all tests pass, no regressions
+2. Linter zero issues: `eslint .` / `ruff check .` / `golangci-lint run`
+3. Type checker: `tsc --noEmit` / `mypy .` — zero type errors
+4. Health endpoints: `/health` returns 200 within 200ms, `/health/ready` checks DB + cache + queue
+5. OpenAPI spec validates: `npx @redocly/cli lint openapi.yaml` — no breaking changes
+6. Database migrations are backward-compatible: can old code run against new schema?
+7. All external calls have timeouts configured (HTTP: 10s, DB: 5s, cache: 1s)
+8. Circuit breakers tested: inject failure, verify open → half-open → closed cycle
+9. Graceful shutdown tested: `kill -TERM $PID`, verify no dropped requests, connections drained
+10. PII scan of logs: `grep -rE '[0-9]{3}-[0-9]{2}-[0-9]{4}'` or equivalent — zero sensitive data in plaintext
+11. Rate limiting configured: per-endpoint limits match capacity plan, 429 response documented
+12. Secrets: verified in secrets manager (not env vars, not code, not config files). Environment scan: `grep -r 'API_KEY|SECRET|PASSWORD' --include='*.env*'` returns empty
+13. Alert rules configured: p95 latency >500ms, error rate >1%, DB pool utilization >80%, consumer lag >1000
+14. Runbook exists for top 3 failure modes with step-by-step recovery and escalation contacts
+
 ## What Good Looks Like
 
 > Every endpoint is contract-first, validated at the boundary, and fully documented. Authentication is airtight — JWTs validated, RBAC enforced, secrets never leaked.
@@ -367,7 +441,7 @@ Common chains:
 **Write a production service from scratch with zero frameworks every 6 months.** No FastAPI. No Express. Just the standard library and a database driver. You'll learn what your frameworks actually do, what abstractions are worth the cost, and where the real complexity lives. Framework fluency ≠ backend mastery.
 
 
-## Error Recovery
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -431,20 +505,56 @@ Cross-team dependency blocking? → System Architect → Project Manager
 | "Zombie connections — server thinks 5K clients are connected, only 2K are actually reachable" | Implement application-level ping/pong heartbeat (30s interval, 2 missed pongs = terminate). TCP keepalive defaults to 2+ hours — always do application-level heartbeats. On the client side, use `EventSource` auto-reconnect (SSE) or implement exponential backoff reconnection with jitter (WebSocket). |
 | "Fan-out broadcast storm — one incoming event triggers cascading broadcasts that amplify" | Rate-limit broadcasts per room/channel (e.g., max 10/sec). Use a debounce pattern: if the same event type fires within 100ms, coalesce into one broadcast. Attach a `broadcastId` UUID to each message and deduplicate at the receiving end. Never broadcast raw upstream events without sanitizing/aggregating first. |
 
-## Gotchas
+## Anti-Patterns
 
-- **No database connection pooling.** Every request opens a new database connection instead of reusing from a pool. Under moderate load — say 500 concurrent requests — you exhaust the database's connection limit (typically 100). New requests queue, time out, and cascade into 503 errors. Instead of fixing the pool, teams scale up the database tier to handle more connections, burning infrastructure budget on a code problem. **Total cost: $5,000-$50,000 per month in unnecessary database tier scaling and degraded performance.** Fix: Configure a connection pool with size `(CPU cores * 2) + 1` for async frameworks; use PgBouncer or RDS Proxy for serverless/lambda architectures; monitor pool utilization as a first-class metric.
-- **Missing request timeout.** An upstream service or database call hangs indefinitely with no timeout configured. Threads and connections accumulate, the event loop blocks, and the service stops responding to health checks. The outage cascades: load balancers mark the instance as unhealthy, traffic shifts to remaining instances which then also hang. **Total cost: $10,000-$100,000 in cascading failure outages, lost transactions, and incident response.** Fix: Set explicit timeouts on every external call (HTTP clients, database queries, cache operations); implement circuit breakers for repeated failures; configure graceful shutdown with a maximum drain time.
-- **Environment variables** are loaded differently in Docker vs. local — `process.env` vs. `os.environ` vs. dotenv priority order varies. Always log which env source is active on startup.
-- **Database connection pools** default to 10 connections. Under load with async frameworks, this silently queues requests. Set pool size to `2 * CPU cores + 1` for sync, `(CPU cores * 2) + 1` for async.
-- **JWT `exp` claim** is UNIX timestamp in seconds. Python's `datetime.timestamp()` returns float with microseconds. Truncate with `int(datetime.utcnow().timestamp())` or tokens will be rejected.
-- **CORS preflight** (`OPTIONS`) requests don't carry auth headers. Your auth middleware must skip OPTIONS or every CORS request will 401.
-- **Alembic/Drizzle/Knex migration ordering** depends on file timestamps, not logical dependency order. If two developers create migrations simultaneously, the merge may produce an ordering that breaks foreign keys.
-- **Health check endpoints** that only return 200 mask dependency failures. The `/health` endpoint should ping the database, cache, and message queue — not just the web server.
-- **`SELECT *` with ORMs** fetches all columns including large TEXT/BLOB fields. When the ORM generates the query from your model, it pulls every column unless you explicitly `.select()` or `columns=`.
-- **Logging sensitive data in request handlers.** Developers add `console.log(user)` or `logger.info({ body: req.body })` during debugging, and the full request — including passwords, credit card numbers, SSNs, and session tokens — lands in plaintext in log aggregation (CloudWatch, Datadog, ELK). These logs are accessible to every engineer with production access, retained for months under compliance requirements, and discoverable in legal proceedings or breach investigations. **Total cost: $25,000-$500,000 in data breach fines (GDPR up to 4% of annual revenue, CCPA statutory damages), forensic audit costs, and mandatory customer notification requirements.** Fix: Implement PII redaction in the logging pipeline (pino-redact, logstash filter, or structured logging allowlists); never log request bodies by default in production; use log levels to separate debug data from production telemetry; run automated scheduled scans for PII patterns in log storage.
-- **Synchronous processing of long-running tasks in HTTP handlers.** Processing a file upload, generating a multi-page PDF report, or sending bulk emails inside the request handler ties up a web worker for 30-120 seconds. Under load, all available workers are busy with long tasks and the load balancer marks every instance unhealthy due to health-check timeouts. New requests queue and time out, existing requests stack up, and the service enters a traffic death spiral. **Total cost: $10,000-$50,000 in production outages from blocked event loops, lost in-flight transactions during crashes, and emergency horizontal scaling that doesn't fix the root cause.** Fix: Offload any task taking longer than 500ms to a background job queue (BullMQ, Celery, Sidekiq, SQS); return 202 Accepted with a `Location` header pointing to a status-check URL; configure web server timeouts and max request duration limits at the framework and reverse-proxy layers.
-- **Database migrations without backward compatibility.** Running a migration that drops or renames a column while the old application code is still running in a rolling deployment. Between deploy phases, some instances reference the dropped column — which no longer exists — and error on every request touching that path. Even with orchestrated rolling deployments, there's an unavoidable window where old application code + new database schema = production errors and potential data loss. **Total cost: $15,000-$75,000 in deployment-related outages, data corruption from failed writes during migration windows, and complex multi-step rollback procedures.** Fix: Design every migration to be backward-compatible with the currently deployed application code: add new columns as nullable first, deploy code that writes to both old and new columns, deploy code that reads from new only, then drop the old column in a follow-up separate migration; never rename or drop a column in the same migration that adds its replacement.
+### 1. No Database Connection Pooling
+**What it looks like:** Every request opens a new database connection instead of reusing from a pool. Under 500 concurrent requests, the database connection limit (typically 100) is exhausted. New requests queue, time out, and cascade into 503 errors. Instead of fixing the pool, teams scale up the database tier.
+**Cost:** $5,000-$50,000/month in unnecessary database scaling.
+**Fix:** Configure connection pool size `(CPU cores × 2) + 1` for async frameworks. Use PgBouncer or RDS Proxy for serverless/lambda. Monitor pool utilization as a first-class metric with alerts at >80%.
+
+### 2. Missing Request Timeouts
+**What it looks like:** An upstream service or database call hangs indefinitely with no timeout. Threads accumulate, the event loop blocks, health checks fail. Load balancers mark instances unhealthy, traffic shifts to remaining instances which then also hang — cascading failure.
+**Cost:** $10,000-$100,000 in cascading outages and lost transactions.
+**Fix:** Set explicit timeouts on every external call (HTTP: 10s, DB: 5s, cache: 1s). Implement circuit breakers (>50% failures in 30s → open). Configure graceful shutdown with a maximum drain deadline.
+
+### 3. Cross-Platform Environment Variable Loading
+**What it looks like:** `process.env` vs. `os.environ` vs. dotenv priority order varies between Docker, local, and deployment platforms. A variable works locally but is absent in production with no startup error.
+**Fix:** Always log which env source is active on startup. Use strict schema validation (Zod, Pydantic Settings, dotenv-safe) that fails fast on missing or malformed variables.
+
+### 4. JWT Timestamp Precision Mismatch
+**What it looks like:** JWT `exp` claim requires UNIX timestamp in seconds. Python's `datetime.timestamp()` returns float with microseconds. Tokens are rejected as expired when they shouldn't be.
+**Fix:** Truncate with `int(datetime.utcnow().timestamp())`. Use `python-jose` or `PyJWT` which handle this automatically if you pass `datetime` objects.
+
+### 5. CORS Preflight Breaking Auth
+**What it looks like:** `OPTIONS` preflight requests don't carry auth headers. Auth middleware rejects them with 401, and the browser never sends the real POST/PUT/DELETE.
+**Fix:** Auth middleware must skip `OPTIONS` requests. Return 200 with appropriate CORS headers for preflight. Test with `curl -X OPTIONS` from the frontend origin.
+
+### 6. Migration Ordering by Timestamp
+**What it looks like:** Alembic/Drizzle/Knex uses file timestamps for ordering. Two developers create migrations simultaneously — the merge produces an ordering that breaks foreign key constraints.
+**Fix:** Review migration ordering after every merge. Use `alembic history` / `npx drizzle-kit check` to verify the chain. CI gate: run migrations against a fresh database before merge.
+
+### 7. Shallow Health Checks
+**What it looks like:** `/health` returns 200 even when the database is unreachable, Redis is down, or the message queue is disconnected. Load balancer routes traffic to a dead instance.
+**Fix:** `/health` (liveness): is the process alive? Lightweight. `/health/ready` (readiness): ping DB, cache, and message queue. Return 503 on dependency failure so the load balancer stops routing traffic.
+
+### 8. ORM `SELECT *` with Large Columns
+**What it looks like:** ORMs generate `SELECT *` from model definitions, pulling every column including TEXT/BLOB fields. Query latency spikes as row width increases. Memory usage balloons for large text fields.
+**Fix:** Explicitly `.select()` or `columns=` in every query. Audit with `EXPLAIN ANALYZE` on top-10 queries. Set `max_row_size` limits at the connection level.
+
+### 9. PII in Plaintext Logs
+**What it looks like:** `console.log(user)` or `logger.info({ body: req.body })` during debugging ships passwords, credit cards, and SSNs into CloudWatch/Datadog/ELK. Logs are accessible to every engineer with production access and discoverable in breach investigations.
+**Cost:** $25,000-$500,000 in GDPR/CCPA fines, forensic audit costs, and customer notification.
+**Fix:** PII redaction in the logging pipeline (pino-redact, logstash filter). Never log request bodies by default in production. Run automated scheduled scans for PII patterns in log storage.
+
+### 10. Synchronous Long-Running Tasks in HTTP Handlers
+**What it looks like:** File uploads, PDF generation, or bulk emails run inside the request handler for 30-120 seconds. All available workers are busy on long tasks. Health checks time out. Load balancer marks every instance unhealthy — traffic death spiral.
+**Cost:** $10,000-$50,000 in production outages and lost in-flight transactions.
+**Fix:** Offload any task >500ms to a background job queue (BullMQ, Celery, Sidekiq, SQS). Return `202 Accepted` with a `Location` header to a status-check URL. Configure web server timeouts and max request duration limits.
+
+### 11. Backward-Incompatible Database Migrations
+**What it looks like:** A migration drops or renames a column while old application code still runs in a rolling deployment. Instances reference the dropped column — which no longer exists — and error on every request touching that path.
+**Cost:** $15,000-$75,000 in deployment outages, data corruption, and complex rollback procedures.
+**Fix:** Add columns as nullable first. Deploy code that writes to both old and new. Deploy code that reads from new only. Drop old column in a follow-up migration. Never rename/drop a column in the same migration that adds its replacement.
 
 ## Verification
 

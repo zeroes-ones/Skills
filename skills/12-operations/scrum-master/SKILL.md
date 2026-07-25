@@ -134,6 +134,20 @@ Scrum Master skill scales from facilitating a single team to coaching multiple t
 
 **Usage**: Say "as a Senior SM coaching 3 teams, help me diagnose this delivery bottleneck." Default: **L2 (Practitioner)** — 1-2 teams, independent coaching.
 
+### Scale Depth — Organizational Context
+
+#### Solo (1 SM, 1 team)
+Single scrum team with 3-9 members. Fixed 2-week sprint cadence. All ceremonies facilitated by SM. Focus: establishing sprint rhythm, basic DoD, retrospective habit, team chartering. Metrics: velocity (3-sprint rolling), sprint goal achievement rate, retro action completion. Tools: Jira, Linear, or Azure DevOps basic boards.
+
+#### Small (1-2 SMs, 2-4 teams)
+Multiple teams with cross-team coordination via Scrum of Scrums. Shared Definition of Done across teams. Focus: cross-team impediment removal, velocity stability, PO coaching on backlog health, CFD analysis for systemic bottlenecks. Metrics: cycle time p85, escaped defects, WIP age. Tools: Jira Advanced Roadmaps, Linear multi-team views, Miro for cross-team retros.
+
+#### Medium (3-5 SMs, 5-15 teams)
+Agile coaching practice with standardized metrics and ceremony templates. Scaling framework (LeSS, Nexus, or SAFe Essentials) adopted. Focus: community of practice for SMs, organizational impediment removal, agile metrics program, leadership coaching. Metrics: program predictability, flow efficiency, employee engagement scores. Tools: Jira Align, AgilityHealth, ActionableAgile.
+
+#### Enterprise (5+ SMs, 15+ teams, multi-site)
+Enterprise agile transformation with dedicated agile center of excellence. Multiple scaling frameworks for different product lines. Focus: organizational design for agility, agile budgeting (beyond project-based funding), agile HR practices, executive agile literacy. Metrics: time-to-market, innovation rate, employee NPS, customer satisfaction. Tools: Jira Align, SAFe Program Board, AgilityHealth Radar, LeanIX for value stream mapping.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -150,6 +164,8 @@ Scrum Master skill scales from facilitating a single team to coaching multiple t
 
 ## Decision Trees
 
+**(QUICK)**
+
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
 ### Scrum vs Kanban vs Scrumban
@@ -159,6 +175,8 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
                      │ START: Which agile framework?  │... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -185,9 +203,44 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 3. **Scaling** — Nexus (3-9 teams), LeSS (up to 8 teams, single backlog), SAFe (if organizational mandate). Goal: minimize cross-team dependencies.
 
 
+## Best Practices
+
+1. **Sprint goal over sprint backlog.** The sprint goal is the team's single coherent objective for the sprint — if the team discovers they can't deliver all PBIs, they negotiate scope with the PO while protecting the goal. A sprint without a goal is a collection of unrelated tasks; with a goal, the team has a shared purpose that guides trade-offs. Write the goal in one sentence that answers "why are we sprinting?" **Tool:** Jira sprint goal field, Linear cycles with description, Azure DevOps sprint goal.
+
+2. **Facilitate, don't dictate.** The scrum master's voice should be the quietest in the room during ceremonies. Ask questions that lead the team to their own solutions: "What would happen if we tried X?" instead of "You should do X." When the SM talks more than 20% of the time in any ceremony, they're running a meeting, not facilitating. Track your talk-time ratio across 3 ceremonies — if it exceeds 20%, you're the bottleneck. **Tool:** Miro timer, Timebox in Jira or a simple stopwatch.
+
+3. **Make impediments visible and track resolution time.** Every blocker goes into a public impediment log with date raised, impact (team/business), and status. Track median time-to-resolution — target < 4 hours for external blockers, < 24 hours for organizational blockers. An impediment that sits unresolved for > 3 days needs escalation to the engineering manager or program lead. The SM doesn't solve every impediment — the SM ensures every impediment has an owner. **Tool:** Jira impediment issue type, Linear blocker label, or a shared impediment board in Miro/Trello/Notion.
+
+4. **Retrospectives produce 1-3 actionable experiments, not a wish list.** Every retro action item has: a specific change ("we will do X for Y period"), a measurable hypothesis ("to see if Z metric improves"), a named owner, and a review date. The #1 retro action item completion rate from the previous retro is the first agenda item of every retro. If completion rate < 80%, the retro format needs to change — the team is facilitating discussions, not change. **Tool:** EasyRetro, Parabol, Miro retrospective templates, or Confluence retro page with action item tracker.
+
+5. **Velocity is a team-internal planning tool — never share it upward.** When management asks for velocity comparisons, redirect to outcome metrics: sprint goal achievement rate, cycle time p85 trend, escaped defect count, customer value delivered. Sharing velocity upward causes story point inflation within 2 sprints as teams optimize the metric instead of the outcome. The SM must be the #1 defender of velocity privacy. **Tool:** Jira velocity chart (team view only), Linear insights restricted to team members, or separate internal/external dashboards.
+
+6. **Protect the sprint — say no to mid-sprint interruptions.** The sprint backlog is the team's commitment for the next 1-4 weeks. Interruptions break flow state and invalidate the sprint plan. When a stakeholder wants something added mid-sprint, the SM coaches the PO to negotiate: "We can add that next sprint, or we can swap it for an equal-sized item this sprint. Which would you prefer?" Exceptions: production incidents (SEV-1/SEV-2) that require immediate response — those are not interruptions, they're emergencies. **Tool:** Jira sprint scope change tracking, Linear cycle scope change reports.
+
+7. **Coach the Product Owner on backlog health.** A healthy backlog has the top 2-3 sprints refined (stories meet Definition of Ready), the next quarter's epics sized, and anything beyond 6 months is a placeholder. The SM coaches the PO to dedicate 10% of sprint capacity to refinement and enforces the "3 Amigos" pattern (PO, developer, tester) for story refinement. An unrefined backlog is the #1 cause of failed sprint planning. **Tool:** Jira backlog view with quick filters, Linear triage view, Azure DevOps backlog levels.
+
+8. **Use Cumulative Flow Diagrams (CFD) to diagnose systemic bottlenecks.** Sprint burndowns show within-sprint progress. CFDs show flow across sprints — widening bands in "In Progress" means WIP is too high, narrowing bands in "Done" means a bottleneck at review/testing. The CFD tells you where work is piling up, not just how much is left. Review CFD trends monthly at the team level and quarterly at the program level. **Tool:** Jira CFD report, ActionableAgile analytics, Linear cumulative flow insights.
+
+9. **Build psychological safety before optimizing process.** A team that won't admit mistakes in retro won't improve regardless of how good the process is. The SM models vulnerability: "I noticed I dominated sprint planning — did anyone else feel that?" The SM celebrates learning from failure: "That experiment didn't work — what did we learn?" Psychological safety is the SM's #1 leading indicator of team health; measure it quarterly with a simple anonymous survey (Google's re:Work questions). **Tool:** Google Forms anonymous survey, Officevibe, Culture Amp, or a simple Miro anonymous board.
+
+10. **Know when Scrum is overkill and offer alternatives.** A solo developer, a 2-person team, a pure ops/support team, or a 2-week MVP sprint doesn't need full Scrum ceremony overhead. Offer Kanban with WIP limits + weekly retro + async standup instead. The SM's job is to improve the team, not to enforce Scrum compliance. Pushing Scrum on a team that doesn't need it makes you a process cop, not a coach. **Tool:** Linear Kanban boards, Jira Kanban with WIP limits, Trello with Butler automation.
+
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Standup is 25 minutes of status reports to the SM | SM became the hub. Team members report "what I did yesterday, what I'll do today" to the SM instead of coordinating with each other. | Walk the board right-to-left (closest to Done first). Each person says "I need help with X" or "I'm blocked on Y." SM observes silently. | Standup is for team coordination, not management status. The SM is a fly on the wall, not the conductor. |
+| Retro produces the same action items 3 sprints in a row | Action items have no owners, no deadlines, and no measurable targets. "Improve code review" is not actionable. | Every retro action: named owner, sprint deadline, measurable success criteria. Format: "We will [change] for [period] to see if [metric] improves. [Name] owns this." | An action item without an owner is a recurring complaint, not a commitment to change. |
+| Velocity dropped from 35 to 25 — management wants an explanation | Someone compared velocity across teams or sprints. Velocity reflects estimation, scope complexity, and capacity — not productivity. | Explain: velocity is a planning tool, not a performance metric. Show sprint goal achievement rate and cycle time trends instead. Never provide velocity outside the team. | Velocity is the team's internal planning tool. Protecting it from misuse IS the SM's job. |
+| Sprint planning takes 6 hours for a 2-week sprint | Backlog items aren't refined before planning. The team is decomposing, estimating, and clarifying requirements during the timebox reserved for committing. | Enforce Definition of Ready: stories must be refined, sized, and have acceptance criteria before sprint planning. The PO presents a draft sprint goal and prioritized backlog. | Sprint planning is for committing, not discovering. Refinement happens continuously, not in the planning meeting. |
+| Team "completes" stories but they don't meet Definition of Done | DoD is vague: "code reviewed, tested." No specific criteria means completed stories accumulate undone work that spills into future sprints. | Write DoD as a checklist: automated tests pass, peer-reviewed by 2 engineers, deployed to staging, PO accepted, documentation updated, no known defects. The team cannot claim "done" until every item is checked. | A vague DoD produces an invisible backlog of undone work. A specific DoD protects quality and predictability. |
+| Sprint review has zero stakeholders outside the team | Stakeholders see sprint review as "optional" because they don't know what value they'll get from attending. | Send a review invitation with the sprint goal, what was delivered, and a specific question for stakeholders. Make it 30 minutes max with a live demo. | Stakeholders attend reviews when they see value, not obligation. Sell the review, don't just invite to it. |
+
+
 ## Error Recovery
 
-If a command or approach fails, follow this escalation path before giving up:
+**(STANDARD)**, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
 |---------|-------------|---------------|-------------|
@@ -341,6 +394,25 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[SM1]** Team charter established with purpose, norms, working agreements, Definition of Ready, Definition of Done — reviewed quarterly
+- [ ] **[SM2]** Sprint cadence fixed at 2 weeks with ceremony schedule protected — no canceled or rescheduled ceremonies without team consent
+- [ ] **[SM3]** Sprint goal written in one sentence for every sprint — team can articulate it without looking at the board
+- [ ] **[SM4]** Daily Scrum is 15 minutes, right-to-left board walk, team-to-team coordination — SM speaking < 20% of the time
+- [ ] **[SM5]** Sprint Review held every sprint with ≥ 1 external stakeholder attending — live demo of working increment
+- [ ] **[SM6]** Sprint Retrospective held every sprint — produces 1-3 action items with named owners, deadlines, and measurable success criteria
+- [ ] **[SM7]** Retro action item completion rate ≥ 80% — tracked sprint-over-sprint as the SM's primary effectiveness metric
+- [ ] **[SM8]** Backlog: top 2-3 sprints refined to Definition of Ready, stories sized (Fibonacci), acceptance criteria written — PO dedicating 10% of capacity to refinement
+- [ ] **[SM9]** Impediment log maintained publicly — median time-to-resolution < 4 hours for team-level, < 24 hours for organizational blockers
+- [ ] **[SM10]** Velocity tracked internally only — never shared upward or across teams — sprint goal achievement rate used for stakeholder reporting instead
+- [ ] **[SM11]** Cumulative Flow Diagram reviewed monthly — WIP limits enforced, no column showing widening bands for > 2 sprints without corrective action
+- [ ] **[SM12]** Team health assessed quarterly via anonymous survey (psychological safety, clarity, impact, dependability, meaning) — results discussed with team, action items tracked
+- [ ] **[SM13]** Definition of Done enforced: every story completion requires all checklist items before moving to Done
+- [ ] **[SM14]** Scaling framework selected only if needed (≥ 3 teams on same product) — Scrum of Scrums, LeSS, or Nexus preferred over SAFe unless organizational mandate
+
 ## What Good Looks Like
 
 > When scrum mastery is at its peak, sprint goals are clear and the team delivers a working increment every sprint, retrospectives produce actionable improvements that are implemented in the next sprint
@@ -380,7 +452,7 @@ graph LR
 | "Standup is for status updates to the Scrum Master" | Status-report standups waste 15 min/day per person with zero team coordination — $80K-$200K/year in meeting overhead for a 9-person team when the SM becomes a bottleneck. |
 | "We committed to 8 stories — we must deliver all 8" | Treating sprint forecast as a contract incentivizes cutting quality and skipping testing — $200K-$750K/year in technical debt remediation and production incidents from artificial deadlines. |
 
-## Gotchas
+## Anti-Patterns
 
 - **Velocity as a productivity metric** — if velocity goes from 30 to 40 points/sprint, management celebrates. But the team just inflated estimates by 33%. Velocity measures estimation consistency, not output. Comparing velocity across teams is comparing apples to fictional oranges. **Total cost: $150,000-$500,000 per year** in wasted engineering time from inflated estimates and misdirected optimization efforts.
 - **Sprint commitment** treated as a contract — "we committed to 8 stories" becomes "we must deliver 8 stories." This incentivizes the team to cut quality, skip testing, or inflate estimates to ensure they "make the commitment." The sprint backlog is a forecast, not a commitment. **Total cost: $200,000-$750,000 per year** in technical debt remediation and production incidents from cutting quality to meet artificial deadlines.

@@ -116,7 +116,7 @@ The cryptographic engineer's job is not to implement algorithms from scratch —
 - When auditing cryptographic code for side-channel resistance: constant-time verification, memory access pattern analysis, timing attack mitigation
 
 <!-- STANDARD: 3min -->
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 ### Tree 1: MPC Protocol Selection
 
@@ -208,7 +208,7 @@ PQC migration triggered: assess current crypto inventory
 ```
 
 <!-- STANDARD: 3min -->
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1: Requirements Analysis (est. 1-2 hours)
 1. Identify cryptographic requirement (threshold signing, MPC, FHE, TEE, PQC, key ceremony)
@@ -253,6 +253,20 @@ PQC migration triggered: assess current crypto inventory
 **Completion criteria:** Monitoring runbook, upgrade schedule, incident response plan for cryptanalytic breakthroughs.
 
 <!-- STANDARD: 3min -->
+## Best Practices
+
+1. **Always use AEAD for symmetric encryption.** ChaCha20-Poly1305 or AES-256-GCM with random 96-bit nonces. Never use ECB mode, CBC without HMAC, or raw RSA encryption. AEAD bundles confidentiality and integrity in a single operation — unauthenticated encryption is malleable.
+2. **Keys must live in HSM or KMS with full audit trail.** Never store keys in environment variables, config files, or source code. Every key operation must be logged: key ID, operation type, timestamp, requesting principal. Key material must never appear in logs, error messages, or debug output.
+3. **Verify the adversary model matches deployment reality.** Honest-majority MPC deployed in a dishonest setting allows a single malicious party to reconstruct all secrets. Protocol security model assumptions are hard bounds, not guidelines. Document the assumed threat model and verify it against the deployment topology before going live.
+4. **Hybrid PQC must fail closed, not fall back to classical-only.** If the post-quantum component of a hybrid key exchange fails (timeout, malformed response), reject the connection entirely. An active adversary can force PQC failure to downgrade to breakable classical cryptography. Both components must succeed atomically.
+5. **Verify the full attestation chain in TEE deployments.** Quote signature verification alone is insufficient — validate the PCK certificate chain against Intel's root CA, check TCB status against Intel PCS, and verify CRL freshness on every attestation. A compromised-but-not-yet-expired PCK can sign arbitrary quotes.
+6. **Constant-time code must have no secret-dependent branching or memory access patterns.** A single `if`-statement on secret data leaks through timing. Memory access patterns, not just branches, must be uniform. Verify at the instruction level with ctgrind, dudect, or dataflow analysis. Compiler optimizations can reintroduce branches — check assembly output.
+7. **Proactive security requires fresh shares after every committee rotation.** Reusing threshold shares across epochs creates a time-accumulation attack surface — an adversary compromising one party per rotation eventually collects t-of-n shares. Use Herzberg's dynamic proactive secret sharing or FROST key resharing protocol.
+8. **Maintain a cryptographic inventory with algorithm-to-usage mapping.** Without an inventory, you cannot assess the blast radius of a cryptanalytic breakthrough against any single algorithm, nor estimate PQC migration timelines. Track: algorithm, key size, protocol, deployment location, migration status.
+9. **Favor formally verified implementations over hand-rolled crypto.** HACL*, EverCrypt, and libsodium have machine-checked proofs of memory safety, functional correctness, and cryptographic security. Even well-known libraries can have subtle implementation bugs that formal verification catches.
+10. **FHE bootstrapping budgets must include a 30% safety margin.** Budget exhaustion causes silent decryption failure — ciphertexts decrypt to random noise with zero error indication. Track noise budget per circuit level and raise alerts before dropping below 20%. Always over-provision relative to theoretical estimates.
+
+<!-- STANDARD: 3min -->
 ## Error Recovery
 
 If a cryptographic implementation, verification, or deployment fails, follow this escalation path before giving up:
@@ -266,26 +280,8 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 
 **Hard failure boundary:** If 3 independent approaches all fail, STOP. Log what was tried, capture error output, and report the blocking issue with full context.
 
-
-| # | Domain | Best Practice |
-|---|--------|---------------|
-| 1 | All Cryptography | Use AEAD (ChaCha20-Poly1305 or AES-GCM) for all symmetric encryption. Never use ECB mode or raw RSA. |
-| 2 | All Cryptography | Keys must be managed via KMS or HSM with audit trail. Never store keys in environment variables, config files, or source code. |
-| 3 | MPC | Always verify the adversary model matches deployment reality. Dishonest majority deployed as honest majority = catastrophic failure. |
-| 4 | MPC | Preprocessing must use function-independent correlated randomness to avoid selective failure attacks. |
-| 5 | FHE | Budget bootstrapping depth before deployment. Budget exhaustion causes silent decryption failure with no error indication. |
-| 6 | FHE | Level-aware circuit design: minimize multiplicative depth by reorganizing computation order. Each bootstrap level costs 10-60s. |
-| 7 | Threshold Signatures | Implement identifiable aborts for production systems. In a t-of-n scheme, knowing WHICH party failed is critical for operational debugging. |
-| 8 | TEE | Always verify the full certificate chain in attestation, not just the quote signature. A compromised-but-not-yet-expired PCK can sign arbitrary quotes. |
-| 9 | PQC | Hybrid mode must fail closed. If PQC fails (packet corruption, CPU overload on lattice), the system must reject the connection, not fall back to classical-only. |
-| 10 | Key Management | Use multiple independent entropy sources with statistical validation (SP 800-90B). /dev/urandom alone is insufficient for key ceremonies on VMs or embedded devices. |
-| 11 | Key Management | Proactive security requires fresh shares after each committee rotation. Reusing shares across epochs enables gradual compromise. |
-| 12 | Cryptographic Agility | Maintain an algorithm inventory with usage tracking. Without inventory, you cannot assess the blast radius of a cryptanalytic breakthrough against any single scheme. |
-| 13 | Implementation | Favor formally verified implementations (HACL*, EverCrypt, libsodium) over hand-rolled crypto, even from well-known libraries. |
-| 14 | Implementation | Constant-time requires uniform memory access patterns, no data-dependent branching, and identical instruction counts across all execution paths. A single if-statement on secret data leaks through timing. |
-
 <!-- DEEP: 10+min -->
-## Error Decoder
+## Error Decoder **(STANDARD)**
 
 ### War Story 1: FHE Bootstrapping Budget Exhaustion
 
@@ -337,7 +333,30 @@ Cryptographic engineering scales from library integration to novel protocol desi
 | **L5 — Novel cryptographer** | Publishes new constructions, breaks existing ones, contributes to NIST/IRTF standards. Designs next-generation primitives and protocols. |
 
 **Usage**: Say "at L2, implement TLS 1.3 with these parameters..." or calibrate by security requirements. Default: **L2** (protocol implementation).
-## Production Readiness Checklist
+
+### Scale Depth
+
+#### Solo (0-10 users)
+Use libsodium for all cryptographic operations. Standard algorithms only (AES-GCM, ECDH, Ed25519). Keys from environment-specific KMS (AWS KMS, GCP KMS). No custom protocol design. Regular dependency scanning for CVE monitoring.
+
+#### Small Team (10-100 users)
+Implement standard protocols from RFCs/NIST specs. Add HSM for signing keys. Run Wycheproof test vectors against all libraries. Constant-time verification for critical comparison operations. PQC migration plan drafted with algorithm inventory.
+
+#### Medium Team (100-10K users)
+Design custom protocols with formal security models. Deploy TEE infrastructure with full attestation chain validation. Threshold signing with proactive share refresh. FHE for privacy-preserving computation with bootstrapping budget monitoring. Formal verification with ProVerif/Tamarin. NIST SP 800-90B entropy validation for key ceremonies.
+
+#### Enterprise (10K+ users)
+MPC deployment with dishonest-majority protocols. Multi-cloud HSM federation with quorum-based access. Continuous side-channel analysis (timing, power, EM). Cryptographic agility layer with automated algorithm rotation. PQC hybrid deployment across entire infrastructure. Crypto incident response team with zero-day response SLA.
+
+#### Transition Triggers
+- Data classified as PII/PHI → HSM for encryption keys, AEAD required
+- Multi-party computation needed → MPC protocol with formal security model
+- Regulatory requirement (FIPS 140-3) → FIPS-validated modules, formal certification process
+- PQC deadline announced → hybrid deployment begins, crypto inventory audit
+- Cryptanalytic breakthrough on deployed algorithm → crypto agility layer activates, algorithm rotation within 30 days
+- First key ceremony → NIST SP 800-90B entropy validation, multi-participant ceremony
+
+## Production Readiness Checklist **(STANDARD)**
 
 | # | Item | Ref |
 |---|------|-----|
@@ -421,6 +440,38 @@ Before beginning a new phase:
 | Academic paper demonstrates practical attack on a primitive you use | Initiate deprecation timeline within 1 week. The primitive's security margin is gone | Attack improvements are monotonic — today's academic attack is tomorrow's script-kiddie tool |
 | Key ceremony scheduled for production deployment | Pre-ceremony checklist: entropy source health verified, HSM firmware updated, participants trained, backup procedures documented | Failed ceremonies erode organizational trust and can delay deployment by months |
 | Cryptographic bill or regulation proposed | Legal risk assessment within 2 weeks. Model impact on product architecture. Engage legal-advisor and regulatory-specialist | Regulatory changes can make current architectures non-compliant overnight |
+
+## Anti-Patterns
+
+### Anti-Pattern: Manual Nonce Generation
+**What it looks like:** Generating nonces with `Math.random()`, `/dev/urandom` alone, or sequential counters without replay protection for stream ciphers and AEAD modes.
+**Why it fails:** Nonce reuse in stream ciphers and AEAD (ChaCha20-Poly1305, AES-GCM) completely breaks confidentiality — XOR of two ciphertexts encrypted with the same key+nonce reveals XOR of plaintexts. Sequential counters without authentication allow ciphertext replay. AES-GCM nonce reuse catastrophically compromises both confidentiality and integrity.
+**Do this instead:** Use your crypto library's built-in nonce generation (libsodium's `randombytes_buf`). For AES-GCM, use a 96-bit random nonce (collision probability at 2^32 messages is ~2^-32). For counters, include a per-message random prefix. Never use fixed or sequential nonces without authenticated replay protection.
+
+### Anti-Pattern: PQC Downgrade Fallback
+**What it looks like:** A hybrid key exchange that falls back to classical-only (X25519) when the PQC component (ML-KEM) fails due to timeout, malformed response, or CPU overload.
+**Why it fails:** An active network adversary can force the PQC failure condition (delay packets, inject corruption) to downgrade the connection to classical-only. The adversary then applies classical or quantum attacks to the unprotected classical key exchange. The hybrid security property is completely lost.
+**Do this instead:** Fail closed — reject the connection if either component fails. Use atomic key agreement where both ML-KEM and classical shares must complete before deriving the session key. Log all PQC failures for security monitoring to detect active downgrade attacks. Follow the Signal PQXDH pattern.
+
+### Anti-Pattern: Trusting Test Vectors Alone
+**What it looks like:** Validating a cryptographic implementation against NIST CAVP or Wycheproof test vectors and assuming correctness based on pass rate alone.
+**Why it fails:** Test vectors cover known-answer scenarios but miss edge cases: zero-length inputs, boundary field elements, and adversarial parameter selection. Wycheproof explicitly includes near-miss test vectors that pass for incorrect implementations — these are the most revealing failures. Production failures often come from edge cases test vectors don't cover.
+**Do this instead:** Run the full Wycheproof test suite and investigate every "acceptable" (non-passing) result. Add property-based tests: `decrypt(encrypt(m)) == m` for all inputs. Add fuzz testing with random bit flips. For constant-time code, verify with dudect or ctgrind on every build. Run differential testing against a reference implementation.
+
+### Anti-Pattern: Insufficient Entropy for Key Generation
+**What it looks like:** Using `/dev/urandom` alone on VMs, containers, or embedded devices for key ceremony entropy without validating entropy health.
+**Why it fails:** VMs and containers can have low-entropy pools at boot due to identical initial snapshots. Embedded devices may have deterministic PRNG state across reboots. `/dev/urandom` on Linux never blocks, returning data even with insufficient entropy. Keys generated with low entropy are predictable and recoverable.
+**Do this instead:** Use multiple independent entropy sources with statistical validation per NIST SP 800-90B. For key ceremonies, combine HSM internal TRNG, user-provided entropy (diceware, coin flips), and OS entropy. Verify entropy health before every key generation. On embedded devices, seed from factory-provisioned unique key plus environmental noise.
+
+### Anti-Pattern: CBC Without Authentication
+**What it looks like:** Using AES-CBC for encryption without an authenticated MAC over the ciphertext and IV, or revealing padding errors to the caller.
+**Why it fails:** CBC without authentication is malleable — attackers can flip bits in ciphertext blocks to produce predictable plaintext changes. Padding oracle attacks can fully decrypt ciphertexts one byte at a time when the server reveals padding success/failure through timing or error messages.
+**Do this instead:** Use AEAD modes (AES-GCM, ChaCha20-Poly1305) that bundle encryption and authentication. If CBC is unavoidable for legacy compatibility, use Encrypt-then-MAC with HMAC-SHA256 over IV + ciphertext. Use constant-time padding verification that never reveals padding validity to the caller.
+
+### Anti-Pattern: Ignoring Side Channels in TEE
+**What it looks like:** Assuming SGX/TDX/SEV memory encryption protects against all side-channel attacks, so no further hardening is applied to enclave code.
+**Why it fails:** TEEs protect against memory inspection but not microarchitectural side channels: cache timing, branch prediction, speculative execution. Vulnerabilities like Spectre, Meltdown, and LVI allow an untrusted OS to extract secrets from enclaves through cache timing and transient execution attacks.
+**Do this instead:** Apply constant-time programming within enclaves. Use data-oblivious algorithms that branch only on public data. Avoid secret-dependent memory access patterns. Validate with TEE-specific side-channel analysis tools. Assume the untrusted OS can observe cache state at instruction granularity.
 
 ## What Good Looks Like
 

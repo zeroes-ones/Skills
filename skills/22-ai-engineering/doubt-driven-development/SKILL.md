@@ -109,6 +109,20 @@ Masters of doubt-driven development don't just review code — they **weaponize 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo (1 developer, personal projects)
+Self-review with claim extraction checklist. Run 1 doubt cycle on the highest-risk claim before merging. Focus: build the habit of articulating assumptions before coding. Budget: $0 (manual process).
+
+#### Small (2-5 engineers, 1-2 critical services)
+Adversarial pairing: reviewers swap code, extract claims, run 1-2 doubt cycles. Cross-model escalation for CRITICAL claims at cycle 3. RECONCILE.md for all non-trivial decisions. Focus: catch the 65-85% of defects that standard review misses. Budget: $5-$50/month on cross-model API calls.
+
+#### Medium (5-20 engineers, safety-critical systems)
+Full doubt-driven gate: no deployment without resolved doubt inventory. Adversarial fresh-context review mandatory for all PRs touching critical paths. Doubt theater detection automated. Residual risk quantified and tracked. Focus: systematic defect prevention, regulatory-grade review evidence. Budget: $50-$200/month on cross-model escalation.
+
+#### Enterprise (20+ engineers, regulated products)
+Doubt-driven development as organizational standard. Pre-mortems required before architecture decisions. Probabilistic risk modeling for residual doubt acceptance. Cross-model review panel (3+ models) for safety-critical claims. FDA/regulatory submission-ready doubt resolution evidence. Focus: organizational risk management, auditable safety decisions. Budget: $200-$1,000/month on review infrastructure.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -162,6 +176,8 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- COMPRESSED: Full 167 lines extracted to references/core-workflow.md -->
 
 The five-phase adversarial review cycle. Each phase produces an artifact that feeds the next. No phase may be skipped.
@@ -173,6 +189,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 > 📎 **Full content (167 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
+**(QUICK)**
 
 ### When to Trigger a Doubt Cycle
 
@@ -477,7 +494,19 @@ Reformulate as: "Claim [X] would be wrong if [concrete condition].
                  Example: [specific scenario]. Test: [grep/run/check]."
 ```
 
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Reviewer extracted 3 claims from a 500-line PR" | The reviewer is extracting only explicit claims (assertions in comments or docs). Implicit claims — "this function assumes single-threaded access" — are invisible because the author never stated them. | Train reviewers to extract implicit claims: for every function, ask "what must be true for this to work correctly?" Document the assumption even if the author didn't. Implicit claims are where the most expensive defects live. | The most dangerous claims are the ones the author didn't know they were making. Extract implicit assumptions aggressively. |
+| "Doubt theater detection flags 60% of doubts as performative" | The team has been trained to "raise concerns" but not to make them falsifiable. "Have we considered edge cases?" satisfies process without engaging substance. | Run a doubt theater calibration workshop: take 10 flagged doubts, reformulate each as a specific failure condition + test. Show the team the difference. Set a target: < 20% of doubts flagged as theater within 2 sprints. | Doubt theater is a learned behavior from cultures that reward "raising concerns" without requiring substance. Retrain the behavior, don't just flag it. |
+| "Cross-model review costs $45/month and leadership wants to cut it" | Leadership sees the $45 line item but not the $50K-$500K per incident it prevents. The cost is visible; the benefit is invisible (defects that didn't happen). | Calculate ROI: cross-model review catches 15-30% more defects. At 1 CRITICAL defect/month prevented and $50K/incident cost, ROI is 1,000:1. Present the math: $45/month prevents $600K/year in expected incident cost. | The cheapest insurance policy in software is invisible on a P&L. Make the cost of NOT doing cross-model review visible. |
+| "RECONCILE.md has 14 entries marked DEFERRED — none have follow-up dates" | Deferred doubts become invisible. The reviewer moves on, the doubt is forgotten, and 3 sprints later the code has 4 dependent modules built on the unresolved assumption. | Auto-escalate DEFERRED doubts after 2 sprints. Add a doubt-debt dashboard: open doubts by age, severity, and affected module. Review doubt debt in sprint planning — if doubt debt is growing, reduce velocity to resolve it. | DEFERRED is not RESOLVED. Deferred doubts are technical debt with a higher interest rate than code debt — they represent uncertainty about correctness, not just maintainability. |
+| "Same reviewer finds 8 defects in PR #42 but 0 defects in PR #43 from the same author" | Reviewer fatigue or context contamination. The reviewer's adversarial edge dulled after an intense review session, or they started sharing the author's assumptions after reading the same codebase. | Enforce fresh-context protocol: between reviews, clear the reviewer's context (new session, no file cache). Rotate reviewer-author pairs to prevent familiarity bias. Track per-reviewer defect discovery rate — a sudden drop signals fatigue or bias. | Adversarial review is mentally taxing. A tired reviewer is a rubber stamp. Rotate reviewers and enforce context resets. |
+| "Pre-mortem identifies 'database connection pool exhaustion' as top risk — but it still happens in production" | The pre-mortem identified the risk but didn't generate a mitigation. "Database connection pool exhaustion" is a risk statement, not a prevention plan. | Every pre-mortem risk must have: (1) a specific trigger condition, (2) a prevention mechanism (circuit breaker, connection limit, timeout), and (3) a detection mechanism (alert on pool utilization > 80%). Risks without mitigations are just anxiety written down. | Pre-mortems that don't produce mitigations are performative. The output of a pre-mortem is not a list of risks — it's a list of changes to the design. |
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -640,7 +669,49 @@ Pick a claim from your codebase. Run exactly 3 doubt cycles on it. After cycle 3
 ### Exercise 5: Adversarial Pairing (30 min)
 Pair with a teammate. You review their code adversarially; they review yours. Rule: you may ONLY state doubts in the form "This claim is wrong if [condition]." No opinions, no style comments, no "have you considered." Count substantive doubts found. Compare to your solo review rate.
 
-## Gotchas
+## Best Practices
+
+1. **Articulate uncertainty before attempting to resolve it.** "I'm not sure this handles concurrent access" is anxiety. "Claim: this code is thread-safe. This claim would be WRONG if two goroutines call updateBalance() simultaneously with the same account ID. Test: concurrent invocation with same account." That's actionable doubt. Uncertainty that isn't articulated as a falsifiable claim is noise.
+
+2. **Test assumptions with falsification, not confirmation.** Confirmation asks: "Does this code work under normal conditions?" Falsification asks: "Under what specific conditions would this code FAIL?" Write the failure test first. If you can't think of a failure condition, you haven't understood the claim.
+
+3. **Apply probabilistic thinking to residual risk acceptance.** "ACCEPTED: low risk" is meaningless. "ACCEPTED: probability of concurrent balance corruption = 0.001/year (based on 10 concurrent users × 0.0001 collision probability × 1,000 transactions/year). Expected annual cost: $500. Monitoring: balance reconciliation alert on mismatch > $1. Threshold for re-opening: > $10K discrepancy." That's a decision.
+
+4. **Calibrate reviewer confidence against actual defect discovery rates.** Track: how many defects did you find? How many did you miss (discovered later)? Your confidence should match your track record. A reviewer who finds 2 defects per PR but misses 8 is overconfident. A reviewer who finds 8 and misses 2 is well-calibrated. Track your calibration over time.
+
+5. **Run pre-mortems before architecture decisions, not post-mortems after failures.** Before committing to an architecture: "Assume this design failed in production 6 months from now. What's the most likely cause?" The pre-mortem surfaces hidden assumptions that the design document doesn't address. It's cheaper to fix assumptions than architectures.
+
+6. **Distinguish between substantive doubt and doubt theater mechanically.** Substantive doubt: names a specific failure condition, provides a testable counter-claim, and estimates impact. Doubt theater: "Have we considered edge cases?" without naming one. Implement the Doubt Theater Detection tree as a pre-filter — reject performative doubt before it consumes cycle budget.
+
+7. **Enforce the 3-cycle hard stop on every claim.** Doubt has diminishing returns. After 3 cycles, the residual uncertainty is accepted and documented. A 4th cycle on the same claim costs more in review time than the risk it addresses. The discipline of stopping is as important as the rigor of doubting.
+
+8. **Use cross-model escalation as a cheap insurance policy.** A single-model review has a 15-30% blind spot. A cross-model review (Claude → GPT-4o or vice versa) costs $2-5 in API tokens and catches defects that single-model review misses. On CRITICAL claims at cycle 3, cross-model escalation is mandatory — you're gambling $5 against a $50K-$500K production defect.
+
+9. **Document reconciliation decisions as institutional knowledge.** Every RECONCILE.md entry is a record of: what we were worried about, what we checked, what we decided, and what residual risk we accepted. Six months later, when someone asks "why did we design it this way?", the reconciliation record answers the question. Unreconciled doubt is lost knowledge.
+
+10. **Make the reviewer's ignorance the methodology, not the weakness.** Fresh-context adversarial review works because the reviewer doesn't share the author's assumptions. The author "knows" the retry logic has a max-retry guard — they wrote it. The reviewer asks: "Where is the max-retry guard?" because they don't share that knowledge. Ignorance is the advantage.
+
+## Production Checklist
+**(STANDARD)**
+
+Before deploying any code that passed doubt-driven review, verify ALL of:
+
+1. All non-trivial decisions have at least 1 extracted claim — claim count >= number of functions changed in diff
+2. Every claim has traceability anchor: file path + line range, spec section reference, or test case ID
+3. No claim exceeded 3 doubt cycles — hard stop enforced, residual doubt documented for all cycle-3 claims
+4. Doubt theater filtered: all doubts are substantive (specific failure condition + testable counter-claim)
+5. All CRITICAL severity doubts have RESOLVED or ACCEPTED_WITH_MONITORING status — no open CRITICAL doubts
+6. Every ACCEPTED doubt has a monitoring plan with alert configuration and re-open threshold
+7. Cross-model escalation completed for all CRITICAL claims that reached cycle 3
+8. RECONCILE.md entries exist for all non-HOLDS doubt resolutions, with decision rationale and residual risk
+9. Author ≠ reviewer enforced: git hook blocks self-review on critical paths, cross-model escalation triggered
+10. Pre-mortem completed for architecture decisions: top-3 failure modes identified and mitigated
+11. Reviewer calibration tracked: defect discovery rate, miss rate, and confidence calibration logged per reviewer
+12. Doubt inventory quantified: total claims, resolved, accepted risk, deferred (with escalation deadline)
+13. Verification script passes: `scripts/verify-skill.sh` — all checks green
+14. Rollback plan documented: previous version artifact tagged, rollback procedure tested for any code changed during doubt resolution
+
+## Anti-Patterns
 
 - **The false confidence of passing tests.** A test suite with 95% coverage that only tests happy paths proves nothing. Every test is a claim that the code behaves correctly under that input. Doubt every test that doesn't include: null input, boundary value, concurrent access, timeout, and error propagation. A $200K payment processing bug at a major retailer passed all unit tests because no test sent a negative quantity. **Total cost: $150K-$500K per incident in refund processing, audit overhead, and reputation damage. Fix: add property-based testing for every CRITICAL claim.**
 

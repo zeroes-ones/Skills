@@ -115,6 +115,20 @@ You are the MCP infrastructure authority. Your mental model encompasses the full
 
 **L5 — Platform-Wide MCP Governance (4 hr):** "Design MCP governance for our organization." Define standard mcp-config.json schema, establish server certification requirements, implement CI/CD validation for configs, create incident response playbook, document transport standards, build an MCP server registry.
 
+### Scale Depth
+
+#### Solo (1 developer, 1-2 MCP servers)
+Manual mcp-config.json, STDIO transport only, local filesystem + memory servers. No auth needed (all local). Focus: learn MCP primitives (tools, resources, prompts), get your first agent integration working. Budget: $0 (open-source servers).
+
+#### Small (2-5 engineers, 3-5 MCP servers)
+Multi-server config with namespace prefixes. One remote server (database/API) with Streamable HTTP + OAuth. Tool authorization policies per server. Basic diagnostics script. Focus: secure multi-server setup, prevent tool collisions. Budget: minimal (most servers are open-source, auth is free-tier).
+
+#### Medium (5-20 engineers, 10+ MCP servers)
+MCP config schema standardized across teams. CI/CD validation for configs. Automated tool authorization enforcement. Multi-agent platform integration (Claude Code + Cursor + Codex). Health monitoring and alerting for MCP server availability. Focus: platform-wide reliability, security governance. Budget: $200-$1,000/month on monitoring and managed servers.
+
+#### Enterprise (20+ engineers, 20+ MCP servers, regulated environment)
+MCP server registry with certification process. OAuth 2.0 with enterprise IdP (Okta/Azure AD). Audit logging for all tool invocations. Incident response playbook with automated containment. MCP governance board reviewing new server additions. Focus: regulatory compliance, supply chain security, organizational standards. Budget: $1,000-$10,000/month on governance infrastructure.
+
 ---
 
 ## When to Use
@@ -139,6 +153,7 @@ You are the MCP infrastructure authority. Your mental model encompasses the full
 ---
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1: Discovery
 ```
@@ -188,6 +203,7 @@ You are the MCP infrastructure authority. Your mental model encompasses the full
 ---
 
 ## Decision Trees
+**(QUICK)**
 
 ### Decision Tree 1: Transport Selection
 
@@ -342,8 +358,19 @@ Security incident detected (suspicious tool call, data exfiltration, unauthorize
 
 ---
 
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "MCP server connection refused — agent can't call any tools" | Transport misconfiguration: STDIO path doesn't resolve, HTTP server not running, or wrong port. The agent tries to initialize but gets no response. | Run `which <server-command>` to verify binary exists. For STDIO: test with `echo '{"jsonrpc":"2.0","id":1,"method":"initialize",...}' | <server-command>`. For HTTP: `curl http://localhost:PORT/health`. Check MCP inspector for detailed diagnostics. | Connection failures are almost always path/port/config mismatches. Test the transport layer independently before debugging the protocol. |
+| "Agent calls wrong tool — `read_file` invoked on database server instead of filesystem server" | Tool name collision without namespace prefix. Two servers expose `read_file`. The agent routes to the first match in priority order, which may be wrong for the current context. | Apply namespace prefixes: `filesystem/read_file`, `database/read_file`. Update all tool references in agent prompts to use prefixed names. Test with collision scenarios to verify disambiguation. | Unprefixed tool names are ambiguous by definition. Namespace prefixes are not cosmetic — they prevent wrong-tool invocation. |
+| "MCP server process hangs after agent disconnects — zombie STDIO processes accumulating" | No process lifecycle management. The agent called `initialize` but never `shutdown`. The STDIO process is still running, consuming memory and holding file handles. | Implement shutdown handshake: agent must call `shutdown` before disconnecting. Use process supervision (systemd, supervisord) to reap orphaned processes. Monitor process count per MCP server — alert on growth. | MCP servers are stateful processes, not stateless functions. Lifecycle management (initialize → use → shutdown) is mandatory, not optional. |
+| "Tool authorization policy says 'allow all' but write operations keep running without approval" | The authorization policy was never reviewed per-tool. The default "allow" was accepted without auditing what each tool actually does. `execute_sql` with "allow" = unrestricted database access. | Audit every tool's capability: read, write, admin, destructive. Set: read tools → allow, write tools → require-approval, DDL/destructive → deny. Re-audit when new tools are added to any server. | Tool authorization is a security boundary. "Allow all" is equivalent to "no authorization." Default-deny, explicitly allow. |
+| "Streamable HTTP MCP server works locally but fails in production behind proxy" | The proxy (nginx, ALB, Cloudflare) doesn't forward SSE streams correctly. Proxy buffers the response, preventing server→client push. Long-lived connections are terminated by proxy timeout. | Configure proxy for SSE: disable buffering (`proxy_buffering off`), set long timeouts (300s+), forward `Connection: keep-alive`, and ensure HTTP/1.1 is used (HTTP/2 multiplexing can interfere with SSE). Test with actual SSE stream, not just HTTP health check. | SSE through proxies is fragile. Test the full streaming path, not just the connection. If the proxy can't support SSE, use Streamable HTTP without SSE or fall back to polling. |
+| "After MCP server update, agent gets 'method not found' for previously working tools" | The server's tool list changed (tool renamed, removed, or capability reduced). The agent's cached tool list is stale and references tools that no longer exist. | Re-run `tools/list` after every server update and cache the result. The agent should validate tool existence before invocation. If a tool is missing, the agent should request the updated tool list and retry with the corrected tool name. | Tool lists are dynamic — they change when servers update. Cache invalidation on server restart prevents "method not found" errors. |
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -496,7 +523,51 @@ Before beginning a new phase, verify:
 
 ---
 
-## Gotchas
+## Best Practices
+
+1. **Design mcp-config.json schemas as versioned, validated contracts.** Every MCP configuration must have a JSON Schema that validates: server type, transport, auth, tool authorization, and resource paths. Invalid configs should fail at CI, not at agent runtime. Use `$schema` references and enforce schema versioning — config format changes must be intentional and tracked.
+
+2. **Register tools with explicit capability declarations, not implicit discovery.** A server that exposes `execute_sql` without declaring its capability (read-only? write? DDL?) is a security risk. Every tool must declare: capability type (read, write, admin), resource scope (which tables/files/APIs), and authorization requirement (allow, deny, require-approval). The agent should know what a tool CAN do before it decides to call it.
+
+3. **Implement capability negotiation as a formal initialization step.** MCP's `initialize` handshake should exchange: protocol version, server capabilities (tools, resources, prompts, sampling), client capabilities (roots, sampling), and authorization scope. A server that doesn't declare capabilities is treated as untrusted. A client that doesn't declare roots can't access filesystem servers.
+
+4. **Manage resources with explicit lifecycle: declare, allocate, use, release.** Filesystem MCP servers must declare their root directory (via `roots` capability). Database servers must declare their connection pool. Memory servers must declare their retention policy. Resources without lifecycle management leak — orphaned STDIO processes, stale connection pools, unbounded memory growth.
+
+5. **Use prompt templates for consistent tool invocation patterns.** Instead of letting the agent construct arbitrary tool calls, provide prompt templates for common workflows: "search codebase for X," "query database for Y," "fetch web content from Z." Templates constrain the agent to known-safe invocation patterns while still allowing flexibility within the template's parameters.
+
+6. **Choose transport layer based on trust boundary, not convenience.** STDIO: same machine, trusted process — lowest attack surface. Streamable HTTP: remote server, requires OAuth 2.0 or mTLS — higher attack surface, needs auth. SSE: deprecated in spec 2025-03-26, only for legacy compatibility. Never expose an MCP server on the public internet without authentication — unauthenticated MCP endpoints are discovered by scanners in under 24 hours.
+
+7. **Apply tool authorization as a deny-by-default policy.** Every tool starts as `deny`. Tools are explicitly promoted to `require-approval` (human-in-the-loop for write operations) or `allow` (safe reads with scoped access). Never start with `allow *` and deny exceptions — the deny list will always have gaps.
+
+8. **Implement namespace prefixing as a routing standard, not a naming convention.** Two servers exposing `read_file` without prefixes = ambiguous routing. Prefix with server name: `filesystem/read_file`, `database/read_file`. The prefix is part of the tool identity, not cosmetic. Multi-server routing MUST use prefixes; single-server setups SHOULD use them to prepare for future expansion.
+
+9. **Test MCP server health with all three primitives, not just connectivity.** A server that responds to `initialize` but fails `tools/list` is broken. A server that returns tools but fails `resources/list` is partially broken. Health checks must exercise all three primitives: `tools/list`, `resources/list`, `prompts/list`. Partial health is not health.
+
+10. **Rotate credentials and audit tool call history after any security incident.** If an MCP server is compromised, the attacker had access to every tool the agent could invoke. Audit the full tool call history to understand what was accessed. Rotate all credentials exposed through that server (API keys, tokens, connection strings). Do not restart the server until the incident response is complete.
+
+## Production Checklist
+**(STANDARD)**
+
+Before deploying any MCP configuration to production, verify ALL of:
+
+1. mcp-config.json validated against JSON Schema — `jq empty` passes, schema version matches MCP spec version
+2. Tool authorization explicit for every tool: allow/deny/require-approval declared, no implicit defaults
+3. Filesystem servers scoped to specific directories — root `/` or `~` rejected, `roots` capability negotiated
+4. Remote servers (Streamable HTTP) authenticated: OAuth 2.0 bearer tokens or mutual TLS configured
+5. No hardcoded credentials in config files — secrets referenced via `${env:VAR_NAME}`, config file in `.gitignore` if it references env vars
+6. Namespace prefixes applied for multi-server configurations — no tool name collisions across servers
+7. All three MCP primitives tested: `tools/list`, `resources/list`, `prompts/list` all return valid responses
+8. JSON-RPC 2.0 handshake validated: `initialize` → `notifications/initialized` → `tools/list` lifecycle completes
+9. MCP server process lifecycle managed: paired initialize/shutdown, orphaned process detection active
+10. Health check endpoint configured for each MCP server: alert on connection failure, tool listing failure, resource resolution failure
+11. Incident response playbook documented: contain → audit tool call history → rotate credentials → harden → re-enable
+12. Multi-platform test completed: same config validated against all target agent platforms (Claude Code, Cursor, Codex, Gemini CLI)
+13. Audit logging enabled for all tool invocations: timestamp, tool name, parameters, server, result status, agent session ID
+14. MCP server source code audited for third-party servers — confirmed no data exfiltration, no hidden tools, no unapproved network calls
+
+---
+
+## Anti-Patterns
 
 1. **Tool poisoning via compromised MCP server** — **$500K+** supply chain attack. An attacker publishes a seemingly useful MCP server (e.g., "github-stats-server") that includes a hidden tool that exfiltrates environment variables or source code. Mitigation: Always audit MCP server source code before installing. Prefer official `@modelcontextprotocol/*` servers. Review the tool list before connecting.
 

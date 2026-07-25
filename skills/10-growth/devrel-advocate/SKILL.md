@@ -147,6 +147,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You need to build a developer champion or MVP program that rewards and amplifies your most active community members
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
@@ -237,6 +238,7 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
 ```
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -282,6 +284,7 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -465,7 +468,31 @@ graph LR
 | "The talk should showcase our product — that's the whole point" | Vendor pitches get rejected by conference committees — teach-first abstracts that solve real problems get accepted and generate authentic pipeline from the audience. |
 | "The tutorial worked when we wrote it 6 months ago" | Stale tutorials with deprecated APIs and vulnerable dependencies convince new developers your product is broken — tutorials without CI testing are liabilities, not assets. |
 
-## Gotchas
+## Best Practices
+**(STANDARD)**
+
+1. **Measure developer experience (DX), not just developer satisfaction.** Satisfaction surveys ("How happy are you?") measure emotion. DX metrics measure friction: Time-to-First-Call (TTFC) — how long from landing page to first API call, Time-to-Hello-World (TTHW) — how long to working example, and developer Net Promoter Score (dNPS). Track all three. A developer who integrates in 5 minutes is a future advocate; one who takes 5 hours is a future detractor.
+
+2. **Document for the "stuck developer at 2 AM," not the well-rested onboarding manager.** The developer reading your docs at 2 AM has already tried 3 Stack Overflow answers that didn't work. They don't need marketing copy — they need: (1) a 3-line code snippet that works immediately, (2) the most common error and its solution at the top, (3) a "What's Next" link to the logical next step. Structure docs as escape routes from frustration, not guided tours.
+
+3. **Build sample apps that demonstrate integration, not your product features.** Developers don't want to see your dashboard — they want to see their app. Write samples that show your API inside their stack: Next.js, React, Express, Django, Flutter. Each sample should be a working application, not a code snippet. A Flask developer won't translate your Node.js example; give them a Flask example or they'll use your competitor's.
+
+4. **Design SDKs for the "2-minute integration," not the "all features" showcase.** The SDK that takes 2 minutes to integrate and covers 80% of use cases beats the SDK that takes 2 hours to configure and covers 100%. Prioritize: sensible defaults, minimal configuration, clear error messages, and typed interfaces. Features that < 20% of users need belong in optional packages, not the core SDK.
+
+5. **Build community before you need community.** Community isn't a support channel you activate at launch — it's a flywheel that takes 12-18 months to spin up. Start 6 months before launch: write blog posts about problems your product solves (not your product), engage in existing communities (Stack Overflow, Reddit, Discord servers for your tech stack), and build relationships with 20-50 early advocates who will answer questions before your team does.
+
+6. **Conference talks are distribution, not vanity.** A conference talk reaches 200-500 people in the room and 5,000-50,000 on YouTube over 2 years. But only if the talk teaches something valuable that isn't about your product. The formula: 80% industry insight + 20% "here's how we solved this (using our product)." If the ratio is reversed, the talk is an ad — and developers skip ads.
+
+7. **Create a "developer journey map" covering 7 touchpoints.** Map every interaction a developer has with your company: Discovery (blog, HN, Twitter) → Evaluation (docs, landing page, comparison pages) → Integration (quickstart, SDK, sample app) → Development (API reference, guides, troubleshooting) → Scaling (advanced patterns, performance, security) → Advocacy (community participation, conference talks, contributions) → Championing (internal advocacy for budget/expansion). Measure drop-off at each stage.
+
+8. **Respond to every developer question within 24 hours, even if the answer is "we don't support that yet."** Response time is a stronger predictor of developer loyalty than documentation quality. A developer who gets a response in 2 hours tells 3 colleagues. A developer who gets silence for 3 days writes a blog post titled "Why I switched from X to Y." Staff support channels with engineers, not just support — developers trust peer engineers.
+
+9. **Run a "developer experience audit" quarterly using your own product as a new developer would.** Create a fresh account, start a stopwatch, and try to build something useful. Time every step: account creation → first API key → reading quickstart → first successful API call → first error → finding the solution → building a working prototype. If total time exceeds 15 minutes, you're leaking developers at each > 5-minute step.
+
+10. **Treat developer content as a product with its own roadmap and metrics.** Blog posts, tutorials, videos, and docs are not marketing collateral — they're a product your developers use. Track: page views, time on page, bounce rate (from docs), "was this helpful?" ratings, and — most importantly — integration rate of readers vs. non-readers. Sunset content with low engagement. Double down on formats that correlate with activation.
+
+## Anti-Patterns
+**(STANDARD)**
 
 - **Conference talk abstract that pitches your product** — "How AcmeDB solves the top 5 database challenges" gets rejected because it's a vendor pitch. "5 Database Patterns That Fail at Scale (and How to Fix Them)" gets accepted because it teaches a skill. The audience learns, they associate the lesson with YOU, and they check out your product AFTER. Teach, don't pitch.
 - **"Our Discord/Slack community has 10,000 members!"** — 9,800 joined once and never returned. 150 are active weekly. 10 are answering questions (and one of them works for your competitor). Community health = active members / total members. A "10,000 member" community with 1.5% activity rate is a ghost town.
@@ -474,6 +501,29 @@ graph LR
 - **Confusing vanity metrics with pipeline — "We have 50K GitHub stars!"** Only 2% of stargazers install your product, and 0.5% are active after 30 days. Stars do not equal users. Each unqualified star acquired via campaigns costs $5-$15 in marketing spend with near-zero conversion to revenue. Meanwhile, the devrel team reports "50K stars" to leadership while the sales team has no qualified developer leads from the community channel. **Total cost: $100K-$250K/year in marketing spend chasing vanity metrics with no attributable pipeline.** Fix: instrument the full funnel — star → website visit → docs read → install → activation → pipeline. Report on install-to-pipeline conversion, not stars. Sunset campaigns that produce stars without downstream conversion.
 - **Hiring developer advocates from within the community without transition planning** — a respected community member joins your company as a DevRel. Their content is now flagged as "company content" by the community. Organic reach drops 60-80% within 3 months because their credibility was rooted in independence. You've just spent $150K-$200K in salary and onboarding to hire someone whose influence evaporated. **Total cost: $150K-$250K in salary + recruiting costs for a hire who lost their primary asset (community trust) within a quarter.** Fix: create a 90-day transition plan. First 30 days: the new hire publishes as themselves (not as company representative) on community channels. Days 30-60: co-publish with another independent community member. Days 60-90: gradually introduce company affiliation. Never have them lead a product launch blog in month 1.
 - **Developer documentation with broken links and outdated SDK references** — 1 in 20 developer touchpoints has a dead link or references a deprecated SDK version. Each broken link costs 3-5 minutes of developer frustration. At 10K monthly docs visitors, that's 500 frustrated developers/month. Trial-to-paid conversion drops 15% when developers encounter friction in their first 3 documentation interactions. A mid-market dev tool with $2M ARR loses $300K/year in conversion from documentation rot. **Total cost: $30K-$80K/month in lost conversions for mid-market dev tools from documentation trust erosion.** Fix: implement docs CI that runs link checks on every build. Add deprecation banners on docs pages referencing old SDK versions with migration paths. Track docs Net Promoter Score independently from product NPS.
+- **What:** Hiring DevRel as a marketing function instead of an engineering function. **Why:** Developers can detect marketing in 3 seconds. When DevRel reports to Marketing, their content becomes product promotion, their conference talks become pitches, and their community interactions become lead gen. Developers disengage, and your DevRel investment produces zero developer trust. **Instead:** Embed DevRel in engineering or have a dual report to engineering and marketing. Hire engineers who can write and speak, not marketers who can code. The credibility of "I built this" cannot be faked.
+
+- **What:** Building an elaborate SDK before any developer has asked for one. **Why:** You're solving a problem that may not exist. The SDK you build without developer input optimizes for the wrong things — usually features you think are important rather than integration speed and error handling that developers actually need. Building an SDK takes 3-6 months; validating demand takes 2 weeks of developer interviews. **Instead:** Support REST API + curl examples first. When 10+ developers independently ask for SDKs in the same language, build the SDK with those developers as design partners. Ship a 0.1.0 in 2 weeks, not a 1.0.0 in 4 months.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any DevRel deliverable leaves this skill, verify:
+
+- [ ] Developer journey map exists covering all 7 touchpoints with drop-off rates measured at each stage
+- [ ] Time-to-First-Call (TTFC) measured and under 5 minutes for primary use case
+- [ ] Quickstart guide tested by a developer unfamiliar with the product in last 30 days
+- [ ] Sample apps exist for top 3 developer frameworks/stacks used by target audience
+- [ ] SDK (if applicable) achieves 2-minute integration for primary use case with sensible defaults
+- [ ] Documentation includes: quickstart, API reference, common error solutions, "What's Next" links
+- [ ] "Stuck at 2 AM" test: a tired developer can find the answer to the top 5 errors in < 3 minutes each
+- [ ] Community response SLA defined and measured — target < 24 hours for first response
+- [ ] Conference talk proposals include 80% industry insight + 20% product solution ratio
+- [ ] Developer content roadmap exists with metrics (views, time on page, integration rate correlation)
+- [ ] Developer NPS (dNPS) survey running quarterly with segmented results by integration stage
+- [ ] 20-50 early advocates identified and engaged (contributing to community, answering questions, providing feedback)
+- [ ] DX audit completed within last quarter — all friction points > 5 minutes documented with owners and timelines
+- [ ] Competitor developer experience benchmarked: TTFC, documentation quality, community size, SDK availability
 
 ## Verification
 
@@ -495,6 +545,56 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Scale Depth
+
+### Solo/Pre-Launch (0-1 DevRel, 0-100 developers)
+- DevRel: Founder or founding engineer does DevRel part-time
+- Documentation: README-driven — one great README with quickstart, API reference inline, and 3 examples
+- Community: Answer every question personally within 2 hours. Build relationships with first 50 developers individually
+- Content: 1-2 blog posts/month about the problem space, not the product. Engage in 3-5 existing communities
+- SDK: REST API only. curl examples in docs. No SDK until 10+ developers ask for one
+- Metrics: Developer signups, TTFC (manual measurement), questions answered
+- Deliverable: Weekly developer engagement log
+
+### Small (1-3 DevRel, 100-1,000 developers)
+- DevRel: 1 full-time DevRel engineer or DevRel team of 2-3
+- Documentation: Dedicated docs site. Quickstart, API reference, guides, changelog. Search functionality
+- Community: Discord/Slack community. Community manager or DevRel rotating coverage. 24-hour response SLA
+- Content: 4-8 blog posts + 2-4 tutorials/month. 2-4 conference talks/quarter. Developer newsletter (monthly)
+- SDK: Official SDKs for top 2-3 languages. Auto-generated from OpenAPI spec. Community-maintained for others
+- Metrics: TTFC, dNPS quarterly, docs analytics, community growth, content engagement
+- Deliverable: Monthly developer report + quarterly content calendar + annual DevRel strategy
+
+### Medium (3-10 DevRel, 1,000-10,000 developers)
+- DevRel: Dedicated DevRel team with specialists: developer advocates, community managers, technical writers, developer marketers
+- Documentation: Full docs platform with versioning, search analytics, interactive API explorer, "was this helpful" feedback
+- Community: Multi-platform community (Discord + GitHub Discussions + Stack Overflow). Community programs (MVPs, champions, ambassadors)
+- Content: 8-16 blog posts + 4-6 tutorials/month. 6-10 conference talks/quarter. Video content (YouTube tutorials, live streams). Developer podcast
+- SDK: Official SDKs for top 5+ languages. SDK health dashboard. Automated compatibility testing
+- Metrics: Developer funnel (visitor → signup → integration → active → advocate), DevRel ROI (community-sourced pipeline, support deflection)
+- Deliverable: Quarterly developer report + annual developer survey + developer content strategy + conference sponsorship plan
+
+### Enterprise (10+ DevRel, 10,000+ developers)
+- DevRel: Multi-team DevRel org: community, content, education, events, developer marketing, SDK engineering
+- Documentation: Enterprise docs platform with localization, personalization, AI-powered search, and developer journey analytics
+- Community: Global community with regional chapters. Enterprise advocate program. Developer conference (own event). University partnerships
+- Content: Content factory: blogs, tutorials, videos, courses, webinars, whitepapers. Developer media brand. Multi-language content
+- SDK: SDK platform team. Multi-language, multi-platform SDKs with code generation. SDK telemetry for usage insights. Plugin/extension ecosystem
+- Metrics: Developer ecosystem health score, developer-generated revenue attribution, community ROI, brand sentiment analysis
+- Deliverable: Annual developer ecosystem report + quarterly business review + developer conference + developer advisory board
+
+## Error Decoder
+**(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| 5,000 developer signups/month but only 2% build anything | TTFC is 45 minutes. Quickstart assumes knowledge of 3 frameworks. First error message is "Invalid request" with no hint at what's wrong. Developers bounce to competitor after 10 minutes of frustration. | Measure TTFC. Time a new developer from signup to first successful API call. Fix every step that takes > 5 minutes. Make the first error message specific: "Missing 'api-key' header. Get yours at /settings/keys." Test quickstart with developers who've never seen your product. | Signups measure marketing; integrations measure product. |
+| "Great documentation!" feedback but 30% of support tickets are answered in docs | Docs are comprehensive but undiscoverable. Search doesn't return relevant results. Navigation assumes the reader knows the taxonomy. Developers can't find the answer so they open a ticket. | Implement search analytics — what are people searching for and not finding? Add "common questions" section to every page. Run card sorting with developers to restructure navigation. Measure "ticket deflection rate" as a docs KPI. | Docs that can't be found might as well not exist. |
+| Community has 10,000 members but 95% have never posted | Community was launched as a support channel. Only the same 50 power users and staff answer questions. No sense of belonging for the 9,500 lurkers. | Create participation ladders: (1) introduce yourself thread, (2) weekly "share what you built" thread, (3) "help wanted" channel for easy contributions, (4) champion program with recognition. People join for utility, stay for belonging. | Community size measures signups; participation rate measures community. |
+| Conference talk got 4,000 YouTube views but zero signups | Talk was "How to Build X with Our Product" — a 40-minute product demo disguised as education. Developers watched 90 seconds and closed the tab. | Reformat: 80% industry insight (the problem, approaches, trade-offs, lessons learned), 20% product mention (how we solved it). The talk should be valuable even if the viewer never uses your product. Give away knowledge; developers will investigate the tool that produced it. | The best DevRel content teaches something the audience can use today, even without your product. |
+| SDK released with 200 methods; developers use 12 of them and complain about bundle size | SDK designed to expose every API endpoint, not to solve developer workflows. The 12 commonly-used methods are buried in a sea of edge cases. | Audit SDK usage telemetry. Expose the 12 common methods at the top level. Move the other 188 to namespaced sub-packages that are tree-shakeable. The SDK's public API should mirror the developer's mental model, not your REST API surface. | SDK design is developer experience design, not API mirroring. |
+| DevRel team of 5 producing 20 pieces of content/month; CEO asks "what's the ROI?" | DevRel measured by output (content volume, events attended) not outcomes (developer activation, community-sourced pipeline, support savings). No data to connect DevRel activity to business results. | Track: (1) developer → customer conversion rate, (2) community-sourced support ticket deflection ($ saved), (3) developer-sourced pipeline ($ influenced), (4) developer NPS correlation with expansion revenue. Present quarterly with dollar values. | If you can't measure it, your CEO will measure it for you — by cutting it. |
 
 ## References
 

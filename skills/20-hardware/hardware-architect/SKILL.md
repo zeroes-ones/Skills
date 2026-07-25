@@ -130,6 +130,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -141,6 +143,39 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Design the PCB stackup before placing the first component.** Define layer count, copper weight, dielectric thickness, and impedance targets before schematic completion. A 4-layer board with solid ground and power planes is the minimum for any design with >10MHz signals. Specify controlled impedance for differential pairs (USB, Ethernet, PCIe, DDR) with ±10% tolerance. The stackup drives trace geometry, which drives layout — not the other way around.
+
+2. **Perform signal integrity analysis on every high-speed interface before tape-out.** Pre-layout: simulate insertion loss, return loss, and crosstalk. Post-layout: extract S-parameters from the routed board and verify eye diagrams with IBIS models at worst-case PVT (process, voltage, temperature) corners. Length-match differential pairs to within 0.25mm for USB 3.0 (5Gbps) and 0.1mm for PCIe Gen4 (16Gbps). A 5mm mismatch on USB 3.0 closes the eye completely — the link drops to USB 2.0 speed.
+
+3. **Budget junction temperature (Tj) for every power component under worst-case conditions.** Tj = T_ambient_max + (θJA × P_dissipation). The datasheet θJA assumes a specific board (4-layer, 1oz Cu, specific via density, still air). Your board's actual θJA may be 2x worse. Characterize θJA on your actual board with a thermal camera or thermocouple. Add 15°C margin below Tj_max. A component running at Tj_max continuously has a MTBF measured in months, not years.
+
+4. **Select components with lifecycle analysis, not just electrical specs.** Check: production status (active/NRND/EOL), projected availability (5+ years from design-in), second-source availability (pin-compatible alternative from different manufacturer), and PCN (Product Change Notification) history. Single-source components require a documented risk assessment and mitigation plan. Subscribe to manufacturer EOL alerts. A $2 single-source regulator that goes EOL at month 4 of a 24-month production run = $150K-$500K redesign.
+
+5. **Design for manufacturing (DFM) with your CM's capabilities in mind, not your lab's.** Ask your contract manufacturer for their DFM rules: minimum trace/space, minimum drill size, annular ring requirements, solder mask web minimums, and copper-to-edge clearance. Design to their rules, not the PCB fab's absolute minimums. A board that passes fab DRC but violates CM assembly rules has lower yield and higher rework. Test point coverage: ≥95% of nets accessible on the bottom side for bed-of-nails or flying probe.
+
+6. **Design for test (DFT) as a first-class requirement.** Every voltage rail gets a test point. Critical signals (clocks, resets, serial buses) get test points. Include JTAG/SWD chain for all programmable devices. Add boundary scan (JTAG) coverage for interconnects between BGA devices where physical probing is impossible. A board without test points that fails functional test = a board you cannot debug. The cost of adding test points is $0.00 per board; the cost of debugging without them is hours per failure.
+
+7. **Perform power integrity analysis — PDN design is not "add some decoupling caps and hope."** Model the power distribution network: VRM output impedance, plane inductance, decoupling capacitor placement, and IC package parasitics. Simulate the PDN impedance vs frequency — target <100mΩ from DC to 100MHz. Place decoupling capacitors as close as physically possible to IC power pins (every millimeter adds ~1nH of inductance). A 100nF cap at 20mm distance has ~20nH loop inductance and resonates at ~112MHz — useless for a 500MHz CPU core.
+
+8. **Design EMC compliance in from the schematic, not patched at the test chamber.** Identify noise sources (switching regulators, clock oscillators, high-speed buses) and victims (analog sensors, radios, external cables). Apply: local decoupling at noise sources, series ferrite beads on power inputs, common-mode chokes on external cables, ground stitching vias along board edges, and continuous ground planes. Pre-compliance testing at a local lab ($500-$2K) catches issues before the $10K+ formal compliance test. Failures at the chamber cost 5-10x more to fix than pre-compliance findings.
+
+9. **Apply high-speed design rules with discipline, not hope.** Controlled impedance traces: route over continuous reference plane, avoid splits and gaps. Differential pairs: length-match within tolerance, maintain constant spacing, minimize vias. DDR memory: match data byte lanes, match address/command/control to clock. Avoid right-angle turns (use 45° or arc routing). Via stitching along high-speed traces: ground vias every λ/10 (at 5GHz, λ = 6cm, via spacing = 6mm max). One missed rule on a DDR bus = intermittent memory corruption under specific temperature and voltage conditions.
+
+10. **Invest in reliability engineering before field deployment.** HALT (Highly Accelerated Life Testing): stress prototypes with rapid thermal cycling (-40°C to +125°C), 6-axis vibration, and voltage margining until failures occur. Fix root causes, not symptoms. Accelerated life testing: operate at elevated temperature and voltage to compress 5 years of aging into weeks. Calculate MTBF with actual component failure rates (MIL-HDBK-217 or Telcordia), not datasheet marketing numbers. A product with a 2% annual failure rate on 100K units generates 2,000 returns per year — each costing $75-$150 in logistics alone.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Decoupling cap too far from IC pin (20mm = useless) | Trace inductance from cap to IC pin is ~20nH at 20mm. Combined with the cap's ESL, the loop inductance forms a resonant tank at a much lower frequency than intended — the cap provides zero decoupling at the IC's operating frequency | Place decoupling caps on the same side as the IC, within 3mm of power pins. Use multiple via pairs (power + ground) directly at the capacitor pad to minimize loop inductance. For BGAs, place caps on the opposite side directly under the IC with microvias | Every millimeter of trace between capacitor and IC pin adds ~1nH of inductance. At 500MHz, 1nH = 3.14Ω impedance — the decoupling cap is electrically invisible. Placement is the dominant factor, not capacitance value |
+| I2C pull-up too weak for 400kHz with 4 slaves | Bus capacitance scales with slave count and trace length. 4 slaves + 50cm traces ≈ 200pF. With 10KΩ pull-ups, RC rise time = 2.2µs > 1.25µs bit period at 400kHz — SDA never reaches logic high before the next clock edge | Calculate Rp(min) and Rp(max): Rp(max) = tr / (0.8473 × Cbus) for the required rise time. For 400kHz with 200pF: Rp(max) ≈ 2.4KΩ. Verify with an oscilloscope on the actual board — SCL and SDA must reach V_IH with margin | I2C pull-up calculation is mandatory, not optional. The 10KΩ default works on a breadboard with one slave at 100kHz but fails in real systems. Every bus configuration requires calculation and oscilloscope verification |
+| Switching regulator hot loop is a 2MHz antenna | The high di/dt loop (input cap → switch node → inductor → output cap → ground) encloses physical area on the PCB. If the loop area exceeds 10mm², the magnetic field radiation couples into nearby analog traces and external cables | Minimize hot loop area: place input capacitor directly adjacent to regulator pins, use a solid ground plane on layer 2, keep the switch node copper area as small as possible (it's the primary radiator). Use a shielded inductor. Verify with near-field probe and spectrum analyzer | Switching regulator layout is an antenna design problem. The hot loop radiates at the switching frequency and harmonics. Good layout achieves CISPR 22 Class B with margin; bad layout fails by 20dB. The schematic is identical — the layout is everything |
+| USB 3.0 differential pair length mismatched by 10mm | At 5Gbps, intra-pair skew tolerance is tight. 10mm mismatch ≈ 50ps skew at ~150ps/25mm propagation delay in FR4. The eye diagram closes by >25% — the receiver can't reliably distinguish 0 from 1, and the link negotiates down to USB 2.0 speed (480Mbps) | Length-match SuperSpeed differential pairs to within 0.25mm. Use serpentine routing (accordion pattern) on the shorter trace to add length. Verify in PCB CAD with the "length tuning" tool. Post-layout: extract and simulate eye diagram with IBIS-AMI models | A USB 3.0 port that runs at USB 2.0 speed has all the cost of SuperSpeed routing with none of the benefit. Length matching is a go/no-go criterion — there is no "close enough" at 5Gbps+ |
+| Thermal simulation trusted datasheet theta-JA | Datasheet θJA is measured on a JEDEC standard board (4-layer, 1oz Cu, specific copper area, still air). Your 2-layer board with different copper weight and airflow has θJA 1.5x-3x higher. At 2W dissipation, the 40°C/W datasheet θJA predicts 80°C rise; actual board sees 120°C rise = junction exceeds Tj_max | Characterize θJA on your actual board. Use a thermal camera during operation or attach thermocouple to IC case and calculate Tj = T_case + (θJC × P). Run worst-case: max ambient + max load + minimum airflow. If margin is <15°C, add heatsink, thermal vias, or copper area | Datasheet θJA is a comparison metric between packages, not a design value. It's measured under idealized conditions that your board doesn't replicate. Always characterize actual thermal performance — semiconductor lifetime halves for every 10°C rise above rated |
+| Single-source component goes EOL at month 4 of 24-month production | No lifecycle analysis was performed at design-in. The component was already NRND (Not Recommended for New Design) when the schematic was captured. The manufacturer issued a PCN with a 6-month last-time-buy window, but no one was subscribed to alerts | Every BOM component at design-in must: check lifecycle status (active/NRND/EOL), verify projected availability (5+ years), identify second-source alternatives (pin-compatible, different manufacturer), subscribe to manufacturer PCN alerts. Quarterly BOM health review flags any component within 12 months of projected EOL | A single $2 component that goes EOL triggers a $150K-$500K redesign cycle (engineering + respin + tooling + lost production). Component lifecycle management is not procurement's job — it's the design engineer's responsibility at component selection time |
 
 ## Cross-Skill Coordination
 
@@ -207,6 +242,8 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 | >2 field returns show same component failure (same batch, same failure mode) | Suspect component quality issue or design margin problem; halt production if failure rate suggests systemic defect; initiate root cause analysis with supplier | Pattern of identical failures is never coincidence — every day of continued production compounds the liability |
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -283,6 +320,8 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 **SRAM:** Fastest, lowest power, most expensive ($10-50+/MB). For cache, < 1MB scratchpad. **SDRAM:** Good balance for MCU applications with > 64KB needs. **DDR:** For application processors. LPDDR for battery-powered. **NOR Flash:** For XIP (eXecute In Place). No boot RAM needed. 1-256MB. **NAND Flash:** For storage. TLC/QLC for density, SLC for reliability. eMMC handles bad block management and wear leveling for you.
 
 ## Core Workflow
+
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -407,7 +446,7 @@ graph LR
 | "The BOM cost is fixed — we can't afford better components" | A $0.50 capacitor instead of a $2.00 rated one saves $1.50/unit upfront. But a 2% field failure rate on 100K units = 2,000 returns at $75/unit in shipping, diagnosis, and replacement = $150K. The "$1.50 savings" cost $75K more than using the right part. Design-to-cost must account for total lifecycle cost, not just BOM. **Total cost: $100K-$500K in warranty claims and field returns from component cost-cutting that ignores reliability impact.** |
 | "We'll fix it in the next hardware revision" | Hardware revisions take 3-6 months and $50K-$200K in engineering + tooling + certification. Meanwhile, every unit shipped with the known issue generates warranty claims, support tickets, and customer churn. A $5 PCB respin becomes $50K when factoring in compliance recertification (FCC, CE, UL). If the issue causes field failures, add recall logistics. Fix it in THIS revision. **Total cost: $50K-$500K per deferred fix — "next revision" fixes cost 10-100x more than fixing it now, plus accumulated warranty and support costs on already-shipped units.** |
 
-## Gotchas
+## Anti-Patterns
 
 - **Decoupling capacitor distance** — a 100nF cap 5mm from the IC pin filters noise at ~100MHz. At 10mm, it filters ~50MHz due to trace inductance. At 20mm, it's useless because the parasitic inductance forms a tank circuit at a different frequency. Place caps as close as physically possible — every millimeter matters.
 - **I2C pull-up resistor sizing** — 10KΩ works on a bench with one slave and 10cm traces. At 400kHz with 4 slaves and 50cm traces, the bus capacitance is ~200pF and RC rise time = 2.2µs, longer than the 1.25µs bit period. Dropping to 2.2KΩ gets you 480ns rise time but increases power consumption. Calculate, don't guess.
@@ -439,6 +478,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[HW1]** Schematic DRC complete: design rule check passes with zero violations, all ERC (electrical rule check) warnings resolved, netlist matches schematic
+- [ ] **[HW2]** Power budget verified: sum of all component max currents × voltage < power supply rating × 0.8 (20% margin), inrush current within supply limits, each voltage rail within tolerance at max load
+- [ ] **[HW3]** Signal integrity analysis: differential pairs length-matched within tolerance (0.25mm for USB 3.0, 0.1mm for PCIe), impedance controlled to spec ±10%, eye diagrams simulated at worst-case PVT corners with IBIS models, crosstalk within budget
+- [ ] **[HW4]** Thermal simulation complete: junction temperatures at max ambient + max load simulated for all power components, θJA characterized on actual board (not datasheet), all Tj within spec with ≥15°C margin, hotspot identified and mitigated
+- [ ] **[HW5]** EMC pre-compliance tested: conducted emissions within 6dB of limits, radiated emissions within 6dB of limits, ESD tested at ±8kV contact / ±15kV air on all exposed connectors, immunity tested to applicable standards — formal compliance test has ≥90% probability of passing
+- [ ] **[HW6]** BOM lifecycle verified: every component checked for active production status, projected availability 5+ years from design-in, second-source alternative identified for all single-source parts, PCN alerts subscribed, quarterly BOM health review scheduled
+- [ ] **[HW7]** DFM review with contract manufacturer: board meets CM minimums for trace/space, drill size, annular ring, solder mask web, copper-to-edge, panelization and fiducials confirmed, CM sign-off obtained
+- [ ] **[HW8]** DFT coverage verified: ≥95% net test point coverage on bottom side, JTAG/SWD chain accessible for all programmable devices, boundary scan coverage for BGA interconnects, every voltage rail has test point, critical signals (clocks, resets, buses) testable
+- [ ] **[HW9]** Impedance control specified and verified: stackup documented with target impedance per layer, fab drawing specifies controlled impedance traces with tolerance, TDR measurement on first articles confirms impedance within ±10%
+- [ ] **[HW10]** Decoupling analysis complete: PDN impedance simulated from DC to 100MHz, target <100mΩ, decoupling capacitors placed within 3mm of IC power pins, multiple via pairs per capacitor, bulk + ceramic + low-ESL capacitor mix appropriate for frequency range
+- [ ] **[HW11]** Regulatory checklist: applicable standards identified (FCC Part 15, CE RED/EMC, UL/IEC 62368-1 safety, RoHS/REACH), test lab engaged, pre-compliance results reviewed, certification timeline integrated with production schedule
+- [ ] **[HW12]** Reliability testing: HALT performed on prototypes with thermal cycling (-40°C to +125°C), 6-axis vibration, and voltage margining, failures root-caused and fixed, MTBF calculated with MIL-HDBK-217 or Telcordia, accelerated life test in progress — no field-deployment blockers
 
 ## References
 

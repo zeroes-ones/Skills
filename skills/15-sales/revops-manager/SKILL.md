@@ -305,6 +305,8 @@ Which integration is suspect?
 
 ## Error Recovery
 
+<!-- STANDARD: Recovery patterns for common failures. -->
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -470,7 +472,22 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Gotchas
+## Best Practices
+
+1. **Never produce a forecast number that cannot be traced to a specific deal, stage, and rep.** Aggregate-only forecasting produces fiction. Every commit number must be deal-level auditable. Require CRM export with deal names, stages, amounts, close dates, and rep assignments before generating any forecast.
+2. **Back-test every comp plan against prior year actuals before rollout.** A comp plan that hasn't run against last year's deal distribution will produce cost overruns. Model every change against 12 months of rep attainment data; test edge cases (what if one AE closes 3× quota?); include comp plan modeling as a required gate in the annual planning cycle.
+3. **Report NRR segmented by customer cohort, never as a single aggregate.** A 115% NRR can hide 85% logo retention if a few large accounts are expanding. Concentration kills companies that look at the headline. Always report by cohort, segment, and decile.
+4. **Clean CRM data BEFORE migrating to a new system.** A "lift and shift" from HubSpot to Salesforce migrates 10 years of garbage into a more expensive system. Audit and archive fields unused in 12+ months, validate automation rules, migrate only what's actively used. Run parallel systems for 30 days minimum with data reconciliation.
+5. **Report pipeline metrics as median + distribution, never just mean.** A 60-day average sales cycle with 9 deals at 30 days and 1 at 330 days tells you nothing. Median AND distribution reveal the real story. Mean without distribution is misleading.
+6. **Design territories using workload models, not equal account splits.** Territory design must account for account density, travel time, and rep capacity. Use a workload model: accounts × expected meetings/year × average travel time. Validate with field reps before finalizing.
+7. **Implement CRM validation rules that enforce data quality at entry.** "Required field" isn't enough if reps enter "N/A" or "TBD." Add rules: close date must be in the future, amount > $0, contact must have valid email format, stage progression requires previous stage completion.
+8. **Reconcile CRM ARR with billing ARR monthly.** When the two diverge by >2%, you have two sources of truth. Monthly reconciliation catches discrepancies before they become board-level credibility problems. Flag and investigate immediately.
+9. **Build attribution models with ≥12-month lookback windows for B2B.** Healthcare and enterprise buying cycles run 6-18 months. Attribution with 90-day windows misattributes 40-60% of pipeline. Use W-shaped multi-touch with minimum 12-month lookback and recency weighting.
+10. **Require written business case for any non-standard discount >20%.** Discounts without documentation teach the field that everything is negotiable. Required fields in approval workflow: AE business case, strategic value, precedent risk, competitive context. Director sign-off for anything non-standard.
+
+## Anti-Patterns
+
+<!-- STANDARD: Common failure modes with cost estimates and fixes. -->
 
 - **Salesforce/HubSpot "required fields"** that sales reps circumvent by entering "N/A" or "TBD" — the field is required but the data is garbage. Required doesn't mean valid. Add validation rules: "Close date must be in the future," "Amount > $0," "Contact must have valid email."
 - **Pipeline stage durations** measured as AVERAGES — a 60-day average sales cycle with 10 deals: 9 closed in 30 days, 1 took 330 days. The average says 60 days but no deal actually took 60 days. Report median AND distribution, not just mean.
@@ -479,6 +496,67 @@ graph LR
 - **CRM migration executed as a "lift and shift."** You move from HubSpot to Salesforce, mapping every field, workflow, and automation 1:1. The old system had 10 years of accumulated cruft — 400 unused fields, 80 broken automations, and a lead scoring model built in 2019. You spend 9 months and $300K migrating garbage data and broken processes into a more expensive system, then spend another $200K cleaning it up post-migration. **Total cost: $300K-$500K in migration costs that could have been $150K with a cleanup-first approach, plus 3-6 months of sales team frustration and degraded forecasting accuracy.** Fix: Audit and clean source data BEFORE migration — archive fields unused in 12+ months, validate all automation rules against current process documentation; migrate only what's actively used; run parallel systems for 30 days minimum with data reconciliation.
 - **Sales compensation plan designed without RevOps modeling.** The CFO sets a $150K OTE with 50/50 base/variable split. RevOps isn't consulted. The plan pays accelerators at 100%+ quota with no cap. Three AEs close mega-deals in Q1 from pipeline they inherited, hitting 300% of annual quota by March. They're on track for $450K+ in commissions against a $75K variable target, blowing the sales compensation budget by $250K and creating a retention crisis when Finance tries to claw back. **Total cost: $200K-$500K in unbudgeted commission overruns annually, plus 1-3 AEs who quit when comp is adjusted mid-year because "the math didn't work."** Fix: RevOps must model every comp plan change against last year's actual deal data BEFORE rollout; test edge cases (what if one AE closes 3x quota?); include comp plan modeling as a required gate in the annual planning cycle; never launch a comp plan without a clawback/reset clause for inherited pipeline windfalls.
 - **Territory planning done via spreadsheet equal-split.** RevOps divides the US into 8 territories of equal total addressable accounts. Territory 1 has 200 accounts — but they're concentrated in NYC with 3 reps. Territory 8 has 200 accounts spread across Montana, Wyoming, and the Dakotas with 1 rep who spends 40% of their time on planes. The NYC reps hit 140% quota; the Rockies rep hits 40% and quits. **Total cost: $150K-$300K in underperformance per misaligned territory annually, plus $50K-$80K in replacement recruiting costs when burned-out reps leave.** Fix: Territory design must account for account density, travel time, and rep capacity, not just account count; use a workload model (accounts × expected meetings/year × average travel time); validate with field reps before finalizing; rebalance quarterly based on actual activity data.
+
+## Production Checklist
+
+<!-- STANDARD: Pre-launch verification gate. All items must pass before delivering work. -->
+
+- [ ] Forecast generated from deal-level data — every commit number traceable to specific deal, stage, and rep in CRM
+- [ ] Comp plan back-tested against 12 months of prior year actuals — edge cases modeled (3× quota, zero attainment, inherited pipeline)
+- [ ] NRR reported segmented by customer cohort, size decile, and segment — never as a single aggregate number
+- [ ] CRM-to-billing ARR reconciled within last 30 days — variance <2% or flagged for immediate investigation
+- [ ] CRM validation rules active: close date in future, amount > $0, valid email format, stage progression gated
+- [ ] Pipeline metrics reported as median + distribution — never mean alone for stage duration or deal size
+- [ ] Territory design validated with workload model (accounts × meetings/year × travel time) — field rep feedback incorporated
+- [ ] Attribution model selected with documented methodology, lookback window (≥12 months for B2B), and recency weighting
+- [ ] Deal desk SLA tracked — non-standard discount approvals require written business case with director sign-off for >20%
+- [ ] Sales process documentation current (updated within last quarter), version-controlled, accessible to all reps
+- [ ] Tech stack audit: all tools have active users (login within 30 days) — unused tools flagged for removal or consolidation
+- [ ] CRM fields with >50% "N/A," "TBD," or NULL identified — validation rules added or fields deprecated
+- [ ] Deals with no activity in 30+ days flagged — owners notified, forecast category downgraded if no response in 7 days
+- [ ] Monthly forecast accuracy tracked — end-of-quarter forecast vs actuals within ±10% target
+
+## Scale Depth
+
+<!-- DEEP: How this skill scales from solo to enterprise. -->
+
+### Solo RevOps (Founder-led, pre-Series A)
+- **Tooling:** HubSpot CRM (free), Google Sheets for forecasting, manual pipeline reviews, Stripe for billing
+- **Process:** Founder manages CRM and does weekly pipeline review personally; no formal territory plan; comp is simple commission
+- **Risk:** No systematic data governance; forecast is founder's gut feel; CRM hygiene depends entirely on one person
+- **Move to next level when:** Sales team exceeds 5 reps OR running ≥2 distinct sales motions (inbound + outbound)
+
+### Small Team (1 RevOps, Series A-B)
+- **Tooling:** HubSpot/Salesforce Professional, basic forecasting spreadsheet, simple attribution (first-touch), Excel comp modeling
+- **Process:** Formal pipeline review cadence (weekly), basic territory design by geo, simple deal desk (discount approval workflow), monthly CRM hygiene audit
+- **Key hire:** First Salesforce/HubSpot admin — dedicated to CRM configuration, automation, and data quality
+- **Move to next level when:** Sales team exceeds 20 reps OR implementing first comp plan with accelerators
+
+### Medium Team (2-4 RevOps, Series B-C)
+- **Tooling:** Salesforce Enterprise, forecasting platform (Clari/BoostUp), multi-touch attribution, comp management software (CaptivateIQ/Spiff), deal desk automation
+- **Process:** Deal-level forecast inspection, formal territory planning with workload modeling, multi-touch attribution (W-shaped), quarterly comp plan modeling, dedicated deal desk function, sales process documentation and training
+- **Metrics:** Forecast accuracy by rep/team/region, pipeline coverage ratio, sales cycle length by segment, quota attainment distribution, CRM adoption score
+- **Move to next level when:** Supporting ≥3 sales segments (SMB + Mid-Market + Enterprise) OR implementing global territories across ≥2 regions
+
+### Enterprise (4+ RevOps, Series C+)
+- **Tooling:** Full RevOps tech stack — CRM (Salesforce Unlimited), forecasting AI, advanced attribution (media mix modeling), comp intelligence, territory planning software (Fullcast/Territory Manager), revenue intelligence (Gong/Clari)
+- **Process:** RevOps leadership team, dedicated functions (CRM architecture, analytics, enablement ops, deal desk), monthly forecast council with CRO/CFO, quarterly territory rebalancing, annual comp plan redesign with sandbox simulation
+- **Metrics:** Revenue per rep, time-to-productivity for new reps, forecast accuracy by week of quarter, pipeline generation rate, win rate by segment/competitor, sales capacity model
+- **Governance:** Monthly data quality scorecard, quarterly tech stack ROI review, annual RevOps maturity assessment, CRM change management board with bi-weekly review of all configuration changes
+
+## Error Decoder
+
+<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
+
+| Symptom | Diagnosis | Root Cause | Fix |
+|---------|-----------|------------|-----|
+| End-of-quarter forecast misses by 30% — $3M forecast, $2.1M actual | Pipeline-as-forecast — aggregate number with no deal-level audit trail | No deal-level inspection; commits accepted at face value; stale deals in forecast | Implement deal-level forecast inspection: every commit must have deal name, stage, amount, close date, rep, last activity date; flag deals with no activity in 14+ days |
+| CRM ARR = $12.5M, billing ARR = $11.8M (5.6% variance) | Two sources of truth — CRM and billing systems diverged over time | No monthly reconciliation process; CRM opportunities not closed when contracts signed; billing system has different contract definitions | Implement monthly CRM-to-billing reconciliation; reconcile line-by-line for top 20 accounts; fix root cause (likely inconsistent opportunity close process) |
+| 3 AEs hit 300% quota in Q1 from inherited pipeline — comp budget blown by $250K | Comp plan had uncapped accelerators; inherited pipeline treated same as self-sourced | Comp plan designed without RevOps modeling; no windfall clause for inherited pipeline | Model every comp change against prior year actuals BEFORE rollout; add windfall clause (inherited pipeline capped at 150% of variable); test edge cases |
+| Territory 8 (Montana/Dakotas) rep at 40% quota, Territory 1 (NYC) reps at 140% | Territories split by equal account count, not workload or density | Territory design used spreadsheet equal-split; no travel time or account density model | Redesign with workload model: accounts × meetings/year × travel time; validate with field reps; rebalance quarterly; use territory planning software (Fullcast) |
+| CRM migration: 9 months, $300K, migrated 400 unused fields and 80 broken automations | Lift-and-shift migration without source system cleanup | No data audit before migration; assumption that "migrating everything" is safer than selective migration | Halt migration; audit source CRM — archive unused fields, validate automations, migrate only active objects; run parallel systems 30 days minimum |
+| Attribution model gives equal credit to touch from 18 months ago and last week's webinar | No recency weighting in multi-touch model | Attribution treated as static first-touch or even-split multi-touch; temporal decay ignored | Implement W-shaped attribution with recency weighting (exponential decay, half-life of 90 days); model must weight recent touches higher |
+| Sales rep enters "N/A" in required Amount field, deal skips to Commit stage | CRM validation rules are cosmetic — "required" doesn't enforce valid data | No data validation rules beyond field-level "required"; no stage progression gates | Add validation rules: close date > today, amount > $0, valid email regex; add stage progression requirements (previous stage fields must be complete); audit and flag non-compliant deals weekly |
 
 ## Anti-Rationalization — No Excuses
 

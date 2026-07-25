@@ -148,6 +148,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building cultural competency into community operations for diverse patient populations
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Community Growth Strategy
@@ -210,6 +211,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Primary segmentation by condition:** Hemophilia A, Hemophilia B, VWD, inhibitors, carriers — different medical journeys, different community needs. **Primary segmentation by treatment:** Prophylaxis (infusion fatigue, adherence), on-demand (bleed recognition, treatment delay), gene therapy (expectation management, long-term uncertainty), clinical trial (hope + anxiety). **Secondary always includes:** age cohort (parent of young child vs adult self-infuser vs aging with hemophilia) and caregiver status.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~25 min): Peer Mentorship Program Design
@@ -241,6 +243,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -432,6 +435,87 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Best Practices
+
+1. **Establish community guidelines before the first member joins.** Guidelines must cover: acceptable content (peer support, shared experience, treatment discussion), prohibited content (medical advice, unverified remedies, harassment, PHI sharing), moderation philosophy (transparency about decisions, appeal process), and consequences (warning → temporary suspension → permanent removal). Publish guidelines publicly and require new members to acknowledge them during onboarding.HIPAA-aware guidelines must explicitly state that sharing identifiable health information in public threads is prohibited and will be removed for member protection.
+2. **Deploy a tiered moderation framework.** Level 1: Automated pre-screening (keyword detection for self-harm, PHI, commercial spam). Level 2: Community flagging (members report concerning content; flags are reviewed within SLA). Level 3: Trained volunteer moderators (handle routine violations, escalate complex cases). Level 4: Professional staff moderators (crisis content, AE reports, legal escalations). Each level must have a defined SLA and escalation trigger.
+3. **Define and monitor escalation paths for every crisis scenario.** Suicide/self-harm content: immediate escalation to crisis-response-manager within 5 minutes, warm handoff to crisis service, no automated response to patient. Adverse event report: flag post, do NOT delete, escalate to crisis-response-manager within 1 hour. PHI exposure: contact member privately, offer to edit/remove, document action. Coordinated misinformation: identify pattern, assess clinical risk, policy enforcement, community communication.
+4. **Implement proactive toxic behavior detection.** Monitor: sudden sentiment shifts in specific threads, coordinated flagging patterns (brigading), new account posting high-frequency controversial content, and private message abuse reports. Toxic engagement spikes drive away 15-25% of genuine members per incident. A spike in "engagement" is not always success — it may be a crisis.
+5. **Track community health metrics beyond engagement.** Core KPIs: supportive-to-argumentative comment ratio (trend stable or improving), new member welcome rate (are newcomers acknowledged?), time-to-first-response (<1 hour median), member retention (30-day, 90-day, annual), churn reasons categorized (life improvement = good churn; dissatisfaction = bad churn). DAU/MAU alone is a vanity metric — it rewards controversy as much as connection.
+6. **Design the member lifecycle intentionally.** Onboarding: welcome message, community guidelines acknowledgment, introduction thread, peer match suggestion. Active participation: weekly discussion prompts, mentorship connection, event invitations. Recognition: badges for milestones (100th post, 1-year anniversary, helping 10 new members). Intervention: 14-day inactivity → automated re-engagement nudge; 30-day inactivity → human outreach. Graceful exit: members who leave should receive a thank-you and an open invitation to return.
+7. **Support volunteer moderators with psychological safety infrastructure.** Patient community moderators are exposed to suicide ideation, terminal diagnosis grief, and caregiver trauma daily. Provide: mandatory counseling access (EAP or dedicated budget), mandatory breaks after crisis content moderation, clear boundaries (moderators are not clinicians — recognize when to escalate), and monthly wellness check-ins with burnout indicators. Untrained moderators without support develop vicarious trauma at 3x the general population rate.
+8. **Segment the community by condition subtype and treatment regimen for targeted programming.** Primary segmentation: condition (Hem A, Hem B, VWD, inhibitors, carriers) or treatment (prophylaxis, on-demand, gene therapy, non-factor). Secondary: age cohort and caregiver status (parent of young child, adult self-infuser, aging with condition). A parent managing their 3-year-old's prophylaxis has fundamentally different needs from a 45-year-old who has self-infused for 30 years.
+9. **Partner with patient advocacy organizations for credibility and reach.** National/global organizations (NHF, HFA, WFH for hemophilia) provide: clinical referral pathways, co-branded event credibility, cross-promotion to existing patient networks, and research opportunity distribution. The community should complement advocacy organizations, not compete with them. Advocacy partnerships are built on mutual value, not extraction.
+10. **Apply safety protocols for in-person and virtual events.** In-person: venue accessibility (wheelchair accessible, near transit), health safety (infusion-friendly spaces, factor refrigeration, emergency bleed plan), cost (free for patients, travel stipends for hardship), consent for photography. Virtual: platform with closed captioning, sign language interpreter availability, time zone rotation for global members, recording with consent (available 30 days). Events that are inaccessible to the sickest patients serve only the healthiest members.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
+|-----------------|---------------------|-----------|-------------------|
+| Community becomes a symptom-swapping forum where unverified remedies become community lore | Establish evidence-based content guidelines. Require expert moderation for medical claims. Prominently display "this is not medical advice." Flag and review all treatment claims | `grep -r 'cure\|remedy\|natural.treatment\|miracle' community-posts/ \| grep -v 'clinically.reviewed\|disclaimer'` | Pre-post gate: auto-flag posts with treatment claims for moderation review before publishing |
+| Measuring community health by engagement metrics alone — viral controversy looks like success | Disaggregate engagement: supportive vs argumentative comments, new member welcome rate, post-reporting rate. Quality of engagement > quantity | `grep -r 'DAU\|MAU\|engagement.rate' reports/ \| grep -v 'sentiment\|supportive.ratio\|report.rate'` | Dashboard rule: engagement-only reports without sentiment and safety metrics are automatically flagged |
+| Volunteer moderator burnout — 10 moderators handle 500 posts/day including suicide ideation and terminal diagnosis grief with no psychological support | Provide counseling access, mandatory breaks after crisis content, clear escalation paths, monthly wellness check-ins. Limit active caseload | `grep -r 'moderator\|volunteer' --include='*.md' \| grep -v 'wellness\|counseling\|break\|burnout\|support'` | Monthly audit: flag moderators >90 days without wellness check-in; auto-trigger support outreach |
+| Missing crisis escalation protocol — suicidal ideation post at 11 PM Friday not seen until Monday morning | Implement 24/7 coverage or automated escalation. Crisis content must trigger immediate human review regardless of time. No response gap >30 minutes | `grep -r 'escalat\|crisis\|suicide\|self.harm' community-policies/ \| grep -v '24.7\|after.hours\|weekend\|holiday\|coverage'` | Coverage audit: test escalation paths at off-hours; alert if response SLA >30 minutes |
+| Health misinformation outpaces fact-checking — viral post reaches 500K before correction reaches 5K | Pre-bunk, don't just debunk. When a correction is posted, boost its visibility. Proactively identify high-risk topics and pre-position accurate content | `grep -r 'misinformation\|viral\|fact.check' --include='*.md' \| grep -v 'pre.bunk\|boost\|proactive\|pre.position'` | Auto-boost rule: when a post is flagged as misinformation, automatically boost the correction with 3x standard visibility |
+| Self-policing community with no visible moderation — community norms degrade within 90 days as bad actors test boundaries | Visible, consistent moderation sets and enforces norms. Members need to see that violations have consequences. Moderation presence deters 60% of violations before they occur | `grep -r 'self.policing\|self.moderat\|community.norms' --include='*.md' \| grep -v 'visible.moderation\|enforcement\|consequences'` | Moderation visibility audit: communities without public moderation actions in >7 days flagged for review |
+| Gamification that rewards volume over value — "Top Contributor" badge goes to member who posts 50 low-quality comments/day | Design recognition for quality: "Most Helpful Response" (voted by community), "Welcomed 50 New Members," "1-Year Support Milestone." Volume badges without quality gates incentivize spam | `grep -r 'badge\|leaderboard\|gamification\|top.contributor' --include='*.md' \| grep -v 'quality\|helpful\|voted\|peer.reviewed'` | Badge audit: flag recognition systems based solely on post count or time; require quality dimension |
+
+## Production Checklist
+**(STANDARD)**
+
+| ID | Checklist Item | Validation | Auto-Fix |
+|----|---------------|------------|----------|
+| [CO1] | Community guidelines published, covering: acceptable content, prohibited content, moderation philosophy, consequences, appeal process | `grep -r 'guidelines\|acceptable.content\|prohibited\|moderation\|appeal' community-policies/` | Run `community-guidelines-bootstrap --template health-community` |
+| [CO2] | HIPAA-aware privacy guidance in guidelines: PHI sharing prohibited, removal process documented, member privacy protected | `grep -r 'PHI\|HIPAA\|privacy\|identifiable' community-guidelines.md` | Content gate: block guidelines without PHI/privacy section |
+| [CO3] | Tiered moderation framework deployed: automated (Level 1), community flagging (Level 2), volunteer moderators (Level 3), professional staff (Level 4) | `grep -r 'moderation.level\|L1\|L2\|L3\|L4\|automated\|community.flag\|volunteer\|professional' moderation-policies/` | Run `moderation-framework-bootstrap --levels 4` |
+| [CO4] | Crisis escalation SLAs defined: suicide/self-harm < 5 min, AE report < 1 hour, PHI exposure < 2 hours, misinformation campaign < 4 hours | `grep -r 'sla\|response.time\|escalation.time\|5.min\|1.hour\|2.hour\|4.hour' crisis-protocols/` | Run `sla-config-bootstrap --template community-crisis` |
+| [CO5] | Community health dashboard: engagement rate, sentiment ratio, new member welcome rate, time-to-first-response, retention cohorts, churn reasons | `grep -r 'dashboard\|KPI\|sentiment\|retention\|churn\|welcome.rate' community-metrics/` | Run `community-dashboard-bootstrap --template health-community` |
+| [CO6] | Member lifecycle designed: onboarding flow, active participation path, recognition milestones, re-engagement triggers (14d/30d), graceful exit | `grep -r 'onboarding\|lifecycle\|recognition\|re.engagement\|exit' community-programs/` | Run `member-lifecycle-bootstrap --template health-community` |
+| [CO7] | Volunteer moderator support: counseling access, mandatory breaks post-crisis, wellness check-ins (monthly), caseload limits | `grep -r 'moderator.support\|counseling\|wellness\|caseload\|break' moderation-policies/` | Monthly audit: flag moderators >90 days without wellness check-in |
+| [CO8] | Community segmentation by condition subtype AND treatment regimen for targeted programming | `grep -r 'segment\|condition.subtype\|treatment.regimen\|Hem.A\|Hem.B\|prophylaxis\|on.demand' community-programs/` | Segmentation audit: flag communities with single-segment programming |
+| [CO9] | Peer mentorship program: matching algorithm, mentor training (active listening, boundaries, crisis recognition), mentee satisfaction tracking, mentor retention >70% at 6 months | `grep -r 'mentorship\|matching\|mentor.training\|boundaries\|crisis.recognition\|mentee.satisfaction' community-programs/` | Run `mentorship-program-bootstrap --template health-community` |
+| [CO10] | Patient events: accessibility (wheelchair, transit, closed captioning), health safety (infusion space, factor refrigeration, bleed plan), cost (free + travel stipends), consent for recording/photography | `grep -r 'event\|accessibility\|health.safety\|infusion\|cost\|consent' community-programs/` | Event gate: block event plans without accessibility and health safety sections |
+| [CO11] | Advocacy partnerships documented: partner organizations, co-branding agreements, cross-promotion plan, mutual value proposition | `grep -r 'advocacy.partner\|NHF\|HFA\|WFH\|partnership\|co.brand' community-programs/` | Partnership audit: flag communities without documented advocacy relationships |
+| [CO12] | Misinformation response protocol: pre-bunk high-risk topics, boost corrections with 3x visibility, time-to-correction SLA (<4 hours), correction reach tracking | `grep -r 'misinformation\|correction\|pre.bunk\|boost\|reach' moderation-policies/` | Auto-boost rule: flagged misinformation corrections auto-boosted with 3x standard visibility |
+| [CO13] | Community growth tracked for demographic representativeness — growth that only reaches English-speaking, urban patients is not sustainable | `grep -r 'growth\|demographic\|representative\|diversity\|underserved' community-metrics/` | Growth audit: flag growth reports without demographic diversity breakdown |
+| [CO14] | 24/7 crisis coverage or automated escalation — no gap between community activity hours and crisis response capacity | `grep -r '24.7\|after.hours\|coverage\|weekend\|holiday' crisis-protocols/ \| grep 'escalation\|response'` | Coverage audit: test escalation paths at off-hours; alert if response SLA exceeds threshold |
+
+### Scale Depth
+
+<!-- DEEP: 10+min -->
+<!-- QUICK: 30s -- how community operations evolve with member scale -->
+
+#### Solo (0-100 members, 1 community manager)
+**Approach:** Single manager handles all moderation, programming, and member support. Manual processes. Community guidelines published but enforced ad-hoc. No formal metrics beyond member count.
+**When to graduate:** >100 members; moderation volume exceeds one person; first crisis event exposes lack of escalation protocol.
+
+#### Small Team (100-1K members, 2-5 people)
+**Approach:** Dedicated community manager + volunteer moderators. Documented moderation workflows. Basic community health metrics (engagement, retention). Monthly events. Peer mentorship program pilot.
+**When to graduate:** >1K members; need for 24/7 moderation coverage; multiple condition communities; formal crisis escalation protocol required.
+
+#### Medium Team (1K-50K members, 5-15 people)
+**Approach:** Professional moderation team with shift coverage. Automated pre-screening for crisis content. Formal community health dashboard with clinical outcome correlations. Dedicated events coordinator. Multi-condition community segmentation. Advocacy partnerships. Moderator wellness program.
+**When to graduate:** >50K members; community data used in regulatory submissions; multi-language communities; value-based care contracts tie community engagement to reimbursement.
+
+#### Enterprise (50K+ members, 15+ people)
+**Approach:** Community operations department. 24/7 global moderation with multi-language coverage. Published community health research. Community integrated into clinical workflow (provider-prescribed peer support). FDA-compliant adverse event surveillance from community data. Enterprise-grade community platform. External community advisory board.
+
+#### Transition Triggers
+- **Solo → Small Team:** >100 members; moderation bottleneck; first crisis event
+- **Small Team → Medium Team:** >1K members; 24/7 coverage needed; multi-condition programming
+- **Medium Team → Enterprise:** >50K members; regulatory-grade operations; global deployment
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| Community engagement spikes 200% but member satisfaction plummets and churn accelerates | Controversial post about vaccine safety went viral. Engagement metrics rewarded the controversy. Supportive-to-argumentative ratio inverted | Disaggregate engagement metrics immediately. Track supportive vs argumentative comments, new member welcome rate, and post-reporting rate. Quality of engagement > quantity. Investigate spike source and deploy moderation response if toxic | Engagement without sentiment analysis is a vanity metric that rewards controversy. A 200% spike driven by argument is a crisis, not a success. Communities that optimize for engagement volume optimize for toxicity |
+| Moderator team loses 60% of volunteers in 6 months — remaining moderators show vicarious trauma symptoms | Volunteer moderators handled 500 posts/day including suicide ideation and terminal diagnosis grief with no psychological support, no mandatory breaks, and no crisis content limits | Immediately pause all volunteer moderation. Provide crisis counseling access. Redesign moderator program: mandatory counseling access, mandatory breaks after crisis content (minimum 24h), caseload limits (maximum 2 crisis posts/day), monthly wellness check-ins | Patient community moderators are not content moderators — they are exposed to the same trauma as clinical staff. Treating them as free labor with no psychological safety infrastructure is both unethical and operationally unsustainable |
+| Suicidal ideation post at 11 PM Friday not seen until Monday morning — 55-hour response gap | No 24/7 coverage. No automated escalation. Crisis content posted after business hours had zero monitoring until next business day | Implement 24/7 coverage or automated escalation with on-call rotation. Crisis content must trigger immediate human review regardless of time. Maximum response gap: 30 minutes. Test escalation paths at off-hours quarterly | A 55-hour gap between a crisis post and a response can be fatal. "We were closed" is not a defense — it is an admission of negligence. Community platforms with constructive knowledge of suicidal content have a duty to act |
+| Viral misinformation post reaches 500K before correction reaches 5K — misinformation outpaces fact-checking 100:1 | Correction was posted as a standard community reply with no visibility boost. The original post continued to spread through algorithmic amplification while the correction sat unread | Pre-bunk high-risk topics with pre-positioned accurate content. When correction is posted, auto-boost with 3x standard visibility. Track correction reach as a KPI. If correction reach <50% of original post reach, boost again | The misinformation correction reach ratio is the single most important metric in community health content. A correction that reaches 1% of the audience the misinformation reached is functionally invisible. Corrections must be amplified, not just posted |
+| New member onboarding completion rate <20% — members join but never participate | Onboarding flow is a 6-step process requiring profile completion, interest selection, privacy settings, and guidelines acknowledgment before accessing any community content | Simplify onboarding to 3 steps maximum: (1) guidelines acknowledgment with plain-language summary, (2) optional introduction post prompt, (3) immediate access to a relevant thread. Profile completion and advanced settings deferred to progressive disclosure | Onboarding is a handshake, not an intake form. Every additional step before a member sees community value reduces completion by 15-20%. The first experience must demonstrate value within 60 seconds |
+| Gamification program increases post volume 300% but decreases post quality — "Top Contributor" posts 50 low-effort comments/day | Recognition system rewarded volume alone. No quality dimension. Badge was earned by posting frequency, incentivizing quantity over value | Redesign recognition for quality: "Most Helpful Response" (community-voted), "Welcomed 50 New Members," "Shared a Helpful Resource" (moderator-verified). Remove or gate volume-only badges | Recognition systems teach members what the community values. A volume-only system teaches: "Post as much as possible." A quality-weighted system teaches: "Help as meaningfully as possible." The design of the incentive IS the community culture |
 
 ## References
 

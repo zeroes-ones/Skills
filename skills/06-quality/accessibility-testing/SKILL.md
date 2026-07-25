@@ -146,7 +146,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You need to automate screen reader testing for critical user flows
 - You want to add accessibility visual regression testing to catch contrast and layout issues
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- STANDARD: 3min -->
 
@@ -234,7 +234,7 @@ How should you prioritize manual accessibility testing effort?
 
 <!-- DEEP: 10+min -->
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 ### Phase 1: Static + Unit-Level Testing (~1 hour setup)
 Install and configure linting rules at the earliest detection layer. ESLint: `eslint-plugin-jsx-a11y` with recommended rules (alt-text, anchor-has-content, no-autofocus, tabindex-no-positive). Stylelint: `stylelint-a11y` for color and spacing rules. Run in IDE (real-time feedback) + pre-commit hook (lint-staged) + CI (fails build on violation). Configure axe-core in unit tests: `jest-axe` for React, `vitest-axe` for Vue, `jasmine-axe` for Angular. Test every component in isolation: buttons, inputs, modals, dropdowns, carousels. Store results as JUnit XML for CI dashboard ingestion.
@@ -249,7 +249,30 @@ Define violation thresholds per severity level. Critical (WCAG 2.2 A violations)
 Configure periodic (daily) accessibility scans of key production pages using pa11y-ci scheduled job or a hosted service (Deque Axe Monitor, Siteimprove, Tenon). Monitor: accessibility score trend, new violation count, and pages with score drops. Alert on: score dropping > 5 points in 24 hours, any new critical/serious violation on a key page, and pages missing from scan coverage. Dashboard: score per route over time, violation breakdown by WCAG criteria, time-to-fix (how long from detection to resolution).
 
 
-## Error Recovery
+## Best Practices
+
+1. **Target WCAG 2.2 Level AA compliance as the minimum bar.** WCAG 2.2 added focus appearance, dragging movements, and target size requirements. AA is the legal standard referenced in ADA, Section 508, and EN 301 549. Level A covers basic barriers; AA covers the most common barriers for screen reader and keyboard users. AAA is aspirational and not always achievable for all content types. Audit against WCAG 2.2 AA success criteria, not just the automated subset.
+
+2. **Test with real screen readers — VoiceOver (macOS/iOS), NVDA (Windows), and TalkBack (Android).** Automated tools catch only ~30% of WCAG issues. Screen reader testing reveals: whether live regions announce content correctly, whether focus moves logically after route transitions, whether custom widgets behave predictably, and whether the reading order matches the visual order. Rotate through screen reader + browser combinations (NVDA + Firefox, VoiceOver + Safari) on every release cycle. Automated tools are the safety net — screen readers are the reality check.
+
+3. **Verify full keyboard navigation — Tab, Enter, Escape, Arrow keys, Space.** Every interactive element must be reachable and operable by keyboard alone. Key checks: focus indicator is visible (WCAG 2.4.7), tab order follows visual order (WCAG 2.4.3), no keyboard traps (WCAG 2.1.2), modals trap focus and return it on close, skip-to-content links work, and custom keyboard shortcuts don't conflict with assistive technology (single-key shortcuts must be remappable).
+
+4. **Enforce color contrast at design-token level, not just at audit time.** Define accessible color pairings in the design system — text against background (4.5:1 minimum), large text (3:1), UI components and graphical objects (3:1). Use tools like `contrast-ratio`, Stark, or axe DevTools to verify in real-time. A palette change that passes for one state (default) can fail for another (hover, disabled, error) — verify the full state matrix.
+
+5. **Manage focus explicitly — never let the browser guess.** After SPA route transitions, move focus to the page heading or a skip link. After modal opens, focus the first focusable element. After modal closes, return focus to the trigger element. After form submission, announce the result and move focus to the success/error message. After dynamic content loads, announce it with `aria-live`. Focus management is the #1 screen reader usability issue — fix it everywhere.
+
+6. **Build accessible forms with persistent labels, error linking, and clear instructions.** Every input needs a visible label (not just placeholder text). Error messages must be linked via `aria-describedby` and announced with `aria-live="assertive"`. Required fields must be marked with both a visual indicator AND the `required` attribute or `aria-required`. Group related fields with `<fieldset>` + `<legend>`. Forms are the #1 interaction point — an inaccessible form blocks core business functions.
+
+7. **Combine automated testing (axe-core, Lighthouse) with manual assessment.** Automated tools are fast and consistent but catch only 30-40% of issues. Manual testing catches the rest: meaningful alt text (not just presence), heading hierarchy correctness, focus order logic, dynamic content announcements, and task completion by real assistive technology users. Schedule manual keyboard + screen reader walkthroughs for the top 5 user flows every release cycle.
+
+8. **Validate ARIA — use it as a last resort, not a first choice.** The first rule of ARIA: don't use ARIA if native HTML can do the job. A `<button>` needs no `role` or keyboard handler; a `<div role="button">` needs role, tabindex, and keydown handlers. Validate ARIA with axe-core's ARIA rules: no orphaned `aria-labelledby` references, all `aria-controls` point to existing IDs, `aria-*` attributes are used on allowed roles only. Incorrect ARIA is worse than no ARIA.
+
+9. **Shift accessibility testing left — lint at IDE, test at component, gate at CI.** Layer 1: ESLint (`eslint-plugin-jsx-a11y`) catches label, alt text, and role violations as the developer types. Layer 2: `jest-axe` / `vitest-axe` runs on every component in unit tests. Layer 3: `@axe-core/playwright` or `cypress-axe` runs in E2E tests after every navigation. Layer 4: `pa11y-ci` + Lighthouse CI on staging deploy. Catch violations at the cheapest layer — the IDE is essentially free, production is the most expensive.
+
+10. **Monitor accessibility in production, not just pre-release.** Run daily accessibility scans on key pages with `pa11y-ci`. Track score trends over time and alert on drops > 5 points in 24 hours. A new banner component, a marketing landing page, or a third-party script can introduce violations that CI never saw because CI tests the app shell, not the production composition. Production monitoring is the fourth layer of defense — and the only one that sees what users actually experience.
+
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -368,6 +391,28 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+
+## Production Checklist **(STANDARD)**
+
+Before shipping accessibility testing infrastructure or declaring a product WCAG-compliant, verify every item:
+
+- [ ] **eslint-plugin-jsx-a11y installed and passing at pre-commit.** Recommended ruleset active. Zero errors on commit. IDE integration enabled for real-time developer feedback.
+- [ ] **jest-axe or vitest-axe integrated in component tests.** Every interactive component tested in isolation. Results stored as JUnit XML for CI dashboard. Zero critical (A) violations.
+- [ ] **axe-core integrated in Playwright or Cypress E2E tests.** Runs after every navigation and DOM mutation. Zero new critical/serious violations vs stored baseline blocks PR merge.
+- [ ] **Lighthouse CI configured with accessibility budget.** Minimum score 95. Score drops > 5 points block deploy. Historical score tracking enabled.
+- [ ] **pa11y-ci scanning sitemap URLs on staging deploy.** All key pages covered. Violations triaged by severity. Alert on new critical/serious violations.
+- [ ] **Keyboard navigation automated via Playwright.** Tab order follows visual order. No keyboard traps. Skip-to-content link functional. Focus indicator visible on all interactive elements.
+- [ ] **Screen reader manual walkthrough completed on top 3-5 flows this release.** Tested with NVDA + Firefox (Windows) and VoiceOver + Safari (macOS). Task completion verified independently by QA.
+- [ ] **Color contrast verified for all text/UI component states.** Default, hover, focus, disabled, and error states checked. 4.5:1 for text, 3:1 for large text and UI components. Design tokens include accessible pairings.
+- [ ] **All forms have persistent labels, error linking, and required field indicators.** Labels visible (not placeholder-only). Errors linked via `aria-describedby`. Required fields marked with `required` attribute + visual indicator. Grouped with `<fieldset>` + `<legend>`.
+- [ ] **Dynamic content regions wrapped in `aria-live` containers.** Toasts, form errors, search results, chat messages, and SPA route transitions all announce to screen readers. `aria-live="polite"` for non-urgent, `aria-live="assertive"` for critical errors.
+- [ ] **Focus managed after every SPA route transition, modal open/close, and form submission.** Focus moves to page heading on navigation. Modal traps focus and returns to trigger on close. Form submission announces result with focus on success/error message.
+- [ ] **Third-party components audited with axe-core in integration context.** VPAT collected and verified for every vendor component. Keyboard + screen reader test of one flow involving each third-party component.
+- [ ] **Production monitoring configured with daily accessibility scans.** Score trend dashboard. Alert on >5 point drop in 24 hours. Alert on any new critical/serious violation on key pages.
+- [ ] **Accessibility statement published with a monitored feedback mechanism.** Feedback mechanism tested with a screen reader. User-reported issues triaged within 48 hours. P1 blockers within 24 hours.
+- [ ] **VPAT (Voluntary Product Accessibility Template) updated for current release.** WCAG conformance level (A/AA/AAA) documented per feature. ADA/Section 508 compliance evidence collected from CI audit trail.
+
+
 ## What Good Looks Like
 
 ### BEFORE (Novice) → AFTER (World-Class)
@@ -424,7 +469,7 @@ Before beginning a new phase, verify:
 
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time an accessibility issue reaches production, write down: what escaped detection, which layer should have caught it (lint/unit/e2e/monitoring), and what rule or check would prevent it next time. After 10 entries, you'll see patterns in your pipeline's blind spots.
 
-## Gotchas
+## Anti-Patterns
 
 - **Automated-only a11y testing.** Running axe-core or Lighthouse in CI and declaring the product "accessible" because the automated score is 100. Automated tools catch only ~30-40% of WCAG issues: focus order, keyboard traps, meaningful alt text semantics, heading hierarchy correctness, and dynamic content announcements all require human judgment. The 60-70% of issues that slip through are exactly what plaintiffs' firms scan for when sending ADA demand letters — and automated passing provides no legal defense. **Total cost: $15,000-$50,000 in missed violations leading to ADA demand letters, legal fees, and emergency remediation.** Fix: Combine automated testing with manual keyboard audits, screen reader testing (VoiceOver/NVDA/JAWS), and periodic external accessibility audits; use axe-core as a safety net, not a certification.
 - **Running a11y tests only before release.** Accessibility checks happen in the final QA gate, days before launch. Issues found then — a missing `aria-label` on a critical CTA, a keyboard trap in a checkout flow — require design review, code changes, retesting, and release delay. Fixing the same issue during development costs ~$200 in developer time; fixing it post-release costs $500-$2,000+ with hotfix overhead, and fixing it after an ADA complaint adds $5,000-$50,000 in legal exposure. **Total cost: $10,000-$75,000 per year in emergency fixes ($500-$2,000 each) vs. $2,000 in-shift fixes ($200 each for 10 issues).** Fix: Shift a11y testing left — run axe-core on every PR, require keyboard testing during development, block merge on a11y regressions; integrate pa11y or Lighthouse CI as a quality gate with enforced thresholds.
@@ -474,6 +519,24 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+
+### Scale Depth
+
+#### Solo Developer
+Run axe-core and Lighthouse locally before each deploy. `eslint-plugin-jsx-a11y` in IDE. Keyboard-test top 3 flows manually before release. No CI gating. Screen reader testing optional but encouraged for public-facing apps.
+
+#### Small Team (2-10)
+Jest-axe in component tests. axe-core in E2E tests. Lighthouse CI with advisory score budget. Zero new critical violations blocks PR. Manual keyboard audit on every release. Screen reader walkthrough on top 3 flows quarterly.
+
+#### Medium Team (10-50)
+Full CI/CD a11y pipeline with violation baselines. Zero new critical/serious blocks merge. pa11y-ci on staging. Production monitoring with daily scans. Manual screen reader testing on top 5 flows (rotate 2 per release). Per-route accessibility dashboard. Accessibility debt ratio < 5% enforced.
+
+#### Enterprise (50+)
+All medium-team gates + quarterly external audit. VPAT verification for all vendors. Procurement accessibility requirements (VPAT required). Board-level scorecard reviewed quarterly. Legal monitors ADA Title II, EN 301 549. Screen reader testing with actual assistive technology users. Compliance evidence pipeline for auditor-ready reports.
+
+**Transition Triggers:** Scale up when: (a) serving public users → Small, (b) first ADA demand letter → Medium immediately, (c) revenue > $10M or 100K+ users → Enterprise, (d) government/healthcare/education customers → Enterprise regardless of size.
+
 
 ## References
 

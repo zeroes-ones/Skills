@@ -155,7 +155,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Conducting a CDN configuration audit: cache hit ratio, TTL strategy, edge function performance
 - Building performance budgets into CI to prevent regressions
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What to Optimize First
@@ -311,7 +311,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Horizontal → only when all simpler options are exhausted.**
 
 
-## Error Recovery
+## Error Recovery **(DEEP)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -404,7 +404,7 @@ Performance is not a solo activity — it requires instrumentation from develope
 | Performance CI regression gate fails on main branch | All Developers, DevOps | Performance regression shipped; immediate rollback or fix before next deploy |
 | N+1 query pattern discovered on endpoint with >1K RPM | Backend Developers | Low-hanging optimization; batch loading or eager loading fix with high impact/effort ratio |
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -437,6 +437,19 @@ Performance is not a solo activity — it requires instrumentation from develope
 **Steps:** 1) Run stress test to determine breaking point (max TPS, failure mode) 2) Calculate headroom: (ceiling − peak) / ceiling × 100 3) If headroom <50%, create scaling plan (vertical first, then horizontal) 4) Schedule next capacity review based on growth rate  
 **Output:** Capacity plan with headroom percentage, scaling triggers, and timeline
 
+
+## Best Practices
+
+1. **Profile before optimizing, always.** `timeit` tells you "this function took 2.3 seconds." It doesn't tell you it spent 2.1s in `json.loads()`. Use `cProfile`, `py-spy`, `pprof`, or `async-profiler` to identify the actual bottleneck. Engineers waste $40K+ per misdiagnosed bottleneck optimizing the wrong code path. The bottleneck is never where you think it is.
+2. **Benchmark stability requires statistical rigor.** Run benchmarks for at least 60 seconds under steady load. Discard the first 10 seconds (JIT warmup, cache population). Report median ± standard deviation across 5+ runs. A single run showing "30% improvement" is noise — verify with Student's t-test or Mann-Whitney U for significance.
+3. **Performance regression detection must be in CI.** Add a 60-second benchmark that gates on regression: if p95 latency increases >10% or throughput drops >5%, fail the build. Without automated gates, performance regressions accumulate silently until users complain. Set SLO burn-rate alerts that wake someone before users notice.
+4. **P99.9 matters more than P99 for user experience.** P99 = 100ms looks great, but P99.9 = 12,000ms means 1 in 1,000 requests takes 120x longer. Your most active users experience this worst latency and churn at 3x the rate of average users. Always report P50, P95, P99, and P99.9 — the long tail hides your biggest problems.
+5. **Flame graphs reveal what dashboards hide.** A CPU flame graph shows exactly which functions consume time, including indirect callers invisible in flat profiles. Memory flame graphs show allocation hot spots. Use Brendan Gregg's FlameGraph tools or async-profiler with `--flamegraph` output. One flame graph is worth 1,000 log lines.
+6. **Load test at 2x expected peak, not current peak.** If your system handles 5K RPS comfortably, load test at 10K RPS for 10 minutes. Systems that look healthy at current load often have non-linear degradation: a query that takes 50ms at 5K RPS takes 8s at 10K RPS due to lock contention. Find the breaking point before traffic growth finds it for you.
+7. **Performance budgets prevent death by a thousand cuts.** Set budgets per route: p95 < 200ms, bundle size < 100KB gzipped, LCP < 2.5s, TBT < 200ms. Enforce in CI. A 50KB increase in bundle size per deploy over 6 months adds 300KB silently — the budget catches it on deploy #1. Without budgets, you discover the bloat when users complain.
+8. **Cache strategy is architecture, not optimization.** Design caching during system architecture, not as a post-launch fix. Define TTL, invalidation strategy, and staleness tolerance before writing code. Wrong cache invalidation logic costs more than no cache at all — serving stale data 99.999% of the time because you cached a fast-changing value with a 60s TTL causes $5K-$50K per data inconsistency incident.
+9. **Database query plans in production ≠ query plans in dev.** Dev databases have 100 rows and zero concurrency. Production has 100M rows and 50+ concurrent connections. Run `EXPLAIN ANALYZE` on production (or a production-scale replica). Index scans in dev become sequential scans in production when statistics reflect real data distribution.
+10. **Memory leaks are found in the heap, not the logs.** A 10MB/hour memory leak won't show in request logs. Run 30-minute soak tests under load with `memray` (Python), `pprof` `-alloc_space` (Go), or heap dumps (JVM/Node.js). Memory should plateau, not grow monotonically. If it doesn't plateau, you have a leak — find it before the OOM kill at 3 AM.
 
 ## State Log
 
@@ -507,7 +520,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **`timeit` vs profiling** — `timeit` tells you "this function took 2.3 seconds." It doesn't tell you it spent 2.1 seconds in `json.loads()` and 0.2 seconds doing actual work. Always use `cProfile` or `py-spy` before optimizing — the bottleneck is never where you think it is. **Total cost: $100,000-$500,000 per year** in wasted optimization effort — engineers spend weeks optimizing the wrong code path, equivalent to $40,000+ in salary per misdiagnosed bottleneck.
 - **Database N+1 with ORMs** — `User.objects.all()` then `for user in users: print(user.profile.bio)` executes 1 query for users + N queries for profiles. ORMs don't warn you. In development (10 users, SQLite on localhost), it's 11ms. In production (10K users, remote Postgres), it's 11,000ms. **Total cost: $200,000-$1,000,000 per year** in infrastructure overprovisioning — teams add $5,000-$15,000/month in database capacity to compensate for N+1 queries instead of fixing the queries themselves.
@@ -547,6 +560,21 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist **(DEEP)**
+
+- [ ] **[S1]** APM/RUM/Distributed tracing active and verified: dashboards show P50/P95/P99 latency, throughput, and error rate per endpoint. DB slow query logging and GC logging enabled.
+- [ ] **[S2]** Profiling completed before any optimization: `cProfile`, `py-spy`, `pprof`, or `async-profiler` output confirms the specific bottleneck location with function-level granularity. Flame graph generated and reviewed.
+- [ ] **[S3]** Baseline measurement collected: P50/P95/P99/P99.9 latency, throughput, and error rate measured for 5+ minutes under representative load. Baseline metrics documented as JSON artifact.
+- [ ] **[S4]** Optimization applied and verified: before/after comparison shows improvement meeting target percentage. Statistical significance confirmed (≥5 runs, median ± SD). No regression on unrelated endpoints (within 5% of baseline).
+- [ ] **[S5]** Performance budget in CI: budget enforcement fails the build on regression. P95 latency >10% increase or throughput >5% decrease blocks merge. Budgets defined per critical route.
+- [ ] **[S6]** Load test at 2x expected peak: `k6` or `wrk2` at 2x peak RPS for 10+ minutes. P99 latency within SLO, zero errors. System behavior at breaking point documented (failure mode, recovery time).
+- [ ] **[S7]** Memory profile stable: 30-minute soak test under load. Heap size plateaus, doesn't grow monotonically. No memory leaks detected. `memray`, `pprof -alloc_space`, or heap dump analyzed.
+- [ ] **[S8]** SLO with burn-rate alert configured: fast-burn alert (2% budget consumed in 1 hour) and slow-burn alert (5% in 6 hours). Alert fires before users notice degradation.
+- [ ] **[S9]** Database query plans verified: `EXPLAIN ANALYZE` on production (or production-scale replica). Index scans as expected. No sequential scans on large tables. `ANALYZE` run on all tables.
+- [ ] **[S10]** Cache strategy documented: TTL, invalidation strategy, and staleness tolerance defined. Cache hit rate monitored with alert threshold (<70% triggers investigation). No caching of fast-changing data without explicit staleness tolerance.
+- [ ] **[S11]** Core Web Vitals passing: LCP < 2.5s, INP < 200ms, CLS < 0.1 on 75th percentile of field data (CrUX). Lighthouse lab data supplemented with RUM field data.
+- [ ] **[S12]** Capacity plan current: headroom calculated ((ceiling − peak) / ceiling × 100). If <50%, scaling plan exists with triggers and timeline. Next capacity review scheduled based on growth rate.
 
 ## References
 - **API Performance**: See [api-performance.md](references/api-performance.md)

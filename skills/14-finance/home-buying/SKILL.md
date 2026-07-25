@@ -125,6 +125,7 @@ What's your specific situation?
 └── Competitive market (bidding wars) → Decision Trees: Offer Strategy + escalation clause + walk-away price
 
 ## Core Workflow
+**(STANDARD)**
 
 ### Phase 1: Budget & Affordability
 
@@ -204,6 +205,7 @@ Getting pre-approved is not the same as shopping for the best mortgage — it's 
 - Moving large sums of money between accounts without documentation (lenders need paper trail for every deposit)
 
 ## Decision Trees
+**(QUICK)**
 
 ### 1. Rent vs Buy
 
@@ -293,6 +295,7 @@ What costs do first-time buyers always miss?
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -412,7 +415,7 @@ Before beginning a new phase, verify:
 | Accept HOA fee at face value | Read HOA budget and reserve study | Review 12 months meeting minutes + check % funded + research pending litigation + talk to 3 residents about HOA responsiveness |
 | Budget PITI only | PITI + 1% maintenance | PITI + 2% maintenance + utilities increase + HOA + lawn/snow + furniture/appliance replacement sinking fund |
 
-## Gotchas
+## Anti-Patterns
 
 - **PMI (Private Mortgage Insurance) is dead money that protects the lender, not you.** On a $400K home with 10% down, PMI costs $150-$300/month until you reach 20% equity (typically 5-9 years). **Total cost: $9,000-$32,400 in non-deductible premiums.** Saving for 20% down eliminates PMI entirely. Alternatively, lender-paid PMI bakes it into a higher interest rate for 30 years — usually worse.
 - **The 6% real estate commission on selling is the largest hidden cost of homeownership.** Buyers focus on the purchase but forget the exit. On a $400K home, **$24,000 vanishes at sale.** If you sell in 5 years with 3% annual appreciation ($463K), the commission alone is $27,800 — wiping out much of your "profit." Factor 8-10% total transaction cost (commission + closing + repairs) into your breakeven for selling.
@@ -450,6 +453,66 @@ Before beginning a new phase, verify:
 | "The Zestimate says this house is worth what we're offering" | Zillow's own median error rate is 2.4% nationally, up to 7% in some markets. That $400K Zestimate could be off by $28K — algorithmic valuations don't see water damage, outdated electrical, or the highway noise. |
 | "We don't need to read all 40 pages of the mortgage documents" | A prepayment penalty buried on page 31 costs $8K-$15K if you refinance or sell within 3 years. An adjustable-rate rider on page 27 converts your "fixed" 3.5% rate to 7.5% after year 5. |
 | "The monthly payment is just principal + interest + taxes" | Homeowners spend 1-4% of home value annually on maintenance. On a $350K house, that's $3,500-$14,000/year not in your mortgage estimate. One HVAC failure costs $7K-$12K — the mortgage payment is the floor, not the ceiling. |
+
+## Best Practices
+
+1. **Run the rent vs. buy breakeven for YOUR market, not national averages.** National rent-to-price ratios mask enormous local variation. A 15:1 ratio in Cleveland means buy; a 35:1 ratio in San Francisco means rent. Use Zillow, Redfin, or FRED data for your specific ZIP code with current mortgage rates.
+
+2. **Get mortgage quotes from 3+ lenders on the SAME day.** Rates fluctuate daily. Comparing Lender A's Tuesday quote to Lender B's Thursday quote is meaningless. Pull all quotes within a 4-hour window on the same day. Show Lender A's Loan Estimate to Lender B — competition routinely saves 0.25-0.50% on rate.
+
+3. **The total cost of ownership includes PITI + maintenance (1-2% of home value/year) + utilities + HOA + opportunity cost of down payment.** A $2,500 PITI is really $3,200-$3,800/month. Compare this total to rent + investing the down payment in a low-cost index fund at 7% expected return.
+
+4. **Budget closing costs at 3-5% of purchase price IN ADDITION to down payment.** On a $400K home: $12,000-$20,000 in closing costs (loan origination, appraisal, title insurance, escrow, prepaid taxes, attorney fees). You need: down payment + closing costs + 3-6 months emergency fund AFTER closing.
+
+5. **Never waive the inspection contingency entirely.** Offer "inspection for informational purposes only" (walk-away right preserved) or "pass/fail inspection with $5K repair cap." A $500 inspection routinely uncovers $15K-$50K in undiscovered defects. Bring an inspector for a 30-minute walk-and-talk preview before offering in hot markets.
+
+6. **Verify wire transfer instructions by phone — every time, no exceptions.** Call the title company using a number you independently look up (NOT from the email containing the instructions). Send a $100 test wire first and confirm receipt. Wire fraud at closing is irreversible — your entire down payment can vanish in minutes.
+
+7. **Read the HOA/condo reserve study, last 12 months of meeting minutes, and pending litigation disclosures.** Reserve funding below 50% means a special assessment is coming. Pending litigation can block mortgage financing. Restrictions on renting can trap you if circumstances change. Target: reserves ≥ 70% funded.
+
+8. **After closing, maintain a 6-month emergency fund covering PITI + utilities + groceries.** If the down payment would reduce liquid reserves below this threshold, buy less house, put less down (5-10% is acceptable for a first home with PMI factored in), or delay purchase 12-18 months to save the buffer.
+
+9. **Compare homeowners insurance from 3+ independent brokers at least 4 weeks before closing.** The lender's "convenient" recommendation typically earns them a commission and costs 20-40% more. Bundle auto + home for 10-20% discount. Review deductibles: raising from $1K to $2.5K typically saves 15-25% on premium.
+
+10. **Calculate your REAL budget, not the bank's pre-approval.** Start with your comfortable monthly total housing budget, subtract property taxes and insurance, and see what P&I payment remains. Then calculate the loan amount that produces that payment at current rates. This is your real budget — likely $75K-$150K below bank pre-approval.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Mortgage quotes: 3+ Loan Estimates obtained same day — rates, points, and APR compared in a spreadsheet
+- [ ] Rent vs. buy: breakeven analysis run for specific ZIP code with current mortgage rates — includes transaction costs, maintenance, and opportunity cost
+- [ ] Affordability: true monthly cost (PITI + maintenance + utilities + HOA) ≤ 28% gross income — NOT just PITI vs. pre-approval amount
+- [ ] Down payment: source of funds documented — seasoned for 60+ days in bank account, gift letter executed if from family
+- [ ] Closing costs: cash-to-close calculated (down payment + closing costs) with buffer — 3-5% of purchase price for closing costs
+- [ ] Emergency fund: 6 months of total housing cost in liquid savings AFTER closing — verified in budget model
+- [ ] Inspection: home inspection completed + sewer scope + radon test + termite inspection — all major systems evaluated with cost estimates
+- [ ] HOA/condo review: reserve study reviewed (≥ 70% funded), 12 months meeting minutes read, litigation disclosure confirmed clean
+- [ ] Insurance: 3+ quotes compared, auto+home bundle evaluated, deductible optimized — coverage adequate for replacement cost
+- [ ] Wire fraud prevention: title company phone number independently verified, test wire sent and confirmed, wiring instructions validated via phone
+- [ ] Property tax: reassessment impact calculated — mill rate × purchase price, not current owner's capped assessment
+- [ ] First-year budget: $10K-$30K allocated for first-year expenses (furnishing, repairs, tools) beyond down payment and closing costs
+- [ ] Rate lock: lock period covers closing date + 1-week buffer — float-down option negotiated for new construction or long closings
+
+### Scale Depth
+
+| Purchase Type | Analysis Depth | Key Tools | Decision Framework |
+|--------------|----------------|-----------|-------------------|
+| **First-time buyer, conventional loan** | Rent vs. buy breakeven, 3+ mortgage quotes, property evaluation (location/condition/value), inspection review | Excel/Google Sheets mortgage calculator, Zillow/Redfin comps, county tax assessor | PITI ≤ 28% gross, DTI ≤ 36%, 5-7 year stay horizon, 20% down if possible |
+| **Move-up buyer, jumbo loan** | Total cost of ownership 10-year model, ARM vs. fixed analysis with rate reset scenarios, school district deep-dive, commute cost modeling | Custom amortization spreadsheet, GreatSchools/Niche, commute time heat maps | After-tax cost comparison (mortgage interest + property tax deductions), HELOC bridge financing if needed |
+| **New construction** | Builder reputation research, upgrade cost analysis (builder margin on upgrades is 50-100%), construction loan vs. end-loan comparison, long-term rate lock (180-270 days) with float-down | Builder review sites, construction timeline spreadsheet, phase inspection checklist | Lot premium justification, upgrade ROI (which upgrades appraise at cost vs. which are lifestyle), warranty coverage gaps |
+| **Relocation purchase** | Cost of living comparison (housing + taxes + utilities + commute), school district transition analysis, temporary housing bridge plan, corporate relocation package negotiation | Bankrate COL calculator, city-data.com, salary.com COL adjuster | "Buy before sell" bridge loan vs. "rent first, buy later" — minimize dual-housing-cost exposure |
+| **Downsizing/retirement** | Reverse mortgage vs. HELOC vs. sale analysis, single-story accessibility evaluation, property tax portability rules (state-specific), proximity to healthcare analysis | Retirement income modeler, Medicare.gov provider search, walkability scores | Low-maintenance priority (HOA covers exterior), single-level living, 10-year aging-in-place assessment |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|-----------|-----|------------|
+| Pre-approved for $500K but can't afford $350K payment | Bank uses gross income at 43% DTI; doesn't account for daycare, student loans, retirement savings, lifestyle | Back-calculate from comfortable monthly budget: PITI budget − taxes − insurance = max P&I, then compute loan amount | Use "back-in affordability" method: start with take-home pay, subtract all fixed costs, use remainder for PITI |
+| "Great rate" quoted on Monday is 0.375% higher on Wednesday | Rates fluctuate daily with bond market; verbal quote isn't binding | Get formal Loan Estimate within same-day 4-hour window from all lenders; compare APR (not just rate) | Lock rate only after comparing 3+ Loan Estimates same day; understand float-down policy before locking |
+| Property tax bill doubles after first year | Reassessment at purchase price triggers uncapped tax rate; previous owner had homestead exemption or long-time-owner cap | Check county assessor: when was last assessment? What is mill rate × your purchase price? Is there a homestead cap? | Always calculate property tax on purchase price, not current bill; research state-specific assessment rules before offering |
+| PMI won't cancel after reaching 20% equity | Automatic termination at 78% LTV under Homeowners Protection Act — but requires current (not original) appraised value if home declined | Request PMI cancellation in writing at 80% LTV; if denied due to value decline, order new appraisal ($400-$600) | Track home value quarterly (Zillow + comps); know your PMI cancellation rights under federal law; keep payment history spotless |
+| HVAC dies 2 weeks after closing, $12K to replace | Home warranty excluded pre-existing conditions; inspection noted "HVAC functional but aging" (17 years old, 15-year life expectancy) | Get quotes from 3 HVAC contractors; negotiate with seller for credit before removing inspection contingency; if post-close, home warranty appeal + financing | During inspection, ask for AGE of every major system (not just "functional"); budget replacement for anything past 75% of expected life |
+| Closing delayed 2 weeks because underwriter requests "one more document" | Lender didn't fully underwrite before issuing pre-approval; automated pre-approval (Desktop Underwriter) bypassed manual review of self-employment income | Escalate to loan officer's manager; request conditional approval letter specifying exactly which conditions remain; provide document within 24 hours | Choose lender who does manual underwrite upfront, not just automated pre-approval; get conditional commitment before removing financing contingency |
 
 ## Verification
 

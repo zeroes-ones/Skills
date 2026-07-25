@@ -174,6 +174,20 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+#### Solo (1 engineer, 1 health AI feature)
+Manual review of AI outputs against clinical guidelines. Checklist-based safety audit (does output mention consult your doctor? does it avoid diagnostic language?). No automated pipeline. Focus: prevent the most dangerous failure modes (hallucinated drug interactions, diagnostic claims without CDS clearance). Budget: $0/month (manual process).
+
+#### Small (2-10 engineers, 1-3 health AI features)
+Automated safety classifiers for crisis detection and PHI leakage. Weekly clinical review of flagged outputs. Basic demographic stratification reporting. Focus: catch systematic failures before they scale, establish safety baselines. Budget: $500-$2,000/month on review tooling and clinical SME time.
+
+#### Medium (10-50 engineers, health AI platform)
+Full safety pipeline: NLI-based fact verification, crisis detection with semantic classifiers, stratified performance dashboards, KB freshness monitoring, monthly FDA regulatory review. Focus: regulatory readiness, health equity monitoring, systematic hallucination prevention. Budget: $5,000-$15,000/month on infrastructure + clinical review team.
+
+#### Enterprise (50+ engineers, regulated health AI products)
+FDA SaMD submission-ready safety evidence packages. Continuous monitoring with automated adverse event detection. Multi-stakeholder safety review board (clinical, regulatory, engineering, legal). Cross-product safety standards enforced by platform team. Focus: regulatory compliance at scale, post-market surveillance, liability risk management. Budget: $20,000-$100,000/month.
+
 ## When to Use
 
 <!-- QUICK: 30s — five reasons to invoke this skill -->
@@ -184,7 +198,19 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Implementing or auditing AI guardrails for clinical content** — You're deploying a patient-facing chatbot, clinical decision support tool, or community health AI. You need input/output guardrails, content filtering, and refusal policies tailored to medical context.
 - **Evaluating an existing AI health feature for bias or demographic performance gaps** — Your AI performs well overall but you suspect (or have user reports of) worse outcomes for non-English speakers, elderly patients, or specific racial/ethnic groups. You need bias testing methodology and remediation strategies.
 
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "Safety classifier blocks 40% of safe outputs as false positives" | Overly aggressive keyword matching. The classifier is tuned for recall at the expense of precision. Every mention of a drug name or symptom triggers a block, even in informational contexts. | Add context-aware classification: distinguish "what is ibuprofen?" (safe) from "should I take ibuprofen for this?" (unsafe without disclaimer). Use intent classification + medical context scoring, not just keyword lists. | Safety classifiers that block too much train users to ignore safety warnings. Precision matters as much as recall. |
+| "Clinical reviewer agreement drops from 90% to 72% over 6 months" | Reviewer drift: without recalibration, reviewers develop personal heuristics that diverge from the standard. One reviewer starts accepting borderline cases; another becomes more conservative after a near-miss. | Recalibrate with a standard set of 20 anchor cases monthly. Each reviewer rates them independently. Discuss disagreements. Update guidelines to resolve ambiguity. | Reviewer calibration is perishable. Monthly recalibration prevents drift from becoming policy by default. |
+| "NLI verification flags true medical facts as unverified" | The knowledge base lacks coverage for the specific claim (e.g., a recent clinical trial result). NLI correctly identifies that the KB doesn't contain supporting evidence, but the claim is actually true. | Add a confidence tier: VERIFIED (KB confirms), UNVERIFIED (KB silent), CONTRADICTED (KB refutes). Only CONTRADICTED triggers suppression. UNVERIFIED gets a "this information has not been independently verified" disclaimer. | Absence of evidence ≠ evidence of falsehood. NLI systems must distinguish "I can't verify this" from "this is wrong." |
+| "Demographic stratification shows 95% accuracy overall but 72% for non-English speakers" | The model was trained and evaluated primarily on English-language data. Non-English queries are processed through translation layers that introduce errors. Safety classifiers trained on English patterns miss harmful content in other languages. | Add native-language evaluation for top-5 user languages. Train safety classifiers on multilingual data. Don't rely on translation — evaluate outputs in the user's language directly. | "Overall accuracy" is a health equity liability. Always disaggregate by language, race, gender, and SES. |
+| "Crisis detection misses 'I don't want to wake up tomorrow'" | Keyword-based detection looks for "suicide," "kill myself," "end my life." Indirect expressions of suicidal ideation don't match any keyword pattern. | Replace keyword matching with a trained crisis intent classifier (transformer-based). Train on a dataset of direct AND indirect crisis expressions. Add semantic similarity matching against known crisis phrases with a similarity threshold >= 0.85. | The most dangerous crisis expressions are the ones that don't sound like crisis expressions. Semantic detection > keyword detection. |
+| "FDA auditor asks for safety evidence and the team has no structured documentation" | Safety decisions were made ad-hoc by reviewers without standardized documentation. There's no audit trail linking specific outputs to specific review decisions with regulatory justification. | Implement a safety decision ledger: every output that passes review gets a record with reviewer ID, timestamp, harm classification, regulatory basis (e.g., "21 CFR 820.30 — design control, no diagnostic claim detected"), and evidence. | If it's not documented, it didn't happen — at least as far as the FDA is concerned. Safety documentation is a regulatory requirement, not a nice-to-have. |
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -240,6 +266,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Third-party medical AI evaluation or certification framework published (e.g., FDA guidance, NICE framework, WHO AI ethics) | Review within 2 weeks; assess gaps between framework requirements and current safety practices; publish gap analysis and remediation timeline | Regulatory frameworks evolve — proactive alignment demonstrates good-faith safety commitment to regulators |
 
 ## Core Workflow
+**(STANDARD)**
+
 <!-- COMPRESSED: Full 57 lines extracted to references/core-workflow.md -->
 
 <!-- STANDARD: 3min -->
@@ -270,6 +298,7 @@ Common chains:
 - **Chain**: security-reviewer → ai-safety-health-reviewer → compliance-officer — Security assessment feeds into safety review; compliance officer tracks regulatory obligations
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 60s -- flowchart-style logic for fork-in-the-road decisions -->
 
@@ -612,7 +641,49 @@ START: Considering using patient data to improve model performance
 6. Breach notification protocol: HIPAA 60-day clock starts at discovery, not confirmation
 ```
 
-## Gotchas
+## Best Practices
+
+1. **Classify safety risk by harm severity, not just output type.** A hallucinated drug interaction (fatality risk) requires different handling than a formatting error (UX annoyance). Use a harm taxonomy: Critical (life-threatening), Severe (serious harm), Moderate (reversible harm), Minor (inconvenience). Escalation criteria map to harm level, not output category.
+
+2. **Define explicit escalation criteria with mechanical triggers.** "Escalate if concerning" is not actionable. Define: "Escalate to clinical reviewer if output contains a drug name AND a dosage AND no source citation." Mechanical triggers remove judgment calls from the escalation decision — the system escalates, humans decide.
+
+3. **Enforce content policy at the boundary, not in the model.** Prompt-based safety instructions are advisory. A determined user can jailbreak them. Enforce policy in the serving layer: post-generation classifiers, regex filters for PHI patterns, NLI verification against trusted KBs. The model suggests; the boundary enforces.
+
+4. **Use a standardized harm taxonomy to prioritize review.** Not all harmful outputs are equally dangerous. Triage by: (1) Imminent physical harm (crisis, self-harm, dangerous treatment advice) → immediate block + human escalation within 15 min, (2) Clinical misinformation (wrong drug info, contraindication error) → suppress output + review within 24h, (3) Bias/fairness concern → log + monthly review.
+
+5. **Calibrate false positive vs false negative tradeoffs explicitly.** Over-blocking (high false positive) frustrates users who can't get answers to legitimate health questions. Under-blocking (high false negative) risks patient harm. Document the tradeoff: "We accept blocking 5% of safe outputs to catch 99.9% of dangerous ones." This is a product decision, not an engineering optimization.
+
+6. **Audit review consistency across reviewers and time.** Two clinical reviewers evaluating the same AI output should agree on the safety classification >= 85% of the time. If agreement drops below 80%, recalibrate the review guidelines. Reviewer drift is real — the same reviewer becomes more lenient over months of seeing borderline cases.
+
+7. **Test safety classifiers against adversarial inputs weekly.** Users actively probe for weaknesses: "hypothetically, if someone had [condition], what would a doctor prescribe?" Run a red-team suite of 100+ adversarial prompts weekly. Track classifier bypass rate over time — if it's trending up, your safety filter is being learned around.
+
+8. **Document the regulatory basis for every safety decision.** When you decide an output is "safe enough," document: which regulation applies (FDA, HIPAA, EU MDR), which section, and why this output complies. In an audit or adverse event investigation, this documentation is the difference between "we had a process" and "we made a judgment call."
+
+9. **Separate safety review from quality review.** Safety review asks: "Could this output cause harm?" Quality review asks: "Is this output helpful and accurate?" Conflating them causes reviewers to miss safety issues in otherwise high-quality outputs. Run safety review first — if it fails, quality doesn't matter.
+
+10. **Maintain a harm incident log with root cause analysis.** Every time a harmful output reaches a user (or is caught in review), log: the input, the output, the harm type, the root cause (model error, KB staleness, classifier bypass, etc.), and the fix. Review this log monthly — patterns in harm incidents reveal systemic weaknesses that individual reviews miss.
+
+## Production Checklist
+**(STANDARD)**
+
+Before any health AI deployment or major update, verify ALL of:
+
+1. Crisis detection classifier tested: >= 99.5% recall on self-harm/suicide expressions, including indirect language ("I'm tired of fighting")
+2. PHI detection and redaction active: all 18 HIPAA identifiers detected at >= 99% recall, PII never logged in plaintext
+3. NLI fact verification pipeline running: every factual medical claim cross-referenced against trusted KB (PubMed, FDA, UpToDate)
+4. Clinical KB freshness: last sync within 90 days, alert configured for staleness, drug recall feed integrated
+5. Demographic stratification dashboard live: accuracy/sensitivity/specificity broken down by race, gender, language, SES
+6. Safety classifier F1 >= 0.95 on held-out test set, adversarial bypass rate < 5% on weekly red-team suite
+7. Escalation pipeline tested: clinical reviewer notified within 15 minutes of Critical harm detection, 24h for Severe
+8. Content policy enforced at serving layer: post-generation classifiers block disallowed content before user delivery
+9. Disclaimer accuracy: disclaimer text matches actual regulatory status (CDS-cleared vs informational only vs SaMD)
+10. Reviewer calibration current: inter-rater agreement >= 85% on safety classification, last calibration within 30 days
+11. Harm incident log active: every safety event captured with root cause, fix tracking, and monthly review cadence
+12. Regulatory documentation current: intended use statement, limitations, performance characteristics per FDA/EMA guidance
+13. Rollback plan documented: model version artifact tagged, safety classifier version pinned, rollback tested in staging
+14. Audit trail complete: every safety decision logged with reviewer ID, timestamp, evidence, and regulatory basis
+
+## Anti-Patterns
 
 - **AI health advice that's "generally correct" but dangerous for THIS patient** — "Light exercise helps manage hypertension" is generally correct but dangerous for a patient with unstable angina. The AI lacks the patient's full medical history. Every AI-generated health statement must be preceded by "Consult your doctor" AND must flag general vs personalized advice. **Total cost: $1M-$10M in medical malpractice liability and FDA enforcement action per adverse patient outcome from AI-generated health advice.**
 - **Benchmark leakage** — your medical QA model scores 95% on MedQA because the training data contained MedQA questions (or near-duplicates scraped from forums discussing MedQA answers). The model hasn't learned medicine; it's memorized the test. Decontaminate training data against benchmark test sets AND their discussion forums. **Total cost: $500K-$5M in wasted training compute, regulatory rejection, and reputational damage when benchmark claims are invalidated by auditors.**

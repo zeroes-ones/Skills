@@ -173,6 +173,15 @@ Master supply chain security engineers think like attackers, not auditors. They 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+| Scale | Supply Chain Security Posture | You Focus On |
+|-------|------------------------------|--------------|
+| **Solo** | Single project, free/open-source tooling, no dedicated security personnel | syft/trivy for SBOM generation, cosign with keyless signing, npm audit/pip-audit for dependency scanning, gitleaks for secret scanning, Dependabot for automated updates. Manual SBOM review. SLSA L1 provenance. |
+| **Small Team** (2-10) | 5-20 projects, $500-2K/mo budget, part-time supply chain security ownership | SBOM generation in CI for all artifacts, cosign signing with Rekor transparency log, full-depth dependency scanning blocking CRITICAL CVEs, CycloneDX SBOMs with Dependency-Track registry, private npm/PyPI registry with dependency confusion protection, SLSA L2 provenance with hermetic builds, Renovate with auto-merge for patch updates only. |
+| **Medium** (10-50) | 20-100 projects, $5K-15K/mo budget, 1-2 dedicated supply chain security engineers | SLSA L3 provenance with hardened build platform, binary authorization (Kyverno/OPA blocking unsigned deployments), SBOM with VEX integration, typosquatting detection in CI, license compliance scanning (FOSSA/ORT), vendor SBOM collection with contractual SLAs, dependency confusion monitoring across all registries, automated dependency freshness scoring. |
+| **Enterprise** (50+) | 100+ projects, $50K+/mo budget, dedicated supply chain security team (3+) | SLSA L3+ with isolated build infrastructure, in-toto layout verification for multi-step pipelines, multi-cloud binary authorization, centralized SBOM registry with automated VEX generation, OpenSSF Scorecard monitoring for all dependencies, vendor risk management program with continuous assessment, open source fund contribution program, regulatory attestation pipeline (CRA, EO 14028, CISA), private build service with cryptographic hardware attestation. |
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a software supply chain security program aligned with SLSA framework Levels 1-4
@@ -191,7 +200,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Use `/vulnerability-management` instead** when: You need container image vulnerability scanning and remediation tracking.
 - **Use `/legal-advisor` instead** when: You need open source license compliance without security implications.
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### SLSA Level Selection
@@ -261,7 +270,7 @@ What are you signing?
       Sign with cosign. Deploy policy controller that verifies signatures before admission.
 ```
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~20 min): SLSA Framework Attestation
@@ -344,7 +353,20 @@ What are you signing?
 5. Monitor regulatory landscape: supply chain regulations are rapidly evolving. Subscribe to CISA, ENISA, and NIST updates for new requirements.
 
 
-## Error Recovery
+## Best Practices
+
+1. **Pin all dependencies to exact versions with content hashes.** `package-lock.json` with `lockfileVersion: 3`, `requirements.txt` with `package==1.2.3 --hash=sha256:...`, Go `go.sum` with `h1:` hashes. Version ranges (`^1.0.0`, `>=2.0`) allow silently different artifacts on rebuild. Pinning to a commit SHA without a content-addressable store risks garbage collection — use content digests.
+2. **Generate an SBOM at every build and query it for every zero-day.** Use CycloneDX or SPDX format with NTIA minimum elements. Store SBOMs in a queryable registry (Dependency-Track) that can answer "do we use Log4j?" in under 60 seconds. Without an SBOM, answering that question takes days of grepping every repo — during which your service is exploitable.
+3. **Sign every artifact with Sigstore keyless signing.** Use cosign with OIDC-based Fulcio certificates (10-minute validity) and Rekor transparency logging. Keyless signing eliminates the long-lived signing key management problem. Verify signatures at deployment admission control (Kyverno, OPA, Binary Authorization) — never deploy unsigned artifacts to production.
+4. **Attest build provenance at SLSA L2 or higher.** Generate in-toto attestations that prove the builder identity, source repository, commit SHA, build invocation, and all materials consumed. Hermetic builds (no network access, pre-resolved dependencies) ensure the same source always produces the same artifact. Non-hermetic provenance is untrustworthy — it proves who built it but not what they built.
+5. **Scan dependencies at full transitive depth on every build.** Default npm audit and pip audit scan only direct dependencies — 78% of vulnerabilities live in transitive dependencies at depth 3+. Use `npm audit --all`, `trivy fs --scanners vuln`, or `osv-scanner` with no depth limits. Block builds on any reachable CVE with CVSS ≥ 7 or in CISA KEV catalog.
+6. **Protect against dependency confusion with scoped registries.** Use `--index-url=<private>` (not `--extra-index-url`) to make private registries the ONLY source. For npm, scope internal packages (`@company:registry=<private>`). Mirror public packages to a private proxy registry (Artifactory, Nexus, GitHub Packages) and pull only from the proxy — never directly from public registries in CI.
+7. **Implement automated dependency updates with human review gates.** Renovate or Dependabot auto-opens PRs for version updates. Auto-merge only patch-level updates that pass full CI (unit + integration + security scans). Never auto-merge major or minor updates without human review. A compromised maintainer publishing a malicious patch (1.2.3 → 1.2.4) can reach production in minutes via auto-merge.
+8. **Use OIDC federation for all CI/CD authentication — no long-lived credentials.** GitHub Actions OIDC → npm PyPI token (short-lived), AWS IAM, GCP Workload Identity. A `GITHUB_TOKEN` leaked from a compromised build step should have no standing access beyond the current repository. Long-lived PyPI tokens or npm tokens in CI secrets are supply chain compromise waiting to happen.
+9. **Monitor your dependencies' community health as a leading indicator.** Track bus factor (number of active maintainers), issue response time, release frequency, and maintainer identity continuity. Single-maintainer projects on critical path are a risk — document fork sustainment plans. Dependency takeovers are a rising attack vector: attackers purchase or socially engineer maintainer access to inject backdoors.
+10. **Require SBOMs from third-party vendors in procurement contracts.** Every vendor whose software runs in your environment must deliver a fresh SBOM on every release. Specify minimum SLSA L2 provenance, 30-day CVE remediation SLA, and vulnerability disclosure program as contractual requirements. A vendor without an SBOM cannot prove they know what's in their software — you inherit their unknown unknowns.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -425,6 +447,23 @@ Before beginning a new phase, verify:
 - [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
+## Production Checklist
+
+- [ ] SBOM generated for every production artifact at build time in CycloneDX or SPDX format with NTIA minimum elements; SBOM stored in queryable registry (Dependency-Track); zero-day exposure queryable in under 60 seconds
+- [ ] SLSA provenance attested for every production artifact at L2 or higher; provenance includes builder ID, source repository, commit SHA, and all materials consumed; provenance verified at deployment before reaching production
+- [ ] Every artifact (container image, npm package, Python wheel, release binary) signed with cosign using keyless signing (Fulcio + Rekor); signatures verified at deployment admission control; zero unsigned artifacts in production
+- [ ] All builds are hermetic: no network access during build, all dependencies pre-resolved; non-hermetic builds flagged and remediated; build produces bit-for-bit identical output on rerun
+- [ ] Full-depth dependency scanning runs on every CI build with no depth limits; builds blocked on any reachable CVE with CVSS ≥ 7 or in CISA KEV catalog; automated dependency updates (Renovate/Dependabot) with human review on major/minor updates
+- [ ] Typosquatting detection active: dependency names checked against Levenshtein distance ≤ 2 from known legitimate packages; new transitive dependencies at depth > 3 investigated for provenance before merge
+- [ ] Dependency confusion protection: all internal packages namespaced and scoped to private registries; `--index-url=<private>` (not `--extra-index-url`) for pip; `@company:registry=<private>` for npm; public registries accessed only through private proxy mirror
+- [ ] CI/CD pipeline hardened: branch protection with signed commits and CODEOWNERS review; OIDC federation for all cloud and registry authentication — zero long-lived credentials; `pull_request_target` workflows audited and secured against injection; secret scanning as pre-commit hook AND in CI
+- [ ] Vendor risk assessments conducted for all third-party software: SBOM required on every release, minimum SLSA L2 provenance contractual requirement, 30-day CVE remediation SLA, vulnerability disclosure program verified
+- [ ] Open source governance active: license compliance scanning blocking incompatible licenses (GPL in proprietary product); dependency freshness scoring flagging dependencies > 6 months behind latest stable; critical dependency community health monitored (bus factor, release frequency, maintainer continuity)
+- [ ] Artifact signing identity managed via OIDC federation with short-lived certificates (10-minute validity); no long-lived signing keys to exfiltrate; Rekor transparency log monitored for unexpected signatures on organizational artifacts
+- [ ] Regulatory compliance mapping complete: EU Cyber Resilience Act (SBOM delivery, 24-hour vulnerability disclosure, product-lifetime updates), US EO 14028 (SBOM for federal software), CISA Secure Software Development Attestation (NIST SSDF practices)
+- [ ] Dependency update SLA enforced: CRITICAL CVEs with known exploits patched within 24 hours, HIGH within 7 days, MEDIUM within 30 days; CVEs in CISA KEV catalog trigger incident response immediately regardless of CVSS
+- [ ] Supply chain incident response playbook defined and tested: dependency compromise scenario, artifact tampering scenario, CI/CD credential leak scenario; tabletop exercise conducted within last quarter
+
 ## What Good Looks Like
 
 > Every release has a verifiable SLSA provenance attestation, a signed SBOM with VEX integration, and an artifact signature chain that traces from signed commit to deployment. Dependencies are scanned at full transitive depth with automated update PRs, and every CI/CD pipeline uses OIDC federation — no long-lived credentials exist anywhere in the build infrastructure.
@@ -462,7 +501,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Build an "artifact trust map." For every artifact your organization deploys, trace its full provenance from source commit → build → attestation → registry → deployment. Any link in the chain without verifiable integrity is a gap you must close before the next link has a gap too.
 
-## Gotchas
+## Anti-Patterns
 
 - **`npm install` without `--ignore-scripts` runs arbitrary post-install scripts.** Every npm package can execute arbitrary code during installation via `postinstall`, `preinstall`, and `install` lifecycle scripts. A malicious package at any depth in your dependency tree can exfiltrate environment variables, SSH keys, and `.npmrc` tokens during `npm install`. 17% of all npm malware uses lifecycle scripts as the attack vector. **Total cost: $150K-$1.5M — a compromised npm package with a postinstall script exfiltrates CI secrets (GITHUB_TOKEN, NPM_TOKEN, AWS keys) during a routine `npm ci` in CI; the attacker uses the stolen credentials to push malicious releases to your npm registry and pivot to your AWS infrastructure.** **Fix:** add `ignore-scripts=true` to `.npmrc` for CI environments; only allow scripts for explicitly trusted packages via `--ignore-scripts=false <package>`. Audit lifecycle scripts in lockfiles with `npm ls --json | jq '.dependencies[] | select(.scripts.postinstall)'`.
 

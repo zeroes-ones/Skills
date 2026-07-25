@@ -151,6 +151,15 @@ Master incident responders know that quality is not found — it is **engineered
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+### Scale Depth
+
+| Scale | Incident Response Posture | You Focus On |
+|-------|--------------------------|--------------|
+| **Solo** | Single service, no on-call rotation, self-paging | Define severity levels (SEV1-SEV4), write 5 critical runbooks, set up PagerDuty free tier. Communicate via personal Slack/email. Postmortems in a shared doc. Manual incident response — no automation budget. |
+| **Small Team** (2-10) | 5-20 services, shared on-call, PagerDuty/OpsGenie | Primary/secondary on-call rotation, follow-the-sun for global teams, incident channel per event, pre-written communication templates. Top 10 failure mode runbooks tested quarterly. Blameless postmortems with tracked action items. Game days twice yearly. |
+| **Medium** (10-50) | 20-100 services, dedicated SRE rotation, incident management platform | FireHydrant/incident.io for incident lifecycle, automated runbook execution, status page auto-update, SLO-based alerting with error budgets. Monthly chaos engineering. Postmortem action item SLA tracking. Incident metrics dashboard (MTTD/MTTA/MTTR trending). |
+| **Enterprise** (50+) | 100+ services, 24/7 SOC + SRE, multi-region | Dedicated incident command team, automated containment playbooks, cross-region failover testing, regulatory breach notification workflow integration (GDPR 72h, PCI DSS). executive briefing templates for SEV1. Continuous chaos engineering. Certified IR retainer. Crisis communication team with legal review. |
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -163,7 +172,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Designing communication templates for stakeholder updates during incidents
 - Implementing SRE practices: error budgets, toil reduction, and reliability targets
 
-## Decision Trees
+## Decision Trees **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Incident Severity Classification
@@ -278,7 +287,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to automate immediately:** Recurring incident (> 2x/quarter). Resolution requires > 10 minutes of human time. Error rate in manual resolution > 10%.  
 **When documentation suffices:** Incident occurred once and root cause was permanently fixed. Resolution is simple (restart service, scale up). Annual recurrence expected.
 
-## Core Workflow
+## Core Workflow **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -347,7 +356,20 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ```
 
 
-## Error Recovery
+## Best Practices
+
+1. **Prioritize triage by blast radius, not by who's loudest.** Assess impact first: how many users affected, what data is exposed, what revenue is at risk. A SEV1 affecting 10,000 paying customers takes priority over a CISO pinging you about a single suspicious login. Use objective severity criteria (SEV1-SEV4) defined in your incident response plan before the incident starts.
+2. **Preserve forensic evidence before remediation.** For security incidents, never reboot, reimage, or restore from backup until you've captured memory dumps, disk images, active network connections, and process lists. `kill -9` destroys thread dumps. Reverting a compromised host destroys attacker persistence indicators. Isolate first, capture evidence, then remediate.
+3. **Mitigate first, root-cause later.** The goal during an active incident is restoring service — not finding the perfect fix. Roll back the deployment, fail over to the standby region, feature-flag off the broken path. Root cause analysis comes during the postmortem. Every minute spent debugging during a SEV1 costs real money and user trust.
+4. **Communicate on a fixed cadence — silence erodes trust.** Update stakeholders every 30 minutes even if the update is "still investigating, no ETA yet." Use pre-written communication templates for data breaches, service outages, and security incidents. The communications lead drafts updates; the incident commander approves. Never let a CTO tweet "minor outage" before IR has scoped the breach.
+5. **Split the incident commander from the technical lead.** The incident commander coordinates, communicates, tracks the timeline, and delegates tasks. The technical lead investigates and fixes the problem. When one person does both, they SSH into production and lose situational awareness — the incident drifts without coordination. These roles must never be the same person during SEV1/SEV2 incidents.
+6. **Conduct blameless postmortems within 48 hours.** Ask "what conditions allowed this to happen?" not "who caused this?" Blame creates defensive cultures where people hide details and incidents repeat with different actors. Postmortems must produce assigned, time-bound action items tracked to completion. Unresolved action items are organizational debt that guarantees recurrence.
+7. **Test runbooks quarterly — untested runbooks are documentation, not preparedness.** Conduct game days and chaos engineering experiments: inject failures in a controlled way, measure response time, and update runbooks based on findings. Runbooks accessible only via the infrastructure they document (VPN, wiki on the same cloud) are useless during an outage — store critical runbooks externally.
+8. **Tune alerting to maintain signal-to-noise below 20% false positives.** Alert fatigue is the #1 killer of incident response. An on-call SRE receiving 200 alerts per night will miss the one real critical alert buried in noise. Page on user-impacting symptoms (SLO burn rate, error rate), not infrastructure metrics (CPU > 80%). Every alert must link to a runbook with specific remediation steps.
+9. **Design on-call rotations that prevent burnout.** Compensate on-call fairly, protect sleep with symptom-based alerting, and maintain follow-the-sun rotations for global teams. A burned-out on-call responder is a liability — they make errors, ignore alerts, and leave. Track on-call load and intervene when any individual exceeds sustainable thresholds.
+10. **Monitor your monitoring.** Deploy your monitoring stack in a separate failure domain (different region, different account) from production. Configure a dead-man's switch alert that fires if monitoring itself goes down. When all dashboards go dark during an incident because the monitoring region is the one that's down, you're flying blind.
+
+## Error Recovery **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 

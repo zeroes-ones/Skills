@@ -162,6 +162,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Entry Strategy Selection for UOA Signals
@@ -292,6 +294,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
 <!-- DEEP: 10+min -->
@@ -341,6 +345,8 @@ Translate a validated signal into a concrete share/contract count. Position sizi
 
 
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -509,7 +515,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **Overfitting to historical data** — your strategy backtests with 93% win rate and Sharpe 4.2 across 20 years, but you tuned 18 parameters on the entire dataset with no out-of-sample validation. In live trading, the strategy loses 12% in the first quarter because every parameter was curve-fit to noise, not signal. A proper walk-forward optimization with expanding windows and a 2-year out-of-sample holdout would have revealed the true out-of-sample Sharpe of 0.3 before you risked capital. **Total cost: $50K-$500K in live trading losses before the strategy is shut down.** Split data into in-sample (training), validation (parameter tuning), and out-of-sample (final test) periods before deploying a single dollar of live capital.
 - **Backtest with look-ahead bias** — your strategy uses P/E ratio data that was published 3 months after quarter-end (reporting lag). In backtest, you use it at quarter-end because that's when the data IS. In production, you can't trade on data that doesn't exist yet. Your "55% Sharpe ratio" drops to 0.3 when you fix the look-ahead.
@@ -520,6 +526,65 @@ graph LR
 - **Deploying strategies without understanding execution risk and infrastructure failure modes during high-volatility events.** Your algorithm is running on an AWS EC2 instance in us-east-1, placing orders through Interactive Brokers' API. On a Fed decision day, the S&P 500 moves 3% in 15 minutes. Your strategy generates 47 signals in that window, but your instance's network throughput saturates — 11 orders are delayed by 8-45 seconds, 3 orders are rejected by IB's rate limiter, and 2 orders execute at prices 80-120 bps worse than the signal price. Meanwhile, your stop-loss logic can't fire because it's queued behind the delayed orders. The position you're now stuck in moves against you for a $40,000 loss that your backtest never modeled because it assumed instant, fee-free execution at mid-price. **Total cost: $30K-$200K in execution losses per volatility event from infrastructure that wasn't stress-tested.** Colocate or use the lowest-latency instance type available in your broker's primary region, stress-test your infrastructure by replaying historical high-volatility days with real order routing (paper trading), implement circuit breakers that flatten positions when the order queue exceeds a threshold, and budget 3-5x your normal slippage assumptions for volatility events.
 - **Failing to account for short-sale constraints and borrow costs in strategies with short legs.** Your long-short equity strategy has a brilliant backtest: long the top decile of your factor, short the bottom decile, rebalance monthly. Gross returns are 18% annualized, net of 2 bps "transaction costs" you put in the model. In live trading, you discover: (a) 20% of the stocks in your short decile are hard-to-borrow with fees of 15-80% annualized, (b) 8% are unshortable entirely (no locate available), and (c) your prime broker recalls 3 positions during a short squeeze, forcing you to cover at the worst possible time. Your actual net return is 4% — less than the risk-free rate, and negative after management fees. **Total cost: $50K-$300K in underperformance from unmodeled short-side costs, plus the opportunity cost of capital that could have been deployed in strategies you can actually execute.** Before backtesting any strategy with short legs, obtain historical short availability and borrow cost data (vendors like DataLend or S3 Partners), model borrow fees as a drag on short-side returns at the individual security level, exclude hard-to-borrow names (borrow fee > 10% annualized) from the universe, and factor in buy-in risk during high-short-interest events by reducing position size in stocks with short interest > 20% of float.
 - **Using leverage without understanding path dependency and volatility decay in leveraged ETFs or margin accounts.** You backtest a 2x leveraged S&P 500 strategy from 2010-2020 and see returns of 26% annualized vs 13% for the unlevered index — incredible! You put $250K into a 2x leveraged ETF. Over the next year, the S&P 500 has a choppy year: +5%, -3%, +4%, -2%, +3%, -6%, +5%, -4%, +3%, -1%, +6%, -2% — netting +7.5% for the year. Your 2x fund returns -2% after volatility decay because daily rebalancing compounds losses faster than gains: a 3% down day requires a 3.09% up day to break even, but 2x leverage makes it a 6% down (needing 6.38% up) while only delivering 6% on the rebound. **Total cost: $50K-$250K in decay-driven losses from holding leveraged products in choppy markets, with the gap between expected and actual returns widening exponentially in high-volatility environments.** Never hold daily-reset leveraged ETFs for more than a few days unless the underlying is in a strong, low-volatility trend. For multi-month leveraged exposure, use portfolio margin, futures, or options where you control when to reset leverage. Model volatility decay explicitly: expected leveraged return ≈ L × μ − (L² × σ²)/2, where L is leverage, μ is drift, and σ is volatility. A 2x levered product in a 20% vol environment loses 4% annually to decay before fees.
+
+## Best Practices
+
+1. **Separate training, validation, and test data by time.** Never tune parameters on the full dataset. Use expanding-walk-forward windows: train on 2000-2018, validate on 2019-2020, test on 2021-2023. Out-of-sample Sharpe is the only Sharpe that counts.
+
+2. **Model transaction costs as a function of volatility and volume, not a fixed bps.** Your 5bps slippage assumption works in calm markets. During volatility events, effective spreads widen 10-20×. Use Almgren-Chriss or Kyle's lambda market impact models. Budget 3-5× slippage for VIX > 30 regimes.
+
+3. **Implement idempotency before the first live order.** Every order submission must carry a client-generated `order_id` or `cl_ord_id`. Your broker API WILL retry during network hiccups. Without idempotency, one retry = one duplicate fill. Embed `request_id` or `nonce` in every REST/WebSocket order message.
+
+4. **Circuit breakers are non-negotiable.** Code three levels: Level 1 (per-symbol: pause if loss > X% in Y minutes), Level 2 (per-strategy: pause if drawdown > Z% intraday), Level 3 (global: flatten everything if portfolio drawdown exceeds circuit limit). Each level must operate independently — Level 3 must fire even if Level 1 logic is stuck.
+
+5. **Regime-detect before signal-generate.** Classify the market before running your strategy: trending vs. mean-reverting, high-vol vs. low-vol, crisis vs. calm. Use rolling 30-day vs. 200-day volatility ratio, cross-asset correlation stability, and trend strength indicators (ADX, Hurst exponent). Go flat when regime doesn't match strategy design.
+
+6. **Backtest with survivorship-bias-free universes.** Use point-in-time index constituents from CRSP, Compustat, or vendor-supplied historical membership files. Include delisted securities with their delisting returns. A backtest on today's S&P 500 constituents going back 20 years inflates returns by 2-4% annually.
+
+7. **Paper-trade with real order routing before live capital.** Your backtest assumes instant fills at mid-price. Your paper trading should route through the same broker API with the same rate limits, the same market data feed, and the same execution venue. Minimum: 4 weeks of paper trading with no P&L surprises before live deployment.
+
+8. **Log every decision, not just every trade.** For each signal: log why the strategy entered, what the sizing calculation was, and why it exited. Without decision-level logging, post-mortem analysis degenerates into storytelling. Store `strategy_id`, `signal_id`, `timestamp`, `regime`, `position_size`, `entry_reason`, `exit_reason` as structured fields.
+
+9. **Correlation matrix monitoring prevents concentration kills.** Five uncorrelated signals can become one correlated position during a crisis. Run a rolling 60-day correlation matrix across all active positions. If average pairwise correlation exceeds 0.7, reduce position sizes by 50%. The correlation matrix IS your diversification — when it fails, you don't have diversification.
+
+10. **Never deploy on a Friday.** Deployments on Monday-Tuesday give you a full trading week to catch issues. Friday deployments mean problems surface over the weekend when markets are closed and you can't exit positions. The first live deployment always happens Monday at market open with the trader physically present.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] Idempotency: all order submissions include client-generated `order_id` or `nonce` — verified with broker API test suite
+- [ ] Circuit breakers: three-level circuit breaker tested with production config — Level 1 (per-symbol), Level 2 (per-strategy), Level 3 (global)
+- [ ] Regime detection: regime classifier running on live market data — strategy exposure gated on regime match
+- [ ] Order state machine: every order tracked through NEW → ACKNOWLEDGED → PARTIALLY_FILLED → FILLED → CANCELED — no orphaned states
+- [ ] Bracket orders: every entry has corresponding stop-loss and take-profit submitted atomically — OCO (One-Cancels-Other) where supported
+- [ ] Rate limiting: token-bucket rate limiter tested at 2× expected throughput — no 429 responses in production
+- [ ] Reconciliation: daily position reconciliation between internal book and broker — any discrepancy > 0.1% of portfolio triggers alert
+- [ ] Correlation matrix: rolling 60-day correlation across positions — auto-reduce exposure if average pairwise > 0.7
+- [ ] Paper trading: 4+ weeks of paper trading with production-identical config — P&L within 10% of backtest expectation
+- [ ] Kill switch: manual "flatten everything" endpoint tested and documented — accessible from mobile device, not just office network
+- [ ] Monitoring: Prometheus/Grafana dashboards for P&L, positions, drawdown, signal quality, execution latency — all with PagerDuty alerts for threshold breaches
+- [ ] Deployment window: deployment schedule gated to Monday-Tuesday only — no Friday or pre-holiday deployments
+- [ ] Disaster recovery: documented procedure for broker API outage, exchange halt, and data feed disconnection — runbook tested quarterly
+
+### Scale Depth
+
+| Scale | Position Sizing | Risk Controls | Infrastructure |
+|-------|----------------|---------------|----------------|
+| **$10K-$100K AUM** | Fixed-fractional (1-2% risk per trade), single broker (Alpaca) | Max drawdown limit, single-symbol circuit breaker | Single machine, cron-based scheduling, CSV logging |
+| **$100K-$1M AUM** | Kelly fractional (quarter-Kelly), multi-broker (IB + Alpaca) | Two-level circuit breakers, correlation monitoring, VaR limits | Docker Compose on cloud VM, Redis for state, PostgreSQL for trade log |
+| **$1M-$10M AUM** | Risk-parity across strategies, dynamic position sizing by regime | Three-level circuit breakers, real-time VaR/CVaR, cross-asset stress testing, PWG monitoring | Kubernetes, Kafka event bus, TimescaleDB, Prometheus + Grafana, PagerDuty |
+| **$10M+ AUM** | Full portfolio optimization (Black-Litterman), execution algos (TWAP/VWAP/Implementation Shortfall), multi-venue smart order routing | Real-time risk dashboard, pre-trade compliance checks, post-trade TCA (Transaction Cost Analysis), regulatory reporting (CAT, MiFID II) | Colocated infrastructure, FIX engine, multi-DC redundancy, SOC 2 compliant, dedicated SRE rotation |
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|---------|-----------|-----|------------|
+| Orders rejected with "duplicate order ID" | Broker retried a submission your system already processed | Check order state in internal book; if already FILLED, ignore; if not, submit with new `order_id` | Implement idempotency with `cl_ord_id` that survives broker retries |
+| Strategy profitable in backtest, breakeven in live | Look-ahead bias: P/E ratio from t+90 used at quarter-end | Rebuild feature pipeline with `as_of_date` lag validation; every feature must reference publication timestamp, not observation date | Automated lag checker that validates no feature at time t references data published after t |
+| Position keeps growing as price moves against you | Averaging down: strategy adding to losers because "signal is stronger" | Check position sizing logic: is `entry_add` gated on profit, not signal strength? | Hard rule: never add to a losing position unless original entry thesis confirmed by independent signal |
+| Stop-loss didn't fire during flash crash | Bracket order submitted separately from entry order; entry filled, stop-loss rejected silently | Check broker API response for stop-loss confirmation; if not confirmed within 500ms, submit market order to flatten | Always submit entry + bracket as OCO (One-Cancels-Other) or atomic order group |
+| Sharpe 4.2 in backtest, 0.3 out-of-sample | Overfitting: 18 parameters tuned on full dataset | Run Deflated Sharpe Ratio (DSR) test; apply Holm-Bonferroni correction for number of parameter combinations tested; report Probability of Backtest Overfitting (PBO) | Split data: train (60%), validate (20%), test (20%); only test set performance counts |
+| Strategy draws down 35% in 4 weeks after 2 years stable | Regime change: mean-reversion strategy in trending/crisis market | Check regime classifier output for the drawdown period; verify circuit breakers fired at Level 2 (strategy-level) threshold | Regime detection running BEFORE signal generation; auto-reduce exposure when detected regime doesn't match strategy design |
 
 ## Verification
 

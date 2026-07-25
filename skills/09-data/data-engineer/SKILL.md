@@ -166,6 +166,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building real-time analytics with Kafka Streams, Flink, or Spark Structured Streaming
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Batch vs Streaming vs CDC
@@ -304,6 +305,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use Ephemeral:** Reusable CTEs needed by multiple downstream models, never queried directly.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -361,7 +363,30 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
+## Best Practices
+
+1. **Pipeline idempotency by default.** Every pipeline stage should produce the same result when re-run with the same input. Use `INSERT OVERWRITE` partition-level writes, not `INSERT INTO`. Idempotent pipelines enable safe retries and backfills without data duplication.
+
+2. **Data quality as a pipeline gate, not an afterthought.** Embed quality checks (Great Expectations, dbt tests, Soda) as a pipeline stage that blocks downstream consumption on failure. Schema validation, null checks, uniqueness, referential integrity, and freshness checks should run before data reaches consumers.
+
+3. **Medallion architecture (Bronze → Silver → Gold) for tiered freshness SLAs.** Bronze for raw CDC (< 5 min), Silver for cleaned/deduplicated (< 1 hour), Gold for business aggregates (< 4 hours). Each layer isolates consumers from upstream volatility and provides appropriate latency for different use cases.
+
+4. **Schema evolution is a first-class concern.** Use a schema registry (Confluent, AWS Glue) with Avro/Protobuf and enforce compatibility rules (backward for readers, forward for writers). A field rename without compatibility enforcement breaks every downstream consumer silently.
+
+5. **Incremental over full refresh wherever possible.** Full-table scans grow linearly with data volume. Use partition pruning (date-partitioned writes), watermark columns, and change data capture (CDC) to process only new/changed data. Full refreshes should be the exception, not the default.
+
+6. **Data lineage must be automated, not documented.** Manual lineage docs rot immediately. Use dbt docs, DataHub, Amundsen, or OpenLineage to auto-extract column-level lineage from transformation code. When a dashboard shows wrong numbers, you trace Gold → Silver → Bronze → Source in seconds.
+
+7. **Orchestration with explicit dependencies and retry semantics.** Airflow/Dagster/Prefect DAGs should encode upstream-to-downstream data dependencies, not just chronological order. Each task needs a retry policy (exponential backoff, max retries), a timeout, and an SLA. `catchup=False` unless backfilling is intentional.
+
+8. **Partition strategy aligned with query patterns, not just data volume.** Partition on the column most commonly used in WHERE clauses (typically date). Sub-partition on high-cardinality join keys only if queries filter on them. Over-partitioning (100,000+ partitions) degrades metadata operations — keep partitions per table under 50,000.
+
+9. **Connection pooling and query timeouts in every pipeline component.** Set statement_timeout and idle_in_transaction_session_timeout in every data pipeline connection. A single long-running query holding a connection can exhaust the pool and cascade-fail every dependent job.
+
+10. **Cost observability as a pipeline metric.** Tag every pipeline, table, and query with a cost center. Monitor compute cost per pipeline run, storage cost per table, and query cost per user. Set budgets and alerts — unoptimized queries scanning full tables can 10x costs silently.
+
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -475,7 +500,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Anti-Patterns
 
 - **Apache Spark `collect()`** brings the entire distributed dataset to the driver node's memory. A 10GB DataFrame with `collect()` will OOM the driver (which typically has 2-4GB). Use `show()`, `take()`, or aggregate before collecting. **Total cost: $5,000-$25,000 in failed production jobs, cluster downtime, and engineering hours debugging OOM crashes that require full job restarts.**
 - **DataFrames are immutable** — every `.filter()`, `.select()`, `.withColumn()` creates a new DataFrame. But Spark's lazy evaluation means these operations don't execute until an action (`count()`, `write`, `collect()`). A chain of 50 transformations hasn't cost anything yet; one action triggers all 50. **Total cost: $3,000-$15,000 in engineering time wasted debugging "why is this so slow?" when the real answer is a hidden 50-stage DAG that no one traced before calling `.count()`.**
@@ -483,6 +508,71 @@ graph LR
 - **Airflow DAG `catchup=True`** (default) backfills ALL missed DAG runs from `start_date` to now. Setting `start_date=datetime(2023, 1, 1)` on a daily DAG triggers 365+ backfill runs on first deploy, hammering your data sources. **Total cost: $5,000-$30,000 in accidental backfill compute costs, rate-limited API sources, and production database overload from 365 simultaneous DAG runs on first deploy.**
 - **dbt `--full-refresh`** drops and recreates tables. On incremental models, this wipes all historical data. If your incremental model is the source for downstream models, the full refresh cascades. Always `--full-refresh` bottom-up, never top-down. **Total cost: $10,000-$50,000 in data recovery — rebuilding months of historical data from raw sources, plus downstream model cascades that compound the rebuild time exponentially.**
 - **Kafka consumer group rebalancing** during deployment — if your consumer takes 3 minutes to process a batch but the `max.poll.interval.ms` is 300 seconds, and deployment restarts take 2 minutes, the consumer group rebalance stalls all partitions for the full interval. Tune `max.poll.interval.ms` > (max batch time + max deployment time × 2). **Total cost: $5,000-$20,000 in message backlog buildup, delayed downstream processing, and SLA breaches during rebalance storms that stall all partitions simultaneously.**
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] **Pipeline idempotency verified:** Re-running the same pipeline with the same inputs produces identical outputs with no data duplication
+- [ ] **Data quality gates active:** Schema validation, null checks, uniqueness constraints, and freshness checks run before data reaches consumers
+- [ ] **Schema registry configured:** Avro/Protobuf schemas registered with backward/forward compatibility enforcement; no unregistered schemas in production topics
+- [ ] **Partition pruning active:** WHERE clauses on partitioned columns in all production queries; full table scans flagged and reviewed
+- [ ] **Incremental processing confirmed:** `INSERT OVERWRITE` on date partitions, not full-table reloads; watermark columns indexed
+- [ ] **Orchestration DAG validated:** All tasks have retry policies, timeouts, and SLAs; `catchup=False` unless intentional backfill
+- [ ] **Lineage tracking automated:** dbt docs or DataHub/OpenLineage auto-extracting column-level lineage; manual lineage docs deprecated
+- [ ] **Connection pooling configured:** PgBouncer or equivalent with statement_timeout and idle_in_transaction_session_timeout set
+- [ ] **Monitoring and alerting active:** Pipeline duration, data freshness, row counts, and error rates monitored with PagerDuty/Opsgenie alerts
+- [ ] **Cost observability enabled:** Cost tags on all pipeline resources; per-pipeline compute cost tracked; budget alerts configured
+- [ ] **Disaster recovery tested:** Pipeline can be replayed from any point; backfill procedure documented and tested quarterly
+- [ ] **Access control enforced:** Principle of least privilege on all data stores; service accounts scoped to minimum required permissions
+- [ ] **Data retention policies enforced:** Bronze (90 days), Silver (1 year), Gold (7 years) with automated archival/purge
+- [ ] **CDC pipeline lag monitored:** Replication lag < configured threshold; alert fires if lag exceeds SLA window
+
+## Scale Depth
+
+### Solo (1 person, 0-100 GB/day)
+- **Stack:** dbt + Airbyte/Fivetran + Snowflake/BigQuery. Managed services over self-hosted.
+- **Pipeline design:** Monorepo dbt project with staging → marts. Single orchestration DAG.
+- **Testing:** dbt built-in tests (unique, not_null). Freshness checks on sources.
+- **Monitoring:** dbt Cloud job status + Snowflake query history. Slack alerts on failure.
+- **Key constraint:** You ARE the on-call. Design for failure tolerance and self-healing retries.
+
+### Small Team (2-10 people, 100 GB-10 TB/day)
+- **Stack:** Airflow/Dagster + dbt + Great Expectations + DataHub. CI/CD for dbt with Slim CI.
+- **Pipeline design:** Medallion architecture. Separate staging, intermediate, and marts repositories. Data contracts between layers.
+- **Testing:** Custom generic dbt tests. Row count validation. Distribution checks. Source freshness SLAs.
+- **Monitoring:** Monte Carlo/Elementary + Prometheus/Grafana. Data quality dashboards. On-call rotation.
+- **Key constraint:** Data discoverability becomes critical — invest in DataHub/Amundsen early.
+
+### Medium Team (10-50 people, 10 TB-1 PB/day)
+- **Stack:** Spark/Flink for streaming + dbt for batch + Kafka for CDC. Feature store for ML pipelines.
+- **Pipeline design:** Data mesh principles — domain-owned data products with explicit contracts. Self-serve infrastructure platform.
+- **Testing:** Statistical data quality (distribution drift). Cross-source reconciliation. Schema evolution testing.
+- **Monitoring:** Real-time pipeline observability (Datadog/Dynatrace). Automated incident response runbooks.
+- **Key constraint:** Cost governance — implement chargeback/showback. One team's full table scan is another team's budget overrun.
+
+### Enterprise (50+ people, 1 PB+/day)
+- **Stack:** Multi-region lakehouse (Delta Lake/Iceberg) + Trino/Presto for federated query + OpenLineage.
+- **Pipeline design:** Data product mesh with developer portal. Self-service infrastructure with guardrails. Automated data contract enforcement.
+- **Testing:** ML-based anomaly detection on data quality. Automated root cause analysis.
+- **Monitoring:** Central data observability platform. SLA/SLO tracking per data product. Executive data reliability dashboards.
+- **Key constraint:** Regulatory compliance (GDPR, CCPA, SOC2) — automated data classification, retention enforcement, and right-to-deletion pipelines.
+
+### Transition Triggers
+- Solo → Small: On-call burden exceeds 20 hours/week. Pipelines fail more than twice daily.
+- Small → Medium: Data consumers exceed 50. Multiple teams need the same raw data. Ad-hoc data requests exceed capacity.
+- Medium → Enterprise: Cross-domain data joins become common. Regulatory requirements multiply. Data incidents affect revenue.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Spark job OOM at `collect()` | Entire distributed dataset moved to driver memory (typically 2-4 GB). A 10 GB DataFrame exceeds driver heap. | Replace `collect()` with `show()`, `take(n)`, or aggregate before collecting. Increase `spark.driver.memory` only as last resort. | Operations that bring data to the driver are rare and expensive — always check whether aggregation can happen on executors first. |
+| Airflow DAG triggers 365 runs on first deploy | `catchup=True` (default) backfills all missed runs from `start_date` to now. | Set `catchup=False` on DAG. If backfill is intentional, set `start_date` to deployment date and use `airflow dags backfill` explicitly. | Framework defaults optimize for correctness, not safety — explicitly opt in to side effects. |
+| dbt `--full-refresh` wipes historical data in incremental models | `--full-refresh` drops and recreates tables. Incremental models lose all history. Downstream models cascade. | Full-refresh bottom-up (staging → intermediate → marts). Never full-refresh a model with downstream dependents without rebuilding them too. | Incremental models hide dependency complexity — a full refresh is a nuclear option that must respect the DAG. |
+| Kafka consumer group rebalance stalls all partitions | Consumer processing time exceeds `max.poll.interval.ms`. During deploy restarts, rebalance timeout freezes all partitions. | Set `max.poll.interval.ms` > (max batch time + max deploy time × 2). Use static group membership to avoid rebalances on restart. | Consumer configuration is a SLA contract — tune timeouts for worst-case scenarios, not averages. |
+| dbt model silently stale — no error, just old data | `dbt run --select stg_orders` doesn't auto-select downstream dependents. Downstream models serve old data. | Use `dbt run --select state:modified+` to run modified models AND their dependents. Or `dbt run --select +model_name` for full upstream chain. | dbt's `--select` is surgical, not cascading — explicit `+` suffix is required for downstream propagation. |
+| Partitioned table scan still reads all partitions | WHERE clause uses a function on the partitioned column (e.g., `WHERE YEAR(dt) = 2024`). The optimizer can't prune. | Use direct partition column: `WHERE dt >= '2024-01-01' AND dt < '2025-01-01'`. Avoid functions on partition columns in WHERE. | Partition pruning depends on the query planner seeing the raw column — any transformation breaks the optimization. |
+| `INSERT INTO` duplicates data on retry | Non-idempotent writes. Pipeline fails mid-write, retry appends same data again. | Use `INSERT OVERWRITE` with partition-level granularity. Design every write operation to be idempotent. | Idempotency is not automatic — it must be designed into every write operation from the start. |
 
 ## Verification
 

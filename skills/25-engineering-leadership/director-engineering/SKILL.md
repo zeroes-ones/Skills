@@ -162,6 +162,20 @@ Director effectiveness is measured by organizational health, not personal output
 
 **Usage**: Say "as a Director managing 40 engineers, help me design the org for..." Default: **L2 (Director)** — managing managers, department strategy.
 
+### Scale Depth — Organizational Context
+
+#### Small Department (15-30 engineers, 2-3 EMs)
+Focus: EM development, hiring process, basic org design. Run weekly EM 1:1s, monthly team health checks. Budget: single cost center, headcount + tools + infra. Strategy: align with VP's priorities, translate to team OKRs. Career ladders: define L3-L6, calibrate quarterly. Key risk: Director still doing senior IC work because it's "faster" — delegate or lose scalability.
+
+#### Medium Department (30-80 engineers, 3-5 EMs)
+Focus: multi-team strategy, cross-team coordination, EM peer group facilitation. Run weekly EM staff meeting, monthly architecture review board. Budget: multiple cost centers, capacity planning across teams, vendor negotiations. Strategy: own department-level strategy memo, connect to company OKRs. Career ladders: L3-L7 defined, promotion committees, leveling calibration across teams. Key risk: Conway's Law violations — team boundaries not matching system boundaries.
+
+#### Large Department (80-200 engineers, 5-8 EMs + Directors)
+Focus: organizational scaling, succession planning at director level, multi-site operations. Run: monthly director staff, quarterly offsites, annual org health survey. Budget: departmental P&L, headcount modeling with attrition forecasting, make-vs-buy decisions for major capabilities. Strategy: contribute to company strategy, own 18-month technical roadmap, board-level updates. Key risk: org silos — teams optimizing locally at expense of global outcomes.
+
+#### Enterprise (200-500+ engineers, directors of directors)
+Focus: organizational design at scale, engineering culture as a product, industry influence. Run: quarterly leadership offsites, annual reorg planning, executive succession. Budget: multi-department P&L, M&A technical diligence, platform vs product investment allocation. Strategy: multi-year technical vision, build-vs-buy-vs-partner at portfolio scale, board presentations. Key risk: "strategy by spreadsheet" — losing connection to engineering reality.
+
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -174,6 +188,8 @@ Director effectiveness is measured by organizational health, not personal output
 - **Vendor and platform decisions at org scale** — you need to evaluate a build-vs-buy decision that affects multiple teams, or a major platform tool replacement that requires cross-team coordination.
 
 ## Decision Trees
+
+**(QUICK)**
 
 <!-- STANDARD: 3min -->
 
@@ -215,6 +231,8 @@ Anti-patterns: Building your own CI/CD, custom auth when OSS standards exist,
 building a CRM unless CRM is literally your product.
 
 ## Core Workflow
+
+**(STANDARD)**
 
 <!-- STANDARD: 3min -->
 
@@ -332,6 +350,8 @@ rate instead of story points.
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -343,6 +363,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Org design follows Conway's Law — align team boundaries with system boundaries, not skill sets.** If you split backend and frontend into separate teams with separate managers, you get an API that serves one frontend perfectly and breaks for every other client. Organize teams around business capabilities or subsystems. A team should own a complete vertical slice: from UI to database. Cross-functional teams ship 40% faster than component teams because they have fewer coordination dependencies.
+
+2. **Hire for the organization you're building, not the one you have.** A Director managing 30 engineers needs EMs who can lead 8-10 person teams. Hiring senior ICs when you need EMs means promoting unprepared ICs into management — a $250K+ mistake when they fail and leave. Plan your hiring ladder: what roles do you need 6, 12, and 18 months from now? Hire 6 months ahead of need, factoring in 15% annual attrition.
+
+3. **Run skip-level 1:1s that surface real issues, not status updates.** Ask: "What's the thing you're most worried about that your manager disagrees with?" and "What decision did we make in the last quarter that you think was wrong?" and "If you were in my role, what would you change tomorrow?" Specific, opinion-inviting questions surface organizational rot 6-12 months before it becomes visible in attrition or missed deadlines. Run at least 4 skip-levels per month.
+
+4. **Headcount planning must account for attrition, unexpected priorities, and ramp-up time.** A 15% attrition rate means 15 of 100 engineers leave per year. New priorities absorb 20% of capacity. New hires need 2-3 months to reach full productivity. Formula: `hiring_target = roadmap_headcount / (1 - attrition_rate) / (1 - unexpected_priority_rate) + ramp_buffer`. Plan headcount annually, revise quarterly.
+
+5. **Technical strategy is your job, not your architects' job alone.** Directors translate business strategy into technical strategy. If the CEO says "we're expanding to Europe," the Director answers: "That requires data residency architecture, multi-region deployment, GDPR compliance — 2 teams, 9 months, $1.2M." Architects design systems; Directors connect systems to business outcomes. Write a quarterly strategy memo that every engineer can read and understand how their work connects to company goals.
+
+6. **Career ladders must be transparent, calibrated, and consistently applied.** Without clear leveling guides, promotions become political — the engineer who asks loudest gets promoted, not the one delivering most value. Define: what does L4, L5, L6 look like at this company? Calibrate across teams quarterly. A Director who can't explain why Engineer A was promoted and Engineer B wasn't has no credible promotion process.
+
+7. **Budget management is a leadership tool, not a finance exercise.** Your budget communicates priorities more loudly than any all-hands speech. If quality is priority #1 but your budget allocates 80% to feature teams and 5% to platform/infra, quality is not your priority. Budget must reflect stated strategy. Track: headcount cost, infrastructure cost, vendor/tooling cost, training/conference cost. Review monthly with finance — surprises in the quarterly review are failures.
+
+8. **Cross-team collaboration doesn't happen organically — it requires deliberate structure.** Create: weekly tech leads sync, monthly architecture review board, quarterly engineering all-hands. Define decision rights: who can approve architecture changes that cross team boundaries? Who owns the shared component? Without explicit structure, collaboration defaults to escalation — every cross-team decision becomes the Director's problem.
+
+9. **Metrics-driven leadership: measure what you manage, but measure the right things.** DORA metrics (deployment frequency, lead time, MTTR, change failure rate) for delivery health. eNPS and attrition for team health. Sprint predictability (committed/delivered ratio) for planning accuracy. Tech debt interest rate for architectural health. Review all four categories monthly. A metric that never changes is a metric nobody acts on — prune it.
+
+10. **Succession planning is your most underrated responsibility.** If you're hit by a bus tomorrow, who runs the department? For every critical role (your EMs, your tech leads, your architects), identify: (a) who can step in immediately, (b) who can step in with 3 months of development, (c) if there's no one, you have a single point of failure. A Director without an identified successor is a Director who can't be promoted or take vacation.
 
 ## Cross-Skill Coordination
 
@@ -480,7 +522,7 @@ graph LR
 
 **The One Highest-Leverage Activity**: Every quarter, audit your calendar against your stated priorities. If you say quality is #1 but spend 0 hours on testing infrastructure and 20 hours on feature delivery, quality is not your priority. Your calendar doesn't lie.
 
-## Gotchas
+## Anti-Patterns
 
 - **Org chart as architecture** — Conway's Law means your system reflects your communication structure. If you split backend and frontend into separate teams with separate managers, you'll get an API that serves one frontend perfectly and breaks for every other client. Align team boundaries with subsystem boundaries, not skill sets. **Total cost: $500K-$5M annually in integration failures, duplicated effort, and brittle APIs from teams structured against system boundaries.**
 - **"We need more engineers"** as solution to missed deadlines — adding people to a late project makes it later (Brooks's Law). New engineers need onboarding, context, and mentorship from the SAME senior engineers who are already behind. Two months of ramp-up for 2 months of contribution = net zero for the first quarter. **Total cost: $250K-$1M per quarter in wasted onboarding investment with negative net productivity during the ramp-up period.**
@@ -519,6 +561,23 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[DE1]** Org chart aligns with system architecture per Conway's Law — team boundaries match subsystem/business capability boundaries, not skill sets
+- [ ] **[DE2]** Span of control healthy: each EM manages 5-8 direct reports, Director manages 3-5 EMs — no EM managing 12+ engineers, no Director with 10+ direct reports
+- [ ] **[DE3]** Career ladders documented for L3 through L7 with behavioral expectations, impact scope, and example projects per level — calibrated across teams quarterly
+- [ ] **[DE4]** Succession plan exists for every critical role (EMs, tech leads, architects) — each role has named backup (immediate) and development candidate (3-6 months)
+- [ ] **[DE5]** Headcount plan accounts for: roadmap needs + 15% attrition buffer + 20% unexpected priority buffer + 2-3 month ramp-up time per hire
+- [ ] **[DE6]** Quarterly strategy memo published and communicated to all engineers — connects company goals to team OKRs, identifies trade-offs explicitly
+- [ ] **[DE7]** Budget reviewed monthly with finance: headcount cost, infrastructure cost, vendor/tooling cost, training/conference cost — allocated against stated priorities
+- [ ] **[DE8]** DORA metrics tracked per team: deployment frequency, lead time for changes, MTTR, change failure rate — reviewed monthly with remediation plans for outliers
+- [ ] **[DE9]** Skip-level 1:1s conducted minimum 4/month — documented insights feed into org health assessment and EM development plans
+- [ ] **[DE10]** EM peer group facilitated monthly — covers: difficult conversations practice, performance review calibration, hiring debriefs, shared leadership challenges
+- [ ] **[DE11]** Tech debt tracked as financial instrument: each item has principal (effort to fix), interest rate (drag on velocity), and owner — top 3 funded quarterly
+- [ ] **[DE12]** Cross-team coordination structure in place: weekly tech leads sync, monthly architecture review, decision rights documented for cross-team changes
+
 ## References
 
 Detailed reference material loaded on demand:
@@ -530,4 +589,14 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|----------|-----------|------|------------|
+| Teams consistently miss sprint commitments by 40%+ despite "everything going fine in standups" | Teams overcommit because EMs don't push back on product pressure. No historical velocity data used in planning. Optimism bias: "this sprint will be different" | Require sprint planning based on trailing 6-sprint average velocity, not aspiration. If velocity is 40 points, plan 38 points max. Track committed/delivered ratio — target 80-120%. EMs whose teams are consistently <70% need coaching on saying no | Quarterly planning calibration: review actual vs planned for last 4 quarters. Overcommit pattern → EM development plan on stakeholder management |
+| Attrition spikes from 10% to 25% in one quarter with no obvious trigger | Silent exodus: engineers have been unhappy for 6-12 months but skip-levels never surfaced real issues because questions were too generic ("How are things?") | Run stay interviews immediately with all remaining engineers: "What would make you leave?" "What decision in the last 6 months did you disagree with most?" "If you were Director for a day, what would you change?" Pattern-match responses — 3+ engineers citing same issue = systemic | Monthly pulse survey (3 questions max). Skip-level protocol: never ask "how are things?" — always ask specific, opinion-inviting questions. Trigger alert if 2+ engineers cite same concern |
+| Two teams building overlapping functionality — discovered after 3 months and $200K spent | No architecture review board or tech leads sync. Teams operate in silos, discover duplication at integration time or via user complaints | Institute weekly tech leads sync (30 min). Agenda: (1) what shipped this week, (2) what's planned next week, (3) cross-team dependencies/conflicts. Monthly architecture review for design-stage discovery. Document decision rights: who approves cross-team architecture changes? | Tech leads sync from day one of multi-team org. Shared engineering roadmap visible to all teams. "Who else is working on this?" check before starting any project >2 weeks |
+| Director's calendar is 80% meetings with 0 hours for strategy or EM development | Director hasn't delegated operational decisions. Every escalation, approval, and status update routes through the Director. EMs operate as reporters, not decision-makers | Audit calendar: categorize every recurring meeting as "strategy," "EM development," "operational," or "other." Target: 40% strategy + EM development, 40% operational, 20% other. Delegate operational decisions to EMs with clear decision rights. Kill meetings that exist "because they've always existed" | Quarterly calendar audit. Rule: if you're the most senior person in a meeting and not contributing, stop attending. Send an EM or decline |
+| Performance review cycle produces 95% "meets expectations" ratings | Rating inflation from EMs who haven't been trained on calibration. "Meets expectations" is the path of least resistance — no difficult conversation needed | Calibration session before reviews: stack-rank all engineers on impact, not effort. Enforce distribution: top 20% (exceeds), middle 70% (meets), bottom 10% (needs improvement). EMs must defend every "exceeds" with specific business impact, not "works hard" | Calibration training for new EMs. Monthly 1:1s include performance checkpoint (not just annual review). EM evaluation includes distribution adherence and quality of written feedback |
 

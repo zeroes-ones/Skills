@@ -173,6 +173,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+**Decision Trees** **(QUICK)**
+
 <!-- QUICK: 60s — follow the ASCII tree to your scenario -->
 
 ### How to Handle an Employee Relations Issue
@@ -276,6 +278,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Core Workflow
 
+**Core Workflow** **(STANDARD)**
+
 <!-- QUICK: 60s — scan phase titles, read the phase you need -->
 
 <!-- DEEP: 10+min -->
@@ -302,6 +306,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+
+**Error Recovery** **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -513,7 +519,29 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 
 **Critical:** A PIP must be specific, measurable, achievable, relevant, and time-bound (SMART). "Improve attitude" is not a PIP goal — "Respond to all internal emails within 4 business hours and maintain a professional tone as evaluated by manager in weekly 1:1s" is. Never begin a PIP if you have already decided to terminate — a sham PIP creates more legal exposure than no PIP at all. Before terminating any employee in a protected class or who has recently engaged in protected activity (FMLA leave, harassment complaint, accommodation request), consult employment counsel — the standard for proving retaliation is far lower than proving discrimination. A substantiated PIP that ends in termination should be defensible on paper: any reasonable third party reviewing the documentation should conclude the termination was fair.
 
-## Gotchas
+## Best Practices
+
+1. **Document every employee interaction that could become a legal matter.** After any performance conversation, discipline meeting, or accommodation discussion, send a follow-up email summarizing what was discussed, decisions made, and next steps. Store it in Workday or BambooHR with the employee's record. Undocumented conversations don't exist in court. If it's not written, it didn't happen.
+
+2. **Run stay interviews quarterly, not just exit interviews.** Ask every employee: "What keeps you here? What might pull you away? When was the last time you thought about leaving?" Track themes across the org. Organizations with quarterly stay interviews reduce regrettable attrition by 25-35% — a single retained senior employee saves $180K-$250K in replacement costs. Exit interviews only tell you why people left after it's too late to fix anything.
+
+3. **Classify workers correctly using the IRS SS-8 multi-factor test.** Before engaging any contractor: document who controls the work schedule, who provides tools, whether the relationship is permanent, and whether the work is core to your business. Misclassifying a single FTE-level contractor risks $10K-$50K in back taxes and penalties. Use Equifax I-9 or LawLogix to automate compliance. When in doubt, engage employment counsel — one hour of legal review costs $500 vs. a $50K misclassification penalty.
+
+4. **Calibrate performance reviews across managers before finalizing ratings.** Without calibration, 80% of employees receive "Exceeds Expectations" because individual managers have different standards. Hold calibration sessions: all managers in a department discuss their ratings together, defend outliers with evidence, and normalize the distribution. Uncalibrated reviews misallocate merit budgets and drive top performers to leave within 2-3 cycles.
+
+5. **Audit I-9 forms quarterly with outside counsel privilege.** An ICE Notice of Inspection gives you 3 business days to respond. Common errors — late Section 2 completion, missing signatures, expired List B documents — carry fines of $270-$2,700 per form. At a 150-person company with 30 non-compliant forms, that's $40K-$190K in fines and legal fees. Use electronic I-9 software (Equifax, LawLogix, Tracker Corp) that enforces deadlines and prevents form submission with missing fields.
+
+6. **Set a minimum PTO requirement, not just a maximum.** "Unlimited PTO" policies cause average days taken to drop from 18 (accrued) to 12. Add a minimum: "You must take at least 15 days off per year." Track compliance in Workday or BambooHR. Flag managers whose teams average < 12 days. Burnout is 3x more expensive than vacation coverage.
+
+7. **Never terminate without a documented PIP trail and legal review.** The #1 driver of wrongful termination claims is terminating without documented performance issues. A $120K employee terminated with zero documentation transforms a $10K severance into a $200K settlement plus $75K-$150K in legal defense fees. Before initiating termination: verify written PIP exists, verify SMART goals were documented, verify the employee was given opportunity to improve, and consult employment counsel if the employee is in a protected class.
+
+8. **Build a comprehensive onboarding program with 30/60/90-day check-ins.** Companies with structured onboarding see 58% higher three-year retention. A new hire's first day should include meeting their team, understanding what "done" looks like, and receiving a 30-day plan. Use BambooHR or Sapling to automate onboarding workflows, assign tasks to stakeholders, and track completion. At $15K-$40K replacement cost per hire, a $5K onboarding investment pays for itself with one retained employee.
+
+9. **Mandate annual harassment prevention training with signed acknowledgments.** The average harassment settlement is $75K-$300K. Juries award significantly more when companies can't produce training records. Store signed acknowledgments in your HRIS (Workday, BambooHR). A $5K/year training program vs. one $200K settlement = 40 years of ROI. Include bystander intervention training — it reduces incident escalation by 40%.
+
+10. **Use HRIS analytics to drive workforce planning, not just record-keeping.** Workday and BambooHR generate headcount trends, turnover by department, time-to-fill metrics, and compensation equity reports. Review these quarterly with leadership. Flag departments with >20% turnover, managers with <50% engagement scores, and roles with >90-day time-to-fill. HR without data is administration; HR with data is strategy.
+
+## Anti-Patterns
 
 - **Wrongful termination lawsuits average $50K-$200K in settlements — before legal fees.** Even when you win, defense costs run $75K-$150K. The #1 driver: terminating without documented performance issues. Terminating a $120K employee who "wasn't a fit" with zero PIP documentation transforms a $10K severance into a $200K settlement. **Total cost: $50K-$200K settlement + $75K-$150K legal fees.** Never term without a documented performance improvement plan trail and legal review.
 - **Contractor misclassification is a payroll tax time bomb.** The IRS and DOL use a multi-factor test — control over work, tools provided, permanence of relationship. Misclassifying a full-time-equivalent contractor at $80/hr ($160K/year) risks $10K-$50K in back taxes, penalties, and interest per worker. At 5 misclassified workers, that's $50K-$250K. **Total cost: $10K-$50K per misclassified worker in back taxes/penalties.** Use the IRS SS-8 determination process or engage employment counsel before classifying anyone as a contractor who works full-time hours on core business functions.
@@ -524,6 +552,71 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 - **Performance review calibration** without bias training — managers rate their direct reports higher than cross-team reviewers because "my team is exceptional." Calibration needs: written evidence for every rating level, not manager opinion. "Exceeds expectations" requires 3 specific examples of exceeding.
 - **"Culture is our #1 priority"** but you only measure it during exit interviews when it's too late. Quarterly pulse surveys with anonymous free-text: "What would make you leave?" and "What keeps you here?" Track the ratio of positive-to-negative themes over time.
 - **I-9 form errors or missing documentation discovered during an ICE audit.** A 150-person company has been filing I-9s with Section 2 completed on day 4 instead of day 3, missing employer signatures on 30 forms, and accepting expired List B documents for 12 employees over 3 years. An ICE Notice of Inspection arrives with a 3-day response window — the company scrambles to correct what they can, but the substantive paperwork violations (late verification, missing signatures) carry fines of $270-$2,700 per form under current penalty schedules. With 42 non-compliant forms, that's $11K-$113K in fines — plus legal fees of $30K-$75K negotiating with ICE counsel and the risk of criminal penalties if knowing-hire violations are found. **Total cost: $40K-$190K in fines, legal fees, and remediation labor per audit — and audit selection risk increases after the first violation.** Implement electronic I-9 software (Equifax, LawLogix, Tracker Corp) that enforces deadlines, validates documents at intake, flags expiring work authorizations, and prevents form submission with missing fields. Conduct quarterly internal I-9 self-audits with outside counsel privilege.
+
+## Production Checklist **(STANDARD)**
+
+Before implementing any HR program or policy change, verify ALL of:
+
+1. Legal review completed: employment counsel has reviewed within last 12 months and signed off on all new policies, handbooks, and separation agreements
+2. Handbook acknowledgment tracked: 100% of active employees have acknowledged the current version within 30 days of hire or update in Workday/BambooHR
+3. Compliance posters current: all federal (EEO, FLSA, FMLA, OSHA) and state-specific posters displayed and updated — verify via DOL poster advisor tool quarterly
+4. I-9 audit completed: quarterly internal audit with outside counsel privilege performed — all forms complete, no expired documents, no late verifications (Equifax/LawLogix)
+5. Harassment prevention training: 100% of employees and managers have completed annual training with signed acknowledgments stored in HRIS
+6. Contractor classification reviewed: all 1099 workers re-evaluated against IRS SS-8 multi-factor test within last 6 months — any borderline cases escalated to employment counsel
+7. Performance documentation protocol active: written PIPs exist for all employees on performance plans — SMART goals documented, weekly check-ins tracked, outcome gates defined
+8. Compensation equity audit: annual pay equity analysis completed by demographic (gender, race, veteran status) — any unexplained gaps >3% flagged for remediation
+9. Benefits compliance: ACA reporting (Forms 1094-C/1095-C) filed if applicable, ERISA plan documents current, 401(k) non-discrimination testing completed
+10. Termination checklist: every termination reviewed against the PIP vs. Immediate Termination decision tree — legal consulted for any protected class or recent protected activity
+11. Employee relations metrics: turnover rate, complaint volume, investigation cycle time, and resolution outcomes tracked quarterly — trends flagged to CHRO/CEO
+12. HRIS data integrity: Workday/BambooHR employee records audited for completeness — job titles, compensation, FLSA classification, and EEO-1 categories correct for 100% of employees
+13. Background check compliance: FCRA-compliant disclosure and authorization forms used for all pre-employment screenings — adverse action process documented and followed
+14. Workers' comp insurance: policy current, classification codes correct, claims history reviewed — annual premium audit scheduled
+
+## Scale Depth
+
+### Solo (1-25 employees, no dedicated HR)
+- **HRIS**: Google Sheets + DocuSign. Manual I-9s. PEO (Rippling, Gusto, Justworks) for payroll, benefits, and basic compliance.
+- **Compliance**: Federal + state poster subscriptions. Annual legal review of handbook ($2K-$5K). PEO handles ACA, workers' comp.
+- **Performance**: Quarterly manager-written reviews (1-page template). No calibration needed at this size.
+- **Recruiting**: Manager-driven with PEO/Greenhouse starter ATS. No dedicated recruiter until 25+ employees.
+- **Skip**: Dedicated HRIS, calibration meetings, stay interviews (do exit interviews only), compensation bands.
+
+### Small Team (25-100 employees, 1-3 HR staff)
+- **Add**: BambooHR or Workday starter. Electronic I-9 with compliance enforcement. Structured onboarding program (30/60/90 day check-ins).
+- **Compliance**: Quarterly I-9 self-audits. Annual harassment prevention training with LMS tracking. FLSA classification review.
+- **Performance**: Semi-annual reviews with basic rating scale. Start calibration for manager-level reviews.
+- **Benefits**: Benefits broker relationship. 401(k) with basic match. Leave administration (FMLA, state-specific). Benchmark total rewards annually.
+- **Skip**: Full compensation bands, DEI analytics, succession planning, HR analytics dashboard.
+
+### Medium Team (100-500 employees, 3-10 HR staff)
+- **Add**: Workday full suite. Compensation bands with geo-differential strategy. Performance calibration across departments. Stay interviews quarterly.
+- **Compliance**: Dedicated compliance calendar. Annual pay equity audit. AAP (Affirmative Action Plan) if federal contractor. ADA accommodation process formalized.
+- **ER**: Formal employee relations case management. Investigation protocols. PIP standardized with SMART goals and weekly check-ins.
+- **Analytics**: Turnover by department/manager/demographic. Time-to-fill by role. Engagement pulse surveys (Culture Amp, Lattice, Gallup). HR dashboard reviewed monthly.
+- **Skip**: Internal mobility marketplace, AI-driven retention prediction, global mobility program.
+
+### Enterprise (500+ employees, 10+ HR staff)
+- **HRIS**: Workday or SAP SuccessFactors. HR shared services center with tiered support. Employee self-service portal.
+- **Compliance**: In-house employment counsel or dedicated outside counsel relationship. Multi-state/multi-country compliance. OFCCP audit readiness. GDPR/CCPA employee data compliance.
+- **Talent**: Succession planning for top 100 roles. Executive coaching program. Leadership development pipeline. Internal mobility marketplace.
+- **Analytics**: Predictive attrition modeling. DEI dashboard with hiring/retention/promotion by demographic. Skills gap analysis. Workforce planning with FP&A integration.
+- **Specialization**: Dedicated ER investigators, benefits specialists, L&D team, HRBPs aligned to business units.
+
+### Transition Triggers
+- Solo → Small: You're spending >25% of your time on HR admin. First HR hire at 25 employees.
+- Small → Medium: 3+ locations or states. First employment lawsuit or DOL audit. Time-to-fill >60 days for critical roles.
+- Medium → Enterprise: International employees. 500+ headcount triggers additional regulatory requirements (AAP, EEO-1 Component 2). Multiple bargaining units.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| "We terminated an employee and now they're suing for wrongful termination" | Terminated without documented PIP trail. No written feedback, no SMART goals, no evidence the employee was given opportunity to improve. | Implement documentation protocol: every performance conversation gets a follow-up email summarizing the gap, improvement plan, and timeline. Store in HRIS. Consult employment counsel before any termination. | Undocumented conversations do not exist in court. A $10K severance becomes a $200K settlement when you cannot produce a PIP. |
+| "ICE audit found 42 non-compliant I-9 forms" | Manual I-9 process — Section 2 completed late, missing signatures, expired List B documents accepted. No quarterly audits. | Implement electronic I-9 software (Equifax, LawLogix) that enforces deadlines and prevents submission with missing fields. Conduct quarterly self-audits with outside counsel privilege. | Fines are $270-$2,700 per form. 42 non-compliant forms = $11K-$113K in penalties plus $30K-$75K legal fees. Prevention costs $5K/year. |
+| "Our contractor was reclassified as an employee by the DOL — back taxes and penalties due" | Contractor works full-time on core business functions, uses company equipment, has no other clients. Fails IRS SS-8 multi-factor test. | Re-evaluate all 1099 workers against the IRS factors every 6 months. For borderline cases, engage employment counsel. Use the SS-8 determination process proactively. | $10K-$50K per misclassified worker in back taxes and penalties. At 5 workers: $50K-$250K. One hour of legal review costs $500. |
+| "Top performer quit — exit interview reveals they were unhappy for 9 months" | Only conducted exit interviews, never stay interviews. Problems festered for months before the employee gave notice. | Implement quarterly 30-minute stay interviews: "What keeps you here? What might pull you away? When did you last think about leaving?" Track themes across org. | Replacing a senior employee costs $180K-$250K. Stay interviews reduce regrettable attrition by 25-35%. Ask before they leave. |
+| "80% of employees got 'Exceeds Expectations' — merit budget meaningless" | Performance reviews without calibration. Managers rate independently with different standards, all inflating to protect their teams. | Hold calibration sessions before finalizing ratings. All departmental managers discuss their ratings together, defend outliers with evidence, normalize distribution. | Uncalibrated reviews misallocate $200K+ merit budgets and drive top performers to leave within 2-3 cycles. |
+| "New hire quit in month 4 — said they never felt integrated" | No structured onboarding. Paperwork-only first week. 30/60/90-day check-ins never happened. Manager assumed "they'll figure it out." | Implement structured 90-day onboarding with BambooHR/Sapling. Day 1: meet team, understand "done," receive 30-day plan. 30/60/90 check-ins with written feedback. | Companies with structured onboarding see 58% higher 3-year retention. $15K-$40K replacement cost per hire. Invest in onboarding. |
 
 ## Verification
 

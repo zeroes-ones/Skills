@@ -51,6 +51,20 @@ You are a desktop architect who has shipped productivity applications, creative 
 | **L4 (Staff)** | Define desktop architecture standards across product portfolio | Desktop platform team playbook. Cross-app component library. Shared IPC protocol. Auto-update infrastructure as shared service |
 | **L5 (Principal)** | Pioneer desktop platform innovation, influence OS vendors | Novel desktop paradigms. OS-level integration standards. Industry adoption |
 
+### Scale Depth — Team & Deployment Context
+
+#### Solo (1 developer, single-platform, <10K users)
+Electron or Tauri with minimal process separation. Single-window with panel-based navigation. No multi-window sync needed. Auto-update via electron-updater with default config. State in a single Zustand/Redux store. IPC: 5-10 typed channels. Focus: ship fast, avoid premature architecture. One year of solo development on a desktop app = ~30K LOC max before process separation becomes necessary.
+
+#### Small (2-5 developers, 2 platforms, 10K-100K users)
+Electron or Tauri with full context isolation and typed IPC contracts. Multi-window support for settings, about, and modal dialogs. Cross-window state via main process as single source of truth. Auto-update with staged rollouts (25% → 100%). System tray with context menu. Platform abstraction layer for Windows + macOS. Focus: reliable auto-update, clean window lifecycle, no main-thread blocking.
+
+#### Medium (5-15 developers, 3 platforms, 100K-1M users)
+Dedicated desktop platform team. Three-platform support: Windows, macOS, Linux. Multi-window with complex ownership trees (editor, output, settings, find/replace, extensions). IPC protocol versioned and documented. Auto-update with kill switch, rollback, delta updates. Background services with crash recovery. Performance budgets: <150MB RAM idle, <2s cold launch, <16ms main thread tick. Focus: platform-specific UX polish, accessibility (WCAG 2.1 AA), automated E2E testing on real hardware.
+
+#### Enterprise (15+ developers, 3+ platforms, 1M+ users)
+Desktop platform as a product for multiple internal app teams. Shared component library, IPC protocol, auto-update infrastructure. Multi-process architecture with GPU, utility, and extension processes. Crash reporting with symbolication across platforms. A/B testing framework for UI changes. Compliance: SOC 2 audit trails, GDPR data export, FedRAMP-ready configurations. Focus: developer velocity for app teams, security certification, 99.9% auto-update success rate.
+
 ## When to Use
 
 - Choosing between Electron, Tauri, WPF, WinUI, SwiftUI, or Qt for a new desktop application
@@ -62,6 +76,8 @@ You are a desktop architect who has shipped productivity applications, creative 
 - Evaluating web-based vs native desktop approaches for performance, bundle size, and OS integration trade-offs
 
 ## Core Workflow
+
+**(STANDARD)**
 
 Desktop architecture follows a 4-phase decision process:
 
@@ -87,6 +103,8 @@ Design installer strategy per platform. Implement auto-update: check on launch +
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -98,6 +116,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+
+1. **Isolate main and renderer processes with context isolation enabled from day one.** `contextIsolation: true` and `nodeIntegration: false` are non-negotiable in Electron. Without them, any XSS in any npm dependency (average Electron app has 1,200+) grants full Node.js access to the attacker. In Tauri, the Rust backend is isolated by design — never expose raw command execution to the frontend. Desktop security breaches from missing context isolation average $500K+ in liability.
+
+2. **Design IPC as typed contracts, not ad-hoc string channels.** Every IPC invocation should have a type-safe request/response contract. Use `ipcMain.handle`/`ipcRenderer.invoke` (Electron) or Tauri commands with typed parameters. Validate all inputs in the main process. Never trust renderer-sent data — the renderer is a sandbox but not a trusted one. IPC without validation is the desktop equivalent of exposed REST endpoints without authentication.
+
+3. **Multi-window architecture must define window ownership and lifecycle before the first secondary window is created.** Each window must have a clear owner (parent-child or sibling). Child windows must close when the parent closes. Window state (position, size, fullscreen) must restore on relaunch. Cross-window state synchronization must be single-source-of-truth — typically in the main process. Retrofitting multi-window after single-window assumptions are baked in is a 6-8 week rewrite.
+
+4. **System tray and background services are not optional — they define desktop apps.** Users expect minimize-to-tray, system notifications, and background operation. On macOS, apps stay alive after the last window closes by convention. On Windows, the system tray is the primary way users interact with long-running apps. Implement tray with context menu, notification handling, and app-quit from tray option. Test on all target platforms — tray behavior differs significantly across OSes.
+
+5. **Auto-update must be architected before v1 ships, not after.** Choose between electron-updater/Squirrel (Electron), Tauri updater, Sparkle (macOS native). Implement: silent background download, apply-on-restart, staged rollouts (5% → 25% → 100%), kill switch for bad releases, rollback on launch failure, and certificate pinning for update servers. Without auto-update, v1.0 bugs live forever — 62% of desktop users never manually update.
+
+6. **DPI scaling must be handled at the architecture level, not patched in CSS.** Windows at 125%/150%/175%, macOS Retina @2x/@3x, Linux fractional scaling (Wayland). Declare DPI awareness in the platform manifest. Use vector assets (SVG) exclusively. Test on every DPI tier. A blurry UI at 150% scaling generates App Store rejections and $25K+ accessibility compliance exposure.
+
+7. **Never block the main thread with synchronous I/O or heavy computation.** A single `fs.readFileSync` on a 50MB file freezes the entire app for 400ms+ — all IPC, window events, and menu actions stop. Use async I/O (`fs.promises`), worker threads, or stream-based reads. Offload CPU-intensive work to worker threads or native addons. Profile main thread responsiveness in CI — target <16ms per tick.
+
+8. **Platform abstraction layers are cheaper than platform-specific codebases.** Define a `Platform` interface with implementations for each target OS. Abstract: window management, file dialogs, notifications, system tray, auto-start, file associations, and updater. The abstraction layer is 10-15% overhead on initial development but saves 200%+ on maintenance compared to maintaining separate Windows, macOS, and Linux codebases.
+
+9. **Secrets must use OS-level secure storage, never LocalStorage or plaintext configs.** Electron's `safeStorage` API encrypts with OS keychain. On Tauri, use the `tauri-plugin-store` with encrypted storage. On native, use Keychain Services (macOS), Credential Manager (Windows), or libsecret (Linux). Tokens in LocalStorage are plaintext to any user with DevTools (F12) — that's every user.
+
+10. **Test on real hardware across all target OS versions, not just CI VMs.** GPU rendering bugs, DPI scaling issues, file permission quirks, and antivirus interference only manifest on real machines. Maintain a test matrix: Windows 10, Windows 11, macOS latest and -1, Ubuntu LTS. CI covers logic; real hardware covers integration. The cost of one missed platform-specific crash in production exceeds the cost of a test device fleet.
 
 ## Verification Guardrails
 
@@ -112,7 +152,24 @@ Run these checks before declaring work complete. ALL must pass.
 | V5 | Error states handled | Verify error paths produce clear messages, not silent failures or stack traces. |
 | V6 | Edge cases considered | Empty input, max/min values, concurrent access, boundary conditions handled or documented as out-of-scope. |
 | V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
-| V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
+| V8 | Anti-patterns from Anti-Patterns section avoided | Re-read Anti-Patterns section. Verify none of the listed anti-patterns appear in the output. |
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[DAP1]** Context isolation enabled (`contextIsolation: true`, `nodeIntegration: false`) — verified in electron-builder config and runtime check
+- [ ] **[DAP2]** All IPC channels typed with request/response contracts — zero `ipcRenderer.send` calls without a corresponding `ipcMain.handle` with input validation
+- [ ] **[DAP3]** Multi-window ownership model documented: parent-child relationships, lifecycle hooks, cross-window state sync via main process
+- [ ] **[DAP4]** System tray implemented with context menu, notification permission request, and platform-specific behavior verified on Windows + macOS
+- [ ] **[DAP5]** Auto-update pipeline: silent background download, apply-on-restart, staged rollout capability, kill switch, rollback on launch failure, certificate pinning
+- [ ] **[DAP6]** DPI awareness declared in platform manifest; SVG-only icon strategy; UI tested at 100%, 125%, 150%, 175%, 200% scaling
+- [ ] **[DAP7]** Main thread profiled: zero synchronous I/O outside startup, <16ms per tick, heavy computation in worker threads
+- [ ] **[DAP8]** Platform abstraction layer with documented interfaces for: window management, file dialogs, notifications, system tray, auto-start, file associations
+- [ ] **[DAP9]** Secrets stored via OS secure storage (`safeStorage`/Keychain/Credential Manager/libsecret) — zero tokens in LocalStorage or plaintext config
+- [ ] **[DAP10]** Code signing configured: EV cert for Windows, Apple Developer ID + notarization for macOS, GPG for Linux — verified in CI pipeline
+- [ ] **[DAP11]** Crash reporting with symbolication across platforms; crash rate <0.5% of sessions; top 5 crashes resolved within 7 days
+- [ ] **[DAP12]** E2E tests pass on real hardware: Windows 10, Windows 11, macOS latest, macOS -1, Ubuntu LTS — CI covers unit/integration, hardware covers platform-specific
 
 ## Cross-Skill Coordination
 
@@ -245,6 +302,8 @@ Detailed reference material loaded on demand:
 
 ## Decision Trees
 
+**(QUICK)**
+
 #
 
 ## 2.1 Electron vs Tauri vs Native
@@ -345,7 +404,7 @@ Are you using Electron/Tauri?
 
 ---
 
-## 3. Gotchas
+## 3. Anti-Patterns
 
 | # | Gotcha | Impact | Mitigation |
 |---|--------|--------|------------|
@@ -646,7 +705,20 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 | [desktop-state-management.md](reference/desktop-state-management.md) | Redux, Zustand, multi-window sync, persistence | ~350 |
 | [cross-platform-desktop-strategies.md](reference/cross-platform-desktop-strategies.md) | Platform abstraction, build matrix, platform-specific code | ~350 |
 | [desktop-security-architecture.md](reference/desktop-security-architecture.md) | Threat model, sandboxing, CSP, code signing | ~350 |
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 
 ---
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Prevention |
+|----------|-----------|------|------------|
+| "Cannot read properties of undefined" in renderer after IPC call | Main process returned undefined or threw unhandled error. IPC bridge didn't catch and serialize the error into a structured response | Wrap every `ipcMain.handle` in try/catch: `try { return { data: result }; } catch (e) { return { error: e.message, code: e.code }; }`. Renderer checks `response.error` before accessing `response.data` | Add IPC response type: `type IPCResponse<T> = { data?: T; error?: string }`. Lint rule: no `ipcMain.handle` without error wrapping |
+| White/blank window after launch on Windows with dedicated GPU | GPU process crash (WebGL/Canvas). Electron falls back to software rendering but some apps don't handle the `gpu-process-crashed` event | Listen for `app.on('gpu-process-crashed', () => { app.disableHardwareAcceleration(); app.relaunch(); app.exit(); })`. Also catch `app.on('render-process-gone')` | CI test on machines with both integrated and dedicated GPUs. Add `--disable-gpu` flag as recovery option |
+| App works on dev machine but crashes on startup for users on different Windows version | Missing VC++ redistributables or platform-specific DLL. The app was built with dynamic linking but the redist isn't bundled | Bundle VC++ redist with installer. Use `app.isPackaged` flag to load correct DLL paths. Test on clean Windows VM (no dev tools) | CI matrix includes clean OS installs. Dependency walker scan in CI catches missing DLLs |
+| Auto-update downloads but never applies — users stuck on old version | Update downloaded to temp directory but app can't access it after restart due to permissions or path changes. Squirrel.Windows requires specific temp path handling | Verify update path is writable after restart: use `app.getPath('userData')` for update staging. Check `autoUpdater.on('error')` logs in production — this is silent by default | Production error monitoring on `autoUpdater` events. Dashboard tracking update download → apply success rate. Alert if <95% |
+| Window position/size not restoring on macOS after system restart | macOS state restoration (NSWindowRestoration) uses a different mechanism than manual frame saving. The manual save overwrites or conflicts with system restoration | Use `win.getBounds()` on `close` event, save to store, restore on `ready-to-show`. On macOS, set `win.setVisibleOnAllWorkspaces(true)` and handle `app.on('activate')` for dock click restoration | Test window restoration on macOS with: app quit, logout/login, system restart, external display disconnect |
+| "Not allowed to load local resource" error for file:// protocol in production | `webSecurity: false` was set in development for local file access and wasn't re-enabled in production. Or CSP `default-src` blocks file:// without explicit allow | Never ship `webSecurity: false`. Register custom protocol for local file access: `protocol.registerFileProtocol('app', (request, callback) => { callback({ path: resolvedPath }) })` | CI check: `grep -r "webSecurity.*false"` must return empty in production configs. CSP validator in CI |
+| High memory usage (500MB+) for app that should use <150MB | Memory leak in renderer from: unsubscribed IPC listeners, detached DOM nodes, or large data kept in Redux/Zustand store indefinitely | Profile with `webContents.getProcessMemoryInfo()`. Check IPC listener count: `ipcRenderer.eventNames()`. Paginate large data in store. Use WeakMap for caches. Force garbage collection in dev tools heap snapshot | Memory budget in CI: <150MB after 1 hour idle. Weekly memory profiling. Alert on >20% memory growth per release |
 
 *This skill is part of the Cline Skills Library. See [system-architect](../system-architect/SKILL.md) and [desktop-developer](../../01-engineering/desktop-developer/SKILL.md) for complementary skills.*

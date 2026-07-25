@@ -151,6 +151,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Standardizing clinical terminology across SNOMED CT, LOINC, ICD-10-CM, RxNorm, and MedDRA
 
 ## Decision Trees
+**(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### EHR Integration Path
@@ -209,6 +210,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose TEFCA:** National-scale interoperability, multi-network health data exchange, ONC compliance for Qualified Health Information Networks (QHINs). Use USCDI v4 data classes for minimum required data elements. **When to choose Direct Secure Messaging:** Point-to-point provider communication, transition of care (CCDA documents), known recipient endpoints. Simpler than HIE but doesn't scale to population health. **When to choose HIE network:** Regional or state-level data exchange, existing HIE infrastructure, population health analytics. Use IHE profiles (XCA, XDS.b, XCPD) for document query and patient discovery.
 
 ## Core Workflow
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~25 min): FHIR Resource Design and Profiling
@@ -233,6 +235,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 
 ## Error Recovery
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -245,6 +248,29 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Best Practices
+**(STANDARD)**
+
+1. **Pin FHIR versions and ValueSet editions for every integration.** FHIR R4 is production-safe for Epic/Cerner compatibility; R5 is forward-looking. Always specify the ValueSet canonical URI with version — a SNOMED CT code for "bleeding disorder" (64779008) is not "hemophilia A" (28293008). Mapping without versioned ValueSets produces clinical decision support failures. Validate against the FHIR ImplementationGuide's `dependsOn` packages.
+
+2. **Always follow FHIR pagination links to completion.** FHIR `Bundle` search results use server-driven pagination. A `Bundle` with a `next` link means there are more resources — failing to follow it silently produces incomplete clinical data. Implement automatic `next` link traversal with a configurable page limit and record the `Bundle.total` for reconciliation.
+
+3. **Normalize lab results by LOINC code AND specimen type.** LOINC `2951-2` (Sodium in Serum) and `2947-0` (Sodium in Blood) are different codes with different normal ranges. Grouping by LOINC code alone conflates serum and whole-blood values, producing incorrect clinical interpretations. Build dashboards with LOINC+specimen composite keys.
+
+4. **Generate CCDA documents from FHIR Composition resources via canonical mapping, not string concatenation.** CCDA must be produced from a validated FHIR Composition using a published mapping table (US Core ↔ C-CDA). String-concatenated CCDA fails ONC schematron validation and breaks interoperability. Use the ONC C-CDA ↔ FHIR bidirectional mapping specification.
+
+5. **Implement SMART on FHIR for EHR-agnostic authentication.** Use OAuth 2.0 + OIDC with PKCE for patient-facing apps. For provider-facing apps, use the EHR's SMART launch context (EHR launch, standalone launch) with `launch/patient` and `launch/encounter` scopes. Never hardcode EHR-specific authentication — a SMART app works across Epic, Cerner, and any ONC-certified EHR.
+
+6. **Version all terminology content with edition and effective date.** A SNOMED CT concept may be active in the January release and inactive in July. Code deprecations and replacements cascade into clinical decision support, quality measures, and research cohorts. Maintain a terminology service that can answer "What was the status of code X on date Y?" for retrospective queries.
+
+7. **Design consent management as computable FHIR Consent resources, not document-level opt-ins.** A Consent resource with `.provision.purpose` = `TREAT` doesn't cover research use. Map every data exchange to a valid, unexpired Consent resource with matching purpose-of-use and data scope. Missing consent mapping is a HIPAA violation — consent is a technical control, not just a legal document.
+
+8. **Validate PRO instruments in the target population before deployment.** A PROMIS-29 validated in adults with osteoarthritis does not apply to adolescents with hemophilia. Validation population (condition, age range, language, literacy level) must match the target. Document the validation evidence with the instrument selection rationale. Unvalidated PRO = unreliable clinical data.
+
+9. **Maintain bidirectional provenance for every clinical data transformation.** Every FHIR resource should have a Provenance resource documenting the source system, transformation timestamp, responsible actor, and transformation rules applied. When a downstream analytics result is questioned, provenance traces the data back to its clinical source — without it, the entire pipeline is untrustworthy.
+
+10. **Apply the USCDI v4 minimum data class standard for all interoperability endpoints.** USCDI v4 defines the floor for health data exchange in the US. Any FHIR endpoint claiming ONC compliance must support USCDI v4 data classes (Allergies, Care Team, Clinical Notes, Goals, Immunizations, Lab Results, Medications, Patient Demographics, Problems, Procedures, Provenance, Vital Signs, and more). Missing USCDI support = failing interoperability.
 
 ## Cross-Skill Coordination
 
@@ -402,7 +428,8 @@ graph LR
 | "Patient data isn't that sensitive — it's just demographics and vitals" | A medical record sells for $250-$1,000 on the dark web (vs $5 for a credit card). Medical identity theft takes 2-3x longer to detect than financial identity theft. Patients with compromised medical records face incorrect diagnoses, wrong medications, and insurance fraud that can take years to resolve. One breach of 10,000 records at $400/record = $4M. **Total cost: $4M+ per breach of 10K records (IBM/Ponemon average $400/healthcare record breached), plus class-action settlements typically $2M-$5M.** |
 | "We're too small to be targeted — attackers go after hospitals, not us" | 60% of healthcare data breaches target small and mid-sized organizations. They have fewer security resources, weaker detection, and are often the entry point to larger partners' networks (supply chain attacks). Small clinic breaches average 3.5 months to detection vs 15 days at large hospitals. Attackers automate scanning — your size doesn't make you invisible, it makes you an easy target. **Total cost: $500K-$3M per breach for small healthcare orgs — 60% of breached small healthcare orgs close within 6 months.** |
 
-## Gotchas
+## Anti-Patterns
+**(STANDARD)**
 
 - **HL7 FHIR `Observation.value[x]`** is a choice type — the field can be `valueQuantity`, `valueString`, `valueCodeableConcept`, or 8 other types. A query for `valueQuantity` only returns Quantity-typed observations. `value` is NOT a valid field. Lab values, vitals, and survey scores may use DIFFERENT value types even within the same `Observation` category. **Total cost: $500,000-$3,000,000 per year** in clinical data gaps — missing 30% of lab results because of incorrect value-type queries leads to missed diagnoses, delayed treatment, and potential malpractice exposure.
 - **SNOMED CT vs ICD-10 mapping** — SNOMED `22298006 |Myocardial infarction|` is a clinical concept. ICD-10 `I21.3` is a billing classification. The mapping is MANY-TO-MANY and lossy. A single SNOMED code maps to 3 ICD-10 codes depending on episode of care (initial, subsequent, sequela). Auto-mapping without context produces billing rejections. **Total cost: $200,000-$1,000,000 per year** in denied claims and rework — each rejected claim costs $25-$50 to reprocess, and large health systems see thousands of mapping-related rejections monthly.
@@ -410,6 +437,24 @@ graph LR
 - **FHIR `Bundle` search results** — you request 100 Observations, but the Bundle contains 98 entries and a `next` link. If you don't follow the `next` link, you silently process incomplete data. FHIR pagination is mandatory, not optional, and querying without pagination handling = clinical data gaps. **Total cost: $300,000-$2,000,000 per year** in incomplete clinical analytics — dashboards and CDS rules operating on partial datasets produce incorrect population health metrics, causing quality measure underreporting and missed CMS incentive payments of $50,000-$500,000 per measure.
 
 - **Terminology server version drift** — your FHIR server validates against SNOMED CT January 2024, but the EHR sends codes from the July 2024 release. New codes fail validation silently, and clinical data for emerging conditions (e.g., novel pathogens) is dropped. **Total cost: $150,000-$750,000 per year** in data quality degradation — outdated terminology servers cause 2-5% of clinical data to be rejected or misclassified, requiring manual reconciliation.
+
+## Production Checklist
+**(STANDARD)**
+
+- [ ] FHIR profiles validated against base specification using HL7 FHIR Validator — zero errors
+- [ ] All ValueSet bindings include canonical URI with version — no unversioned ValueSets
+- [ ] FHIR search operations implement automatic `next` link pagination with configurable page limits
+- [ ] CCDA documents generated from FHIR Composition via canonical mapping (ONC bidirectional spec) — not string concatenation
+- [ ] SMART on FHIR app registered with EHR vendor — OAuth 2.0 + OIDC + PKCE configured
+- [ ] Terminology server loaded with current editions of SNOMED CT, LOINC, ICD-10-CM, RxNorm, MedDRA
+- [ ] Consent resources map to every data exchange — purpose-of-use and data scope validated per exchange
+- [ ] PRO instrument validation evidence documented for target population (condition, age, language, literacy)
+- [ ] Provenance resources generated for every clinical data transformation — source system, actor, timestamp, rules applied
+- [ ] EHR integration endpoint connectivity verified: `GET /metadata` returns valid CapabilityStatement with USCDI v4 support
+- [ ] Bulk FHIR export (`$export`) configured with Group-level scope and verified NDJSON output for all resource types
+- [ ] Lab result dashboards use LOINC+specimen type composite keys — no cross-specimen conflation
+- [ ] Terminology version alignment verified: SNOMED, LOINC, ICD-10-CM editions match between source EHR and FHIR server
+- [ ] All HIE/TEFCA connections include Direct Secure Messaging endpoint verification and certificate rotation schedule
 
 ## Verification
 
@@ -431,6 +476,44 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+### Scale Depth
+
+#### Solo Practitioner / Small Clinic
+- **Scope:** Single EHR integration (one vendor, one instance). One PRO instrument for one condition. Terminology maps for 2-3 code systems.
+- **Architecture:** SMART on FHIR app with embedded HAPI FHIR server. Direct Secure Messaging for referrals. Local terminology cache.
+- **Constraints:** No dedicated informatics team. Compliance via EHR vendor's HIPAA controls. Manual consent management acceptable.
+
+#### Small / Regional Health System
+- **Scope:** Multi-vendor EHR integration (Epic + Cerner + athenahealth). Multiple PRO instruments across service lines. HIE connection (regional/state-level). Terminology maps for 5+ code systems with weekly sync.
+- **Architecture:** Central FHIR server (HAPI or Azure API for FHIR) with ImplementationGuide registry. IHE profiles (XCA, XDS.b) for document sharing. Terminology server (Ontoserver or custom) with edition management.
+- **New concerns:** Master Patient Index (EMPI) for cross-EHR identity resolution. Consent management system with computable FHIR Consent resources. Automated PRO scoring pipelines.
+
+#### Medium / Multi-State Health System
+- **Scope:** TEFCA QHIN participation. Real-world evidence (RWE) pipelines for pharma partnerships. Rare disease registry data exchange. Multi-jurisdiction consent frameworks (state-level variations).
+- **Architecture:** FHIR server cluster with load-balanced endpoints. Terminology server with edition history (time-travel queries). Consent Decision Service (CDS Hooks integration). De-identification pipeline (Expert Determination certified). Bulk FHIR export for population health.
+- **New concerns:** Cross-state consent variation (e.g., CA vs TX minor consent). RWE pipeline confounder adjustment and negative controls. Sub-population PRO validation (multiple languages, literacy levels).
+
+#### Enterprise / National HIE
+- **Scope:** National interoperability backbone. Multi-stakeholder governance (federal, state, commercial). Real-time clinical decision support across networks. International terminology alignment (SNOMED International, WHO-FIC). AI/ML model deployment with FHIR-native input/output.
+- **Architecture:** Federated FHIR server mesh. Terminology service with cross-edition mapping and concept history. Consent framework supporting jurisdictional overrides and patient-directed access. High-availability bulk FHIR export with incremental delta sync.
+- **New concerns:** AI/ML fairness across populations in CDS rules. Patient-mediated data exchange (SMART Health Cards, FHIR Connect). Genomic data integration (FHIR Genomics IG). Global interoperability (IPS, WHO DDCC).
+
+**Transition Triggers:**
+- **Solo → Small:** Multi-EHR integration requested → stand up central FHIR server and EMPI. First HIE connection → implement IHE profiles.
+- **Small → Medium:** TEFCA QHIN application → implement QHIN-level security and audit. Pharma RWE partnership → build certified de-identification pipeline. Second state jurisdiction → implement consent variance logic.
+- **Medium → Enterprise:** National interoperability mandate → implement federated FHIR mesh. International data exchange → adopt IPS and cross-jurisdiction consent. AI/ML in clinical workflow → add fairness monitoring and explainability.
+
+## Error Decoder
+**(DEEP)**
+
+| Symptom | Real-World Cause | Diagnostic Steps | Resolution |
+|---------|-----------------|------------------|------------|
+| FHIR `$validate` fails with "Unknown code in ValueSet" for codes that exist in SNOMED | Terminology server edition mismatch — EHR sends codes from July release, FHIR server validates against January release | `GET [terminology]/CodeSystem/$lookup?code=[failing code]` on the terminology server; compare `version` field in CodeSystem resource against EHR's exported code system version | Update terminology server to match EHR edition. If EHR edition is newer, hold validation until terminology server is updated. Document the edition gap in integration runbook. |
+| Bulk FHIR export NDJSON files empty despite source data present | `_typeFilter` parameter uses incorrect search parameter or `patient` compartment is missing `Patient/[id]` membership | Verify `GET /Group/[id]/$export` returns manifest; check `_type` includes expected resource types; confirm patient is in the Group; verify `patient/*.rs` scope grants read access | Correct `_typeFilter` expression per FHIR spec. Add patient to the Group resource. Request broader scope (`system/*.rs`) if Group-level scope is too restrictive. |
+| EHR API returns 403 for previously working SMART app | App registration disabled by EHR admin; OAuth scopes narrowed; IP allowlist changed; rate-limit triggered | Check SMART app status in EHR vendor portal; verify `launch` scope still includes `patient/*.rs`; compare source IP against allowlist; check rate-limit headers (`Retry-After`, `X-RateLimit-Remaining`) | Re-enable app registration. Request scope restoration. Update IP allowlist. Implement exponential backoff with jitter if rate-limited. Monitor EHR vendor API changelog proactively. |
+| CCDA schematron validation fails on documents generated from FHIR | CCDA generated via string templates instead of canonical FHIR Composition → C-CDA mapping; section template IDs mismatched | Validate source FHIR Composition; check `Composition.section.code` against LOINC section codes; verify templateId in generated C-CDA matches ONC 2015 Edition C-CDA templates | Replace string-concatenation approach with FHIR Composition → C-CDA transformer using ONC bidirectional mapping spec. Validate output with NIST C-CDA Validation Suite. |
+| Terminology cross-map (SNOMED → ICD-10) produces billing rejections | Auto-mapping without episode-of-care context — a single SNOMED code maps to 3 ICD-10 codes (initial, subsequent, sequela) | Identify the rejected claims by ICD-10 code; trace back to source SNOMED code and clinical context; determine episode of care (initial vs subsequent encounter) | Implement context-aware mapping: require episode-of-care flag from EHR (initial/subsequent/sequela) when mapping SNOMED → ICD-10. If context unavailable, flag for manual review rather than auto-mapping. |
 
 ## References
 

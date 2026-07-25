@@ -192,6 +192,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+**(QUICK)**
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Spec Depth Decision
 
@@ -265,6 +267,8 @@ How do you decompose a spec into implementable increments?
 
 ## Core Workflow
 
+**(STANDARD)**
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Discovery & Scoping
 Extract the core problem, target persona, and success criteria from the raw input. Use the Five Whys to drill past solution proposals to root needs. Document explicit non-goals — what the feature deliberately excludes. Identify assumptions and unknowns that need validation before writing code. Output a one-page **Scope Brief** that captures: Problem Statement, Target Users, Success Metrics (leading and lagging), Scope Boundaries (in/out), and Open Questions with owners.
@@ -281,8 +285,42 @@ List every screen, modal, drawer, or stateful view the feature requires. For eac
 ### Phase 5 (~25 min): Work Item Breakdown
 Slice the spec into vertically deliverable user stories. Each story must be independently shippable and demonstrable. Write stories in the `As a [role], I want [action], so that [value]` format with concrete acceptance criteria. Sequence stories by dependency and value-to-effort ratio. Tag each story with a t-shirt size estimate for early capacity planning. Output a **Story Map** ordered by priority.
 
+## Best Practices
+
+1. **Start with a Scope Brief, not a PRD.** Before writing a full PRD, produce a one-page Scope Brief: Problem Statement, Target Users, Success Metrics, Scope Boundaries, and Open Questions. If stakeholders cannot align on the Scope Brief, they will never align on the PRD. The Scope Brief is the cheapest artifact that can prevent a bad spec.
+
+2. **Match spec depth to complexity.** Simple CRUD (1 screen, 1 entity) → 3-5 pages. Integration-heavy feature (3-5 screens, multi-entity) → 8-12 pages + API contract. Platform capability (10+ screens, cross-team) → 15+ pages + architecture review. Over-spec wastes design time; under-spec guarantees rework. Both directions cost money.
+
+3. **Define non-functional requirements before implementation.** When performance targets, security requirements, and scalability ceilings are absent from the spec, engineering optimizes for functional correctness only. Retrofitting caching, auth rewrites, or database sharding post-implementation costs 5-10x more. Every spec must include: p95 latency target, throughput expectations, auth model, data classification, and growth rate over 12 months.
+
+4. **The API contract is the spec's single source of truth.** When frontend and backend interpret "the user endpoint returns profile data" differently, you discover the mismatch during integration testing — after both teams have "finished." Always include an OpenAPI/GraphQL schema in the spec and validate it with a mock server before any code is written.
+
+5. **Every spec must define success criteria that can be verified before code freeze.** "Users will love the new workflow" cannot be verified until launch. Success criteria must include pre-launch proxies: "In usability testing, 8/10 users complete the workflow in <3 minutes without assistance." Verifiable before code freeze = spec is testable.
+
+6. **Specs describe WHAT; engineering decides HOW.** When the PM writes "use PostgreSQL with composite indexes," two things happen: engineers lose ownership, and the implementation might be wrong but nobody questions it because "it's in the spec." The boundary: if an engineer is making a UX decision, the spec is undertooled. If the PM is making a database decision, the spec is overreaching.
+
+7. **Include data provenance for every metric and data element.** "Build a dashboard with these 15 metrics" — but 7 of the 15 require data from a system that doesn't have an API. Every spec must trace: "Metric X comes from system Y via endpoint Z, field `field_name`." Data provenance gaps discovered during implementation are the #1 cause of scope creep.
+
+8. **Structure for SKIM → DIVE.** A 40-page prose spec is not consumed. Structure: 1-page executive summary (decisions), entity-relationship diagram (structure), OpenAPI spec (contract). Details in appendices. Engineers should be able to start estimating from page 1 and coding from page 5.
+
+9. **Define the MVP boundary explicitly.** Document what's IN scope and what's deliberately OUT of scope with equal clarity. "Out of scope" is not a failure — it's a decision. Without explicit non-goals, every stakeholder review adds scope. The spec that says "yes" to everything is the spec that ships nothing.
+
+10. **Post-mortem every spec 3 months after implementation.** Compare what was spec'd vs what shipped. Track: spec accuracy score (0-100%), number of "discovered during implementation" changes, and engineering rework cost from missed edge cases. Your spec accuracy score IS your skill level.
+
+## Error Decoder
+
+| Error Message / Situation | Root Cause | Fix | Lesson |
+|--------------------------|------------|-----|--------|
+| Engineering discovers 15 missing requirements mid-build | Under-spec: "build a dashboard" with no data provenance, no error states, no edge cases. Engineers fill gaps with guesses. | Minimum viable spec: data model, API contract, error-state handling, data provenance for every metric. Write the spec as if YOU had to build it. | The spec you don't write is the spec engineering guesses. Guesses cost 2-3x more in rework than writing the spec upfront. |
+| Feature ships on time but cannot answer "did it work?" | No success criteria in the spec. PM defined WHAT to build but not HOW to know if it succeeded. | Every spec includes: primary metric + target, counter metrics, instrumentation plan, evaluation timeline. "We'll measure after launch" means you won't measure at all. | A spec without success criteria is an open-ended commitment with no off-ramp. |
+| Spec is 40 pages of prose — engineering reads 3 pages and starts coding | Spec structured for reading, not for skimming. Engineers need API contract and data model; prose summary is background. | Structure for SKIM → DIVE: 1-page executive summary (decisions), entity-relationship diagram (structure), OpenAPI spec (contract). Details in appendices. | A spec that isn't consumed isn't a spec. It's a document that made the PM feel productive. |
+| "Build a dashboard with these 15 metrics" — 7 have no data source | PM specified WHAT to display without verifying WHERE the data comes from. Engineering discovers the gap during implementation and the feature doubles in scope. | Every data element in the spec must trace to a source system, endpoint, and field. If the data doesn't exist, the spec is a wishlist, not a plan. | Data provenance gaps are the #1 cause of scope creep in specs. Trace every metric to its source before the spec is approved. |
+| Spec says "use PostgreSQL with composite indexes" — PM overreaching into implementation | PM wrote implementation instructions instead of requirements. Engineers implement the wrong architecture because "it's in the spec." | Specs describe WHAT (user needs, requirements, success criteria). Engineering writes HOW (architecture, technology choices). The boundary is non-negotiable. | When PMs write code, two things happen: engineers lose ownership, and the architecture is suboptimal. |
+| Scope Brief aligned, PRD approved, but stakeholder sends "one quick addition" per day during implementation | No change control process. Every "quick addition" adds 1-3 days of engineering + QA. Five unplanned additions per sprint = unbudgeted scope creep. | Gate every addition: "We can add this — what existing item should we deprioritize to make room?" Trade-offs must be explicit and visible. | Scope creep without trade-offs is just a wishlist with deadlines. |
 
 ## Error Recovery
+
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -429,7 +467,7 @@ Before beginning a new phase, verify:
 
 **The One Highest-Leverage Activity:** Post-mortem every spec 3 months after implementation. Compare what was spec'd vs what shipped. Track: spec accuracy score (0-100%), number of "discovered during implementation" architecture changes, and engineering rework cost from missed edge cases. Your spec accuracy score IS your skill level.
 
-## Gotchas
+## Anti-Patterns
 
 - **Building without a spec costs 2-3x in rework.** When engineers start coding from a Slack message or a 3-bullet ticket, they guess at edge cases, data models, and error states. Each rework cycle costs 50-200% of the original build — a $50K feature becomes a $100K-$150K feature. A 2-day spec sprint costs ~$4K in PM + engineering time and prevents $50K-$500K in rework. **Total cost: $50K-$500K per underspecified feature.** Never greenlight engineering without at minimum: data model, API contract, and error-state handling defined.
 - **Scope creep without change control bleeds $10K-$100K/month.** Every "quick addition" — "can we also add sorting?", "what about export to CSV?" — adds 1-3 days of engineering + QA per request. Five unplanned additions per sprint = 5-15 extra engineering days per sprint. At a $200K fully-loaded engineer, that's $4K-$12K per sprint in unbudgeted scope. **Total cost: $10K-$100K/month in delayed release and over-budget work.** Gate every addition through a change control: "We can add this — what existing item should we deprioritize to make room?"
@@ -463,6 +501,23 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Production Checklist
+
+**(STANDARD)**
+
+- [ ] **[ITS1]** Scope Brief written: Problem Statement, Target Users, Success Metrics, Scope Boundaries (in/out), Open Questions with owners
+- [ ] **[ITS2]** Domain model complete: entities, attributes, relationships, cardinalities, state machines for lifecycle entities
+- [ ] **[ITS3]** API contract defined: OpenAPI/GraphQL schema validated, mock server generates successfully, authentication and authorization per endpoint specified
+- [ ] **[ITS4]** Data provenance documented: every data element traced to source system, endpoint, and field
+- [ ] **[ITS5]** Non-functional requirements specified: p95 latency target, throughput, auth model, data classification, scalability ceiling with 12-month growth projection
+- [ ] **[ITS6]** Screen inventory complete: every screen/state documented with data dependencies, loading/empty/error/edge-case states, accessibility requirements
+- [ ] **[ITS7]** MVP boundary explicit: IN scope and OUT of scope documented with equal clarity; non-goals are decisions, not omissions
+- [ ] **[ITS8]** Work items sliced vertically: each story independently shippable and demonstrable, sequenced by dependency and value-to-effort ratio
+- [ ] **[ITS9]** Success criteria include pre-launch proxies: verifiable before code freeze (e.g., usability test benchmarks)
+- [ ] **[ITS10]** Change control process defined: scope additions gated through explicit trade-off ("what do we deprioritize to make room?")
+- [ ] **[ITS11]** Stakeholder sign-off: Engineering, Design, and Product have reviewed and approved the spec
+- [ ] **[ITS12]** Spec accuracy tracked: post-mortem scheduled for 3 months post-launch; spec accuracy score and rework cost measured
 
 ## References
 
