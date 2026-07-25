@@ -20,7 +20,6 @@ chain:
     - platform-engineer
     - staff-engineer
 ---
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
 ## Anti-Rationalization — No Excuses
@@ -45,7 +44,6 @@ chain:
 | 6 | NEVER skip redundancy detection pass before context assembly | `python dedup_check.py --threshold 0.92 --input context_manifest.json \| awk '{if($1>0) exit 1}'` | DEDUPLICATE: remove lower-timestamp duplicate; retain canonical |
 | 7 | NEVER allow unproductive loop beyond 3 identical-attempt cycles | `grep -c "ATTEMPT_IDENTICAL" agent_loop_audit.log \| awk '{if($1>=3) exit 1}'` | HALT agent; inject escalation context; require human triage |
 | 8 | NEVER place critical guardrails in mid-context (positions 25%-75% of window) | `python attention_zone_check.py --input context_plan.json \| awk '/MID_CONTEXT_GUARDRAIL/{exit 1}'` | RELOCATE guardrails to first 200 tokens (primacy zone) |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -125,217 +123,15 @@ Architecture review of the entire compaction pipeline. Includes: progressive dis
 - "Multiple skills conflicting" → Start at "Context Fragmentation Prevention" (Decision Tree 5)
 
 ## Core Workflow
+<!-- COMPRESSED: Full 213 lines extracted to references/core-workflow.md -->
 
 ### Step 1: Progressive Disclosure Architecture
 
 Design the three-tier loading system for every skill:
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                 PROGRESSIVE DISCLOSURE TIERS                   │
-│                                                               │
-│  TIER 1 (150 tokens) — ALWAYS LOADED                          │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ Route table + headlines: "This skill handles X. Use     │ │
-│  │ when Y. Trigger keywords: [a, b, c]. DO NOT use for Z." │ │
-│  │ Intent matching only — enough to decide if skill applies │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                          ↓ trigger match                       │
-│  TIER 2 (800 tokens) — LOADED ON INTENT MATCH                 │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ Core workflow steps + decision trees + ground rules.    │ │
-│  │ Enough for ~80% of invocations. Covers standard path.    │ │
-│  │ Decision tree branches are entry points to Tier 3 refs.  │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                    ↓ edge case / uncertainty                   │
-│  TIER 3 (4000 tokens) — LAZY-LOADED ON BRANCH TRAVERSAL       │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ Full gotchas, detailed examples, reference summaries,    │ │
-│  │ verification checklists, deliberate practice exercises.  │ │
-│  │ Only loaded when decision tree explicitly branches here. │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
-```
-
-**Tier boundary enforcement:**
-- Tier 1 → 2 transition: keyword match in agent's intent (case-insensitive grep on route table)
-- Tier 2 → 3 transition: decision tree branch that explicitly references a Tier 3 section
-- Tier 3 → 2 eviction: 70% context window saturation → drop to Tier 2 representation
-- Tier 3 → 1 eviction: 85% context window saturation → drop to Tier 1 headlines only
-- Full eviction: 95% saturation → remove skill entirely; log what was evicted
-
-### Step 2: Token Budget Management
-
-Allocate and monitor token budgets per skill in the pipeline:
-
-```python
-# token_budget_manager.py
-SKILL_BUDGET = {
-    "tier1_headline": 150,      # Route + headline (always loaded)
-    "tier2_workflow": 800,      # Core workflow + decision trees
-    "tier3_full": 4000,         # Complete skill with gotchas + references
-}
-
-CONTEXT_SATURATION_THRESHOLDS = {
-    "warning": 0.70,   # Yellow: prepare eviction candidates
-    "critical": 0.85,  # Orange: evict Tier 3 content
-    "overflow": 0.95,  # Red: emergency Tier 3 eviction + Tier 2 compression
-}
-
-def check_saturation(current_tokens: int, window_size: int) -> str:
-    ratio = current_tokens / window_size
-    if ratio >= 0.95: return "overflow"
-    if ratio >= 0.85: return "critical"
-    if ratio >= 0.70: return "warning"
-    return "healthy"
-
-def eviction_policy(saturation: str, active_skills: list) -> list:
-    if saturation == "overflow":
-        return [s for s in active_skills if s["tier"] == "tier1"]
-    if saturation == "critical":
-        return [s for s in active_skills if s["tier"] in ("tier1", "tier2")]
-    if saturation == "warning":
-        return sorted(active_skills, key=lambda s: s["priority"])[:-1]
-    return active_skills
-```
-
-### Step 3: Context Pruning Algorithms
-
-Three pruning strategies, selected by content type:
-
-**A. Summarization-Based (LLM compression to 20% original tokens)**
-```
-Input: conversation history (turns 1-15, 8,000 tokens)
-Prompt: "Summarize this conversation preserving: (1) all decisions made,
-         (2) all facts discovered with file:line references, (3) all state
-         changes, (4) unresolved blockers. Target: 1,600 tokens (20%)."
-Output: structured summary at 20% token density
-Validation: another agent answers factual questions using only summary
-```
-
-**B. Embedding-Based Retrieval (cosine similarity > 0.85)**
-```python
-def embedding_based_prune(context_sections, query, budget):
-    query_embedding = embed(query)
-    scored = []
-    for section in context_sections:
-        score = cosine_similarity(query_embedding, section.embedding)
-        if score > 0.85:
-            scored.append((section, score))
-    scored.sort(key=lambda x: x[1], reverse=True)
-    selected, tokens = [], 0
-    for section, score in scored:
-        if tokens + section.token_count <= budget:
-            selected.append(section)
-            tokens += section.token_count
-    return selected
-```
-
-**C. Rule-Based Truncation (section priority tagged in frontmatter)**
-```
-Frontmatter priority tags:
-  sections:
-    - name: "ground-rules"
-      priority: 1   # NEVER truncate
-    - name: "gotchas"
-      priority: 2   # Truncate only if > 95% saturation
-    - name: "decision-trees"
-      priority: 3   # Truncate to branch headlines at 85% saturation
-    - name: "examples"
-      priority: 4   # Truncate first at 70% saturation
-    - name: "deliberate-practice"
-      priority: 5   # Drop entirely at 70% saturation
-```
-
-### Step 4: The 12 Context Rotation Defense Patterns
-
-**Pattern 1: Redundancy Detection**
-- Method: Sentence embedding deduplication at 0.92 cosine threshold
-- Trigger: Two sentences in context with similarity > 0.92
-- Action: Keep higher-timestamp version; drop older duplicate
-- Counter: Redundant ground rules across turns waste attention budget
-
-**Pattern 2: Staleness Scoring**
-- Method: Score each section by `1.0 / (1 + hours_since_last_access)`
-- Trigger: Section not referenced for > 5 turns
-- Action: Apply 0.5x multiplier to relevance score; candidate for eviction
-- Counter: Stale context occupies attention slots needed by fresh information
-
-**Pattern 3: Recency-Weighted Attention Allocation**
-- Method: Apply exponential decay: `weight = e^(-λ * turns_since_reference)` where λ=0.1
-- Trigger: Every turn boundary
-- Action: Re-rank all context sections by recency-weighted score
-- Counter: Without decay, turn-1 instructions receive same attention as turn-15 instructions
-
-**Pattern 4: Unproductive-Loop Detection**
-- Method: Hash agent action + outcome pairs; detect > 3 identical cycles
-- Trigger: Same (action, outcome) hash appears 3+ times in consecutive turns
-- Action: Halt agent; inject escalation context; require human triage
-- Counter: Looping agents burn tokens without progress — each cycle costs $0.03-0.15
-
-**Pattern 5: Attention Zone Enforcement**
-- Method: Classify context into primacy (0-200 tokens), mid (25-75%), recency (last 100 tokens)
-- Trigger: Guardrail found in mid-context zone
-- Action: Relocate to primacy zone (first 200 tokens)
-- Counter: "Lost in the middle" — information at 25-75% depth is 20-40% less attended
-
-**Pattern 6: Output Format Anchoring**
-- Method: Place output format specification in last 100 tokens (recency zone)
-- Trigger: Every context assembly
-- Action: Append format spec to recency zone regardless of other content
-- Counter: Recency effect ensures the last thing the model reads shapes its output
-
-**Pattern 7: Mid-Context Avoidance**
-- Method: Detailed examples, long prose, reference material → never in positions 25-75%
-- Trigger: Any content > 200 tokens being placed in mid-context
-- Action: Move to Tier 3 (lazy-loaded) or append to recency zone
-- Counter: Long content in mid-context is the most likely to be ignored
-
-**Pattern 8: Skill Conflict Detection**
-- Method: Compare domain keywords across active skills; flag overlap
-- Trigger: 2+ skills share > 3 domain keywords
-- Action: Downgrade lower-priority skill to Tier 1; route ambiguities to human
-- Counter: Conflicting skills cause the agent to apply wrong domain rules
-
-**Pattern 9: Attention Slot Allocation**
-- Method: Max 3 concurrent full-skill (Tier 2+) loads; remaining skills at Tier 1
-- Trigger: 4th skill loading Tier 2 content
-- Action: Evict lowest-priority full skill to Tier 1
-- Counter: Beyond 3 concurrent skills, attention fragmentation causes cross-skill errors
-
-**Pattern 10: Lazy-Loading Reference Files**
-- Method: Reference files loaded only when decision tree branch explicitly traverses
-- Trigger: Agent reaches a decision tree leaf that references `references/file.md`
-- Action: Load file content inline; keep for 3 turns then evict
-- Counter: Pre-loading all references burns 2,000+ tokens on unused content
-
-**Pattern 11: Context Fragmentation Prevention**
-- Method: Track attention allocation across skill boundaries; detect fragmentation
-- Trigger: > 30% of context tokens come from > 5 different skill sources
-- Action: Consolidate to top 3 skills; downgrade others to Tier 1
-- Counter: Fragmented context prevents any single skill from having sufficient attention depth
-
-**Pattern 12: State Ledger Checkpointing**
-- Method: After every major decision, checkpoint: decision + rationale + constraints
-- Trigger: Agent completes a decision tree branch
-- Action: Serialize decision to ledger; prune decision tree context; keep ledger reference
-- Counter: Without checkpointing, pruned decisions are unrecoverable
-
-### Step 5: Dual-Representation Compilation
-
-Compile human-readable markdown skills into agent-optimized minified formats:
-
-```
-SOURCE (markdown, 4500 tokens)          TARGET (minified XML/JSON-LD, ~2500 tokens)
-─────────────────────────────────────   ─────────────────────────────────────
-# Ground Rules                          <ground_rules>
-                                         <rule id="1">
-| # | Constraint        | Trigger        <constraint>NEVER prune active
-|---|-------------------|---------------  decisions</constraint>
-| 1 | NEVER prune active | Pruning on     <trigger>status:in_progress</trigger>
-    | decisions          | in_progress    <response>HALT; archive to ledger
-                                         </response></rule>
-                                         </ground_rules>
+...
+> 📎 **Full content (213 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees                        <decision_tree id="compaction_trigger">
                                          <branch>
@@ -593,6 +389,20 @@ Agent appears stuck in loop
     └── Complex tasks: > 4 identical = halt (allow more exploration)
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Handoff |
@@ -607,6 +417,11 @@ Agent appears stuck in loop
 | Skill conflict resolution at architecture level | `system-architect` | Domain keyword taxonomy, skill boundary definitions |
 
 **Handoff protocol:** When delegating context compaction work that intersects another skill, include: (1) the current token budget and saturation %, (2) the active skill manifest with tier levels, (3) the compaction strategy selected and rationale, (4) the recovery path for pruned content.
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System context, integration patterns, deployment constraints | Before designing AI/ML pipelines |
+| `mlops-engineer` | Model lifecycle, deployment patterns, monitoring requirements | Before deploying ML models to production |
 
 ## Proactive Triggers
 
@@ -691,6 +506,19 @@ Agent appears stuck in loop
 | 13 | Compaction logged | Metadata recorded: what was removed, why, when, recoverable? |
 | 14 | Recovery tested | Simulated need for pruned information → successfully recovered from ledger or file reference |
 | 15 | Code blocks preserved or referenced | No paraphrased code; all code either verbatim or file:hash reference |
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

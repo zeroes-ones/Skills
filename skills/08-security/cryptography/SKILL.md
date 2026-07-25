@@ -78,7 +78,6 @@ These rules are non-negotiable constraints that detect dangerous cryptographic a
 | R7 | DETECT when HSM or key ceremony procedures are skipped for root CA keys, DNSSEC KSK, or certificate authority private keys. | Trigger: architecture puts root-of-trust private keys in software (filesystem, KMS software key, config file, Kubernetes secret) AND key is used for CA signing, DNSSEC KSK, or code signing root | STOP. Add: "Root CA private keys, DNSSEC KSK, and code-signing root keys require hardware protection at FIPS 140-2 Level 3 or higher. Software-based key storage means any process/user with filesystem access can exfiltrate the key. Requirements: (a) HSM for key generation and storage (AWS CloudHSM, YubiHSM, Thales, nCipher), (b) M-of-N key ceremony with split knowledge and dual control, (c) offline root CA with online issuing intermediates only. A compromise of the root key invalidates the entire PKI hierarchy — every certificate, every signature." |
 | R8 | REFUSE to recommend wildcard certificates without explicit risk analysis. Wildcard certs amplify compromise blast radius across all subdomains. | Trigger: response recommends "*.example.com" wildcard cert AND no discussion of blast radius OR more than 5 subdomains would share the same private key | STOP. Add: "Wildcard certificates create a single point of compromise: one private key leak compromises every subdomain (api.example.com, admin.example.com, payment.example.com). SAN certificates enumerate specific domains and limit blast radius. Use wildcards only when: (a) subdomains are dynamically generated AND short-lived, (b) all subdomains share identical security posture, (c) private key is in HSM or TPM. For all other cases, use SAN certificates with explicit DNS names." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -163,107 +162,15 @@ What cryptographic task are you working on?
 ```
 
 ## Core Workflow
+<!-- COMPRESSED: Full 103 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Cryptographic Inventory & Threat Model
 
 Execute in order. Do not skip steps.
 
 ```
-1. INVENTORY EVERY CRYPTOGRAPHIC OPERATION
-   |-- Enumerate all places cryptography is used: TLS termination, data-at-rest encryption,
-   |   password storage, token signing (JWT/SAML), message authentication, digital signatures,
-   |   key exchange, random number generation, certificate validation, XML encryption
-   |-- For each operation, document: algorithm, key size, key source, key lifecycle,
-   |   protocol version, library/framework, configuration parameters
-   |-- Flag unknowns: any operation where the algorithm or parameters are not explicitly configured
-
-2. DEFINE THREAT MODEL
-   |-- What are you protecting? (data at rest, data in transit, authentication, integrity)
-   |-- From whom? (network adversary, cloud provider insider, malicious tenant, nation-state)
-   |-- For how long? (1 year, 10 years, 50 years — determines key sizes and PQC urgency)
-   |-- What are the consequences of failure? (financial loss, regulatory penalty, loss of life)
-   |-- Harvest-now-decrypt-later assessment: does the data have long-term sensitivity?
-
-3. ASSESS CURRENT STATE AGAINST STANDARDS
-   |-- Map each operation to: NIST SP 800-57 (key management), NIST SP 800-52 (TLS),
-   |   FIPS 140-2/3, PCI DSS 4.0, OWASP ASVS, BSI TR-02102-1, ANSSI RGS
-   |-- Flag gaps: prohibited algorithms, insufficient key sizes, missing controls
-
-4. PRIORITIZE REMEDIATION
-   |-- CRITICAL: Broken/deprecated primitives (SHA-1, MD5, RC4, 3DES, RSA PKCS#1 v1.5, CBC without HMAC)
-   |-- HIGH: Insufficient key sizes (RSA < 2048, ECC < 256), missing authenticated encryption,
-   |   nonce-reuse-prone AES-GCM, TLS < 1.2, passwords with fast hashes
-   |-- MEDIUM: Missing crypto agility, suboptimal algorithm selection (RSA over Ed25519),
-   |   no certificate automation, wildcard cert overuse
-   |-- LOW: Performance tuning (AES-NI not utilized, suboptimal cipher ordering)
-```
-
-### Phase 2: TLS 1.3 Configuration
-
-```
-1. MINIMUM PROTOCOL VERSION
-   |-- TLS 1.3 ONLY for new deployments (RFC 8446)
-   |-- TLS 1.2 minimum for backward compatibility — but NO TLS 1.0/1.1 (deprecated by IETF RFC 8996)
-   |-- Disable SSLv3 and below unconditionally
-
-2. CIPHER SUITE SELECTION (TLS 1.3 — only 5 AEAD ciphers defined)
-   |-- PREFERRED (order matters — first is negotiated):
-   |   |-- TLS_AES_128_GCM_SHA256 (hardware-accelerated on x86/ARM, safest choice)
-   |   |-- TLS_AES_256_GCM_SHA384 (compliance: CNSA 2.0, FedRAMP High, BSI)
-   |   |-- TLS_CHACHA20_POLY1305_SHA256 (mobile/embedded without AES-NI, constant-time software)
-   |-- The remaining two (TLS_AES_128_CCM_SHA256, TLS_AES_128_CCM_8_SHA256) are for constrained IoT only
-
-3. KEY EXCHANGE GROUPS
-   |-- X25519 (RFC 7748): fastest, safest, 128-bit security, constant-time implementations
-   |-- X448: 224-bit security, post-quantum margin, slower
-   |-- secp256r1 (NIST P-256): required for FIPS compliance, widely supported
-   |-- secp384r1: 192-bit security, CNSA 2.0 compliance
-   |-- NEVER: secp256k1 (Bitcoin curve, not TLS-standard), static RSA, FFDHE < 2048-bit
-
-4. CERTIFICATE VERIFICATION
-   |-- OCSP Stapling (RFC 6961): server includes time-stamped OCSP response in handshake,
-   |   eliminating client OCSP lookup (privacy + latency win)
-   |-- OCSP Must-Staple (id-pkix-ocsp-muststaple extension): cert will be rejected if not stapled
-   |-- Certificate Transparency: require at least 2 SCTs (Signed Certificate Timestamps)
-   |   from different CT log operators. Chrome requires CT for all publicly-trusted certs.
-
-5. HSTS & ADDITIONAL HARDENING
-   |-- Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-   |-- Submit to HSTS preload list (hstspreload.org) for browser-enforced HTTPS
-   |-- TLS fingerprinting defense: be aware of JA3/JA4 — your cipher ordering creates a fingerprint.
-   |   Randomize cipher order within security constraints to avoid trivially identifying your stack.
-```
-
-### Phase 3: Incident Response — Cryptographic Compromise
-
-```
-1. TRIAGE — Determine Compromise Scope (first 30 minutes)
-   |-- WHICH KEYS? Private key on disk? In memory? In transit? HSM boundary breached?
-   |-- WHAT DATA? All data encrypted with compromised key. All sessions using compromised cert.
-   |   All authentications verified with compromised signing key.
-   |-- WHEN? Key creation date → compromise detection date = exposure window.
-   |-- HOW? Exfiltration, insider, side-channel, implementation bug, weak RNG, supply chain.
-
-2. CONTAIN — Stop the Bleeding (hours 1-4)
-   |-- Revoke affected certificates (CRL + OCSP with immediate nextUpdate)
-   |-- Rotate compromised keys: generate new keys on clean system (NOT the potentially compromised one)
-   |-- Re-encrypt data-at-rest: if DEK compromised via KEK compromise, rotate KEK and rewrap all DEKs
-   |-- Invalidate sessions: force re-authentication, rotate session signing keys
-   |-- Block compromised key IDs at API gateway / auth service
-
-3. ERADICATE — Fix Root Cause (days 1-7)
-   |-- Determine how key was exposed: audit logs, access patterns, deployment artifacts
-   |-- Fix the vulnerability: move keys to HSM/TPM, implement key access controls,
-   |   harden RNG seeding, fix side-channel, patch library
-   |-- Regenerate entire key hierarchy if root or intermediate compromised
-
-4. RECOVER — Restore Cryptographic Integrity (days 3-14)
-   |-- Issue new certificates with new keys, new serial numbers, new CT SCTs
-   |-- Distribute new public keys/trust anchors to all relying parties
-   |-- Verify all cryptographic operations now use new (uncompromised) keys
-   |-- Post-incident review: update threat model, improve key ceremony procedures,
-   |   enhance monitoring (key usage alerts, anomalous certificate issuance detection)
-```
+...
+> 📎 **Full content (103 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
 
@@ -503,6 +410,20 @@ Hybrid scheme design:
 |-- Certificate: X.509 extension carrying PQ public key + PQ signature alongside classical.
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
@@ -520,6 +441,11 @@ Hybrid scheme design:
 | Database encryption (TDE, column-level, application-level) | database-designer, database-reliability-engineer | Performance impact of AES-GCM vs transparent encryption, key hierarchy (per-table vs per-column DEK), key rotation without downtime |
 | DNSSEC signing and key management | networking-engineer | KSK/ZSK split, HSM for KSK, automated ZSK rolling, algorithm selection (ECDSAP256SHA256 vs RSASHA256) |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System boundaries, data flows, trust model | Before implementing security controls — understand the attack surface |
+| `security-reviewer` | STRIDE threat model, OWASP findings, CVSS severity ratings | Before deploying security-critical code |
+
 ## Proactive Triggers
 
 | # | Trigger Condition | Auto-Response |
@@ -532,7 +458,6 @@ Hybrid scheme design:
 | P6 | Wildcard certificate (*.example.com) on domain hosting payment, admin, or auth subdomains | [ALERT] Wildcard cert amplifies compromise: one private key leak compromises api.*, admin.*, payment.* simultaneously. Replace with SAN certificate enumerating specific subdomains. |
 | P7 | JWT configured with "none" algorithm or HS256 with secret < 256 bits | [CRITICAL] JWT algorithm confusion or weak HMAC secret. Use RS256 (RSA-PSS), ES256 (ECDSA), or EdDSA for asymmetric signing. If HMAC required, HS256 key must be >= 256 bits random. |
 | P8 | No crypto agility: hardcoded algorithm without version byte or algorithm identifier | [WARN] Architecture locks in current algorithms. Add: protocol version byte, algorithm identifier field, key ID. Future algorithm migration requires flag-day without this. |
-
 
 ## State Log
 
@@ -694,6 +619,19 @@ After any cryptographic design or audit, run this sequence. Do not proceed past 
 10. **CSPRNG audit:** All cryptographic key material, nonces, tokens, and session IDs sourced from kernel CSPRNG (`/dev/urandom`, `crypto.randomBytes()`, `secrets` module). `Math.random()`, `rand()`, `java.util.Random`, and other non-cryptographic PRNGs MUST NOT be used for any security-sensitive purpose. Flag as CRITICAL.
 
 If any check fails: diagnose from checklist, provide specific actionable fix with rationale, restart verification from failed item.
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

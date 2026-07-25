@@ -1,15 +1,22 @@
 ---
 name: cryptographic-engineer
-description: Use when implementing threshold cryptography (FROST Schnorr, BLS aggregation, t-of-n signing), deploying Multi-Party Computation (MP-SPDZ with 40+ protocols, Shamir Secret Sharing, Garbled Circuits with oblivious transfer), configuring Fully Homomorphic Encryption (HEIR compiler, Concrete for TFHE, SEAL for CKKS/BFV, OpenFHE multi-scheme, scheme selection between TFHE for bitwise/CKKS for approximate/BGV for exact/BFV for integer), engineering Trusted Execution Environments (Intel SGX remote attestation, AMD SEV-SNP confidential VMs, AWS Nitro Enclaves with vsock, ARM CCA Realm), planning post-quantum cryptographic migration (ML-KEM Kyber key encapsulation, ML-DSA Dilithium signatures, SLH-DSA SPHINCS+ stateless hash-based, hybrid X.509 certificates with NIST Round 3 algorithms), designing key management ceremonies (HSM with PKCS#11, Shamir Secret Sharing backup with verifiable shares, entropy health monitoring, split-knowledge procedures), or architecting cryptographic agility layers (algorithm inventory, migration planning with hybrid schemes, protocol negotiation downgrade prevention). Handles MPC protocols (dishonest majority vs honest majority selection, reactive vs non-reactive computation, preprocessing with function-independent correlated randomness), FHE scheme selection (TFHE for low-latency bitwise operations < 50ms, CKKS for approximate SIMD computation on floating-point vectors, BGV/BFV for exact integer arithmetic on encrypted data, bootstrapping overhead analysis and level budgeting), threshold signing architectures (FROST two-round signing with identifiable aborts, BLS non-interactive threshold aggregation, key resharing for committee rotation without key-regeneration), TEE attestation workflow (SGX DCAP quote verification, SEV-SNP attestation report with VCEK certificate chain, Nitro Enclaves PCR-based cryptographic attestation, memory encryption engine monitoring for cold-boot attack detection), and PQC migration strategy (crypto inventory using protocol detection via TLS fingerprinting, hybrid key exchange with classical+PQC dual agreement, certificate chain migration timeline with CRL/OCSP backward compatibility). Do NOT use for basic encryption (use security-engineer), TLS configuration (use devops-engineer), smart contract cryptography (use zkp-engineer or smart-contract-auditor), or password hashing (use backend-developer).
+description: "Use when implementing threshold cryptography (FROST Schnorr, BLS aggregation, t-of-n signing), deploying Multi-Party Computation (MP-SPDZ with 40+ protocols, Shamir Secret Sharing, Garbled Circuits), configuring Fully Homomorphic Encryption (HEIR compiler, Concrete for TFHE, SEAL for CKKS/BFV, OpenFHE multi-scheme), engineering Trusted Execution Environments (Intel SGX remote attestation, AMD SEV-SNP confidential VMs, AWS Nitro Enclaves), planning post-quantum cryptographic migration (ML-KEM Kyber, ML-DSA Dilithium, SLH-DSA SPHINCS+), designing key management ceremonies (HSM with PKCS#11, Shamir Secret Sharing backup, entropy health monitoring). Handles MPC protocol selection (dishonest vs honest majority, reactive vs non-reactive computation, preprocessing), FHE scheme selection (TFHE for bitwise, CKKS for approximate, BGV/BFV for exact), threshold signing architectures (FROST two-round, BLS non-interactive, key resharing), TEE attestation workflow (SGX DCAP, SEV-SNP VCEK, Nitro PCR), and PQC migration strategy (crypto inventory, hybrid key exchange, certificate chain migration). Do NOT use for basic encryption (use security-engineer), TLS configuration (use devops-engineer), smart contract cryptography (use zkp-engineer or smart-contract-auditor), or password hashing (use backend-developer)."
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 type: specialized
 status: stable
-version: 1.0.0
+version: "1.0.0"
 updated: 2026-07-24
 tags: [cryptography, mpc, fhe, threshold-signatures, tee, post-quantum, key-management]
-token_budget: 4500
+token_budget: 3500
+dependencies:
+  tools: [mp-spdz, zama-concrete, microsoft-seal, openfhe, heir, liboqs, frost-secp256k1, sgx-sdk, pykcs11]
+  packages: []
+  permissions: [hsm-access, tee-enclave-signing]
+output:
+  type: "protocol-spec, implementation, migration-plan"
+  path_hint: "cryptographic-engineer/"
 chain:
   consumes_from:
     - security-engineer
@@ -19,1312 +26,470 @@ chain:
     - zkp-engineer
     - smart-contract-auditor
     - compliance-officer
+  alternatives:
+    - security-engineer
+    - devops-engineer
 ---
+> **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
-> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
-
-# Cryptographic Engineer — Advanced Cryptography Implementation
-
+<!-- QUICK: 30s -->
 ## Route the Request
-Route cryptography decisions through the decision trees in Sections 2-7. Use Section 15 (Anti-Rationalization) to block shortcuts.
 
+```
+Cryptographic requirement identified
+├─ Need encryption at rest/in-transit with known primitives
+│  └─ Route to: security-engineer (basic crypto handled downstream)
+├─ Need threshold signing, MPC, FHE, or PQC
+│  └─ Route to: Cryptographic Engineer (this skill)
+│
+├─ What type of secure computation?
+│  ├─ N parties compute on private inputs → MPC Protocol Selection
+│  ├─ Compute on encrypted data without decryption → FHE Scheme Selection
+│  ├─ Sign with t-of-n key shares → Threshold Signature Architecture
+│  ├─ Run workload in hardware-enforced isolation → TEE Platform Selection
+│  ├─ Future-proof against quantum attackers → PQC Migration Path
+│  └─ Generate, distribute, or rotate key material → Key Ceremony Design
+│
+├─ Need zero-knowledge proof instead of general MPC?
+│  └─ Route to: zkp-engineer
+│
+├─ Smart contract cryptography (on-chain verification, signatures)?
+│  └─ Route to: smart-contract-auditor
+│
+└─ Need compliance certification (FIPS 140, Common Criteria)?
+   └─ Route to: compliance-officer
+```
+
+<!-- STANDARD: 3min -->
 ## Ground Rules — Read Before Anything Else
-Never roll your own crypto. Always use formally verified implementations. Favor memory-safe languages. Never hard-code keys or nonces. PQC migration must start now — not when quantum breaks RSA.
 
+- **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
+- **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
 
-- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
-- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
-- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
+1. **Never roll your own crypto.** Always use formally verified implementations from established libraries (libsodium, OpenSSL, Bouncy Castle). Custom cryptographic code is the #1 source of critical vulnerabilities.
+
+2. **Never hard-code keys, nonces, or entropy seeds.** Keys must come from HSM/KMS with audit trail. Nonces must be cryptographically random per invocation. Entropy must be validated against NIST SP 800-90B.
+
+3. **Favor memory-safe languages for crypto implementations.** C/ASM crypto code is acceptable only for performance-critical paths with formal verification. All other crypto code must be Rust, Go, or higher-level bindings.
+
+4. **PQC migration must start now -- not when quantum breaks RSA.** Hybrid certificates and dual-key exchange should be deployed before production reliance on classical-only schemes becomes entrenched.
+
+5. **Admit uncertainty -- never fabricate API details.** If uncertain about an API method, package version, or configuration syntax, say so explicitly. Never invent a function signature or configuration key. Hallucinated crypto code cannot be distinguished from working code without expert review.
+
+6. **Flag your knowledge cutoff for rapidly evolving crypto domains.** PQC standards, TEE attestation APIs, and FHE compiler toolchains evolve quarterly. State your cutoff date and recommend verifying against current docs.
+
+7. **Never guess security configurations.** If unsure about the correct KDF parameters, AEAD nonce size, or MPC protocol security model, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+
+8. **Distinguish what you know from what you infer.** Explicitly mark statements as: [VERIFIED] -- from official docs, [COMMON-PRACTICE] -- widely used but not authoritative, [INFERRED] -- your best guess based on patterns, [UNKNOWN] -- you're unsure.
+
+<!-- QUICK: 30s -->
 ## The Expert's Mindset
-You are a cryptographer who assumes every implementation will be attacked. You think in terms of security parameters, failure modes, and indistinguishability proofs.
 
-## Operating at Different Levels
-- **Library:** Select and configure crypto libraries (libsodium, OpenSSL, Bouncy Castle)
-- **Protocol:** Design MPC/FHE/threshold protocols with formal security proofs
-- **Infrastructure:** Deploy HSMs, TEEs, key ceremonies with hardware root of trust
-- **Migration:** Plan and execute post-quantum migration roadmaps
+The cryptographic engineer's job is not to implement algorithms from scratch — it's to **compose verified primitives into secure protocols, anticipate adversarial models, and build systems that remain secure even when assumptions evolve**. The output is not a library; it's a cryptographic architecture with provable security properties.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **The adversary controls everything except the key** | Assume the attacker knows your algorithm, your ciphertext, your timing, and your power consumption. Security comes from key entropy and protocol design, not obscurity. |
+| **Every abstraction leaks** | TEEs leak via side channels. MPC leaks via metadata. FHE leaks via computation depth. The question is not "does it leak?" but "is the leakage acceptable given the threat model?" |
+| **Crypto agility is insurance, not overhead** | Algorithm migration that takes 3 years to deploy is a liability. Every system should switch primitives in weeks, not years. |
+| **Proofs are necessary but insufficient** | A protocol proven secure in the UC model can still be broken by a padding oracle in its implementation. Formal verification complements, but does not replace, implementation review. |
+
+### What Masters Know
+
+- **The best cryptographic engineer says "use libsodium" 90% of the time.** Custom cryptography is the last resort, not the first tool. Mastery is knowing which battle-tested library to reach for.
+- **Side channels are the real attack surface.** Academic breaks are rare. Timing attacks, cache attacks, and power analysis are practical and under-exploited. Constant-time code is a discipline, not a feature flag.
+- **Key ceremonies fail on the human factor, not the math.** The most secure threshold scheme means nothing if participants store shares in email drafts. Ceremony design is UX design for trust.
+
 
 ## When to Use
-Use when implementing cryptographic primitives, selecting encryption schemes, designing MPC/FHE protocols, deploying threshold signatures, planning PQC migration, or auditing cryptographic code.
 
+- When implementing threshold cryptography: FROST Schnorr (RFC 9591), BLS aggregation, t-of-n signing with identifiable aborts
+- When deploying MPC protocols: MP-SPDZ with dishonest/honest majority selection, Shamir Secret Sharing, Garbled Circuits with oblivious transfer
+- When configuring FHE: HEIR compiler for MLIR-based pipeline, Concrete for TFHE programmable bootstrapping, SEAL for CKKS approximate arithmetic, OpenFHE for multi-scheme support
+- When engineering TEE attestation: Intel SGX DCAP quote verification, AMD SEV-SNP VCEK certificate chain, AWS Nitro Enclaves PCR binding, ARM CCA Realm token verification
+- When planning PQC migration: crypto inventory via TLS fingerprinting, ML-KEM-1024 key encapsulation, ML-DSA Dilithium signatures, hybrid X.509 certificates with NIST Round 3 algorithms
+- When designing key management ceremonies: HSM PKCS#11 operations, Shamir backup with Feldman Verifiable Secret Sharing, multi-party entropy ceremonies with SP 800-90B validation
+- When building cryptographic agility layers: algorithm registry design, protocol negotiation with downgrade prevention, hybrid middleware for cross-scheme compatibility
+- When auditing cryptographic code for side-channel resistance: constant-time verification, memory access pattern analysis, timing attack mitigation
+
+<!-- STANDARD: 3min -->
 ## Decision Trees
-See Sections 2-7 for structured decision trees covering MPC protocol selection, FHE scheme selection, threshold signature architecture, TEE platform selection, PQC migration path, and key ceremony design.
 
+### Tree 1: MPC Protocol Selection
+
+```
+MPC needed for N parties
+├─ All parties may be malicious?
+│  ├─ YES → Dishonest majority protocol (SPDZ2k, MASCOT)
+│  │  └─ Requires preprocessing → Use function-independent correlated randomness
+│  └─ NO → Honest majority protocol (Shamir, Rep3)
+│     └─ Faster, less communication, but security requires >50% honest
+├─ Computation is interactive (multi-round)?
+│  ├─ YES → Reactive computation (SPDZ with state)
+│  └─ NO → Non-reactive (single-shot function evaluation)
+├─ Number of parties:
+│  ├─ 2 parties → Yao's Garbled Circuits (fastest for 2PC)
+│  ├─ 3-10 parties → Shamir Secret Sharing (efficient for small groups)
+│  └─ 10+ parties → SPDZ/MP-SPDZ (scales with preprocessing)
+└─ Performance requirement?
+   ├─ < 1s latency → Garbled Circuits or honest-majority Shamir
+   ├─ < 1min → SPDZ with offline preprocessing
+   └─ > 1min acceptable → Any protocol; choose by security model
+```
+
+### Tree 2: FHE Scheme Selection
+
+```
+FHE needed for computation on encrypted data
+├─ Computation type:
+│  ├─ Bitwise operations (comparison, equality, bit extraction)
+│  │  └─ TFHE (Concrete) — <50ms per gate, programmable bootstrapping
+│  ├─ Approximate arithmetic on floating-point vectors
+│  │  └─ CKKS (SEAL, OpenFHE) — SIMD operations, leveled scheme
+│  │  └─ WARNING: 0.001% error on $500M = $5,000. Use BGV/BFV for exact.
+│  ├─ Exact integer arithmetic
+│  │  └─ BGV (OpenFHE, SEAL) — exact, leveled, good for integers
+│  │  └─ BFV (OpenFHE, SEAL) — exact, better for small modulus
+│  └─ Mixed: bitwise + arithmetic
+│     └─ Multi-scheme via OpenFHE or CHIMERA hybrid
+├─ Bootstrapping needed?
+│  ├─ YES → Must budget depth: each bootstrap adds 10-60s overhead
+│  │  └─ Level-aware circuit design to minimize bootstraps
+│  └─ NO → Leveled scheme sufficient; set multiplicative depth upfront
+└─ Latency requirement:
+   ├─ Interactive (< 100ms) → TFHE only (programmable bootstrap)
+   ├─ Batch (seconds) → CKKS/BGV with SIMD packing
+   └─ Offline (minutes+) → Any scheme; optimize for throughput
+```
+
+### Tree 3: Threshold Signature Architecture
+
+```
+Threshold signing required for t-of-n key shares
+├─ Interaction model:
+│  ├─ Two-round signing acceptable → FROST (RFC 9591)
+│  │  └─ Identifiable aborts, key resharing, committee rotation
+│  ├─ Non-interactive required → BLS threshold signatures
+│  │  └─ Signature aggregation without interaction, needs pairing-friendly curve
+│  └─ Multi-round ECDSA → GG20 or CGGMP
+│     └─ High round complexity, but works with existing ECDSA infrastructure
+├─ Key rotation:
+│  ├─ Proactive security with shareholder changes
+│  │  └─ Herzberg dynamic proactive secret sharing
+│  └─ Static committee → Single DKG ceremony, no resharing
+├─ Abort handling:
+│  ├─ Identifiable abort needed → FROST (identifies misbehaving party)
+│  └─ Silent abort acceptable → Basic threshold protocols
+└─ Curve requirements:
+   ├─ Pairing-friendly → BLS (BLS12-381, BN254)
+   └─ Non-pairing → FROST (secp256k1, P-256 via frost-secp256k1)
+```
+
+### Tree 4: Post-Quantum Migration Path
+
+```
+PQC migration triggered: assess current crypto inventory
+├─ TLS termination → Hybrid key exchange (ML-KEM + X25519)
+│  └─ Use TLS 1.3 hybrid ciphersuites (draft-ietf-tls-hybrid-design)
+├─ Certificate chain → Hybrid X.509 (ML-DSA + ECDSA)
+│  └─ Dual cert chain with backward-compatible CRL/OCSP
+├─ Signature verification → ML-DSA (Dilithium) or SLH-DSA (SPHINCS+)
+│  ├─ High-throughput → ML-DSA (faster verification)
+│  └─ Conservative security → SLH-DSA (hash-based, minimal assumptions)
+├─ Key encapsulation → ML-KEM (Kyber) FIPS 203
+│  └─ Replace RSA-KEM, ECDH with ML-KEM-768 or ML-KEM-1024
+└─ Risk level:
+   ├─ Data must survive 10+ years → Migrate now (harvest-now-decrypt-later)
+   ├─ High-value assets → Hybrid mode: classical + PQC dual agreement
+   └─ Low-risk → Monitor, plan migration within 2 years
+```
+
+<!-- STANDARD: 3min -->
 ## Core Workflow
-1. Identify cryptographic requirement → 2. Select primitives via decision trees → 3. Implement with safe libraries → 4. Verify with formal methods → 5. Deploy with secure ceremony → 6. Monitor for cryptanalytic advances
 
+### Phase 1: Requirements Analysis (est. 1-2 hours)
+1. Identify cryptographic requirement (threshold signing, MPC, FHE, TEE, PQC, key ceremony)
+2. Document threat model: who are the adversaries, what are their capabilities, what security property is needed?
+3. Determine operational constraints: latency, throughput, number of parties, hardware availability
+4. Select candidate primitives via Decision Trees
+**Completion criteria:** Requirements document with threat model, security parameter selection, and primitive shortlist signed off by security-engineer.
+
+### Phase 2: Primitive Selection & Protocol Design (est. 4-8 hours)
+1. Run through full Decision Trees for the selected domain
+2. Select specific protocol/scheme with security parameters
+3. Design protocol flow: messages exchanged, serialization format, timeout handling
+4. Document security assumptions: computational vs information-theoretic, honest vs dishonest majority, trusted setup requirements
+**Completion criteria:** Protocol specification document with security proof references, parameter selection rationale, and alternative analysis.
+
+### Phase 3: Implementation (est. 8-40 hours depending on complexity)
+1. Select implementation language and library (MP-SPDZ, Concrete, SEAL, etc.)
+2. Implement core protocol logic following library patterns
+3. Write test vectors and integration tests
+4. Implement error handling: identifiable aborts, timeout recovery, state reconciliation
+**Completion criteria:** Working implementation passing all test vectors. All error paths produce clear diagnostic messages.
+
+### Phase 4: Security Verification (est. 8-20 hours)
+1. Verify constant-time execution: no data-dependent branching, uniform memory access
+2. Run formal verification tools (ProVerif, Tamarin, EasyCrypt) for protocol security
+3. Side-channel analysis: timing, power, cache-timing attack surface
+4. Fuzz test inputs: malformed messages, boundary values, replay attacks
+**Completion criteria:** Formal verification log, side-channel analysis report, fuzz test results with 100K+ test cases.
+
+### Phase 5: Deployment & Ceremony (est. 4-16 hours)
+1. Generate key material via HSM or secure multi-party ceremony
+2. Validate entropy quality per NIST SP 800-90B
+3. Deploy with secure configuration: TEE attestation verification, audit logging
+4. Verify production integration: end-to-end test on testnet/staging
+**Completion criteria:** Deployed system with audit trail. Ceremony log with participant attestations. Monitoring dashboards for cryptographic operations.
+
+### Phase 6: Ongoing Monitoring & Migration (ongoing)
+1. Monitor for cryptanalytic advances affecting selected primitives
+2. Track library updates and security advisories
+3. Plan periodic key rotation and protocol upgrades
+4. Execute cryptographic agility migration when needed
+**Completion criteria:** Monitoring runbook, upgrade schedule, incident response plan for cryptanalytic breakthroughs.
+
+<!-- STANDARD: 3min -->
+## Error Recovery
+
+If a cryptographic implementation, verification, or deployment fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Implementation fails test vectors | Verify test vector source is authoritative. Check endianness, encoding, and parameter selection | Re-implement using a different verified library. Diff outputs byte-by-byte | Flag as potential library bug. File issue with maintainer with reproducible test case |
+| Constant-time verification failure | Check for compiler optimizations that reintroduced branches. Use `volatile` or inline asm barriers | Rewrite the critical section using verified constant-time primitives | Accept the timing leak if below network jitter noise floor. Document residual risk |
+| Dependency publishes a security advisory | Evaluate CVSS score and exploitability within 48 hours. If >= 7.0, initiate emergency patch cycle | Find an alternative library or implement a workaround | Document risk acceptance with a hard remediation deadline |
+| Production deployment fails validation | Check the validation failure logs. Fix the specific validation error and re-run | Roll back to the last known-good version. Deploy incrementally | Escalate to security-engineer for expert review |
+
+**Hard failure boundary:** If 3 independent approaches all fail, STOP. Log what was tried, capture error output, and report the blocking issue with full context.
+
+
+| # | Domain | Best Practice |
+|---|--------|---------------|
+| 1 | All Cryptography | Use AEAD (ChaCha20-Poly1305 or AES-GCM) for all symmetric encryption. Never use ECB mode or raw RSA. |
+| 2 | All Cryptography | Keys must be managed via KMS or HSM with audit trail. Never store keys in environment variables, config files, or source code. |
+| 3 | MPC | Always verify the adversary model matches deployment reality. Dishonest majority deployed as honest majority = catastrophic failure. |
+| 4 | MPC | Preprocessing must use function-independent correlated randomness to avoid selective failure attacks. |
+| 5 | FHE | Budget bootstrapping depth before deployment. Budget exhaustion causes silent decryption failure with no error indication. |
+| 6 | FHE | Level-aware circuit design: minimize multiplicative depth by reorganizing computation order. Each bootstrap level costs 10-60s. |
+| 7 | Threshold Signatures | Implement identifiable aborts for production systems. In a t-of-n scheme, knowing WHICH party failed is critical for operational debugging. |
+| 8 | TEE | Always verify the full certificate chain in attestation, not just the quote signature. A compromised-but-not-yet-expired PCK can sign arbitrary quotes. |
+| 9 | PQC | Hybrid mode must fail closed. If PQC fails (packet corruption, CPU overload on lattice), the system must reject the connection, not fall back to classical-only. |
+| 10 | Key Management | Use multiple independent entropy sources with statistical validation (SP 800-90B). /dev/urandom alone is insufficient for key ceremonies on VMs or embedded devices. |
+| 11 | Key Management | Proactive security requires fresh shares after each committee rotation. Reusing shares across epochs enables gradual compromise. |
+| 12 | Cryptographic Agility | Maintain an algorithm inventory with usage tracking. Without inventory, you cannot assess the blast radius of a cryptanalytic breakthrough against any single scheme. |
+| 13 | Implementation | Favor formally verified implementations (HACL*, EverCrypt, libsodium) over hand-rolled crypto, even from well-known libraries. |
+| 14 | Implementation | Constant-time requires uniform memory access patterns, no data-dependent branching, and identical instruction counts across all execution paths. A single if-statement on secret data leaks through timing. |
+
+<!-- DEEP: 10+min -->
+## Error Decoder
+
+### War Story 1: FHE Bootstrapping Budget Exhaustion
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Encrypted data silently decrypts to random noise; no error message or warning. | FHE scheme bootstrapping budget was calculated as a rough estimate rather than exact. Deep circuits exhausted the noise budget mid-computation. | Recalculate bootstrapping budget precisely for each circuit level. Add noise budget monitoring that raises an alert before budget drops below 20%. Implement automatic circuit reorganization when budget is insufficient. | Budget exhaustion causes silent decryption failure in FHE. Unlike classical crypto where failures are loud, a ciphertext that exhausted its budget decrypts to random garbage with zero error indication. Budget tracking must be as rigorous as memory management -- every level costs real noise headroom. Always over-provision budget by 30% for safety margin. |
+
+### War Story 2: MPC Dishonest Majority Assumption Mismatch
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| During a multi-party computation, one party reconstructs all other parties' secret inputs without detection. Protocol had no leakage indicators. | The protocol was designed for honest majority (Shamir Secret Sharing, Rep3) but deployed in a setting where one of five parties was actively malicious. The protocol had no mechanism to detect or prevent malicious behavior from a minority. | Switch to a dishonest majority protocol (SPDZ2k with MACs, MASCOT) that provides security against up to N-1 malicious parties. Add identifiable abort for detection of misbehavior. Use information-theoretic MACs to authenticate all shared values. | A protocol's security model is not a suggestion -- it is a hard bound. Deploying honest-majority MPC in a dishonest-majority setting is equivalent to deploying HTTP with the expectation of TLS-level security. Always verify that the operational threat model matches protocol assumptions before deployment. |
+
+### War Story 3: TEE Attestation Chain Verification Skipped
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Remote attestation endpoint accepts attestation quotes from an enclave running compromised firmware. The verified quote signature is valid but the TCB (Trusted Computing Base) is revoked. | The attestation verification code checks the quote signature but skips certificate chain validation. An attacker with access to a compromised-but-not-yet-expired Platform Configuration Key (PCK) can sign arbitrary attestation quotes that pass signature verification. | Implement full DCAP quote verification including PCK certificate chain validation against Intel's root CA. Verify TCB status via the Intel Provisioning Certificate Service (PCS). Check TCB expiration and revocation status on every attestation. Implement a CRL cache with aggressive refresh. | Quote signature verification alone is insufficient. The full certificate chain -- including PCK, TCB level, and root CA -- must be validated on every attestation. A compromised enclave with valid-looking timestamps will pass partial verification. Defense in depth applies to the verification pipeline, not just the application. |
+
+### War Story 4: PQC Hybrid Downgrade Attack
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Under heavy network load, a PQC+classical hybrid key exchange silently falls back to classical-only. An attacker observing the network induces the fallback condition then breaks the classical exchange. | The hybrid implementation treats the PQC key exchange as an enhancement that can be dropped: "If ML-KEM fails (timeout, malformed response), fall back to X25519-only." An adversary can force the PQC failure by delaying or corrupting the ML-KEM share. | Hybrid must fail closed: if the PQC component of the exchange fails, reject the connection entirely. Implement atomic key agreement where both ML-KEM and X25519 shares MUST complete before either is used. Log all hybrid exchange failures for security monitoring. | A hybrid scheme that falls back to classical-only is not hybrid security -- it is classical security with extra latency. The adversary's incentive is exactly to induce the fallback condition. Any PQC migration must follow the principle: both or nothing. Ratcheted protocols (like Signal's PQXDH) provide a better model. |
+
+### War Story 5: Threshold Share Reuse After Committee Rotation
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Over six months, an attacker who slowly compromises one party per month eventually reconstructs the full private key. Each compromise reveals only one share, but across epochs the attacker accumulates t-of-n shares. | The threshold signing scheme reuses the same secret shares across committee rotations. While the identity of committee members changes, the underlying shares remain unchanged. An adversary who compromises one party each rotation over N rotations eventually collects t shares. | Implement proactive secret sharing with Herzberg's dynamic scheme: after each committee rotation, generate fresh shares via distributed re-sharing. Use the FROST key resharing protocol that produces combinatorially independent shares. Verify share freshness before each signing round. | Threshold signing committees require proactive security: fresh shares after each rotation. Reusing shares across epochs creates a time-accumulation attack surface. An adversary doesn't need t parties simultaneously -- they just need them over time. Share freshness verification must be part of every signing round's preconditions. |
+
+### War Story 6: Constant-Time Violation in MPC Implementation
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Timing analysis of an MPC node reveals secret-dependent execution time. Statistical analysis over 10K queries reconstructs secret shares from timing variation of 0.5 microseconds. | The MPC implementation uses an if-statement on a secret-shared value to select between computation paths. While the if-condition is computed on secret data, the branch selection leaks one bit of information per conditional through timing. | Use oblivious selection (cmov, conditional swap) for all secret-dependent branching. Verify constant-time at the assembly/LLVM IR level using ctgrind or dataflow analysis. Add fuzz testing that measures execution time variance across all input combinations. | Constant-time is not optional in MPC. Every conditional branch on secret data creates a timing side channel that accumulates across protocol rounds. A single if-statement leaking 1 bit per round, over 10K rounds, reconstructs a 256-bit secret. Memory-safe languages help but do not guarantee constant-time execution -- verification must be at the instruction level. |
+
+<!-- STANDARD: 3min -->
+## Operating at Different Levels
+
+Cryptographic engineering scales from library integration to novel protocol design based on organizational maturity and threat requirements.
+
+| Level | Crypto Engineer Output Characteristics |
+|---|---|
+| **L1 — Library integrator** | Uses libsodium, OpenSSL, or Web Crypto API for standard operations (encrypt, sign, hash). Knows which algorithms to use for which scenarios. |
+| **L2 — Protocol implementer** | Implements standard protocols from RFCs/NIST specs: TLS configuration, Noise framework handshakes, ECDH key exchange, JWT/JWE token crypto. |
+| **L3 — Cryptographic architect** | Designs custom protocols with formal security models. Selects curves, proof systems, and parameters. Writes security proofs or delegates to specialists. |
+| **L4 — Advanced cryptographer** | Deploys MPC, FHE, or ZKP in production. Designs threshold schemes (FROST, GG20). Manages PQC migration and crypto agility layers. |
+| **L5 — Novel cryptographer** | Publishes new constructions, breaks existing ones, contributes to NIST/IRTF standards. Designs next-generation primitives and protocols. |
+
+**Usage**: Say "at L2, implement TLS 1.3 with these parameters..." or calibrate by security requirements. Default: **L2** (protocol implementation).
+## Production Readiness Checklist
+
+| # | Item | Ref |
+|---|------|-----|
+| CR1 | All cryptographic primitives use formally verified implementations (HACL*, libsodium, or vendor-verified libraries) | [V1] |
+| CR2 | Keys managed via HSM or KMS with full audit trail. No keys in source code, env vars, or config files | [V2] |
+| CR3 | Entropy validated per NIST SP 800-90B. Multiple independent entropy sources for key ceremonies | [V3] |
+| CR4 | Constant-time verified at instruction level (ctgrind, dataflow analysis). No secret-dependent branching | [V4] |
+| CR5 | FHE bootstrapping budget calculated with 30% safety margin. Noise monitoring with early warning | [V5] |
+| CR6 | MPC protocol security model matches deployment threat model (dishonest vs honest majority verified) | [V6] |
+| CR7 | TEE attestation chain fully validated (PCK certificate chain, TCB status, CRL check) | [V7] |
+| CR8 | PQC hybrid mode fails closed. No classical-only fallback on PQC failure | [V8] |
+| CR9 | Threshold shares refreshed after each committee rotation. Proactive security with Herzberg scheme | [V9] |
+| CR10 | Cryptographic agility layer implemented: algorithm registry, protocol negotiation, downgrade prevention | [V10] |
+| CR11 | Security proofs documented and externally reviewable (ProVerif/Tamarin/EasyCrypt logs) | [V11] |
+| CR12 | Incident response plan for cryptanalytic breakthrough: impact assessment, migration triggers, communication plan | [V12] |
+| CR13 | Side-channel analysis completed: timing, power, cache-timing, electromagnetic for TEE environments | [V13] |
+| CR14 | Library update monitoring automated: CVE tracking, dependency scanning, update testing pipeline | [V14] |
+| CR15 | Key lifecycle documented: generation, distribution, rotation, revocation, destruction with attestation | [V15] |
+
+<!-- STANDARD: 3min -->
 ## Cross-Skill Coordination
-- **security-engineer:** Threat model handoff
-- **zkp-engineer:** ZKP primitive integration
-- **smart-contract-auditor:** On-chain crypto audit
-- **compliance-officer:** FIPS/CC certification requirements
 
-## Proactive Triggers
-- "encrypt this data" → Ask: at rest or in transit? What threat model?
-- "use AES" → Ask: Why not a safer AEAD like ChaCha20-Poly1305?
-- "it's secure enough" → Challenge: By what standard? Against what attacker?
+| Upstream Skill | What You Receive | When to Involve |
+|-----------|-------|---------|
+| **Upstream:** | `security-engineer` | Threat model, asset inventory, trust boundaries, security parameter requirements |
+| **Upstream:** | `system-architect` | System boundaries, integration patterns, deployment topology, trust model |
+| **Upstream:** | `backend-developer` | API contracts, data flow, key storage integration, application-level crypto integration |
+| **Downstream** | `zkp-engineer` | Cryptographic primitives, proof system security, trusted setup parameters, circuit constraints |
+| **Downstream** | `smart-contract-auditor` | On-chain crypto verification, signature scheme audit, verifier contract security |
+| **Downstream** | `compliance-officer` | FIPS 140-3/Common Criteria certification requirements, audit evidence collection |
 
+<!-- QUICK: 30s -->
+## Deliberate Practice
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Implement standard crypto operations from RFCs against test vectors. Compare your output to libsodium | Weekly |
+| **Competent** | Break (intentionally) weakened crypto: reduced-round AES, small-prime RSA, short-nonce GCM. Use Cryptopals challenges | Monthly |
+| **Expert** | Implement a novel protocol from a recent paper (e.g., a new MPC construction from CRYPTO 2024). Identify where the proof assumptions break in practice | Quarterly |
+| **Master** | Find and responsibly disclose a vulnerability in a production cryptographic library or protocol. Contribute a fix upstream | Annually |
+
+**The One Highest-Leverage Activity:** Run the Wycheproof test suite against every crypto library you use. Document which tests pass and which fail. The gap between what the library claims and what it actually handles is where production bugs live.
 
 ## State Log
 
-This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+This skill maintains a **decision ledger** to prevent context drift across sessions. Every major architectural choice, parameter decision, and trade-off must be recorded.
 
 ### How the State Log Works
-<!-- AGENT: Read this before starting work, update after each phase -->
 
-1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior decisions. Summarize the 3 most recent in your first response.
 2. **After each major decision:** Append to the ledger:
    ```json
    {
      "timestamp": "ISO-8601",
      "skill": "cryptographic-engineer",
-     "phase": "Phase 3: Implementation",
-     "decision": "What was decided",
+     "phase": "Phase 3: Protocol Design",
+     "decision": "What was chosen (algorithm, key size, curve)",
      "rationale": "Why this choice over alternatives",
-     "constraints": ["constraint-1", "constraint-2"],
+     "constraints": ["FIPS 140-3 required", "Must run on mobile"],
      "alternatives_considered": ["alt-1", "alt-2"],
-     "reversible": true
+     "reversible": false
    }
    ```
-3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
-4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
-
-### State Log Schema
-
-| Field | Purpose | Example |
-|-------|---------|---------|
-| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
-| `skill` | Which skill made it | `"backend-developer"` |
-| `phase` | Which workflow phase | `"Phase 3: API Design"` |
-| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
-| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
-| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
-| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
-| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+3. **Before completing work:** Verify all major decisions are recorded. A "major decision" is anything that, if changed, would require key rotation or protocol renegotiation.
+4. **On context recovery:** Read the last 5 entries before proposing changes.
 
 ### Anti-Drift Check
-<!-- AGENT: Run this check at the start of each new phase -->
 
-Before beginning a new phase, verify:
+Before beginning a new phase:
 - [ ] Have I read the state log from the previous session?
 - [ ] Do any prior decisions constrain what I'm about to do?
-- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
-- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
+- [ ] Would my proposed change require key rotation?
+- [ ] If I'm contradicting a prior decision, have I documented WHY?
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| NIST announces a new PQC standard or deprecates an existing algorithm | Audit crypto inventory for affected algorithms. Estimate migration timeline. Draft a PQC migration update within 2 weeks | PQC transitions take 3-5 years in large organizations |
+| CVE published for a cryptographic library you depend on | Assess impact within 24 hours. If CVSS >= 7.0, initiate emergency patch cycle | Crypto CVEs often enable complete compromise; the exploitation window is shrinking |
+| Academic paper demonstrates practical attack on a primitive you use | Initiate deprecation timeline within 1 week. The primitive's security margin is gone | Attack improvements are monotonic — today's academic attack is tomorrow's script-kiddie tool |
+| Key ceremony scheduled for production deployment | Pre-ceremony checklist: entropy source health verified, HSM firmware updated, participants trained, backup procedures documented | Failed ceremonies erode organizational trust and can delay deployment by months |
+| Cryptographic bill or regulation proposed | Legal risk assessment within 2 weeks. Model impact on product architecture. Engage legal-advisor and regulatory-specialist | Regulatory changes can make current architectures non-compliant overnight |
 
 ## What Good Looks Like
-All crypto uses AEAD or stronger. Keys managed via KMS/HSM with audit trail. PQC migration plan documented and funded. Every implementation has a security proof or references one.
 
-## Deliberate Practice
-Implement a simplified MPC protocol for 3-party addition. Migrate a toy RSA-based system to ML-KEM-1024. Design and execute a 3-of-5 threshold ECDSA key ceremony. Port a Circom circuit to Noir.
+The output of a cryptographic engineering engagement is:
 
+- **Protocol specification** with formal security model, parameter selection rationale, and proof references
+- **Implementation** using verified libraries, passing all test vectors, with constant-time verification
+- **Key ceremony documentation** with entropy validation, participant attestations, and HSM audit logs
+- **TEE attestation pipeline** with full certificate chain validation, TCB monitoring, and CRL management
+- **PQC migration plan** with crypto inventory, hybrid deployment strategy, and timeline with failure triggers
+- **Cryptographic agility layer** with algorithm registry, downgrade prevention, and migration automation
+
+All cryptographic operations use AEAD or stronger. Keys are managed via KMS/HSM with audit trail. PQC migration plan is documented and funded. Every implementation has a security proof or references a published proof.
+
+<!-- STANDARD: 3min -->
+## Verification Guardrails
+
+- [ ] All cryptographic operations use AEAD or stronger (no CBC, no ECB, no unauthenticated modes)
+- [ ] Keys managed via KMS/HSM with audit trail; no keys in source code, config files, or environment variables
+- [ ] Constant-time verification: critical comparison operations pass `dudect` or equivalent TVLA
+- [ ] Test vectors: NIST CAVP or Wycheproof test vectors pass for all implemented algorithms
+- [ ] PQC migration plan documented with algorithm inventory, hybrid deployment strategy, and hard migration date
+- [ ] Side-channel assessment completed: timing, cache-timing, and (for TEE) electromagnetic analysis
+- [ ] Key ceremony documentation: participant attestations, entropy validation, backup share verification
+- [ ] Every cryptographic decision recorded in the State Log with rationale and alternatives considered
+
+
+<!-- STANDARD: 3min -->
 ## References
-See Section 17 (References) for canonical references and the references/ directory for deep-dive reference files.
 
-## 1. Overview
-
-This skill covers production-grade implementation of advanced cryptographic primitives beyond standard encryption: **Multi-Party Computation (MPC)**, **Fully Homomorphic Encryption (FHE)**, **Threshold Signatures**, **Trusted Execution Environments (TEE)**, **Post-Quantum Cryptography (PQC)**, and **Key Management Ceremonies**. Each domain requires deep understanding of mathematical foundations, protocol security models, side-channel resistance, and operational deployment patterns.
-
-**When to invoke this skill:** You are implementing any of the above primitives in a production system handling financial transactions, custody, confidential computing, or long-term secrecy. This skill provides decision frameworks, reference implementations, and security hardening guidance that basic crypto libraries do not cover.
-
-**When NOT to invoke:** Basic AES-GCM/ChaCha20-Poly1305 encryption, TLS termination, password hashing with Argon2id, or smart contract-level cryptography — those belong to `security-engineer`, `devops-engineer`, `backend-developer`, `zkp-engineer`, or `smart-contract-auditor`.
-
-**Core libraries covered:**
-| Domain | Libraries & Frameworks |
-|--------|----------------------|
-| MPC | MP-SPDZ (40+ protocols), SCALE-MAMBA, EMP-toolkit, libsnark |
-| FHE | Google HEIR, Zama Concrete (TFHE), Microsoft SEAL (CKKS/BFV), OpenFHE, HElib |
-| Threshold Signatures | FROST (Zcash foundation), BLS (herumi/bls), GG20/GG18 (Binance tss-lib) |
-| TEE | Intel SGX SDK/DCAP, AMD SEV-SNP, AWS Nitro SDK, ARM CCA veraison |
-| PQC | liboqs (Open Quantum Safe), pqcrypto-py, BoringSSL PQ, NIST ref impls |
-| Key Management | PKCS#11 (SoftHSM2/OpenSC), Hashicorp Vault, AWS KMS, Google Cloud KMS |
-
-**Security model assumptions by domain:**
-- **MPC:** Up to `t` corrupt parties (honest/dishonest majority), static vs adaptive corruption
-- **FHE:** IND-CPA security (no chosen-ciphertext attacks possible by construction), circuit privacy for output
-- **Threshold Signatures:** Unforgeability under `t-1` corruptions, robustness (identifiable aborts)
-- **TEE:** Hardware root of trust, side-channel resistance at microarchitectural level
-- **PQC:** Quantum attacker with polynomial-time access to a CRQC (cryptographically relevant quantum computer)
-
----
-
-## 2. Decision Tree: MPC Protocol Selection
-
-Choose your MPC protocol stack based on the adversary model and computation type. The wrong choice can mean $1M+ in unnecessary overhead or insufficient security.
-
-```
-┌── MPC Protocol Selection ──────────────────────────────────────┐
-│                                                                 │
-│  How many corrupt parties can you tolerate?                     │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │ t < n/2 (honest majority)?                                │  │
-│  │  ├─ Reactive computation needed? ─► SPDZ (online phase)   │  │
-│  │  │  └─ Low latency < 100ms? ─► Replicated Secret Sharing  │  │
-│  │  │     (3-party, dishonest minority, 1 corrupt)           │  │
-│  │  └─ Non-reactive (batch)? ─► BGW/GMW with Shamir shares   │  │
-│  │     └─ Boolean circuits? ─► GMW with OT extension         │  │
-│  │        └─ Arithmetic circuits? ─► BGW (Shamir-based)      │  │
-│  │                                                           │  │
-│  │ t < n (dishonest majority)?                                │  │
-│  │  ├─ Need preprocessing? ─► SPDZ-like (MASCOT/Overdrive)   │  │
-│  │  │  ├─ Function-independent preprocessing ─► MASCOT       │  │
-│  │  │  └─ Function-dependent preprocessing ─► SPDZ2k         │  │
-│  │  └─ Garbled circuits sufficient? ─► Yao with OT           │  │
-│  │     └─ Malicious security? ─► Authenticated garbling      │  │
-│  │        (WRK/Wang-Katz, ~2x overhead vs semi-honest)       │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  Protocol selection matrix (n=3, varied t):                     │
-│  ┌─────────────────────┬──────────┬────────────┬─────────────┐  │
-│  │ Protocol            │ Security │ Throughput │ Round-trips │  │
-│  ├─────────────────────┼──────────┼────────────┼─────────────┤  │
-│  │ Replicated (3PC)    │ 1 corrupt│ 10M AND/s  │ 1 (online)  │  │
-│  │ Shamir (BGW)        │ t < n/2  │ 1M mult/s  │ O(depth)    │  │
-│  │ SPDZ (MASCOT)       │ n-1 corr │ 100K mult/s│ 1 online    │  │
-│  │ Yao (semi-honest)   │ 1 corrupt│ 1M gates/s │ 2           │  │
-│  │ Yao (malicious)     │ 1 corrupt│ 500K gate/s│ 2           │  │
-│  │ GMW (OT-based)      │ 1 corrupt│ 500K AND/s │ O(depth)    │  │
-│  └─────────────────────┴──────────┴────────────┴─────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Implementation with MP-SPDZ (Python DSL):**
-```python
-# MP-SPDZ example: Secure inner product with malicious security
-# Compile: ./compile.py -R 64 inner_product
-# Run: Scripts/2-party-malicious.sh inner_product
-
-from Compiler import mpc_math, util
-
-def inner_product(x, y, n):
-    """Compute dot(x, y) with active security against n-1 corruptions"""
-    res = sint(0)
-    @for_range(n)
-    def _(i):
-        res += x[i] * y[i]
-    return res
-
-x = [sint.get_input_from(0) for _ in range(10)]
-y = [sint.get_input_from(1) for _ in range(10)]
-result = inner_product(x, y, 10)
-print_ln("Inner product: %s", result.reveal())
-```
-
-**Key decision factors:**
-- **Round complexity:** FHE-based MPC (1 round) vs OT-based (O(depth)) — latency-sensitive apps need constant-round
-- **Corruption threshold:** Dishonest majority requires SPDZ-like preprocessing (10-100x overhead vs honest majority)
-- **Circuit type:** Arithmetic circuits (Shamir/BGW) are 100x faster for numeric computation than Boolean (GMW/Yao)
-- **Setup assumptions:** CRS model (SPDZ) vs plain model (BGW, replicated) — CRS adds trusted setup risk
-
----
-
-## 3. Decision Tree: FHE Scheme Selection
-
-FHE scheme choice depends on the computation type. Wrong scheme = silent correctness failure or $500K+ calculation errors.
-
-```
-┌── FHE Scheme Selection ────────────────────────────────────────┐
-│                                                                 │
-│  What are you computing on encrypted data?                      │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │ Bitwise operations (comparisons, branching)?               │  │
-│  │  └─► TFHE (Concrete/OpenFHE) — ~50ms/op, programmable     │  │
-│  │     bootstrapping at each gate, latency-optimized          │  │
-│  │                                                           │  │
-│  │ Approximate real numbers (ML inference, stats)?            │  │
-│  │  └─► CKKS (SEAL/OpenFHE) — SIMD batch (up to 32K slots),  │  │
-│  │     approximate arithmetic, rescaling after each mult      │  │
-│  │     ⚠ NEVER use for exact equality or integer division     │  │
-│  │                                                           │  │
-│  │ Exact integer arithmetic (financial, voting)?              │  │
-│  │  ├─ BGV (HElib/OpenFHE) — exact integers, modulus chain    │  │
-│  │  │  for level management, SIMD packing via CRT             │  │
-│  │  └─ BFV (SEAL/OpenFHE) — exact integers, scale-invariant,  │  │
-│  │     simpler noise management, good for small integers      │  │
-│  │                                                           │  │
-│  │ Multi-scheme pipeline (pre-process + compute)?             │  │
-│  │  └─► HEIR compiler — IR-based, supports TFHE→CKKS→BGV      │  │
-│  │     lowering, automatic scheme selection per operation     │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  Scheme comparison matrix:                                       │
-│  ┌──────────┬──────────┬──────────┬─────────┬──────────────┐    │
-│  │ Scheme   │ Data Type│ SIMD     │ Bootstr │ Best For      │    │
-│  ├──────────┼──────────┼──────────┼─────────┼──────────────┤    │
-│  │ TFHE     │ Bits     │ No       │ Gate-lvl│ Comparisons   │    │
-│  │ CKKS     │ Complex  │ 32K slot │ Level   │ ML inference  │    │
-│  │ BGV      │ Integers │ CRT pack │ Mod-sw  │ Exact arith   │    │
-│  │ BFV      │ Integers │ CRT pack │ Scale   │ Fixed-point   │    │
-│  └──────────┴──────────┴──────────┴─────────┴──────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**CKKS example (SEAL C++):**
-```cpp
-// Microsoft SEAL: Encrypted logistic regression inference
-EncryptionParameters parms(scheme_type::ckks);
-size_t poly_modulus_degree = 32768;  // 2^15 for 128-bit security
-parms.set_poly_modulus_degree(poly_modulus_degree);
-parms.set_coeff_modulus(CoeffModulus::Create(poly_modulus_degree, {60, 40, 40, 60}));
-SEALContext context(parms);
-
-// Pack 8192 features into one ciphertext via SIMD
-Plaintext weights;
-encoder.encode(weight_vector, scale, weights);
-Ciphertext encrypted_result;
-evaluator.multiply_plain(encrypted_input, weights, encrypted_result);
-evaluator.relinearize_inplace(encrypted_result, relin_keys);
-evaluator.rescale_to_next_inplace(encrypted_result);  // ⚠ CRITICAL: rescale after each mult
-```
-
-**Bootstrapping budget tracking:**
-```python
-# Level budget analysis for CKKS pipeline
-# Each multiplication consumes one level; bootstrapping resets levels
-initial_levels = 12    # From coeff_modulus chain
-ops = [
-    ("multiply", 1), ("rotate", 0), ("multiply", 1),  # Level 12 → 10
-    ("bootstrap", 0),                                   # Reset to top
-    ("multiply", 1), ("multiply", 1),                   # Level 12 → 10
-]
-remaining = initial_levels
-for op, cost in ops:
-    if op == "bootstrap":
-        remaining = initial_levels  # ⚠ Bootstrapping cost: ~10s per ciphertext
-    else:
-        remaining -= cost
-    assert remaining >= 0, f"Level budget exhausted at {op} — $200K+ data corruption risk"
-```
-
----
-
-## 4. Decision Tree: Threshold Signature Architecture
-
-```
-┌── Threshold Signature Architecture ─────────────────────────────┐
-│                                                                 │
-│  Requirements analysis:                                          │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │ Need non-interactive signing (no co-signer coordination)?  │  │
-│  │  └─► BLS Threshold — single-round, aggregatable, but      │  │
-│  │     requires pairing-friendly curve (BLS12-381, BN254)     │  │
-│  │     ⚠ Keygen requires DKG (distributed key generation)     │  │
-│  │                                                           │  │
-│  │ Need identifiable aborts (know which party refused)?       │  │
-│  │  └─► FROST (Schnorr) — 2-round signing, identifies        │  │
-│  │     misbehaving signers, compatible with standard Schnorr  │  │
-│  │     ⚠ Interactive: all signers must participate round 1    │  │
-│  │                                                           │  │
-│  │ Need ECDSA compatibility (Bitcoin/Ethereum)?               │  │
-│  │  └─► GG20/GG18/CGGMP — multi-round, supports secp256k1    │  │
-│  │     ⚠ 5+ rounds, higher latency, Paillier ZK required      │  │
-│  │                                                           │  │
-│  │ Need committee rotation without re-keying?                 │  │
-│  │  └─► Proactive secret sharing with key resharing          │  │
-│  │     (Herzberg dynamic proactive scheme)                    │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  Protocol comparison:                                            │
-│  ┌──────────┬──────────┬──────────┬──────────┬──────────────┐   │
-│  │ Protocol │ Rounds   │ Curve    │ Size     │ Abort ID     │   │
-│  ├──────────┼──────────┼──────────┼──────────┼──────────────┤   │
-│  │ FROST    │ 2        │ secp256k1│ 64B sig  │ Yes          │   │
-│  │ BLS      │ 1 (non-i)│ BLS12-381│ 96B sig  │ No           │   │
-│  │ GG20     │ 5-7      │ secp256k1│ 64B sig  │ Yes          │   │
-│  │ CGGMP    │ 4-6      │ secp256k1│ 64B sig  │ Yes          │   │
-│  └──────────┴──────────┴──────────┴──────────┴──────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**FROST threshold signing (Rust):**
-```rust
-// frost-secp256k1: t-of-n Schnorr threshold signature
-use frost_secp256k1 as frost;
-use rand::thread_rng;
-
-// Round 1: Each signer generates nonces and commitments
-let mut rng = thread_rng();
-let (secret_package, round1_package) = frost::keys::KeyPackage::try_from(participant_secret)
-    .unwrap()
-    .new_nonce(&mut rng)
-    .unwrap();
-
-// Coordinator aggregates commitments
-let signing_package = frost::SigningPackage::new(round1_packages, message);
-
-// Round 2: Each signer produces signature share
-let signature_share = frost::sign(&signing_package, &secret_package, &round1_package)
-    .map_err(|e| IdentifiableAbort::from(e))?;  // ← identifiable abort
-
-// Coordinator aggregates shares into final Schnorr signature
-let group_signature = frost::aggregate(&signing_package, &signature_shares, &group_public_key)
-    .unwrap();
-verify(&group_public_key, message, &group_signature);  // Standard Schnorr verify
-```
-
-**BLS threshold aggregation (no signer interaction):**
-```python
-# Each party signs locally; aggregator combines
-from py_ecc.bls import G2ProofOfPossession as bls
-
-# Party i signs with its key share (no coordination needed)
-sig_share_i = bls.Sign(sk_share_i, message)
-
-# Aggregator: combine t shares via Lagrange interpolation
-aggregated_sig = bls.Aggregate(sig_shares)  # O(n) aggregation, constant-size result
-
-# Verify: PK is group public key (reconstructed from shares)
-bls.Verify(group_pk, message, aggregated_sig)  # True if >= t honest signers
-```
-
----
-
-## 5. Decision Tree: TEE Platform Selection
-
-```
-┌── TEE Platform Selection ───────────────────────────────────────┐
-│                                                                  │
-│  Workload characterization:                                      │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │ Application-level enclave (isolated process within VM)?     │  │
-│  │  ├─ Intel SGX (TDX for full VM) — 256MB EPC, DCAP v4       │  │
-│  │  └─ AWS Nitro Enclaves — full Linux VM, vsock comms        │  │
-│  │                                                             │  │
-│  │ Full VM confidential computing (lift-and-shift)?            │  │
-│  │  ├─ AMD SEV-SNP — encrypted VM state, VCEK attestation     │  │
-│  │  ├─ Intel TDX — full VM TEE, MRTD measurement, 1TB max     │  │
-│  │  └─ ARM CCA Realm — hardware-enforced, RMM firmware        │  │
-│  │                                                             │  │
-│  │ Multi-cloud portability requirement?                        │  │
-│  │  └─ Enarx (Wasm-based), K8s Confidential Containers (CoCo) │  │
-│  └────────────────────────────────────────────────────────────┘  │
-│                                                                  │
-│  Platform comparison:                                            │
-│  ┌──────────┬──────────┬────────────┬──────────┬─────────────┐   │
-│  │ Platform │ Enclave  │ Attestation│ Memory   │ Cloud       │   │
-│  ├──────────┼──────────┼────────────┼──────────┼─────────────┤   │
-│  │ SGX DCAP │ Process  │ ECDSA/DCAP │ 256MB    │ Azure/Ali   │   │
-│  │ SEV-SNP  │ Full VM  │ VCEK cert  │ 4TB+     │ AWS/GCP/Az  │   │
-│  │ Nitro    │ VM (nop) │ PCR-based  │ Config   │ AWS only    │   │
-│  │ TDX      │ Full VM  │ DCAP ext   │ 1TB      │ Azure/GCP   │   │
-│  │ ARM CCA  │ VM Realm │ CCA token  │ Config   │ Emerging    │   │
-│  └──────────┴──────────┴────────────┴──────────┴─────────────┘   │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-**AWS Nitro Enclaves attestation (Rust):**
-```rust
-// Nitro Secure Module (NSM) API for cryptographic attestation
-use nsm_lib::{Request, Response, Digest};
-
-let request = Request::Attestation {
-    public_key: Some(&signing_key.public_bytes()),
-    user_data: Some(pcr_binding_hash),   // Bind to specific PCR values
-    nonce: Some(&random_nonce),           // Prevents replay attacks
-};
-
-let nsm_fd = nsm_lib::nsm_lib_init();
-let response = nsm_lib::nsm_send_request(nsm_fd, &request)
-    .expect("NSM attestation failed");
-
-// Verify: Document -> AWS Public Cert -> AWS Root CA
-let attestation_doc = parse_cbor(&response.attestation_document);
-verify_aws_certificate_chain(&attestation_doc.cabundle)
-    .map_err(|_| "CRITICAL: Chain validation skipped")?;
-
-assert_eq!(attestation_doc.pcrs[0], expected_enclave_image_hash);
-```
-
-**Intel SGX DCAP quote verification (C++):**
-```cpp
-// SGX DCAP v4: Quote verification with collateral
-sgx_ql_qe_report_info_t qve_report_info;
-sgx_quote3_t *p_quote = (sgx_quote3_t *)quote_buffer;
-
-// Get PCK cert chain, TCB info, QE identity
-tee_supplicant_get_collateral(&p_quote->certification_data, &collateral);
-
-quote3_error_t ret = sgx_qv_verify_quote(
-    p_quote, quote_size, &collateral, current_time,
-    &verification_result,
-    supplemental_data_size > 0  // LVI/MMIO mitigation status
-);
-
-// Non-trivial: must check isv_enclave_report_status != QV_RESULT_OK
-if (verification_result.isv_enclave_report_status != SGX_QL_QV_RESULT_OK) {
-    report_error("Enclave identity mismatch or revoked TCB");
-}
-```
-
----
-
-## 6. Decision Tree: Post-Quantum Migration Path
-
-```
-┌── PQC Migration Path ───────────────────────────────────────────┐
-│                                                                  │
-│  Phase 1: Crypto Inventory                                      │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │ 1. Scan all TLS endpoints (cipher suite enumeration)      │   │
-│  │ 2. Map key exchange: RSA/ECDH -> which systems?           │   │
-│  │ 3. Map signatures: RSA-PSS/ECDSA -> which certificates?   │   │
-│  │ 4. Classify: harvest-now-decrypt-later risk assessment    │   │
-│  │ 5. Identify long-lived secrets (>10yr confidentiality)    │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                                                                  │
-│  Phase 2: Hybrid Deployment                                     │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │ X.509 hybrid certificates: ECDSA + ML-DSA-87 signature    │   │
-│  │ TLS 1.3 hybrid: X25519 + ML-KEM-768 key agreement         │   │
-│  │ Dual computation: key_material = KDF(ecdh || mlkem)       │   │
-│  │ ⚠ CRITICAL: Both MUST succeed — fallback = attack vector  │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                                                                  │
-│  Phase 3: Full PQC (NIST standards)                              │
-│  ┌──────────┬──────────────┬──────────────┬─────────────────┐   │
-│  │ Algorithm│ Standard     │ Use Case     │ Key/Sig Size    │   │
-│  ├──────────┼──────────────┼──────────────┼─────────────────┤   │
-│  │ ML-KEM   │ FIPS 203     │ Key encap    │ 768-1184 bytes  │   │
-│  │ ML-DSA   │ FIPS 204     │ Signatures   │ 2420-4627 bytes │   │
-│  │ SLH-DSA  │ FIPS 205     │ Backup sig   │ 7856-49856 bytes│   │
-│  │ XMSS/LMS │ NIST SP 800  │ Code signing │ ~2.5KB per key  │   │
-│  └──────────┴──────────────┴──────────────┴─────────────────┘   │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-**Hybrid key exchange with liboqs (C):**
-```c
-// liboqs: Classical + PQC hybrid KEM
-#include <oqs/oqs.h>
-
-// Classical: X25519 ECDH
-uint8_t ecdh_public[32], ecdh_secret[32];
-X25519(ecdh_public, ecdh_secret, basepoint);
-
-// PQC: ML-KEM-768 key encapsulation
-OQS_KEM *kem = OQS_KEM_new(OQS_KEM_alg_ml_kem_768);
-uint8_t mlkem_public[1184], mlkem_secret[2400], mlkem_ciphertext[1088];
-OQS_KEM_keypair(kem, mlkem_public, mlkem_secret);
-
-// HYBRID: Concatenate then KDF (both MUST succeed)
-uint8_t combined[32 + 32];  // ECDH shared || ML-KEM shared
-memcpy(combined, ecdh_shared, 32);
-memcpy(combined + 32, mlkem_shared, 32);
-HKDF_SHA256(combined, 64, NULL, 0, final_key, 32);
-
-OQS_KEM_free(kem);
-// NEVER fall back to classical-only if PQC fails — fail closed!
-```
-
----
-
-## 7. Decision Tree: Key Ceremony Design
-
-```
-┌── Key Ceremony Design ─────────────────────────────────────────┐
-│                                                                │
-│  What is the threat model for key material?                     │
-│  ┌────────────────────────────────────────────────────────┐    │
-│  │ Treasury/custody ($100M+)?                               │    │
-│  │  └─ HSM quorum (n-of-m) + Shamir backup + air-gapped    │    │
-│  │     ceremony with video audit + tamper-evident seals     │    │
-│  │                                                         │    │
-│  │ Decentralized protocol (DAOs, bridges)?                  │    │
-│  │  └─ MPC-based ceremony (no single point of compromise)  │    │
-│  │     + Verifiable Secret Sharing (Feldman VSS)            │    │
-│  │                                                         │    │
-│  │ Enterprise PKI (short-lived keys < 90d)?                 │    │
-│  │  └─ HSM-backed CA with offline root + online issuing    │    │
-│  │     + TEE for key protection during signing              │    │
-│  │                                                         │    │
-│  │ Crypto exchange wallet?                                  │    │
-│  │  └─ Threshold ECDSA (GG20) with geographic distribution │    │
-│  │     + Proactive refresh every 30-90 days                 │    │
-│  └────────────────────────────────────────────────────────┘    │
-│                                                                │
-│  Ceremony checklist (air-gapped HSM ceremony):                  │
-│  1. Entropy sourcing: hardware RNG + dice rolls (mix via KDF)  │
-│  2. Shamir splitting: t-of-n, verifiable shares (Feldman)       │
-│  3. Share distribution: tamper-evident envelopes, chain-of-custody│
-│  4. Ceremony recording: dual video, witness log, GPS timestamp │
-│  5. Verification: reconstruct pubkey from each subset, test sig│
-│  6. Share custody: safe deposit boxes, geographic distribution │
-│  7. Emergency recovery: documented procedure, quorum call-list  │
-└────────────────────────────────────────────────────────────────┘
-```
-
-**Feldman Verifiable Secret Sharing (Rust):**
-```rust
-// Verifiable Shamir sharing: shares can be verified without reconstruction
-use curv::elliptic::curves::{Secp256k1, Point};
-use curv::BigInt;
-
-struct FeldmanVSS {
-    n: usize,             // Total shares
-    t: usize,             // Threshold
-    generator: Point<Secp256k1>,
-}
-
-impl FeldmanVSS {
-    fn split(&self, secret: &BigInt) -> (Vec<BigInt>, Vec<Point<Secp256k1>>) {
-        // f(x) = secret + a1*x + a2*x^2 + ... + at*x^t mod q
-        let coeffs = self.generate_polynomial(secret, self.t);
-        let shares: Vec<_> = (1..=self.n)
-            .map(|i| self.evaluate(&coeffs, BigInt::from(i)))
-            .collect();
-        // Commitments: A_j = g^a_j for verification
-        let commitments: Vec<_> = coeffs.iter()
-            .map(|c| self.generator.clone() * c)
-            .collect();
-        (shares, commitments)
-    }
-
-    fn verify_share(&self, share: &BigInt, index: usize,
-                    commitments: &[Point<Secp256k1>]) -> bool {
-        let lhs = self.generator.clone() * share;
-        let mut rhs = commitments[0].clone();
-        let x = BigInt::from(index + 1);
-        for j in 1..commitments.len() {
-            rhs = rhs + commitments[j].clone() * x.pow(j as u32);
-        }
-        lhs == rhs  // g^f(i) == prod A_j^{i^j}
-    }
-}
-```
-
----
-
-## 8. MPC Implementation Patterns
-
-### 8.1 Shamir Secret Sharing (Python reference)
-
-```python
-from secrets import randbelow
-from dataclasses import dataclass
-
-# Prime field (secp256k1 order as example)
-P = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-
-@dataclass
-class ShamirShare:
-    x: int  # Evaluation point
-    y: int  # f(x) mod P
-
-def share_secret(secret: int, t: int, n: int) -> list[ShamirShare]:
-    """t-of-n Shamir sharing: create n shares, any t can reconstruct"""
-    coeffs = [secret] + [randbelow(P) for _ in range(t - 1)]
-    shares = []
-    for i in range(1, n + 1):
-        y = sum(c * pow(i, j, P) for j, c in enumerate(coeffs)) % P
-        shares.append(ShamirShare(i, y))
-    return shares
-
-def reconstruct(shares: list[ShamirShare]) -> int:
-    """Lagrange interpolation at x=0 to recover secret"""
-    secret = 0
-    for i, si in enumerate(shares):
-        num, den = 1, 1
-        for j, sj in enumerate(shares):
-            if i != j:
-                num = num * (0 - sj.x) % P
-                den = den * (si.x - sj.x) % P
-        lagrange_coeff = num * pow(den, -1, P) % P
-        secret = (secret + si.y * lagrange_coeff) % P
-    return secret
-```
-
-### 8.2 Garbled Circuits with Oblivious Transfer (Rust with mpz)
-
-```rust
-// Garbled circuit evaluation: Garbler encrypts circuit, Evaluator evaluates
-// Uses half-gates optimization (Zahur-Rosulek-Evans, Eurocrypt 2015)
-
-use mpz_core::{Block, GarbledCircuit};
-use mpz_ot::chou_orlandi::{Receiver as OTReceiver, Sender as OTSender};
-
-struct GarbledAndGate {
-    // Half-gate: 2 ciphertexts per AND gate (optimal)
-    garbler_half: [Block; 2],
-    evaluator_half: [Block; 2],
-}
-
-fn garble_and(a0: Block, a1: Block, b0: Block, b1: Block,
-              delta: Block) -> GarbledAndGate {
-    // Free-XOR: delta = global offset for wire label encoding
-    // Label encoding: W^0 = w, W^1 = w XOR delta
-    let t_g = H(a0) ^ H(a0 ^ delta) ^ (b0 & delta);  // Garbler half-gate
-    let t_e = H(b0) ^ H(b0 ^ delta) ^ a0;              // Evaluator half-gate
-    GarbledAndGate {
-        garbler_half: [t_g, t_g ^ a0],
-        evaluator_half: [t_e, t_e ^ b0],
-    }
-}
-// Total communication: 2 * 128 bits per AND gate (half-gates)
-```
-
-### 8.3 MPC Security Hardening Checklist
-- [ ] Constant-time comparisons in GMW inner loop (no early exit on branch)
-- [ ] Randomize gate evaluation order per execution (defeat timing correlation)
-- [ ] Use fresh OT correlations per session (never reuse OT precomputation)
-- [ ] Verify zero-knowledge proofs in SPDZ preprocessing phase
-- [ ] Rate-limit corrupt party detection (identifiable aborts leak correlation info)
-- [ ] Network padding: uniform message sizes regardless of computation path
-
----
-
-## 9. FHE Implementation Patterns
-
-### 9.1 TFHE Programmable Bootstrapping (Zama Concrete)
-
-```python
-# Concrete: TFHE with programmable bootstrapping
-# Each bootstrapping = refresh noise + evaluate lookup table (PBS)
-from concrete import fhe
-import numpy as np
-
-@fhe.compiler({"x": "encrypted", "y": "encrypted"})
-def encrypted_min(x, y):
-    """Compute min(x, y) with PBS at each comparison"""
-    # PBS evaluates: f(x-y) where f is a sign function
-    # Doing min with one PBS: min(x,y) = x if x <= y else y
-    return fhe.min(x, y)  # Single PBS for the sign test
-
-# Configuration for 128-bit security
-configuration = fhe.Configuration(
-    parameter_selection_strategy=fhe.ParameterSelectionStrategy.MULTI,
-    show_graph=True,  # Visualize PBS operations in circuit
-)
-
-inputset = [(np.random.randint(0, 100, size=()) for _ in range(2)) for _ in range(1000)]
-compiler = fhe.Compiler(encrypted_min, {"x": "encrypted", "y": "encrypted"})
-circuit = compiler.compile(inputset, configuration)
-
-# Circuit stats: bootstrappings, key sizes, noise budget
-print(f"PBS count: {circuit.programmable_bootstrap_count}")
-print(f"Key size: {circuit.size_of_secret_keys // 1024} KB")
-```
-
-### 9.2 CKKS Packing Strategy with SEAL
-
-```cpp
-// Optimal packing: encode multiple values into one ciphertext via SIMD
-// For logistic regression: pack feature vectors into single ciphertext
-std::vector<double> features(8192);
-encoder.encode(features, scale, plain_features);
-
-// ⚠ CRITICAL: Never compare CKKS values for equality
-// WRONG (silent failure, $500K+ error):
-//   if (enc_a == enc_b) { ... }  // CKKS is APPROXIMATE
-
-// CORRECT: Compare thresholded difference
-Ciphertext diff;
-evaluator.sub(enc_a, enc_b, diff);
-Plaintext threshold;
-encoder.encode(std::vector<double>(N, 1e-6), scale, threshold);
-// Bootstrapping-intensive comparison — consider BFV/BGV instead
-```
-
-### 9.3 HEIR Compiler Pipeline (Google)
-
-```python
-# HEIR: MLIR-based FHE compiler — automatic scheme selection
-# heir-opt --heir-scheme-lowering lower.mlir > lower_tfhe.mlir
-
-# Input: High-level MLIR describing encrypted computation
-# heir-opt lowers through:
-#   1. heir-scheme-lowering: FHE dialect -> TFHE/CKKS/BGV IR
-#   2. heir-bootstrap-placement: Insert bootstrapping operations
-#   3. heir-noise-analysis: Verify budget is not exceeded
-#   4. heir-codegen: Emit OpenFHE/Concrete/SEAL runtime code
-```
-
-**FHE performance optimization checklist:**
-- [ ] Pack independent values into SIMD slots (32K parallelism for CKKS)
-- [ ] Minimize bootstrap calls (< 50 per circuit for latency < 500ms)
-- [ ] Use leveled operations when possible (no bootstrap between linear layers)
-- [ ] Precompute plaintext constants as Plaintext (not encrypted)
-- [ ] Batch rotation keys: one key per rotation index, share across circuits
-
----
-
-## 10. Threshold Signature Implementation
-
-### 10.1 FROST Two-Round Signing Protocol
-
-```python
-# FROST Schnorr threshold: Round 1 (commitment) + Round 2 (sign)
-# From RFC 9591 (CFRG) — production-grade FROST specification
-from hashlib import sha256
-from dataclasses import dataclass, field
-from typing import List, Optional
-
-@dataclass
-class FrostSigner:
-    index: int
-    sk_share: int       # Secret key share
-    pk: int             # Group public key
-    t: int              # Threshold
-    n: int              # Total signers
-    
-    def round1_commit(self, msg: bytes) -> tuple:
-        """Generate hiding + binding nonce commitments"""
-        hiding_nonce = randbelow(P)
-        binding_nonce = randbelow(P)
-        # Commit_i = (g^hiding, g^binding)
-        hiding_commit = pow(G, hiding_nonce, P)
-        binding_commit = pow(G, binding_nonce, P)
-        return (hiding_commit, binding_commit), (hiding_nonce, binding_nonce)
-    
-    def round2_sign(self, msg: bytes, all_commits: dict,
-                    my_nonces: tuple) -> Optional[int]:
-        """Produce signature share with identifiable abort"""
-        hiding_nonce, binding_nonce = my_nonces
-        
-        # Aggregate commitments: R = prod(commit_i_hiding) * prod(commit_i_binding)^rho
-        group_commitment = aggregate_commitments(all_commits, msg)
-        
-        # Challenge: c = H(group_commitment, pk, msg)
-        c = int.from_bytes(sha256(group_commitment + str(pk).encode() + msg).digest(), 'big')
-        
-        # Binding factor rho_i = H(i, all_commits, msg)
-        rho_i = int.from_bytes(sha256(f"{self.index}{all_commits}{msg}".encode()).digest(), 'big')
-        
-        # Lagrange coefficient lambda_i = prod_{j!=i} j/(j-i) mod q
-        lambda_i = lagrange_coefficient([s for s in signers], self.index)
-        
-        # Signature share: z_i = hiding_nonce + binding_nonce*rho_i + lambda_i * sk_share * c
-        z_i = (hiding_nonce + binding_nonce * rho_i + lambda_i * self.sk_share * c) % P
-        return z_i
-
-def aggregate_frost(msg: bytes, group_commitment: int, sig_shares: dict,
-                    group_pk: int) -> bytes:
-    """Aggregate t signature shares into a standard Schnorr signature"""
-    # z = sum(z_i) mod q
-    z = sum(sig_shares.values()) % P
-    # (R, z) is a standard Schnorr signature verifiable against group_pk
-    signature = group_commitment.to_bytes(32, 'big') + z.to_bytes(32, 'big')
-    return signature
-```
-
-### 10.2 Proactive Key Resharing
-
-```python
-def proactive_reshare(old_shares: dict[int, int], t_old: int, t_new: int,
-                      n_new: int) -> dict[int, int]:
-    """Rotate committee without changing the group secret key.
-    
-    Each old shareholder i creates sub-shares of its share for the new committee.
-    New shareholder j sums weighted sub-shares from t_old old holders.
-    The group secret key remains identical — no key regeneration needed.
-    
-    Herzberg dynamic proactive scheme (CRYPTO 1995).
-    """
-    new_shares = {j: 0 for j in range(1, n_new + 1)}
-    
-    for i_old, old_share in old_shares.items():
-        # Old holder i: split its share into n_new sub-shares (threshold t_new)
-        sub_shares = share_secret(old_share, t_new, n_new)
-        for sub_share in sub_shares:
-            new_shares[sub_share.x] = (new_shares[sub_share.x] + sub_share.y) % P
-    
-    return new_shares  # Same secret, new committee — no key ceremony needed
-```
-
----
-
-## 11. TEE Attestation & Secure Enclave Patterns
-
-### 11.1 Remote Attestation Protocol
-
-```
-Enclave (Prover)                    Verifier (Relying Party)
-     |                                        |
-     |--- 1. Request attestation ----------->|
-     |<-- 2. Nonce + expected PCR values ----|
-     |                                        |
-     | 3. Generate Quote (report)             |
-     |    - Enclave identity (MRENCLAVE)      |
-     |    - TCB level (CPUSVN, ISVSVN)        |
-     |    - User data = Hash(nonce, pk)       |
-     |                                        |
-     |--- 4. Quote + ephemeral PK ---------->|
-     |                                        |
-     |    5. Verify attestation:              |
-     |       a) Quote signature (IAS/DCAP)    |
-     |       b) MRENCLAVE matches expected    |
-     |       c) TCB level >= minimum          |
-     |       d) Nonce matches                 |
-     |       e) Certificate chain valid       |
-     |                                        |
-     |<-- 6. Establish secure channel --------|
-     |    (encrypt session key to enclave PK) |
-```
-
-### 11.2 Sealing — Persisting State Across Enclave Restarts
-
-```cpp
-// SGX: Seal data to enclave identity (MRENCLAVE) or signing identity (MRSIGNER)
-sgx_status_t seal_secret(const uint8_t *secret, size_t len,
-                         uint8_t *sealed_blob, size_t sealed_len) {
-    // Policy: MRENCLAVE — only this exact enclave binary can unseal
-    sgx_sealed_data_t *sealed = (sgx_sealed_data_t *)sealed_blob;
-    
-    // Key policy: bind to enclave identity + TCB
-    // KEYPOLICY_MRENCLAVE: exact binary match (secure, breaks on updates)
-    // KEYPOLICY_MRSIGNER: any enclave from same developer (flexible)
-    uint16_t key_policy = SGX_KEYPOLICY_MRENCLAVE;
-    
-    sgx_status_t ret = sgx_seal_data(
-        0,                    // Additional MAC text
-        NULL,                 // No additional text
-        len, secret,
-        sealed_len, sealed
-    );
-    
-    // ⚠ Store sealed blob on untrusted storage (disk, database)
-    // It's encrypted + authenticated with hardware-derived key
-    return ret;
-}
-```
-
-### 11.3 AMD SEV-SNP Attestation Verification
-
-```python
-# AMD SEV-SNP: Verify attestation report with VCEK certificate chain
-from cryptography import x509
-from cryptography.hazmat.primitives import hashes, serialization
-import requests
-
-def verify_sev_attestation(report: bytes, expected_measurement: bytes) -> bool:
-    """Verify SEV-SNP attestation report against AMD KDS"""
-    
-    # 1. Parse attestation report
-    attestation = parse_sev_report(report)
-    
-    # 2. Fetch VCEK certificate from AMD KDS (Key Distribution Service)
-    chip_id = attestation.chip_id
-    vcek_url = f"https://kdsintf.amd.com/vcek/v1/{chip_id}"
-    response = requests.get(vcek_url)
-    
-    chain_pem = f"{response.text}\n{AMD_ROOT_CA_PEM}\n{AMD_SEV_CA_PEM}"
-    
-    # 3. Verify certificate chain: VCEK -> SEV-CA -> AMD Root
-    vcek_cert = x509.load_pem_x509_certificate(response.text.encode())
-    ca_cert = x509.load_pem_x509_certificate(AMD_SEV_CA_PEM.encode())
-    root_cert = x509.load_pem_x509_certificate(AMD_ROOT_CA_PEM.encode())
-    
-    verify_cert_chain(vcek_cert, ca_cert, root_cert)
-    
-    # 4. Verify report signature using VCEK public key
-    vcek_pubkey = vcek_cert.public_key()
-    verify_report_signature(report, vcek_pubkey)
-    
-    # 5. Validate measurement and policy
-    assert attestation.measurement == expected_measurement  # Launch digest match
-    assert attestation.policy & POLICY_DEBUG == 0  # Debug must be disabled
-    assert attestation.tcb_version >= MINIMUM_TCB
-    
-    return True
-```
-
----
-
-## 12. Post-Quantum Cryptography Implementation
-
-### 12.1 ML-KEM Key Encapsulation (liboqs)
-
-```python
-# OQS Python bindings: ML-KEM-768 (FIPS 203, NIST standard)
-import oqs
-
-# Alice: Generate keypair
-with oqs.KeyEncapsulation("ML-KEM-768") as alice:
-    alice_public = alice.generate_keypair()
-    # Encapsulation: Bob creates shared secret + ciphertext
-    with oqs.KeyEncapsulation("ML-KEM-768") as bob:
-        ciphertext, bob_shared = bob.encap_secret(alice_public)
-    # Decapsulation: Alice recovers shared secret
-    alice_shared = alice.decap_secret(ciphertext)
-    assert bob_shared == alice_shared  # 256-bit shared secret
-```
-
-### 12.2 Hybrid X.509 Certificates
-
-```python
-# Hybrid certificate: ECDSA P-256 + ML-DSA-44 signatures
-# Two independent signatures on the same TBSCertificate
-from cryptography import x509
-from cryptography.hazmat.primitives.asymmetric import ec
-
-def create_hybrid_cert(csr: x509.CertificateSigningRequest,
-                       ca_ecdsa_key, ca_mldsa_key) -> x509.Certificate:
-    """Build X.509 cert with dual signature algorithm"""
-    
-    builder = x509.CertificateBuilder()
-    builder = builder.subject_name(csr.subject)
-    builder = builder.issuer_name(ca_cert.subject)
-    builder = builder.public_key(csr.public_key())
-    builder = builder.serial_number(x509.random_serial_number())
-    builder = builder.not_valid_before(datetime.utcnow())
-    builder = builder.not_valid_after(datetime.utcnow() + timedelta(days=365))
-    
-    # Standard ECDSA signature (classical)
-    cert_bytes = builder.sign(ca_ecdsa_key, hashes.SHA256())
-    
-    # ML-DSA-44 alternate signature (PQC) in certificate extension
-    # OID: 2.16.840.1.101.3.4.3.17 (id-alg-mldsa-44)
-    mldsa_sig = sign_mldsa44(cert_bytes.tbs_certificate_bytes, ca_mldsa_key)
-    
-    cert = cert_bytes.add_extension(
-        x509.UnrecognizedExtension(
-            oid=MLDSA44_SIG_OID,
-            value=mldsa_sig
-        ), critical=False
-    )
-    return cert
-
-# ⚠ Both signatures MUST validate — single-signature acceptance = downgrade attack
-```
-
-### 12.3 Crypto Inventory & Migration Timeline
-
-```python
-# Automated crypto inventory via TLS fingerprinting
-def inventory_crypto_endpoints(hosts: list[str]) -> dict:
-    """Scan endpoints, classify by quantum risk, generate migration plan"""
-    results = {}
-    for host in hosts:
-        ctx = ssl.create_default_context()
-        with ctx.wrap_socket(socket.socket(), server_hostname=host) as s:
-            s.connect((host, 443))
-            cipher = s.cipher()
-            cert_der = s.getpeercert(binary_form=True)
-            cert = x509.load_der_x509_certificate(cert_der)
-            
-            results[host] = {
-                "kex_algorithm": cipher[0],           # e.g., ECDHE-RSA
-                "sig_algorithm": cert.signature_algorithm_oid._name,
-                "pqc_ready": is_pqc_cipher(cipher),   # False for classical
-                "hnld_risk": has_long_lived_data(host),  # Harvest-now-decrypt-later
-                "migration_priority": calculate_priority(cipher, cert),
-            }
-    return results
-
-# Migration timeline:
-# Year 0-1: Inventory + hybrid TLS 1.3 deployment
-# Year 1-2: PQC-only internal services, hybrid external
-# Year 2-3: Deprecate RSA/ECDH, PQC-only for long-lived secrets
-# Year 3-5: Remove classical fallback (full PQC migration)
-```
-
----
-
-## 13. Key Management & Ceremonies
-
-### 13.1 HSM Integration via PKCS#11
-
-```python
-# PKCS#11: Hardware Security Module integration
-# Uses SoftHSM2 for development, production HSM (Thales/Gemalto/Utimaco)
-from PyKCS11 import PyKCS11
-
-pkcs11 = PyKCS11.PyKCS11Lib()
-pkcs11.load("/usr/lib/softhsm/libsofthsm2.so")  # Production: vendor .so
-pkcs11.initialize()
-
-slots = pkcs11.getSlotList(tokenPresent=True)
-session = pkcs11.openSession(slots[0])
-
-# Authenticate to HSM (split-knowledge in production: two officers enter PIN halves)
-session.login("1234")  # Production: dual-control PIN entry
-
-# Generate RSA-4096 key inside HSM (key never leaves hardware)
-pub_template = [
-    (PyKCS11.CKA_CLASS, PyKCS11.CKO_PUBLIC_KEY),
-    (PyKCS11.CKA_TOKEN, True),
-    (PyKCS11.CKA_MODULUS_BITS, 4096),
-    (PyKCS11.CKA_PUBLIC_EXPONENT, (0x01, 0x00, 0x01)),
-    (PyKCS11.CKA_LABEL, "Root-CA-2026"),
-]
-priv_template = [
-    (PyKCS11.CKA_CLASS, PyKCS11.CKO_PRIVATE_KEY),
-    (PyKCS11.CKA_TOKEN, True),
-    (PyKCS11.CKA_PRIVATE, True),
-    (PyKCS11.CKA_SENSITIVE, True),      # Cannot be extracted
-    (PyKCS11.CKA_EXTRACTABLE, False),   # ⚠ CRITICAL: Prevent export
-    (PyKCS11.CKA_SIGN, True),
-    (PyKCS11.CKA_LABEL, "Root-CA-2026"),
-]
-(pub_key, priv_key) = session.generateKeyPair(pub_template, priv_template)
-
-# Sign operation inside HSM
-mechanism = PyKCS11.Mechanism(PyKCS11.CKM_SHA256_RSA_PKCS)
-signature = session.sign(priv_key, data_to_sign, mechanism)
-
-session.logout()
-session.closeSession()
-```
-
-### 13.2 Entropy Sourcing & Health Monitoring
-
-```python
-# Multi-source entropy mixing for key ceremonies
-# NEVER trust a single entropy source — mix multiple independent sources
-import os, time, hashlib
-from struct import pack
-
-def ceremony_entropy(num_bytes: int = 64) -> bytes:
-    """Mix entropy from hardware RNG + timing jitter + CPU RDRAND"""
-    sources = []
-    
-    # Source 1: OS CSPRNG (getrandom syscall)
-    sources.append(os.urandom(num_bytes))
-    
-    # Source 2: CPU RDRAND (Intel/AMD hardware RNG)
-    # Each RDRAND instruction: 64 bits of hardware entropy
-    rdrand_bytes = b""
-    for _ in range(num_bytes // 8):
-        rdrand_bytes += pack("<Q", rdrand64())  # CPU intrinsic
-    sources.append(rdrand_bytes)
-    
-    # Source 3: Timing jitter (clock jitter entropy, SP 800-90B)
-    jitter = b""
-    for _ in range(num_bytes * 8):
-        t1 = time.perf_counter_ns()
-        time.sleep(0)  # Yield — measurement noise from scheduler
-        t2 = time.perf_counter_ns()
-        jitter += pack("<Q", t2 - t1)
-    sources.append(hashlib.sha512(jitter).digest()[:num_bytes])
-    
-    # Mix via HKDF: entropy = HKDF-Extract(source1 || source2 || source3)
-    mixed = hashlib.sha512(b"".join(sources)).digest()
-    return mixed[:num_bytes]
-
-# ⚠ Continuous entropy health monitoring (SP 800-90B):
-# - Monitor entropy source statistics (min-entropy estimate)
-# - Alert if source produces repeat outputs or fails statistical tests
-# - Fail closed: refuse key generation if entropy quality < threshold
-```
-
----
-
-## 14. Cryptographic Agility Architecture
-
-### 14.1 Algorithm Inventory & Registration
-
-```python
-# Cryptographic algorithm registry with agility support
-# Central registry to manage migration and deprecation
-from enum import Enum
-from datetime import datetime, timedelta
-from typing import Callable, Dict, Optional
-
-class AlgorithmStatus(Enum):
-    ACTIVE = "active"
-    DEPRECATED = "deprecated"    # Accept existing, don't create new
-    LEGACY = "legacy"            # Verify only, migration required
-    FORBIDDEN = "forbidden"      # Reject outright (e.g., SHA-1, RSA-1024)
-
-@dataclass
-class CryptoAlgorithm:
-    name: str
-    category: str            # "kex", "signature", "encryption", "hash"
-    status: AlgorithmStatus
-    deprecation_date: Optional[datetime]
-    migration_target: Optional[str]
-    impl: Callable
-
-class CryptoRegistry:
-    """Central algorithm registry — single source of truth for crypto policy"""
-    def __init__(self):
-        self._algos: Dict[str, CryptoAlgorithm] = {}
-    
-    def register(self, algo: CryptoAlgorithm):
-        self._algos[algo.name] = algo
-    
-    def get_active(self, category: str) -> list[CryptoAlgorithm]:
-        """Get active algorithms for a category (used for selection)"""
-        return [a for a in self._algos.values()
-                if a.category == category and a.status == AlgorithmStatus.ACTIVE]
-    
-    def negotiate(self, peer_algos: list[str], category: str) -> Optional[CryptoAlgorithm]:
-        """Protocol negotiation with downgrade prevention.
-        
-        Sorts by preference: PQC-first, then classical.
-        ⚠ Never selects DEPRECATED or FORBIDDEN algorithms.
-        """
-        our_preferred = self.get_active(category)
-        our_preferred.sort(key=lambda a: 0 if "ml-" in a.name else 1)  # PQC first
-        
-        for algo in our_preferred:
-            if algo.name in peer_algos and algo.status == AlgorithmStatus.ACTIVE:
-                return algo  # Selected best mutually-supported algorithm
-        
-        return None  # No common algorithm — fail closed, refuse connection
-
-# Example: TLS-like negotiation
-registry = CryptoRegistry()
-registry.register(CryptoAlgorithm("ECDHE-X25519", "kex", AlgorithmStatus.DEPRECATED,
-    deprecation_date=datetime.now() + timedelta(days=730), migration_target="ML-KEM-768"))
-registry.register(CryptoAlgorithm("ML-KEM-768", "kex", AlgorithmStatus.ACTIVE))
-registry.register(CryptoAlgorithm("RSA-2048", "kex", AlgorithmStatus.LEGACY))
-
-# Attacker tries downgrade: offers only RSA-2048
-selected = registry.negotiate(["RSA-2048"], "kex")
-assert selected is None  # ⚠ RSA-2048 is LEGACY, negotiation MUST fail
-
-# Proper negotiation: offers classical + PQC
-selected = registry.negotiate(["ECDHE-X25519", "ML-KEM-768"], "kex")
-assert selected.name == "ML-KEM-768"  # PQC preferred
-```
-
-### 14.2 Hybrid Scheme Middleware
-
-```python
-# Transparent hybrid layer: classical + PQC dual computation
-class HybridKEM:
-    """Dual KEM: produces key_material = KDF(classical_ss || pqc_ss)
-    
-    Both key exchanges MUST complete successfully.
-    Single failure = reject connection (downgrade prevention).
-    """
-    def __init__(self, classical: str = "X25519", pqc: str = "ML-KEM-768"):
-        self.classical_kem = ClassicalKEM(classical)
-        self.pqc_kem = PQKEM(pqc)
-    
-    def encapsulate(self, classical_pk: bytes, pqc_pk: bytes) -> tuple:
-        ct_classical, ss_classical = self.classical_kem.encap(classical_pk)
-        ct_pqc, ss_pqc = self.pqc_kem.encap(pqc_pk)
-        
-        # Both MUST succeed — fail closed
-        if not ss_classical or not ss_pqc:
-            raise DowngradePreventionError("Refusing to fall back to single KEM")
-        
-        # Key derivation: KDF(ss_classical || ss_pqc)
-        combined_key = HKDF_SHA256(ss_classical + ss_pqc, salt=None, info=b"hybrid-kem")
-        return (ct_classical + ct_pqc), combined_key
-```
-
----
-
-## 15. Anti-Rationalization
-
-**Warning: Advanced cryptography implementations are unforgiving. You cannot "mostly get it right."**
-
-These are the rationalizations that lead to catastrophic failures. When you hear yourself thinking any of these, **stop and reassess**:
-
-1. **"We'll use CKKS for the financial calculation — the approximation error is small enough."** No. CKKS produces approximate results. A 0.001% error on a $500M trade is $5,000. Use BGV/BFV for exact arithmetic. There is no "close enough" in financial cryptography.
-
-2. **"The enclave is secure because SGX protects against all attacks."** SGX has been broken repeatedly: LVI (CVE-2020-0551), Plundervolt (CVE-2019-11157), SGAxe (CVE-2020-0549). Enclaves reduce trust, they don't eliminate it. Defense in depth is mandatory.
-
-3. **"We can skip the certificate chain validation in attestation — the quote signature is enough."** Skipping chain validation means a revoked or compromised TCB is silently accepted. An attacker with a compromised but not-yet-expired PCK can sign arbitrary quotes.
-
-4. **"The hybrid implementation will fall back to classical-only if PQC fails."** This is the textbook downgrade attack. If the adversary can force a PQC failure (packet corruption, CPU overload on lattice operations), they force classical-only security. Hybrid must fail closed.
-
-5. **"We'll reuse the same threshold shares after the committee rotates — nobody will notice."** Proactive security requires fresh shares after each rotation. Reusing shares across epochs enables an adversary who slowly compromises parties over time to reconstruct the key.
-
-6. **"The FHE bootstrapping budget calculation is a rough estimate."** Budget exhaustion causes silent decryption failure — the ciphertext decrypts to random noise with no error indication. $200K+ of encrypted data becomes irrecoverable garbage.
-
-7. **"The MPC protocol is constant-time because we used constant-time operations."** True constant-time requires uniform memory access patterns, no data-dependent branching, and identical instruction counts across all execution paths. A single if-statement on secret data leaks through timing.
-
-8. **"We sourced entropy from /dev/urandom — that's sufficient."** On VMs, containers, and embedded devices, `/dev/urandom` may have dangerously low entropy at boot. For key ceremonies, use multiple independent entropy sources with statistical validation (SP 800-90B).
-
-**If you are uncertain about any security property, escalate to a cryptographic protocol audit with formal verification (ProVerif/Tamarin/EasyCrypt) before deployment.**
-
----
-
-## 16. Gotchas & Pitfalls
-
-### Critical Failures by Domain
-
-| # | Domain | Pitfall | Impact | Mitigation |
-|---|--------|---------|--------|------------|
-| 1 | FHE | CKKS used for exact equality checks — comparison always fails due to approximation noise | $500K+ financial calculation error, incorrect access control decisions | Use BGV/BFV for equality; CKKS only for approximate statistics/ML |
-| 2 | MPC | Garbled circuit evaluation timing leaks circuit depth — attacker correlates wall-clock time with computation structure | Partial key leakage, circuit structure recovery | Uniform circuit padding, random gate scheduling, fixed-time evaluation |
-| 3 | TEE | SGX LVI/Plundervolt speculative execution bypass reads enclave memory through voltage fault injection | $1M+ key material exfiltration from production enclaves | Apply LVI/MMIO mitigations, update microcode, monitor TCB recovery |
-| 4 | Threshold | Signature share reuse across committee rotations — adversary who compromises t parties across epochs reconstructs key | Full key compromise, irreversible in most custody systems | Proactive resharing with fresh randomness each epoch, verify share freshness |
-| 5 | PQC | Hybrid implementation silently falls back to classical-only on PQC negotiation failure | Classical-only security despite claiming quantum resistance | Fail closed: reject connection if either KEM fails, log both results |
-| 6 | TEE | Attestation verification omits certificate chain validation — accepts revoked TCB signatures | Attacker signs arbitrary quotes with compromised but unexpired PCK | Full chain: quote -> PCK -> processor CA -> root, check CRL freshness |
-| 7 | FHE | Bootstrapping budget exhausted mid-computation — ciphertext decrypts to random noise with no error signal | $200K+ encrypted data corruption, irreversible data loss | Static budget analysis + runtime level tracking, conservative margin (2+ levels) |
-| 8 | Entropy | /dev/urandom on freshly-booted VM/container returns deterministic output before entropy pool initialized | Predictable keys generated in early boot sequence | Block boot until entropy pool seeded (getrandom with GRND_RANDOM), mix hardware RNG |
-| 9 | MPC | OT extension correlation reuse across sessions — attacker correlates transcripts to break OT security | Loss of OT security = loss of MPC security for all GMW/Yao protocols | Fresh base OTs per session, use OT extension with random oracle model proofs |
-| 10 | PQC | X.509 hybrid certificate with single signature — verifier accepts classical-only path | Downgrade to classical-only certificate validation | Dual signature verification required, reject certs with only one valid signature |
-
-### Code-Level Gotchas
-
-```python
-# GOTCHA 1: Non-constant-time comparison in MPC
-# WRONG — leaks secret through branch timing
-if secret_value == 0:
-    result = compute_path_a()
-else:
-    result = compute_path_b()
-
-# CORRECT — both paths computed, selection via arithmetic
-path_a = compute_path_a()
-path_b = compute_path_b()
-result = path_a + (secret_value != 0) * (path_b - path_a)
-
-# GOTCHA 2: CKKS equality check
-# WRONG — CKKS is approximate, equality is meaningless
-if enc_a == enc_b:  # NEVER true, even for semantically equal values
-    execute_high_value_action()
-
-# CORRECT — Use BFV/BGV for equality-dependent logic
-# Or compute: |a-b| < epsilon (approximate comparison)
-diff = enc_a - enc_b
-threshold_test = (diff * diff).decrypt() < epsilon**2
-
-# GOTCHA 3: Unvalidated attestation nonce
-# WRONG — No nonce binding, attacker replays old attestation
-quote = generate_quote(enclave_pk, b"")
-
-# CORRECT — Bind to fresh challenge
-nonce = os.urandom(32)
-quote = generate_quote(enclave_pk, nonce)
-assert verify_quote(quote, nonce)  # Nonce prevents replay
-```
-
----
-
-## 17. References
-
-This skill is supported by in-depth reference documents in the `references/` directory. Each provides detailed specifications, attack models, and deployment patterns:
-
-| Reference File | Contents | When to Read |
-|---|---|---|
-| `mpc-protocol-comparison.md` | MP-SPDZ protocol matrix (40+ protocols), Shamir optimization, garbled circuit with half-gates, OT extension parameters | Selecting MPC protocol for your threat model |
-| `fhe-scheme-selection.md` | TFHE/CKKS/BGV/BFV decision matrix with latency benchmarks, bootstrapping cost analysis, HEIR pipeline configuration | Choosing FHE scheme for specific computation |
-| `threshold-signature-patterns.md` | FROST two-round protocol (RFC 9591), BLS non-interactive aggregation, GG20 multi-round ECDSA, CGGMP optimized | Implementing threshold signing for custody |
-| `tee-attestation-workflow.md` | SGX DCAP v4 flow, SEV-SNP VCEK chain, Nitro PCR binding, ARM CCA token verification, attestation service integration | Deploying remote attestation infrastructure |
-| `post-quantum-migration-guide.md` | NIST FIPS 203/204/205 standards, hybrid certificate X.509 extensions, TLS 1.3 PQC ciphersuites, migration timeline templates | Planning organizational PQC migration |
-| `key-management-ceremony.md` | HSM PKCS#11 operations, Shamir backup with Feldman VSS, entropy health monitoring (SP 800-90B), split-knowledge procedures | Designing key generation ceremonies |
-| `cryptographic-agility-patterns.md` | Algorithm registry design, protocol negotiation with downgrade prevention, hybrid middleware, crypto inventory automation | Building agile cryptographic infrastructure |
-| `mpc-security-hardening.md` | Constant-time circuit evaluation, side-channel defenses, malicious majority detection, identifiable abort handling | Hardening MPC deployments for production |
-| `fhe-performance-optimization.md` | Bootstrapping budget tracking, SIMD packing strategies, batching rotation keys, level-aware circuit design | Optimizing FHE for latency and throughput |
-| `threshold-key-resharing.md` | Herzberg dynamic proactive scheme, committee rotation protocol, share freshness verification, distributed key generation (DKG) | Implementing non-disruptive key rotation |
+### Inline Reference Files in `references/`
+
+This skill is supported by 27 reference files. Key reference documents:
+
+| File | Contents |
+|------|----------|
+| `references/decision-trees.md` | Summary of all 6 decision tree domains |
+| `references/2-decision-tree-mpc-protocol-selection.md` | MPC protocol matrix (40+ protocols), Shamir optimization, garbled circuit |
+| `references/3-decision-tree-fhe-scheme-selection.md` | TFHE/CKKS/BGV/BFV decision matrix with latency benchmarks |
+| `references/4-decision-tree-threshold-signature-architecture.md` | FROST, BLS, GG20, CGGMP detailed patterns |
+| `references/5-decision-tree-tee-platform-selection.md` | SGX DCAP v4, SEV-SNP VCEK, Nitro PCR, ARM CCA |
+| `references/6-decision-tree-post-quantum-migration-path.md` | NIST FIPS 203/204/205, hybrid certs, TLS 1.3 PQC |
+| `references/7-decision-tree-key-ceremony-design.md` | HSM PKCS#11, Shamir backup, Feldman VSS, entropy health |
+| `references/14-cryptographic-agility-architecture.md` | Algorithm registry, protocol negotiation, hybrid middleware |
+| `references/16-gotchas--pitfalls.md` | 16-domain pitfall matrix with impact and mitigation |
 
 ### External Standards & Specifications
 
-- **MPC:** MP-SPDZ documentation (https://github.com/data61/MP-SPDZ), SPDZ paper (Damgard et al., CRYPTO 2012)
-- **FHE:** TFHE deep dive (Chillotti et al., JoC 2020), CKKS (Cheon et al., ASIACRYPT 2017), HEIR compiler (https://heir.dev)
-- **Threshold:** FROST RFC 9591 (IETF CFRG), BLS signatures (Boneh-Lynn-Shacham, JoC 2004), GG20/CGGMP specifications
-- **TEE:** Intel SGX DCAP (https://download.01.org/intel-sgx/), AMD SEV-SNP API (https://www.amd.com/en/developer/sev.html), AWS Nitro Enclaves SDK
-- **PQC:** NIST FIPS 203/204/205, NIST SP 800-208 (stateful hash-based), IETF TLS PQC drafts
-- **Key Management:** NIST SP 800-57 (key management), PKCS#11 v3.0, NIST SP 800-90B (entropy)
+| Standard | Purpose |
+|----------|---------|
+| FIPS 203 (ML-KEM) | Post-quantum key encapsulation mechanism |
+| FIPS 204 (ML-DSA) | Post-quantum lattice-based digital signature |
+| FIPS 205 (SLH-DSA) | Post-quantum stateless hash-based signature |
+| NIST SP 800-57 | Key management recommendation |
+| NIST SP 800-90B | Entropy source health testing |
+| PKCS#11 v3.0 | Cryptographic token interface standard |
+| RFC 9591 (FROST) | Threshold Schnorr signature scheme |
+| SPDZ (Damgard et al., CRYPTO 2012) | MPC with preprocessing |
 
-### Tool Versions Used in Examples
+### Tool Versions
 
-| Tool | Version | Purpose |
-|---|---|---|
-| MP-SPDZ | 0.3.8+ | MPC DSL, 40+ protocol backends |
-| Zama Concrete | 2.6+ | TFHE with programmable bootstrapping |
-| Microsoft SEAL | 4.1+ | CKKS/BFV homomorphic encryption |
-| OpenFHE | 1.2+ | Multi-scheme FHE (TFHE/CKKS/BGV/BFV) |
-| Google HEIR | 0.0.1+ | MLIR-based FHE compiler |
-| liboqs | 0.10+ | Post-quantum cryptography |
-| frost-secp256k1 | 2.0+ | FROST threshold Schnorr signatures |
-| Intel SGX SDK | 2.23+ | SGX enclave development |
-| PyKCS11 | 1.5+ | HSM PKCS#11 interface |
-
----
+| Tool | Latest Version | Domain |
+|------|----------------|--------|
+| MP-SPDZ | 0.3.8+ | MPC protocols |
+| Zama Concrete | 2.6+ | TFHE |
+| Microsoft SEAL | 4.1+ | CKKS/BFV |
+| OpenFHE | 1.2+ | Multi-scheme FHE |
+| Google HEIR | 0.0.1+ | FHE compiler |
+| liboqs | 0.10+ | Post-quantum crypto |
+| frost-secp256k1 | 2.0+ | Threshold Schnorr |
+| Intel SGX SDK | 2.23+ | TEE enclave |
+| PyKCS11 | 1.5+ | HSM interface |

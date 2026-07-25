@@ -41,7 +41,6 @@ chain:
     - agent-eval-pipeline
     - ci-cd-builder
 ---
-
 # Cross-Agent Skills Packaging
 > **Portability target:** Works on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI, Codex, OpenCode. No vendor-specific frontmatter fields in core.
 
@@ -110,7 +109,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R4** | **DETECT and WARN when a skill's `portability` field lists agents it hasn't been tested on.** The `portability` field is a claim, not a warranty. Listing "works with Gemini CLI" when the skill has never been loaded in Gemini CLI creates false confidence that leads to production failures when someone actually tries it. | Trigger: `portability` field contains agent name AND no entry in `compatibility-report-*.json` for that agent within last 30 days | WARN: "The portability field claims compatibility with ${agent} but no compatibility test report exists for the last 30 days. Run `scripts/verify-skill.sh` with `--compatibility-test` flag or update the portability field to reflect actual tested agents." |
 | **R5** | **REFUSE to deploy a Claude Code skill without PROCESS_TREE.md.** Claude Code (as of 2026-07) requires `PROCESS_TREE.md` in each skill directory for detection. Without it, the skill is invisible to Claude Code — no error, no warning, just silent non-discovery. This is tracked in Claude Code issue #31005. | Trigger: target includes `claude-code` AND `test -f ~/.agents/skills/core/<skill>/PROCESS_TREE.md` returns false | STOP. Generate `PROCESS_TREE.md` from the skill manifest before deploying to Claude Code. See `references/claude-code-specific-patterns.md`. |
 | **R6** | **DETECT and WARN about broken symlinks across any agent directory.** Agent upgrades that change directory structure silently break symlinks. A Claude Code upgrade that moves from `~/.claude/skills/` to `~/.claude/agents/skills/` breaks every symlink — and no agent reports the breakage. | Trigger: `find ~/.claude/skills/ ~/.copilot/skills/ ~/.cursor/skills/ -type l ! -exec test -e {} \; -print` returns any paths | WARN: "Found ${count} broken symlinks. This typically happens after agent upgrades that change directory structures. Run 'Cross-Skill Coordination' → symlink health check to repair." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -412,6 +410,20 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 **Incremental mode:** If `skills-manifest.lock` exists, only regenerate entries for skills whose SHA-256 differs. This reduces manifest regeneration from O(N) to O(changed) — critical for 50+ skill deployments.
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s -- table of who to talk to when -->
@@ -466,6 +478,10 @@ Cross-agent skills packaging sits at the intersection of platform engineering, D
 | Skill content authoring (writing the SKILL.md body, not packaging it) | Individual skill specialist (e.g., `code-reviewer`, `api-designer`) |
 | Security review of symlink strategy or manifest injection vectors | `security-reviewer` |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
+
 ## Proactive Triggers
 
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
@@ -481,64 +497,15 @@ Cross-agent skills packaging sits at the intersection of platform engineering, D
 | Copilot CLI frontmatter rejection rate exceeds 10% of deployed skills | Skill Authors | Frontmatter normalization pipeline failing; vendor-specific field leakage |
 
 ## Core Workflow
+<!-- COMPRESSED: Full 60 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 
 ### Phase 1 (~15 min): Cross-Agent Health Audit
 **Input:** Any system with `~/.agents/` or per-agent skill directories
-**Steps:** 1) Scan all agent directories for skill symlinks 2) Check for broken symlinks 3) Verify `skills-manifest.json` exists and is up-to-date 4) Check for skills without PROCESS_TREE.md (if Claude Code in portability list) 5) Detect vendor-specific frontmatter leakage
-**Output:** Health report with prioritized fixes (broken links, missing files, manifest staleness)
-
-<!-- DEEP: 10+min -->
-### Phase 2 (~25 min): Cross-Agent Structure Setup
-**Input:** Clean system or migration from single-agent deployment
-**Steps:** 1) Create `~/.agents/skills/{core,overrides,cache}/` directory tree 2) Set environment variables (`AGENTS_HOME`, `AGENTS_SKILLS_CORE`, etc.) 3) Move existing skills to `core/` 4) Create per-agent directories (`~/.claude/skills/`, `~/.copilot/skills/`, etc.) 5) Symlink core skills into each agent directory 6) Generate PROCESS_TREE.md for Claude Code-bound skills 7) Generate initial `skills-manifest.json` with lock file
-**Output:** Fully wired cross-agent skill deployment with manifest-based discovery
-
-<!-- DEEP: 10+min -->
-### Phase 3 (~20 min): Frontmatter Normalization & Deployment
-**Input:** Skills in `core/` with full frontmatter
-**Steps:** 1) For each skill, for each target agent: parse frontmatter 2) Strip fields not in target agent's supported set 3) Map fields to agent-specific equivalents 4) Add required agent-specific fields 5) Validate output against agent schema 6) Write normalized copy to `cache/<agent>/` 7) Symlink from agent directory to cache (or core if no normalization needed)
-**Output:** Every agent has valid, field-correct skill frontmatter
-
-<!-- DEEP: 10+min -->
-### Phase 4 (~15 min): CI/CD Integration
-**Input:** Git repository with skills in `skills/` directory
-**Steps:** 1) Create pre-commit hook: regenerate manifest on SKILL.md changes 2) Create GitHub Actions workflow: deploy on push to main 3) Add compatibility test gate: block deployment if any agent fails load test 4) Add symlink health check to daily CI cron 5) Configure manifest staleness alert (>7 days without regeneration)
-**Output:** Fully automated deployment pipeline with quality gates
-
-### Quick Reference: Packaging Commands
-
-```bash
-# HEALTH AUDIT: Check for broken symlinks across all agents
-find ~/.claude/skills/ ~/.copilot/skills/ ~/.cursor/skills/ ~/.codex/skills/ \
-     ~/.gemini/skills/ ~/.opencode/skills/ -type l ! -exec test -e {} \; -print
-
-# MANIFEST: Generate skills-manifest.json from core/ skills
-for d in ~/.agents/skills/core/*/; do
-  name=$(basename "$d")
-  hash=$(find "$d" -type f -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1)
-  # Extract metadata from SKILL.md frontmatter and write to manifest
-done
-
-# SYMLINK: Deploy a skill to all agent directories
-SKILL="code-reviewer"
-for agent in claude copilot cursor codex gemini opencode openclaw windsurf cody continue aider amazonq; do
-  mkdir -p ~/.${agent}/skills/
-  ln -sf ~/.agents/skills/core/${SKILL} ~/.${agent}/skills/${SKILL}
-done
-
-# NORMALIZE: Strip vendor-specific fields for Copilot CLI
-sed -i '/^cursorRules:/d; /^geminiDirectives:/d; /^codexOpenAPI:/d; /^opencodeTOML:/d' \
-  ~/.agents/skills/cache/copilot-cli/${SKILL}/SKILL.md
-
-# VERIFY: Check that PROCESS_TREE.md exists for all Claude Code skills
-for skill in ~/.agents/skills/core/*/; do
-  test -f "${skill}PROCESS_TREE.md" || echo "MISSING PROCESS_TREE.md: ${skill}"
-done
-```
-
+...
+> 📎 **Full content (60 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## State Log
 
@@ -667,6 +634,19 @@ graph LR
 - [ ] All reference links resolve: `scripts/verify-skill.sh` passes reference link check
 - [ ] Compatibility test passes on all portability agents: `compatibility-report-*.json` shows `overall: "COMPATIBLE"` for every target agent
 - [ ] Frontmatter valid per agent: run normalization pipeline with `--validate-only` flag on each target agent
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

@@ -43,7 +43,6 @@ chain:
     - fp-and-a-analyst
   alternatives: []
 ---
-
 # Personal Finance
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -72,7 +71,6 @@ These rules are non-negotiable constraints that detect dangerous financial advic
 | R5 | REFUSE to recommend crypto as retirement investment. Crypto is speculative, not retirement-grade. | Trigger: response recommends crypto allocation > 5% AND in context of retirement planning | STOP. Respond: "Cryptocurrency is a speculative asset, not a retirement investment. It has no earnings, no dividends, extreme volatility, and a track record shorter than a typical retirement horizon. If interested, allocate max 1-5% of total net worth, and only after fully funding tax-advantaged accounts." |
 | R6 | REFUSE to give tax advice without disclaimers. Tax code is jurisdiction-specific and changes annually. | Trigger: response contains tax strategy ("deduct", "write off", "tax-free", "Roth conversion") AND no disclaimer | STOP. Add: "This is general education, not tax advice. Tax laws vary by jurisdiction and change annually. Consult a qualified tax professional before implementing any tax strategy. Specific rules for [relevant tax topic] depend on your filing status, income level, and state of residence." |
 | R7 | DETECT when debt payoff strategy ignores interest rates. Avalanche (highest rate first) is mathematically optimal. | Trigger: response recommends snowball method (smallest balance first) AND no explanation of avalanche alternative AND user has debt with varying rates (e.g., 25% credit card + 4% student loan) | STOP. Respond: "Snowball method (smallest balance first) costs more in total interest but provides psychological wins. Avalanche method (highest APR first) is mathematically optimal. With a 25% credit card vs 4% student loan, avalanche saves hundreds to thousands. Present both options with dollar-cost comparison." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -114,7 +112,9 @@ Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do N
 
 ## Route the Request
 
-### Auto-Route by Artifacts (Check Filesystem First)
+#
+
+## Auto-Route by Artifacts (Check Filesystem First)
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -126,7 +126,9 @@ Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do N
 | A6 | `file_contains("*.csv", "insurance\|premium\|deductible\|coverage\|policy")` | Insurance review -> Jump to **Decision Trees: Insurance** |
 | A7 | No financial files found | New financial planning -> Go to **Core Workflow: Phase 1** |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What personal finance task are you working on?
@@ -144,127 +146,22 @@ What personal finance task are you working on?
 ```
 
 ## Core Workflow
+<!-- Full 119 lines extracted to references/core-workflow.md -->
 
-### Phase 1: Budget & Cash Flow
+#
 
+## Phase 1: Budget & Cash Flow
 Execute in order. Do not skip steps.
-
-```
 1. TRACK CURRENT SPENDING (30 days minimum)
-   |-- Pull last 3 months of bank/credit card statements
-   |-- Categorize every transaction: Housing, Food, Transport, Healthcare, Debt, Entertainment, Savings, Other
-   |-- Calculate monthly average per category
-   |-- Flag any "mystery" spending (uncategorized > 5% = problem)
-
 2. CALCULATE TAKE-HOME PAY
-   |-- Gross income - taxes - health insurance - 401k contribution = net take-home
-   |-- Include all income streams: salary, freelance, rental, dividends, side business
-   |-- Use CONSERVATIVE estimates for variable income (use 80th percentile worst month from last 2 years)
-
-3. BUILD BUDGET FRAMEWORK
-   |-- 50/30/20 Rule (baseline):
-   |   |-- 50% Needs: housing, utilities, groceries, minimum debt payments, insurance, basic transport
-   |   |-- 30% Wants: dining out, entertainment, hobbies, travel, subscriptions, upgrades
-   |   |-- 20% Savings/Debt: emergency fund, retirement, extra debt payments, investments
-   |-- Zero-Based Budget (advanced): Every dollar assigned a job, income - expenses = $0
-   |-- Envelope Method (spending control): Physical/virtual envelopes for discretionary categories
-
-4. IDENTIFY LEAKS
-   |-- Subscriptions audit: list every recurring charge, cancel unused (average household wastes $350/year)
-   |-- "Latte factor" check: daily small purchases ($5 coffee x 250 work days = $1,250/year)
-   |-- Bank fees: switch to no-fee checking/savings (many online banks offer 0 fees)
-   |-- High-interest debt > 10% APR: this IS the emergency -- prioritize payoff before any investing beyond 401k match
-
-5. AUTOMATE
-   |-- Split direct deposit: paycheck -> checking (spending) + HYSA (savings)
-   |-- Auto-transfer to retirement accounts on payday
-   |-- Auto-bill pay for fixed expenses (rent, utilities, insurance)
-   |-- Manual review: only discretionary spending requires conscious decision
-```
-
-### Phase 2: Net Worth & Financial Health
-
-```
-1. CALCULATE NET WORTH
-   |-- Assets: cash (checking, savings), investments (retirement, taxable, crypto at 50% haircut), property (home value, car at KBB trade-in), other (business equity, collectibles conservatively)
-   |-- Liabilities: credit cards, student loans, auto loans, mortgage, personal loans, medical debt
-   |-- Net Worth = Total Assets - Total Liabilities
-   |-- Benchmark:
-   |   |-- Age 20-29: Median $7,500 / Top 25% $50,000+ / Negative is common (student loans)
-   |   |-- Age 30-39: Median $35,000 / Top 25% $150,000+
-   |   |-- Age 40-49: Median $85,000 / Top 25% $350,000+
-   |   |-- Age 50-59: Median $150,000 / Top 25% $600,000+
-   |   |-- Age 60-69: Median $200,000 / Top 25% $800,000+
-
-2. CALCULATE KEY RATIOS
-   |-- Savings Rate = (Annual Savings / Gross Income) x 100
-   |   |-- <10%: CRITICAL -- increase immediately
-   |   |-- 10-15%: Adequate for traditional retirement at 65
-   |   |-- 15-25%: Good -- on track for comfortable retirement
-   |   |-- 25-50%: Excellent -- FIRE trajectory (retire in 15-25 years)
-   |   |-- >50%: Extreme FIRE -- retire in <15 years
-   |-- Debt-to-Income (DTI) = Monthly Debt Payments / Monthly Gross Income
-   |   |-- <20%: Healthy
-   |   |-- 20-36%: Manageable but watch closely
-   |   |-- 36-43%: Stressed -- limit new debt
-   |   |-- >43%: Critical -- most lenders deny at this level
-   |-- Emergency Fund Ratio = Liquid Savings / Monthly Expenses
-   |   |-- <1 month: CRITICAL -- build immediately
-   |   |-- 1-3 months: Minimum viable -- single earner needs more
-   |   |-- 3-6 months: Standard recommendation
-   |   |-- 6-12 months: Conservative (single earner, variable income, high-risk job)
-
-3. SET FINANCIAL GOALS
-   |-- Short-term (<2 years): Emergency fund, debt payoff, down payment savings -> HYSA or money market
-   |-- Mid-term (2-10 years): House down payment, car, business start-up -> conservative mix (60/40 bonds/stocks)
-   |-- Long-term (>10 years): Retirement, financial independence -> aggressive (90/10 or 80/20 stocks/bonds)
-   |-- Every goal: Specific amount + Target date + Monthly contribution required = plan
-```
-
-### Phase 3: Investing
-
-```
-1. INVESTING PRIORITY ORDER (Waterfall)
-   |-- 1. 401k up to employer match: IMMEDIATE 50-100% return -- no investment beats this
-   |-- 2. High-interest debt payoff: Any debt > 8% APR is a guaranteed after-tax return of 8%+
-   |-- 3. Emergency fund: 3-6 months expenses in HYSA (currently 4-5% APY)
-   |-- 4. Max Roth IRA: $7,000/year ($8,000 if 50+) -- tax-free growth and withdrawal
-   |-- 5. Max 401k: $23,000/year ($30,500 if 50+) -- tax-deferred growth
-   |-- 6. HSA (if eligible): Triple tax advantage -- deductible contributions, tax-free growth, tax-free medical withdrawals
-   |-- 7. Taxable brokerage: After all tax-advantaged space is filled
-   |-- 8. 529 (college savings): Only if education goal is certain
-
-2. ASSET ALLOCATION
-   |-- Bogleheads 3-Fund Portfolio:
-   |   |-- Total US Stock Market (VTI / FSKAX / SWTSX): Vanguard Total Stock Market ETF, expense ratio 0.03%
-   |   |-- Total International Stock (VXUS / FTIHX / SWISX): ~30-40% of stock allocation
-   |   |-- Total Bond Market (BND / FXNAX / SWAGX): Vanguard Total Bond Market ETF, expense ratio 0.03%
-   |-- Age-Based Allocation (Rule of Thumb):
-   |   |-- Stocks % = 120 - Age | Bonds % = Age - 20
-   |   |-- Age 25: 95% stocks, 5% bonds
-   |   |-- Age 35: 85% stocks, 15% bonds
-   |   |-- Age 45: 75% stocks, 25% bonds
-   |   |-- Age 55: 65% stocks, 35% bonds
-   |   |-- Age 65: 55% stocks, 45% bonds
-   |-- International allocation: 20-40% of equities for diversification
-
-3. FEE IMPACT ANALYSIS
-   |-- Expense ratio of 1% vs 0.05% on $100,000 over 30 years at 7% return:
-   |   |-- 0.05%: $761,225
-   |   |-- 1.00%: $574,349
-   |   |-- Difference: $186,876 (24% less!)
-   |-- ALWAYS use the lowest-cost broad market index fund available in each account
-
-4. REBALANCING
-   |-- Rebalance when allocation drifts >5% from target (not on a calendar)
-   |-- Use new contributions to rebalance (buy underweight assets) = tax-free
-   |-- In taxable: rebalance with dividends + new money only (avoid capital gains)
-   |-- Tax-loss harvesting: sell losers in taxable, buy similar (not identical) fund, deduct up to $3,000/year
-```
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 119 lines of detailed guidance
 
 ## Decision Trees
 
-### Debt Payoff Strategy
+#
+
+## Debt Payoff Strategy
 
 ```
 What debts do you have?
@@ -288,7 +185,9 @@ Avalanche vs Snowball Comparison (example: $10K at 25% CC + $20K at 5% student l
 |-- RECOMMEND: Avalanche for disciplined (>$ savings), Snowball for those who need early wins
 ```
 
-### Retirement Planning
+#
+
+## Retirement Planning
 
 ```
 Retirement Account Selection:
@@ -319,7 +218,9 @@ Social Security Optimization:
 |-- Married couples: higher earner delays to 70 (survivor benefit), lower earner claims earlier
 ```
 
-### FIRE Pathways
+#
+
+## FIRE Pathways
 
 ```
 FIRE Types:
@@ -340,11 +241,15 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 |-- 75% savings rate -> 7 years
 ```
 
-### Decision Tree 4: Rent vs Buy Housing Decision
+#
+
+## Decision Tree 4: Rent vs Buy Housing Decision
 
 **Context:** You're deciding whether to continue renting or purchase a home. This is the largest financial decision most people make — calling it wrong can cost hundreds of thousands.
 
-#### Phase 1: Financial Readiness Check
+##
+
+## Phase 1: Financial Readiness Check
 - Do you have an emergency fund of 3-6 months expenses SEPARATE from your down payment?
   - No → Keep renting. Homeownership without an emergency fund is a foreclosure risk. A $10K HVAC failure or roof leak doesn't wait for your next paycheck.
   - Yes → Continue to down payment check.
@@ -363,7 +268,9 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
   - 620-679 → Fair. May only qualify for FHA or higher-rate conventional.
   - Below 620 → Fix credit first. Subprime rates add $50K-$100K+ in interest over a 30-year loan.
 
-#### Phase 2: The Rent vs Buy Math (The 5% Rule)
+##
+
+## Phase 2: The Rent vs Buy Math (The 5% Rule)
 - Use the **5% Rule** comparing total unrecoverable costs:
   - **Annual unrecoverable cost of owning**: ~5% of home value
     - Property tax: ~1%
@@ -378,7 +285,9 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
     - Example: $400,000 home × 5% = $20,000/year ($1,667/month). If rent is $1,500, renting wins.
     - Example: Same home, rent is $2,200/month → buying wins.
 
-#### Phase 3: Lifestyle & Timeline Factors
+##
+
+## Phase 3: Lifestyle & Timeline Factors
 - How long will you stay in this home?
   - <3 years → Rent. Transaction costs (6% agent commission + 2-5% closing costs) eat equity gains. Need 3-5 years minimum to break even on transaction costs.
   - 3-5 years → Borderline. Run the 5% Rule with local market projections. Flat/declining market → rent. Appreciating market with low rates → buy may work.
@@ -405,11 +314,15 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 
 **Recommendation:** Only buy if ALL of these are true: (1) you plan to stay 5+ years, (2) you have 6+ months emergency fund AFTER down payment and closing costs, (3) your DTI stays under 28% with the new mortgage, (4) the 5% Rule shows owning costs are ≤ renting. If any condition fails, keep renting and invest the difference in a diversified index fund. Home equity is illiquid and undiversified — it's not automatically a good investment.
 
-### Decision Tree 5: Tax-Advantaged Account Priority Flow (HSA vs 401k vs Roth vs Brokerage)
+#
+
+## Decision Tree 5: Tax-Advantaged Account Priority Flow (HSA vs 401k vs Roth vs Brokerage)
 
 **Context:** You have money to invest but are limited by annual contribution caps. In what order should you fund tax-advantaged accounts to maximize after-tax returns?
 
-#### Phase 1: The Waterfall Priority
+##
+
+## Phase 1: The Waterfall Priority
 Follow this exact order. Each step must be maxed before moving to the next:
 
 1. **401(k) employer match (FREE MONEY)** — Contribute enough to get the full match.
@@ -444,7 +357,9 @@ Follow this exact order. Each step must be maxed before moving to the next:
    - Tax-loss harvesting: sell losers to offset gains, deduct up to $3,000/year against ordinary income.
    - Overflow destination — money beyond the ~$30K-$77K in annual tax-advantaged space.
 
-#### Phase 2: Special Situations & Tradeoffs
+##
+
+## Phase 2: Special Situations & Tradeoffs
 - **529 Education Account**: Insert at step 3.5 if you have children. Tax-free growth for qualified education. Some states offer deductions. Fund AFTER 401(k) match and HSA, but before maxing 401(k) if education is a priority.
 - **High-income earners (>$150K single/$236K married)**: Roth IRA phased out → Backdoor Roth. Traditional 401(k) deduction more valuable at 32%+ brackets. Consider Mega Backdoor Roth for additional Roth space.
 - **Self-employed (1099/freelance)**: Solo 401(k) allows contributions as BOTH employee ($23,500) AND employer (up to 25% of compensation, total max $70,000). SEP IRA is simpler but only employer-side contributions. Prioritize Solo 401(k) over SEP IRA.
@@ -471,32 +386,42 @@ Income →
 
 ## Gotchas -- Highest-Value Content
 
-### Budgeting Gotchas
+#
+
+## Budgeting Gotchas
 
 *   **Monthly subscriptions multiply silently.** The average American underestimates subscription spending by 2x. Audit every recurring charge quarterly. Use a virtual card with spend limits or Privacy.com to prevent "forgot to cancel" charges.
 *   **"I deserve it" spending after a raise (lifestyle creep).** Getting a 10% raise and increasing spending by 10% means your savings rate stays flat -- you never get ahead. Rule: save 50% of every raise. Your future self earns it, not your current self.
 *   **Budgeting to the dollar without buffer.** A zero-based budget without a "miscellaneous" line fails when the car needs a $400 repair. Budget 5% for "life happens."
 
-### Debt Gotchas
+#
+
+## Debt Gotchas
 
 *   **0% APR balance transfers are not free.** The 3-5% fee on a $10,000 transfer is $300-$500 upfront. If you pay it off in 12 months, the effective APR is 3-5% -- still good for 25% credit card debt, but not "free."
 *   **Closing old credit cards hurts your score.** Credit age (15% of FICO) and utilization (30%) both tank when you close old accounts. Keep old no-fee cards open with a small recurring charge (Netflix) and autopay.
 *   **Debt consolidation loans often mask the problem.** 60% of people who consolidate credit card debt run up the cards again within 2 years. Consolidation only works if paired with spending discipline.
 
-### Investing Gotchas
+#
+
+## Investing Gotchas
 
 *   **Target date funds are NOT all equal.** The same "Target 2050" fund costs 0.08% at Vanguard and 0.75% at some providers. Over 40 years on $500K, that difference is $150,000+. Always check the expense ratio.
 *   **Holding bonds in taxable accounts is tax-inefficient.** Bond interest is taxed as ordinary income (up to 37%). Hold bonds in tax-deferred accounts (401k, Traditional IRA), stocks in taxable (qualified dividends at 0-20%, capital gains only when sold).
 *   **"This time is different" are the 4 most expensive words in investing.** Every bubble -- dot-com, housing, crypto, meme stocks -- had smart people explaining why this time the fundamentals did not matter. They were wrong. Mean reversion is the strongest force in markets.
 *   **Dollar-cost averaging a lump sum loses to lump-sum investing 67% of the time.** If you have $100K to invest, investing it all now beats spreading it over 12 months 2/3 of the time. DCA only wins behaviorally (reduces regret if markets drop right after).
 
-### Tax Gotchas
+#
+
+## Tax Gotchas
 
 *   **Roth conversions are taxable events.** Converting $50K from Traditional to Roth adds $50K to your taxable income that year. This can push you into a higher bracket, increase Medicare premiums (IRMAA), and trigger phaseouts. Model the tax impact BEFORE converting.
 *   **Wash sales make tax-loss harvesting illegal.** Selling VTI at a loss and buying VTI within 30 days (before or after) triggers a wash sale -- the loss is disallowed. Buy a similar but not "substantially identical" fund: sell VTI, buy ITOT or SCHB.
 *   **Non-spouse inherited IRAs must be emptied within 10 years.** The SECURE Act eliminated the "stretch IRA" for most non-spouse beneficiaries. A $500K inherited IRA distributed over 10 years adds $50K+/year to taxable income -- plan for this in estate planning.
 
-### Retirement Gotchas
+#
+
+## Retirement Gotchas
 
 *   **The 4% rule assumes a 30-year retirement.** For early retirement at 45 (50-year horizon), 4% fails in 15-20% of historical scenarios. Use 3.25-3.5% for retirements longer than 40 years.
 *   **Sequence of returns risk can destroy a retirement.** A -30% market drop in year 1-2 of retirement, combined with 4% withdrawals, can deplete a portfolio 15 years faster than if the same drop happened later. Mitigation: 2-3 years expenses in cash/bonds when starting retirement, flexible withdrawal rate.
@@ -531,6 +456,20 @@ If any check fails: diagnose from checklist, provide specific actionable fix, re
 | P5 | Age >55 AND asset allocation >90% stocks | [WARN] Sequence of returns risk. Consider increasing bond allocation. Recommend: at least (age - 20)% in bonds. |
 | P6 | All retirement savings in Traditional (no Roth) AND current marginal tax rate <22% | [INFO] Consider Roth contributions. You are in a low bracket -- paying tax now may save more long-term. |
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
@@ -546,12 +485,17 @@ If any check fails: diagnose from checklist, provide specific actionable fix, re
 | Career break, sabbatical, or mini-retirement | fp-and-a-analyst | COBRA vs ACA marketplace, gap-year tax bracket optimization, Roth conversion ladder during low-income years, resume-gap financial bridge plan |
 | Sudden windfall > $100K (inheritance, exit, lottery) | accountant, legal-advisor | Step-up in basis rules, gift tax implications, structured settlement vs lump sum NPV, 6-month "do nothing" rule to avoid emotional decisions |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | Data architecture, integration patterns, reliability requirements | Before building financial systems — errors cost real money |
 
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -571,7 +515,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -584,7 +530,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -619,6 +567,19 @@ graph LR
     F --> G[Year 5+: Max 401k, start taxable, savings rate 35%+]
     G --> H[Year 15-20: Coast FIRE achieved, options open up]
 ```
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

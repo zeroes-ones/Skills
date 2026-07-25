@@ -30,7 +30,6 @@ chain:
     - qa-engineer
     - security-reviewer
 ---
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
 # iOS Developer
@@ -87,11 +86,11 @@ All rules are non-negotiable. Violating any triggers immediate rollback and corr
 
 ---
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
+
 ## The Expert's Mindset
 
 You are not a code generator. You are the engineer Apple would staff on their most critical internal app. When you produce Swift:
@@ -142,430 +141,29 @@ Estimate your level from the user's request. State it upfront: "Operating at L3 
 
 ## Decision Trees
 
-### 1. SwiftUI vs UIKit
-
-```
 Building a new screen on iOS
-├── Minimum deployment target ≥ iOS 16?
-│   ├── YES → Does it need UIKit-only features?
-│   │   ├── YES (MKMapView, WKWebView, UIImagePicker, PDFKit, rich text editing)
-│   │   │   └── Use UIViewControllerRepresentable wrapping UIKit
-│   │   └── NO  → Use SwiftUI with NavigationStack
-│   └── NO (iOS 15 or lower)
-│       ├── Complex collection views, custom layouts, or pixel-perfect control
-│       │   └── Use UIKit (UICollectionView with compositional layout)
-│       └── Simple forms, lists, or settings
-│           └── Use SwiftUI (back-deploy most modifiers to iOS 15)
-└── Need to integrate with existing UIKit codebase?
-    ├── YES → Wrap SwiftUI in UIHostingController; UIKit owns navigation
-    └── NO  → Pure SwiftUI with NavigationStack
-```
 
-### 2. Architecture Pattern
-
-```
-Choosing architecture for an iOS app
-├── Solo developer or team of 2-3?
-│   └── MVVM (ObservableObject + @Published or @Observable macro on iOS 17+)
-│       Pros: Simple, Apple-aligned, great SwiftUI binding
-│       Cons: No strict unidirectional flow; can get messy at scale
-├── Team of 4-10, complex state, needs testability?
-│   ├── TCA (The Composable Architecture by Point-Free)
-│   │   Pros: Strict unidirectional flow, exhaustive testing, excellent debugging
-│   │   Cons: Learning curve, boilerplate, dependency on third-party framework
-│   └── MVVM + UseCases + Coordinators
-│       Pros: Familiar, separates concerns without framework lock-in
-│       Cons: Requires discipline to keep ViewModels thin
-├── Large enterprise with many modules?
-│   └── VIPER or Clean Swift
-│       Pros: Maximum separation, module-level independence
-│       Cons: Massive boilerplate, slow to iterate
-└── Prototyping or hackathon?
-    └── MVC (just get it working; refactor later)
-```
-
-### 3. Concurrency Choice
-
-```
-Handling async work
-├── Simple network call, single result?
-│   └── async/await with URLSession.shared.data(from:)
-├── Stream of values over time?
-│   ├── iOS 17+ → AsyncSequence (AsyncStream, AsyncThrowingStream)
-│   └── iOS 13-16 → Combine (AnyPublisher, @Published)
-├── Need background task that survives app suspension?
-│   └── BGTaskScheduler (BGAppRefreshTask / BGProcessingTask)
-├── Heavy computation, don't block main thread?
-│   └── Task.detached(priority: .background) { ... } with actor isolation
-├── Shared mutable state across concurrency domains?
-│   └── actor with Sendable-conforming types
-└── Legacy codebase with DispatchQueue?
-    └── Bridge with Continuation: withCheckedContinuation / withCheckedThrowingContinuation
-```
-
-### 4. Data Persistence
-
-```
-Choosing persistence layer
-├── iOS 17+ only, SwiftUI app?
-│   └── SwiftData (@Model, @Query, @Environment(\\.modelContext))
-│       Pros: Zero-setup, Swift-native, automatic iCloud sync opt-in
-│       Cons: Immature, limited query expressiveness, migration story evolving
-├── iOS 13-16, or need fine-grained control?
-│   ├── Core Data + NSPersistentCloudKitContainer
-│   │   Pros: Mature, powerful, CloudKit sync built-in
-│   │   Cons: Verbose, concurrency pitfalls, migration complexity
-│   └── GRDB (SQLite wrapper)
-│       Pros: Raw SQL when needed, observation with ValueObservation, fast
-│       Cons: Third-party, no built-in CloudKit sync
-├── Real-time sync, collaborative features?
-│   └── CloudKit (CKContainer, CKDatabase) directly
-│       Pros: Apple-managed, free tier generous, private database per user
-│       Cons: No server-side logic, eventual consistency
-├── Key-value settings, preferences?
-│   └── @AppStorage or UserDefaults
-└── Secure storage (tokens, credentials)?
-    └── Keychain (via Security framework or SwiftKeychainWrapper)
-```
-
-### 5. App Distribution
-
-```
-Distributing your app
-├── Development/testing phase?
-│   ├── Simulator → Just build and run (⌘R)
-│   ├── Physical device → Xcode auto-signing with Personal Team or Developer account
-│   └── Internal testers (≤100) → TestFlight Internal (no review, instant)
-├── Beta testing?
-│   └── TestFlight External (≤10,000 testers)
-│       ├── First build → Requires Beta App Review (~24-48 hours)
-│       └── Subsequent builds → No review unless significant changes
-├── Production release?
-│   └── App Store Connect submission
-│       ├── Passes App Review (~24 hours typical, up to 5 days)
-│       ├── Options: Manual release, phased release (7 days), auto-release
-│       └── Must pass: no crashes, complete metadata, privacy labels, export compliance
-└── Enterprise/Internal distribution?
-    ├── Apple Business Manager + MDM → For employees
-    └── Enterprise Program (in-house) → For internal-only apps (no App Store)
-```
-
-### 6. Animation Performance
-
-```
-Animation jank detected
-├── Running on simulator? → Test on device first; simulator ≠ device GPU
-├── Check Instruments > Core Animation template
-│   ├── FPS consistently <55? → Too much work on main thread
-│   │   └── Profile with Time Profiler; offload heavy work
-│   ├── "Hitches" detected? → Inconsistent frame pacing
-│   └── "Impact" > 10ms? → Identify the slow phase
-├── Using implicit animations (.animation modifier)?
-│   └── Prefer withAnimation { } block for explicit control
-├── Animating layout (offset, frame)?
-│   └── Use .drawingGroup() to rasterize, or Canvas for custom drawing
-├── Animating many views simultaneously?
-│   └── Reduce to animating a single container; use matchedGeometryEffect for transitions
-├── Shadows or blurs during animation?
-│   └── Cache shadow path: view.layer.shadowPath = UIBezierPath(…).cgPath
-└── List/ScrollView during animation?
-    └── Avoid GeometryReader inside scrolling lists; use .scrollPosition(id:) instead
-```
-
----
+> 📎 Full content extracted to [references/decision-trees.md](references/decision-trees.md) — 133 lines of detailed guidance, patterns, and code examples.
 
 ## Core Workflow
 
-### A. SwiftUI Views
-
 Build composable, testable views using a strict hierarchy:
 
-```swift
-// Screen = Navigation container
-struct ProductListScreen: View {
-    @State private var viewModel = ProductListViewModel()
+> 📎 See [references/core-workflow.md](references/core-workflow.md) for complete guidance (291 lines).
 
-    var body: some View {
-        NavigationStack {
-            ProductListContentView(state: viewModel.state)
-                .navigationTitle("Products")
-                .task { await viewModel.load() }
-        }
-    }
-}
+## Error Recovery
 
-// Content = State-driven switch
-struct ProductListContentView: View {
-    let state: ProductListState
+If a command or approach fails, follow this escalation path before giving up:
 
-    var body: some View {
-        switch state {
-        case .loading:   ProgressView("Loading…")
-        case .empty:     ContentUnavailableView("No Products", systemImage: "bag")
-        case .loaded(let items): ProductGrid(items: items)
-        case .error(let msg): ErrorView(message: msg)
-        }
-    }
-}
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
-// Leaf = Stateless, data-in-events-out
-struct ProductCard: View {
-    let product: Product
-    let onFavorite: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            AsyncImage(url: product.thumbnailURL) { $0.resizable().aspectRatio(contentMode: .fill) }
-                .frame(height: 140).clipShape(RoundedRectangle(cornerRadius: 12))
-            Text(product.name).font(.headline).lineLimit(2)
-            HStack { Text(product.price); Spacer(); Button(action: onFavorite) { Image(systemName: "heart") } }
-        }
-    }
-}
-```
-
-### B. Data Flow
-
-| Mechanism | When to Use | iOS Min |
-|-----------|-------------|---------|
-| `@State` | Local view state owned by the view | 13+ |
-| `@Binding` | Parent owns state, child mutates | 13+ |
-| `@StateObject` / `@ObservedObject` | Reference-type ObservableObject | 13+ |
-| `@EnvironmentObject` | Deep dependency injection across view tree | 13+ |
-| `@Observable` (macro) | iOS 17+ replacement for ObservableObject | 17+ |
-| `@Environment` | System values (colorScheme, modelContext, dismiss) | 13+ |
-| `@AppStorage` | UserDefaults-backed state | 14+ |
-
-**Rule of thumb:** Prefer `@Observable` on iOS 17+. For iOS 16-, use `@StateObject` for owners and `@ObservedObject` for children.
-
-### C. Navigation (NavigationStack)
-
-```swift
-enum Route: Hashable {
-    case productDetail(Product.ID)
-    case checkout
-    case settings
-}
-
-struct AppNavigation: View {
-    @State private var path = NavigationPath()
-
-    var body: some View {
-        NavigationStack(path: $path) {
-            HomeView()
-                .navigationDestination(for: Route.self) { route in
-                    switch route {
-                    case .productDetail(let id): ProductDetailView(id: id)
-                    case .checkout:              CheckoutView()
-                    case .settings:              SettingsView()
-                    }
-                }
-        }
-    }
-}
-```
-
-### D. Networking
-
-```swift
-// Protocol for testability
-protocol APIServiceProtocol {
-    func fetch<T: Decodable>(_ endpoint: Endpoint) async throws -> T
-}
-
-struct APIService: APIServiceProtocol {
-    private let session: URLSession
-    private let decoder: JSONDecoder
-
-    init(session: URLSession = .shared) {
-        self.session = session
-        self.decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        decoder.dateDecodingStrategy = .iso8601
-    }
-
-    func fetch<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
-        let (data, response) = try await session.data(for: endpoint.urlRequest)
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw APIError.invalidResponse
-        }
-        return try decoder.decode(T.self, from: data)
-    }
-}
-```
-
-### E. Persistence (Core Data / SwiftData)
-
-**SwiftData (iOS 17+):**
-
-```swift
-@Model final class Note {
-    var title: String
-    var bodyText: String
-    var createdAt: Date
-    @Relationship(deleteRule: .cascade) var tags: [Tag]
-
-    init(title: String, bodyText: String) {
-        self.title = title
-        self.bodyText = bodyText
-        self.createdAt = .now
-        self.tags = []
-    }
-}
-
-// Usage
-struct NotesList: View {
-    @Query(sort: \Note.createdAt, order: .reverse) private var notes: [Note]
-    @Environment(\\.modelContext) private var context
-
-    var body: some View {
-        List(notes) { note in NoteRow(note: note) }
-    }
-}
-```
-
-**Core Data (iOS 13+):**
-
-```swift
-final class PersistenceController {
-    static let shared = PersistenceController()
-    let container: NSPersistentContainer
-
-    init() {
-        container = NSPersistentContainer(name: "Model")
-        container.loadPersistentStores { _, error in
-            if let error = error { fatalError("Core Data error: \\(error)") }
-        }
-        container.viewContext.automaticallyMergesChangesFromParent = true
-    }
-}
-```
-
-### F. Concurrency
-
-```swift
-// MainActor-isolated ViewModel
-@MainActor
-final class ProductListViewModel {
-    private let service: APIServiceProtocol
-    private(set) var state: ProductListState = .loading
-
-    init(service: APIServiceProtocol = APIService()) {
-        self.service = service
-    }
-
-    func load() async {
-        state = .loading
-        do {
-            let products: [Product] = try await service.fetch(.products)
-            state = products.isEmpty ? .empty : .loaded(products)
-        } catch {
-            state = .error(error.localizedDescription)
-        }
-    }
-}
-
-// Actor for thread-safe caching
-actor ImageCache {
-    private var storage: [URL: UIImage] = [:]
-
-    func image(for url: URL) -> UIImage? { storage[url] }
-    func store(_ image: UIImage, for url: URL) { storage[url] = image }
-}
-
-// Sendable model
-struct Product: Codable, Identifiable, Sendable {
-    let id: Int
-    let name: String
-    let price: Double
-}
-```
-
-### G. Testing (XCTest)
-
-```swift
-final class ProductListViewModelTests: XCTestCase {
-    func testLoadProductsSuccess() async throws {
-        let mockService = MockAPIService()
-        mockService.stubProducts = [.mock(id: 1, name: "Widget")]
-
-        let viewModel = await ProductListViewModel(service: mockService)
-        await viewModel.load()
-
-        let state = await viewModel.state
-        guard case .loaded(let products) = state else {
-            return XCTFail("Expected .loaded, got \\(state)")
-        }
-        XCTAssertEqual(products.count, 1)
-        XCTAssertEqual(products.first?.name, "Widget")
-    }
-
-    func testLoadProductsEmpty() async throws {
-        let mockService = MockAPIService()
-        mockService.stubProducts = []
-
-        let viewModel = await ProductListViewModel(service: mockService)
-        await viewModel.load()
-
-        let state = await viewModel.state
-        guard case .empty = state else {
-            return XCTFail("Expected .empty, got \\(state)")
-        }
-    }
-}
-```
-
-### H. Accessibility (VoiceOver)
-
-```swift
-// Minimum viable accessibility for every view
-struct AccessibleProductCard: View {
-    let product: Product
-
-    var body: some View {
-        VStack {
-            AsyncImage(url: product.imageURL)
-            Text(product.name)
-            Text(product.price)
-        }
-        .accessibilityElement(children: .combine)        // One element, not three
-        .accessibilityLabel("\\(product.name), \\(product.price)") // Concise label
-        .accessibilityHint("Double-tap to view details")          // Action hint
-        .accessibilityAddTraits(.isButton)                        // Behaves like button
-    }
-}
-
-// Critical accessibility checklist:
-// [ ] Every interactive element has accessibilityLabel
-// [ ] Images have accessibilityLabel or are marked .accessibilityHidden(true) if decorative
-// [ ] Dynamic Type up to accessibilityExtraExtraExtraLarge doesn't truncate
-// [ ] Minimum contrast ratio 4.5:1 for body text, 3:1 for large text
-// [ ] VoiceOver swipe order matches visual order
-// [ ] Reduce Motion respected with .accessibilityReduceMotion
-// [ ] Button hit targets ≥ 44×44 points
-```
-
-### I. Instruments Profiling
-
-```bash
-# Launch profiling from CLI
-xcodebuild test \
-  -project App.xcodeproj \
-  -scheme App \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
-  -enablePerformanceTests
-
-# Key Instruments templates:
-# Time Profiler  → CPU hotspots (target: <60ms per frame on main thread)
-# Allocations    → Memory growth patterns (target: returns to baseline after screen dismiss)
-# Leaks          → Retain cycles (target: zero leaks after 5-min interaction)
-# SwiftUI        → Body invocation count (target: no redundant recomputations)
-# Core Animation → FPS & hitches (target: 60fps minimum, 120fps ProMotion)
-# Energy Log     → Battery impact (target: <1% battery per active minute)
-```
-
----
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
 
@@ -581,6 +179,13 @@ xcodebuild test \
 | CI/CD pipeline for TestFlight builds | `ci-cd-builder` | Fastlane lane + GitHub Actions workflow YAML |
 
 ---
+
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | Architecture decisions, technology constraints, system boundaries | Before implementing features that cross system boundaries |
+| `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
+
 
 ## Proactive Triggers
 
@@ -619,7 +224,9 @@ A 10/10 iOS feature delivery includes:
 
 Three exercises to level up. Set a timer. Ship working code.
 
-### Exercise 1: The Infinite Scrolling List (30 min)
+#
+
+## Exercise 1: The Infinite Scrolling List (30 min)
 
 Build a SwiftUI list that paginates from a mock API, handles loading/error/empty states, uses `@Observable` (or `@StateObject`), and has pull-to-refresh. Time yourself: can you get all four states working in 30 minutes with zero console warnings?
 
@@ -630,7 +237,9 @@ Build a SwiftUI list that paginates from a mock API, handles loading/error/empty
 - Empty state uses `ContentUnavailableView`
 - VoiceOver reads each cell correctly
 
-### Exercise 2: The Actor-Backed Image Cache (45 min)
+#
+
+## Exercise 2: The Actor-Backed Image Cache (45 min)
 
 Implement a thread-safe image cache using Swift actors. Download images concurrently with `TaskGroup`, cache in an `actor`, and display in a `LazyVGrid` without flickering or data races. Profile with Instruments > Allocations to verify no memory growth beyond cache limit.
 
@@ -641,7 +250,9 @@ Implement a thread-safe image cache using Swift actors. Download images concurre
 - MainActor-isolated UI updates
 - 60 fps scroll even with 200+ images
 
-### Exercise 3: The App Store-Ready Feature (60 min)
+#
+
+## Exercise 3: The App Store-Ready Feature (60 min)
 
 Build a complete feature — from Xcode project setup to TestFlight-ready archive — for a notes app with Core Data persistence, CRUD operations, and iCloud sync. Must pass App Store validation (`xcodebuild -exportArchive`), include `PrivacyInfo.xcprivacy`, and have 80%+ test coverage on ViewModel logic.
 
@@ -658,194 +269,13 @@ Build a complete feature — from Xcode project setup to TestFlight-ready archiv
 
 Real-world Apple platform traps and their business impact.
 
-### 1. ATS Blocks HTTP Connections (~$50K)
-
-**Symptom:** Network requests silently fail with `Error Domain=NSURLErrorDomain Code=-1022`.  
-**Cause:** App Transport Security blocks plain HTTP connections.  
-**Fix:** Add `NSAppTransportSecurity > NSAllowsArbitraryLoads` to `Info.plist` — but prefer per-domain exceptions:
-
-```xml
-<key>NSAppTransportSecurity</key>
-<dict>
-    <key>NSExceptionDomains</key>
-    <dict>
-        <key>api.staging.example.com</key>
-        <dict>
-            <key>NSExceptionAllowsInsecureHTTPLoads</key>
-            <true/>
-        </dict>
-    </dict>
-</dict>
-```
-
-**Impact:** $50K in delayed launch if discovered after App Store submission. Always test on a physical device — Simulator is more lenient with ATS.
-
-### 2. Main Actor Isolation Warning Cascade (~$20K)
-
-**Symptom:** `Expression requiring global actor 'MainActor' cannot appear in default-value expression of property '_viewModel'`.  
-**Cause:** `@StateObject` / `@State` on a `@MainActor`-isolated type in a non-isolated View.  
-**Fix:** Annotate the View with `@MainActor`:
-
-```swift
-@MainActor
-struct ProductListView: View {
-    @State private var viewModel = ProductListViewModel() // OK now
-    // ...
-}
-```
-
-**Impact:** A cascade of 40+ compiler errors from one missing annotation. $20K in wasted debugging time per large feature.
-
-### 3. Retain Cycles in Closures (~$100K memory leak)
-
-**Symptom:** ViewModel never deinitializes; `deinit` never called. Memory grows with each navigation cycle.  
-**Cause:** Strong capture of `self` in escaping closures:
-
-```swift
-// WRONG — retains self forever
-service.onUpdate = { self.products = $0 }
-
-// RIGHT — weak capture
-service.onUpdate = { [weak self] products in
-    self?.products = products
-}
-```
-
-**Impact:** Memory leak causing app termination by jetsam. $100K+ user churn when app reliably crashes after 10-15 navigation cycles.
-
-### 4. unowned Crash in Asynchronous Context (~$75K)
-
-**Symptom:** `Thread 1: EXC_BAD_ACCESS` or `Fatal error: Attempted to read an unowned reference but the object was already deallocated`.  
-**Cause:** `[unowned self]` when `self` can deallocate before the closure executes:
-
-```swift
-// WRONG — imageLoader may outlive self
-imageLoader.load { [unowned self] image in
-    self.imageView.image = image // CRASH
-}
-
-// RIGHT
-imageLoader.load { [weak self] image in
-    self?.imageView?.image = image
-}
-```
-
-**Rule:** `unowned` is safe ONLY when the captured object is guaranteed to outlive the closure — e.g., a parent capturing its child. In async contexts, always use `weak`.
-
-**Impact:** $75K (crash rate spike → 2-star App Store rating → 30% conversion drop).
-
-### 5. Core Data Thread Confinement (~$60K)
-
-**Symptom:** `CoreData: error: Serious application error. An exception was caught from the delegate... NSManagedObjectContext is accessed from wrong thread`.  
-**Cause:** Reading `NSManagedObject` properties on a thread other than its context's queue.  
-**Fix:**
-
-```swift
-// WRONG — viewContext is main-queue only
-DispatchQueue.global().async {
-    let count = context.registeredObjects.count // CRASH
-}
-
-// RIGHT — use perform/performAndWait
-context.perform {
-    let count = context.registeredObjects.count
-}
-
-// EVEN BETTER — pass objectID across threads
-let objectID = managedObject.objectID
-Task.detached {
-    let context = PersistenceController.shared.container.newBackgroundContext()
-    let object = context.object(with: objectID)
-    // Use object safely here
-}
-```
-
-**Impact:** $60K — intermittent crashes impossible to reproduce, leading to negative reviews and support burden.
-
-### 6. SwiftUI View Identity Breakage (~$40K)
-
-**Symptom:** Animations break, `onAppear` fires unexpectedly, state resets.  
-**Cause:** Using `id(_:)` unnecessarily, or relying on indices for `ForEach` with mutable data:
-
-```swift
-// WRONG — index-based identity; state lost on reorder
-ForEach(0..<items.count, id: \.self) { index in
-    ItemRow(item: items[index])
-}
-
-// RIGHT — stable identity from model
-ForEach(items) { item in
-    ItemRow(item: item)
-}
-```
-
-**Impact:** $40K in UX debt. Users report "the app glitches when I scroll fast." Debugging SwiftUI identity issues can take days.
-
-### 7. Xcode Previews Crash Silently (~$15K)
-
-**Symptom:** Preview canvas shows "Preview Crashed" or hangs on spinner.  
-**Cause (common):**
-
-```swift
-// Previews try to access Keychain, UserDefaults suite, or network
-#Preview {
-    ProductListView()
-        .onAppear {
-            // This fires in preview too!
-            APIKeyManager.shared.configure() // 💥 crash
-        }
-}
-
-// FIX — guard against preview environment
-#Preview {
-    ProductListView()
-        .environment(\.isPreview, true)
-}
-```
-
-Or use mock services in previews: `ProductListView(service: MockAPIService())`.
-
-**Impact:** $15K per feature. Developers lose preview productivity and revert to simulator-only iteration.
-
-### 8. Missing Entitlement Silently Breaks Feature (~$45K)
-
-**Symptom:** Feature works on Simulator, fails on device with no clear error.  
-**Example:** Push notifications silently fail without `aps-environment` entitlement. iCloud sync quietly doesn't work without `com.apple.developer.icloud-container-identifiers`.  
-**Fix:** Verify entitlements in `App.entitlements`:
-
-```xml
-<key>aps-environment</key>
-<string>development</string>
-<key>com.apple.developer.icloud-container-identifiers</key>
-<array>
-    <string>iCloud.com.example.app</string>
-</array>
-```
-
-**Impact:** $45K — feature flagged "complete" for weeks before device testing reveals it never worked.
-
----
+> 📎 Full content extracted to [references/gotchas.md](references/gotchas.md) — 171 lines of detailed guidance, patterns, and code examples.
 
 ## Verification Checklist
 
 Before marking any iOS task complete:
 
-- [ ] Builds from clean (`xcodebuild clean build`) with zero errors and zero warnings
-- [ ] All four screen states (loading, loaded, empty, error) implemented and visible
-- [ ] VoiceOver reads every interactive element with meaningful labels
-- [ ] Dynamic Type from `xSmall` to `accessibilityExtraExtraExtraLarge` doesn't clip or truncate
-- [ ] `PrivacyInfo.xcprivacy` exists and lists all required API reason categories
-- [ ] No `try?` discarding errors — all failure paths handled with user-visible feedback
-- [ ] No `!` force-unwrap on optionals from external sources (network, database, user defaults)
-- [ ] All closures capture `[weak self]` unless lifetime is provably shorter
-- [ ] Core Data / SwiftData operations respect thread confinement
-- [ ] `.gitignore` excludes `xcuserdata/`, `*.xcworkspace/xcuserdata/`, `DerivedData/`
-- [ ] `Info.plist` includes `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`, etc., for any requested permissions
-- [ ] Instruments > Leaks shows zero leaks after 5-minute navigation cycle
-- [ ] TestFlight archive validates with `xcodebuild -exportArchive`
-- [ ] `@available` guards wrap any API newer than `IPHONEOS_DEPLOYMENT_TARGET`
-
----
+> 📎 Full content extracted to [references/verification-checklist.md](references/verification-checklist.md) — 20 lines of detailed guidance, patterns, and code examples.
 
 ## Anti-Rationalization — No Excuses
 
@@ -859,9 +289,24 @@ Before marking any iOS task complete:
 
 ---
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
-### Skill Reference Files
+#
+
+## Skill Reference Files
 
 | File | Content | When to Load |
 |------|---------|-------------|
@@ -874,7 +319,9 @@ Before marking any iOS task complete:
 | `references/instruments-profiling.md` | Time Profiler, Allocations, Leaks, SwiftUI, Core Animation, Energy Log | Performance profiling |
 | `references/xcode-build-settings.md` | xcconfig, SWIFT_OPTIMIZATION_LEVEL, privacy manifest, provisioning | Build configuration |
 
-### Apple Documentation (Official)
+#
+
+## Apple Documentation (Official)
 
 | Resource | URL |
 |----------|-----|
@@ -892,7 +339,9 @@ Before marking any iOS task complete:
 | CloudKit | https://developer.apple.com/documentation/cloudkit |
 | Sign in with Apple | https://developer.apple.com/documentation/authenticationservices |
 
-### Third-Party Resources
+#
+
+## Third-Party Resources
 
 | Resource | URL | Use For |
 |----------|-----|---------|
@@ -906,14 +355,18 @@ Before marking any iOS task complete:
 
 ## Operating at Different Levels
 
-### Solo Developer
+#
+
+## Solo Developer
 - Build directly in Xcode with auto-signing
 - SwiftData for persistence (zero setup)
 - MVVM with `@Observable` (iOS 17+)
 - TestFlight Internal for testing
 - No CI/CD — manual archive and upload
 
-### Small Team (2-5)
+#
+
+## Small Team (2-5)
 - Shared Xcode project with `.xcconfig` for environment-specific settings
 - Core Data + `NSPersistentCloudKitContainer` for sync
 - MVVM + protocol-based services for testability
@@ -921,7 +374,9 @@ Before marking any iOS task complete:
 - SwiftLint for style enforcement
 - PR template with accessibility checklist
 
-### Medium Team (5-20)
+#
+
+## Medium Team (5-20)
 - Multi-module Xcode project or Swift Package Manager modules
 - TCA for complex state management
 - Dedicated coordinator pattern for navigation
@@ -930,7 +385,9 @@ Before marking any iOS task complete:
 - Per-view accessibility audit in PR review
 - Feature flags for phased rollout
 
-### Enterprise (20+)
+#
+
+## Enterprise (20+)
 - Microfeature SPM packages with strict API boundaries
 - TCA or VIPER for module-level architecture
 - Dedicated platform team maintaining internal frameworks
@@ -941,13 +398,13 @@ Before marking any iOS task complete:
 - On-call rotation with crash monitoring (Firebase Crashlytics / Sentry)
 
 ---
-
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -967,7 +424,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -980,7 +439,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -993,18 +454,4 @@ Before beginning a new phase, verify:
 
 Before any production release, verify ALL of:
 
-1. [ ] **Code signing:** Archive succeeds with Distribution provisioning profile; no "Failed to codesign" errors
-2. [ ] **Entitlements:** `aps-environment`, `com.apple.developer.icloud-container-identifiers`, and any custom entitlements match provisioning profile
-3. [ ] **Privacy manifest:** `PrivacyInfo.xcprivacy` includes all required-reason API categories (UserDefaults, file timestamp, system boot time, disk space, active keyboard, etc.)
-4. [ ] **ATS configuration:** No `NSAllowsArbitraryLoads` at top level without security review sign-off; per-domain exceptions preferred
-5. [ ] **Launch screen:** `LaunchScreen.storyboard` exists; no blank black screen on cold launch
-6. [ ] **App thinning:** Slicing enabled; `ENABLE_BITCODE` understanding (deprecated in Xcode 14+)
-7. [ ] **Crash-free rate ≥ 99.5%:** Verified via Xcode Organizer or Crashlytics for last 7 days
-8. [ ] **Network resilience:** All network calls have timeout + retry; no infinite spinners
-9. [ ] **Background tasks:** `BGTaskScheduler` handlers complete within 30 seconds or call `expirationHandler`
-10. [ ] **StoreKit 2:** IAP products fetched and displayed; `Transaction.updates` listener active; no hardcoded product IDs in production
-11. [ ] **Deep links:** Universal Links configured in `apple-app-site-association`; URL scheme fallback registered
-12. [ ] **App Store metadata:** Screenshots for all required sizes (6.7", 6.5", 5.5"); app description, keywords, and privacy labels complete
-13. [ ] **Export compliance:** CCATS or ERN filed if using encryption beyond OS-provided (HTTPS, WPA)
-14. [ ] **Accessibility:** Basic VoiceOver audit passes; no `accessibilityLabel` = "" on tappable elements
-15. [ ] **Size budget:** App bundle <200 MB for cellular download; on-demand resources configured for assets exceeding threshold
+> 📎 Full content extracted to [references/production-checklist.md](references/production-checklist.md) — 19 lines of detailed guidance, patterns, and code examples.

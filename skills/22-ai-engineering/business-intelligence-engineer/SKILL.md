@@ -41,7 +41,6 @@ chain:
     - revops-manager
     - fp-and-a-analyst
 ---
-
 # Business Intelligence Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -63,7 +62,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN about dashboards querying raw fact tables with no aggregation layer.** A dashboard that runs `SELECT * FROM transactions WHERE ...` on every load will time out at scale. | Trigger: BI model or SQL contains `FROM transactions` or `FROM fact_*` without pre-aggregation (no `materialized\|incremental\|summary\|aggregate` reference nearby) | WARN: "This dashboard queries raw transaction-level fact tables. At scale (1M+ rows), load time will exceed 30 seconds. Add daily-aggregated summary tables with incremental materialization. Pre-compute KPIs as materialized views." |
 | **R7** | **DETECT and WARN about non-idempotent incremental dbt models.** An incremental model without a unique key produces duplicate rows on re-run. | Trigger: `grep -rn "incremental" --include="*.sql" -A 10 \| grep -v "unique_key"` finds incremental configs with no deduplication key | WARN: "Incremental models without `unique_key` produce duplicate rows on re-run. Add: `{{ config(materialized='incremental', unique_key='id') }}`. Test idempotency: run `dbt run --full-refresh` and `dbt run` twice — row counts must match." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -79,12 +77,16 @@ Masters of business intelligence engineer don't just build — they build **the 
 | **Not-invented-here** — preferring to build rather than compose | Always evaluate 2 existing solutions before building custom |
 | **Sunk cost fallacy** — sticking with a technology because you already invested in it | Re-evaluate tech choices every quarter; migration cost vs. staying cost |
 
-### What Masters Know That Others Don't
+#
+
+## What Masters Know That Others Don't
 - The **failure modes** of every component in their stack — not just the happy path
 - When **not** to use their favorite tool (every tool has a misuse zone)
 - That **data/model quality decays over time** — monitoring is not optional, it's foundational
 
-### When to Break Your Own Rules
+#
+
+## When to Break Your Own Rules
 - **Move fast on reversible decisions.** Data format? Hard to change. Dashboard layout? Easy. Know the difference.
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
@@ -103,7 +105,9 @@ Masters of business intelligence engineer don't just build — they build **the 
 | **A7** | `file_contains("*.sql\|*.yml", "dbt_test\|great_expectations\|data_quality\|not_null\|unique\|accepted_values")` | This is your skill. Jump to **Core Workflow** — Phase 5 (Data Quality). | "I detect dbt tests/data quality checks — routing to data quality testing strategy." |
 | **A8** | `file_contains("*", "embedded\|white.label\|customer.facing\|iframe\|export")` AND `file_contains("*.yml", "dashboard\|report\|chart\|visualization")` | This is your skill. Jump to **Core Workflow** — Phase 6 (Embedded Analytics). | "I detect embedded/customer-facing analytics — routing to embedded BI architecture." |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
 
 ```
@@ -121,7 +125,9 @@ What are you building?
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
-### Auto-Route (No User Input Required)
+#
+
+## Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
 | # | Detect Condition | Route To | Intent Route Fallback |
@@ -135,7 +141,9 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | **A7** | `file_contains("*.sql", "CREATE TABLE\|ALTER TABLE\|raw_\|staging_\|ods_")` AND `file_contains("*", "pipeline\|ETL\|ELT\|orchestrat")` | Invoke **data-engineer** instead. Raw data pipelines and ingestion belong to data engineering before BI modeling. | "I detect raw data pipeline and table creation — routing to Data Engineer for ingestion and transformation." |
 | **A8** | `file_contains("*", "financial_model\|forecast\|projection\|p&l\|balance_sheet\|cash_flow")` | Invoke **fp-and-a-analyst** instead. Financial modeling and forecasting is FP&A, not BI engineering. | "I detect financial modeling/forecasting — routing to FP&A Analyst for financial planning." |
 
-### Alternative Route (Ask the User)
+#
+
+## Alternative Route (Ask the User)
 If no auto-route matched, use this intent tree:
 
 ```
@@ -180,6 +188,20 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Responding to "why don't these numbers match?"** — The CEO's dashboard shows $42M ARR, the CFO's shows $38M. You need metric reconciliation, definition audit, and a resolution process that prevents recurrence.
 - **Tracking clinical outcomes or health equity metrics** — Your health platform needs to monitor patient outcomes, care quality scores, or demographic parity. You need a structured analytics approach that handles clinical data governance requirements.
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->
@@ -222,112 +244,19 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | Embedded analytics dashboard for enterprise customer times out during their quarterly business review | Propose tenant-isolated query pools with per-tenant concurrency limits and query timeouts; pre-compute tenant-specific aggregates nightly; sync with `data-engineer` on query performance and `backend-developer` on API isolation | In embedded analytics, your biggest customer's experience is only as good as your noisiest tenant's worst query; tenant isolation is not optional when contracts have SLA clauses |
 
 ## Core Workflow
+<!-- COMPRESSED: Full 108 lines extracted to references/core-workflow.md -->
 
 <!-- STANDARD: 3min -->
 
-### Phase 1 (~25 min): Semantic Layer Design
+#
 
-#### dbt Metrics with MetricFlow
+## Phase 1 (~25 min): Semantic Layer Design
 
-```yaml
-# models/semantic_layer/metrics/revenue.yml
-semantic_models:
-  - name: orders
-    model: ref('fct_orders')
-    entities:
-      - name: order_id
-        type: primary
-      - name: customer_id
-        type: foreign
-    dimensions:
-      - name: order_date
-        type: time
-        type_params:
-          time_granularity: day
-      - name: order_status
-        type: categorical
-    measures:
-      - name: revenue
-        agg: sum
-        expr: net_revenue_amount
-      - name: order_count
-        agg: count
-        expr: order_id
+##
 
-metrics:
-  - name: net_revenue
-    description: Total net revenue after discounts and refunds
-    type: simple
-    label: Net Revenue
-    type_params:
-      measure: revenue
-
-  - name: net_revenue_mom_growth
-    description: Month-over-month net revenue growth rate
-    type: ratio
-    label: Revenue MoM Growth
-    type_params:
-      numerator: net_revenue
-      denominator: net_revenue
-      numerator_offsets:
-        month_offset: 0
-      denominator_offsets:
-        month_offset: -1
-```
-
-#### LookML Explores
-
-```yaml
-# orders.explore.lkml
-explore: orders {
-  label: "Order Analytics"
-  from: fct_orders
-
-  join: dim_customers {
-    sql_on: ${orders.customer_id} = ${dim_customers.customer_id} ;;
-    type: left_outer
-    relationship: many_to_one
-  }
-
-  join: fct_order_lines {
-    sql_on: ${orders.order_id} = ${fct_order_lines.order_id} ;;
-    type: left_outer
-    relationship: one_to_many
-  }
-}
-
-# orders.view.lkml
-view: fct_orders {
-  sql_table_name: analytics.fct_orders ;;
-
-  dimension: order_id { type: number primary_key: yes sql: ${TABLE}.order_id ;; }
-  dimension: order_date { type: date sql: ${TABLE}.order_date ;; }
-  dimension_group: created { type: time timeframes: [date, week, month, quarter, year] sql: ${TABLE}.created_at ;; }
-
-  measure: net_revenue { type: sum sql: ${TABLE}.net_revenue_amount ;; value_format_name: usd }
-  measure: order_count { type: count }
-  measure: average_order_value { type: number sql: ${net_revenue} / NULLIF(${order_count}, 0) ;; value_format_name: usd }
-}
-```
-
-#### Universal Semantic Layer Principles
-
-- **MetricFlow** (dbt): code-first, version-controlled, git-friendly — best for dbt shops
-- **LookML** (Looker): GUI + code hybrid, strong permission model, embedded analytics — best for Looker
-- **Cube.js**: open-source, headless BI, REST/GraphQL API, caching layer — best for custom apps
-- **Principles**: metrics defined once, used everywhere; dimensions drillable across metrics; time-over-time comparisons built into semantic layer, not dashboard-level calculations
-
-### Phase 2 (~25 min): Self-Serve Dashboard Architecture
-
-#### Tool Selection
-
-| Tool | Best For | Pricing Model | Governance |
-|------|----------|---------------|------------|
-| Looker | Enterprise, embedded analytics | Per-user, expensive | Strong — LookML, folders, permissions |
-| Metabase | Mid-market, simplicity | Open-source or hosted | Moderate — collections, permissions |
-| Lightdash |
-
-> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+## dbt Metrics with MetricFlow
+...
+> 📎 **Full content (108 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Cross-Skill Integration
 
@@ -349,70 +278,11 @@ Common chains:
 - **Chain**: business-intelligence-engineer → investor-relations — BI provides verified metrics for investor reporting, due diligence, and fundraising materials
 
 ## Decision Trees
+<!-- 66 lines extracted to references/decision-trees.md -->
 
-<!-- QUICK: 60s -- flowchart-style logic for fork-in-the-road decisions -->
+Key BI decisions: data modeling (star vs snowflake vs OBT), ETL vs ELT, materialization strategy, metric layer design, and semantic model governance.
 
-### Self-Serve vs Curated Dashboards
-<!-- Decision tree for choosing between governed self-serve exploration and curated, locked-down dashboards -->
-
-```
-START: Stakeholder requests new dashboard or data access
-  │
-  ├─ Is the audience the board of directors, investors, or external partners?
-  │    ├─ YES → CURATED. Locked dashboard with approved metric definitions. No self-serve.
-  │    └─ NO → Continue
-  │
-  ├─ Does the data contain PHI, individually identifiable financial data, or material non-public information?
-  │    ├─ YES → CURATED. Row-level security, audit trail, export restrictions.
-  │    └─ NO → Continue
-  │
-  ├─ Is the metric definition stable, well-documented, and governed in the semantic layer?
-  │    ├─ NO → CURATED. Do not expose ungoverned metrics in self-serve. Define first, then expose.
-  │    └─ YES → Continue
-  │
-  ├─ Does the stakeholder have data literacy to interpret metrics correctly (understands rate vs count, MoM vs YoY, statistical significance)?
-  │    ├─ NO → CURATED with narrative. Provide interpreted report rather than raw exploration.
-  │    └─ YES → Continue
-  │
-  ├─ Is the stakeholder a power analyst who needs ad-hoc drill-down, cohort building, or cross-domain joins?
-  │    ├─ YES → SELF-SERVE (exploratory tier). Label as "exploratory — not board-reviewed." Creator attribution visible.
-  │    └─ NO → SELF-SERVE (governed tier). Curated dataset. Locked metric tiles. Pre-built drill paths.
-  │
-  └─ FINAL GATE: Will a wrong number from this dashboard reach investors, regulators, or patients?
-       ├─ YES → Require peer review and stakeholder sign-off before self-serve access.
-       └─ NO → SELF-SERVE with freshness SLA label and "last reviewed" timestamp.
-```
-
-### When to Build a Semantic Layer vs Direct Queries
-<!-- Decision tree for choosing between a governed semantic layer and direct database queries -->
-
-```
-START: Need to expose data for reporting or analysis
-  │
-  ├─ Will this metric be used by more than one person, team, or dashboard?
-  │    ├─ YES → SEMANTIC LAYER. Define once, use everywhere.
-  │    └─ NO → Continue
-  │
-  ├─ Is the metric business-critical (ARR, NRR, churn, gross margin, patient outcomes)?
-  │    ├─ YES → SEMANTIC LAYER. Must have single authoritative definition with governance.
-  │    └─ NO → Continue
-  │
-  ├─ Does the metric require calculation logic beyond simple aggregations (e.g., LTV/CAC, magic number, risk-adjusted outcomes)?
-  │    ├─ YES → SEMANTIC LAYER. Complex logic should be versioned, tested, and governed.
-  │    └─ NO → Continue
-  │
-  ├─ Is this a one-off analysis with a shelf life of <1 week (ad-hoc board question, urgent investor request)?
-  │    ├─ YES → DIRECT QUERY with documentation. Promote to semantic layer if the question recurs.
-  │    └─ NO → Continue
-  │
-  ├─ Are you exploring a new data source where metric definitions are still being iterated?
-  │    ├─ YES → DIRECT QUERY in exploratory tier. Formalize when definitions stabilize.
-  │    └─ NO → SEMANTIC LAYER.
-  │
-  └─ Does the query need to join across domains that have separate semantic layers?
-       ├─ YES → SEMANTIC LAYER federation or cross-domain model. Do not bypass governance for cross-domain joins.
-       └─ NO → SEMANTIC LAYER.
-```
+> 📎 **Full decision trees (66 lines):** [references/decision-trees.md](references/decision-trees.md)
 
 ## What Good Looks Like
 
@@ -437,7 +307,9 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-### Real-Time vs Batch Data Pipeline Decision
+#
+
+## Real-Time vs Batch Data Pipeline Decision
 
 **Context:** Choosing between real-time streaming and batch processing is one of the most consequential architecture decisions in BI. The wrong choice leads to unnecessary infrastructure cost and complexity, or stale data that undermines trust. The default should always be batch — streaming is adopted only when a specific business decision requires sub-minute data.
 
@@ -523,7 +395,9 @@ START: New data pipeline needed for BI/reporting use case
 **Rule of thumb:** 80% of BI use cases are served perfectly by daily batch. Build streaming only when you can name the specific business or clinical decision that requires sub-minute data — and the stakeholder who will act on it. If nobody can name the decision, it's a batch pipeline.
 ```
 
-### BI Tool Selection (Tableau vs Power BI vs Looker vs Metabase)
+#
+
+## BI Tool Selection (Tableau vs Power BI vs Looker vs Metabase)
 
 **Context:** BI tool selection locks the organization into a visualization paradigm, semantic layer approach, licensing model, and user workflow for 3-5 years. Switching costs are high — retraining users, rebuilding dashboards, and migrating semantic layers costs $50K-$200K+. Choose based on organizational profile, not feature comparison matrices.
 
@@ -618,7 +492,9 @@ START: Selecting or re-evaluating a BI platform
 **Decision Principle:** Do not select based on feature matrices — every tool has 95% feature overlap. Select based on: (1) alignment with existing data stack and team skills, (2) primary user persona match, (3) semantic layer governance requirements, (4) embedding and distribution needs. The tool your team actually adopts and uses daily is better than the "objectively best" tool that collects dust.
 ```
 
-### Data Warehouse vs Data Lake vs Lakehouse Architecture Decision
+#
+
+## Data Warehouse vs Data Lake vs Lakehouse Architecture Decision
 
 **Context:** The choice between data warehouse, data lake, and lakehouse architectures determines BI platform scalability, cost structure, query performance, governance model, and team structure for years. Each pattern has distinct strengths — the right answer depends on data types, query patterns, team skills, and latency requirements, not on hype cycles.
 
@@ -766,6 +642,19 @@ START: Selecting analytics data store architecture
 - [ ] Cross-filter behavior: click a bar chart segment — all other charts filter correctly, no broken interactions
 - [ ] Mobile test: open dashboard on phone/tablet — layout adapts, all interactions work with touch
 - [ ] Verify data freshness: `SELECT MAX(updated_at) FROM ${source}` — data is within freshness SLA (e.g., < 24 hours)
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

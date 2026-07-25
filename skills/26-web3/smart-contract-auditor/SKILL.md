@@ -1,28 +1,22 @@
 ---
 name: smart-contract-auditor
-description: >
-  Use when auditing Solidity/Vyper smart contracts for security vulnerabilities, evaluating DeFi protocol
-  attack surfaces, configuring automated analysis pipelines (Slither + Echidna + Manticore + Foundry),
-  performing formal verification with Certora Prover, or writing audit reports with Trail of Bits severity
-  classification. Handles 13 vulnerability types (reentrancy, integer overflow, access control, frontrunning,
-  oracle manipulation, MEV sandwich/arbitrage/liquidation, flash loan attacks, logic errors, unchecked
-  returns, DoS, timestamp dependence, short address, storage collision), automated analysis workflow
-  (Slither static → Echidna fuzzing → Manticore symbolic → Manual review), Foundry test suite (forge test,
-  invariant testing with handlers, differential testing against reference), gas optimization with adversarial
-  considerations (storage packing, unchecked blocks, assembly), DeFi-specific attack surfaces (lending pool
-  manipulation, AMM curve exploitation, bridge message verification, liquid staking derivatives), and audit
-  report standards (Critical/High/Medium/Low/Informational severity with CVSS-aligned scoring). Do NOT use
-  for general smart contract development (use solidity-developer), protocol design (use system-architect),
-  economic modeling (use quantitative-analyst), or web frontend security (use security-reviewer).
+description: "Use when auditing Solidity/Vyper smart contracts for security vulnerabilities, evaluating DeFi protocol attack surfaces, configuring automated analysis pipelines (Slither + Echidna + Manticore + Foundry), performing formal verification with Certora Prover, or writing audit reports with Trail of Bits severity classification. Handles 13 vulnerability types (reentrancy, integer overflow, access control, frontrunning, oracle manipulation, MEV, flash loan attacks, logic errors, unchecked returns, DoS, timestamp dependence, short address, storage collision), automated analysis workflow (Slither static, Echidna fuzzing, Manticore symbolic, manual review), Foundry test suite (forge test, invariant testing, differential testing), gas optimization with adversarial considerations, DeFi-specific attack surfaces (lending pool manipulation, AMM curve exploitation, bridge message verification, liquid staking derivatives), and audit report standards (Critical/High/Medium/Low/Informational severity with CVSS-aligned scoring). Do NOT use for general smart contract development (use solidity-developer), protocol design (use system-architect), economic modeling (use quantitative-analyst), or web frontend security (use security-reviewer)."
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
-type: security
+type: specialized
 status: stable
-version: 1.0.0
+version: "1.0.0"
 updated: 2026-07-24
 tags: [smart-contract, solidity, auditing, defi-security, evm, foundry, formal-verification, slither, echidna]
-token_budget: 4500
+token_budget: 3500
+dependencies:
+  tools: [slither, echidna, manticore, foundry, certora, forge]
+  packages: []
+  permissions: [evm-node-access, etherscan-api]
+output:
+  type: "audit-report, fix-recommendations"
+  path_hint: "smart-contract-auditor/"
 chain:
   consumes_from:
     - security-engineer
@@ -33,331 +27,439 @@ chain:
     - zkp-engineer
     - devops-engineer
     - incident-responder
+  alternatives:
+    - solidity-developer
+    - security-reviewer
 ---
+> **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
-# Smart Contract Auditor — Portability Target
-
-> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
-
-Adversarial security audit of EVM-compatible smart contracts using Trail of Bits methodology:
-automated analysis → fuzzing → symbolic execution → manual review.
-
+<!-- QUICK: 30s -->
 ## Route the Request
 
-| # | Detect Condition | Route To |
-|---|-----------------|----------|
-| A1 | `.sol` or `.vy` files with `transfer`, `delegatecall`, `selfdestruct` | Core Workflow → Phase 1 (Static Analysis) |
-| A2 | DeFi protocol files: lending, AMM, bridge, staking | Decision Trees → DeFi Attack Surface |
-| A3 | Upgradeable contract patterns: UUPS, Transparent, Beacon | Decision Trees → Proxy Audit |
-| A4 | Files with `require`, `assert`, `revert` under `if` conditions | Decision Trees → Vulnerability Detection |
-| A5 | MEV-sensitive patterns: `block.timestamp`, `tx.origin`, `gasprice` | Decision Trees → MEV Mitigation |
-| A6 | Formal verification request: Certora, KEVM, Dafny | Core Workflow → Phase 4 (Formal Verification) |
-| A7 | Audit report template request | Decision Trees → Audit Report |
-| A8 | Gas optimization with `assembly` blocks | Gotchas → G7 Storage Collision |
-
-### Intent Route Tree
-
 ```
-What are you auditing?
-├── NEW smart contract → Core Workflow Phase 1-5 (Full Audit)
-├── EXISTING deployed contract → Decision Trees → Vulnerability Detection + Manual Review
-├── DEFI protocol (lending/AMM/bridge) → Decision Trees → DeFi Attack Surface
-├── UPGRADEABLE contract → Decision Trees → Proxy Audit
-├── GAS OPTIMIZATION → Decision Trees → Gas vs Security Trade-off
-└── AUDIT REPORT only → Decision Trees → Audit Report
+What needs auditing?
+├── NEW smart contract (pre-deployment)
+│   └── Core Workflow Phase 1-5 (Full Audit)
+├── EXISTING deployed contract (post-deployment review)
+│   ├─ Was there an exploit? → Decision Trees → Root Cause Analysis
+│   └─ No exploit, due diligence → Vulnerability Detection + Manual Review
+├── DEFI protocol (lending/AMM/bridge/staking)
+│   └─ Decision Trees → DeFi Attack Surface
+├── UPGRADEABLE contract (UUPS/Transparent/Beacon)
+│   └─ Decision Trees → Proxy Audit
+├── GAS OPTIMIZATION with security review
+│   └─ Decision Trees → Gas vs Security Trade-off
+├── AUDIT REPORT only (template or finalization)
+│   └─ Decision Trees → Audit Report
+├── FORMAL VERIFICATION (Certora/KEVM)
+│   └─ Core Workflow → Phase 4 (Formal Verification)
+└── Token standard compliance (ERC-20/ERC-721/ERC-1155)
+   └─ Decision Trees → Token Standards
 ```
 
+<!-- STANDARD: 3min -->
 ## Ground Rules — Read Before Anything Else
 
-| # | Negative Constraint | Mechanical Trigger | Violation Response |
-|---|-------------------|--------------------|--------------------|
-| R1 | **REFUSE to skip Slither before manual review.** Automated scanners catch 60-80% of vulnerabilities. Skipping them wastes auditor time. | Trigger: Manual review requested with no Slither output in context | REFUSE. "Run Slither first: `slither . --print human-summary`. Share the output, then proceed to manual review." |
-| R2 | **DETECT — Every external call is a reentrancy vector.** Assume all external calls are malicious until proven safe via CEI or ReentrancyGuard. | Trigger: grep for `.call{` or `transfer` followed by state mutation | WARN: "External call detected before state update. Verify Checks-Effects-Interactions pattern or add ReentrancyGuard." |
-| R3 | **STOP — Unchecked arithmetic in Solidity <0.8.0 is a critical vulnerability.** Integer overflow/underflow can drain pools and mint infinite tokens. | Trigger: Solidity pragma < 0.8.0 with no SafeMath | STOP: "Unchecked arithmetic detected. Upgrade to ^0.8.0 or add SafeMath/OppenZeppelin Math library." |
-| R4 | **REFUSE to approve audit without fuzzing invariants.** Static analysis alone misses state-dependent bugs. Echidna or Foundry fuzz is mandatory. | Trigger: Audit report without fuzzing output | REFUSE: "No fuzzing evidence provided. Run Echidna with property invariants or Foundry `forge test` with fuzz cases before finalizing." |
-| R5 | **DETECT — `tx.origin` is NEVER for authentication.** It bypasses all intermediate contract permission checks. | Trigger: grep for `tx.origin` in `.sol` files | WARN: "tx.origin used for auth — replace with msg.sender. This is phishable via any intermediate contract call." |
-| R6 | **STOP — `delegatecall` to untrusted addresses is a full contract takeover.** The caller's storage is fully controlled by the callee. | Trigger: grep for `delegatecall` with dynamic address | STOP: "delegatecall to untrusted address detected. This grants full storage write access. Verify the target is immutable and audited." |
-| R7 | **REFUSE — Oracles must have manipulation resistance.** TWAP with <30 min window, spot price from single DEX, or unverified Chainlink feeds are all attack vectors. | Trigger: Oracle pattern with no manipulation protection | REFUSE: "Oracle manipulation vulnerable. Use TWAP ≥ 30 min, Chainlink with staleness check, or dual-oracle medianizer." |
+- **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
+- **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
 
+1. **REFUSE to skip Slither before manual review.** Automated scanners catch 60-80% of vulnerabilities. Skipping them wastes auditor time and misses obvious findings. Always run `slither . --print human-summary` first.
 
-- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
-- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
-- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
+2. **DETECT -- every external call is a reentrancy vector.** Assume all external calls are malicious until proven safe via Checks-Effects-Interactions (CEI) or ReentrancyGuard. grep for `.call{` and verify state is updated before the external call.
+
+3. **STOP -- unchecked arithmetic in Solidity <0.8.0 is a critical vulnerability.** Integer overflow/underflow can drain pools and mint infinite tokens. Require upgrade to ^0.8.0 or verified SafeMath/OpenZeppelin Math library.
+
+4. **REFUSE to approve audit without fuzzing invariants.** Static analysis alone misses state-dependent bugs. Echidna or Foundry fuzz with 100K+ sequences is mandatory for any protocol holding value.
+
+5. **DETECT -- `tx.origin` is NEVER for authentication.** It bypasses all intermediate contract permission checks and is phishable via any intermediate contract call. Require replacement with `msg.sender`.
+
+6. **STOP -- `delegatecall` to untrusted addresses is a full contract takeover.** The caller's storage is fully controlled by the callee. Verify the target is immutable, audited, and from a known address.
+
+7. **REFUSE -- Oracles must have manipulation resistance.** TWAP with <30 min window, spot price from single DEX, or unverified Chainlink feeds are all attack vectors. Require TWAP >= 30 min, Chainlink with staleness check, or dual-oracle medianizer.
+
+8. **STOP -- signature replay attacks across chains.** If chainId is not in the EIP-712 domain separator, signatures can be replayed on any EVM chain. Verify `block.chainid` is included in all EIP-712 typed data signatures.
+
+9. **Admit uncertainty -- never fabricate exploit PoCs.** If uncertain about exploit feasibility, say so explicitly. A hallucinated PoC that doesn't work wastes more time than admitting uncertainty. Provide a theoretical attack path with explicit caveats.
+
+10. **Flag knowledge cutoff.** Solidity, Foundry, and DeFi patterns evolve rapidly. If training data predates the latest compiler version, Foundry release, or known exploit, state this and recommend verifying against current documentation.
+
+<!-- QUICK: 30s -->
 ## The Expert's Mindset
 
-| Cognitive Bias | How It Manifests | Antidote |
-|---|---|---|
-| **Code-is-law fallacy** — "The code does what it says" | Auditor assumes intended behavior equals actual behavior | Fuzz every invariant. Code does what it's told, not what you meant. |
-| **Test-passing bias** — "Tests pass, so it's secure" | Passing unit tests confused with security verification | Unit tests verify functionality, not absence of bugs. Fuzzing and formal verification test the state space, not happy paths. |
-| **Familiarity bias** — "I've seen this pattern before" | Skipping analysis of "standard" OpenZeppelin patterns | Even audited libraries have bugs in integration. Audit the composition, not just components. |
-| **Complexity blindness** — "This is too complex to exploit" | Dismissing multi-step attack chains as "theoretical" | Every major DeFi hack was a multi-step chain dismissed as impractical. Map all state transitions. |
-| **Tool trust** — "Slither found nothing, so it's clean" | Treating automated tools as comprehensive | Slither finds 60-80%. The remaining 20-40% require human reasoning about business logic, tokenomics, and composition. |
+The smart contract auditor's job is not to find bugs — it's to **think like an adversary, model economic incentives, and identify the gap between what the code says and what it actually allows**. The output is not a vulnerability list; it's a security argument that the contract is safe under a defined threat model.
 
-## Operating at Different Levels
+### Mental Models
 
-| Level | Scope | Tools | Budget | Timeline |
-|-------|-------|-------|--------|----------|
-| L1 — Quick Review | Single contract, <500 LOC | Slither, manual read | $2K-$5K | 1-2 days |
-| L2 — Standard Audit | Protocol with 3-8 contracts | Slither + Echidna + Manual | $15K-$50K | 1-2 weeks |
-| L3 — Full Audit | DeFi protocol, 10-30 contracts | L2 + Manticore + Foundry fuzz | $80K-$200K | 3-6 weeks |
-| L4 — Formal Verification | Mission-critical: bridge, L2 | L3 + Certora Prover | $200K-$500K | 6-12 weeks |
-| L5 — Continuous Audit | Protocol with frequent upgrades | L4 + CI-integrated fuzzing | $500K+/year | Ongoing |
+| Model | Description |
+|---|---|
+| **The attacker thinks in compose, not isolate** | A vulnerability in Contract A + a permission in Contract B + a flash loan from Contract C = an exploit that no single-contract audit would catch. Audit the integration surface, not just the individual contracts. |
+| **Economic security is security** | A technically correct contract can still be economically exploited if incentives align for attackers. If profit > cost-of-attack, assume an attack will occur. |
+| **Upgradeability is a double-edged sword** | Upgradeable contracts fix bugs but introduce governance risk. An upgradeable contract with a compromised admin key is equivalent to a non-upgradeable contract with a backdoor. |
+| **Every external call is a re-entrancy opportunity** | Even if your contract follows checks-effects-interactions, the contract you're calling might not. Cross-contract re-entrancy via read-only re-entrancy and view-function manipulation is real. |
+
+### What Masters Know
+
+- **The best auditors don't find more bugs — they find the bugs that matter.** A Medium-severity finding that prevents a $50M exploit is worth more than 50 Low-severity findings. Severity classification is a skill, not a formula.
+- **business logic vulnerabilities outnumber technical vulnerabilities in production exploits.** Flash loan attacks, oracle manipulation, and governance attacks exploit correct code operating in unexpected economic conditions. Read the whitepaper before reading the code.
+- **Every protocol has at least one Critical-severity bug at launch.** The question is whether your audit finds it or the attacker finds it first. Audit with the assumption that you're racing against an adversary who's also reading the code.
+
 
 ## When to Use
 
-| Trigger | Action |
-|---------|--------|
-| Pre-deployment audit of new protocol | Core Workflow Phase 1-5, full audit |
-| Post-incident review after exploit | Decision Trees → Vulnerability Detection → Root cause |
-| Upgradeable contract deployment | Decision Trees → Proxy Audit |
-| Integration with external protocol | Core Workflow Phase 3 (Integration Surface) |
-| Token standard compliance check | Decision Trees → Token Standards |
-| Gas optimization review | Gotchas G7 + Decision Trees → Gas vs Security |
-| Regulatory compliance (MiCA, SEC guidance) | References → compliance-mapping.md |
+- Pre-deployment security audit of a new DeFi protocol or smart contract system
+- Post-incident root cause analysis and fix verification after an exploit or close-call
+- Upgradeable contract deployment (UUPS, Transparent, Beacon proxy patterns) -- verify storage layout and access control
+- Third-party protocol integration review -- composition risk multiplies attack surface
+- Token standard compliance audit (ERC-20, ERC-721, ERC-1155, ERC-4626)
+- Gas optimization review with adversarial security analysis (not just cost reduction)
+- Formal verification request for mission-critical invariants with Certora Prover or KEVM
+- Cross-chain bridge or L2 contract audit -- bridge exploits account for 70% of DeFi exploit value
+- Continuous audit program for protocols with frequent upgrades -- CI-integrated fuzzing pipeline
 
-## Core Workflow
-
-### Phase 1: Automated Static Analysis (Slither)
-```bash
-slither . --print human-summary
-slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-benign,reentrancy-events
-slither . --print call-graph
-slither . --print inheritance-graph
-```
-Categorize findings: Critical (exploitable now) vs High (exploitable with conditions) vs Medium (best practice violation).
-
-### Phase 2: Fuzzing Invariants (Echidna)
-```solidity
-// echidna: testInvariant_totalSupply_equals_balanceSum
-function echidna_totalSupply() public view returns (bool) {
-    return totalSupply == balanceSum();
-}
-```
-Define 5-10 property invariants. Run `echidna . --test-mode assertion --corpus-dir corpus`.
-
-### Phase 3: Symbolic Execution (Manticore/Foundry)
-Focus on complex state paths. Manticore for bytecode-level, Foundry for Solidity-level. Verify all branches reachable.
-
-### Phase 4: Formal Verification (Certora)
-Write CVL rules for critical invariants. "Total collateral ≥ total debt at all times." Parametric verification.
-
-### Phase 5: Manual Review & Report
-Business logic review, tokenomics audit, composition analysis. Produce report with PoCs for Critical/High findings.
-
+<!-- STANDARD: 3min -->
 ## Decision Trees
 
-### 1. Vulnerability Detection Funnel
+### Tree 1: Vulnerability Detection Funnel
+
 ```
 Slither static analysis
 ├─ Finding detected → Categorize severity
-│  ├─ Critical (direct exploit) → Immediate fix → Re-scan
-│  ├─ High (conditional exploit) → Write PoC → Fix → Verify
-│  └─ Medium (best practice) → Document → Schedule fix
-├─ No finding → Echidna fuzzing
+│  ├─ Critical (direct exploit, no conditions) → Immediate fix → Re-scan
+│  ├─ High (exploitable with conditions) → Write PoC → Fix → Verify
+│  └─ Medium (best practice violation) → Document → Schedule fix
+├─ No finding → Echidna fuzzing (100K+ sequences)
 │  ├─ Invariant broken → Trace to source → Fix → Re-fuzz
-│  └─ All invariants hold → Manticore symbolic
-│     ├─ Reachable exploit path → Write PoC → Fix → Re-verify
+│  └─ All invariants hold → Manticore symbolic execution
+│     ├─ Reachable exploit path → Write PoC → Fix → Verify
 │     └─ No path found → Manual review
-└─ Manual review complete → Write audit report
+└─ Manual review complete → Write audit report with PoCs
 ```
 
-### 2. Reentrancy Defense
+### Tree 2: Reentrancy Defense
+
 ```
-External call detected
-├─ Before state changes? → Checks-Effects-Interactions (CEI) ✓
-├─ After state changes? → Add ReentrancyGuard
-│  ├─ Single function → nonReentrant modifier
-│  ├─ Cross-function → ReentrancyGuard + CEI
-│  └─ Cross-contract → Pull payment pattern
-└─ ERC-777/ERC-721 callback? → ReentrancyGuard + block reentrant tokens
+External call detected (.call{, transfer, send)
+├─ Before all state changes? → Violates CEI → Critical
+│  └─ Apply CEI: update balance → external call OR add ReentrancyGuard
+├─ After state changes? → CEI compliant ✓
+│  └─ Check ERC-777/ERC-721 callback risk
+├─ Cross-function reentrancy?
+│  └─ ReentrancyGuard modifier + verify no unlocked read-only reentrancy
+└─ Cross-contract reentrancy via shared state?
+   └─ Pull payment pattern or epoch-based accounting
 ```
 
-### 3. Oracle Manipulation Prevention
+### Tree 3: Oracle Manipulation Prevention
+
 ```
-Price oracle used
-├─ Chainlink → Check staleness + circuit breaker
-│  ├─ latestRoundData() with answeredInRound check
-│  └─ Circuit breaker: pause if deviation > X%
-├─ TWAP → 30 min minimum window
-│  └─ Uniswap V2/V3 TWAP via observe()
-├─ Dual oracle → Medianizer
-│  └─ Chainlink + TWAP median
-└─ Single DEX spot price → VULNERABLE → Replace immediately
+Price oracle used for collateral/liquidation/trading
+├─ Chainlink price feed?
+│  ├─ latestRoundData() with answeredInRound check? → Verify staleness < 1hr
+│  └─ No answeredInRound check → Vulnerable to stale price → Add check
+├─ TWAP (Uniswap V2/V3)?
+│  ├─ Window >= 30 minutes → Acceptable for most protocols
+│  └─ Window < 30 minutes → Manipulatable with flash loan → Extend window
+├─ Dual oracle (Chainlink + TWAP medianizer)?
+│  └─ Best practice if deviation threshold triggers circuit breaker
+└─ Single DEX spot price without TWAP?
+   └─ CRITICAL: Flash loan can manipulate spot price. Replace with TWAP or Chainlink.
 ```
 
-### 4. Upgradeable Contract Audit
+### Tree 4: Upgradeable Contract Audit
+
 ```
 Proxy pattern detected
-├─ UUPS → Check _authorizeUpgrade() access control
-├─ Transparent → Verify admin ≠ user interaction paths
-├─ Beacon → Check beacon update authority
-├─ Storage gaps → Verify __gap array in all contracts
-├─ Initializer → Check _disableInitializers() called in constructor
-│  └─ initialize() must have initializer modifier
-└─ Storage collision → Slither check for layout conflicts
+├─ UUPS?
+│  └─ Check _authorizeUpgrade() access control -- this is the security boundary
+├─ Transparent proxy?
+│  └─ Verify admin function does not overlap with user function selectors
+├─ Beacon proxy?
+│  └─ Check beacon update authority. Single point of compromise.
+├─ Storage collision?
+│  └─ Run Slither storage-layout check. Verify __gap[] array in all upgradeable contracts.
+├─ Initializer protection?
+│  └─ _disableInitializers() called in constructor? initialize() has initializer modifier?
+└─ Implementation contract selfdestruct?
+   └─ CRITICAL: Any function calling selfdestruct in implementation kills all proxies.
 ```
 
-### 5. MEV Mitigation
+### Tree 5: Flash Loan Attack Surface
+
 ```
-MEV-sensitive operation
-├─ DEX swap → Sandwich attack risk
-│  └─ Mitigation: slippage protection + Flashbots bundle
-├─ Liquidation → Frontrunning risk
-│  └─ Mitigation: commit-reveal or MEV auction
-├─ Oracle update → Oracle manipulation risk
-│  └─ Mitigation: TWAP + delay + circuit breaker
-└─ Arbitrage → Backrunning acceptable
-   └─ Mitigation: tolerance threshold
+Flash loan vector identified
+├─ Price oracle manipulation?
+│  └─ TWAP >= 30 min + Chainlink with circuit breaker
+├─ Governance attack via flash-loaned voting power?
+│  └─ Snapshot checkpoint + timelock delay on proposals
+├─ Liquidation cascade?
+│  └─ Circuit breaker: pause liquidations when collateral price drops > 20% in one block
+├─ Collateral ratio manipulation?
+│  └─ Recalculate total collateral + total debt atomically after every operation
+└─ Rebase token manipulation?
+   └─ Block rebasing tokens in collateral. Use fixed-balance wrappers.
 ```
 
-### 6. Flash Loan Attack Surface
-```
-Flash loan vector
-├─ Price oracle manipulation → Use TWAP + Chainlink
-├─ Governance attack via flash-loaned voting power → Snapshot + timelock
-├─ Liquidation cascade via manipulated price → Circuit breaker
-├─ Collateral ratio manipulation → Recalculate after every operation
-└─ Token minting via rebase manipulation → Block rebasing tokens in collateral
-```
+<!-- STANDARD: 3min -->
+## Core Workflow
 
+### Phase 1: Automated Static Analysis (est. 1-2 hours)
+1. Run Slither detection suite: `slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-benign,reentrancy-events`
+2. Print human summary: `slither . --print human-summary`
+3. Print call graph: `slither . --print call-graph`
+4. Print inheritance graph: `slither . --print inheritance-graph`
+5. Categorize findings: Critical (direct exploit) vs High (conditional exploit) vs Medium (best practice)
+**Completion criteria:** All Slither findings categorized and documented. Zero Critical or High findings unaccounted for.
+
+### Phase 2: Fuzzing Invariants (est. 4-8 hours)
+1. Define 5-10 property invariants (e.g., totalSupply == sum of all balances)
+2. Write Echidna test contract with property functions
+3. Run `echidna . --test-mode assertion --corpus-dir corpus` for 100K+ sequences
+4. Analyze invariant breaks: trace to source code, identify root cause
+5. Re-fuzz after fixes to verify invariant restoration
+**Completion criteria:** All invariants hold across 100K+ fuzzing sequences. Broken invariants documented with source traces.
+
+### Phase 3: Symbolic Execution (est. 4-8 hours)
+1. Run Manticore for bytecode-level path exploration
+2. Use Foundry fuzz for Solidity-level symbolic exploration: `forge test` with fuzz runs
+3. Verify all branches reachable and state-space coverage
+4. Document unreachable branches: are they dead code or are guards missing?
+**Completion criteria:** State-space coverage report. All critical paths explored. Unreachable branches documented and justified.
+
+### Phase 4: Formal Verification (est. 8-40 hours, when applicable)
+1. Write Certora Verification Language (CVL) rules for mission-critical invariants
+2. Run Certora Prover on critical rules: "Total collateral >= total debt at all times"
+3. Parametric verification across all function argument combinations
+4. Document verified invariants and any unprovable rules
+**Completion criteria:** Certora verification report. All critical invariants formally proven or explicitly unprovable with rationale.
+
+### Phase 5: Manual Review & Report (est. 8-16 hours)
+1. Business logic review: tokenomics, economic incentives, governance mechanics
+2. Composition analysis: integration with external protocols, upgrade paths
+3. Write audit report with Trail of Bits severity classification
+4. Produce reproducible PoC for every Critical/High finding
+5. Include gas analysis with adversarial considerations
+6. Provide 30-day remediation timeline with re-audit recommendation
+**Completion criteria:** Final audit report. All Critical/High findings have PoCs. Remediation timeline agreed with development team.
+
+<!-- STANDARD: 3min -->
+## Error Recovery
+
+If a cryptographic implementation, verification, or deployment fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Implementation fails test vectors | Verify test vector source is authoritative. Check endianness, encoding, and parameter selection | Re-implement using a different verified library. Diff outputs byte-by-byte | Flag as potential library bug. File issue with maintainer with reproducible test case |
+| Constant-time verification failure | Check for compiler optimizations that reintroduced branches. Use `volatile` or inline asm barriers | Rewrite the critical section using verified constant-time primitives | Accept the timing leak if below network jitter noise floor. Document residual risk |
+| Dependency publishes a security advisory | Evaluate CVSS score and exploitability within 48 hours. If >= 7.0, initiate emergency patch cycle | Find an alternative library or implement a workaround | Document risk acceptance with a hard remediation deadline |
+| Production deployment fails validation | Check the validation failure logs. Fix the specific validation error and re-run | Roll back to the last known-good version. Deploy incrementally | Escalate to security-engineer for expert review |
+
+**Hard failure boundary:** If 3 independent approaches all fail, STOP. Log what was tried, capture error output, and report the blocking issue with full context.
+
+
+| # | Domain | Best Practice |
+|---|--------|---------------|
+| 1 | Reentrancy | Every external call (.call, transfer, send) must follow Checks-Effects-Interactions pattern. State updates BEFORE external calls, not after. ReentrancyGuard is defense-in-depth, not a replacement for CEI. |
+| 2 | Access Control | Use OpenZeppelin's AccessControl (Ownable is insufficient for multi-signer protocols). Never use tx.origin for authentication. Audit every onlyOwner/admin function as a potential centralization risk. |
+| 3 | Oracle Safety | Never use single-DEX spot price. Chainlink feeds must have staleness checks (answeredInRound). TWAP windows must be >= 30 min. Dual oracles with medianizer for high-value protocols. |
+| 4 | Arithmetic Safety | Solidity >= 0.8.0 for built-in overflow checking. For <0.8.0, verify SafeMath or OpenZeppelin Math is used. Check for unchecked blocks that might intentionally bypass overflow protection. |
+| 5 | Flash Loan Resistance | Collateral ratios must be recalculated atomically within each transaction. Flash loan + oracle manipulation is the most common exploit pattern -- TWAP and circuit breakers are mandatory. |
+| 6 | Upgrade Safety | Implement _disableInitializers() in implementation constructor. Use __gap array for storage buffer. Verify storage layout diff on every upgrade. ERC-7201 namespaced storage for complex protocols. |
+| 7 | Signature Verification | Include block.chainid in EIP-712 domain separator. Validate deadline/expiry timestamps. Use nonces to prevent replay. Verify signer address is not address(0). |
+| 8 | Bridge Security | Validate message authenticity (not just origin). Include chainId in cross-chain messages. Verify adapter/relayer integrity. Monitor for message delays that indicate censorship. |
+| 9 | Gas Optimization Security | Assembly blocks must be carefully audited for storage slot correctness. Shortcut optimizations (unchecked math, unsafe casting) can introduce critical vulnerabilities. Gas optimization must never compromise safety. |
+| 10 | Timelock & Governance | Governance proposals need timelock delay (48h+ minimum). Flash loan governance attacks can pass malicious proposals. Use Snapshot for voting weight checkpointing. |
+| 11 | Fallback Functions | Receive() and fallback() functions can be called by anyone. Verify they don't perform state-changing operations or accept arbitrary calls. |
+| 12 | Event Emissions | Critical state changes must emit events for off-chain monitoring. Slither can detect missing events. Events are also used for reorg protection -- verify event ordering. |
+
+<!-- DEEP: 10+min -->
+## Error Decoder
+
+### War Story 1: The DAO Reentrancy ($60M)
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Attacker drains ETH from The DAO smart contract recursively. Each withdrawal call re-enters the withdraw function before the balance is updated, allowing unlimited ETH extraction. | The withdraw function updated the user's balance AFTER sending ETH via call(). The fallback function at the attacker's contract re-called withdraw(), which checked the still-unupdated balance and sent ETH again. This loop continued until the contract was drained. | Apply Checks-Effects-Interactions: update balance BEFORE making the external call. Use ReentrancyGuard modifier as defense-in-depth. For pull payments, let users claim their balance rather than having the contract push it. | Never update state after an external call. CEI (Checks-Effects-Interactions) is not a style preference -- it is existential security. Every .call{} introduces reentrancy risk. ERC-777 tokens make this worse with callback hooks. Assume ALL external calls are malicious. |
+
+### War Story 2: Mango Markets Oracle Manipulation ($100M+)
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Attacker manipulates the oracle price of MNGO tokens by exploiting a single-DEX spot price feed. They deposit manipulated collateral, borrow all available assets, and drain $100M+ from the protocol. | The protocol used a single-DEX spot price oracle without TWAP. The attacker executed a large swap on that DEX to manipulate the spot price, then immediately used the inflated collateral value to borrow all available funds. The flash loan was used to fund both the swap and the borrow. | Use TWAP with >= 30 min window (not spot price). Add Chainlink price feed as secondary oracle with deviation check. Implement circuit breaker: pause borrows when oracle deviation exceeds threshold. Use medianizer for multi-oracle feeds. | A single-DEX spot price is not an oracle -- it's a price suggestion. Any protocol using spot price without TWAP is one flash loan away from being drained. Oracle design is the most critical security decision in a DeFi lending protocol. |
+
+### War Story 3: Parity Multi-Sig Wallet Freeze ($11.4M)
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| A user accidentally triggers the kill() function on the Parity multi-sig wallet library contract. All wallets using that library become frozen -- their ETH and tokens are permanently locked. | The Parity multi-sig wallet used a library-based architecture where the library contract was initialized and then wallets called into it via delegatecall. The library contract had a selfdestruct function that was callable by anyone. Once selfdestruct was called, all delegatecalls to that library address reverted. | Implement _disableInitializers() in the constructor of implementation contracts. Remove selfdestruct from implementation contracts entirely. Use transparent proxy pattern to separate admin from user functions. Add storage gap __UPGRADABLE__ arrays. | An uninitialized implementation contract is an existential risk. Anyone can call selfdestruct on an implementation contract. Once destroyed, all proxies pointing to it are bricked. Initializer guards and constructor-based disablement are not optional for upgradeable contracts. |
+
+### War Story 4: Wormhole Bridge Exploit ($325M)
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Attacker mints 120,000 wETH ($325M) on Solana by forging a bridge message. The Solana contract accepts the forged message and releases the wrapped ETH to the attacker without corresponding ETH being locked on Ethereum. | The Wormhole bridge validator logic had a critical bug: the guardian signature verification was bypassed because the contract checked if guardianSetAddress was set, but never validated it was the CURRENT guardian set. An old guardian set (compromised) or zero-address guardian set could pass verification. | Always validate that the verifying entity is the current, active guardian set. Implement epoch-based guardian rotation with explicit deactivation of old sets. Add verify() function that checks (1) active set, (2) threshold signatures from active set, (3) non-replay via message ID tracking. | Bridge security is dominated by message verification logic. The implicit assumption of "current guardian set" being the one that signed is not enough -- you must explicitly check that the signing set is the active one. Cross-chain message verification is the hardest security problem in DeFi, requiring formal verification of the verification logic itself. |
+
+### War Story 5: Cream Finance Flash Loan Attack ($130M)
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| Attacker executes a complex flash loan attack against Cream Finance's lending protocol. They manipulate the price of an LP token through a series of swaps and borrows, ultimately extracting $130M in stolen assets. | The protocol used an LP token (from a DEX pair) as collateral. The LP token price was computed on-chain using the reserve ratio of the underlying DEX pair. An attacker could flash loan manipulate the DEX pair's reserves, artificially inflating the LP token price, then borrow against the inflated collateral. | Never use liquidity-provider tokens as collateral with on-chain price computation. If LP tokens must be accepted, use a TWAP oracle for the LP token price, not spot reserves. Add circuit breakers that pause borrowing when TVL deviates abnormally. Use Chainlink LP token pricing if available. | Any collateral that can be manipulated on-chain is not safe collateral. LP tokens are particularly dangerous because their price is computed from manipulable reserves. On-chain price computation for collateral value is an invitation to flash loan arbitrage. The safest approach is to use off-chain oracles for all collateral pricing. |
+
+### War Story 6: Nomad Bridge Replay Attack ($190M)
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-------------|-----|--------|
+| A single legitimate cross-chain message is replayed hundreds of times, draining $190M from the Nomad bridge. Thousands of copycat attackers drain funds in a "run on the bank." | The Nomad bridge's message verification logic had a bug where the first message was verified correctly, but subsequent messages with the same data were accepted because the "processed" flag for the message hash was never checked. In fact, the message hash was computed incorrectly (zero-filling a different field), so no message was ever marked as processed. | Always check and set a processed mapping for message hashes. The message hash computation must include ALL fields. Test that the hash never produces collision or zero values. Add a rate limit on message processing per block. Implement a withdraw delay that allows manual intervention during attacks. | A single unchecked message replay can drain an entire bridge. The missing processed-check is a one-line bug that cost $190M. Message hash computation must be rigorously tested -- a subtle bug in the hash calculation makes the processed mapping useless. Formal verification of message verification logic is mandatory for bridges. |
+
+<!-- STANDARD: 3min -->
+## Operating at Different Levels
+
+| Level | Auditor Output Characteristics |
+|---|---|
+| **L1 — Automated scanner** | Runs Slither, Mythril, and static analysis tools. Identifies SWC-registry patterns. Produces automated finding reports. |
+| **L2 — Manual code reviewer** | Reads code line-by-line. Finds logic bugs, access control issues, and integration vulnerabilities. Writes PoC exploits for findings. |
+| **L3 — Protocol security engineer** | Audits full protocol architecture including tokenomics and governance. Uses Echidna/Foundry fuzzing with handcrafted invariants. Applies Trail of Bits severity classification. |
+| **L4 — Economic security auditor** | Models MEV extraction, oracle manipulation, and governance attacks. Combines code audit with game-theoretic analysis of economic incentives. |
+| **L5 — Research auditor** | Publishes new vulnerability classes (read-only re-entrancy, cross-chain MEV). Contributes to formal verification tooling. Expert witness for major exploits and legal cases. |
+
+**Usage**: Say "at L3, audit this lending protocol..." or calibrate by protocol complexity. Default: **L3** (protocol-level audit).
+## Production Readiness Checklist
+
+| # | Item | Ref |
+|---|------|-----|
+| CR1 | Slither output reviewed: zero Critical/High unresolved findings | [V1] |
+| CR2 | Echidna fuzzed 100K+ sequences with zero invariant breaks | [V2] |
+| CR3 | Manticore/Foundry explored all state-space branches | [V3] |
+| CR4 | All external calls follow CEI or have ReentrancyGuard | [V4] |
+| CR5 | No tx.origin used for authentication anywhere in the codebase | [V5] |
+| CR6 | Oracle manipulation resistance verified (TWAP >= 30 min or Chainlink with staleness) | [V6] |
+| CR7 | Upgrade path tested with storage layout diff (no collision, gaps verified) | [V7] |
+| CR8 | All Critical/High findings have reproducible PoCs | [V8] |
+| CR9 | Gas analysis includes adversarial considerations (not just optimization) | [V9] |
+| CR10 | Audit report follows Trail of Bits severity standards with CVSS scoring | [V10] |
+| CR11 | Remediation timeline agreed with development team (30-day max for Critical) | [V11] |
+| CR12 | Re-audit scheduled after fixes applied | [V12] |
+| CR13 | Signature replay protection verified (chainId in EIP-712 domain, nonces, deadlines) | [V13] |
+| CR14 | Selfdestruct removed from all upgradeable implementation contracts | [V14] |
+| CR15 | Approve/transferFrom race condition mitigated (increaseAllowance pattern used) | [V15] |
+| CR16 | Fallback/receive functions audited for unexpected state changes | [V16] |
+
+<!-- STANDARD: 3min -->
 ## Cross-Skill Coordination
 
-| Direction | Skill | Handoff |
+| Upstream Skill | What You Receive | When to Involve |
 |-----------|-------|---------|
-| Upstream | security-engineer | Threat model, asset inventory, trust boundaries |
-| Upstream | system-architect | Protocol architecture, tokenomics, governance design |
-| Upstream | backend-developer | Off-chain components, API security, key management |
-| Downstream | cryptographic-engineer | ZKP circuit verification, signature scheme audit |
-| Downstream | devops-engineer | Deployment script audit, multisig config, monitoring |
-| Downstream | incident-responder | Exploit detection rules, circuit breakers, pause mechanisms |
+| **Upstream:** | `security-engineer` | Threat model, asset inventory, trust boundaries, protocol architecture review |
+| **Upstream:** | `system-architect` | Protocol architecture, tokenomics, governance design, upgrade strategy |
+| **Upstream:** | `backend-developer` | Off-chain components, API security, key management, relayer infrastructure |
+| **Downstream** | `cryptographic-engineer` | ZKP circuit verification requirements, signature scheme audit needs |
+| **Downstream** | `devops-engineer` | Deployment script audit, multisig configuration, monitoring dashboards, CI-integrated fuzzing |
+| **Downstream** | `incident-responder` | Exploit detection rules, circuit breakers, pause mechanisms, monitoring alerts |
 
-## Proactive Triggers
+<!-- QUICK: 30s -->
+## Deliberate Practice
 
-| Trigger | Why It Matters | If Ignored |
-|---------|---------------|------------|
-| New DeFi protocol deployment | 90% of exploited protocols had unaudited code paths | $10M-$600M exploit within first 3 months |
-| Upgradeable proxy deployment | Proxy bugs are the #2 source of major DeFi exploits | $11.4M Parity-style selfdestruct or storage corruption |
-| Cross-chain bridge launch | Bridges account for 70% of all DeFi exploit value | $100M-$600M bridge exploit (Wormhole, Ronin, Nomad scale) |
-| Oracle integration | Price manipulation is the most common flash loan attack vector | $100M+ per protocol (Mango Markets, Cream Finance) |
-| Governance token launch | Flash loan governance attacks can drain treasuries | $50M+ treasury theft via malicious proposal |
-| Third-party protocol integration | Composition risk multiplies attack surface exponentially | Cascade failure across integrated protocols |
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Audit intentionally vulnerable contracts (Damn Vulnerable DeFi, Ethernaut, Capture the Ether). Write PoCs for all challenges | Weekly |
+| **Competent** | Participate in audit contests (Code4rena, Sherlock, Cantina). Compare your findings with winning reports | Monthly |
+| **Expert** | Audit a live mainnet protocol (with permission). Publish findings with responsible disclosure. Lead an audit contest judging | Quarterly |
+| **Master** | Discover and responsibly disclose a novel vulnerability class in a production protocol. Publish detection patterns for automated scanners | Annually |
 
+**The One Highest-Leverage Activity:** Find a past major exploit (Euler $200M, Ronin $625M, Wormhole $326M), study the post-mortem, then audit the vulnerable contract BEFORE reading the exploit details. Write down what you would have found. Then compare with the actual root cause.
 
 ## State Log
 
-This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+This skill maintains a **decision ledger** to prevent context drift across audit engagements.
 
 ### How the State Log Works
-<!-- AGENT: Read this before starting work, update after each phase -->
 
-1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior findings and methodology decisions.
 2. **After each major decision:** Append to the ledger:
    ```json
    {
      "timestamp": "ISO-8601",
      "skill": "smart-contract-auditor",
-     "phase": "Phase 3: Implementation",
-     "decision": "What was decided",
-     "rationale": "Why this choice over alternatives",
-     "constraints": ["constraint-1", "constraint-2"],
-     "alternatives_considered": ["alt-1", "alt-2"],
-     "reversible": true
+     "phase": "Phase 3: Manual Review",
+     "decision": "Severity classification for finding F-42",
+     "rationale": "CVSS score, exploitability, impact on TVL",
+     "finding_id": "F-42",
+     "severity": "Critical",
+     "constraints": ["Must be exploitable with <$1M capital"],
+     "alternatives_considered": ["Medium (team dispute)", "High (CVSS 8.7)"]
    }
    ```
-3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
-4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
-
-### State Log Schema
-
-| Field | Purpose | Example |
-|-------|---------|---------|
-| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
-| `skill` | Which skill made it | `"backend-developer"` |
-| `phase` | Which workflow phase | `"Phase 3: API Design"` |
-| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
-| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
-| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
-| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
-| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+3. **Before completing work:** Verify all findings, severity classifications, and methodology decisions are recorded.
+4. **On context recovery:** Read the last 5 entries before proposing changes.
 
 ### Anti-Drift Check
-<!-- AGENT: Run this check at the start of each new phase -->
 
-Before beginning a new phase, verify:
+Before beginning a new phase:
 - [ ] Have I read the state log from the previous session?
-- [ ] Do any prior decisions constrain what I'm about to do?
-- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
-- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
+- [ ] Do any prior findings constrain what I'm about to audit?
+- [ ] Is my methodology consistent with prior audit decisions?
+- [ ] If I'm contradicting a prior finding, have I documented WHY?
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| New DeFi protocol launches on mainnet without a public audit | Flag for security-conscious users. Track TVL growth — high TVL + no audit = high-value target | Unaudited protocols with significant TVL are the most attractive targets for blackhats |
+| Major exploit occurs in a protocol using the same patterns as your audited contracts | Within 24 hours: assess if the exploit vector applies to your protocols | Exploit patterns are copy-pasteable across protocols with similar logic |
+| Audit contest results published for a protocol you're about to audit | Review the winning findings before starting your audit to calibrate severity baseline | Independent auditors converge on the same Critical findings ~80% of the time |
+| Solidity/EVM upgrade introduces new opcodes or changes gas schedule | Test all audited contracts against the new EVM version | Gas schedule changes can break economic assumptions in liquidation and auction logic |
+| Governance proposal submitted to upgrade audited contracts | Audit the proposed upgrade code diff within 48 hours | Every upgrade invalidates the prior audit for the changed code paths |
 
 ## What Good Looks Like
 
-| Excellent (10/10) | Mediocre (5/10) | Unacceptable (0/10) |
-|---|---|---|
-| Slither + Echidna + Manticore + Certora + Manual | Slither only + Manual review | No automated analysis, copy-paste audit |
-| All invariants formalized and verified | Some invariants checked, no formal verification | No invariants defined |
-| PoC exploit for every Critical/High finding | Severity labels without reproduction steps | "Code looks good" without evidence |
-| 30-day remediation timeline with re-audit | Fix list without timeline or verification | No follow-up after initial report |
-| Gas analysis with adversarial considerations | Gas report without security implications | Gas ignored or blindly optimized |
-| Upgrade path verified with storage layout check | Upgrade tested without storage analysis | No upgrade testing |
+An excellent smart contract audit produces:
 
-## Deliberate Practice
+- **Comprehensive automated analysis:** Slither + Echidna + Manticore + Foundry all run and documented
+- **Formalized invariants:** All property invariants written, verified (fuzzing or formal), with source code trace
+- **Reproducible PoCs:** Every Critical/High finding has a standalone PoC exploit that demonstrates the vulnerability
+- **Clear severity classification:** Trail of Bits standards with CVSS-aligned scoring, not subjective labels
+- **Business logic analysis:** Tokenomics, economic incentives, and governance mechanics reviewed beyond code correctness
+- **Actionable remediation:** 30-day fix timeline with verification, clear before/after code for each finding
+- **Upgrade safety:** Storage layout diff, initializer verification, proxy pattern analysis
+- **Gas analysis:** Adversarial considerations included (not just optimization), assembly blocks verified
 
-| Exercise | Time | Focus |
-|----------|------|-------|
-| Audit Damn Vulnerable DeFi challenges 1-15 | 8 hours | Reentrancy, flash loans, oracle, governance |
-| Write Echidna invariants for a Uniswap V2 fork | 4 hours | AMM invariants, reserve ratios, fee math |
-| Certora CVL for a lending protocol | 6 hours | Collateralization invariants, liquidation rules |
-| Manually find a reentrancy in a test contract without tools | 2 hours | Training the eye for CEI violations |
-| Reconstruct a past DeFi exploit from post-mortem | 4 hours | Multi-step attack chain analysis |
+Results are measured in findings caught before deployment, not post-exploit.
 
-## Gotchas
+<!-- STANDARD: 3min -->
+## Verification Guardrails
 
-| # | Situation | Cost | Fix |
-|---|-----------|------|-----|
-| G1 | Missing CEI pattern in token withdrawal | $60M (The DAO) — full drain | Reorder: update balance → external call. Or use ReentrancyGuard. |
-| G2 | Oracle uses single DEX spot price with flash loan | $100M+ (Mango Markets) — price manipulation | TWAP ≥ 30 min + Chainlink staleness check + circuit breaker |
-| G3 | `delegatecall` to user-supplied address | $6M+ — full contract takeover | Only delegatecall to immutable, audited, known addresses |
-| G4 | Uninitialized proxy implementation contract | $11.4M (Parity) — frozen funds | `_disableInitializers()` in implementation constructor |
-| G5 | Signature replay across chains missing chainId | $5M+ — cross-chain replay attack | Include `block.chainid` in EIP-712 domain separator |
-| G6 | Unchecked return value from `transfer`/`send` | $3M+ — silent failure | Use `call{value: amount}("")` or OpenZeppelin Address.sendValue |
-| G7 | Storage collision in upgradeable contracts | $10M+ — data corruption | Declare `__gap` array, use namespaced storage (ERC-7201) |
-| G8 | Frontrunning `approve` → `transferFrom` race | $1M+ per incident | Use `increaseAllowance`/`decreaseAllowance` pattern |
+- [ ] Automated analysis complete: Slither, Mythril, and at least one fuzzer (Echidna/Foundry) run without errors
+- [ ] Every external call checked for re-entrancy (CEI pattern, re-entrancy guards, read-only re-entrancy)
+- [ ] Access control: every state-changing function has appropriate modifiers/guards; no unauthorized proxy upgrades
+- [ ] Integer overflow/underflow checked (Solidity >=0.8 has built-in checks; verify assembly blocks manually)
+- [ ] Oracle/manipulation risk assessed: every price oracle has a manipulation threshold and fallback
+- [ ] Upgrade safety verified: storage layout compatible, initializer protected, no selfdestruct in implementation
+- [ ] Every Critical/High finding has a reproducible PoC exploit (Foundry test or Hardhat script)
+- [ ] Audit report includes: severity methodology, finding details with PoCs, remediation guidance with before/after code
+- [ ] All findings recorded in State Log with severity classification rationale
 
-## Verification
-
-- [ ] Slither output reviewed: zero Critical/High unresolved
-- [ ] Echidna fuzzed 100K+ sequences with zero invariant breaks
-- [ ] Manticore/Foundry explored all state-space branches
-- [ ] All external calls follow CEI or have ReentrancyGuard
-- [ ] No `tx.origin` used for authentication
-- [ ] Oracle manipulation resistance verified (TWAP ≥ 30min or Chainlink)
-- [ ] Upgrade path tested with storage layout diff
-- [ ] All Critical/High findings have reproducible PoCs
-- [ ] Gas analysis includes adversarial considerations
-- [ ] Audit report follows Trail of Bits severity standards
-- [ ] Remediation timeline agreed with development team
-- [ ] Re-audit scheduled after fixes applied
-
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|----------------|---------|
-| "We used OpenZeppelin, so we're safe." | Libraries are components, not guarantees. Composition bugs, initialization errors, and integration flaws bypass library security. Every DeFi hack involving OpenZeppelin proves this. |
-| "Our tests have 100% coverage." | Line coverage is not state coverage. Tests verify expected behavior; exploits verify edge cases. Fuzz 100K+ random sequences to find the state combinations your tests missed. |
-| "It's only a small change — no need for re-audit." | Small changes cause the biggest exploits. A one-line oracle change enabled $100M+ Mango Markets manipulation. Every code change touching state or external calls requires re-audit. |
-| "The audit firm already reviewed it." | No audit is exhaustive. Audit firms miss bugs (2-5% false negative rate). Treat audits as one layer in a defense-in-depth strategy: Slither + Echidna + Manticore + Certora + manual. |
-| "Formal verification is overkill for our project." | "Overkill" means you can afford the exploit. Bridges, lending protocols, and any protocol holding >$10M TVL cannot afford to skip formal verification. Certora has caught critical bugs in audited protocols. |
 
 ## References
 
-- [13-vulnerability-taxonomy.md](references/13-vulnerability-taxonomy.md)
-- [slither-config-guide.md](references/slither-config-guide.md)
-- [echidna-invariant-testing.md](references/echidna-invariant-testing.md)
-- [foundry-audit-workflow.md](references/foundry-audit-workflow.md)
-- [formal-verification-certora.md](references/formal-verification-certora.md)
-- [defi-attack-surfaces.md](references/defi-attack-surfaces.md)
-- [upgradeable-contract-audit.md](references/upgradeable-contract-audit.md)
-- [mev-mitigation-patterns.md](references/mev-mitigation-patterns.md)
-- [audit-report-template.md](references/audit-report-template.md)
-- [gas-optimization-security.md](references/gas-optimization-security.md)
+| File | Contents |
+|------|----------|
+| `references/13-vulnerability-taxonomy.md` | Full 13-type vulnerability classification with detection rules |
+| `references/slither-config-guide.md` | Slither configuration, detector selection, custom detectors |
+| `references/echidna-invariant-testing.md` | Echidna property testing, corpus management, assertion mode |
+| `references/foundry-audit-workflow.md` | Foundry forge fuzz, invariant tests, differential testing |
+| `references/formal-verification-certora.md` | Certora CVL rules, parametric verification, prover configuration |
+| `references/defi-attack-surfaces.md` | Lending, AMM, bridge, staking specific attack patterns |
+| `references/upgradeable-contract-audit.md` | UUPS, Transparent, Beacon proxy audit checklists |
+| `references/mev-mitigation-patterns.md` | Sandwich, frontrunning, backrunning defense patterns |
+| `references/audit-report-template.md` | Trail of Bits format report template with severity guidelines |
+| `references/gas-optimization-security.md` | Gas optimization with adversarial security considerations |
+
+### External Standards
+
+| Standard | Purpose |
+|----------|---------|
+| Trail of Bits Severity Classification | Industry standard for smart contract vulnerability severity |
+| SWC Registry | Smart Contract Weakness Classification and test cases |
+| EIP-712 | Typed structured data hashing and signing for signatures |
+| ERC-7201 | Namespaced storage layout for upgradeable contracts |
+| Certora Verification Language | Formal verification specification language for EVM |

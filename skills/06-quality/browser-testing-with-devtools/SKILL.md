@@ -49,7 +49,6 @@ chain:
     - qa-engineer
     - code-reviewer
 ---
-
 # Browser Testing with DevTools
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -71,7 +70,6 @@ These rules are non-negotiable constraints that detect dangerous DevTools usage 
 | R6 | DETECT accessibility audit that checks only the DOM source, not the rendered accessibility tree | Trigger: accessibility check references HTML source (\"there's an alt attribute\") but does NOT open the Accessibility panel to verify the computed accessible name, role, and description | STOP. Respond: \"SOURCE VS RENDERED A11Y: The HTML source says `<div role=\"button\" aria-label=\"Submit\">` but the accessibility tree might say: `button \"\" focusable: false` (empty name, unfocusable). Why? CSS `display: none`, `visibility: hidden`, `aria-hidden=\"true\"` on a parent, or a JS framework re-rendering without attributes. Always verify in the Accessibility panel (Elements > Accessibility pane) -- the rendered accessibility tree is what screen readers actually consume.\" |
 | R7 | DETECT Console filter misuse that hides the error being debugged | Trigger: Console shows \"0 errors, 0 warnings\" but the user is experiencing a bug -- Console filter is set to \"Info\" only, \"Verbose\" is off, or \"Hide network\" is checked | STOP. Respond: \"CONSOLE FILTER BLIND SPOT: The Console has 5 filter levels: Verbose, Info, Warnings, Errors, and a text filter. If the filter hides the log level of your error, you will see nothing. Check: (1) All levels enabled (Verbose through Error), (2) text filter is empty, (3) 'Hide network' is unchecked if the bug involves failed requests, (4) 'Preserve log' is checked to retain logs across page navigations. Default Console state shows all messages.\" |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -80,7 +78,9 @@ These rules are non-negotiable constraints that detect dangerous DevTools usage 
 
 DevTools mastery separates senior frontend engineers from junior ones. A senior engineer can diagnose a rendering bug, memory leak, or performance regression in minutes using DevTools -- without adding a single console.log. The DevTools-first mindset: every question about runtime behavior has an answer in DevTools if you know which panel to open.
 
-### Mental Models
+#
+
+## Mental Models
 
 | Model | Description |
 |---|---|
@@ -89,7 +89,9 @@ DevTools mastery separates senior frontend engineers from junior ones. A senior 
 | **The accessibility tree is the source of truth** | Screen readers do not read HTML. They read the accessibility tree. The HTML source can be perfectly semantic while the accessibility tree is broken due to CSS, JS, or ARIA conflicts. Always verify in the Accessibility panel. |
 | **Every performance problem leaves a trace** | If a page is slow, the flame chart knows why. If a page is janky, the frames timeline shows dropped frames. If memory is growing, the heap comparison shows accumulating objects. The data is there -- you just need to know where to look. |
 
-### Cognitive Biases That Weaken Browser Debugging
+#
+
+## Cognitive Biases That Weaken Browser Debugging
 
 | Bias | How It Shows Up | Defense |
 |---|---|---|
@@ -98,7 +100,9 @@ DevTools mastery separates senior frontend engineers from junior ones. A senior 
 | **Ignoring the waterfall** | Looking at a single slow request without examining the request waterfall for blocking, queueing, or connection limits | A 200ms API call that spent 180ms queued behind 5 other requests reveals a connection pool issue, not a slow backend. Always check the timing breakdown: Queueing, Stalled, DNS Lookup, Initial Connection, SSL, Request Sent, Waiting (TTFB), Content Download. |
 | **Disabling cache as a debugging crutch** | Always checking \"Disable cache\" without understanding caching behavior | Disable cache is for development. But production bugs are often caused by stale cached assets. Test with cache ENABLED to reproduce real user conditions. Clear specific cache entries in Application > Cache Storage rather than disabling entirely. |
 
-### What Masters Know That Others Don't
+#
+
+## What Masters Know That Others Don't
 
 - **The `$0` magic variable.** After inspecting an element in Elements panel, `$0` in Console references that exact DOM node. `$1` is the previously inspected node. `$r` references the React component instance (with React DevTools).
 - **Conditional breakpoints save hours.** Instead of stepping through 500 loop iterations, set a conditional breakpoint: `i === 473`. Chrome pauses exactly on the iteration you care about.
@@ -132,7 +136,9 @@ Do NOT use browser-testing-with-devtools for automated cross-browser testing (ro
 
 ## Route the Request
 
-### Auto-Route by Artifacts
+#
+
+## Auto-Route by Artifacts
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -146,7 +152,9 @@ Do NOT use browser-testing-with-devtools for automated cross-browser testing (ro
 | A8 | Error involves \"mobile\", \"responsive\", \"viewport\", \"touch\", or device-specific behavior | **DEVICE EMULATION** -- Jump to **Decision Trees: Mobile Device Testing**. |
 | A9 | No specific triggers -- general browser debugging request | **STANDARD** -- Full workflow: Phase 1 (Elements) → Phase 2 (Console) → Phase 3 (Network). |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What browser debugging task are you working on?
@@ -163,112 +171,21 @@ What browser debugging task are you working on?
 ```
 
 ## Core Workflow
+<!-- Full 105 lines extracted to references/core-workflow-1.md -->
 
-### Phase 0: Systematic Triage
+#
 
+## Phase 0: Systematic Triage
 Open DevTools (F12 or Cmd+Option+I). Work through panels in order until you find the signal:
-
-```
 1. Console (Esc to toggle): Any red errors? Fix those first. Errors cascade.
 2. Network: Any red (4xx/5xx) requests? Check response for error messages.
-3. Elements: Inspect the problematic element. Check computed styles.
-4. If the problem is visual: Rendering panel > Paint Flashing ON. Reproduce. See what repaints.
-5. If the problem is interactive: Sources panel > Event Listener Breakpoints > Mouse > click.
-6. If no signal from panels 1-5: The bug is likely in application state/logic.
-```
-
-### Phase 1: Elements Panel — DOM and Style Debugging
-
-```
-Technique 1: Force element state
-  Right-click element → Force state → :hover / :focus / :active / :visited / :focus-within
-  Debug hover styles without moving your mouse.
-
-Technique 2: Break on subtree modifications
-  Right-click parent element → Break on → subtree modifications
-  JS that modifies DOM children will pause in Sources panel with full call stack.
-
-Technique 3: Computed styles detective work
-  Elements → Computed tab → click on a property value
-  Shows: which CSS rule set this value, file, and line number.
-  A crossed-out value with a chain link = overridden by more specific rule.
-
-Technique 4: Box model visualization
-  Elements → Styles → scroll to box model diagram
-  Hover over margin/border/padding/content regions to highlight on page.
-  Identifies: collapsed margins, unexpected overflow, box-sizing issues.
-```
-
-### Phase 2: Console + Sources — JavaScript Debugging
-
-```
-Technique 1: Conditional breakpoints
-  Right-click line number → Add conditional breakpoint
-  Enter: user.role === 'admin' && cart.items.length > 0
-  Only pauses when the condition is true. Saves hours over manual stepping.
-
-Technique 2: Logpoints (no-code console.log)
-  Right-click line number → Add logpoint
-  Enter: "User: " + user.name + ", Items: " + items.length
-  Logs to Console without modifying source code. Removed when DevTools closes.
-
-Technique 3: Watch expressions
-  Sources → Watch → add expressions: user, cart.total, items.length
-  Expressions evaluate in real-time as you step through code.
-  No need to hover over variables repeatedly.
-
-Technique 4: Blackbox scripts
-  Right-click framework file in Sources → Blackbox script
-  Chrome skips framework code when stepping through. You only step through YOUR code.
-```
-
-### Phase 3: Network Panel — Request Debugging
-
-```
-Technique 1: HAR export for offline analysis
-  Network panel → right-click any request → Save all as HAR with content
-  HAR = HTTP Archive. Contains every request: headers, timing, response body.
-  Share with backend team: "Here's exactly what the browser sent and received."
-
-Technique 2: Timing breakdown
-  Click a request → Timing tab
-  Shows: Queueing (waiting for connection slot), Stalled, DNS Lookup,
-  Initial Connection, SSL, Request Sent, Waiting (TTFB), Content Download.
-  High TTFB (>200ms) = backend is slow. High Content Download = large payload.
-  High Queueing/Stalled = browser connection limit (6 per domain for HTTP/1.1).
-
-Technique 3: Request blocking
-  Network panel → right-click a script/request → Block request URL
-  Simulates: "What happens if this third-party script fails to load?"
-  Tests: error handling, fallback behavior, degraded experience.
-
-Technique 4: Override responses (Local Overrides)
-  Network → right-click request → Override content → edit response
-  Simulates API responses without touching backend. Test error states,
-  empty states, loading states by modifying the API response locally.
-```
-
-ASCII diagram:
-```
-┌────────────────────────────────────────────────────┐
-│              DEVTOOLS DEBUGGING FLOW                │
-├────────────────────────────────────────────────────┤
-│  Phase 0: Systematic Triage (all panels quick scan) │
-│     │                                               │
-│     ├── Console errors? ──► Phase 2 (Breakpoints)   │
-│     ├── Network red? ──► Phase 3 (HAR + Timing)     │
-│     ├── Rendering wrong? ──► Phase 1 (Computed CSS) │
-│     ├── Slow? ──► DT1 (Performance Profile)         │
-│     ├── Memory? ──► DT2 (Heap Snapshot)             │
-│     └── A11y? ──► DT3 (Accessibility Tree)          │
-│                                                      │
-│  Phase 4: Verify Fix (Live Edit → no refresh)        │
-│  Phase 5: Export Evidence (HAR, screenshots, profile)│
-└────────────────────────────────────────────────────┘
-```
+...
+> 📎 **[references/core-workflow-1.md](references/core-workflow-1.md)** — 105 lines of detailed guidance
 
 ## Decision Trees
-### Decision Tree 1: Performance Issue Investigation
+#
+
+## Decision Tree 1: Performance Issue Investigation
 
 ```
 Phase 1: Record and Classify
@@ -297,7 +214,9 @@ Phase 2: Diagnose by Category
     └── Are images loading without dimensions? → Set width/height to prevent layout shifts (CLS)
 ```
 
-### Decision Tree 2: Memory Leak Detection
+#
+
+## Decision Tree 2: Memory Leak Detection
 
 ```
 Phase 1: Confirm It's a Leak
@@ -321,7 +240,9 @@ Phase 2: Identify the Leaking Objects
 │   └── Unmounted component references → useEffect cleanup missing
 ```
 
-### Decision Tree 3: Accessibility Verification
+#
+
+## Decision Tree 3: Accessibility Verification
 
 ```
 Phase 1: Automated Scan
@@ -352,7 +273,9 @@ Phase 2: Manual Verification (what automation misses)
     └── Emulate vision deficiencies: Rendering panel → Emulate vision deficiencies
 ```
 
-### Decision Tree 4: Mobile Device Emulation
+#
+
+## Decision Tree 4: Mobile Device Emulation
 
 ```
 Phase 1: Set Up Device Emulation
@@ -382,7 +305,9 @@ Phase 2: Test Device-Specific Issues
     └── Test orientation API (alpha/beta/gamma) for device motion features
 ```
 
-### Decision Tree 5: HAR Export and Cross-Team Debugging
+#
+
+## Decision Tree 5: HAR Export and Cross-Team Debugging
 
 ```
 Phase 1: Capture the Evidence
@@ -406,7 +331,9 @@ Phase 2: Annotate and Share
     Frontend teams need: HAR + screenshot + Console log + reproduction steps
 ```
 
-### Decision Tree 6: Third-Party Script Audit
+#
+
+## Decision Tree 6: Third-Party Script Audit
 
 ```
 Phase 1: Inventory All Third-Party Scripts
@@ -434,7 +361,9 @@ Phase 2: Measure Impact
     └── Unexpected data exfiltration = security incident → escalate to security-reviewer
 ```
 
-### Decision Tree 7: Console Power-User Techniques
+#
+
+## Decision Tree 7: Console Power-User Techniques
 
 ```
 Phase 1: DOM and Element Shortcuts
@@ -463,6 +392,20 @@ Phase 3: Performance and Debugging
 └── Store as global variable: right-click object in Console → "Store as global variable" → temp1
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Skill to Invoke |
@@ -475,6 +418,10 @@ Phase 3: Performance and Debugging
 | Need systematic debugging methodology for complex bug | `debugging-and-error-recovery` — 6-phase systematic debug |
 | UI rendering issue needs design system alignment | `ui-ux-designer` — component spec, design tokens, responsive layout |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `code-reviewer` | Code quality assessment, security patterns, testing gaps | Before finalizing implementation or shipping to production |
+
 ## Proactive Triggers
 
 - **Trigger: error console shows >5 unique JavaScript errors on page load.** Auto-flag: page is shipping broken. Prioritize errors by frequency. Fix top error first.
@@ -484,12 +431,13 @@ Phase 3: Performance and Debugging
 - **Trigger: Accessibility panel shows a missing accessible name on an interactive element.** Auto-flag: WCAG violation. Add aria-label, aria-labelledby, or visible text label before merge.
 - **Trigger: Console shows `[Deprecation]` or `[Intervention]` warnings.** Auto-flag: using deprecated or blocked APIs. These warnings mean your code will break in a future Chrome version.
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -509,7 +457,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -522,7 +472,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -597,6 +549,19 @@ Dev: Verification: record new Performance profile → 340ms total (8x improvemen
 - [ ] Accessibility: no regression (axe DevTools scan shows no new violations)
 - [ ] Mobile: tested on at least one real mobile device, not just emulation
 - [ ] Evidence exported and attached to bug report/ticket (HAR, screenshot, console log)
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

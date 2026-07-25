@@ -54,7 +54,6 @@ chain:
     - ci-cd-builder
   alternatives: []
 ---
-
 # Cross-Repo Refactoring
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -74,7 +73,6 @@ These rules are non-negotiable constraints that prevent catastrophic cross-repo 
 | R5 | REFUSE to estimate migration effort without quantifying the number of call sites. "Just change the function signature" could mean 5 changes or 5,000. | Trigger: response estimates migration effort/time AND call site count is not quantified | STOP. Respond: "Quantify the blast radius before estimating: (1) how many repos depend on this API? (2) how many call sites per repo? (3) are call sites in tests or production code? (4) how many different patterns need transformation? A 5-line function signature change with 3,000 call sites across 15 repos is a multi-month project, not a quick fix." |
 | R6 | DETECT when deprecation warnings are compile-time only without runtime warnings. Compile-time warnings miss already-deployed services. | Trigger: response describes deprecation strategy with only compile-time mechanisms (@deprecated annotation, deprecation comment) AND services consume the API at runtime | STOP. Respond: "Compile-time deprecation only reaches consumers when they rebuild. Deployed services may not rebuild for months. Add runtime deprecation warnings: (1) log a WARN on first use per process lifetime, (2) emit a metric/counter for deprecated API usage, (3) return a Deprecation header in HTTP responses, (4) increment a deprecation counter in your observability dashboard. Without runtime signals, you are flying blind." |
 | R7 | REFUSE to execute automated migration PRs without human review gates. Automated PRs at scale can cause widespread breakage. | Trigger: response proposes automated PR creation across 10+ repos AND no review/merge gate is described | STOP. Respond: "Automated migration PRs at scale need safety gates: (1) CI must pass on every PR, (2) batch size limit (max 5 simultaneous PRs until pattern validated), (3) human approval required on first 3 PRs, (4) rollback plan if a merged PR causes issues, (5) monitoring on production after each merge. Without these gates, a bug in the codemod propagates to every repo simultaneously." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -140,178 +138,15 @@ What cross-repo refactoring task are you working on?
 ```
 
 ## Core Workflow
+<!-- COMPRESSED: Full 174 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Blast Radius Analysis
 
 Execute in order. Do not skip steps.
 
 ```
-1. CONSUMER DISCOVERY
-   |-- GitHub org-wide code search:
-   |   |-- Search for function name: org:my-org import { oldFunction } from
-   |   |-- Search for endpoint path: org:my-org /api/v1/deprecated-endpoint
-   |   |-- Search for class/type: org:my-org extends OldBaseClass
-   |   |-- Search in code AND issues AND pull requests AND discussions
-   |-- Registry analytics (if using npm/maven/pypi):
-   |   |-- Download count per version, dependency graph
-   |   |-- Identify repos still on old versions
-   |-- Runtime telemetry (if instrumented):
-   |   |-- API usage counters per consumer (service name, version)
-   |   |-- Deprecated endpoint call volume over last 30 days
-   |-- Output: complete consumer inventory — repo name, maintainer, call site count, deploy cadence
-
-2. CALL SITE CLASSIFICATION
-   |-- For each consumer repo, classify every call site:
-   |   |-- Production code vs test code (test-only = lower risk)
-   |   |-- Direct call vs wrapper (wrapper = single migration point)
-   |   |-- Static vs dynamic usage (dynamic = codemod may miss)
-   |   |-- Critical path vs non-critical (critical = higher blast radius)
-   |-- Count: total call sites = _____, test sites = _____, production sites = _____
-
-3. DEPLOY CYCLE ANALYSIS
-   |-- For each consumer, determine:
-   |   |-- Typical deploy frequency: daily / weekly / biweekly / monthly / quarterly
-   |   |-- Last deploy date (is the repo actively maintained?)
-   |   |-- CI pipeline duration (how long from merge to production?)
-   |   |-- Canary/gradual rollout vs instant deploy
-   |-- Identify the SLOWEST consumer deploy cycle = _____
-   |-- This is your MINIMUM deprecation window
-
-4. MAINTAINER CONTACT LIST
-   |-- For each consumer repo: primary maintainer, team, Slack channel, on-call rotation
-   |-- Flag: unmaintained repos (no commits in 6+ months) — these need special handling
-   |-- Flag: external consumers (outside your org) — these need public deprecation process
-
-5. BLAST RADIUS REPORT
-   |-- Total consumers: _____ repos
-   |-- Total call sites: _____  (production: _____, test: _____)
-   |-- Slowest deploy cycle: _____ days
-   |-- Unmaintained consumers: _____ repos
-   |-- External consumers: _____
-   |-- Estimated migration timeline: _____ to _____ weeks
-```
-
-### Phase 2: Comet-Style Migration Planning
-
-```
-THE COMET METAPHOR:
-  HEAD = New API (the future state)
-  TAIL = Old API (the current state, to be removed)
-  COMET = Consumers migrating from TAIL to HEAD
-
-PHASE 1: COMET CREATION (Deploy HEAD alongside TAIL)
-  1. Add new API (HEAD) to the library/service
-     |-- New function name, new endpoint, new type — whatever the target state is
-     |-- Old API (TAIL) remains fully functional
-     |-- Deploy: HEAD and TAIL coexist in the same release
-  2. Verify backwards compatibility
-     |-- All existing consumers continue working with TAIL
-     |-- New consumers can use HEAD immediately
-  3. Instrument TAIL with deprecation counter
-     |-- Increment metric on every TAIL usage
-     |-- Dashboard: TAIL usage by consumer, by version, over time
-  4. Announce deprecation
-     |-- CHANGELOG: mark TAIL as @Deprecated (compile-time) + log WARN (runtime)
-     |-- Migration guide: HEAD usage examples, before/after
-     |-- Timeline: when TAIL will be removed (based on slowest deploy cycle)
-     |-- Communication: email, Slack, team meetings for top 5 consumers
-
-PHASE 2: COMET TRAVERSAL (Migrate consumers from TAIL to HEAD)
-  1. Prioritize consumers: highest-volume first (reduces TAIL metric fastest)
-  2. For each consumer:
-     |-- Write codemod if pattern is repetitive (see Phase 3)
-     |-- OR manual migration if < 10 call sites
-     |-- Open PR with changes
-     |-- CI passes (tests + lint + build)
-     |-- Merge and deploy consumer
-     |-- Verify: TAIL metric from this consumer drops to zero
-  3. Track progress: % consumers migrated, % call sites migrated
-  4. Gate: TAIL usage below threshold (e.g., < 5% of original) for 30 consecutive days
-
-PHASE 3: COMET REMOVAL (Remove TAIL)
-  1. Confirm: TAIL metric = 0 for 30 days across ALL consumers
-  2. Remove TAIL code from library/service
-  3. Bump MAJOR version (semver: breaking change)
-  4. Deploy new version
-  5. Monitor: any unexpected errors from straggler consumers?
-  6. If errors detected: revert deployment, investigate missed consumer, extend timeline
-```
-
-### Phase 3: Codemod Authoring
-
-```
-1. SELECT THE RIGHT TOOL
-   |-- jscodeshift: JavaScript/TypeScript AST transforms. Best for JS/TS repos.
-   |-- comby: Structural search-and-replace across any language. No AST needed.
-   |-- ast-grep: Structural search with AST awareness. Good for multi-language.
-   |-- semgrep: Pattern-based, security-focused. Good for finding patterns to migrate.
-   |-- Custom script (Python/Bash): Regex-based. USE ONLY as last resort (regex misses context).
-
-2. WRITE THE CODEMOD
-   |-- Define the transform: OldPattern -> NewPattern
-   |-- jscodeshift example:
-   |   |-- export default function transformer(file, api) {
-   |   |   const j = api.jscodeshift;
-   |   |   return j(file.source)
-   |   |     .find(j.CallExpression, {callee: {name: 'oldFunction'}})
-   |   |     .replaceWith(path => j.callExpression(
-   |   |       j.identifier('newFunction'),
-   |   |       path.node.arguments  // preserve arguments
-   |   |     ))
-   |   |     .toSource();
-   |   | }
-   |-- comby example: comby 'oldFunction(:[args])' 'newFunction(:[args])' -in-place
-   |-- Handle edge cases: different argument orders, named vs positional, nested calls
-
-3. TEST THE CODEMOD
-   |-- Create test fixtures in __testfixtures__/ directory:
-   |   |-- input.js: code BEFORE codemod (diverse patterns: simple, nested, edge cases)
-   |   |-- output.js: expected code AFTER codemod
-   |   |-- negative.js: code that looks similar but should NOT change
-   |-- Run: jscodeshift -t transform.js __testfixtures__/input.js
-   |-- Diff output against output.js — must match exactly
-   |-- Verify negative.js is unchanged
-   |-- Add more fixtures as edge cases are discovered
-
-4. DEPLOY THE CODEMOD
-   |-- Phase A — Manual validation: run on 2-3 repos, manually review diffs
-   |-- Phase B — Automated PRs: generate PRs for the next 5 repos
-   |   |-- Script: for repo in repos; do git clone, run codemod, create PR; done
-   |   |-- Each PR: CI must pass, 1 human approval required
-   |-- Phase C — Batch rollout: process remaining repos in batches of 5-10
-   |   |-- Monitor: any CI failures? any pattern missed?
-   |-- Phase D — Stragglers: manual outreach for repos where PRs went stale
-```
-
-### Phase 4: Deprecation Communication
-
-```
-1. CHANGELOG ANNOUNCEMENT
-   |-- Format: ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
-   |-- ### Deprecated: `oldFunction()` is deprecated. Use `newFunction()` instead.
-   |-- ### Migration guide: [link to migration doc with code examples]
-   |-- ### Removal timeline: Will be removed in vX.0.0 (estimate: Q3 2026)
-
-2. MIGRATION GUIDE
-   |-- Before/After code examples for all common usage patterns
-   |-- Breaking changes explained: "The return type changed from X to Y because..."
-   |-- FAQ: common issues during migration and solutions
-   |-- Link to codemod: "Run this to automate the migration: npx @org/codemod-old-to-new"
-
-3. RUNTIME DEPRECATION WARNINGS
-   |-- Log: WARN [DEPRECATED] oldFunction() called by service=payment-service. Use newFunction(). Will be removed in v3.0.0.
-   |-- Metrics: increment deprecated_api_usage{api="oldFunction",consumer="payment-service"}
-   |-- HTTP header: Deprecation: true, Sunset: Sat, 01 Nov 2026 00:00:00 GMT
-   |-- GraphQL: add @deprecated(reason: "Use newField instead", removalVersion: "3.0.0")
-
-4. CONSUMER OUTREACH
-   |-- Week 1: Announce deprecation (changelog, email, Slack #general)
-   |-- Week 2: Direct message top 5 consumer teams with migration guide + codemod link
-   |-- Week 4: Check-in: any blockers? any questions?
-   |-- Month 2: Public dashboard of migration progress (% consumers migrated)
-   |-- Month 3: Final reminder email — TAIL will be removed in 30 days
-   |-- Removal date: TAIL removed. Post-removal monitoring for 1 week.
-```
+...
+> 📎 **Full content (174 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
 
@@ -509,6 +344,20 @@ What to do when consumers are not migrating:
 |   |-- Action: communicate new timeline broadly. Explain WHY (not "we're slow" — specific blockers)
 |   |-- DO NOT: extend indefinitely. Set a hard, non-negotiable new deadline.
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
@@ -522,6 +371,10 @@ What to do when consumers are not migrating:
 | Observability for deprecation tracking | observability-engineer | Deprecated API usage dashboards, runtime counter metrics, alerting |
 | Security implications of deprecation | security-reviewer | Old API may have vulnerabilities — removal is also a security improvement |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
+
 ## Proactive Triggers
 
 | # | Trigger Condition | Auto-Response |
@@ -532,7 +385,6 @@ What to do when consumers are not migrating:
 | P4 | Codemod deployed to 5+ repos simultaneously without validation on first 2-3 | [WARN] Batch size too large. Validate on 2-3 repos first, then scale up. A codemod bug at scale is painful to undo. |
 | P5 | Deprecated API removal date has passed but TAIL code still exists | [ALERT] Removal date was missed. Reassess: is there still usage? Extend or enforce removal. Indefinite deprecation creates confusion. |
 | P6 | Breaking change in library/service that has public/external consumers | [ALERT] External consumers cannot be forced to migrate. API versioning (v1/v2) is the only safe path for public APIs. |
-
 
 ## State Log
 
@@ -689,6 +541,19 @@ After planning or executing a cross-repo refactoring, run this sequence. Do not 
 7. **Benefit exceeds cost:** Documented cost-benefit analysis with ratio > 1.5. Decision record with approval.
 
 If any check fails: diagnose from verification item, provide specific actionable fix, restart verification from failed item.
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

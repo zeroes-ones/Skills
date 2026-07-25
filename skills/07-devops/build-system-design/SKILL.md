@@ -55,7 +55,6 @@ chain:
     - platform-engineer
   alternatives: []
 ---
-
 # Build System Design
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -75,7 +74,6 @@ These rules are non-negotiable constraints that detect dangerous build advice be
 | R5 | DETECT when build graph optimization is suggested without profiling. Guessing the critical path wastes engineering time. | Trigger: response recommends parallelism tuning, test sharding changes, or dependency refactoring AND no mention of build profiling data | STOP. Respond: "Build optimization without profiling data is guessing. Generate a build trace first: `bazel build --profile=profile.json`, then analyze with chrome://tracing or Bazel's analyzer. Identify: (1) Critical path duration, (2) Top 5 longest actions, (3) Cache hit rates per target, (4) Test shard execution time variance. Only optimize after profiling confirms the bottleneck." |
 | R6 | REFUSE to recommend "we'll just write a custom build system." Build systems are harder than they look — Google spent 10+ years evolving Blaze/Bazel. | Trigger: response suggests writing a custom build system from scratch | STOP. Respond: "Custom build systems are almost always a mistake. Google's Blaze (now open-sourced as Bazel) took 10+ years to mature. Facebook's Buck took 5+ years. You will rediscover every footgun: incremental correctness bugs, caching invalidation edge cases, cross-platform toolchain hell, Starlark/extension design mistakes. If no existing system fits, extend Bazel with custom rules (Starlark) or adapt Pants with plugins. The extension APIs exist precisely to avoid custom build systems." |
 | R7 | DETECT when "let's just add caching" is proposed without addressing build correctness. Caching an incorrect build makes it faster to produce wrong answers. | Trigger: response recommends remote caching, shared caches, or cache infrastructure AND no verification that builds are hermetic and deterministic | STOP. Respond: "Caching a non-deterministic build is dangerous. A shared cache propagates non-reproducible outputs across the entire team — one engineer's environment leak (homebrew library path, different compiler version) poisons the cache for everyone. Before adding caching: verify build determinism by running the same build twice on different machines, comparing output hashes. Only when outputs are bit-for-bit identical is caching safe." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -117,7 +115,9 @@ Do NOT use build-system-design for monorepo tooling and workspace management (ro
 
 ## Route the Request
 
-### Auto-Route by Artifacts (Check Filesystem First)
+#
+
+## Auto-Route by Artifacts (Check Filesystem First)
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -129,7 +129,9 @@ Do NOT use build-system-design for monorepo tooling and workspace management (ro
 | A6 | `file_contains("*.gradle", "build.gradle")` OR `file_exists("pom.xml")` | JVM project -> Go to **Decision Trees: JVM Build Migration** |
 | A7 | No build system files detected | New project or exploratory -> Go to **Decision Trees: Build System Selection** |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What build system task are you working on?
@@ -145,133 +147,22 @@ What build system task are you working on?
 ```
 
 ## Core Workflow
+<!-- Full 125 lines extracted to references/core-workflow.md -->
 
-### Phase 1: Build System Audit
+#
 
+## Phase 1: Build System Audit
 Execute in order. Do not skip steps.
-
-```
 1. CAPTURE BASELINE METRICS
-   |-- Incremental build time (change one file, rebuild): _____ seconds
-   |-- Clean build time (full rebuild from scratch): _____ minutes
-   |-- CI build time (including test execution): _____ minutes
-   |-- Cache hit rate (local): _____%
-   |-- Build flakiness rate (non-code failures / total builds): _____%
-   |-- Engineer-hours lost per week = (builds/day × wait_time × engineers × 5) / 60
-   |-- Monthly CI spend: $_____
-   |-- Benchmark: incremental < 30s excellent, < 2min acceptable, > 5min needs investigation
-   |-- Benchmark: clean < 5min excellent, < 15min acceptable, > 30min needs investigation
-
 2. PROFILING — IDENTIFY THE BOTTLENECK
-   |-- Generate build trace:
-   |   |-- Bazel: bazel build //... --profile=profile.json.gz
-   |   |-- Buck2: buck2 build //... --profile profile.json
-   |   |-- Make: make -j$(nproc) 2>&1 | ts -s
-   |   |-- Nx: nx build --profile profile.json
-   |-- Analyze with chrome://tracing or Bazel's analyzer:
-   |   |-- Critical path: longest sequential chain of dependencies
-   |   |-- Top 10 longest actions (compilation, linking, codegen, test)
-   |   |-- Cache hit/miss ratio per target (which targets miss cache and why)
-   |   |-- Idle time: when workers are waiting for dependencies
-   |-- Identify the binding constraint:
-   |   |-- CPU-bound (all cores saturated) -> add parallelism or optimize heavy targets
-   |   |-- I/O-bound (disk or network) -> add caching, faster storage
-   |   |-- Dependency-bound (long critical path) -> restructure dependencies, split targets
-   |   |-- Test-bound (slow tests on critical path) -> shard tests, move to separate phase
-
-3. HERMETICITY AUDIT
-   |-- Check for network access during build: bazel build --sandbox_block_network ...
-   |-- Check for system tool dependencies: ldd or otool on build outputs
-   |-- Check for environment variable leaks: compare build outputs with different PATH, HOME
-   |-- Check for timestamp embedding: build twice, compare binary hashes
-   |-- Findings: _____ targets are non-hermetic (___% of build graph)
-```
-
-### Phase 2: Hermetic Build Design
-
-```
-1. ELIMINATE NETWORK ACCESS
-   |-- Declare all external dependencies explicitly (WORKSPACE, MODULE.bazel, third_party/)
-   |-- Mirror dependencies internally (artifact registry: Artifactory, Nexus, Bazel Central Registry)
-   |-- Pin versions with content hashes (never use floating tags like "latest")
-   |-- Use --sandbox_block_network to verify no target accesses network
-
-2. ELIMINATE SYSTEM DEPENDENCIES
-   |-- Replace system-installed tools with hermetic toolchains:
-   |   |-- Bazel: register_toolchains() with pre-built binaries, not /usr/bin/gcc
-   |   |-- Container-based: run build in Docker with pinned toolchain image
-   |   |-- Nix: nix-shell with pinned nixpkgs commit
-   |-- Pin compiler version: rules_go, rules_rust, rules_python all support hermetic toolchains
-   |-- For Make: wrap in Docker with --volume mounts for source only
-
-3. ELIMINATE ENVIRONMENT LEAKS
-   |-- Use --action_env to explicitly pass only required environment variables
-   |-- Never depend on $HOME, $USER, $HOSTNAME in build rules
-   |-- Use fixed timestamps for reproducibility: SOURCE_DATE_EPOCH for deterministic builds
-   |-- Verify: build on macOS CI and Linux CI — outputs must be identical
-
-4. VERIFY DETERMINISM
-   |-- Build twice on same machine: diff outputs (must be bit-identical)
-   |-- Build on two different machines: diff outputs (must be bit-identical)
-   |-- Build with and without cache: cached output must match uncached output
-   |-- If outputs differ: use diffoscope, Bazel's --experimental_execution_log_file to find source
-```
-
-### Phase 3: Caching & Incrementality
-
-```
-1. LOCAL CACHING FIRST
-   |-- Disk cache: --disk_cache=/some/persistent/path (Bazel), ccache/sccache (Make)
-   |-- Target: >90% local cache hit rate before considering remote caching
-   |-- Cache size management: set max cache size, LRU eviction
-   |-- Benchmark: second build after cache warm should be <10% of first build
-
-2. REMOTE CACHING
-   |-- Options: Bazel Remote Cache API (nginx, BuildBarn CAS, BuildBuddy, bazel-remote)
-   |-- Decision: shared CI cache vs team-wide cache
-   |   |-- CI-only: simplest, no cross-machine poisoning risk
-   |   |-- Team-wide: faster for everyone, requires strict hermeticity
-   |-- Network cost: cache upload/download bandwidth. 100MB output × 1000 builds/day = 100GB.
-   |-- Cache poisoning recovery: ability to invalidate by target, by user, by time range
-
-3. INCREMENTAL BUILD OPTIMIZATION
-   |-- Dependency granularity: split large targets into smaller ones
-   |   |-- Single 50K line cc_library -> 10 libraries of 5K lines each
-   |   |-- Benefit: changing one file rebuilds 1/10th the code
-   |   |-- Cost: more BUILD files to maintain, marginally slower graph resolution
-   |-- Header hygiene (C/C++): include-what-you-use, forward declarations, precompiled headers
-   |-- Unnecessary dependency pruning: bazel query 'deps(//target)' and remove unused edges
-   |-- Test-only changes: --test_filter to run only affected tests, not full suite
-```
-
-### Phase 4: Build Graph Optimization
-
-```
-1. CRITICAL PATH ANALYSIS
-   |-- Identify the critical path from build trace (longest dependency chain)
-   |-- For each target on critical path:
-   |   |-- Can it be parallelized? (split into smaller targets)
-   |   |-- Can it be cached? (deterministic inputs, pre-built artifacts)
-   |   |-- Can it be deferred? (move to optional/lazy evaluation)
-   |-- Goal: reduce critical path to < 20% of total build time
-
-2. PARALLELISM TUNING
-   |-- CPU parallelism: --local_ram_resources, --local_cpu_resources (Bazel)
-   |-- Job server: Make's -j flag, load-average limiting (-l)
-   |-- Rule of thumb: set parallel jobs to (RAM / peak_per_action_RAM), not (CPU cores)
-   |   |-- Example: 64GB RAM, 2GB per compile action = 32 parallel jobs, even with 16 cores
-   |-- I/O parallelism: action_local_resources to prevent disk thrashing
-
-3. TEST SHARDING
-   |-- Divide large test targets into shards: --test_sharding_strategy=external
-   |-- Optimal shard count: total_test_time / target_test_time = number of shards
-   |-- Avoid over-sharding: setup/teardown overhead exceeds benefit below ~10 sec/shard
-   |-- Flaky test isolation: move flaky tests to separate target, do not block critical path
-```
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 125 lines of detailed guidance
 
 ## Decision Trees
 
-### Build System Selection
+#
+
+## Build System Selection
 
 ```
 How large is your team and codebase?
@@ -311,7 +202,9 @@ How large is your team and codebase?
 |   |-- Remote execution is mandatory at this scale
 ```
 
-### Migration Readiness Assessment
+#
+
+## Migration Readiness Assessment
 
 ```
 Is your team ready for a build system migration?
@@ -348,7 +241,9 @@ Is your team ready for a build system migration?
 |   |-- Tooling: Kythe for cross-reference, buildifier for BUILD file formatting, Buildozer for bulk edits
 ```
 
-### Remote Execution Readiness
+#
+
+## Remote Execution Readiness
 
 ```
 Should you invest in remote execution?
@@ -379,7 +274,9 @@ Should you invest in remote execution?
 |   |-- 500+ engineers: dedicated build cluster, BuildBarn/BuildBuddy enterprise
 ```
 
-### Build System Anti-Patterns
+#
+
+## Build System Anti-Patterns
 
 ```
 Common build system mistakes and how to fix them:
@@ -416,7 +313,9 @@ Common build system mistakes and how to fix them:
 |   |-- Benefit: consistency, single source of truth for common build patterns
 ```
 
-### Build vs Buy: Custom Rules vs External Tools
+#
+
+## Build vs Buy: Custom Rules vs External Tools
 
 ```
 Should you write a custom build rule or integrate an external build tool?
@@ -446,6 +345,20 @@ Should you write a custom build rule or integrate an external build tool?
 |   |-- Team has Starlark expertise? YES → custom rule. NO → maintain simpler approach.
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
@@ -459,6 +372,11 @@ Should you write a custom build rule or integrate an external build tool?
 | Cross-compilation for embedded or mobile targets | mobile-developer, firmware-developer | NDK cross-compilation, iOS/macOS universal binaries, ARM/RISC-V targets |
 | JVM build migration from Gradle/Maven to Bazel | backend-developer | JVM-specific Bazel rules, dependency management, annotation processing |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `cloud-architect` | Infrastructure design, networking, IAM, cost model | Before provisioning infrastructure or designing deployment pipelines |
+| `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
+
 ## Proactive Triggers
 
 | # | Trigger Condition | Auto-Response |
@@ -470,12 +388,13 @@ Should you write a custom build rule or integrate an external build tool?
 | P5 | Test target takes >60 seconds with no sharding | [WARN] Consider sharding this test target. A 5-minute test suite with 4 shards can run in 75 seconds on remote execution. |
 | P6 | Build contains `genrule` with `cmd = "curl ..."` (network access in build) | [ALERT] genrule with network access breaks hermeticity. Replace with http_file/http_archive or pre-downloaded dependencies. |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -495,7 +414,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -508,7 +429,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -618,6 +541,19 @@ After designing or modifying a build system, run this sequence. Do not proceed p
 7. **Migration readiness:** If planning migration, quantified current pain ($), estimated migration cost ($), and projected ROI timeline (<18 months). All three documented in decision record.
 
 If any check fails: diagnose from verification item, provide specific actionable fix, restart verification from failed item.
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

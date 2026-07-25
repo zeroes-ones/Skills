@@ -1,0 +1,22 @@
+## Production Checklist — Pre-Launch Verification
+
+- [ ] **P1. Lighthouse Performance ≥ 90 on mobile** (simulated 4G, Moto G4). Target: 95+. Check at PageSpeed Insights.
+- [ ] **P2. Lighthouse Accessibility = 100.** Every point below 100 is a fixable issue. axe DevTools catches what Lighthouse misses.
+- [ ] **P3. Lighthouse SEO = 100.** Meta descriptions, structured data, valid robots.txt, sitemap generation, canonical URLs, mobile-friendly.
+- [ ] **P4. Lighthouse Best Practices = 100.** HTTPS, correct image aspect ratios, no deprecated APIs, no known vulnerabilities in JS libraries.
+- [ ] **P5. Custom domain configured with HTTPS redirect.** `http://example.com` → 301 → `https://example.com`. `http://www.example.com` → 301 → `https://example.com` (or vice versa — pick one canonical domain).
+- [ ] **P6. SSL certificate valid with auto-renewal.** Check SSL Labs (ssllabs.com/ssltest) for grade A+. Verify Let's Encrypt auto-renewal is active.
+- [ ] **P7. `<title>` and `<meta name="description">` on every page.** No duplicates. Descriptions 120-155 characters. Titles 50-60 characters. Check with Screaming Frog or `curl` + grep.
+- [ ] **P8. Open Graph + Twitter Card tags verified** on all sharable pages. Test with `opengraph.xyz` or Twitter Card Validator. Images must be 1200×630px minimum.
+- [ ] **P9. Structured data (JSON-LD) validated.** Test with Google Rich Results Test and Schema.org Validator. Fix all errors and warnings.
+- [ ] **P10. `robots.txt` verified** — not blocking search engines. Sitemap URL included in robots.txt.
+- [ ] **P11. `sitemap.xml` verified** — all URLs return 200, no 404s, no redirect chains, no `noindex` pages in sitemap.
+- [ ] **P12. 404 page functional** — returns HTTP 404, provides navigation (search bar, popular pages, home link), matches site design.
+- [ ] **P13. Forms functional** — test every form (contact, newsletter, checkout, search). Server-side validation working. Confirmation email received. Spam protection (honeypot field or CAPTCHA).
+- [ ] **P14. `Cache-Control` headers correct** — hashed assets: immutable + long max-age. HTML: short max-age with stale-while-revalidate. Verify with `curl -I`.
+- [ ] **P15. CSP header deployed** — no `unsafe-inline` for `script-src`. Test with CSP Evaluator. Monitor for reports (report-uri or report-to).
+- [ ] **P16. Analytics receiving data** — Plausible/Umami/GA4 shows real-time visitors. Verify pageview events fire. Verify no PII in analytics data (GDPR compliance).
+- [ ] **P17. Error tracking configured** — Sentry or equivalent receives JS errors from production. Verify a test error appears in the dashboard.
+- [ ] **P18. Environment variables verified** — all required variables set in production environment. No development values (`localhost`, test API keys) leaked to production.
+- [ ] **P19. Rate limiting enabled** — Vercel WAF, Cloudflare Rate Limiting, or equivalent. Prevent bot crawls from triggering serverless function overages.
+- [ ] **P20. Backup and rollback plan tested** — can you revert to the previous deploy in under 5 minutes? Test it. Previous deploy must remain accessible as a rollback target.

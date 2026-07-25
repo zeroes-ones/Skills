@@ -18,6 +18,7 @@ description: >
   documentation-engineer).
 author: Sandeep Kumar Penchala
 license: MIT
+output: "skill"
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 type: framework
 status: stable
@@ -46,7 +47,7 @@ chain:
 
 The meta-skill for skill authors. Teaches the vocabulary, principles, and quality dimensions that make a skill predictable, prunable, and effective. Everything in this skill was used to write this skill.
 
-## Ground Rules — Read Before Anything Else
+## <!-- STANDARD: 3min --> Ground Rules — Read Before Anything Else
 
 These rules catch the failure modes that make skills flabby, confusing, or actively harmful.
 
@@ -77,7 +78,7 @@ You are a skill architect. Your job is to encode expertise into tokens that reli
 * **Skill composition (45 min):** Design how 2+ skills interact. User-invoked skill orchestrates model-invoked skills. Define handoff artifacts, coordination points, and invocation conditions.
 * **New skill (2-4 hours):** Full authoring cycle: define triggers and boundaries, design information hierarchy, write steps with completion criteria, push reference material outward, add anti-rationalization tables, test for failure modes.
 
-## When to Use
+## <!-- QUICK: 30s --> When to Use
 
 Use writing-great-skills when the quality of skill authoring directly affects agent behavior.
 
@@ -90,7 +91,7 @@ Use writing-great-skills when the quality of skill authoring directly affects ag
 
 Do NOT use writing-great-skills for writing code documentation, API docs, user manuals, or README files (route to technical-writer or documentation-engineer). Do NOT use for writing prompts that aren't structured as skills.
 
-## Route the Request
+## <!-- QUICK: 30s --> Route the Request
 
 ### Auto-Route by Artifacts
 
@@ -114,7 +115,7 @@ What skill authoring task are you working on?
 |-- Pruning a skill that's over token budget → Jump to "Decision Trees: Pruning Strategy"
 ```
 
-## Core Workflow
+## <!-- STANDARD: 3min --> Core Workflow
 
 ### Phase 1: Skill Blueprint
 
@@ -196,7 +197,7 @@ Preempt the model's tendency to rationalize away constraints.
    |-- Each trigger: detectable condition → automatic response
 ```
 
-## Decision Trees
+## <!-- STANDARD: 3min --> Decision Trees
 
 ### Failure Mode Diagnosis
 
@@ -351,13 +352,44 @@ Target: 10+ for "great", 8+ for "good", <8 needs work.
 
 ## Cross-Skill Coordination
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `technical-writer` | Documentation standards, clarity principles, audience analysis | Before writing skill documentation for end users |
+| `documentation-engineer` | Doc infrastructure, automation pipelines, format standards | When building automated skill validation or generation pipelines |
+| `teach` | Learning principles, scaffolding patterns, assessment design | When designing a skill that teaches other skills |
+
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
 | Writing a skill about a technical domain | That domain's skill | Domain expert defines what; writing-great-skills defines how to encode it |
-| Writing a skill that teaches | teach | Teach provides learning principles; writing-great-skills applies them to skill structure |
 | Auditing a skill collection | All skills in the collection | Quality audit against the 12 dimensions |
 | Designing skill composition | The skills being composed | Defines orchestration pattern, handoff artifacts, invocation conditions |
-| Skill documentation for authors | technical-writer, documentation-engineer | Skill authoring guides for the wider community |
+
+## Error Recovery
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Skill fires on wrong triggers or doesn't fire when it should | Description field contains process language ("first", "then", "step") instead of trigger-only language | Rewrite description using ONLY trigger conditions. Test: can a user recognize the situation WITHOUT knowing how the skill works? | **Process in description = misfire.** Descriptions are grep-matched by agents. Process words match random conversations. Trigger words match specific situations. |
+| Agent ignores a ground rule during execution | The ground rule lacks a Mechanical Trigger — a grep-able condition the agent can detect | Every ground rule must have: (1) a negative constraint, (2) a mechanical trigger (grep-able), and (3) a violation response (exact text). Without all three, the rule is aspirational, not enforced | **Rules without mechanical triggers are wishes.** Agents cannot enforce "be careful." They CAN enforce "if grep finds X, respond with Y." |
+| Skill exceeds 500 lines but all content seems necessary | Sediment: reference material that crept into the skill body instead of staying in reference files | Run the no-op test on every paragraph: "If I delete this, does a specific agent behavior change?" If no, move to references or delete. Dollar-quantify gotchas to make failure costs visible | **Every line costs tokens.** A 600-line skill costs 20% more per invocation. Prune sediment first, then push detail to reference files. |
+| Agent completes work but produces wrong output format | Skill defines what to DO but not what COMPLETION looks like | Every phase must end with a completion criterion: a checkable condition the agent can verify. | **Without completion criteria, agents don't know when they're done.** Every step needs a verifiable exit condition. |
+
+## State Log
+
+This skill maintains a **decision ledger** for skill authoring sessions.
+
+### How the State Log Works
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior authoring decisions.
+2. **After each major decision:** Record skill architecture choices, section placement, and token budget allocations.
+3. **Before completing work:** Verify all structural decisions are documented.
+4. **On context recovery:** Read the last 5 entries before proposing changes.
+
+### Anti-Drift Check
+
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior section-placement or budget decisions constrain what I'm about to do?
+- [ ] Is my approach consistent with the 12-section template?
+- [ ] If I'm contradicting a prior decision, have I documented WHY?
 
 ## Proactive Triggers
 
@@ -417,6 +449,19 @@ description: >
 ## Gotchas
 - **[Gotcha].** **Total cost: $X-$Y.** Fix: [action].
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 * ref-example.md
 ```
@@ -438,21 +483,18 @@ For each Ground Rule in a skill, write a grep command that would detect the viol
 ### Exercise 5: Skill Compression (20 min)
 Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar Ground Rules. Can you get it under 500 lines without losing functionality?
 
-## Gotchas
+### <!-- DEEP: 10+min --> Error Decoder
 
-- **The description-as-process anti-pattern.** Description fields that read "Use when you need to calculate a budget" are process-triggers, not situation-triggers. The model matches on the situation (user mentions money), not the process (user mentions calculating). A skill with process-triggers fires late or not at all. **Total cost: $0 in direct cost but infinite in missed utility — the skill never fires when it should. Fix: describe the SITUATION the user is in, not the task the skill performs.**
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| The description-as-process anti-pattern. Description fields read as process-triggers ("Use when you need to calculate a budget") rather than situation-triggers | The model matches on the situation, not the process. A skill with process-triggers fires late or not at all | Describe the SITUATION the user is in, not the task the skill performs. "Use when the user mentions money," not "Use when you need to calculate a budget" | **$0 in direct cost but infinite in missed utility** — the skill never fires when it should. Process-triggers are invisible to the model's situation-matching. |
+| The duplication divergence trap. Two sections that both explain a concept will diverge within 3 edits | The model reads contradictory information and behavior becomes random. Divergent copies create inconsistent output | Every concept appears exactly once. References link to the authoritative definition. Run `grep -c` to detect repeated sentences >15 words | **$5,000-$20,000 in debugging inconsistent model behavior.** Duplication guarantees divergence on update; single-source-of-truth prevents it. |
+| The premises-completion failure mode. Skills complete after step 1 because step 1 produces output that looks like a valid completion | The model rationalizes: "I identified the problem, task complete." Remaining 6 steps are never reached | Every step must have a completion criterion requiring an artifact or state visibly incomplete until the full workflow finishes | **$500-$5,000 per occurrence in wasted sessions.** Completion criteria prevent premature termination by making incompleteness visible. |
+| The no-op inflation death spiral. Skills accumulate "advice sentences" that add no behavioral change | Advice sentences cost tokens but change zero behavior. Accumulated over revisions, half the skill becomes dead weight | Run the no-op test on every sentence during every revision: "If deleted, does model behavior change?" If no, delete | **2,000+ wasted tokens per invocation. At 10 invocations/day, 20,000 tokens/day of zero-value context.** No-op sentences are pure context waste with no behavioral impact. |
+| The ground-rules-without-teeth problem. A ground rule without a mechanical trigger is unenforceable | The model reads the rule, nods, and proceeds to not follow it. Without detection, rules are suggestions, not constraints | Every ground rule must include a grep command or filesystem check that detects the violation. Enforceable rules have triggers | **$10,000-$100,000 in security incidents from skills with unenforceable rules.** Mechanical triggers turn suggestions into enforceable constraints. |
+| The composition confusion problem. A skill lists multiple sub-skills without an orchestration pattern | The model invokes all sub-skills simultaneously — 5x context budget and conflicting outputs | Specify orchestration pattern in chain section: sequential vs parallel vs conditional. Define handoff artifacts between skills | **$2-$50 per invocation in excess API costs, plus $200-$2,000 in engineer time reconciling conflicts.** Explicit orchestration prevents context explosion. |
 
-- **The duplication divergence trap.** Two sections that both explain a concept will diverge within 3 edits. The model reads contradictory information and behavior becomes random. A skill collection I audited had 4 different definitions of "progressive disclosure" across 6 skills — the model was implementing 4 different versions. **Total cost: $5,000-$20,000 in debugging inconsistent model behavior. Fix: every concept appears exactly once. References link to the authoritative definition.**
-
-- **The premises-completion failure mode.** Skills that complete after step 1 because step 1 produces output that looks like a valid completion. "Step 1: Identify the problem. Done!" The model rationalizes: "I identified the problem, task complete." Remaining 6 steps never reached. **Total cost: $500-$5,000 per occurrence in wasted sessions. Fix: every step has a completion criterion requiring an artifact or state visibly incomplete until full workflow finishes.**
-
-- **The no-op inflation death spiral.** Skills accumulate "advice sentences": "Remember to write clean code," "Always consider edge cases." Each costs tokens. Each changes zero behavior. A skill at 300 lines gets 20 advice sentences per revision, hits 500 lines in 10 revisions — half dead weight. **Total cost: 2,000+ wasted tokens per invocation. At 10 invocations/day, 20,000 tokens/day of zero-value context. Fix: run the no-op test on every sentence during every revision.**
-
-- **The ground-rules-without-teeth problem.** A ground rule "Always validate input" without a mechanical trigger is unenforceable. The model reads it, nods, and proceeds to not validate input. A security skill with 10 ground rules but 0 mechanical triggers provides zero security. **Total cost: $10,000-$100,000 in security incidents from skills with unenforceable rules. Fix: every ground rule must include a grep command or filesystem check that detects the violation.**
-
-- **The composition confusion problem.** A user-invoked skill listing 5 model-invoked skills without orchestration pattern causes the model to invoke all 5 simultaneously — 5x context budget and conflicting outputs. **Total cost: $2-$50 per invocation in excess API costs, plus $200-$2,000 in engineer time reconciling conflicts. Fix: specify orchestration pattern in chain section: sequential vs parallel vs conditional.**
-
-## Anti-Rationalization — No Excuses
+## <!-- DEEP: 10+min --> Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -462,7 +504,7 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 | "If the model violates a rule, I'll add a stronger warning" | Stronger language doesn't work; only mechanical triggers (grep checks, filesystem verification) change model behavior |
 | "This edge case is so obvious I don't need to document it" | The undocumented edge case is the one the model hits at 3 AM in production; every observed failure pattern must be encoded |
 
-## Verification
+## <!-- DEEP: 10+min --> Verification
 
 - [ ] **Description audit:** "Use when / Handles / Do NOT use" format. No process language. Triggers are situations.
 - [ ] **Ground rules enforceable:** Every ground rule has a mechanical trigger.

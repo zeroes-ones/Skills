@@ -30,7 +30,6 @@ chain:
   alternatives: []
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
-
 # Codebase Design
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -56,7 +55,6 @@ A vocabulary-driven approach to designing deep modules — units of code where a
 | R4 | DETECT hidden coupling through shared mutable state | Two modules mutate the same global/static state OR share a mutable config object | Extract state into a single owning module. Apply [Locality Analysis](references/locality-analysis.md). |
 | R5 | REFUSE to skip interface minimization step | New module declared without first enumerating public surface and justifying each method | Pause. Run [Interface Minimization](references/interface-minimization.md) — every public method must earn its place. |
 | R6 | DETECT when locality is violated (related code scattered) | Three or more files in different directories change together in >80% of commits touching any one of them | Co-locate scattered code. Apply [Locality Analysis](references/locality-analysis.md) — compute spatial distance. |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -107,7 +105,9 @@ Use this skill when:
 
 ## Route the Request
 
-### Auto-Route by Artifacts (Check Filesystem First)
+#
+
+## Auto-Route by Artifacts (Check Filesystem First)
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -117,7 +117,9 @@ Use this skill when:
 | A4 | New file added with `public` methods but no callers yet | Premature interface. Jump to **Decision Trees** — Interface Minimization Strategy. |
 | A5 | Configuration class with >20 fields and individual getters | Trivial wrapper. Jump to **Core Workflow** — Phase 2 (Interface Minimization). |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What are you trying to do?
@@ -140,185 +142,22 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+<!-- Full 177 lines extracted to references/core-workflow.md -->
 
-```
 DESIGN → MINIMIZE → SEAM → ADAPT → VERIFY
    ↑___________________________________|
               (iterate)
-```
+#
 
-### Phase 1: Module Inventory
-
-**Goal:** Catalog all modules in scope and classify each by depth.
-
-```
-┌──────────────────────────────────────────────────┐
-│              MODULE INVENTORY                      │
-│                                                    │
-│  For each module:                                  │
-│  1. Count public methods (interface cost)          │
-│  2. Estimate lines of behavior (non-delegation)    │
-│  3. Compute depth = behavior / interface           │
-│  4. Classify:                                      │
-│     ├── depth >= 3.0 → DEEP (keep, celebrate)      │
-│     ├── 1.0 <= depth < 3.0 → MODERATE (investigate)│
-│     └── depth < 1.0 → SHALLOW (mark for action)    │
-│                                                    │
-│  Output: depth scorecard for every module          │
-└──────────────────────────────────────────────────┘
-```
-
-**Steps:**
-1. List every module (class, file, package) in the target scope
-2. For each, count public methods/symbols — this is the **interface cost**
-3. Estimate lines of implementation (non-delegation, non-getter/setter logic) — this is **behavior**
-4. Compute depth = behavior / interface cost
-5. Classify modules as deep, moderate, or shallow
-
-**Checkpoint:** Depth scorecard complete. All shallow modules flagged.
-
----
-
-### Phase 2: Interface Minimization
-
-**Goal:** Reduce the public surface of every module to the absolute minimum.
-
-```
-┌──────────────────────────────────────────────────┐
-│           INTERFACE MINIMIZATION                   │
-│                                                    │
-│  For each method in the public interface:          │
-│    Q1: Is this method called by external code?     │
-│         NO → Make private (or delete)              │
-│         YES → Continue                             │
-│    Q2: Can this be combined with another method?   │
-│         YES → Merge and reduce parameter count     │
-│         NO → Continue                              │
-│    Q3: Does this expose implementation detail?     │
-│         YES → Hide behind abstraction              │
-│         NO → Keep (justified)                      │
-│                                                    │
-│  After minimization: re-compute depth              │
-└──────────────────────────────────────────────────┘
-```
-
-**Steps:**
-1. List every public method/symbol
-2. Apply the three questions above to each
-3. Combine methods where possible (e.g., `setX()` + `setY()` → `configure(options)`)
-4. Use default parameters instead of overloads
-5. Narrow return types (return concrete types, not internal representations)
-6. Hide implementation classes behind interfaces
-7. Re-compute depth after minimization
-
-**Checkpoint:** Interface minimized. Depth improved (ideally >3.0).
-
----
-
-### Phase 3: Seam Identification
-
-**Goal:** Find natural boundaries where modules can be cleanly separated.
-
-```
-┌──────────────────────────────────────────────────┐
-│              SEAM IDENTIFICATION                   │
-│                                                    │
-│  Seam checklist for candidate boundary A|B:        │
-│  ✓ A and B change at different rates               │
-│  ✓ A can be tested independently from B            │
-│  ✓ A has different performance characteristics     │
-│  ✓ A has different error-handling needs            │
-│  ✓ A serves different caller personas              │
-│  ✓ B can be replaced without changing A            │
-│                                                    │
-│  Score: 6/6 = natural seam, 4-5/6 = candidate,     │
-│         <4/6 = artificial boundary (reconsider)    │
-└──────────────────────────────────────────────────┘
-```
-
-**Steps:**
-1. Identify all candidate boundaries in the module inventory
-2. Score each candidate against the seam checklist
-3. Natural seams (5-6/6): proceed to Phase 4
-4. Candidates (4/6): investigate — is the boundary worth formalizing?
-5. Artificial (<4/6): do not add adapters here; look for better seams
-
-**Checkpoint:** Seam map complete. Adapter targets identified.
-
----
-
-### Phase 4: Adapter Placement
-
-**Goal:** Place adapters at identified seams to decouple modules.
-
-```
-┌──────────────────────────────────────────────────┐
-│              ADAPTER PLACEMENT                     │
-│                                                    │
-│  Module A  ───[raw]──→  Module B  (tight couple)  │
-│       ↓                                ↑           │
-│  Module A  ───[Adapter]──→  Interface  ←── Module B│
-│                                                    │
-│  Select adapter type by seam characteristics:      │
-│  ├── Translation: different data formats           │
-│  ├── Facade: simplify complex subsystem            │
-│  ├── Anti-Corruption: protect domain from external │
-│  └── Bridge: abstract over multiple implementations│
-└──────────────────────────────────────────────────┘
-```
-
-**Steps:**
-1. For each natural seam, select the appropriate adapter pattern
-2. Define the interface that the adapter will expose
-3. Implement the adapter with minimal surface area
-4. Verify that Module A now depends only on the interface, not Module B
-5. Update callers to use the adapter
-
-**Checkpoint:** All natural seams have adapters. Coupling reduced.
-
----
-
-### Phase 5: Deletion Test Verification
-
-**Goal:** Validate that every module earns its existence.
-
-```
-┌──────────────────────────────────────────────────┐
-│              DELETION TEST                         │
-│                                                    │
-│  For each module M:                                │
-│  1. Imagine deleting M entirely                    │
-│  2. What breaks?                                   │
-│     ├── Nothing → M is dead code. Delete it.       │
-│     ├── Only tests → M is test-only. Reassess.     │
-│     ├── Callers can be trivially updated → Delete  │
-│     └── Callers need significant rewrite → Keep    │
-│  3. For kept modules:                              │
-│     ├── Can callers use M's dependency directly?   │
-│     │   YES → M is a pass-through. Delete it.       │
-│     └── Does M add real behavior? → Keep, with     │
-│         updated depth score                        │
-└──────────────────────────────────────────────────┘
-```
-
-**Steps:**
-1. Run the deletion test on every module in inventory
-2. Delete modules that fail (dead code, pass-throughs, trivial wrappers)
-3. Update callers of deleted modules to use the underlying dependency directly
-4. Re-run depth analysis on remaining modules
-5. Document decisions in ADR format
-
-**Checkpoint:** All remaining modules pass the deletion test. Codebase is leaner.
-
----
-
-### Iterate
-
-After Phase 5, return to Phase 1 with the leaner codebase. Each iteration should increase the average module depth.
+## Phase 1: Module Inventory
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 177 lines of detailed guidance
 
 ## Decision Trees
 
-### Module Depth Classification
+#
+
+## Module Depth Classification
 
 ```
 Module under evaluation
@@ -342,7 +181,9 @@ Module under evaluation
     └── Impossible. A module with behavior must expose it. Re-check measurement.
 ```
 
-### Interface Minimization Strategy
+#
+
+## Interface Minimization Strategy
 
 ```
 Module with N public methods
@@ -367,7 +208,9 @@ Module with N public methods
     └── Apply deletion test to each method group. Keep only essential groups.
 ```
 
-### Seam Placement Decision
+#
+
+## Seam Placement Decision
 
 ```
 Candidate boundary between Module A and Module B
@@ -391,7 +234,9 @@ Candidate boundary between Module A and Module B
     └── Reconsider. Merging A and B may be better than forcing a seam.
 ```
 
-### Adapter Pattern Selection
+#
+
+## Adapter Pattern Selection
 
 ```
 Seam characteristics → Adapter type
@@ -416,7 +261,9 @@ Seam characteristics → Adapter type
     └── No adapter needed. Just import. If packaging is the only difference, refactor packaging.
 ```
 
-### Refactoring Priority Matrix
+#
+
+## Refactoring Priority Matrix
 
 ```
 Priority = (CouplingDamage × ChangeFrequency) / RefactoringCost
@@ -445,6 +292,20 @@ IGNORE
 └── Generated code — depth analysis doesn't apply
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Direction | Skill | What's Exchanged | Decision Gate |
@@ -455,6 +316,10 @@ IGNORE
 | **Downstream** | frontend-developer | Module interface contracts, adapter patterns for API consumption | Frontend dev uses the designed facades — report back if interface is insufficient |
 | **Downstream** | fullstack-developer | End-to-end module designs spanning frontend and backend | Fullstack dev validates that designed seams work across the stack |
 | **Downstream** | code-reviewer | Depth scorecards for review context, deletion test results | Reviewer checks new code against established depth standards |
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System design, C4 models, ADRs, scalability patterns | Before making architectural decisions that impact multiple systems |
 
 ## Proactive Triggers
 
@@ -468,12 +333,13 @@ IGNORE
 | T6 | User imports from 5+ different packages in one file | "High fan-in detected. This module may have low locality. Consider splitting or consolidating dependencies." |
 | T7 | Git diff shows 3+ files in different directories changing together | "Locality alert: these files co-change but live apart. Should they be co-located?" |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -493,7 +359,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -506,7 +374,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -545,19 +415,29 @@ Metrics improvement:
 
 ## Deliberate Practice
 
-### Exercise 1: Depth Scoring (15 min)
+#
+
+## Exercise 1: Depth Scoring (15 min)
 Take any module in your current codebase. Count its public methods. Count its lines of actual behavior (not delegation, not getters/setters). Compute depth. Classify it. If shallow, identify the 3 most important changes to increase depth. Timebox: 15 minutes.
 
-### Exercise 2: Deletion Test Sprint (20 min)
+#
+
+## Exercise 2: Deletion Test Sprint (20 min)
 Take a package or directory. Run the deletion test on every file in it. For each file, answer: "If I delete this, what breaks?" Create a list: files to delete, files to keep, files to refactor. Timebox: 20 minutes.
 
-### Exercise 3: Interface Minimization Kata (25 min)
+#
+
+## Exercise 3: Interface Minimization Kata (25 min)
 Choose a module with 8+ public methods. Apply Phase 2's three questions to every method. Combine, hide, or delete until the interface is ≤5 methods. Re-compute depth. Compare before/after. Timebox: 25 minutes.
 
-### Exercise 4: Seam Mapping (20 min)
+#
+
+## Exercise 4: Seam Mapping (20 min)
 Pick a feature that spans 3+ files. Draw the dependency graph. Identify where changes propagate. Score each boundary using the seam checklist. Mark natural seams. Propose adapter placements. Timebox: 20 minutes.
 
-### Exercise 5: Locality Heatmap (30 min)
+#
+
+## Exercise 5: Locality Heatmap (30 min)
 Run `git log --name-only` on your repo for the last 50 commits. Group files that co-change. For each group, compute spatial distance (directory tree distance). Identify files with high co-change frequency but high spatial distance — these are locality violations. Propose a reorganization. Timebox: 30 minutes.
 
 ## Gotchas
@@ -596,6 +476,19 @@ grep -c "public " src/**/*.java | awk -F: '$2 > 10 {print}'
 # 6. Deletion test: confirm no dead modules exist
 # For each module, verify at least one production caller exists
 ```
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

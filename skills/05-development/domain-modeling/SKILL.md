@@ -31,7 +31,6 @@ chain:
   alternatives: []
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
-
 # Domain Modeling
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -61,7 +60,6 @@ These rules are non-negotiable. The agent MUST follow every rule on every invoca
 | R6 | DETECT implicit bounded contexts that lack explicit boundaries | Two teams or modules operate on the same concept with different rules, but no bounded context boundary is documented | Propose a boundary, name both contexts, define their ubiquitous languages separately, and add an Anti-Corruption Layer (ACL) if integration is needed |
 | R7 | REFUSE to let domain rules live only in code | A business rule (invariant, constraint, state machine) exists in code but has no corresponding entry in CONTEXT.md | Extract the rule from code, write it in plain language in CONTEXT.md, and link back to the code location. The rule must be understandable by a domain expert who cannot read code |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -70,7 +68,9 @@ These rules are non-negotiable. The agent MUST follow every rule on every invoca
 
 Domain modeling masters think differently. They don't just document — they interrogate. Every term is a hypothesis until tested against edge cases. Every boundary is a bet about where complexity lives. Every ADR is a signal that the team faced a genuine fork in the road.
 
-### Cognitive Biases to Guard Against
+#
+
+## Cognitive Biases to Guard Against
 
 | Bias | How It Corrupts Domain Modeling | Countermeasure |
 |---|---|---|
@@ -104,7 +104,9 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 - Auditing an existing codebase for undocumented business rules
 - Preparing for a domain event storming session
 
-### Do NOT Use
+#
+
+## Do NOT Use
 
 - **Code implementation** — route to [backend-developer], [frontend-developer], or [fullstack-developer]
 - **Database schema design** — route to [database-designer]
@@ -115,7 +117,9 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 
 ## Route the Request
 
-### Auto-Route by Artifacts
+#
+
+## Auto-Route by Artifacts
 
 When the request context includes these files, auto-activate domain-modeling:
 
@@ -127,7 +131,9 @@ When the request context includes these files, auto-activate domain-modeling:
 | `**/domain/` directory in code | Scan for aggregates, entities, value objects; cross-reference with CONTEXT.md |
 | `**/bounded-contexts.md` or context map diagrams | Validate boundaries against current code organization |
 
-### Intent Route
+#
+
+## Intent Route
 
 ```
 User request
@@ -155,136 +161,22 @@ User request
 ```
 
 ## Core Workflow
+<!-- Full 128 lines extracted to references/core-workflow.md -->
 
-### Phase 1: Term Harvesting — Scan the Codebase
+#
 
+## Phase 1: Term Harvesting — Scan the Codebase
 **Goal**: Build an initial glossary of every domain-significant term in the codebase.
-
-```
 for each source in [code, docs, tickets, conversations]:
     extract nouns that appear in:
-        - class/interface/type names
-        - method/function names that represent business operations
-        - database table/column names (filter out purely technical columns)
-        - API endpoint resource names
-        - enum values and constants
-    for each noun:
-        record in initial glossary with provisional definition from usage
-```
-
-**Heuristics for domain term detection**:
-- Appears in a class name AND a database table (high confidence)
-- Appears in multiple files across different modules (medium confidence)
-- Appears only in comments or variable names (low confidence — may be informal)
-
-**Output**: A table in CONTEXT.md with columns: Term, Provisional Definition, Source(s), Confidence.
-
-### Phase 2: Term Challenging — Interrogate Every Definition
-
-**Goal**: Refine provisional definitions into precise, testable domain definitions.
-
-```
-for each term in glossary:
-    challenge round 1: "What does {term} mean here?"
-        → Can I write a validation rule?  If NO → term is too vague
-        → Does the definition exclude anything?  If NO → boundary is missing
-        → Would a domain expert agree?  If NO → incorrect terminology
-
-    challenge round 2: "What is {term} NOT?"
-        → Define the negative space explicitly
-        → Example: "Customer means a paying account holder, NOT a trial user, NOT a deleted account, NOT a prospect in the CRM"
-
-    challenge round 3: "Does {term} mean the same thing everywhere?"
-        → Scan for the term in other modules, APIs, or team documentation
-        → If meaning diverges → flag for R2 disambiguation
-```
-
-**Output**: Precise definitions in CONTEXT.md, with negative-space clarifications and cross-context notes.
-
-### Phase 3: Edge-Case Stress Testing — Break the Definitions
-
-**Goal**: Invent adversarial scenarios to expose gaps in domain definitions.
-
-```
-for each term in glossary:
-    generate edge cases using the SCANT framework:
-        S — State: What if the entity is in an unexpected state?
-        C — Concurrency: What if two actors modify it simultaneously?
-        A — Absence: What if a required dependency is missing or deleted?
-        N — Negation: What if the opposite of the happy path happens?
-        T — Time: What if things happen out of expected order?
-
-    for each edge case:
-        determine expected behavior under current definitions
-        if expected behavior is undefined or contradictory:
-            → gap found — update domain rules
-            → add to edge case table in CONTEXT.md
-```
-
-**Example edge cases per term**:
-- **Order**: "A customer deletes their account while an order is in fulfillment"
-- **Subscription**: "Payment succeeds but the provisioning webhook returns a 500"
-- **Inventory**: "A warehouse reports stock that doesn't match the system's count"
-- **User**: "A user logs in via SSO but the identity provider sends a different email than the one on file"
-
-### Phase 4: CONTEXT.md Maintenance — Keep the Glossary Alive
-
-**Goal**: Ensure CONTEXT.md is the single source of truth for domain knowledge.
-
-```
-on every session:
-    load CONTEXT.md from repo root (or create if absent)
-    check Last updated date:
-        if > 30 days → flag for refresh (R5)
-    check code references:
-        for each Rule ID with a Code Location:
-            verify file still exists and line range is valid
-            flag broken references
-
-on every term definition or rule change:
-    update the relevant section of CONTEXT.md
-    log term changes in the Term Drift Log
-    update Last updated timestamp
-
-on every edge case discovery:
-    add to Edge Cases table with status "open"
-    link to the domain rule it challenges
-```
-
-**CONTEXT.md sections to maintain**:
-1. Bounded Contexts table
-2. Core Terms glossary
-3. Edge Cases table
-4. Domain Rules table (cross-referenced to code)
-5. Term Drift Log
-
-### Phase 5: Code Cross-Reference — Verify Code Matches Domain Rules
-
-**Goal**: Detect and flag contradictions between documented domain rules and implemented code.
-
-```
-for each domain rule in CONTEXT.md with a Code Location:
-    read the referenced code
-    verify:
-        → The rule is actually enforced (not commented out, not dead code)
-        → The enforcement logic matches the documented rule precisely
-        → No other code path bypasses this enforcement
-
-for each code file in the domain layer:
-    scan for business logic (validation, state transitions, calculations)
-    for each piece of business logic found:
-        → check if it has a corresponding entry in CONTEXT.md
-        → if not: flag as "undocumented domain rule" (R7 violation)
-
-report findings:
-    ✅ Rule X enforced at path:line — matches documentation
-    ⚠️ Rule Y documented but enforcement missing or incomplete
-    ❌ Rule Z enforced in code but absent from CONTEXT.md
-```
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 128 lines of detailed guidance
 
 ## Decision Trees
 
-### Term Ambiguity Detection
+#
+
+## Term Ambiguity Detection
 
 ```
 Term T encountered in request or codebase
@@ -304,7 +196,9 @@ Term T encountered in request or codebase
        └─ NO  → Single-context term — no disambiguation needed
 ```
 
-### ADR Trigger Decision
+#
+
+## ADR Trigger Decision
 
 ```
 ADR requested for decision D
@@ -325,7 +219,9 @@ ADR requested for decision D
             └─ NO  → REFUSE: "Only one reasonable approach existed. No tradeoff to document."
 ```
 
-### Bounded Context Boundary Placement
+#
+
+## Bounded Context Boundary Placement
 
 ```
 Proposed boundary between concepts A and B
@@ -351,7 +247,9 @@ Proposed boundary between concepts A and B
        → Consider: shared kernel, or same context with sub-modules
 ```
 
-### Edge-Case Generation Strategy
+#
+
+## Edge-Case Generation Strategy
 
 ```
 Given domain term T with definition D
@@ -382,7 +280,9 @@ Given domain term T with definition D
        └─ Scheduled job runs during a deployment
 ```
 
-### Glossary Maintenance Cadence
+#
+
+## Glossary Maintenance Cadence
 
 ```
 CONTEXT.md maintenance trigger
@@ -408,6 +308,20 @@ CONTEXT.md maintenance trigger
        └─ Quarterly audit → full glossary review with domain expert
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 Domain modeling feeds domain clarity into every downstream skill while consuming strategic intent from upstream.
@@ -422,13 +336,20 @@ Domain modeling feeds domain clarity into every downstream skill while consuming
 | **Feeds** | [database-designer] | Aggregate boundaries that guide transaction scoping, entity relationships, invariant enforcement points |
 | **Feeds** | [qa-engineer] | Domain rules as test cases, edge-case scenarios for test planning, invariant validation checks |
 
-### Coordination Protocol
+#
+
+## Coordination Protocol
 
 When domain-modeling detects a conflict between a consumed artifact and domain reality:
 1. Document the conflict in CONTEXT.md under a "Cross-Skill Conflicts" section
 2. Propose resolution with rationale
 3. Route back to the upstream skill for re-alignment
 4. Do NOT silently accept upstream artifacts that contradict domain understanding
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | Architecture decisions, technology constraints, system boundaries | Before implementing features that cross system boundaries |
+| `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
 
 ## Proactive Triggers
 
@@ -443,12 +364,13 @@ The agent watches for these signals and acts without being asked.
 | New microservice or module created without bounded context documentation | Detect new top-level directories in monorepo or new services in deployment config | Ask: "Does this new service represent a new bounded context? Document the boundary." |
 | Code comment contains "TODO: clarify business rule" | grep for `TODO.*(business rule\|domain rule\|clarify\|verify)` | Extract the TODO, create a task to define the rule in CONTEXT.md, link back to the code location |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -468,7 +390,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -481,7 +405,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -538,82 +464,87 @@ A well-modeled domain has clear boundaries, a shared language, and traceability 
 
 Five exercises to sharpen domain modeling skills.
 
-### Exercise 1: The 30-Second Definition
+#
+
+## Exercise 1: The 30-Second Definition
 Pick any domain term from your current project. Define it in 30 seconds to a colleague who knows nothing about the project. If they can't explain it back correctly, your definition isn't precise enough. Repeat until they can.
 
-### Exercise 2: The Edge-Case Gauntlet
+#
+
+## Exercise 2: The Edge-Case Gauntlet
 Take the 5 most important domain rules in your project. For each, write 3 edge cases that would break a naive implementation. Then check if your current code handles them. Document the gaps.
 
-### Exercise 3: The Terminology Audit
+#
+
+## Exercise 3: The Terminology Audit
 Pick a bounded context. List every term used in class names, API endpoints, and database tables. Circle any term that appears in more than one bounded context with a different meaning. Propose disambiguation.
 
-### Exercise 4: The ADR Litmus Test
+#
+
+## Exercise 4: The ADR Litmus Test
 Review the last 10 "architecture decisions" your team made informally (Slack threads, PR comments, meeting notes). For each, run the three-part trigger test. How many would have warranted a formal ADR? Write those ADRs.
 
-### Exercise 5: The Glossary Time Machine
+#
+
+## Exercise 5: The Glossary Time Machine
 Open your CONTEXT.md (or create one). For each term, ask: "Would this definition have been correct 6 months ago? Will it be correct 6 months from now?" Terms that fail the time test need the term drift log.
 
 ## Gotchas
 
 These are the expensive mistakes — quantified in real costs.
 
-### The Cost of Ambiguous Terminology Across Teams
+#
+
+## The Cost of Ambiguous Terminology Across Teams
 **$50,000–$150,000/year** in wasted engineering time. When "Account" means different things to the Identity team and the Billing team, every cross-team integration requires a discovery meeting. Over a year with 8 cross-team features, that's ~200 hours of clarification meetings. At $250/hr fully loaded, that's $50,000 in direct cost — and the rework from misunderstandings doubles or triples it.
 
-### The Cost of a Stale CONTEXT.md
+#
+
+## The Cost of a Stale CONTEXT.md
 **$30,000–$80,000 per onboarded developer**. A new hire spends their first 3-4 weeks building a mental model through trial-and-error, asking senior devs, and reading outdated docs. With a maintained CONTEXT.md, onboarding compresses to 1 week. At a $150,000 salary, each week saved is ~$3,000. Across 10 hires, that's $30,000 saved — and the senior devs get their time back.
 
-### The Cost of Premature ADR Creation
+#
+
+## The Cost of Premature ADR Creation
 **$5,000–$15,000 in decision debt**. Each unnecessary ADR clutters the decision register, making it harder to find the decisions that actually matter. When a new architect joins and has to read 40 ADRs to understand the project — but only 3 are genuinely important — that's a full week of wasted ramp-up. Worse: important ADRs get skimmed because "they all look the same."
 
-### The Cost of Missing a Bounded Context Boundary
+#
+
+## The Cost of Missing a Bounded Context Boundary
 **$100,000–$500,000 in remediation**. Failing to separate "Identity Account" from "Billing Account" early on means every schema change to one breaks the other. When you finally split them (and you will), the migration involves: data separation, API versioning, client updates, and coordinated deployments across teams. This is 3-6 months of sustained effort.
 
-### The Cost of Domain Rules Encoded Only in Code
+#
+
+## The Cost of Domain Rules Encoded Only in Code
 **$20,000–$60,000 per regulatory audit failure**. When auditors ask "where is your policy for handling expired subscriptions?" and the answer is "it's in the code," you fail the audit. A documented domain rule in CONTEXT.md linked to its enforcing code passes. The fine for a single compliance gap in regulated industries (finance, healthcare) starts at $20,000.
 
-### The Cost of Term Drift Over Sprints
+#
+
+## The Cost of Term Drift Over Sprints
 **$10,000–$25,000 per quarter** in misdirected development. When sprint 6 uses "User Status" to mean "account active/inactive" but sprint 12's feature treats it as "online/offline presence," the second feature is built on a false assumption. The rework costs 2-3 sprints. Maintaining a term drift log catches this before code is written.
 
 ## Verification
+<!-- Full 40 lines extracted to references/verification.md -->
 
 Run these checks to confirm the domain model is healthy.
-
-```bash
 # Check CONTEXT.md freshness (should be < 30 days old)
 find . -name "CONTEXT.md" -mtime +30 -exec echo "STALE: {}" \;
-
 # Find domain terms used in class names but missing from CONTEXT.md
-grep -rn "class [A-Z]" --include="*.ts" --include="*.java" --include="*.py" --include="*.go" . | \
-  grep -v node_modules | grep -v vendor | \
-  while read line; do echo "$line"; done
+...
+> 📎 **[references/verification.md](references/verification.md)** — 40 lines of detailed guidance
 
-# Detect terms used in multiple modules with potentially different meanings
-grep -rn "\bAccount\b\|\bOrder\b\|\bUser\b\|\bCustomer\b" --include="*.ts" . | \
-  awk -F: '{print $3}' | sort | uniq -c | sort -rn | head -20
+## Verification Guardrails
 
-# Find domain rules in comments that aren't in CONTEXT.md
-grep -rn "MUST\|MUST NOT\|SHALL\|SHALL NOT\|business rule\|domain rule\|invariant" \
-  --include="*.ts" --include="*.java" --include="*.go" . | \
-  grep -v node_modules | grep -v vendor
+Before delivering work, the agent must verify:
 
-# Verify all ADRs pass the three-part test
-for adr in adr/*.md doc/adr/*.md; do
-  echo "=== $adr ==="
-  grep -c "hard.to.reverse\|surprising\|tradeoff\|alternative" "$adr" 2>/dev/null || echo "  WARNING: no tradeoff signals found"
-done
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
-# Check for undocumented bounded contexts
-grep -rn "bounded.context\|context.map\|ACL\|anti.corruption" --include="*.md" . | \
-  grep -v node_modules
-
-# Cross-reference: find CONTEXT.md rules without code enforcement
-# (requires manual review of output)
-grep "Rule ID" CONTEXT.md | while read rule; do
-  rule_id=$(echo "$rule" | awk '{print $NF}')
-  echo "Rule: $rule_id — verify code enforcement exists"
-done
-```
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 
