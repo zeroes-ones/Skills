@@ -307,11 +307,15 @@ C - Champion: Do you have an internal advocate with influence who will fight for
 
 Run MEDDIC or BANT discovery with the prospect. Start with open-ended pain questions: "Walk me through your current process. Where does it break? What does that cost you?" Document every pain point with a quantifier — dollars, hours, errors, churn. Identify the technical evaluators (who will test the product) separately from the economic buyer (who signs). Ask: "What would a successful evaluation look like? If we nail this, what happens next?" Map the decision process: who, what gates, when. End discovery with a summary email: "Here's what I heard. Did I get it right? If so, I'll tailor the demo to these 3 priorities."
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2 (~20 min): Demo Environment Management
 
 Maintain at least 3 demo environments: (1) "Clean" — empty/default state for first demos, (2) "Real-ish" — populated with realistic data, dashboards showing activity, integration connectors configured, (3) "Vertical-specific" — tailored to healthcare/fintech/e-commerce with domain-relevant data. Environment checklist before every demo: all integrations connected, latest version deployed, no error toast on login, all charts render, search returns results, user flow works end-to-end. Use automation: scheduled health checks that run the critical path daily at 6 AM and email if anything fails. Have a fallback plan: recorded walkthrough ready if environment fails during the call.
+
+  Complete when: Experiment results analyzed with confidence intervals, guardrail checks passed, and ship/iterate/discard recommendation documented.
 
 <!-- DEEP: 10+min -->
 
@@ -319,11 +323,15 @@ Maintain at least 3 demo environments: (1) "Clean" — empty/default state for f
 
 Build a 3-act demo narrative: Act 1 — "Here's your world today" (show the pain). Act 2 — "Here's what it could be" (show the solution solving the exact pain they described). Act 3 — "Here's why it's different" (differentiator walk). Start with the outcome, not the login screen. Never do a point-and-click feature tour — every click answers a pain point they disclosed. Prepare 2-3 "pattern interrupt" moments: unexpected value that makes them lean forward. Schedule the demo for 45 minutes max; leave 15 minutes for questions. Send the prospect a "what to expect" email 24 hours before: "We'll cover [pain 1], [pain 2], [pain 3]. Come with questions." Record the demo and share within 2 hours. Follow up with a 1-page summary: "We showed X → Your pain Y → Outcome Z."
 
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 4 (~60 min): RFP/RFI Response
 
 Triage incoming RFP: score against ideal customer profile (ICP). Don't respond to every RFP — if it's vendor-written (designed for a competitor), decline with a polite "not a fit at this time." For RFPs worth pursuing: create a response matrix (question → answer owner → deadline). Use a response library: maintain a database of previous answers tagged by topic (security, integration, SLAs, architecture). Don't rewrite from scratch. For technical sections: include architecture diagrams, integration patterns, API documentation links, and relevant case studies. Every "yes" answer needs proof — "We support SSO" → "Attached: SAML 2.0 configuration guide, SOC 2 Type II report." Deadline buffer: submit 24 hours before the deadline, not at 11:59 PM. Errors caught late can't be fixed.
+
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
 
 <!-- DEEP: 10+min -->
 
@@ -331,11 +339,15 @@ Triage incoming RFP: score against ideal customer profile (ICP). Don't respond t
 
 Map your product against top 3 competitors on a 2×2: X-axis = completeness of vision, Y-axis = ability to execute. Identify your unfair advantages — the capabilities competitors can't replicate in 12 months. Build a competitive battle card for each competitor: their strengths (be honest), their weaknesses (validated by customer evidence), your positioning (reframe, don't trash), trap questions they'll ask about you, and trap questions you ask about them. Example trap question: "How does [competitor] handle [edge case your product handles gracefully]?" Keep battle cards updated quarterly — competitors ship too, and stale competitive intel is worse than none.
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 6 (~20 min): Technical Win Rate Optimization
 
 Track technical win rate = (deals where you were technical evaluator's choice) / (total deals engaged). Target > 40% technical win rate. For every loss, run a 15-minute loss analysis: (1) What was the technical reason given? (2) What was the real reason (ask the AE, the champion, the evaluator)? (3) Did we lose on product, on process, or on politics? (4) What's the pattern across the last 3 losses? Common failure modes: demo didn't map to pain (fix: better discovery), PoC scope too large (fix: mutual success plan), no champion (fix: qualification), competitive trap sprung (fix: battle card refresh). Review win/loss patterns monthly with product management — product gaps that repeat across losses are roadmap input.
+
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
 
 
 ## Error Recovery
@@ -549,6 +561,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Security review delays deal by 6+ weeks | SE answered security questionnaire from memory; buyer's security team found discrepancies during audit | No validated security FAQ database; SE guessed at encryption/architecture details | Never answer security questions without validated source material; maintain quarterly-reviewed security FAQ; flag uncertain questions for security team review |
 | Competitive deal lost to "we didn't know they had that feature" | Battle card is 12 months old and based on SE opinions, not win/loss data | No systematic win/loss analysis; battle cards built from internal assumptions | Update battle cards quarterly with data from ≥5 won and ≥5 lost deals per competitor; use Gong call recordings for competitive intelligence |
 | Demo no-show rate > 20% | Prospects disengage between demo booking and demo day | No confirmation sequence; demo scheduled too far out; no pre-demo value reminder | Send calendar invite with agenda immediately; send "what to expect" email 48 hours before; send value-reminder email 2 hours before; call if no response |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
 
 ## Verification
 

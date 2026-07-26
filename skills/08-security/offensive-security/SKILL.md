@@ -142,6 +142,7 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (176 lines):** [references/core-workflow.md](references/core-workflow.md)
+  Complete when: Rules of Engagement signed by client, scope boundaries documented, and reconnaissance data cataloged with all discovered assets, services, and entry points mapped.
 
 ## Decision Trees **(QUICK)**
 
@@ -612,6 +613,15 @@ Offensive Security Skill Progression
 *   **Failing to validate ransomware backup restoration -- the $0 backup that doesn't work.** An RRA assessment accepts the client's claim that "backups run nightly" without actually testing restoration. When ransomware hits 3 months later, the backup tapes are discovered to be corrupt (write-only -- no verification step). The organization pays a $2.3M ransom because backups are unusable. The RRA assessment is cited as providing "false assurance" and the consulting firm's E&O insurance is invoked. **Total cost: $500K-$3M in insurance claims, client lawsuit, and reputational destruction -- a restoration test takes 4 hours and costs $0 additional, but skipping it can cost millions.**
 
 *   **Supply chain compromise via test environment -- the backdoor you installed.** A pentester sets up a C2 server for a red team exercise, using a popular open-source C2 framework from GitHub without auditing the code. The framework contains obfuscated cryptocurrency mining code that deploys to every compromised host. The client discovers unauthorized mining across 50 servers during post-exercise cleanup, generating $15K in AWS compute charges. The red team is suspended pending investigation. **Total cost: $15K-$40K in unexpected cloud charges, indefinite suspension of red team program, potential breach of contract claim -- mitigate by auditing all third-party tools and C2 frameworks before deployment.**
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Running automated exploitation tools (Metasploit, SQLMap, Nuclei) against production without throttling or understanding payload effects can crash services, corrupt databases, or trigger DDoS protections that block legitimate traffic. | $50K-$500K in production downtime and data corruption in a single engagement | Always test exploits in a staging environment first. Configure rate limiting on all automated tools. Run destructive payloads only during approved maintenance windows with stakeholders on standby. |
+| Documenting findings without clear, reproducible proof-of-concept steps means the engineering team cannot validate fixes, leading to regressions or remediation that doesn't actually close the vulnerability. | $100K-$300K in wasted remediation cycles and re-opened findings over a year | Every finding must include: steps to reproduce, expected vs actual behavior, a working PoC (script or curl command), and a recommended fix with code-level specificity. |
+| Post-engagement report delivered 3+ weeks after testing completes — the environment has changed, new vulnerabilities exist, and old findings may no longer be relevant. Stakeholders lose trust and the engagement loses operational value. | $50K-$150K in lost engagement value and remediation backpressure | Deliver a preliminary findings summary within 24 hours of testing completion. Full report within 5 business days. Use a standard template (PTES or custom) to eliminate report formatting delays. |
 
 ## Verification
 

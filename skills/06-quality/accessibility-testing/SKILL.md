@@ -240,16 +240,19 @@ How should you prioritize manual accessibility testing effort?
 
 ### Phase 1: Static + Unit-Level Testing (~1 hour setup)
 Install and configure linting rules at the earliest detection layer. ESLint: `eslint-plugin-jsx-a11y` with recommended rules (alt-text, anchor-has-content, no-autofocus, tabindex-no-positive). Stylelint: `stylelint-a11y` for color and spacing rules. Run in IDE (real-time feedback) + pre-commit hook (lint-staged) + CI (fails build on violation). Configure axe-core in unit tests: `jest-axe` for React, `vitest-axe` for Vue, `jasmine-axe` for Angular. Test every component in isolation: buttons, inputs, modals, dropdowns, carousels. Store results as JUnit XML for CI dashboard ingestion.
+  Complete when: ESLint a11y rules configured in IDE, pre-commit, and CI; axe-core unit tests passing for all components.
 
 ### Phase 2: Integration + E2E Testing (~2 hours setup)
 Add axe-core to Playwright or Cypress e2e tests. For Playwright: `@axe-core/playwright` — inject axe into each page, run after every navigation or state change. Configure `axe.run()` with WCAG 2.2 AA tag and specific rule exclusions (document with justification). Add pa11y for page-level audits outside e2e flows: `pa11y-ci` with a sitemap URL list, run on staging deploy. Configure Lighthouse CI: set accessibility score budget to 95 minimum. Store historical data to detect score regressions over time.
+  Complete when: axe-core integrated into E2E tests; pa11y configured for staging; Lighthouse CI budget set to 95.
 
 ### Phase 3: CI/CD Quality Gates (~1 hour setup)
 Define violation thresholds per severity level. Critical (WCAG 2.2 A violations): zero tolerance — block PR + notify author. Serious (WCAG 2.2 AA): zero new violations — existing baseline allowed, new violations block PR. Moderate (best practice): warn only — create Jira ticket, don't block. Minor (needs review): informational — no action required. Store baselines per-route in the repository so that intentional improvements update the baseline, not regressions. The gate script: count violations by severity → compare against baseline → apply threshold → return pass/fail.
+  Complete when: Violation thresholds defined per severity; gate script configured with baselines; PR blocking enabled for critical/serious violations.
 
 ### Phase 4: Production Monitoring (~1 hour setup)
 Configure periodic (daily) accessibility scans of key production pages using pa11y-ci scheduled job or a hosted service (Deque Axe Monitor, Siteimprove, Tenon). Monitor: accessibility score trend, new violation count, and pages with score drops. Alert on: score dropping > 5 points in 24 hours, any new critical/serious violation on a key page, and pages missing from scan coverage. Dashboard: score per route over time, violation breakdown by WCAG criteria, time-to-fix (how long from detection to resolution).
-
+  Complete when: Daily production scans configured; alerts set for score drops and new violations; dashboard tracking violations by WCAG criteria.
 
 ## Best Practices
 
@@ -452,6 +455,15 @@ Before shipping accessibility testing infrastructure or declaring a product WCAG
 | "Accessibility is a frontend-only concern" | Backend APIs returning non-accessible error messages, CDN-cached pages without lang attributes, and server-rendered content without semantic HTML are all backend-originated accessibility failures |
 | "We don't have disabled users, so this isn't a priority" | 15-20% of the population has a disability; if your product has 10,000 users, 1,500-2,000 of them are silently struggling or have already churned — you just don't know it yet |
 | "We'll do an accessibility audit right before launch" | A pre-launch audit finds 200+ issues; fixing them takes 3 months and delays launch by 6 weeks — vs catching them incrementally during development at near-zero schedule impact |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Relying only on automated axe-core scans — they catch only ~30% of WCAG 2.2 AA issues | $50K-$250K in legal exposure from accessibility lawsuits based on manual-only-detectable failures | Pair automated axe-core CI gates with manual screen reader (NVDA/VoiceOver) and keyboard-only walkthroughs on critical flows |
+| Shipping color contrast violations that pass design-token review but fail in production context | $50K-$150K in post-launch remediation costs for contrast failures that only appear in specific UI states (hover, disabled, error) | Verify contrast across the full state matrix (default, hover, disabled, error, focus) using tools like Stark or axe DevTools |
+| Forgetting focus management in SPA route transitions — focus stays on the trigger element | $30K-$100K in screen reader user frustration and churn from disorienting navigation | After every route transition, move focus to the page heading or skip-link target; test with real screen reader after each SPA change |
+| Using ARIA incorrectly — orphaned references, conflicting roles, or ARIA on native HTML elements | $20K-$80K in compounding accessibility debt from ARIA that makes the experience worse than no ARIA | Follow the first rule of ARIA: use native HTML first; validate ARIA with axe-core; prefer semantic HTML over custom widgets with ARIA |
 
 ## Verification
 

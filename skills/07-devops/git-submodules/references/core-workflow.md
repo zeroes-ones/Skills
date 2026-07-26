@@ -37,6 +37,7 @@ Execute in order. Do not skip steps.
    |   |-- GitLab CI: GIT_SUBMODULE_STRATEGY: recursive
    |   |-- Jenkins: git clone --recurse-submodules
    |-- Verify: do all CI jobs that touch code have submodule checkout?
+  Complete when: all submodules are inventoried with pinned SHA and remote URL, detached HEADs are resolved with branch tracking, all pinned SHAs are reachable on their remotes, and divergence gaps are documented with intentionality.
 ```
 
 ### Phase 2: Split-Filter Extraction (Monorepo to Polyrepo)
@@ -70,6 +71,7 @@ Execute in order. Do not skip steps.
    |-- Option B: Replace with subtree
    |   |-- git subtree add --prefix=path/to/lib <new-repo-url> main --squash
    |-- Option C: Archive (if lib is fully independent, no ongoing changes needed)
+  Complete when: git-filter-repo extracts the subdirectory with clean history, new repo has correct history with git blame working on key files, and original monorepo is updated with submodule/subtree pointer.
 ```
 
 ### Phase 3: Subtree Workflow
@@ -96,6 +98,7 @@ Execute in order. Do not skip steps.
    |-- git subtree split --prefix=path/to/dep -b split-branch
    |-- This creates a new branch with only the subtree's history
    |-- Push split-branch to new remote: git push <new-remote> split-branch:main
+  Complete when: subtree add/pull/push commands are documented for the team, bidirectional sync workflow is tested end-to-end, and subtree split produces a clean standalone branch.
 ```
 
 ### Phase 4: CI Integration
@@ -127,4 +130,5 @@ Execute in order. Do not skip steps.
    |-- "fatal: could not read Username": private submodule without auth -> configure PAT/deploy key
    |-- "fatal: reference is not a tree": pinned commit force-pushed -> update submodule pointer
    |-- "error: Server does not allow request for unadvertised object": shallow clone -> set GIT_SUBMODULE_DEPTH: 0
+  Complete when: CI config is verified for all CI providers in use, submodule checkout works with private repos via PAT/deploy keys, and health check job runs in CI passing or flagging detached HEADs.
 ```

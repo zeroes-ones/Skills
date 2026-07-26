@@ -280,6 +280,8 @@ If a command or approach fails, follow this escalation path before giving up:
 ...
 > 📎 **Full content (57 lines):** [references/core-workflow.md](references/core-workflow.md)
 
+  Complete when: Medical AI output evaluated against safety criteria; hallucination prevention verified; regulatory pathway identified (informational/CDS/SaMD); clinical review documented for sample outputs.
+
 ## Cross-Skill Integration
 
 <!-- STANDARD: 3min -->
@@ -658,6 +660,15 @@ Before any health AI deployment or major update, verify ALL of:
 | "The model refused to answer a harmful query in testing, so the safety filter works" | Single-turn refusal tests miss multi-turn grooming attacks where harm is built incrementally across conversation context without any single toxic message |
 | "Our RLHF data includes safety examples, the model is aligned" | RLHF teaches politeness, not safety reasoning; the model learns to phrase dangerous advice courteously rather than recognizing and refusing it |
 | "We're generating educational content, not clinical decisions — safety review is overkill" | Educational content about health conditions is indistinguishable from medical guidance to patients; a wrong explanation of disease progression causes real-world harm |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Medical AI hallucinates a clinical trial citation — patient acts on fabricated evidence | $500K-$5M+ in patient harm liability and regulatory penalties | Implement Type A hallucination detection (fabricated clinical evidence) as critical alert. Always block, never surface. Root cause analysis required within 24 hours. Reportable to FDA if cleared device. |
+| Safety filter calibrated only for English — non-English queries bypass content guardrails | $200K-$1M in regulatory violations from multilingual safety gaps | Calibrate per language independently. Monitor false negative rates per language subgroup. If any subgroup exceeds 2× average FN rate, adjust thresholds independently. |
+| Content safety filter too aggressive — 25% false positive rate blocks legitimate patient education | $100K-$500K in user trust erosion and clinical utility loss | Calibrate sensitivity per use case and audience. Track false positive rate per subgroup. Target < 15% overall, < 20% per subgroup. Implement human-in-the-loop for borderline blocks. |
+| PHI leak via model output — patient data exposed through generated text | $500K-$2M in HIPAA fines ($50K-$1.5M per violation) and breach notification costs | Deploy output guardrails scanning for PII/PHI in every generated response. Strip identifiers before logging. Implement automated breach detection with clinical safety officer notification. |
 
 ## Verification
 

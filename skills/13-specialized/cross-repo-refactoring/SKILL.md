@@ -140,6 +140,7 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (174 lines):** [references/core-workflow.md](references/core-workflow.md)
+  Complete when: Full consumer dependency graph mapped across all org repos, all call sites identified with search coverage ≥5 query variants, and blast radius report produced with per-repo migration risk score.
 
 ### Phase 1B: Business Telemetry Impact Scan
 
@@ -149,6 +150,7 @@ deck, the marketing team's campaign attribution, and the support team's troubles
 depend on stable data schemas.
 
 > 📎 **Full content (127 lines):** [references/business-telemetry-scan.md](references/business-telemetry-scan.md)
+  Complete when: All business analytics dependencies (dashboards, pipelines, reports) mapped to code changes, and telemetry impact report delivered to data team with mitigation plan for any corrupted data paths.
 
 ## Error Decoder — War Stories from the Trenches
 
@@ -517,6 +519,15 @@ Phase 6: Full comet migration (capstone)
 | "Codemods are overkill for a small refactor" | A "small" refactor of 50 call sites across 8 repos still takes 40+ hours manually; a 2-hour codemod script handles it with zero human error and comprehensive test coverage |
 | "Breaking changes are fine if we communicate them clearly" | Communication doesn't prevent breakage; a breaking change taking down 3 consumer repos costs 15-30 engineering-hours in emergency response across teams that don't report to you |
 | "We don't need contract tests; we'll manually verify" | Without contract tests, every consumer API change is Russian roulette — you discover breakage when consumers deploy to production, not when you make the change |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Codemod tested on syntactic correctness only — passes type checks but swaps parameter order because the codemod template inverted arguments. 200 automated PRs merge green. Production errors surface 2 weeks later when reports show reversed data. | $50K-$200K in production incident costs from 200+ repos deploying broken code, plus $30K-$80K to manually fix and re-deploy every affected repo. | For every codemod, write a behavior equivalence test: migrated code must produce identical output to original for the same input. Run property-based testing with random inputs across a representative sample of real consumer code. |
+| Consumer discovery catches 95% of call sites — the missed 5% are in rarely-used import paths, dynamic require() calls, and eval'd code. Those 5% become production outages after the breaking change deploys. | $30K-$100K per missed consumer in outage costs. A single missed call site equals a production outage for that team — multiplied by however many consumers the search missed. | Exhaustive consumer discovery: search with 5+ query variants (different import styles, aliases, dynamic invocations). Cross-reference static analysis results with runtime telemetry. If telemetry shows traffic on a path you didn't find statically, the search is incomplete. |
+| Cross-repo automated PR storm: 40 repos get codemod PRs simultaneously. 12 fail CI due to repo-specific edge cases the codemod didn't handle. Migration team is overwhelmed. | $40K-$100K in stalled migration costs when repos wait 2-4 weeks for manual fixes, plus $20K-$50K in context-switching overhead for the migration team. | Dry-run codemod against ALL consumer repos before mass PR. Only open automated PRs for repos where CI passes. Rate-limit PR creation to 5/day to prevent overwhelming review capacity. |
+| Migration timeline set by the deprecating team's velocity, not the slowest consumer's — a consumer on a 90-day release cycle gets a 30-day deprecation window covering a third of their cycle. | $25K-$75K in emergency hotfix costs when the slowest consumer is forced to patch on a Friday, plus potential breach-of-contract penalties if the consumer is an external paying customer. | Timeline = max(slowest_consumer_release_cycle × 3, 90 days for internal, 180 days for external). Announce deprecation before writing migration code — the clock starts when consumers are notified. |
 
 ## Verification
 

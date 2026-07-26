@@ -321,11 +321,15 @@ Ecosystem Diversity (0-5)
 
 Onboarding must produce a deal within 90 days. Structure: **Day 1-7 (Welcome & Orientation):** Welcome kit — partner portal access, partner manager introduction, executive welcome letter. Kickoff call: review the agreement, JBP if exists, expectations, success metrics. Assign training curriculum. **Day 8-30 (Product & Sales Training):** Product certification — hands-on, not just videos. Partner must complete: "Demonstrate how you'd position our product to [target persona] for [use case]." Sales certification: pitch practice, objection handling, demo walkthrough. Technical certification for integration partners: API proficiency, integration build, certification test. **Day 31-60 (Shadow & Co-Sell):** Partner shadows 2-3 of your deals from discovery through close. Joint account mapping session: identify 5-10 target accounts in partner's book of business that fit your ICP. Partner manager reviews partner's pipeline weekly. **Day 61-90 (First Deal Activation):** Partner works their target account list. Partner manager provides deal-level support — join calls, provide SE help, review proposals. Goal: first registered deal. If no deal by day 90: escalate to executive sponsors, intervention plan. Beyond day 90: partner moves to "Active" or "At-Risk" status.
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2 (~30 min): Partner Enablement
 
 Enablement is ongoing, not onboarding-only. Components: (1) **Content Library:** Partner pitch deck (customizable, not locked PDF), battle cards per competitor, discovery question bank, demo script with talking points, pricing & packaging guide, case studies by industry/use case, ROI calculator, proposal templates, (2) **Sales Plays:** 3-5 repeatable plays: "When customer says [X], introduce our [Y] solution." Include: trigger, qualification questions, pitch, demo flow, pricing guidance, close plan. Update quarterly based on win/loss data, (3) **Communications Cadence:** Monthly partner newsletter — product updates, new assets, win of the month, upcoming events. Monthly office hours — open Q&A with SE + Partner Manager. Quarterly all-partner webinar — roadmap, program updates, top partner recognition, (4) **Certification Tracking:** Partners must re-certify annually. Certification expiration triggers loss of tier benefits and deal registration privileges. Track in portal — partners see their own status.
+
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
 
 <!-- DEEP: 10+min -->
 
@@ -334,6 +338,8 @@ Enablement is ongoing, not onboarding-only. Components: (1) **Content Library:**
 Certification is the gate to tier benefits and deal registration. Design three certification tracks: (1) **Sales Certified** — required for all partners. Covers: positioning, discovery, demo, pricing, competition, deal registration process. Assessment: pitch recording reviewed by partne
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
 
 
 ## Error Recovery
@@ -565,6 +571,26 @@ Before any partnerships deliverable leaves this skill, verify:
 | Partner enablement portal has 50 pieces of content; 0 partners certified | Enablement was built as a document library — PDFs, recorded webinars, slide decks. No learning path, no hands-on practice, no certification incentive. | Rebuild as a learning experience: (1) structured curriculum with modules, (2) hands-on labs with sandbox environments, (3) certification with badging and LinkedIn sharing, (4) partner tier tied to certification level. | Enablement is product design, not content dumping. |
 | 50 bottom partners consuming 60% of partner team time; top 5 partners complaining about neglect | No partner tiering or resource allocation framework. Partner managers treated all partners equally. Equal treatment = unequal value delivery. | Implement tier-based resourcing: Strategic partners get dedicated manager (3-5:1 ratio), Premier get named manager (8-12:1), Select get pooled support (15-25:1). Registered are self-service. | Equal treatment of unequal partners is a resource allocation failure. |
 | Partner deal registration conflict — 2 partners claim same deal, legal threats exchanged | No rules of engagement, no deal registration system, no conflict resolution process. First-come-first-served created a race to register rather than a race to serve the customer. | Implement deal registration with: (1) clear "influence" criteria (must have introduced or advanced the opportunity), (2) registration expiration (90 days with no activity = released), (3) escalation path (partner manager → partner director → VP), (4) customer-first principle (customer chooses preferred partner in unresolved conflicts). | Without rules of engagement, partners compete with each other instead of competitors. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
 
 ## Verification
 

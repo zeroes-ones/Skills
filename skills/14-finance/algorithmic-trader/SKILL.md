@@ -338,12 +338,16 @@ def validate_signal(signal: dict, portfolio: Portfolio, market_data: MarketData)
     return SignalDecision.ACCEPT
 
 ```
+
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
 <!-- DEEP: 10+min -->
 ### Phase 2 (~15 min): Position Sizing
 
 Translate a validated signal into a concrete share/contract count. Position sizing is where risk management lives — get this wrong and no entry strategy saves you.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
 
 
 ## Error Recovery
@@ -559,6 +563,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Stop-loss didn't fire during flash crash | Bracket order submitted separately from entry order; entry filled, stop-loss rejected silently | Check broker API response for stop-loss confirmation; if not confirmed within 500ms, submit market order to flatten | Always submit entry + bracket as OCO (One-Cancels-Other) or atomic order group |
 | Sharpe 4.2 in backtest, 0.3 out-of-sample | Overfitting: 18 parameters tuned on full dataset | Run Deflated Sharpe Ratio (DSR) test; apply Holm-Bonferroni correction for number of parameter combinations tested; report Probability of Backtest Overfitting (PBO) | Split data: train (60%), validate (20%), test (20%); only test set performance counts |
 | Strategy draws down 35% in 4 weeks after 2 years stable | Regime change: mean-reversion strategy in trending/crisis market | Check regime classifier output for the drawdown period; verify circuit breakers fired at Level 2 (strategy-level) threshold | Regime detection running BEFORE signal generation; auto-reduce exposure when detected regime doesn't match strategy design |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Algorithm executes with stale market data producing incorrect signals | $10K-$1M in trading losses per incident | Implement data freshness heartbeat checks; halt trading on stale data; use redundant data feeds with failover under 100ms |
+| Backtest overfits to historical data — 'looks great in backtest, fails in production' | $50K-$500K in strategy deployment losses | Use walk-forward validation; out-of-sample test on unseen periods; incorporate transaction costs and slippage in backtest; paper trade for 30+ days before live |
+| Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
+| Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
+| Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Algorithm executes with stale market data producing incorrect signals | $10K-$1M in trading losses per incident | Implement data freshness heartbeat checks; halt trading on stale data; use redundant data feeds with failover under 100ms |
+| Backtest overfits to historical data — 'looks great in backtest, fails in production' | $50K-$500K in strategy deployment losses | Use walk-forward validation; out-of-sample test on unseen periods; incorporate transaction costs and slippage in backtest; paper trade for 30+ days before live |
+| Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
+| Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
+| Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
 
 ## Verification
 

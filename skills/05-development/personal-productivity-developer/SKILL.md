@@ -364,6 +364,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
    |-- Document: "Competitor X fails at [point] because [reason]. We will fix this by [approach]."
    |-- Output: Competitive failure analysis.
 ```
+  Complete when: Target persona, Cue-Routine-Reward loop, friction audit (≤3 interactions target), and competitive failure analysis are written in the project doc.
 
 ### Phase 2: Core Interaction Design (~60 min)
 
@@ -391,6 +392,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
    |-- Offline state: "You're offline. Your entry will sync when you reconnect. ✓ Saved locally."
    |-- Output: Empty/error/edge state designs for every screen.
 ```
+  Complete when: Minimum viable habit loop (≤5s), reward/reinforcement designs, and empty/error/edge state mockups exist for all core screens.
 
 ### Phase 3: Data Model & Storage Architecture (~45 min)
 
@@ -424,6 +426,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |-- Bandwidth: sync only delta changes, not full state.
     |-- Output: Sync architecture diagram + conflict resolution decision matrix.
 ```
+  Complete when: Full schema (Habits, Entries, Journals, Goals, Tasks) is defined, storage engine is selected with justification, and sync architecture diagram is complete.
 
 ### Phase 4: Habit/Goal/Routine Engine (~60 min)
 
@@ -454,6 +457,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |-- Adaptation: adjust routine based on completion patterns (user consistently skips item 3 → suggest removing or rescheduling).
     |-- Output: Routine engine with templates, triggers, and adaptive suggestions.
 ```
+  Complete when: Streak engine (with configurable freeze days), goal decomposition (multiple frameworks), and routine builder (with habit stacking) are spec'd and ready for implementation.
 
 ### Phase 5: Cross-Device Sync & Offline (~45 min)
 
@@ -484,6 +488,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |-- Test: export data, delete app, reinstall, import data. Verify all data restored.
     |-- Output: Export module with documented file format and backup scheduling.
 ```
+  Complete when: Offline-first data flow works (all core actions in airplane mode), conflict resolution is tested with commute-conflict scenario, and one-click export restores all data on clean install.
 
 ### Phase 6: Notification & Engagement System (~30 min)
 
@@ -506,6 +511,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |   never use social comparison unless explicitly opted in.
     |-- Output: Engagement features that add value without manipulating.
 ```
+  Complete when: Notification engine supports adaptive timing, bundling, quiet hours, and actionable notifications. Engagement features pass the anti-addiction checklist (no infinite scroll, no variable rewards, no social comparison without opt-in).
 
 
 ## Best Practices
@@ -724,6 +730,16 @@ designed first, app built second. The app didn't just ship
 features — it changed behavior. This is what a 10/10 personal
 productivity app build looks like.
 ```
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Designing for the motivated morning user instead of the exhausted 11 PM user — app abandoned at day 4 | $30K-$80K in churn and failed product launch | Every core action must complete in ≤5 seconds from intent to confirmation. Quick-add, voice input, and one-tap completion are survival features, not nice-to-haves. Test all flows at 11 PM on a low-battery phone. |
+| Storing journal entries and personal reflections as plaintext on server — subpoena surrenders user's innermost thoughts | $50K-$200K in legal liability and trust collapse | Encrypt sensitive data end-to-end on-device before transmission. Derive encryption key from user password (Argon2id). Server stores ciphertext only. Privacy policy must state: "We cannot read your data." |
+| Using streaks as punishment — red X, "FAILED," or guilt mechanics drive permanent abandonment | $15K-$40K in user churn and 1-star reviews | Design streaks as motivators. "You built a 45-day habit! Ready to start a new streak?" Provide configurable skip/freeze days. Never use red, never use X marks, never use failure language. Recovery streak: 3 consecutive days earns back the momentum badge. |
+| Fetching from server on every app open instead of local-first — loading spinner on launch drives 53% abandonment | $20K-$60K in user acquisition waste | Local-first architecture: device stores data locally, UI reads from local storage, sync is background-only. Test every feature with airplane mode ON. If anything shows a spinner or blank screen offline, it's not done. |
+| Notification spam — 3 separate pings for 3 habits due at the same time drives users to disable all notifications | $10K-$25K in lost re-engagement channel | Bundle notifications: one notification for all habits due at the same time. Adaptive timing learns optimal notification time from engagement patterns. Hard block during user-defined quiet hours. Actionable notifications with [Done] [Skip] [Snooze]. |
 
 ## Verification Guardrails
 

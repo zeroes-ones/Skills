@@ -241,12 +241,22 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 4. Socialize with leadership team. Pressure-test assumptions. Identify the "one thing" that would kill the plan.
 5. Document in a strategy memo (2 pages max). Circulate to board and entire company.
 
+Complete when:
+- 3-year vision statement articulated in a written strategy memo (≤2 pages)
+- Annual strategic pillars (3-5) with measurable outcomes defined
+- Quarterly OKRs (3-5 objectives with 3-5 KRs each) documented and socialized
+
 ### Phase 2 (~15 min): Resourcing and Capital Allocation
 1. Map strategic pillars to required resources: headcount, budget, time, executive attention.
 2. Identify the binding constraint: is it engineering capacity, sales pipeline, capital, or market timing?
 3. Run a "zero-based" exercise: if starting from scratch, would you allocate resources the same way? Cut what wouldn't survive.
 4. Determine funding needs: runway in months, burn rate, hiring plan, contingency buffer (20% minimum).
 5. Build a financial model with best/base/worst case scenarios. Stress-test against losing your top customer or key hire.
+
+Complete when:
+- Resource allocation map linking strategic pillars to headcount, budget, and timeline
+- Financial model with best/base/worst case scenarios and stress-test results saved
+- Binding constraint identified with mitigation strategy documented
 
 ### Phase 3 (~20 min): Organization and Talent
 1. Design the org chart for the next 12 months, not today. What roles will you need at the next funding milestone?
@@ -255,12 +265,22 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 4. Define compensation philosophy: salary bands by role/level, equity refresh policy, performance review cadence.
 5. Plan for culture scaling: what values are non-negotiable? How will you preserve them as you double headcount?
 
+Complete when:
+- 12-month forward org chart with key hire job descriptions and success criteria
+- Compensation philosophy document with salary bands and equity refresh policy
+- Culture scaling plan with non-negotiable values and preservation tactics documented
+
 ### Phase 4 (~15 min): Governance and Reporting
 1. Set board meeting cadence (quarterly minimum, monthly during crises). Define board packet contents.
 2. Establish a company-wide metric dashboard: revenue, burn, runway, CAC, LTV, churn, NPS, headcount.
 3. Define decision rights: which decisions require CEO approval vs. VP discretion? Document in a RACI matrix.
 4. Create an escalation framework: what constitutes a "CEO must know immediately" event vs. weekly update?
 5. Schedule skip-level 1:1s with key ICs quarterly. Information bottlenecks kill companies.
+
+Complete when:
+- Board meeting cadence and packet contents defined and documented
+- Company-wide metric dashboard with all KPIs (revenue, burn, runway, CAC, LTV, churn, NPS, headcount) specified
+- RACI matrix for decision rights and escalation framework documented
 
 ### Phase 5 (~25 min): Execution Cadence and Crisis Readiness
 1. Establish operating rhythm: weekly leadership standup (30 min), monthly business review (2 hrs), quarterly offsite (full day).
@@ -269,6 +289,10 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 4. For each crisis trigger, pre-designate a response owner, communication template, and first 24-hour action plan.
 5. Review quarterly: what got done vs. committed? What did we learn? What changes for next quarter?
 
+Complete when:
+- Operating rhythm defined: weekly standup, monthly business review, quarterly offsite schedule
+- Pre-mortem documented with failure scenarios and corresponding mitigations
+- Crisis response playbook with triggers, owners, communication templates, and 24-hour action plans
 
 ## Error Recovery
 **(STANDARD)**
@@ -436,6 +460,16 @@ Before any CEO-level deliverable leaves this skill, verify:
 - [ ] Quarterly strategy review process defined with red-team format and hypothesis testing framework
 - [ ] Investor update cadence established (monthly for seed/A, quarterly for B+) with consistent format
 - [ ] CEO communication rhythm documented: all-hands cadence, written updates, skip-level schedule, AMA format
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Hiring executives before you can articulate what success looks like in the role | 12-18 months of dysfunction, $500K+ in comp and severance, team attrition | Write the "12-month letter" before opening the req: what this person will have accomplished, what the team will look like, what metrics will have moved. If you can't write it, you're not ready to hire. Use interim/fractional leaders to learn what you need before committing. |
+| Fundraising on vanity metrics instead of durable growth signals | Failed raise, burned relationships with VCs who will remember the inflated pitch | Investors see through: registered users (not MAU), gross merchandise value (not net revenue), "AI-powered" without AI differentiation. Lead with: net revenue retention > 120%, CAC payback < 12 months, gross margin > 70%. These are the signals that survive diligence. |
+| Confusing motion with progress in org restructures | 2-3 quarters of productivity loss while teams reorganize instead of ship | A reorg is a means, not an outcome. Before restructuring: define the specific problem (e.g., "3 teams blocking each other on the checkout flow"), design the fix, and measure post-reorg velocity within 30 days. If velocity hasn't improved by day 60, the reorg failed — revert or iterate. No "reorg theater." |
+| Over-delegating strategy to direct reports without maintaining founder-level conviction on the "why" | Strategic drift — the company becomes a collection of independent fiefdoms with no coherent narrative | You can delegate execution, not conviction. Write the strategy memo yourself (or co-author it). Every VP should be able to explain why the strategy is the right one, not just what their piece is. If your leaders can't articulate the unified "why," the strategy doesn't exist. |
+| Avoiding hard people decisions because "they're a good person" or "they've been here since the beginning" | Slow bleed: A-players leave because they see B-players tolerated, culture decays by osmosis | Apply the "knowing what you know now, would you enthusiastically re-hire this person?" test quarterly. If the answer is no for 2 consecutive quarters, act. Loyalty is repaid with generous severance and honest references, not by keeping someone in a role they've outgrown. |
 
 ## Verification
 

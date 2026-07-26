@@ -265,6 +265,7 @@ Who needs to receive your intelligence?
 4. Identify intelligence gaps: which EEIs have no collection source? Document gaps and assess whether the gap can be filled (new source, new tooling) or must be accepted (risk decision).
 5. Define dissemination schedule and format per consumer: real-time machine-readable for SOC, weekly summary for threat hunting lead, quarterly brief for board.
 6. Review PIRs quarterly: are they still the right questions? Adversary TTPs evolve; your intelligence requirements must evolve with them.
+  Complete when: PIRs documented with named consumers, EEIs mapped to collection sources, intelligence gaps identified and dispositioned (filled or risk-accepted), and dissemination schedule defined per consumer with quarterly review cadence set.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~25 min): Collection — Gathering Raw Data
@@ -274,6 +275,7 @@ Who needs to receive your intelligence?
 4. Collect vulnerability intelligence: CISA KEV (Known Exploited Vulnerabilities), EPSS scores, vendor advisories, exploit availability in the wild.
 5. Normalize all collected data to a common schema: STIX 2.1 for structured threat data, vendor-to-STIX connectors for commercial feeds, custom parsers for OSINT.
 6. Validate collection pipeline health: are all feeds receiving data? Is any source silent (potentially blocked, API key expired, or feed deprecated)?
+  Complete when: All collection sources configured and ingesting data, internal telemetry feeds connected, dark web monitoring established, STIX 2.1 normalization pipeline running, and collection health monitoring configured with alerting on silent feeds.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Processing — From Raw Data to Structured Information
@@ -283,6 +285,7 @@ Who needs to receive your intelligence?
 4. Tag IOCs with adversary, campaign, sector, and kill chain phase metadata. An IOC without adversary context is a dead indicator — it tells you what to block but not why.
 5. Cluster related IOCs into intrusion sets: infrastructure that appears together across multiple sources likely belongs to the same campaign or adversary.
 6. Store structured intelligence in the TI platform (MISP/OpenCTI) with full provenance: source, collection timestamp, enrichment history, analyst notes.
+  Complete when: IOCs deduplicated and enriched with WHOIS/pDNS/SSL/VirusTotal context, confidence scores assigned per Admiralty Code, IOC expiry rules configured, adversary/campaign/kill-chain tags applied, and intrusion sets clustered with full provenance in the TI platform.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~30 min): Analysis — Producing Intelligence
@@ -299,6 +302,7 @@ Who needs to receive your intelligence?
    - **Moderate**: Partially corroborated, some gaps, plausible but not definitive
    - **Low**: Single source, uncorroborated, significant gaps — treat as a lead for investigation
 7. Peer review: at least one other analyst reviews the intelligence product before dissemination. Fresh eyes catch mirror imaging, confirmation bias, and logical leaps.
+  Complete when: Diamond Model analysis complete for all intrusion sets, TTPs mapped to MITRE ATT&CK at procedure level, Kill Chain analysis identifying control gaps, tactical/operational/strategic products produced with confidence levels assigned, and peer review completed for every product.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~20 min): Dissemination — Getting Intelligence to Consumers
@@ -314,6 +318,7 @@ Who needs to receive your intelligence?
    - TLP:CLEAR — unrestricted, publicly shareable
 3. Track dissemination: who received what intelligence, when, and in what format. This is critical for post-incident review — if intelligence was disseminated but not actioned, that's a process failure.
 4. Set a review cadence for disseminated intelligence: tactical IOCs reviewed weekly, operational assessments monthly, strategic assessments quarterly.
+  Complete when: Intelligence packaged in consumer-appropriate formats (STIX/TAXII for SOC, hunt packages for threat hunters, executive summaries for leadership), TLP markings applied to every dissemination, distribution tracking enabled, and review cadence documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 6 (~15 min): Feedback — Closing the Intelligence Loop
@@ -326,6 +331,7 @@ Who needs to receive your intelligence?
 3. Update PIRs based on feedback: consumers say "we need more intelligence on X" — that becomes a new or modified PIR.
 4. Document lessons learned: what intelligence was accurate? What was wrong? What assumptions did we make that didn't hold? This is the calibration loop that makes the intelligence program better over time.
 5. Feed back into Direction (Phase 1): the intelligence lifecycle is a cycle, not a linear process. Feedback drives the next iteration of PIRs.
+  Complete when: Feedback collected from all consumer groups, effectiveness metrics measured (prevention/detection/TTO/FP rate), PIRs updated based on feedback, lessons learned documented, and the full intelligence lifecycle loop closed back to Phase 1.
 
 <!-- DEEP: 10+min -->
 ### Phase 7 (~20 min): Intelligence-Driven Threat Hunting
@@ -334,6 +340,7 @@ Who needs to receive your intelligence?
 3. Design hunt packages: hypothesis statement, MITRE ATT&CK technique IDs, required data sources, expected artifacts (file paths, registry keys, process command lines, network connections), false positive scenarios.
 4. Execute the hunt: query SIEM/EDR/data lake for the expected artifacts. Document results — both findings (potential intrusions that need escalation) and non-findings (absence of evidence, which updates your risk posture).
 5. Feed hunt findings back into intelligence: if the hunt discovers new IOCs, TTPs, or infrastructure, these become new intelligence that enriches the adversary profile and potentially triggers new PIRs.
+  Complete when: Hunt hypotheses converted from finished intelligence, hunts prioritized by adversary relevance and data availability, hunt packages designed with expected artifacts and false positive scenarios, hunts executed with documented findings/non-findings, and hunt results feeding back into intelligence enrichment.
 
 ### Cross-skills Integration
 
@@ -531,6 +538,15 @@ graph LR
 - **Producing intelligence at analyst-pace when adversaries operate at machine-speed.** An analyst manually enriches 50 IOCs per day through web interfaces. Meanwhile, automated malware campaigns generate 10,000 new C2 domains daily. The analyst provides deep context on 50 IOCs while 9,950 go unanalyzed — and one of those is the C2 domain for the adversary already in your network. **Total cost: $200K-$1M — a full-time analyst salary producing manually-enriched intelligence that covers <1% of the threat surface. The actual intrusion's C2 traffic was in your logs for 3 weeks before an analyst manually reviewed that IOC. By then, data exfiltration was complete.** Fix: Automate IOC enrichment (VirusTotal API, passive DNS, WHOIS) for high-volume feeds. Reserve analyst time for the IOCs that automation flags as relevant (matching your industry, technology stack, or known adversary TTPs). An analyst's value is in analytic judgment, not manual data entry.
 
 - **Treating all intelligence sources as equally reliable — a tweet, a vendor report, a government advisory, and a forum post all feeding into the same pipeline with no source reliability rating.** The adversary knows this. They plant false IOCs in open-source feeds to waste analyst time and pollute detection pipelines. A single unverified IOC from an anonymous paste that makes it into your SIEM watchlist triggers false alerts for weeks. **Total cost: $80K-$300K in alert fatigue — analysts spend 40% of their time investigating false positives from low-reliability IOCs. Real intrusions are missed because the SOC has been desensitized. Plus the operational cost of blocking legitimate traffic from false positive IOCs (customer-facing services blocked because an adversary planted your partner's IP in an OSINT feed).** Fix: Every intelligence source needs a reliability rating (Admiralty Code A-F or equivalent). Low-reliability IOCs (single source, unverified, anonymous) never auto-deploy to blocking controls — they go to analyst review. Auto-deployment to SIEM/EDR only for high-confidence IOCs from rated sources. False-positive-prone IOCs (IPs shared by CDNs, cloud providers, major services) get additional validation before operationalization.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Consuming threat intelligence feeds without deduplication and aging — 500K IOCs accumulate in the SIEM watchlist, 70% are stale (>90 days old), and every query against the bloated watchlist slows detection pipelines by 3-5x. | $100K-$300K in SIEM performance degradation and missed detections | Configure automatic IOC expiration: network IOCs at 14 days, host IOCs at 30 days, file hashes at 90 days (unless revalidated). Deduplicate on ingest. Monitor watchlist size and query latency. |
+| Sharing intelligence with ISAC/ISAO peers without sanitizing victim identity and internal infrastructure — a report shared with 200 organizations contains your VPN hostname, internal IP scheme, and breach details. | $500K-$5M if the report leaks and adversaries use it to refine targeting against you and your peers | Sanitization checklist: replace org name with sector/size description, replace internal IPs with functional descriptions, remove hostnames, have a second analyst review before external sharing. |
+| Threat intelligence analysts producing reports in isolation without embedding with the SOC for a week per quarter — intelligence products answer questions the SOC isn't asking, while the questions the SOC desperately needs answered go unaddressed. | $150K-$500K in misdirected CTI resources producing unused intelligence | Rotate CTI analysts through SOC embedding for one week per quarter. Every intelligence product must be co-designed with a consumer. Measure intelligence utilization rate: what percentage of intelligence products were acted upon? |
 
 ## Verification
 

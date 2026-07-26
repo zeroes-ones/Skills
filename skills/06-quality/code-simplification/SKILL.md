@@ -170,6 +170,7 @@ gocyclo src/target.go > baseline.txt
 ```
 
 Record: cyclomatic complexity per function, cognitive complexity score, lines of code, comment ratio, and test coverage.
+  Complete when: Baseline metrics recorded for cyclomatic complexity, cognitive complexity, LOC, and coverage.
 
 ### Phase 1: Dead Code Elimination
 
@@ -210,6 +211,7 @@ ASCII diagram:
 │         └── FAIL ──► REVERT      │
 └──────────────────────────────────┘
 ```
+  Complete when: Unused exports and unreachable code identified, verified with git blame and coverage, deleted, and tests passing.
 
 ### Phase 2: Structural Simplification
 
@@ -284,6 +286,7 @@ def order_net_price(order, customer):
 active_orders = [o for o in orders if o.status != 'cancelled']
 total = sum(order_net_price(o, customer) for o in active_orders)
 ```
+  Complete when: Guard clauses applied, conditionals simplified to lookup tables, and complex expressions extracted to named helpers.
 
 ### Phase 3: Rename & Clarify
 
@@ -293,6 +296,7 @@ Naming is the highest-leverage simplification. A good name eliminates the need f
 - **Replace magic numbers:** `if (days > 30)` → `if (days > ACCOUNT_INACTIVITY_THRESHOLD)`
 - **Remove redundant comments:** If the code says `// iterate over users` above `for user in users:`, delete the comment
 - **Add one critical comment:** One comment explaining WHY (not what) if the logic is genuinely non-obvious
+  Complete when: Misleading variables renamed, magic numbers replaced with named constants, and redundant comments removed.
 
 ## Decision Trees **(QUICK)**
 
@@ -567,6 +571,15 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 - **Simplifying code that has an open bug report attached.** The bug report describes specific behavior. Your simplification changes that behavior. The bug is now "fixed" for the wrong reason, masking the root cause. Three months later, the real bug resurfaces in a different form. **Total cost: $10,000-$30,000 in misdiagnosed recurrence.**
 - **Applying functional patterns to imperative code without team buy-in.** You convert a simple `for` loop to `reduce` with a composed transducer pipeline. It's elegant. Nobody else on the team understands it. They revert your change in the next sprint. **Total cost: $500-$2,000 in wasted effort + team friction.**
 - **Removing a "useless" log statement that was the only monitoring signal.** That `console.log('payment processed')` looked redundant — except it was the only line grep'd by the on-call dashboard. Removing it blinds the ops team to payment failures for 6 hours. **Total cost: $20,000-$100,000 in missed revenue during monitoring blackout.**
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Simplifying without baseline measurements — claiming improvement without data | $30K-$150K in wasted refactoring effort that didn't actually reduce complexity | Always run cyclomatic complexity and coverage baselines before touching code |
+| Removing code that looks dead but is used via dynamic dispatch (reflection, eval) | $50K-$200K in production outages from removing code reachable through non-obvious paths | Use `git log -S` to check history and run full test suite after every deletion |
+| Extracting premature abstractions — one-use functions that add more code than they save | $10K-$50K/year in navigation friction from unnecessary indirection | Apply the rule of three: extract on the third occurrence, not the second |
+| Introducing functional patterns (reduce, compose) without team consensus | $5K-$20K in rework from reverted changes that teammates couldn't understand | Keep simplification idiomatic to the language and team's skill level; pair refactors with team knowledge sharing |
 
 ## Verification
 

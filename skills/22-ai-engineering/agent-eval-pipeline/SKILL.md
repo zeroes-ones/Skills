@@ -134,6 +134,8 @@ Build the three-tier testing pyramid adapted for stochastic AI agents.
 ...
 > 📎 **Full content (302 lines):** [references/core-workflow.md](references/core-workflow.md)
 
+  Complete when: L1/L2/L3 eval harness produces results for baseline agent; statistical method (SPRT) returns decision within expected test count; drift detection runs clean against golden baseline.
+
 ## Decision Trees
 **(QUICK)**
 
@@ -531,6 +533,15 @@ Before any production agent deployment, verify ALL of:
 | "Just run all 50 scenarios at temperature=0 — that's good enough" | Temperature=0 eliminates stochastic variation but also masks real-world variance. Agents behave differently at temperature=0.7 (production). Run at production temperature. |
 | "The eval is slow and expensive — let's cut it to 10 scenarios" | With 10 scenarios, you'd need d>0.6 effect to reach statistical significance. A d=0.3 regression (common) will pass undetected. Minimum viable: 20 scenarios for L3 SPRT. |
 | "Our judge has kappa=0.72 on correctness — that dimension is solid forever" | Judge kappa drifts. Model updates, prompt changes, and distribution shift all degrade agreement. Monthly recalibration is not optional. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| SPRT inconclusive after 50 tests — no decision reached | $50K-$150K in wasted eval compute from unbounded test runs | Set max test count (N=50) with fallback: if inconclusive, use bootstrap CI or accept null. Add budget-aware early stop at $400/month. |
+| Judge model kappa drops below 0.70 after provider update | $100K-$200K in incorrect deployment decisions from unreliable judge scores | Pin judge model version with dated suffix. Run monthly recalibration against 50 human-rated examples. Alert on kappa drop > 0.05 between runs. |
+| Drift detection fires but no dimension attribution — hours wasted investigating "something changed" | $75K-$150K per quarter in engineering time chasing false positives | Implement per-dimension drift scoring (correctness, tool usage, safety, efficiency, tokens). Each dimension has own threshold. Aggregate drift is a notification, not actionable. |
+| Eval budget silently exceeds $500/month cap — surprise cost overrun | $50K-$200K annualized overspend on eval infrastructure | Implement hard budget cap at eval harness level. Set 80% ($400) warning alert with automatic downgrade of expensive eval tiers at threshold. |
 
 ## Verification
 

@@ -279,6 +279,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- DEEP: 10+min — Onboarding failure pattern -->
 > **War Story:** A 50-person startup had no structured onboarding. New engineers got a laptop and a "figure it out" Slack message. 90-day voluntary attrition was 22%. Root cause: new hires felt unwelcome and unproductive. Fix: Implemented 30-60-90 day plan with assigned buddy, pre-provisioned dev environments, and weekly manager 1:1s for first month. 90-day attrition dropped to 5% within 2 quarters. Cost of fix: ~10 hours of manager time per new hire. Cost of not fixing: $50K+ per lost hire (recruiting + ramp + lost productivity).
 
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
+
 ### Phase 2 (~45 min): Compensation Philosophy & Band Design
 <!-- STANDARD: 3min -->
 
@@ -286,6 +288,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 2. **Market Data** — Pull Pave/Radford/Levels.fyi data for your stage, industry, and locations. For each level: 25th, 50th, 75th percentile for base + equity + bonus. Update quarterly — comp data >6 months old is s
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
 
 
 ## Error Recovery
@@ -522,6 +526,26 @@ Before deploying any People Operations program or process change, verify ALL of:
 | "Promoted top IC to manager — 6 months later, 3 reports have left and the ex-IC is failing" | Promoted without management training. IC continued doing IC work, neglected 1:1s, skipped performance conversations. | Every new manager completes 3-month training (1:1s, feedback, delegation, performance management) before receiving direct reports. Pair with experienced manager coach for 6 months. | $250K-$500K per failed first-time manager transition. Management is a different job, not a promotion of the IC job. Train before you promote. |
 | "Employee handbook is 120 pages — nobody reads it, policy violation leads to termination, employee claims they didn't know" | Handbook designed for legal protection, not readability. No acknowledgment system beyond a checkbox. | Redesign handbook: 30-page core with essential policies, 90-page reference appendix. Acknowledge receipt with a quiz: "What's our social media policy? (a) Anything goes (b) Don't share confidential info (c) No social media allowed." | The handbook only protects you if employees actually read it. A quiz beats a checkbox — it proves comprehension, not just acknowledgment. |
 | "Benefits survey shows 4.2/5 satisfaction — but utilization data shows only 30% of employees use any benefit beyond health insurance" | Aggregate satisfaction masks life-stage segmentation. 25-year-olds and 45-year-olds have opposite needs. | Segment by life stage. Survey satisfaction within each segment. Track utilization per benefit. Replace underused benefits with what each segment actually values. | A benefits package nobody uses is wasted compensation budget. Segment, measure, iterate — don't optimize for the aggregate. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
 

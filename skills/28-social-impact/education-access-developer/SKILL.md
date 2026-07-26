@@ -336,6 +336,7 @@ What content interoperability do you need?
 3. Map the connectivity reality: network types available (2G/3G/4G/none), actual throughput (not theoretical — measure with WebPageTest or network survey), data costs (per MB/GB as % of daily income), reliability (hours of connectivity per day), electricity (grid? solar? generator? hours per day?).
 4. Map the learning environment: where will learners use the platform? (home alone? classroom with teacher? community center with facilitator? on the bus? while working?), noise levels, lighting, privacy (can learner use audio? can learner have personal progress tracked?), time available (minutes per day, days per week).
 5. Document stakeholder ecosystem: who else touches this? (teachers/facilitators, parents, community leaders, government education officers, NGO program managers, funders/donors). Each stakeholder needs different data, different interfaces, different value propositions.
+  Complete when: Learner personas documented with age range, literacy level, languages, and cultural context; device survey complete with specific models, OS versions, storage, RAM, and battery profiles; connectivity map showing 2G/3G/4G coverage, actual throughput, data costs as % of daily income; learning environment constraints documented (location, noise, privacy, daily time available); and stakeholder ecosystem matrix mapped with unique data needs per stakeholder group.
 
 ### Phase 2: Offline-First Architecture (~90 min)
 
@@ -362,6 +363,7 @@ What content interoperability do you need?
    - Web App Manifest: display: standalone, theme color, icons (192px + 512px), short_name for home screen.
    - Install prompt: Trigger on first course download completion — "Install [App Name] to study offline." Do not prompt on first visit (too early).
    - Offline indicator: Subtle icon showing online/offline status. Never block UI on connectivity state — the app always works.
+  Complete when: Service Worker installed with cache-first strategy for content and stale-while-revalidate for shell, IndexedDB schema defined for courses/progress with differential sync, Background Sync registered with exponential backoff, peer-to-peer WebRTC sharing protocol designed with chunked transfer, and PWA manifest configured with offline indicator visible.
 
 ### Phase 3: SMS/USSD-Based Learning Delivery (~60 min)
 
@@ -386,6 +388,7 @@ What content interoperability do you need?
    - Vonage (Nexmo): SMS API — good global coverage.
    - Open-source alternatives: RapidPro (UNICEF), TextIt, Kannel (SMS gateway) + custom USSD handler.
 5. Analytics: Track delivery rate, response rate, completion rate per learner. Identify "silent dropouts" — learners who stopped responding — and trigger re-engagement SMS or phone call from facilitator.
+  Complete when: SMS vs USSD delivery strategy chosen with rationale, lesson drip schedule defined (1-3 SMS/day with character-optimized templates), USSD menu tree designed (max 3 levels/5 options), SMS gateway provider selected and API integrated with cost analysis, and analytics pipeline tracking delivery rate, response rate, and silent dropout detection configured.
 
 ### Phase 4: Content Formats & Open Standards (~60 min)
 
@@ -421,6 +424,7 @@ What content interoperability do you need?
    - Content: XHTML5 + CSS3 + SVG + MathML. Semantic markup for navigation.
    - Accessibility: epub:type attributes for screen reader navigation. Alt text on all images. Media overlays (synchronized text+audio) for literacy support.
    - Tools: Sigil (EPUB editor), Calibre (conversion), Readium (reader), EPUBCheck (validation).
+  Complete when: All content licensed under CC BY or CC BY-SA with TASL attribution embedded, SCORM 2004 package validated with SCORM Cloud passing all runtime API calls, xAPI statement structure defined with LRS endpoint configured and tested, LTI 1.3 launch flow tested end-to-end, and content exportable in at least 2 interoperable formats (SCORM + Common Cartridge or EPUB3).
 
 ### Phase 5: Adult Literacy & Low-Literacy UX (~90 min)
 
@@ -451,6 +455,7 @@ What content interoperability do you need?
    - Audio-based: Play a word or sentence, learner identifies the matching picture or written word.
    - Performance tasks: "Type your name." "Write a text message to your child's teacher saying they will miss school tomorrow."
    - Avoid: Multiple-choice text-heavy questions. Timed tests. Tests that require reading instructions.
+  Complete when: Literacy level assessment tool selected and calibrated, icon system tested with target users achieving 90%+ recognition, voice guidance audio recorded in learner's language for all screens, 4 text progression levels (0-3) defined with assessment-based transition gates, and picture/audio-based assessments created covering all core content for non-literate learners.
 
 ### Phase 6: Skills Training & Employment Pathways (~90 min)
 
@@ -477,6 +482,7 @@ What content interoperability do you need?
    - Profile: Skills verified, certifications earned, portfolio items, location, availability.
    - Matching: Connect with local employers who have posted openings. Simple SMS-based job alerts: "Construction job in Kibera. Requires: bricklaying, 2 years exp. Reply INTERESTED for details."
    - Partnership: Local employment agencies, trade associations, government job centers. Two-way integration: learners apply, employers verify skills via platform records.
+  Complete when: Skills-to-employment map built with employer partner validation against actual job openings, vocational video content produced at 144p/240p/480p with watch-practice-do-feedback structure, digital literacy curriculum covers 6+ task-based competencies, certification content aligned with national TVET/NVC requirements, and job matching pipeline prototyped with at least 2 employer partners.
 
 ### Phase 7: Language Learning for Immigrants & Refugees (~75 min)
 
@@ -506,6 +512,7 @@ What content interoperability do you need?
    - In-app translation: Key phrases translated between learner's language and host language. Not full UI translation — strategic translation of critical information.
    - Document help: "I received this letter from the government/school/landlord. What does it say?" — template-based document translation for common documents (eviction notice, school enrollment form, medical appointment letter, benefits application).
    - Do NOT rely on Google Translate for critical content — verify with human translators. Machine translation errors can have serious consequences for displaced populations.
+  Complete when: Curriculum designed for 3 phases (arrival/settlement/integration) with practical-first outcomes per phase, trauma-informed content guidelines applied and reviewed by mental health professional, survival language content produced covering 50+ common scenarios, and document translation templates created for 10+ critical document types (eviction notice, school enrollment, medical appointment, benefits application, job application).
 
 ### Phase 8: School Management for Under-Resourced Schools (~75 min)
 
@@ -535,6 +542,7 @@ What content interoperability do you need?
    - School-level: Principal dashboard — enrollment, attendance, grades, finances, inventory. Works offline on school computer. Syncs to cloud weekly/monthly when internet available.
    - District/regional: Aggregate anonymized data from all schools. Identify trends — which schools have declining attendance? Which subjects have lowest performance? Where are resources most needed?
    - Government reporting: Automated generation of required government education reports. Reduce administrative burden on head teachers (who often spend 30%+ of time on paperwork).
+  Complete when: School technology baseline survey completed (teachers with smartphones, computers, internet, electricity), attendance tracking works offline on basic Android 4.4+, gradebook supports offline entry with sync and no data loss on conflict, parent communication channels (SMS/print) tested with delivery confirmation, and at least 3 government report types auto-generated from school data.
 
 ### Phase 9: Deployment in Challenging Environments (~60 min)
 
@@ -561,6 +569,7 @@ What content interoperability do you need?
    - Heartbeat: When device connects to internet (even briefly), send heartbeat with status: device uptime, storage used/free, error logs, content version, learner count, sync status.
    - Remote diagnosis: Based on heartbeat data, diagnose issues remotely. "School server storage is 95% full — clear old log files." "Content is 2 versions behind — schedule sync when teacher visits town."
    - Field support: Regional tech support person visits schools quarterly or on-demand for issues not solvable remotely. Support person travels by motorcycle/public transport — factor travel costs into program budget.
+  Complete when: Hardware deployment plan documented for no-internet schools (Raspberry Pi/local server/offline SD with all options), content distribution via sneakernet/USB tested end-to-end including version conflict detection, device health monitoring dashboard showing storage/uptime/content freshness per school, and field support logistics plan budgeted with quarterly visit schedule and travel cost estimates.
 
 ### Phase 10: Sustainable Funding Models (~45 min)
 
@@ -586,6 +595,7 @@ What content interoperability do you need?
    - Regular reporting: Quarterly donor reports with: narrative (what happened, challenges, successes), metrics (enrollment, completion, learning outcomes), financial (budget vs actual, burn rate), stories (learner/teacher profiles with photos and quotes — with consent).
    - Data visualization: Dashboard for donors — real-time or near-real-time metrics. Build trust through transparency.
    - Site visits: Facilitate donor visits to program sites. Let donors meet learners and teachers. Nothing builds commitment like seeing the impact firsthand.
+  Complete when: 3-year funding projection built with at least 3 diversified revenue streams, grant pipeline identified with 5+ qualified opportunities, cost-per-learner and cost-per-proficient-learner calculated and benchmarked against alternatives, and donor reporting template with narrative/metrics/financial/stories format ready for first quarterly report.
 
 ### Phase 11: Impact Measurement & SDG 4 Alignment (~45 min)
 
@@ -622,6 +632,7 @@ What content interoperability do you need?
    - SDG 4.a: Safe, inclusive learning environments → Track learner-reported safety and inclusion metrics.
    - SDG 4.c: Qualified teachers → Track teachers trained, teacher satisfaction, teacher effectiveness improvement.
    - Reporting: Map every metric to specific SDG 4 target. Funders increasingly require SDG alignment reporting.
+  Complete when: Pre/post assessment instruments validated with control group effect sizes where feasible, completion and retention metrics pipeline instrumented with cohort tracking, cost-per-proficient-learner and time-to-proficiency calculated, employment outcome tracking system designed with 3/6/12-month follow-up, and all metrics mapped to specific SDG 4 targets (4.1-4.6, 4.a, 4.c) with baseline data captured.
 
 ## Best Practices
 
@@ -796,6 +807,16 @@ When you see these patterns, speak up — even if the user didn't ask.
 | Extractive Evaluation | Data collection serves dual purpose: learner receives personalized feedback and recommendations, program receives aggregate impact metrics. Informed consent in learner's language at learner's literacy level | Learners own their data and can access/delete/export it. Impact measurement is participatory — learners and communities define what success looks like. Research findings are shared back with communities in accessible formats before academic publication |
 | Perpetual Dependency | Open-source platform with documentation, local server option (Raspberry Pi, no cloud dependency), train-the-trainer program, and local content authoring tools. Community tech team identified and mentored from day one | Platform is community-governed within 3 years, local tech team is self-sufficient and training other communities, content authoring is entirely community-led, and the original organization has transitioned to an advisory/support role or exited entirely |
 | Feature Parity with Commercial LMS | Minimal feature set: content display, assessment, progress tracking, offline sync. Content is downloadable, assessments work offline, progress syncs when connected. Everything loads under 100KB | Ultra-lightweight feature set with maximum impact: content displays in < 2 seconds on 2G, assessments are performance-based (not multiple choice), progress sync is delta-only (< 1KB per sync), and the entire platform — content, code, and data — fits on a 32GB SD card for school server distribution |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Offline sync silently fails — learner completes 3 lessons, reconnects, progress is lost because IndexedDB schema migration was not handled in Service Worker activate event | $5K-$15K in learner re-engagement costs and trust damage within 1 quarter | Version IndexedDB schemas; test sync with airplane mode toggle and schema migration scenarios; implement sync health dashboard showing pending/synced/conflict counts per learner |
+| SMS delivery costs explode — 5K learners receiving 3 SMS/day at $0.04/SMS = $18K/month, burning through annual budget in 3 months | $18K-$50K per month in unplanned SMS costs | Negotiate educational bulk rates with local carriers (target < $0.01/SMS); use USSD for interactive content (session-based, not per-message billing); implement usage caps and cost alerts per learner cohort |
+| Low-bandwidth video auto-plays consuming learner data — a single 5MB video on a $2/100MB data plan costs $0.10, equivalent to 10% of daily income in some regions | $2-$5 per learner per month in unexpected data charges, causing 30-60% dropout | Never auto-play video; show size and cost estimate before download ("15MB, ~$0.30"); default to 144p with explicit opt-in for higher quality; use poster images for video previews |
+| Accessibility compliance gap — platform built for smartphone users excludes 30% of target learners who rely on feature phones, screen readers, or have low literacy | $25K-$75K in retrofitting costs and exclusion of underserved populations | Test all core flows on $50 Android Go + 2G; implement SMS/USSD fallback channel; ensure screen reader compatibility from day one; co-design with learners who have disabilities |
+| Content licensing violation — using copyrighted images/diagrams in OER-labeled content triggers takedown notices and funder audit failures | $10K-$30K in legal review, content replacement, and grant repayment within 6 months | Audit all content for license compliance; use CC-licensed or original content only; embed TASL attribution (Title/Author/Source/License) in every content asset; run license scan before each content release |
 
 ## Verification Guardrails
 

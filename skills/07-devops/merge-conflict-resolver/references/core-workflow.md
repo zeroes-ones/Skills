@@ -23,6 +23,7 @@ Output a **Conflict Inventory Table**:
 | src/api/middleware.ts | 2 | feature/2fa | main | MEDIUM |
 
 Risk assessment: HIGH = >3 hunks, or changes to critical paths, or semantic overlap with other files. MEDIUM = 2-3 hunks, moderate complexity. LOW = 1 hunk, simple textual conflict.
+  Complete when: every conflicted file is listed with hunk count, OURS/THEIRS branches are identified, and risk assessment is complete for all entries.
 
 ### Phase 2: Intent Tracing per Hunk
 
@@ -65,6 +66,7 @@ THEIRS (main):        Refactored auth pipeline to support pluggable auth provide
                       PR: #1901 "Pluggable authentication providers"
                       Issue: #1895 "Auth extensibility for SSO integration"
 ```
+  Complete when: every hunk has an intent summary with the originating commit, PR, and issue for both OURS and THEIRS sides.
 
 ### Phase 3: Resolution Strategy Selection
 
@@ -78,6 +80,7 @@ For each hunk, select exactly one strategy:
 | **extract-to-shared** | Both sides introduce the same concept with different implementations; both need to coexist | HIGHEST — structural change, creates new abstraction |
 
 If no strategy clearly fits, **default to manual-merge**. Never default to accept-ours or accept-theirs.
+  Complete when: every hunk has exactly one resolution strategy selected with documented rationale, using the decision tree criteria.
 
 ### Phase 4: Hunk-by-Hunk Resolution
 
@@ -102,6 +105,7 @@ npm test -- --testPathPattern=<affected-module>
 ```
 
 If verification fails, re-examine the hunk. A failure means the resolution broke something — do not proceed.
+  Complete when: all hunks are resolved with conflict markers removed, each resolution passes build and relevant tests, and every hunk has a documented resolution in the log.
 
 ### Phase 5: Merge Completion
 
@@ -118,3 +122,4 @@ After all hunks are resolved and verified:
    git rebase --continue
    ```
 5. **Post-resolution validation**: run the full CI pipeline locally if available
+  Complete when: full build and test suite pass, resolution log confirms every hunk is documented, and merge/rebase is committed or continued successfully.

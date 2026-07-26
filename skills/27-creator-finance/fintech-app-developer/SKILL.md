@@ -335,6 +335,8 @@ Banking API Provider Comparison:
 
 **Recovery:** If sandbox charges fail → verify API key scope (not restricted to specific operations), check that test card numbers match the processor's test set. If webhook signature fails → verify webhook secret is correct, check that raw body is passed to signature verification (not parsed JSON). If duplicate charges occur → verify idempotency key store is checked BEFORE payment creation call (race condition between check and create).
 
+  Complete when: POST /api/payments accepts Idempotency-Key header and returns identical response on duplicate key calls; different-body-same-key returns 422 Conflict; webhook endpoint verifies signatures and deduplicates by event.id; and reconciliation job detects and repairs discrepancies within a 24-hour window.
+
 ### Phase 2: Wallet & Balance System (~60 min)
 
 **Goal:** A double-entry ledger with immutable transaction history and derived account balances that cannot lose or misplace funds.
@@ -377,6 +379,8 @@ Banking API Provider Comparison:
    |-- Output: Transaction history endpoint with filtering and pagination.
 ```
 
+  Complete when: Every money movement writes balanced ledger entries (SUM(debits) = SUM(credits) per transaction batch), all ledger_entries are INSERT-only with zero UPDATE or DELETE operations, and balance endpoint returns total, reserved, and available where available ≤ total — verified with 10 random test transactions.
+
 ### Phase 3: Transaction History & Reporting (~30 min)
 
 **Goal:** Full transaction export, filters, and basic revenue reporting so finance and users can see money movement.
@@ -403,6 +407,8 @@ Banking API Provider Comparison:
    |-- Verification: Inject 3 deliberate mismatches → all 3 appear in report within 5 minutes.
    |-- Output: Reconciliation report generation.
 ```
+
+  Complete when: CSV export includes all transaction fields for arbitrary date ranges and loads correctly in Excel; revenue dashboard returns daily revenue grouped by payment method and currency; and reconciliation report detects 3 deliberately injected mismatches within 5 minutes with unmatched items aged > 24h triggering an alert.
 
 ### Phase 4: Compliance & Fraud Prevention (~45 min)
 
@@ -444,6 +450,8 @@ Banking API Provider Comparison:
    |-- Output: KYC flow with identity verification and risk scoring.
 ```
 
+  Complete when: Velocity checks block transaction #6 within a 1-minute window per user; amount anomaly flags but does not block transactions > 3× user average; codebase grep for card_number/pan/cvv/cvc returns zero non-test-file matches confirming SAQ A qualification; and KYC flow processes Stripe Identity test documents with correct verification/rejection.
+
 ### Phase 5: P2P Transfer System (~60 min)
 
 **Goal:** Users can send money to other users with zero chance of lost or double-posted funds.
@@ -481,6 +489,8 @@ Banking API Provider Comparison:
    |-- Verification: Register webhook URL → complete transfer → webhook received with correct payload.
    |-- Output: Transfer notification system with webhooks.
 ```
+
+  Complete when: Transfer state machine handles all 6 state transitions including compensating reversal for every non-terminal state; process kill during debit phase → restart → transfer completes or fully rolls back; after any failure scenario, both sender and recipient balances are correct or unchanged — verified by whiteboard walkthrough of every transition path.
 
 ### Phase 6: Monetization & Revenue Optimization (~30 min)
 
@@ -520,6 +530,8 @@ Banking API Provider Comparison:
    |-- Verification: Create 100 subscriptions with varying dates → MRR, churn, LTV calculate correctly.
    |-- Output: Revenue dashboard with MRR, churn, cohort LTV.
 ```
+
+  Complete when: Platform fee is stored in database config (not hardcoded in source), fee change takes effect at effective_date without code deploy; subscription lifecycle handles trialing→active→past_due→unpaid with dunning retries at 1/3/5 days past due; and MRR/churn/LTV dashboard calculates correctly against 100 test subscriptions with varying dates.
 
 ## Best Practices
 
@@ -652,6 +664,16 @@ Payment Flow:                              Wallet & Ledger:
   SAQ A PCI compliance.                  unchanged. Every time.
   Revenue visible in real-time.          Audit trail for every transfer.
 ```
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PCI compliance failures from storing raw card data — a single log statement that prints `req.body.card_number` means card data hits your logs, your monitoring system, and your backups | $50K-$500K in PCI fines ($5K-$100K/month of non-compliance) plus mandatory forensic audit ($20K-$50K) plus merchant account termination (existential for fintech); SAQ A (22 requirements) becomes SAQ D (329 requirements) the moment raw PAN touches your server | Use Stripe Elements/Checkout so card data never touches your server. If you must handle raw PAN (rare), use a PCI-compliant tokenization provider. Run `grep -r "card_number\|pan\|cvv\|cvc" --include="*.{js,ts,py,go,java}"` across the entire codebase before every deploy — zero non-test matches is the only acceptable result. Configure log scrubbers to redact card patterns. |
+| Idempotency bugs causing double charges — checking idempotency store AFTER creating the payment instead of before, or a race condition where two concurrent requests both see "key not found" and both create charges | $10K-$200K in refunds, chargeback fees ($15-$25 per dispute), and irreversible trust damage — customers who get double-charged tell 5-10 people and often never return | The idempotency check-and-create must be atomic: use a database transaction with SELECT FOR UPDATE on the idempotency key row, or a Redis SETNX with TTL 24h. The stored response must include the full HTTP status code and body. Test with concurrent duplicate requests (Apache Bench or k6 with same key in multiple threads). If the provider charges $0.30 + 2.9%, a double-charge on a $1,000 transaction costs $1,000 + $29.30 in processing fees — both unrecoverable. |
+| Reconciliation drift — webhook delivery failures, out-of-order events, or a reconciliation job that silently stops running for 3 weeks while transactions accumulate mismatches | $5K-$100K/month in unreconciled funds — every day of drift compounds: a 0.1% discrepancy on $1M/month volume = $1,000/day, $30K/month, invisible until an audit or customer complaint surfaces it | Run reconciliation every 1-6 hours, not daily. Alert on ANY reconciliation job failure (if the cron scheduler fails silently, you lose visibility). Implement a heartbeat: reconciliation job writes a `last_reconciliation_at` timestamp, and a separate monitor alerts if it's > 2x the expected interval. Track drift as a metric: `ledger_balance - processor_balance` should be $0.00 — any non-zero value is investigated same-day. |
+| Float-based money math — using `double` or `float` for amounts, then wondering why $0.10 + $0.20 = $0.30000000000000004 in IEEE 754 | $1K-$50K in cumulative rounding errors over 100K+ transactions — a 0.01-cent rounding error per transaction compounds to $10 at 100K volume, but in multi-currency scenarios the error amplifies and becomes a reconciliation nightmare | Store every amount as integer cents: $10.99 = 1099. For division (fee calculation), use banker's rounding (round half to even) to avoid systematic bias. `DECIMAL(19,4)` in SQL only for FX rates and intermediate calculations — convert to integer cents before writing to the ledger. Audit: run `SUM(ledger.debits) - SUM(ledger.credits)` daily — any result other than exactly 0 is a bug. |
+| Single payment processor with no fallback — Stripe has 99.95% uptime = 4.38 hours/year of downtime, and during those 4.38 hours you process zero payments | $5K-$50K in lost transaction revenue during an outage — for a platform processing $1M/month, a 4-hour outage costs ~$5,500 in lost GMV plus the customers who churn because "their payment didn't go through" | Implement multi-acquirer routing: Stripe primary + Adyen/Braintree secondary behind a payment orchestration layer (Spreedly, Primer). Circuit breaker: after 5 consecutive primary failures, route all traffic to secondary for 5 minutes. This is an L3+ concern — solo developers can use Stripe alone until $50K/month volume, but the architecture should support adding a fallback without rewriting the payment layer. |
 
 ## Verification Guardrails
 

@@ -211,6 +211,7 @@ grep -rn "@\(app\|router\)\.\(get\|post\|put\|delete\|patch\)" . --include="*.py
 ```bash
 grep -rn "router\.register\|DefaultRouter\|SimpleRouter" . --include="*.py"
 ```
+  Complete when: All API endpoints extracted with HTTP methods, paths, and auth requirements.
 
 ### Phase 2: Read Route Handlers (10 min)
 
@@ -220,6 +221,7 @@ For each detected route, read the handler to understand:
 - Return types and status codes (200, 201, 204, etc.)
 - Business rules (ownership checks, role requirements, rate limits)
 - File upload expectations (max size, allowed MIME types)
+  Complete when: Each route handler read for request schema, auth requirements, return types, and business rules.
 
 ### Phase 3: Generate Test Files (15 min)
 
@@ -355,6 +357,7 @@ describe('POST /api/v1/users', () => {
   });
 });
 ```
+  Complete when: Test files generated per route group with auth matrix, input validation, happy path, and edge case coverage.
 
 ### Phase 4: Validate and Integrate (5 min)
 
@@ -362,6 +365,7 @@ describe('POST /api/v1/users', () => {
 - Verify all tests pass (or fail for the right reasons in TDD mode)
 - Add to CI pipeline: `npm test` gate in GitHub Actions
 - Generate coverage baseline for future comparison
+  Complete when: Tests pass, CI pipeline configured, and coverage baseline generated.
 
 
 ## Best Practices
@@ -500,6 +504,15 @@ graph LR
 - **No test data isolation between test cases.** Tests in a suite share a single database — Test A inserts a user record, Test B asserts the users table has exactly 3 rows of seeded data, Test A's insert makes it 4, and Test B fails with a mysterious off-by-one assertion error. Tests that pass in isolation fail when run together in CI, creating a "flaky suite" that developers learn to ignore because "just re-run it, it'll pass." The test suite's signal-to-noise ratio drops to zero and real regressions ship undetected. **Total cost: $10,000-$40,000 per year in developer trust erosion in the test suite, wasted CI re-run costs, and production bugs that slipped through because consistently failing tests were dismissed as flakes.** Fix: Wrap every test case in a database transaction that rolls back (or truncate all tables between tests); use unique fixtures per test (UUID-based emails, IDs) to prevent cross-test contamination; run tests in randomized order in CI to surface ordering dependencies; enforce test isolation with database template cloning or per-test-suite logical schemas.
 - **Hardcoding environment-specific service URLs in test code.** Tests contain `https://api.staging.company.internal` hardcoded — they pass in CI but fail when developers run them locally without VPN access, or when the staging environment is down for maintenance, or when rate limits triggered by parallel test execution return 429s instead of expected 200s. The test suite becomes environment-locked, and developers stop running it locally. **Total cost: $15,000-$50,000 in lost developer productivity from un-runnable local tests, delayed CI pipelines blocked on external service availability, and cumulative test maintenance overhead from environment coupling.** Fix: Use environment variables or config files for all external service URLs, with sensible local defaults that point to Docker containers; ship a Docker Compose file that starts every dependent service with one command; ensure every test can run against local mocks or containers with zero external network dependencies; document and enforce the one-command local setup as a PR requirement.
 - **Assertions that ignore response time and performance regression.** Tests assert only on HTTP status codes and response body structure — never on latency. A database index is accidentally dropped, a query degrades from 50ms to 3 seconds, an N+1 query pattern creeps into a list endpoint — and every API test still passes bright green. By the time customers report slowness through support channels, the regression has been in production for weeks and the root cause is buried under multiple subsequent deploys. **Total cost: $10,000-$30,000 per year in undetected performance regressions, user churn from slow API responses, and emergency performance firefighting that could have been caught at merge time.** Fix: Add response time assertions to critical-path API tests (e.g., `expect(response.duration).toBeLessThan(500)` for user-facing endpoints); establish per-endpoint performance baselines from production metrics and alert on statistical deviation in CI; run a dedicated performance-focused subset of the test suite on consistent CI hardware; pipe API test response timing data into the observability dashboard for trend analysis over releases.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Generating test files with hardcoded production-like data that contains PII | $50K-$500K in compliance fines from PII leaked into CI logs or version control | Use Faker or factory functions with deterministic seeds; never copy production data into test fixtures |
+| Writing tests only for 200 responses — skipping auth matrix, validation errors, and edge cases | $50K-$200K/year in production incidents from untested error paths and auth bypasses | Generate full auth matrix (401, 403, expired token, deleted user) and input validation matrix (missing, invalid, boundary, injection) for every endpoint |
+| Not running generated tests in CI — tests only pass on developer machines | $30K-$100K in broken builds and regressions that merge because tests were never executed in CI | Add test execution to CI pipeline as a merge gate: `npm test` blocks merge on failure |
+| Skipping snapshot baseline validation — dynamic fields (timestamps, IDs) cause false failures | $10K-$40K/year in wasted debugging time from snapshot mismatches caused by volatile fields | Use snapshot serializers or matchers like `expect.any(String)` for timestamps, UUIDs, and auto-generated IDs |
 
 ## Verification
 

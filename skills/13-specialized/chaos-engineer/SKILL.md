@@ -398,30 +398,35 @@ Chaos engineering is inherently cross-team — you break things that other teams
 **Input:** Service name, environment (staging/prod), observability dashboards.  
 **Steps:** 1) Collect P50/P95/P99 latency, error rate, throughput for 5+ minutes under normal load. 2) Verify all dashboards, alerts, and logs show the service clearly. 3) Record baseline metrics as JSON artifact.  
 **Output:** Baseline metrics file + observability verification checklist passed.
+  Complete when: P50/P95/P99 latency, error rate, and throughput baselines collected for 5+ minutes under normal load, all dashboards and alerts verified operational, and baseline metrics saved as JSON artifact.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Hypothesis & Experiment Design
 **Input:** Baseline metrics, failure mode catalog (42 experiments in references).  
 **Steps:** 1) Select one failure mode (e.g., pod kill, network latency). 2) Write falsifiable hypothesis: "When X happens, Y metric stays below Z for T minutes." 3) Define blast radius (traffic %, pods, AZ, time window). 4) Set abort conditions with specific numeric thresholds.  
 **Output:** Experiment document with hypothesis, blast radius, abort triggers, rollback steps.
+  Complete when: Experiment document finalized with falsifiable hypothesis, defined blast radius (traffic%/pods/AZ/time window), specific numeric abort thresholds, and rollback steps documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Staging Validation
 **Input:** Experiment document, staging environment, chaos tooling access.  
 **Steps:** 1) Run experiment in staging at full blast radius. 2) Verify steady state hypothesis holds. 3) Confirm observability detects the fault within 2 minutes. 4) Test abort mechanism — stop experiment, verify recovery. 5) If hypothesis refuted, fix the gap and re-run.  
 **Output:** Staging validation report — passed/failed, MTTR measured, gaps documented.
+  Complete when: Experiment passes in staging at full blast radius, observability detects fault within 2 minutes, abort mechanism verified, and hypothesis validated or gap documented for remediation.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Progressive Production Rollout
 **Input:** Staging validation passed, production access, on-call notified.  
 **Steps:** 1) Canary: single pod/internal traffic, 15 minutes. 2) 1% traffic, 30 minutes. 3) 10% traffic, 30 minutes. 4) Full scope (if applicable). At each step: monitor abort triggers, compare metrics to baseline.  
 **Output:** Production experiment results — hypothesis verdict, blast radius respected, MTTR measured.
+  Complete when: Progressive rollout complete through all gates (canary→1%→10%→full), no abort triggers fired, and production experiment results documented with MTTR measured.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Analysis & Remediation
 **Input:** Experiment results, Scribe notes, Observer analysis.  
 **Steps:** 1) Document: what worked, what broke, what surprised us. 2) Create action items with owner + severity + due date. 3) Update experiment catalog status (designed → tested-staging → tested-prod → automated). 4) Share findings with service owners and leadership.  
 **Output:** After-action report, tracked action items, updated experiment catalog.
+  Complete when: After-action report published, all action items assigned with owner/severity/due date, experiment catalog updated to production-tested status, and findings shared with service owners and leadership.
 
 
 ## Best Practices
@@ -472,6 +477,15 @@ graph LR
 - **Game days where the team knows** the exact chaos experiment in advance produce artificially smooth responses. The team pre-writes runbooks, has dashboards ready, and mentally prepares. The real incident doesn't announce itself. Use blind game days where only the chaos engineer knows what's being injected.
 - **Pod deletion in Kubernetes** sends SIGTERM, waits `terminationGracePeriodSeconds` (default 30s), then SIGKILL. A chaos experiment that deletes a pod with default grace period may not trigger graceful shutdown bugs — apps with 60s cleanup may work fine in chaos but fail in real deployments. Test with `gracePeriodSeconds: 0` to find shutdown bugs.
 - **Chaos experiments that only target stateless services while ignoring databases, message queues, and caches.** A team runs pod-kill and network-latency experiments on their 12 microservices every sprint and achieves 99.9% resilience scores — but never touches the PostgreSQL primary, the Kafka cluster, or the Redis cache. When a real production incident causes a Kafka partition leader election storm during peak traffic, the event-driven architecture crumbles: message backlogs spike to 2M undelivered events, consumer lag exceeds 30 minutes, and order-processing pipelines grind to a halt. The chaos dashboard is green while the business is on fire. **Total cost: $75K-$500K in business-impacting data-plane failures that chaos experiments never anticipated.** Design chaos experiments explicitly for stateful infrastructure: database primary failover, Kafka partition rebalancing, Redis sentinel promotion, and queue-backpressure scenarios. Stateful chaos requires stateful readiness — test connection-pool draining, leader-election timeouts, and write-quorum degradation separately from stateless pod cycling.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Chaos experiment in production without prior staging validation — a DNS timeout injection targeting 2% of traffic accidentally affects 100% due to an incorrect label selector. The experiment designed to test resilience becomes the outage itself. | $50K-$500K per unprepared production experiment in lost revenue and customer trust. A $50K/month SaaS product becomes a $0/month product for 4-8 hours. | Never run a first-time experiment in production. Validate in staging at full blast radius → pre-production → production at 1% with human abort switch. Test label selectors and blast radius containment in staging before touching production traffic. |
+| Blast radius defined by instance count instead of dependency graph — terminating 1 of 100 instances (1%) sounds safe, but that instance holds the sole Kafka partition leader. Impact is 100% outage for all producers and consumers of that topic. | $100K-$1M in cascading infrastructure failure when a "1%" experiment takes down the entire data plane. | Map downstream dependencies before injecting failure. Run dependency-discovery game days before production experiments. Blast radius = impact on dependency graph, not percentage of instances. |
+| Game day without a tested rollback plan — chaos experiment auto-terminates after duration, but pods are stuck in Terminating state awaiting an unreachable leader election. The 30-minute exercise becomes a multi-hour outage. | $25K-$250K in extended outage duration when automatic remediation fails and manual intervention requires debugging under pressure. | Every game day must include a rollback runbook tested at least once. Test rollback under degraded conditions (pods stuck in Terminating, leader election failures). Communication plan for escalating if automatic remediation fails within 5 minutes. |
+| Not measuring steady state before injection — p99 latency and error rates are not baselined. Team walks away believing the system is resilient when it was already degraded before the experiment began. | $10K-$50K in false confidence before a real failure exposes cracks — potentially 10x that in incident cost when the "proven resilient" system collapses under real load. | Collect 5+ minutes of steady-state metrics for every SLO before injection. If baseline isn't healthy, abort — you can't test resilience on a degraded system. |
 
 ## Anti-Rationalization — No Excuses
 

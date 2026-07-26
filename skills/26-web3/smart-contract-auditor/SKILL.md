@@ -224,6 +224,7 @@ Flash loan vector identified
 4. Print inheritance graph: `slither . --print inheritance-graph`
 5. Categorize findings: Critical (direct exploit) vs High (conditional exploit) vs Medium (best practice)
 **Completion criteria:** All Slither findings categorized and documented. Zero Critical or High findings unaccounted for.
+Complete when: Slither detection suite run with all relevant detectors enabled. Findings categorized by severity (Critical/High/Medium) with triage notes. Human-readable summary, call graph, and inheritance graph generated and reviewed.
 
 ### Phase 2: Fuzzing Invariants (est. 4-8 hours)
 1. Define 5-10 property invariants (e.g., totalSupply == sum of all balances)
@@ -232,6 +233,7 @@ Flash loan vector identified
 4. Analyze invariant breaks: trace to source code, identify root cause
 5. Re-fuzz after fixes to verify invariant restoration
 **Completion criteria:** All invariants hold across 100K+ fuzzing sequences. Broken invariants documented with source traces.
+Complete when: 5-10 property invariants defined and implemented as Echidna test contracts. Fuzzing completed with 100K+ sequences and zero invariant breaks. Any broken invariants traced to root cause with source code references and fix verification.
 
 ### Phase 3: Symbolic Execution (est. 4-8 hours)
 1. Run Manticore for bytecode-level path exploration
@@ -239,6 +241,7 @@ Flash loan vector identified
 3. Verify all branches reachable and state-space coverage
 4. Document unreachable branches: are they dead code or are guards missing?
 **Completion criteria:** State-space coverage report. All critical paths explored. Unreachable branches documented and justified.
+Complete when: Symbolic execution completed with Manticore/Foundry fuzz exploring all reachable paths. State-space coverage report generated showing percentage of branches exercised. Unreachable branches documented with justification (dead code or missing guards).
 
 ### Phase 4: Formal Verification (est. 8-40 hours, when applicable)
 1. Write Certora Verification Language (CVL) rules for mission-critical invariants
@@ -246,6 +249,7 @@ Flash loan vector identified
 3. Parametric verification across all function argument combinations
 4. Document verified invariants and any unprovable rules
 **Completion criteria:** Certora verification report. All critical invariants formally proven or explicitly unprovable with rationale.
+Complete when: CVL rules written for all mission-critical invariants. Certora Prover run with parametric verification across all function argument combinations. Verification report documenting proven invariants and any unprovable rules with explicit rationale.
 
 ### Phase 5: Manual Review & Report (est. 8-16 hours)
 1. Business logic review: tokenomics, economic incentives, governance mechanics
@@ -255,8 +259,17 @@ Flash loan vector identified
 5. Include gas analysis with adversarial considerations
 6. Provide 30-day remediation timeline with re-audit recommendation
 **Completion criteria:** Final audit report. All Critical/High findings have PoCs. Remediation timeline agreed with development team.
+Complete when: Business logic review completed covering tokenomics, incentives, and governance mechanics. Audit report produced with Trail of Bits severity classification. Reproducible PoCs for every Critical/High finding. Gas analysis with adversarial considerations included. 30-day remediation timeline with re-audit recommendation agreed.
 
 <!-- STANDARD: 3min -->
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Relying solely on automated tools (Slither, Mythril) without manual business logic review — automated scanners find surface-level bugs but miss protocol-specific logic flaws that cause 80% of exploits | $1M-$100M per missed logic vulnerability | Use automated tools as a first-pass triage, not the final audit. Every finding requires manual verification. Allocate 60%+ of audit time to manual code review of business logic, access control, and economic invariants. Write custom detectors for protocol-specific properties. |
+| Oracle manipulation via flash loans — using a single-DEX spot price as an oracle allows attackers to manipulate the price in one transaction and drain the protocol | $5M-$500M depending on protocol TVL | Never use single-DEX spot price as oracle. Use TWAP with ≥30 min window or Chainlink with staleness checks (`answeredInRound`) and deviation circuit breakers. For high-value protocols, use dual oracles with a medianizer. |
+| Upgrade proxy storage collisions — adding state variables to an upgradeable contract without managing storage layout gaps causes silent corruption of existing storage slots | $10M-$100M in corrupted funds or locked contracts | Use `_disableInitializers()` in implementation contract constructors. Maintain `__gap` storage arrays for future variables. Run storage layout diffs on every upgrade. Follow OpenZeppelin's upgradeable patterns strictly. Remove `selfdestruct` from all implementation contracts. |
+
 ## Best Practices
 
 1. **Every external call must follow Checks-Effects-Interactions.** Update state before making external calls. ReentrancyGuard is defense-in-depth, not a replacement for correct CEI ordering. ERC-777 and ERC-721 callbacks introduce reentrancy hooks on token transfers — assume ALL external calls are malicious.

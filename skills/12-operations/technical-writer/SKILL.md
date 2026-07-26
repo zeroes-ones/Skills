@@ -344,6 +344,8 @@ debugging guide, performance tuning.
    - **Linting**: Vale or textlint for style guide enforcement; markdownlint for formatting.
 5. **Deliverable: Documentation Strategy Document** — Inventory, persona map, gap analysis, prioritized backlog of docs to create/update, toolchain decision, IA proposal for doc site.
 
+  Complete when: Documentation inventory with freshness and accuracy scores is complete; persona-to-document mapping covering all audience types is produced; gap analysis with prioritized backlog is documented; documentation strategy document (toolchain, IA, versioning strategy) is approved.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Core Documentation Types
 
@@ -352,6 +354,8 @@ debugging guide, performance tuning.
    - **One-line description**: what the project does, who it's for.
    - **Quick Start** (the most important section): install, minimal working example, expected output. Must work in under 5 minutes.
    - **Motivation**: why does this exist? What problem does it solve? When should I use it versus alternatives?
+
+  Complete when: README template with quick-start that works in under 5 minutes is defined; API reference documentation standard with usage examples is established; contributing guide with local dev setup and PR process is published; changelog format (Keep a Changelog standard) is adopted.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 

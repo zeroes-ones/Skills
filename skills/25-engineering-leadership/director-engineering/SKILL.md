@@ -266,6 +266,8 @@ Draw lines between teams that coordinate to ship features. If a feature touches
 
 **Outputs:** Org chart with charters, ownership matrix, coordination map.
 
+  Complete when: Every team has a published charter, span-of-control violations are documented with remediation plans, and coordination map shows no feature touching 4+ teams.
+
 ### Phase 2: Strategy Translation
 
 **Goal:** Company strategy translated into team-level OKRs with realistic
@@ -297,6 +299,8 @@ prioritize together." For each ask: "If we do this, what drops?" Never say
 
 **Outputs:** Team-level OKRs, capacity plan, negotiated roadmap.
 
+  Complete when: Team OKRs trace to company OKRs, capacity plan shows strategic capacity ≥ OKR demand with explicit trade-offs documented, and Product has signed off on the negotiated roadmap.
+
 ### Phase 3: EM Development
 
 **Goal:** Every EM is growing, every team has succession, calibration is fair.
@@ -322,6 +326,8 @@ Ready now → Ready in 6 months → Ready in 12-18 months. If "ready now" is
 empty, you have work to do.
 
 **Outputs:** EM growth plans, calibration document, succession bench.
+
+  Complete when: Every EM has a documented growth plan with dated milestones, calibration decisions are recorded with rationale, and every EM role has at least one "ready in 6 months" successor.
 
 ### Phase 4: Cross-Functional Leadership
 
@@ -349,6 +355,7 @@ rate instead of story points.
 
 **Outputs:** Quarterly strategy memo, stakeholder map, triad operating rhythm.
 
+  Complete when: Quarterly strategy memo shared with exec team with feedback incorporated, stakeholder map updated with current perception ratings, and triad operating rhythm documented with next quarter's joint milestones.
 
 ## Error Recovery
 
@@ -513,6 +520,14 @@ graph LR
 | "We can skip the post-mortem — everyone knows what happened" | Without a blameless post-mortem documenting timeline, contributing factors, and action items, the same incident class recurs within 90 days because root causes are never formally addressed or tracked to closure. |
 | "If I shield my teams from organizational politics, they can focus" | Total shielding creates teams that can't navigate the organization; they lose influence in roadmap discussions, their projects get deprioritized by peers who understand stakeholder dynamics, and they become a disconnected silo. |
 | "Our engineering culture is strong — it doesn't need explicit investment" | Culture degrades by default under growth pressure — new hires dilute norms, remote work erodes rituals, and urgency crowds out values. Without deliberate investment in onboarding, rituals, and storytelling, culture drifts to "whatever ships fastest" within 2 hiring cycles. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Micro-managing technical decisions that should be owned by senior ICs — reviewing every PR, dictating architecture patterns, and overriding tech lead decisions because "I used to be an IC and I know better" | Senior IC attrition within 6-12 months as they lose autonomy and growth opportunities; $200K-$400K per lost senior engineer in replacement and ramp-up | Define decision rights explicitly: which technical decisions does the Director make (technology portfolio strategy, build-vs-buy above $X), and which do tech leads own (architecture patterns, tool choices within strategy, code review standards). Enforce by NOT reviewing code for teams with staff+ engineers |
+| Skipping skip-level 1:1s and losing signal on organizational health — relying on EM reports for ground truth without independent verification | $1M-$10M in undetected organizational rot: a dysfunctional team that the EM is hiding, a toxic tech lead nobody will report up-chain, or systemic morale issues that surface only in exit interviews | Schedule skip-levels quarterly minimum, bi-weekly if the EM is new or the team is in distress. Ask: "What's the thing you're most worried about that your manager disagrees with?" and "If you could change one thing about how our org operates, what would it be?" |
+| Promoting the strongest IC to manager without assessing management aptitude — the "they deserve a promotion and management is the only path" trap | $500K-$750K per failed transition: lose the IC output, gain a struggling manager, and lose 2-3 reports to attrition from poor management in the first year | Create a parallel IC track (Staff → Principal → Distinguished) with equivalent comp. For management transitions: require a 3-month pilot with formal training, a mentor EM, and an explicit off-ramp back to IC with zero stigma if it's not the right fit |
 
 ## Verification
 

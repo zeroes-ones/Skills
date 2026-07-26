@@ -188,6 +188,8 @@ Execute in order. Do not skip steps. Ask ONE question per step, wait for the ans
    |-- Output: Constraint inventory with origin story for each.
 ```
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 ### Phase 2: Solution Space Exploration
 
 ```
@@ -212,6 +214,8 @@ Execute in order. Do not skip steps. Ask ONE question per step, wait for the ans
    |-- Output: Uncertainty inventory with resolution plan for each.
 ```
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 ### Phase 3: Spec Review Gate
 
 ```
@@ -224,6 +228,8 @@ Execute in order. Do not skip steps. Ask ONE question per step, wait for the ans
    |-- IF YES: Design approved. Produce design brief. Route to implementation skill.
    |-- IF NO: Return to the step where uncertainty lives. Do not proceed past the gate.
 ```
+
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
 
 ## Best Practices
 
@@ -552,6 +558,26 @@ For any design decision you make this week, write down 3 distinct alternatives b
 - **The "we'll just iterate" escape hatch.** A product team shipped a half-explored checkout flow, planning to "iterate based on data." The confusing flow caused 14% cart abandonment in month 1. Users who abandoned rarely returned — they went to competitors. The "iteration" fixed the flow in month 2 but the lost users represented $180K in lifetime value. Exploration would have caught the confusion in a 30-minute paper prototype test. **Total cost: $50K-$300K in lost revenue and customer acquisition cost from "iterate later" approach. Prevent: Phase 2, Step 6 — explore at least 3 approaches before committing. Paper prototypes cost $0.**
 
 - **Skipping the inconvenience of unknown-unknowns.** A team assumed their API would handle "standard" traffic patterns. They did not ask what "non-standard" looked like. On Black Friday, a retail partner sent batch uploads of 50K records instead of the expected real-time stream. The API queued everything into memory and OOM-killed. Downtime: 4 hours during peak sales. Lost revenue: $340K. **Total cost: $100K-$500K per unexamined operational assumption in revenue loss and SLA penalties. Prevent: Phase 2, Step 8 — always ask "what's the worst input we could receive?"**
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
 

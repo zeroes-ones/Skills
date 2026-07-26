@@ -496,6 +496,7 @@ Cross-agent skills packaging sits at the intersection of platform engineering, D
 **Input:** Any system with `~/.agents/` or per-agent skill directories
 ...
 > 📎 **Full content (60 lines):** [references/core-workflow.md](references/core-workflow.md)
+  Complete when: Audit report generated covering symlink health, manifest freshness, frontmatter validation, PROCESS_TREE.md coverage, and compatibility test matrix for all target agents.
 
 ## Error Decoder — War Stories from the Trenches
 

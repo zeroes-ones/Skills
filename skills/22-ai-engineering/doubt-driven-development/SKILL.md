@@ -686,6 +686,15 @@ Before deploying any code that passed doubt-driven review, verify ALL of:
 
 - **The trust decay curve.** Every time a doubt-driven review finds a defect that standard review missed, team trust in standard review erodes. After 5 such incidents, engineers start running informal doubt cycles on every PR regardless of criticality — burning 40% more review time with no process guardrails. Without formal doubt-driven development, you get the cost of adversarial review without the structure. **Total cost: $80K-$200K/year in stealth process overhead for a 10-engineer team. Fix: formalize doubt-driven development as an explicit, opt-in process; don't let it become a shadow process.**
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Performative doubt without specific failure conditions — "this could break" with no testable hypothesis | $150K-$500K/year in engineering time wasted on vague, unactionable concerns | Enforce the "Doubt Theater Detection" rule: every doubt must contain a specific failure condition (IF...THEN), counter-example, or concrete test. Flag and dismiss doubts without these. |
+| Single-model review of AI-generated code — the reviewing model shares the same blind spots as the generating model | $100K-$300K per incident from undetected logic errors | Cross-model escalation mandatory for CRITICAL claims. Always review Claude-generated code with GPT-4o and vice versa. Different training data = different blind spots. |
+| Doubt cycle never terminates — team stuck in perpetual "what if" analysis | $50K-$200K in delayed releases and opportunity cost | Enforce hard cycle limits: CRITICAL max 3 cycles, HIGH max 3, MEDIUM max 2, LOW max 1. After limit, escalate or accept with documented risk. No infinite loops. |
+| False equivalence — treating all doubts with equal severity regardless of impact | $75K-$250K in over-engineering low-risk edge cases while critical bugs ship | Apply severity classification rigorously: data loss/corruption = CRITICAL, unauthorized access = CRITICAL, silent wrong results = HIGH, degradation = MEDIUM. Allocate max cycles proportionally. |
+
 ## Verification
 
 <!-- Run this checklist before marking any doubt cycle complete -->

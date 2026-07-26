@@ -403,6 +403,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
+
 
 ## Best Practices
 
@@ -586,6 +588,26 @@ graph LR
 | `dbt source freshness` reports "PASS" but data is 3 days old | Freshness threshold set too high (e.g., `warn_after: {count: 72, period: hour}`). Source landed 70 hours ago — within threshold but effectively stale for business. | Set freshness thresholds based on business SLAs: C-level dashboards need < 4 hours, operational < 1 hour, analytical < 24 hours. | "PASS" means within your configured threshold — if your threshold is wrong, PASS is misleading. |
 | Cross-database dbt tests fail silently | `dbt test` runs on the target database. If a test references a table in another database via a cross-db query, the test may run against an empty result set. | Use `dbt test --select` to isolate tests. Verify cross-database connectivity in CI. Use Great Expectations for cross-source validation. | dbt's test framework assumes single-database. Multi-database validation needs external tooling. |
 
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
 

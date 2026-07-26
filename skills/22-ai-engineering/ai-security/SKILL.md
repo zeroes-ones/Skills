@@ -248,15 +248,21 @@ If the file is from a verified, signed source (Sigstore/cosign verified, SLSA L3
 treated as TRUSTED. Otherwise, apply sanitization. See `supply-chain-security` for provenance
 verification before trust classification.
 
+  Complete when: Source trust classification implemented (TRUSTED/UNKNOWN/UNTRUSTED); sanitization function strips injection patterns from untrusted files; wrapper prefix added to unknown content.
+
 ### Phase 1: LLM Application Hardening (OWASP LLM Top 10 Assessment)
 1. **Inventory the attack surface**: List every point where untrusted input enters the LLM pipeline (user prompts, RAG documents, tool outputs, multi-turn conversation history). Map data flow from input to output.
 2. **Run OWASP LLM Top 10 v1.1 assessment**: Score each vulnerability (LLM01-LLM10) by likelihood × impact. Start with LLM01 (Prompt Injection), LLM05 (Supply Chain), LLM06 (Sensitive Info Disclosure), and LLM08 (Excessive Agency) — these account for > 80% of real-world incidents.
 3. **Document findings** with: vulnerability class, attack vector description, proof-of-concept exploit (if safe), CVSS-style severity, and recommended mitigation with implementation priority.
 
+  Complete when: Attack surface inventory documented with data flow map; OWASP LLM Top 10 assessment scored by likelihood × impact; findings documented with severity and priority.
+
 ### Phase 2: Prompt Injection Defense Design
 1. **Classify injection vectors**: Direct injection (user prompt), indirect injection (RAG-retrieved documents, emails, websites), multi-turn injection (conversation history poisoning).
 2. **Layer defenses** from strongest to weakest: (1) Structured output parsing — force model output into a schema, reject non-conforming output, (2) Instruction hierarchy — separate system instructions from user input with delimiters the model recognizes as privileged, (3) Input sanitization — detect and strip injection patterns, (4) Output guardrails — classify and filter model output before delivery.
 3. **Test defenses** with adversarial prompts: direct overrides ("Ignore previous instructions"), context stuffing, role-playing, encoding tricks (base64, leetspeak), and multi-language attacks.
+
+  Complete when: Injection vectors classified (direct/indirect/multi-turn); layered defenses implemented (structured output, instruction hierarchy, input sanitization, output guardrails); defenses tested with adversarial prompts.
 
 ### Phase 3: Guardrails Implementation
 1. **Select guardrail architecture**: Input rails (validate/filter user input before model), output rails (validate/filter model output before user), dialog rails (enforce conversation flow constraints).
@@ -264,11 +270,15 @@ verification before trust classification.
 3. **Define policies**: Content safety (toxicity, NSFW, self-harm), topic boundaries (off-topic rejection), PII/sensitive data detection in output, tool-call authorization rules.
 4. **Test guardrail bypass**: Can an adversarial user convince the model to output content that should be blocked? Can the guardrail be circumvented through encoding, translation, or role-play?
 
+  Complete when: Guardrail architecture selected (input/output/dialog rails); policies defined for content safety, topic boundaries, PII detection, and tool authorization; guardrail bypass testing completed.
+
 ### Phase 4: AI Red-Teaming
 1. **Define red-teaming objectives**: What are you testing for? (jailbreak resistance, training data extraction, tool-call escalation, bias amplification, harmful content generation).
 2. **Select tooling**: garak for automated vulnerability probing (LLM Top 10 probes), PyRIT for multi-turn attack orchestration, manual adversarial prompt crafting for novel attack patterns.
 3. **Execute test campaign**: Run automated probes first to establish baseline, then manual testing for creative attacks, then multi-turn scenarios that chain vulnerabilities.
 4. **Document**: Attack type, prompt used, model response, severity, recommended fix. Classify by OWASP LLM category and MITRE ATLAS technique.
+
+  Complete when: Red-teaming objectives defined; automated probes run (garak) with baseline results; manual adversarial testing completed; findings documented by OWASP LLM category and MITRE ATLAS technique.
 
 ### Phase 5: Model Supply Chain Security
 1. **Verify model provenance**: Who trained this model? On what data? When? Where are the signed weights? Can you verify the signature?
@@ -276,11 +286,15 @@ verification before trust classification.
 3. **Check weight format**: Are weights stored in safetensors (safe) or pickle (dangerous — arbitrary code execution on load)? Convert pickle to safetensors.
 4. **Verify distribution channel**: Hugging Face Hub with model card? Private registry with access control? Direct download from researcher's personal site?
 
+  Complete when: Model provenance verified with signed weights; dependencies scanned for slopsquatting; weights converted to safetensors format; distribution channel secured.
+
 ### Phase 6: NIST AI RMF Alignment
 1. **GOVERN**: Establish AI risk management policies, roles, and accountability. Document AI system inventory with risk tier classification.
 2. **MAP**: For each AI system, document context (intended use, users, deployment environment), categorize risks (technical, societal, operational), assess trustworthiness characteristics (valid and reliable, safe, secure and resilient, accountable and transparent, explainable and interpretable, privacy-enhanced, fair with harmful bias managed).
 3. **MEASURE**: Implement testing, assessment, and monitoring for each identified risk. Define metrics and thresholds. Conduct red-teaming.
 4. **MANAGE**: Treat identified risks (accept, mitigate, transfer, avoid). Establish ongoing monitoring and incident response. Document residual risk.
+
+  Complete when: NIST AI RMF documentation completed for GOVERN, MAP, MEASURE, and MANAGE functions; risk tier classification assigned per AI system.
 
 ### Phase 7: Incident Response for Model Compromise
 1. **Detection**: Model output anomaly detection, unexpected tool calls, unusual query patterns, user reports of harmful/inappropriate output.
@@ -288,6 +302,8 @@ verification before trust classification.
 3. **Investigation**: Determine attack vector (prompt injection, supply chain compromise, training data poisoning, insider threat?), assess blast radius (what data was exposed? what actions were executed?).
 4. **Remediation**: Patch vulnerability, rotate credentials, retrain/rollback model, improve guardrails, update red-teaming test suite to include the discovered attack pattern.
 5. **Post-incident**: Update NIST AI RMF MAP and MEASURE documentation, share findings with AI security community if appropriate.
+
+  Complete when: Incident response plan documented with detection triggers, containment steps, investigation procedures, and post-incident review template; plan exercised quarterly.
 
 ## Best Practices
 
@@ -690,6 +706,15 @@ Before any AI system reaches production, verify:
 | "The security review passed — we check OWASP Top 10 and call it done" | OWASP Top 10 for LLM Apps is a starting floor, not a ceiling; indirect prompt injection, multi-turn manipulation, and agent tool misuse require continuous adversarial testing |
 | "Rate limiting and auth solve API abuse" | Auth gates legitimate users; rate limiting slows volume — neither stops adversarial prompts, context-window poisoning, or chain-of-thought extraction from authenticated sessions |
 
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Prompt injection defense relies on a single guardrail layer — attacker bypasses it | $500K-$2M per data breach from single-layer defenses | Layer defenses: structured output parsing (L1) + instruction hierarchy (L2) + input sanitization (L3) + output guardrails (L4). No single layer is sufficient. |
+| Model weights stored in pickle format — arbitrary code execution on load | $500K-$5M in supply chain compromise if attacker swaps weight file | Convert all weights to safetensors. Verify with `safetensors.torch.load_file()`. Never load pickle weights from untrusted sources. |
+| No AI-specific incident response plan — hours wasted figuring out who to call | $200K-$500K per incident in delayed containment and extended blast radius | Document AI-specific IR plan: detection triggers, containment steps (disable endpoint, revoke permissions, quarantine model), investigation procedures. Exercise quarterly. |
+| Agent tools all set to "allow" — no human approval for destructive operations | $1M-$5M in infrastructure damage from unauthorized tool execution | Map every tool to risk tier (0-3). Tier 2+ (write, delete, send) require human-in-the-loop approval. Default-deny, explicitly allow. |
 
 ## Verification
 

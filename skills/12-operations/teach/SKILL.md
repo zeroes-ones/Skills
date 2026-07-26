@@ -162,6 +162,7 @@ Execute before any teaching begins.
    |-- Identify prerequisite gaps: gaps that block learning other concepts
    |-- Record in .teach/gap-analysis.md
 ```
+  Complete when: Learning goal defined, current knowledge assessed via demonstrations, gaps identified and recorded in gap analysis document.
 
 ### Phase 2: Build Learning Path
 
@@ -189,6 +190,7 @@ Transform gaps into a sequenced curriculum.
    |-- Complex concept: 1-2 sessions (45-90 min each)
    |-- Total: [N] sessions, estimated [X] calendar days (with spacing)
 ```
+  Complete when: Concepts sequenced by dependency with session designs, practice exercises, and pace estimates for each concept in learning path.
 
 ### Phase 3: Teach Session
 
@@ -227,6 +229,7 @@ One concept per execution of this phase. Re-enter for each session.
    |-- Update .teach/progress.md: session complete, mastery rating, next review dates
    |-- Schedule spaced repetition entries for this concept
 ```
+  Complete when: Learner demonstrates understanding via teach-back, progress recorded in teach workspace, and spaced repetition entries scheduled.
 
 ## Decision Trees
 
@@ -603,6 +606,14 @@ Teaching scales from a single 15-minute micro-lesson to a multi-month curriculum
 | **Full curriculum** | 10-20 concepts over 6-12 weeks | Pre-assessment → Learning path → Weekly sessions → Spaced repetition → Mid-curriculum adaptation → Capstone project | 10-20 sessions, 2-3 months |
 
 **Scaling rule:** Longer curricula require more adaptation. A 20-session path designed on day 1 will be wrong by session 10 because the learner has changed. Reassess pacing, prerequisites, and goals every 5 sessions. The curriculum is a hypothesis, not a contract.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Skipping pre-assessment and teaching at the wrong level | $20K-$80K in wasted training time | Always run the 5-8 question pre-assessment — ask for demonstrations, not self-ratings |
+| Lecturing without guided or independent practice | $30K-$100K in poor knowledge retention | Follow the 5-10-10-10-5 timebox each session: review, introduce, guided practice, independent practice, teach-back |
+| Not verifying understanding via teach-back | $40K-$160K in surface-level comprehension | Every session ends with a teach-back: learner explains in their own words — repeat if accuracy < 90% |
 
 ## Verification
 

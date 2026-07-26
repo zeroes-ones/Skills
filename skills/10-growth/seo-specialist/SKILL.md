@@ -234,7 +234,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    ```
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
-
+Complete when: Lighthouse SEO score ≥ 90 with Core Web Vitals passing 75th percentile. XML sitemap submitted and indexed with only canonical URLs. robots.txt configured to allow public content and block private/utility paths. Crawl budget analysis shows ≥ 80% of crawl capacity reaching valuable pages.
 
 ## Error Recovery
 **(STANDARD)**
@@ -400,6 +400,14 @@ graph LR
 | "Page speed is an engineering problem — not SEO's concern" | Every 100ms delay costs $2.5K/month per $100K revenue — $25K-$210K/year in recoverable revenue from deferred speed optimization. |
 | "Googlebot can render JavaScript — it's fine" | JS-rendered content indexes 2-4 weeks after HTML — you lose ranking windows for every content change and fall behind faster competitors. |
 | "More pages targeting the same keyword means more coverage" | Keyword cannibalization splits ranking signals across pages — $5K-$20K/month per cannibalized cluster in lost traffic that one authoritative page would capture. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Ignoring Core Web Vitals while investing heavily in content and backlinks | $50K-$200K/year in wasted content investment — a site with poor LCP (3.5s+) and CLS (0.25+) loses 20-40% of potential organic traffic regardless of content quality, because Google demotes pages that deliver poor UX. Every $100K spent on content that ranks on page 2 instead of page 1 due to performance is effectively lighting money on fire. | Run CrUX and Lighthouse reports monthly. Fix LCP (optimize images, use CDN, eliminate render-blocking resources), CLS (reserve space for embeds/ads/images), and INP (break up long tasks) before scaling content production. Performance is a ranking multiplier — bad perf divides your content ROI. |
+| Executing a site migration or URL restructure without a comprehensive 301 redirect map | $100K-$500K in permanent organic traffic loss — a domain migration or IA restructure that drops 30% of backlink equity because redirects were missing or misconfigured (redirect chains, 302s instead of 301s, redirects to irrelevant pages) takes 6-18 months to recover, if ever. Each broken high-authority URL loses $500-$5K/month in traffic value permanently. | Build a complete URL inventory before migration (crawl + server logs + Search Console). Map every old URL to its new equivalent 1:1. Test all redirects in staging. Monitor 404s hourly for the first 2 weeks post-launch. Never redirect all old URLs to the homepage — Google treats that as a soft 404. |
+| Chasing algorithm updates with reactive tactics instead of building topical authority and user-first content | $80K-$250K/year in wasted SEO retainer fees and content churn — hiring an agency to "recover from the March core update" while the real problem is thin content, poor UX, and no demonstrated expertise. Each reactive pivot costs $15K-$40K in agency fees and rewritten content, while competitors who invested in E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) steadily gain share. | Invest 80% of SEO budget in durable fundamentals: topical authority maps, expert-authored content with author bios, original research/data that earns natural backlinks, and technical site health. Spend 20% on monitoring and adapting to updates. The sites that win core updates are the ones that didn't need to change anything when the update shipped. |
 
 ## Best Practices
 **(STANDARD)**

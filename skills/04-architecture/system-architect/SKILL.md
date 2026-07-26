@@ -322,6 +322,11 @@ Synchronous or asynchronous between services?
 3. Document constraints: budget, team size, technology mandate, existing ecosystem, vendor lock-in posture.
 4. Define Service Level Objectives (SLOs) and error budgets.
 
+Complete when:
+- Functional requirements (use cases, user journeys, data flows) documented
+- Non-functional requirements quantified: availability target, p50/p95/p99 latency, peak QPS, data consistency level
+- Constraints (budget, team size, tech mandates, compliance) and SLOs with error budgets recorded
+
 ### Phase 2 (~30 min): Architecture Design & Modeling
 <!-- DEEP: 10+min -->
 1. **C4 Context Diagram**: System boundaries, external actors (users, third-party APIs, partner systems), data flows.
@@ -331,11 +336,21 @@ Synchronous or asynchronous between services?
 5. **Communication Patterns**: Synchronous (REST/gRPC/GraphQL) vs asynchronous (event choreography, orchestration with Saga, pub/sub, CQRS, event sourcing).
 6. **Deployment Topology**: Kubernetes (pod anti-affinity, HPA, cluster autoscaling, Istio service mesh) vs serverless (AWS Lambda, Cloud Run) vs traditional VMs.
 
+Complete when:
+- C4 Context and Container diagrams completed showing system boundaries, actors, deployable units, and communication protocols
+- Data architecture decisions documented: storage types, partitioning, replication, caching layers
+- Communication patterns (sync vs async) and deployment topology selected with rationale
+
 ### Phase 3 (~20 min): Trade-off Analysis & Decision Records
 1. Write ADRs in a structured format: Title, Status (Proposed/Accepted/Deprecated/Superseded), Context, Decision, Consequences.
 2. Evaluate each architectural decision against: scalability, complexity, cost, team expertise, operational burden, vendor lock-in.
 3. Document rejected alternatives with rationale.
 4. Maintain an architecture decision log in the repository (`docs/adr/`).
+
+Complete when:
+- ADRs written in structured format (Title, Status, Context, Decision, Consequences) for each key decision
+- Each ADR evaluates against scalability, complexity, cost, team expertise, operational burden, and vendor lock-in
+- Rejected alternatives documented with rationale; ADR log initialized in docs/adr/
 
 ### Phase 4 (~15 min): Scalability & Capacity Planning
 1. Estimate traffic: peak QPS, daily active users, data ingestion rate, read/write ratio.
@@ -345,6 +360,10 @@ Synchronous or asynchronous between services?
 5. Identify bottlenecks: single points of failure, contention points, cascading failure risks.
 6. Plan for resilience: circuit breakers, retries (with exponential backoff + jitter), bulkheads, timeouts, graceful degradation, chaos engineering.
 
+Complete when:
+- Traffic estimates quantified: peak QPS, DAU, data ingestion rate, read/write ratio
+- Latency budgets broken down per service; data growth projections (1y/3y) with tiering strategy
+- Scaling strategy (vertical/horizontal, read replicas, sharding) and resilience patterns (circuit breakers, bulkheads, retries) documented
 
 ## Best Practices
 
@@ -501,6 +520,15 @@ Architecture guidance, review, or approval for team-level design
 - **Microservice data ownership**: If Service A owns `users` and Service B needs `user.email`, B should NOT query A's database directly. But if B calls A's API for every email, latency spikes. The real answer is a materialized view or event-carried state transfer — decisions that must be made at architecture time, not implementation time.
 - **ADR (Architecture Decision Record)** titles must state the decision, not the topic. "ADR-003: Database" is useless months later. "ADR-003: Use PostgreSQL with Citus for tenant-isolated multi-tenancy" tells you what was decided.
 - **Capacity planning with percentiles**: "Average response time 200ms" means 50% of requests are below 200ms, but 1% might be 5 seconds. P95, P99, and P99.9 matter more than average. Architect for the P99, not the mean.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Over-engineering for scale that never comes — building for Google-scale at startup | $200K-$1M in unnecessary complexity from premature abstraction and microservices | Right-size architecture for current load + 2x growth. Extract services when team size > 20 or proven scaling pain. Document extraction trigger conditions |
+| No failure mode analysis before go-live | $500K-$2M in production incidents from cascading failures | For every component, document "what happens when this fails." Add circuit breakers, bulkheads, and fallbacks before first deploy |
+| Skipping capacity planning — emergency scaling during traffic spikes | $200K-$500K in emergency infrastructure costs and performance incidents | Model capacity with peak RPS × (1 + growth %) × 2x headroom. Load test to 2x expected peak before launch |
+| Architecture decisions undocumented — original rationale lost after 6 months | $150K-$500K in re-architecture costs when teams rediscover why decisions were made | Write ADRs for EVERY significant decision. Format: Context → Decision → Consequences. Link ADRs to code with architecture fitness functions |
 
 ## Verification
 

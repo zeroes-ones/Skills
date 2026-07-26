@@ -289,6 +289,7 @@ Is the incident user-visible?
    - Output: SLO document per service approved by product owner and engineering lead.
 4. **Configure error budget burn rate alerts**: multi-window, multi-burn-rate alerting (see Decision Tree #3).
    - Output: Alerting rules in Prometheus/Alertmanager with clear runbook links.
+  Complete when: SLI specifications exist for all critical user journeys, Prometheus recording rules compute SLIs over rolling windows, SLO documents are signed off, and burn rate alerts fire correctly in a canary test.
 
 ### Phase 2 (~30 min): Error Budget Governance
 1. **Establish error budget policy**: defines what happens at each burn rate threshold.
@@ -299,6 +300,7 @@ Is the incident user-visible?
    - Output: SLO review dashboard, action items for services that missed SLO.
 4. **Quarterly SLO calibration**: tighten SLOs that were too loose, loosen SLOs that caused excessive toil without user benefit.
    - Output: Updated SLO targets with changelog and stakeholder sign-off.
+  Complete when: error budget policy is published and linked from dashboards, CI/CD deploy gate queries budget before production promotion, and SLO review cadence is on the team calendar.
 
 ### Phase 3 (~20 min): Toil Elimination
 1. **Measure toil**: every SRE logs time against toil/non-toil categories for 2 weeks.
@@ -309,6 +311,7 @@ Is the incident user-visible?
    - Output: Each automation reduces a toil bucket by > 80%; toil drops below 50% of SRE time.
 4. **Prevent toil regression**: require automation design review for any new manual process exceeding 15 min/week.
    - Output: Toil dashboard tracking automation coverage and trends.
+  Complete when: toil baseline is measured, top 3 toil sources have automation in production, and toil drops below 50% of SRE time with trend continuing downward.
 
 ### Phase 4 (~15 min): Incident Management Lifecycle
 1. **Detection**: monitoring alerts fire → on-call acknowledges within 5 minutes.
@@ -319,6 +322,7 @@ Is the incident user-visible?
 6. **Postmortem**: blameless postmortem within 48 hours (SEV1/2) or 1 week (SEV3).
    - Output: Postmortem doc with timeline, contributing factors, action items with owners and deadlines.
 7. **Follow-through**: track action items to completion; share learnings org-wide.
+  Complete when: on-call rotation is staffed, incident commander training is complete, postmortem template is in the wiki, and a recent SEV2 postmortem has been conducted with action items tracked.
 
 ### Phase 5 (~25 min): Capacity Planning
 1. **Model demand**: forecast growth from business metrics (user growth, transaction volume, data ingestion rate).
@@ -330,6 +334,17 @@ Is the incident user-visible?
    - Output: Automated provisioning triggers; no capacity-related incidents.
 4. **Review quarterly**: compare forecast vs. actual; tune model.
    - Output: Capacity planning review dashboard.
+  Complete when: 12-month demand forecast is documented with confidence intervals, capacity triggers are automated, and the last quarterly review shows forecast accuracy within 20%.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Setting SLO at 100% — every minor blip burns error budget, forcing constant deploy freezes and making the SLO a blocker instead of a decision tool | $10K-$100K in velocity loss from unnecessary deploy freezes | Set SLOs at the user's pain threshold (99.9% or 99.95%), not at perfection; use multi-window burn alerts to distinguish fast burns from slow burns |
+| Alerting on symptoms without SLO context — "CPU > 80%" pages for batch jobs that self-resolve, causing alert fatigue and on-call burnout | $50K-$200K in on-call churn and missed real incidents | Alert on SLO burn rate, not static thresholds; every alert must tie to a specific SLO; if there's no SLO, there's no alert — the signal becomes noise |
+| Writing postmortems that blame individuals — "Bob pushed the wrong config" kills psychological safety and guarantees the next incident goes unreported | $100K-$500K in lost engineering trust, unreported incidents, and attrition | Use blameless postmortem format: timeline → contributing factors → systemic fixes; replace "who" with "how did the system allow this"; track action items to completion |
+| Capacity planning based on linear trending — exponential growth from a viral launch exhausts capacity 3 weeks before procurement can deliver | $200K-$1M in lost revenue during capacity-constrained outage | Model 3 scenarios: conservative, expected, aggressive; provision for aggressive when lead time > 30 days; automate horizontal scaling with cluster autoscaler for elastic workloads |
 
 
 ## Error Decoder — War Stories from the Trenches

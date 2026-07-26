@@ -279,6 +279,7 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 3. **Pagination**: Cursor-based for large datasets. `?cursor=xxx&limit=50`. Avoid offset pagination beyond page 10.
 4. **Error responses**: Consistent format: `{ "error": { "code": "VALIDATION_ERROR", "message": "...", "details": [...] } }`. Include request ID for tracing.
 5. **Versioning**: URL prefix (`/v1/`) or header-based. Avoid query param versioning. Have a deprecation policy.
+Complete when: OpenAPI 3.1 spec validated with all endpoints, request/response schemas, and error formats defined. Pagination strategy documented with cursor-based approach and limits. API versioning policy with deprecation timeline established.
 
 ### Phase 2 (~30 min): Implementation
 <!-- DEEP: 10+min -->
@@ -287,18 +288,21 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 3. **Error handling**: Never expose stack traces. Use error codes. Log full error with context server-side. Return sanitized error to client.
 4. **Database access**: Repository pattern. Never expose ORM models directly to API layer. Use Data Transfer Objects (DTOs).
 5. **Async tasks**: Offload non-critical work to background jobs. Ensure idempotency (idempotency keys, deduplication).
+Complete when: Feature-based project structure with DTOs decoupling API layer from ORM models. Input validation at boundary using typed schemas (Pydantic/Zod). Async task queue configured with idempotency keys and deduplication.
 
 ### Phase 3 (~20 min): Testing
 1. **Unit tests**: Business logic, validation, transformations. Mock external dependencies.
 2. **Integration tests**: Database, cache, message queue. Use test containers or in-memory alternatives.
 3. **Contract tests**: Verify API responses match OpenAPI spec. Catch breaking changes before deploy.
 4. **Load tests**: k6 or Locust. Test at 2× expected peak QPS. Find bottlenecks before users do.
+Complete when: Unit tests cover all business logic paths with mocked dependencies. Integration tests pass against real database/cache/queue instances. Contract tests verify API responses match OpenAPI spec. Load test report confirms 2× peak QPS sustained without errors.
 
 ### Phase 4 (~15 min): Deployment Readiness
 1. **Health checks**: `/health` (liveness — is process alive), `/health/ready` (readiness — can serve traffic). Kubernetes uses both.
 2. **Graceful shutdown**: Handle SIGTERM. Stop accepting new requests, drain in-flight requests, close DB connections.
 3. **Migrations**: Run before deploy. Backward-compatible changes only. Rollback plan for every migration.
 4. **Secrets**: Environment variables for config, secrets manager for credentials. Never in code or config files.
+Complete when: Health and readiness endpoints return correct status codes. Graceful shutdown handles SIGTERM with in-flight request draining. Database migrations verified backward-compatible with rollback plan. All secrets stored in secrets manager with zero plaintext in code or config.
 
 ### Phase 5 (~20 min): Real-Time & Streaming
 
@@ -313,7 +317,7 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 | HTTP/2 Friendly | Re
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
-
+Complete when: WebSocket/SSE/polling protocol selected with documented rationale. Real-time connection lifecycle managed (auth, reconnect, heartbeat). Backpressure strategy implemented for high-throughput streams.
 
 ## Best Practices
 
@@ -528,6 +532,14 @@ When backend services go wrong, they go wrong in predictable ways. Here are the 
 | SIGTERM causes 500 errors for in-flight requests — graceful shutdown is configured but requests are dropped mid-response | The process receives SIGTERM, stops accepting new connections, but doesn't wait for existing requests to complete. Load balancer hasn't deregistered the instance yet — new requests arrive and get refused while old ones are killed | In the shutdown handler: (1) stop accepting new connections, (2) `server.close()` with a 30s timeout, (3) `await Promise.allSettled(activeRequests)`, (4) close DB pools and exit. Set `terminationGracePeriodSeconds` in k8s to 5s longer than your longest expected request | Graceful shutdown isn't a boolean — it's a sequence. Every step in the sequence matters. If k8s sends SIGKILL before your handler finishes, you lose in-flight transactions |
 | File descriptor leak — service runs fine for days, then `EMFILE: too many open files` crashes everything | HTTP keep-alive connections, database connections, or log file handles opened but never closed. Each leaked FD stays open until the process dies. After 1-2 weeks, the process hits the ulimit ceiling | Set `agent.keepAlive = true` with `maxSockets` limit. Audit every `fs.createReadStream` and `client.connect()` — each needs a corresponding close/destroy. Monitor `process._getActiveHandles().length` in health checks. Set `ulimit -n 65536` as a safety net, not a fix | File descriptor leaks are the stealthiest resource leak. No memory spike, no CPU spike — just a sudden crash after days of perfect operation. The only fix is auditing every resource acquisition path |
 | Rate limiter blocks legitimate traffic from corporate proxies — entire offices can't access the API | Rate limiting by IP address when thousands of users share a single NAT gateway IP (office building, university, mobile carrier CG-NAT). The shared IP exceeds the limit while individual users are well under it | Rate limit by authenticated user ID as primary key, with IP as secondary fallback for unauthenticated endpoints. Add `X-Forwarded-For` trust for proxy headers. Use token bucket algorithm with per-key granularity | IP-based rate limiting is broken architecture for any service with authenticated users. Corporate NAT gateways, mobile carriers, and VPNs make IP addresses meaningless as user identifiers |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Connection pool exhaustion — service hangs under load, all workers idle, health checks fail | $30K-$80K in outage response | Audit every connection path — always release in `finally` block, set pool max and idle timeout, monitor pool utilization with alerts at >80% |
+| N+1 queries in production — ORM lazy-loads related entities inside a loop, 1 page load triggers 10,001 queries | $15K-$50K in degraded UX and infra costs | Use eager loading (`.Include()`, `.prefetch_related()`, `JOIN FETCH`), enable query logging in dev, add `n_plus_one` detection linter, test with realistic data volumes |
+| Timezone bugs — all timestamps offset by hours in production, billing dates and audit trails wrong | $50K-$200K in data corruption and compliance | Store ALL timestamps as UTC, set `TZ=UTC` at application level, use `date.toISOString()` / `DateTime.utcnow()`, parse incoming timestamps with explicit timezone |
 
 ## Verification
 

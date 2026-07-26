@@ -120,11 +120,15 @@ What kind of interview preparation do you need?
 
 **Step 4 — Follow-up drill.** For each story, ask 3-5 follow-ups: "What was the hardest part?" "What would you do differently?" "How did you handle disagreement?" Candidate must answer without repeating the original story.
 
+  Complete when: Demo delivered, feedback collected and triaged, and action items assigned with owners and deadlines.
+
 ### Phase 2: Mock Interview Simulation
 
 **Setup:** Simulate real interview conditions — video on, timer running, no notes visible. Ask 6-8 behavioral questions + 1-2 technical questions. Score each on: answer structure (1-5), specificity (1-5), relevance (1-5), and delivery (1-5).
 
 **Feedback:** Provide specific, actionable feedback — not "that was good" but "your STAR lacked a measurable Result — add the metric next time."
+
+  Complete when: Demo delivered, feedback collected and triaged, and action items assigned with owners and deadlines.
 
 ### Phase 3: Post-Interview Follow-Up
 
@@ -132,9 +136,13 @@ What kind of interview preparation do you need?
 
 **Follow-up timing:** If no response after stated timeline + 2 business days, send one polite follow-up. After that, stop — they'll contact you if interested.
 
+  Complete when: Terms documented, both-party alignment confirmed, and acceptance/closing steps identified with timeline.
+
 ### Phase 4: Interview Recovery
 
 Bad interviews happen. Recovery strategy: (1) Identify what went wrong — was it one bad answer or systemic? (2) If one bad answer: address it in the thank-you note with a better response. (3) If systemic: learn the lesson, practice the gap, apply to the next opportunity.
+
+  Complete when: Strategy documented, success criteria defined, stakeholders aligned, and next-phase dependencies identified.
 
 ## Decision Trees
 
@@ -416,6 +424,26 @@ Before delivering interview coaching deliverables, verify ALL of:
 | "I prepared behavioral stories but the interview was a live coding session — I wasn't ready" | Didn't clarify interview format with recruiter. Assumed all rounds would be similar to the phone screen. | In every recruiter screen, ask: "What is the format of each round? Who will I meet with? Is there anything specific I should prepare?" Most recruiters will tell you. | Format surprise drops performance 30-50%. Each format tests different skills with different rubrics. Clarify before you prepare. |
 | "Accepting an offer — then discovering the company has 4 months of runway left" | Didn't research financial health. Assumed funded companies are stable. | Before accepting: for startups, ask directly about runway, burn rate, and last funding round. For public companies, check 1-year and 3-year stock trends. | Companies with <6 months runway execute layoffs 40% of the time within year 1. Worthless equity = $50K-$200K in paper gains that never materialized. |
 | "Thank-you note sent 3 days later — generic 'thanks for your time'" | No thank-you template prepared. Sent when remembered. Generic content. | Prepare a thank-you template before the interview: personalized opening slot, discussion-point reference slot, genuine close. Customize and send within 4 hours. | 47% of interviewers say lack of questions/follow-up negatively impacts evaluation. A specific same-day thank-you beats a generic 3-days-later one. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
 

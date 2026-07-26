@@ -199,6 +199,12 @@ Design the words that guide users through the product experience.
 4. **Success confirmations**: Confirm what happened + what's next. "Your symptoms were logged. View your trend report →" Not just a checkmark.
 5. **Modals and dialogs**: Title = action. Body = consequence. Buttons = verb + object. "Delete Symptom Log — This removes all entries from March. This can't be undone. [Cancel] [Delete Entries]"
 
+Complete when:
+- Copy designed for all UI states: onboarding, empty, loading, success, error, and destructive actions
+- Voice/tone consistency verified across all copy against brand voice attributes
+- Stakeholder review complete: product, clinical, and design sign-off obtained
+
+
 ### Phase 2 (~25 min): Medical Disclaimers
 
 Craft disclaimers that protect legally without degrading the user experience.
@@ -212,9 +218,21 @@ Craft disclaimers that protect legally without degrading the user experience.
 4. **Regulatory requirements**: FDA 21 CFR Part 11 for electronic records, HIPAA for PHI, GDPR Art. 9 for health data in EU, FTC Health Breach Notification Rule, state-specific telehealth consent laws.
 5. **Progressive disclosure**: Show essential disclaimer inline, link to full legal text. Never dump 5,000 words of legalese into a 300px modal.
 
+Complete when:
+- Disclaimer placement verified: inline adjacent to content, modal for critical warnings, footer persistent
+- All regulatory requirements met: FDA 21 CFR Part 11, HIPAA, GDPR Art. 9, FTC Health Breach Notification Rule
+- Legal review completed and progressive disclosure pattern confirmed: essential inline, full text linked
+
+
 ### Phase 3 (~25 min): Consent Language Design
 
 Design consent flows that are truly informed — not just legally compliant.
+
+Complete when:
+- Consent flows designed with progressive disclosure: purpose → data use → risks → opt-in, one concept per screen
+- Comprehension tested with 5 target patients: >90% can correctly paraphrase what they consented to
+- Legal sign-off obtained with confirmation that consent language meets informed consent standards
+
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -343,11 +361,13 @@ Common chains:
 
 ## Gotchas
 
-- **Error message: "Error 0x80070005: Access is denied"** — the user doesn't know what 0x80070005 is, and "access is denied" tells them what happened but not WHY or what to DO. "You don't have permission to view this report. Ask your account admin to add you to the Reports Viewer role." Context + action. **Total cost: $50K-$200K annually in unnecessary support tickets from users who can't self-resolve permission errors.**
-- **Button labels that change between screens** — "Save" on the settings page, "Save Changes" on the profile page, "Apply" in the modal. The user pauses: "Are these the same thing?" Consistency of action labels across the ENTIRE product is more important than contextual precision. Pick one label per action. **Total cost: $100K-$500K in abandonment from user confusion, lost conversions, and increased onboarding churn.**
-- **"Click here" as link text** — screen reader users navigating by link list hear: "Click here, Click here, Click here, Click here." Zero information about where each link goes. Link text must describe the DESTINATION: "Download Q3 report (PDF, 2.4MB)" or "View billing history." **Total cost: $50K-$150K in ADA litigation exposure, settlement costs, and mandatory remediation work.**
-- **Microcopy that's too clever** — a 404 page that says "Oopsie! Our hamsters are on a coffee break 🐹☕" — it's delightful to the designer who wrote it, but a user who's trying to pay an invoice and hit a broken link is NOT in the mood for whimsy. Humor in error states requires: (1) the error is low-stakes, (2) the fix is immediately clear, (3) humor doesn't replace actionable information. **Total cost: $50K-$200K in support costs and brand perception damage when humor misfires during high-stakes user workflows.**
-- **Onboarding flow written by the product team, not a UX writer** — the signup flow says "Configure your instance parameters" when it should say "Choose how your team works together." Jargon in the first 30 seconds of the user experience causes 20-40% drop-off rates. Users who bounce during onboarding rarely return, and each lost signup costs $50-$300 in CAC for paid acquisition channels. **Total cost: $100K-$500K monthly in wasted customer acquisition spend from jargon-induced onboarding abandonment.**
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| **Error message: "Error 0x80070005: Access is denied"** — the user doesn't know what 0x80070005 is, and "access is denied" tells them what happened but not WHY or what to DO. | $50K-$200K annually in unnecessary support tickets from users who can't self-resolve permission errors. | Write error messages in 3 parts: what happened + why + what to do. "You don't have permission to view this report. Ask your account admin to add you to the Reports Viewer role." |
+| **Button labels that change between screens** — "Save" on settings, "Save Changes" on profile, "Apply" in the modal. The user pauses: "Are these the same thing?" | $100K-$500K in abandonment from user confusion, lost conversions, and increased onboarding churn. | Pick one label per action across the entire product. Consistency of action labels matters more than contextual precision. Audit and standardize before launch. |
+| **"Click here" as link text** — screen reader users navigating by link list hear: "Click here, Click here, Click here, Click here." Zero information about where each link goes. | $50K-$150K in ADA litigation exposure, settlement costs, and mandatory remediation work. | Link text must describe the destination: "Download Q3 report (PDF, 2.4MB)" or "View billing history." Never use "click here," "learn more," or "read more" as standalone link text. |
+| **Microcopy that's too clever** — a 404 page says "Oopsie! Our hamsters are on a coffee break 🐹☕" while a user trying to pay an invoice hits a broken link. | $50K-$200K in support costs and brand perception damage when humor misfires during high-stakes user workflows. | Humor in error states requires: (1) the error is low-stakes, (2) the fix is immediately clear, (3) humor doesn't replace actionable information. When in doubt, be helpful, not clever. |
+| **Onboarding flow written by the product team, not a UX writer** — signup says "Configure your instance parameters" instead of "Choose how your team works together." | $100K-$500K monthly in wasted customer acquisition spend from jargon-induced onboarding abandonment (20-40% drop-off). | Jargon in the first 30 seconds of user experience causes massive drop-off. Every onboarding string must pass: "Would my mom understand what to do?" Translate internal terminology to user outcomes. |
 
 ## Anti-Rationalization — No Excuses
 

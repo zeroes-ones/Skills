@@ -230,6 +230,7 @@ Change type?
 2. Understand what the change is trying to accomplish and why.
 3. Verify the PR description explains the problem, not just the solution.
 **Output:** Clear understanding of intent and expected behavior.
+  Complete when: PR description, linked issue, and design docs read and intent understood.
 
 ### Phase 2 (~10 min): High-Level Review
 1. Check architectural alignment — does this change fit existing patterns?
@@ -237,6 +238,7 @@ Change type?
 3. Verify the change doesn't duplicate existing functionality.
 4. Flag any module boundary violations or unexpected coupling.
 **Output:** Go/no-go on architectural fit; list of concerns to probe deeper.
+  Complete when: Architectural alignment verified or flagged; no simpler approach identified.
 
 ### Phase 3 (~15 min): Six-Dimension Deep Review
 1. **Security**: Injection, auth, data exposure, dependency CVEs, input validation.
@@ -246,6 +248,7 @@ Change type?
 5. **Testing**: Coverage gaps, test quality, isolation, flaky tests.
 6. **Documentation**: Comment intent, API docs, architecture decisions.
 **Output:** Findings grouped by severity (Critical/High/Medium/Low/Info), each with line references and concrete fix suggestions.
+  Complete when: All 6 dimensions reviewed with findings documented by severity, line reference, and fix suggestion.
 
 ### Phase 4 (~5 min): Test Verification
 1. Run the test suite. Do tests pass on this branch?
@@ -253,6 +256,7 @@ Change type?
 3. Check coverage on changed paths. Is coverage gap acceptable given risk?
 4. Manually verify UI/UX or complex interaction changes if applicable.
 **Output:** Confirmation tests pass; flag any coverage gaps or test quality issues.
+  Complete when: Test suite run, new tests reviewed for meaningfulness, coverage gap assessed.
 
 ### Phase 5 (~5 min): Write Review
 1. Group feedback by file/section for readability.
@@ -261,6 +265,7 @@ Change type?
 4. Use `nit:` and `suggestion:` prefixes for non-critical items.
 5. Request specific changes on Critical/High items.
 **Output:** Published review — actionable, specific, respectful, and timely.
+  Complete when: Review published with severity-graded findings, concrete fix suggestions, and positive feedback.
 
 
 ## Best Practices
@@ -440,11 +445,11 @@ After every review cycle: ask the author which comments were most and least valu
 - **Review bottleneck becoming the critical path.** All code must be reviewed by a single senior engineer who is also the tech lead, architect, and on-call responder. PRs queue up for 3-4 days while this person is in meetings, putting out fires, or designing the next sprint. A team of 8 engineers shipping ~15 PRs per week loses 45-60 developer-days per quarter to review wait time, during which context decays and merge conflicts accumulate. **Total cost: $80,000-$200,000 per year in blocked developer throughput, rework from stale branches, and delayed feature delivery.** Fix: Distribute review responsibility across the team with a review assignment rotation; establish a review SLA (all PRs reviewed within 4 business hours); use CODEOWNERS to auto-assign reviewers based on code area; pair less experienced reviewers with domain experts for training.
 - **Nitpicking variable names while missing architectural flaws.** A reviewer leaves 18 comments on a 300-line PR — 14 are about variable naming (`getUserData` vs `fetchUser`), import ordering, and whitespace preferences, and 4 are substantive. The author spends 2 hours addressing the nits and glosses over the one architectural comment about the service being tightly coupled to a deprecated library because they're numbed by the volume of trivial feedback. Three sprints later, the deprecated library is EOL and the refactor costs 3x what it would have if caught during review. **Total cost: $30,000-$150,000 per year in missed architectural issues, developer frustration, and delayed refactors.** Fix: Use automated formatters (Prettier, Black, gofmt) and linters to eliminate style debates before human review; separate comments into "blocking" (security, correctness, architecture) and "suggestion" (style, naming, clarity); reviewers should explicitly tag each comment's severity.
 - **Reviewing without running the code.** A reviewer reads the diff, verifies logic mentally, leaves an "LGTM" — but never checks out the branch, builds it, runs the tests, or clicks through the UI. The PR merges and CI goes red because the author forgot to push a new file that was only in their local directory. The feature works on the author's machine because of an environment variable they set 6 months ago that doesn't exist in CI or production. **Total cost: $25,000-$100,000 per year in broken builds, reverted merges, and production incidents from unverified code that passed review.** Fix: Require reviewers to pull the branch and run tests locally for non-trivial changes; add a CI check that runs the test suite against the merge commit; for UI changes, require a screenshot or screen recording in the PR description as evidence the reviewer interacted with the feature.
-- **Reviewing only the diff** misses context. A one-line change that looks innocent (`if user`) may bypass a permission check on line 200 that you can't see in the diff. Always expand context +50 lines before and after critical changes.
-- **"LGTM" with no comments** is worse than no review — it signals the code was checked when it wasn't. If you genuinely found nothing, mention at least one specific thing you verified (e.g., "verified auth checks on all new endpoints").
-- **Security issues in test files** are still security issues. Hardcoded API keys in `test/setup.ts` get committed and leaked. Review test files with the same severity as production code.
-- **CI passing doesn't mean the code works**. The author may have changed tests to match broken behavior. Review modified test assertions as carefully as production code changes.
-- **Large PRs (>400 lines)** get rubber-stamped. The reviewer's attention degrades significantly after ~400 lines. Break large PRs or review in multiple sittings with fresh context.
+- **Reviewing only the diff** misses context. A one-line change that looks innocent (`if user`) may bypass a permission check on line 200 that you can't see in the diff. Always expand context +50 lines before and after critical changes. **Total cost: $30,000-$100,000 per year in security vulnerabilities and logic bugs from missing context.**
+- **"LGTM" with no comments** is worse than no review — it signals the code was checked when it wasn't. If you genuinely found nothing, mention at least one specific thing you verified (e.g., "verified auth checks on all new endpoints"). **Total cost: $50,000-$200,000 per year in production bugs from unreviewed code that merged under a false LGTM.**
+- **Security issues in test files** are still security issues. Hardcoded API keys in `test/setup.ts` get committed and leaked. Review test files with the same severity as production code. **Total cost: $100,000-$500,000 in security incidents from leaked credentials and hardcoded secrets in test files.**
+- **CI passing doesn't mean the code works**. The author may have changed tests to match broken behavior. Review modified test assertions as carefully as production code changes. **Total cost: $30,000-$150,000 per year in regressions that passed CI because tests were adapted to broken behavior.**
+- **Large PRs (>400 lines)** get rubber-stamped. The reviewer's attention degrades significantly after ~400 lines. Break large PRs or review in multiple sittings with fresh context. **Total cost: $50,000-$200,000 per year in bugs missed due to review fatigue on oversized PRs.**
 
 ## Anti-Patterns
 

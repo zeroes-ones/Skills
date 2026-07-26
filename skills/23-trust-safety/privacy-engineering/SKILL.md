@@ -510,6 +510,26 @@ Current approach: hash(email) and call it anonymized. You must correct this.
 | "We don't sell data, so CCPA doesn't apply to us" | CCPA defines "sale" to include sharing data for "valuable consideration" including analytics, ad targeting, and cross-context behavioral advertising. If your mobile app sends device IDs to an analytics provider, that's a sale requiring opt-out. |
 | "Cookie consent is solved — we installed a consent management platform" | The IAB Europe's TCF was ruled illegal by the Belgian DPA. Most CMP implementations fail by setting cookies before consent, ignoring Global Privacy Control signals, or using legitimate interest for ad profiling — which the EDPB ruled is not valid. |
 
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+
 ## Verification
 
 After implementing privacy controls, run this sequence. Do not proceed past a failure.

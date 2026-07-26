@@ -335,6 +335,15 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Accepting `ours` or `theirs` without tracing intent — a developer resolves 47 merge conflicts by blindly accepting one side; 3 weeks later, a critical bug fix from the rejected side is discovered missing in production | $50K-$200K in production regression from lost code | Never accept a side without tracing intent for every hunk; Phase 2 (Intent Tracing) is mandatory, not optional; default to manual-merge when intent is unclear |
+| Merge succeeds textually but fails semantically — the code compiles and tests pass, but both sides added the same function under different names; the duplicate logic causes unpredictable behavior at runtime | $30K-$100K in semantic bugs discovered days after merge | After resolution, grep for similar logic patterns across the merged file; run integration tests that exercise both code paths; add semantic conflict detection to the resolution checklist |
+| Skipping the full test suite after resolution — individual hunk tests pass but the integration between resolved hunks breaks; the merge is pushed and CI catches it 10 minutes later | $5K-$30K in CI cycle waste and team trust erosion | Always run the full test suite before completing the merge; `npm test` (not just scoped tests); if CI would have caught it, you should catch it locally first |
+
+
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**

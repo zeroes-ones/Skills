@@ -213,6 +213,8 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 4. **Scope Definition** — What's IN, what's OUT, what's a known unknown. Output: scope document (1 page).
 5. **Program Charter** — Combines #1-4 + timeline estimate + resource ask. Output: charter doc for sponsor sign-off.
 
+  Complete when: Problem statement document is approved by sponsor; 3-5 measurable success criteria (OKRs/KPIs) are defined; RACI matrix with all stakeholders mapped is complete; scope document with in/out/unknowns is signed off.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Architecture & Technical Alignment
 
@@ -220,6 +222,8 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 2. **Architecture Decision Record (ADR)** — Document architectural choice, context, alternatives considered, consequences. Output: ADR in repo (see references/adr-template.md).
 3. **RFC Process** — If change affects public APIs or cross-team contracts: write RFC, circulate, collect feedback (1-2 weeks), decide. Output: approved RFC.
 4. **API Contract Definition** — For any cross-team integration: OpenAPI spec, gRPC proto, or event schema. Contract first, implement second. Output: versioned contract artifact.
+
+  Complete when: TDR options with trade-offs documented and reviewed by senior engineers; ADRs for key architectural decisions are committed to repo; RFC process for cross-team API changes is established; versioned API contracts (OpenAPI/gRPC proto/event schema) are published.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Planning & Dependency Mapping
@@ -231,6 +235,8 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 5. **Resource Negotiation** — Per team: how many engineers, what skills, for how long. Resolve conflicts with engineering managers. Output: staffing plan.
 6. **Risk Register** — Technical risks (scalability, data integrity), schedule risks (dependency delays), resource risks (key person dependency), organizational risks (reorgs, priority changes). Mitigation for each. Output: risk register with T-shirt sizing.
 
+  Complete when: Per-team backlog is populated and cross-team validated; dependency matrix with committed dates and owners is complete; critical path diagram is produced; milestone timeline with entry/exit criteria is established; risk register with T-shirt sizing and mitigations is maintained.
+
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Execution & Tracking
 
@@ -241,12 +247,16 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 5. **Stakeholder Communication** — Weekly: 1-page exec summary (top 3 wins, top 3 risks, decisions needed). Monthly: program review presentation. Output: status reports.
 6. **Technical Debt Tracking** — Maintain program-level tech debt register. Negotiate repayment windows between feature work. Output: tech debt backlog with priority.
 
+  Complete when: Program cadence calendar is published with weekly syncs and monthly reviews; dependency status dashboard is live with at-risk flags; program health dashboard (milestones, risks, velocity) is operational; decision log is actively maintained; stakeholder status report template (1-page exec summary) is in use.
+
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Risk & Change Management
 
 1. **Risk Review** — Weekly: review risk register. Update probability/impact. Escalate any risk moving from Medium → High. Output: updated risk register.
 2. **Change Control** — For any scope/date/resource change: impact analysis → options (cut scope, add resources, push date) → sponsor decision. Output: change request log.
 3. **Escalation** — When: deadline certain to be missed, key resource lost, team conflict blocking progress >1 week, external dependency breach. Output: escalation to sponsor with 3 options.
+
+  Complete when: Weekly risk review process is established with probability/impact updates; change request log with impact analysis template is operational; escalation path with sponsor communication protocol (3 options per escalation) is documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 6 (~25 min): Closure & Transition
@@ -255,6 +265,8 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 2. **Postmortem** — What went well, what went wrong, what to do differently next program. Output: postmortem doc + action items.
 3. **Knowledge Transfer** — ADRs, runbooks, operational docs handed to owning teams. Output: handoff document.
 4. **Metrics Retrospective** — Planned vs actual: timeline, resources, quality. Output: metrics summary for future estimation.
+
+  Complete when: Closure checklist is signed with all success criteria met; postmortem document with action items is published; knowledge transfer artifacts (ADRs, runbooks, ops docs) are handed to owning teams; metrics retrospective comparing planned vs actual timeline/resources/quality is complete.
 
 
 ## Best Practices
@@ -471,6 +483,14 @@ graph LR
 | "We'll handle cross-team dependencies when we get there" | Unresolved dependencies discovered mid-execution add 4-8 weeks of delay per dependency; dependency mapping and interface contracts defined during planning prevent 80% of mid-program integration crises. |
 | "The status report can wait until next week" | A missed status cycle means stakeholders fill the information vacuum with worst-case assumptions; program confidence erodes within 48 hours of silence and takes 4x longer to rebuild than to maintain. |
 | "We don't need a formal risk register — everyone knows the risks" | Unrecorded risks are unmanaged risks; risks that aren't written down, assigned owners with mitigation plans, and reviewed bi-weekly become fires at the worst possible moment — 90% of program crises were identified as risks 6 weeks earlier but never tracked. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Cross-team dependency gaps discovered at integration time | $100K-$500K in integration failures and schedule slips | Every inter-team handoff must have: API contract, SLA, integration test suite, and named owners on both sides |
+| Status reporting that reports past instead of projecting forward | $50K-$200K in missed delivery dates | Require forward-looking status: "Will we hit the date at current velocity?" not "Are we past the date?" |
+| Risk register that is created but never reviewed | $100K-$500K in unplanned firefighting | Review the top 5 program risks every two weeks — stale risks are as dangerous as unidentified ones |
 
 ## Verification
 

@@ -283,6 +283,8 @@ Recovery requirements?
    - Connections: PgBouncer pool size = (CPU cores × 2-4). Application pool size = 10-20 per process.
    - Anti-pattern: provisioning for "worst case" day 1 — scale up based on data, not guesses.
 
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Query Performance & Index Strategy
 
@@ -299,6 +301,8 @@ Recovery requirements?
    - Input: slow query. Output: execution plan analysis + optimization recommendation.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Analysis results documented with effect sizes and confidence intervals, segment analysis complete, and findings communicated to stakeholders.
 
 
 ## Best Practices
@@ -476,6 +480,26 @@ graph LR
 | Failover succeeds but application can't connect | DNS TTL too high or connection string hardcoded to old primary IP. Application resolves to failed primary. | Use short DNS TTL (30-60 seconds) for database endpoints. Configure client libraries with `target_session_attrs=read-write` and reconnect on failure. Test failover end-to-end, not just database promotion. | Database failover is only one piece — the application's ability to discover the new primary is equally critical. |
 | `autovacuum: VACUUM` runs constantly but dead tuples increase | Autovacuum can't keep up with write rate. Long-running transactions hold old snapshot preventing vacuum from cleaning dead tuples. | Tune `autovacuum_vacuum_cost_limit` higher. Kill or set timeout on long-running queries. Monitor `pg_stat_activity` for transactions older than 5 minutes. | A single long-running SELECT can block vacuum for an entire table, causing bloat that cascades into degraded performance for every other query. |
 | Index not used despite being "perfect" for the query | Low-cardinality column (boolean, status with 3 values). Planner estimates the index would return too many rows and chooses sequential scan instead. | Use partial index: `CREATE INDEX ON t (ts) WHERE status = 'active'` — only indexes the selective subset. Or use expression index for function-based queries. | The planner ignores indexes when they're not selective enough. Partial indexes fix this by indexing only the selective portion of the data. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
 

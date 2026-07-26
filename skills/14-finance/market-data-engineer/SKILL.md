@@ -326,6 +326,8 @@ CREATE TABLE corporate_actions (
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
+
 ## Cross-skills Integration
 
 <!-- QUICK: 30s — real skill chains, not boilerplate -->
@@ -617,6 +619,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Kafka topic storage costs 10× higher than expected | JSON serialization on high-throughput topic; 50K msg/s produces 500GB/day vs 50GB with Avro | Migrate topic to Avro: add Schema Registry, update producer serializer, run dual-write transition period | Schema validation at CI/CD: grep for `json.dumps()` in producer code; block merge if throughput estimate > 1K msg/s |
 | "Adjusted close" prices don't match between data sources | Yahoo adjusts for splits + dividends, Google for splits only, Bloomberg for everything; models trained on one, tested on another | Document adjustment methodology per source; reconcile total return calculations monthly against CRSP | Store raw prices and adjustments separately; compute total returns from raw data, not vendor adjusted close |
 | Ingestion pipeline misses 17% of data during pre-market window | Hardcoded `time.sleep(60)` in API polling loop; 30-minute window → 30 API calls, but 500 symbols require 150 calls | Replace with token-bucket: `rate=5/sec, burst=10` with deadline `if remaining_time < (remaining_symbols / rate): alert()` | Load-test ingestion with historical market data replay including highest-volume days; validate 100% symbol coverage |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Algorithm executes with stale market data producing incorrect signals | $10K-$1M in trading losses per incident | Implement data freshness heartbeat checks; halt trading on stale data; use redundant data feeds with failover under 100ms |
+| Backtest overfits to historical data — 'looks great in backtest, fails in production' | $50K-$500K in strategy deployment losses | Use walk-forward validation; out-of-sample test on unseen periods; incorporate transaction costs and slippage in backtest; paper trade for 30+ days before live |
+| Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
+| Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
+| Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Algorithm executes with stale market data producing incorrect signals | $10K-$1M in trading losses per incident | Implement data freshness heartbeat checks; halt trading on stale data; use redundant data feeds with failover under 100ms |
+| Backtest overfits to historical data — 'looks great in backtest, fails in production' | $50K-$500K in strategy deployment losses | Use walk-forward validation; out-of-sample test on unseen periods; incorporate transaction costs and slippage in backtest; paper trade for 30+ days before live |
+| Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
+| Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
+| Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
 
 ## Verification
 

@@ -132,6 +132,8 @@ What are you working on?
 
 **Step 4 — Write Professional Summary.** Formula: "[Role] with [X] years experience in [industry/domain]. [Top achievement with metric]. [Key skill area] expertise. [What you're looking for — optional]."
 
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
+
 ### Phase 2: Optimization (Existing Resume)
 
 **Step 1 — Audit.** Run through all 7 Ground Rules. Flag every violation.
@@ -139,6 +141,8 @@ What are you working on?
 **Step 2 — ATS keyword match.** Extract keywords from job description (skills, tools, methodologies, certifications). Find exact matches in resume. Add missing keywords naturally into existing bullets.
 
 **Step 3 — Strengthen weak bullets.** Every bullet gets the "So what?" test. If a bullet does not answer "So what?" with a metric or outcome, rewrite it or cut it.
+
+  Complete when: Experiment results analyzed with confidence intervals, guardrail checks passed, and ship/iterate/discard recommendation documented.
 
 ### Phase 3: Cover Letter
 
@@ -148,9 +152,13 @@ What are you working on?
 
 **Close (1 paragraph):** "I'd welcome the opportunity to discuss how my experience with [specific thing] can help [Company] achieve [specific goal from job description]. Available at [times]. Thank you for your consideration."
 
+  Complete when: Closing checklist completed, all documents signed, funds transferred, and post-close action items assigned.
+
 ### Phase 4: LinkedIn Alignment
 
 Ensure headline, about section, and featured content mirror resume keywords and accomplishments. Recruiters cross-reference — inconsistency is a red flag.
+
+  Complete when: Resume formatted with measurable achievements, ATS-optimized keywords included, and peer-reviewed with feedback incorporated.
 
 ## Decision Trees
 
@@ -435,6 +443,26 @@ Before delivering any resume or cover letter, verify ALL of:
 | "Every bullet uses 'Responsible for...' — resume reads like a job description, not an achievement record" | Writing from job description mindset, not accomplishment mindset. No quantification habit. | Transform every bullet: "Responsible for [task]" → "[Action verb] + [what you built/changed] + [quantified result]." Example: "Led 5 engineers to reduce latency 40%, saving $2.1M annually." | Recruiters scan for numbers before reading text. A resume without metrics is invisible in a 6-second scan. The "So what?" test is your best editor. |
 | "GPA listed on resume with 8 years experience — perceived as more junior than I am" | Haven't updated resume since college. Default template included GPA. | Remove GPA and graduation year after 3 years professional experience. Replace with "Key Achievements" or "Selected Impact" leading with strongest career metric. | Listing GPA with 5+ years experience signals you haven't accomplished anything more recent to highlight. Cost: $10K-$30K in salary compression from being leveled lower. |
 | "Cover letter is just my resume in paragraph form — hiring manager didn't read it" | Misunderstood the purpose of a cover letter. It's a narrative pitch, not a prose resume. | Structure as Hook-Match-Close: (1) Hook: one sentence showing you understand their specific challenge. (2) Match: 2-3 bullets connecting your achievements to their needs. (3) Close: clear call to action. Under 200 words. No resume rehash. | A resume-rehash cover letter is worse than no cover letter — it signals you don't understand the format. Write a new letter for each role; templates are detectable and counterproductive. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
 

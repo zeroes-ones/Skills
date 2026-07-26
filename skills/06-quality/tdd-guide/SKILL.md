@@ -265,6 +265,7 @@ def test_transfer_moves_money_between_accounts():
 - The test must fail for the RIGHT reason (missing method, not a typo).
 - If the test passes without writing code → your test is wrong. It's not testing anything new.
 - Write the assertion first, then work backward to the arrange/act.
+  Complete when: One failing test written that fails for the right reason (missing implementation, not a typo).
 
 ### Phase 2: Green — Minimum Code to Pass
 
@@ -288,6 +289,7 @@ class BankAccount:
 - Don't add validation, error handling, or abstraction. That comes from tests that demand it.
 - If you're tempted to "just add this one thing" → write a test for it instead.
 - Run all tests (not just the new one). Green phase isn't done if you broke something else.
+  Complete when: Minimum code written to pass the test; all tests pass; no over-engineering added.
 
 ### Phase 3: Refactor — Only When Triggered
 
@@ -309,6 +311,7 @@ def transfer(self, to, amount):
 1. **Duplication** → Same logic appears in 2+ places. Extract it.
 2. **Poor expressiveness** → Code doesn't clearly say what it does. Rename, restructure.
 3. **Test structure smell** → Setup is too long, magic numbers, test name unclear.
+  Complete when: Duplication removed, expressiveness improved, and test structure cleaned only when triggered by specific smells.
 
 ### Outside-In TDD (for API/feature development)
 
@@ -487,10 +490,10 @@ graph LR
 - **100% code coverage as a goal — the false confidence of high-coverage, low-assertion tests.** Management sets a CI gate at 90% line coverage, and the team writes tests that call every function without meaningful assertions — `expect(service.getUser(1)).toBeDefined()` "covers" the getUser method. When a developer removes a critical null check, no test fails because no test ever passed null. The bug ships to production and causes a NullPointerException in the payment pipeline. **Total cost: $40,000-$150,000 per year in fake confidence from high-coverage-low-assertion tests, undetected regressions, and production incidents that "tested" code should have prevented.** Fix: Measure mutation testing score instead of line coverage — if tests don't fail when code is deliberately changed, coverage is meaningless; set a minimum assertion count per test; use coverage to find untested code, not to validate test quality; ban coverage-only tests in code review.
 - **Over-mocking the code under test — testing mocks, not behavior.** A unit test for `OrderService` mocks every collaborator and verifies that `inventoryServiceMock.reserveInventory()` was called, then `paymentGatewayMock.charge()` was called. The test validates internal choreography, not outcome. When a developer refactors to batch calls into a single transaction, the test fails even though behavior is identical and correct. **Total cost: $30,000-$120,000 per year in brittle tests that block safe refactors, discourage code improvement, and waste developer time updating tests for implementation changes.** Fix: Test behavior, not implementation — mock only external boundaries (network, disk, clock), not internal collaborators; use real objects for value objects and pure functions; if a refactor that preserves behavior breaks the test, the test was wrong and should be rewritten.
 - **Skipping the refactor step entirely on tight deadlines.** The sprint is ending, tests pass, and the developer skips refactoring — leaving a 200-line method with 8 levels of nesting and duplicated validation logic copied from three other services. Two sprints later, fixing a bug requires 4 hours to decipher the method, 3 hours finding the other copies (but the 4th is missed), and introduces a new bug while untangling nesting. **Total cost: $50,000-$200,000 per year in compounding technical debt from skipped refactors, multiplied debugging time, and bugs from inconsistent duplicated logic.** Fix: Enforce a "no merge without refactor" policy for non-trivial changes; use the rule of three — extract at the second duplicate anticipating the third; allocate 20% of every sprint to refactoring as part of every task, not a separate activity; use static analysis to detect duplicated code blocks and complexity violations.
-- **RED phase: test that passes without implementation** — you write `expect(add(1, 2)).toBe(3)` and `add()` returns `3`. Test passes, you move to GREEN, then REFACTOR — but `add()` is hardcoded. The test didn't drive the implementation. RED phase test must fail for the RIGHT reason: when you call `add(2, 3)`, it must FAIL because it's hardcoded (not pass by accident).
-- **GREEN phase: implementation that handles the test case but nothing else** — `add(a, b) { return a + b }` passes for `add(1, 2)`. But `add(-1, 5)`? Not tested = not known if it works. The test suite says "100% coverage" but only tested 1 input combination. Coverage ≠ correctness.
-- **REFACTOR phase skipped because "it's just a small function"** — 50 small functions with duplicated patterns, inconsistent naming, and no shared utilities. The codebase becomes a museum of individual decisions. Refactoring happens at the SUITE level: after 3 similar functions emerge, extract the pattern.
-- **Unit test that hits the database** — it's not a unit test. It's called a "unit test" but takes 200ms (network call), fails when the DB is down (external dependency), and CI reports "unit test failure" when the DB container didn't start. Unit tests touch NO external resources. If it needs a database, call it an integration test.
+- **RED phase: test that passes without implementation** — you write `expect(add(1, 2)).toBe(3)` and `add()` returns `3`. Test passes, you move to GREEN, then REFACTOR — but `add()` is hardcoded. The test didn't drive the implementation. RED phase test must fail for the RIGHT reason: when you call `add(2, 3)`, it must FAIL because it's hardcoded (not pass by accident). **Total cost: $10,000-$50,000 per year in false-positive test suites that validate no real behavior.**
+- **GREEN phase: implementation that handles the test case but nothing else** — `add(a, b) { return a + b }` passes for `add(1, 2)`. But `add(-1, 5)`? Not tested = not known if it works. The test suite says "100% coverage" but only tested 1 input combination. Coverage ≠ correctness. **Total cost: $15,000-$75,000 per year in edge-case bugs that single-scenario tests failed to catch.**
+- **REFACTOR phase skipped because "it's just a small function"** — 50 small functions with duplicated patterns, inconsistent naming, and no shared utilities. The codebase becomes a museum of individual decisions. Refactoring happens at the SUITE level: after 3 similar functions emerge, extract the pattern. **Total cost: $30,000-$100,000 per year in multiplied maintenance costs from un-refactored duplicate logic across the codebase.**
+- **Unit test that hits the database** — it's not a unit test. It's called a "unit test" but takes 200ms (network call), fails when the DB is down (external dependency), and CI reports "unit test failure" when the DB container didn't start. Unit tests touch NO external resources. If it needs a database, call it an integration test. **Total cost: $20,000-$80,000 per year in CI flakiness and misclassified test failures from database-dependent "unit tests."**
 
 ## Anti-Patterns
 

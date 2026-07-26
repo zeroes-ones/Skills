@@ -253,6 +253,8 @@ Execute in order. Do not skip steps.
 
 > **Deliverable:** Value quantification report with WTP ranges per segment, competitor pricing map, and unit economics baseline.
 
+  Complete when: All customer segments have quantified WTP ranges in dollar terms AND the COGS × 3 viability test passes — if WTP falls below 3× COGS, the product must pivot to cost reduction or value expansion before proceeding.
+
 ### Phase 2: Monetization Model Design (~45 min)
 
 1. **SELECT PRIMARY MODEL** — Use the Decision Tree: Monetization Model Selection. Choose subscription (seat-based or feature-tiered), IAP, ad-supported, usage-based, marketplace commission, or hybrid.
@@ -266,6 +268,8 @@ Execute in order. Do not skip steps.
 5. **CHECK REGULATORY CONSTRAINTS** — Subscription auto-renewal laws (California, EU, UK), digital goods tax (VAT/GST on SaaS), platform IAP rules (Apple 30%, Google 15-30%), data privacy (GDPR consent for ad tracking), children's privacy (COPPA for ad-supported kids' apps).
 
 > **Deliverable:** Monetization model blueprint with primary + secondary revenue streams, free-to-paid bridge design, and 3-year revenue projections.
+
+  Complete when: Primary monetization model selected with one-sentence justification, 2+ secondary revenue streams identified, free-to-paid bridge trigger defined at a predictable usage milestone, and 3-year revenue projection model built with base and sensitivity cases.
 
 ### Phase 3: Pricing Architecture & Psychology (~45 min)
 
@@ -283,6 +287,8 @@ Execute in order. Do not skip steps.
 
 > **Deliverable:** Complete pricing architecture with tier definitions, price points, pricing page wireframe, international pricing matrix, and grandfathering policy.
 
+  Complete when: 3+ pricing tiers defined with specific feature gates per tier, price points set with charm pricing and annual discount, pricing page wireframe exists, international pricing matrix covers top 10 markets, and grandfathering policy specifies legacy plan duration and voluntary migration discount.
+
 ### Phase 4: Payment & Billing Infrastructure (~60 min)
 
 1. **SELECT PAYMENT PROVIDER** — Stripe (best for SaaS, global coverage, subscription management), Paddle (Merchant of Record — handles VAT/GST/sales tax globally), RevenueCat (mobile IAP/subscription management), Chargebee/Recurly (enterprise subscription management), Braintree (PayPal ecosystem). Selection criteria: geographic coverage, payment methods supported, subscription management features, tax compliance, integration complexity.
@@ -298,6 +304,8 @@ Execute in order. Do not skip steps.
 6. **PLAN FOR EDGE CASES** — Refunds (prorated vs full), chargebacks (dispute process, evidence requirements), failed payments (grace period before service suspension), plan changes mid-cycle (proration logic), account holds/freezes (billing suspension), currency fluctuations (when to reprice).
 
 > **Deliverable:** Payment infrastructure specification with provider selection, billing model design, dunning management workflow, and revenue recognition data schema.
+
+  Complete when: Payment provider selected with geographic and feature justification, dunning retry schedule defined (1/3/5/7 days with exponential backoff), and revenue recognition data schema specifies customer ID, plan ID, amount, service period start/end, and tax — every field required for ASC 606 compliance.
 
 ### Phase 5: Free-to-Paid Conversion Optimization (~45 min)
 
@@ -315,6 +323,8 @@ Execute in order. Do not skip steps.
 
 > **Deliverable:** Conversion optimization plan with user journey map, trigger design, paywall wireframes, free trial configuration, and A/B testing roadmap.
 
+  Complete when: Free user journey mapped with aha moment and limit encounter identified, 3+ conversion trigger types designed, at least one paywall wireframe exists, and A/B test roadmap defines 5+ test variants with statistical significance criteria (minimum 2-week run, p < 0.05).
+
 ### Phase 6: Churn Prevention & Revenue Analytics (~45 min)
 
 1. **INSTRUMENT CHURN TRACKING** — Segment churn into voluntary (customer actively cancels), involuntary (failed payment), and passive (downgrade to free). Track by: plan, cohort (signup month), customer segment, geography, acquisition channel. Minimum: monthly churn rate, churn by plan, churn by tenure month.
@@ -330,6 +340,8 @@ Execute in order. Do not skip steps.
 6. **RUN COHORT ANALYSIS** — Track revenue by monthly cohort: Month 0 revenue, Month 1 retention, Month 3 retention, Month 6 retention, Month 12 retention. If Month 3 retention is declining across cohorts, the product has a systemic churn problem. If only recent cohorts are declining, check acquisition quality or onboarding changes.
 
 > **Deliverable:** Churn prevention playbook with prediction model design, intervention workflows, win-back campaign templates, monetization dashboard specification, and cohort analysis framework.
+
+  Complete when: Churn segmented into voluntary/involuntary/passive with tracking by plan, cohort, segment, geography, and channel; prediction model defines 5+ leading indicators; and monetization dashboard specification tracks MRR, ARR, ARPU, ARPPU, LTV:CAC, churn rate, NRR, and cohort retention at months 1/3/6/12.
 
 ## Best Practices
 
@@ -479,6 +491,16 @@ New visitor → Pricing page (3 tiers, Most Popular badge, annual default) → F
 ```
 
 The monetization engine is humming: churn is low, NRR exceeds 100%, conversion is predictable, and revenue recognition is compliant. The pricing page converts. The free tier feeds the paid tier. Involuntary churn is recovered automatically. International customers pay in local currency with local payment methods. The CFO sleeps at night because deferred revenue is tracked from day one.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pricing page A/B test misinterpretation — stopping a test after 3 days because variant B shows +15% conversion when the sample size is 50 visitors and p = 0.34 (not significant) | $50K-$200K/year in lost revenue from shipping a false-positive winner that actually converts worse, or from abandoning a true winner because impatience declared it a loser | Run A/B tests for minimum 2 full weeks covering at least 2 billing cycles. Require p < 0.05 AND minimum 200 conversions per variant before declaring a winner. Never test price changes in isolation — test bundles and packaging at the same price points. |
+| Grandfathering chaos — locking 80% of customers into $19/mo indefinitely while new customers pay $49/mo, creating a two-class system where your biggest cohort generates the least revenue | $100K-$500K in foregone revenue over 2-3 years as legacy customers never migrate and your ARPU stagnates while costs rise | Set explicit grandfathering windows: legacy pricing for 12-24 months with clear end date, then voluntary migration with 25% lifetime discount. Communicate price increases 60-90 days in advance with a value-add summary of features shipped since their last price change. Never make grandfathering permanent. |
+| Metering bugs in usage-based billing — incorrect event counting, double-counting due to retry logic, or timestamp skew causing usage to be attributed to the wrong billing period | $20K-$100K/month in either overbilling liability (customers demand refunds and trust erodes) or underbilling revenue loss (you're giving away product for free and don't know it) | Store raw usage events in an append-only log with unique event IDs before aggregation. Reconcile metered usage against infrastructure billing (AWS/cloud provider) weekly. Implement idempotency on event ingestion — same event ID processed twice must not double-count. Build a usage anomaly alert: flag any customer whose usage jumps > 50% week-over-week. |
+| Annual-plan revenue recognition on cash basis — recognizing $1,200 at payment time instead of $100/month ratably over 12 months | $50K-$200K+ in audit and restatement costs; for a company with $5M in annual subscriptions, that's $4.6M in overstated revenue at year-end that triggers restated financials and potential personal liability for executives who certified false financials | Implement ratable revenue recognition from day one. Every transaction must track service_period_start and service_period_end. Use your payment provider's revenue recognition features (Stripe Revenue Recognition) or a dedicated tool. Cash basis is only acceptable pre-revenue or pre-funding — the moment you have investors or material revenue, switch to accrual. |
+| Free trial requiring credit card but no dunning management — 20-40% of trial-to-paid "failures" are actually expired cards, not disinterested users | 1-3% of monthly revenue permanently lost to recoverable payment failures that the customer never intended | Implement smart retry logic: retry failed payments at 1, 3, 5, 7 days with exponential backoff. Enable card account updater services (Visa VAU, Mastercard ABU). Send pre-expiry emails 30 days before card expiration. Recovery of involuntary churn typically pays back implementation cost within 60 days. |
 
 ## Verification Guardrails
 

@@ -195,6 +195,7 @@ The same macOS development task produces fundamentally different output dependin
 1. **Services menu**: Register your app as a service provider via `Info.plist` `NSServices` entries. Handle `NSPasteboard` data for text, images, and URLs.
 2. **Quick Look**: Implement `QLPreviewingController` for in-app previews. Register a Quick Look generator for custom file types via a `.qlgenerator` bundle.
 3. **Spotlight**: Index your app's documents with `CSSearchableIndex` or `NSMetadataQuery`. Provide a Core Spotlight importer for custom document types.
+  Complete when: Services menu entry appears in other apps, Quick Look preview renders correctly for custom types, and Spotlight finds app documents by content.
 4. **Touch Bar / Magic Keyboard**: Support `NSTouchBar` for MacBook Pro users. Map critical actions to the Touch Bar with fallback keyboard shortcuts.
 5. **Handoff & Universal Clipboard**: Use `NSUserActivity` to enable Handoff between Mac and iOS. Mark activities with `isEligibleForHandoff = true`.
 
@@ -580,6 +581,14 @@ Before shipping any macOS app to users, verify every item on this checklist. Eac
 - [ ] **High-resolution assets:** All image assets have `@2x` variants. `@3x` if supporting Pro Display XDR. `NSImage` uses `imageNamed:` with asset catalog lookup.
 - [ ] **Crash reporter configured:** Crash reports routed to a human-readable dashboard (Sentry, Crashlytics, or custom). Symbolication server configured. At least one team member receives email alerts on new crash types.
 - [ ] **App Store Review Guidelines checked:** App follows guidelines for data collection disclosure, privacy nutrition labels, in-app purchase rules, and content restrictions. Each rejection costs 24-48 hours and lost momentum.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Sandboxing retrofitted post-development — app uses `Process()`, hardcoded paths, direct file access | $40K-$100K in rewrite (2-4 weeks) | Enable sandboxing from day one; every file access through Powerbox or sandbox-compliant directories; treat sandboxing as architecture, not configuration |
+| App not notarized — Gatekeeper shows "unidentified developer" to non-technical users | $15K-$35K in lost users and support tickets | Notarize every build in CI (2-5 min); staple ticket for offline validation; right-click bypass only works for technical users |
+| Missing activation policy — non-document app invisible: no dock icon, no Command-Tab entry | $5K-$15K in debugging dead ends | Call `NSApp.setActivationPolicy(.regular)` in `applicationWillFinishLaunching` before `NSApp.activate()` |
 
 ## Verification
 

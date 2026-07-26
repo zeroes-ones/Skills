@@ -225,6 +225,7 @@ Common chains:
 3. Identify hotspots: repos with >30% cross-repo PRs are candidates for merging. Repos with <5% are correctly isolated.
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 46 lines of detailed guidance
+  Complete when: All teams mapped to repos with Conway alignment verified, cross-repo PR frequency analyzed over 6 months, hotspots identified (>30% cross-repo PRs), and repo boundary recommendations delivered.
 
 ## Error Recovery
 

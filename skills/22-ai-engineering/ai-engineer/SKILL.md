@@ -153,6 +153,8 @@ Before writing code, answer these 4 questions in order:
 
 Proceed to Phase 2 based on the architecture needed.
 
+  Complete when: User goal, quality bar, heuristic viability, and simplest AI architecture are documented in requirements.md with acceptance criteria.
+
 ### Phase 2: Architecture Patterns
 
 #### RAG Pipeline Design
@@ -221,6 +223,8 @@ DESIGN THE AGENT LOOP:
    ├── Set ef_construction: 128-512. Higher = better index, slower build.
    └── Run validation: query 100 vectors, check recall@10 ≥ 0.99 vs brute-force
 ```
+
+  Complete when: Architecture pattern selected (RAG/Agent/Embeddings) with documented rationale; vector DB, embedding model, and chunking strategy chosen with benchmark data; architecture diagram reviewed.
 
 ## Best Practices
 
@@ -352,6 +356,8 @@ EVERY AI FEATURE MUST PASS THESE BEFORE DEPLOYMENT:
    └── Cost-per-query tracked and logged
 ```
 
+  Complete when: Streaming endpoint responds within 500ms first-token latency; all quality gates (correctness, safety, performance, cost) pass with thresholds met; deployment artifact deployed to staging.
+
 ## Anti-Patterns
 
 ### Anti-Pattern: Ship Without Evals
@@ -444,6 +450,14 @@ Before any AI feature reaches production, verify:
 | "Prompt engineering is good enough — we don't need structured output or function calling" | Unstructured text parsing creates silent failures when models change output format; every regex on LLM output is a latent production incident waiting for the next model update |
 | "Latency and cost optimization can wait until we have traffic" | Architecture decisions made for speed (no streaming, oversized context windows, synchronous chains) become technical debt that requires full rewrites when traffic arrives |
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Shipping an AI feature without evaluation against a golden test set | $100K-$500K per incident from confident wrong answers reaching users | Create 50-100 golden test cases with known correct answers before writing code. Gate deployment on eval metrics. Never test with 10 manual prompts. |
+| Starting with multi-agent architecture when a single LLM call suffices | $50K-$200K in wasted infrastructure and latency complexity | Start with single LLM call + prompt. Only add RAG if hallucination rate > threshold. Only add agents if multi-step reasoning required. Complexity is earned. |
+| Unbounded agent loops without token budget or termination conditions | $150K-$300K/year in runaway LLM costs from infinite retry loops | Set max_iterations: 10, timeout: 120s, deadlock detection (3 identical observations = abort). Add hard budget limit per run: abort if cost > $0.50. |
+| Using regex to parse structured output from LLM text | $50K-$250K in silent data corruption from format changes | Use structured output APIs (function calling with strict mode, JSON mode with schema validation). Never fall back to defaults on parse failure. |
 
 ## Verification
 

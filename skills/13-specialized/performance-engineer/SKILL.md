@@ -414,30 +414,35 @@ Performance is not a solo activity — it requires instrumentation from develope
 **Input:** Production or production-like environment  
 **Steps:** 1) Verify APM/RUM/Distributed tracing is active 2) Establish P50/P95/P99 latency, throughput, error rate per endpoint 3) Enable DB slow query logging and GC logging 4) Run Lighthouse for Core Web Vitals baseline  
 **Output:** Instrumented system with numeric performance baseline per component
+  Complete when: APM/RUM/distributed tracing verified active, P50/P95/P99 baseline established per endpoint, and Lighthouse Core Web Vitals baseline recorded.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Bottleneck Identification
 **Input:** APM dashboards and baseline metrics  
 **Steps:** 1) Identify endpoint with highest P95 latency × request volume (latency-budget impact) 2) Use APM to classify bottleneck: DB (time >50%), App CPU, Memory/GC, or I/O 3) Apply decision tree to select profiling tool 4) Run targeted profiler to isolate specific function/query  
 **Output:** One confirmed performance bottleneck with root cause and fix plan
+  Complete when: One confirmed bottleneck identified with root cause classified (DB/CPU/Memory/I/O), targeted profiler output isolating the specific function or query, and fix plan documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Optimization & Verification
 **Input:** Identified bottleneck with root cause  
 **Steps:** 1) Apply fix: add index, rewrite query, tune GC, split bundle, add cache layer 2) Run benchmark: 60s load test comparing pre/post P95 3) Verify no regression on other endpoints 4) If improvement <20%, go back to Phase 2  
 **Output:** Verified performance improvement with before/after metrics
+  Complete when: Fix applied and verified via 60s load test showing ≥20% P95 improvement, no regressions on other endpoints, and before/after metrics recorded.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Hardening
 **Input:** Verified optimization  
 **Steps:** 1) Add performance budget in CI to prevent regression 2) Set SLO with burn-rate alert 3) Document root cause and fix in ADR 4) Add to load test suite so regression is caught automatically  
 **Output:** Regression-proofed optimization with monitoring and alerting
+  Complete when: Performance budget added to CI with regression gates, SLO with burn-rate alert configured, root cause documented in ADR, and optimization added to load test suite.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Capacity Planning
 **Input:** Current capacity ceiling and growth projections  
 **Steps:** 1) Run stress test to determine breaking point (max TPS, failure mode) 2) Calculate headroom: (ceiling − peak) / ceiling × 100 3) If headroom <50%, create scaling plan (vertical first, then horizontal) 4) Schedule next capacity review based on growth rate  
 **Output:** Capacity plan with headroom percentage, scaling triggers, and timeline
+  Complete when: Stress test identifies breaking point (max TPS, failure mode), headroom calculated as percentage, scaling plan created if headroom <50%, and next capacity review scheduled.
 
 
 ## Error Decoder — War Stories from the Trenches
@@ -512,6 +517,15 @@ graph LR
 | "Lighthouse score 95 — we're done" | Lighthouse is lab data from a single device on a throttled connection, not field data. Real users on 3G in rural areas, older phones, or congested Wi-Fi experience 3x slower page loads than Lighthouse reports. |
 | "We'll add caching later" | Retrofitting caching after launch means invalidating production caches during peak traffic without a cache-warming strategy. Cache design is an architecture decision, not a post-launch optimization — wrong invalidation logic costs more than no cache at all. |
 | "The database is fast in dev" | Dev databases have 100 rows, zero concurrency, and run on localhost. Production has 100M rows, 50+ concurrent connections, connection pool exhaustion, and lock contention under write load. Query plans that take 2ms in dev take 12 seconds in production. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Optimization based on a flame graph without context — you optimize the hottest function, which is `memcpy` called 50M times by a logging framework in debug mode. Real workload is unchanged, but you spent a week on it. | $15K-$40K in wasted engineering time optimizing code that's not on any real user's critical path. | Profile under production-representative load with logging at production levels. Use `perf` or `pprof` with realistic traffic, not dev mode. Correlate CPU profiles with latency distribution — if p99 drops but p50 doesn't, you optimized the wrong tail. |
+| Adding a cache without measuring cache hit ratio or defining invalidation semantics — cache improves p50 but EVICTION_SPIKES cause p99 to explode when TTLs expire simultaneously under load. Users see intermittent 5-second delays. | $30K-$150K in lost revenue from intermittent latency spikes that are nearly impossible to reproduce. The worst kind of performance bug: transient, load-dependent, and invisible in dashboards. | Before deploying cache: define TTL jitter (±20%), measure hit ratio in staging under load, set up dashboards for hit ratio and eviction rate per cache tier. Any cache deployment without hit/miss monitoring is a liability. |
+| GC tuning without understanding allocation patterns — you increase heap from 4GB to 16GB. GC pauses go from 200ms to 2 seconds because the collector now scans 4x more heap. p99 latency triples. | $20K-$60K in degraded user experience from increased tail latency, plus $10K-$30K in infrastructure cost from oversized instances. | Profile allocation rate before tuning GC. High allocation rate + larger heap = longer GC pauses. Fix allocation hot paths first (object pooling, stack allocation), then tune GC. Use `async-profiler` (JVM) or `GODEBUG=gctrace=1` (Go) to understand allocation patterns before adjusting heap size. |
+| Connection pool starvation from synchronous I/O in async context — a developer adds a blocking database call inside an async handler. Under load, all event loop threads block on DB queries, queuing requests pile up, and latency climbs to timeout thresholds. | $25K-$100K in outage costs when the service appears "down" but is just out of connections. On-call engineers waste hours checking database health when the problem is in the application layer. | Enforce connection pool monitoring with alerts on pool utilization >80%. Add `asyncio_mode=auto` (Python) or `BlockHound` (Java/Reactor) in CI to detect blocking calls in async contexts. Set connection pool timeouts lower than request timeouts to fail fast. |
 
 ## Verification
 

@@ -116,19 +116,27 @@ What stage of the job search are you in?
 3. Set timeline: 3-6 months for professional roles, 6-12 months for executive
 4. Allocate time: 50% networking, 20% applications, 15% interview prep, 15% pipeline management
 
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
+
 ### Phase 2: Active Search Pipeline
 
 1. Track: applications sent, responses, interviews scheduled, interviews completed, offers
 2. Conversion metrics: application → interview (target 15-25%), interview → offer (target 25-33%)
 3. Weekly review: what worked, what didn't, adjust strategy
 
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
+
 ### Phase 3: Offer Evaluation
 
 Build total compensation model: base + bonus target + equity (4 scenarios: flat, moderate growth, target, home run) + benefits value + 401k match + perks value. Compare across offers. Evaluate non-financial: growth trajectory, manager quality, brand value, work-life balance.
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 ### Phase 4: Negotiation & Acceptance
 
 Prepare counter: 2-3 items max (base, equity, signing bonus most common). Script: "I'm very excited about this opportunity. Based on [market data/other offers], I was hoping we could adjust [item] to [number]. Is there flexibility?" Accept in writing. Notify other employers professionally.
+
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
 
 ## Decision Trees
 
@@ -485,6 +493,26 @@ Before delivering job search strategy deliverables, verify ALL of:
 | "Accepted a startup offer — options are now worthless because the company failed" | Didn't ask about runway, burn rate, or 409A valuation. Assumed "funded = stable." Didn't understand equity structure. | Before accepting any private company offer: ask about runway, burn rate, last funding round, fully-diluted share count, and latest 409A. If they won't share strike price and 409A, treat equity as $0. | Pre-IPO equity is lottery tickets until you understand the structure. Worthless options at a failed startup = $50K-$200K in paper gains that never materialized. |
 | "I have an exploding offer and haven't finished my other interviews" | Didn't communicate timelines proactively. Now forced to decide between accepting prematurely or losing the offer. | When you receive a verbal offer, immediately communicate: "I'm very interested and need until [date] to finalize as I'm completing another process. Is that timeline workable?" Most will extend. | Transparent communication about competing timelines is respected. Ghosting to shop offers gets them pulled and your reputation burned. |
 | "Accepted a counter-offer from current employer — left anyway 8 months later" | Counter-offer solved the money problem but not the culture, growth, and relationship problems that caused you to look in the first place. | 80% of employees who accept counter-offers leave within 12 months. Accept only if the issue was purely financial AND you trust your employer won't see you as a flight risk. | The reasons you wanted to leave don't disappear with a raise. Counter-offers patch the symptom, not the cause. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
 

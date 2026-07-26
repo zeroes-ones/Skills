@@ -330,6 +330,8 @@ where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
 
 **Output**: Cleaned options trade log with `is_valid`, `rejection_reason` columns.
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 <!-- DEEP: 10+min -->
 ### Phase 2: UOA Detection (10-20 min)
 <!-- DEEP: Full UOA pipeline — this is the core differentiator -->
@@ -344,6 +346,8 @@ where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
 6. **Multi-leg detection**: Within a 60-second window for the same underlying, detect: same strike, opposite type → straddle; adjacent strikes, same type → vertical spread; non-adj
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
 
 
 ## Error Recovery
@@ -577,6 +581,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Max drawdown 15% becomes 40% within 3 months of deployment | Single-path backtest; actual drawdown distribution was median 18%, 95th percentile 35%, worst case 52% | Run 10,000+ Monte Carlo paths or block bootstrap; report drawdown distribution, not point estimate | All risk metrics reported with confidence intervals; worst-case scenario modeled and capital-allocated |
 | $3M call sweep classified as BULLISH, but volume/OI = 0.2 (closing) | Signal classification ignores OI context; trade was short call being covered, not new bullish position | Check `volume / open_interest` ratio; if < 0.5, classify as POTENTIAL_CLOSING; run multi-leg detection within 60s window | Every signal must include volume/OI ratio and multi-leg detection result before direction classification |
 | Provider Delta = 0.65, Black-Scholes Delta = 0.58 — 7% position sizing error | Different risk-free rate or dividend yield assumptions between provider and internal pricing | Cross-validate: `assert abs(computed_delta - provider_delta) < 0.05`; if discrepancy, investigate rate/div inputs | Maintain own Greeks computation as validation layer; log discrepancies to detect provider methodology changes |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Algorithm executes with stale market data producing incorrect signals | $10K-$1M in trading losses per incident | Implement data freshness heartbeat checks; halt trading on stale data; use redundant data feeds with failover under 100ms |
+| Backtest overfits to historical data — 'looks great in backtest, fails in production' | $50K-$500K in strategy deployment losses | Use walk-forward validation; out-of-sample test on unseen periods; incorporate transaction costs and slippage in backtest; paper trade for 30+ days before live |
+| Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
+| Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
+| Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Algorithm executes with stale market data producing incorrect signals | $10K-$1M in trading losses per incident | Implement data freshness heartbeat checks; halt trading on stale data; use redundant data feeds with failover under 100ms |
+| Backtest overfits to historical data — 'looks great in backtest, fails in production' | $50K-$500K in strategy deployment losses | Use walk-forward validation; out-of-sample test on unseen periods; incorporate transaction costs and slippage in backtest; paper trade for 30+ days before live |
+| Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
+| Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
+| Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
 
 ## Verification
 

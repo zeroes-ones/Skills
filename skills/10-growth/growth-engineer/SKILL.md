@@ -175,6 +175,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 2. **Growth Model Construction** — Build a bottom-up growth model in a spreadsheet or Python notebook. Inputs: new user acquisition by channel (organic, paid, referral, viral), activation rate, retention curve (D1/D7/D30), resurrection rate, monetization (ARPU by cohort). Model different scenarios: doubling referral conversion, improving D7 retention by 10%, adding a new acquisition channel.
 3. **North Star Metric & Driver Tree** — Identify the single metric that best captures user value (e.g., DAU, messages sent, projects created). Decompose into a driver tree: each driver has sub-drivers with measurable inputs. This becomes the experimentation backlog source.
 4. **Activation Analysis** — Define the "aha moment" for the product. Use cohort analysis to find the action that, when completed within the first N days, correlates most strongly with long-term retention. Example: "User who invites 3 teammates within 7 days has 80% D30 retention vs. 20% baseline."
+Complete when: Event taxonomy documented with standardized schema and CDI implementation plan. Bottom-up growth model built with scenario analysis. North Star metric selected with driver tree decomposition. Activation analysis identifies aha moment with cohort data.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Experimentation Infrastructure
@@ -186,6 +187,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 2. **Statistical Engine** — Implement or integrate: randomization via consistent hashing on user/device ID, sample size calculator (minimum detectable effect, power=0.8, alpha=0.05), sequential testing or always-valid p-values to avoid peeking, CUPED (Controlled-experiment Using Pre-Experiment Data) for variance reduction, multiple comparison correction (Bonferroni or Benjamini-Hochberg).
 3. **Experiment Governance** — Define workflow: hypothesis document → engineering review → ethics/privacy review → implementation → QA (AA test validation) → ramp (1% → 10% → 50%) → analysis → ship/kill decision → post-experiment review.
 4. **Feature Flags** — Implement a feature flag system (LaunchDarkly, Flagr, or custom). Every non-trivial change ships behind a flag. Supports: percentage rollouts, user targeting by property, kill switches, operational flags for load shedding.
+Complete when: A/B testing framework deployed (client-side, server-side, or hybrid). Statistical engine configured with sample size calculator, sequential testing, and CUPED variance reduction. Experiment governance workflow defined: hypothesis → review → QA (AA test) → ramp → analysis → decision. Feature flag system operational with targeting and kill switches.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Growth Loop Execution
@@ -197,7 +199,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 2. **Activation Loop**: Onboarding optimization. Simplify signup (social login, magic link), implement progressive profiling (ask for more data over time), guide users to aha moment with checklists, tooltips, and contextual nudges. Measure time-to-activation and activation rate.
 3. **Retention Loop**: Identify habit-forming triggers (external: email/push notifications; internal: user's own data). Build re-engagement flows: personalized digests, inactivity nudges, feature discovery emails. Measure D7/D30/D90 retention by cohort.
 4. **Monetization Loop**: Optimize pricing page (design, copy, social proof, money-back guarantee). Test: annual vs. monthly defaults, price anchoring, feature gating, expansion revenue (upsell/cross-sell). Measure ARPU, expansion MRR, churn rate.
-
+Complete when: Acquisition loops instrumented with viral coefficient, CAC by channel, and attribution tracking. Activation loop optimized with time-to-activation measured and onboarding completion rate tracked. Retention loop active with D7/D30/D90 cohort retention dashboards. Monetization loop running with ARPU and expansion MRR measured.
 
 ## Error Recovery
 **(STANDARD)**
@@ -364,6 +366,14 @@ graph LR
 | "It's directionally positive — p=0.12 is close enough" | A 12% chance the lift is pure noise is not close — $50K-$200K in bad product decisions from features that regress to zero impact once fully rolled out with adequate sample size. |
 | "We can run all 7 experiments at once — more learning" | Concurrent experiments with unmeasured interactions mean 3 'winners' at +5% each combine to -2% net — $60K-$250K in negative interaction effects from features that don't work together. |
 | "Analytics tracking is set up — the events are firing" | Silent event failures from a single misnamed property mean you optimize with incomplete data for weeks — $40K-$150K in misdirected effort on broken growth loops you can't see. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Running A/B tests without pre-calculated sample size and peeking at results daily | $80K-$250K/year in bad product decisions from false positives — stopping a test at p=0.04 on day 3 of a planned 14-day run gives you a 25%+ false positive rate due to peeking, not the 5% you think. You ship a "winning" variant that's actually neutral or negative, and the regression compounds for months before anyone catches it. | Pre-register primary metric, calculate required sample size (use Evan Miller's calculator), set a minimum runtime (at least 1 full business cycle — typically 2 weeks), and do not look at results until the test reaches both the sample size AND the runtime threshold. Use sequential testing or Bayesian methods if you must monitor continuously. |
+| Shipping a referral program without fraud detection, rate limiting, or abuse monitoring | $50K-$200K in fraudulent payouts in the first 30 days — self-referrals (same IP, same device, same payment method), referral farms (50 signups from a single referrer in 2 hours), and incentive gaming (users creating accounts, claiming credit, then canceling) drain your budget before real viral growth starts. In B2B, add the cost of a broken sales pipeline contaminated with fake leads. | Implement before launch: duplicate detection (email, IP, device fingerprint cooldowns), velocity limits (max 5 successful referrals/day per user), reward delay (credit only after referred user passes a meaningful activation event, not just signup), and a manual review queue for high-value or suspicious payouts. Treat referral fraud prevention as a revenue protection feature, not an afterthought. |
+| Implementing dark patterns (confirmshaming, hidden costs, forced continuity, roach motels) to boost short-term conversion metrics | $200K-$1M+ in brand destruction and regulatory risk — a 15% short-term conversion lift from a pre-checked "subscribe to annual billing" checkbox generates $150K in incremental revenue, then a tweet goes viral, FTC/consumer protection regulators investigate, chargeback rates spike 3x, and churn doubles for 6 months as trust erodes. The reputational damage outlasts the revenue gain by years. | Test ethical persuasion instead of deception: social proof ("10,000 teams signed up this month"), urgency with integrity ("seats at this price are limited because we're onboarding in cohorts — next cohort opens in 2 weeks"), and transparent pricing. If you'd be embarrassed to explain the UX pattern to a journalist, don't ship it. Growth that burns trust is just churn in slow motion. |
 
 ## Best Practices
 **(STANDARD)**

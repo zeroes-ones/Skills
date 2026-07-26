@@ -328,6 +328,7 @@ Default: **L2**.
 4. **Identify aggregates** — Aggregate root enforces invariants. Events emitted by aggregates, not services.
 
 **Verify:** Stakeholders trace a single transaction from trigger to outcome through the event map. No gaps or orphans.
+  Complete when: Event flow diagram validated with stakeholders — no gaps, no orphan events, all bounded contexts and aggregates identified.
 
 ### Phase 2: Event Schema Design (~60 min)
 
@@ -349,6 +350,7 @@ Default: **L2**.
 4. **Register in schema registry** — Before any producer deploys. Compatibility: BACKWARD (default), FORWARD, or FULL.
 
 **Verify:** Schema registry returns all registered types. No producer deploys without registered schema.
+  Complete when: Event envelope defined with all required fields, serialization format chosen, payload designed with semantic types, schemas registered in schema registry.
 
 ### Phase 3: Schema Evolution (~30 min)
 
@@ -357,6 +359,7 @@ Default: **L2**.
 3. **Deprecation:** Announce -> add `deprecated: true` -> monitor consumption -> remove after 0 consumers for 2 cycles.
 
 **Verify:** CI validates schema compatibility. Breaking changes blocked at PR review.
+  Complete when: Schema evolution strategy documented — additive changes with defaults allowed, breaking changes require new event type and coexistence migration period, deprecation process defined.
 
 ### Phase 4: Delivery Guarantees & Error Handling (~45 min)
 
@@ -378,6 +381,7 @@ else:
 4. **Circuit breaker:** >50% failures in 30s -> open circuit, stop calling. Retry after backoff.
 
 **Verify:** Inject malformed event -> lands in DLQ after N retries -> alert fires -> consumer continues.
+  Complete when: Delivery semantics chosen per event type, idempotency implemented with deduplication, DLQ configured with max retries and alerting, circuit breaker tested with failure injection.
 
 ## Best Practices
 

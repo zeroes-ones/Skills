@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-25T21:01:01Z
+# Generated: 2026-07-26T21:25:10Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    9bd2bccc059a8692639509a3b4549bdad2033776
+# Commit:    981ed858f7189d60152da4dcb59d847c66460efe
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -85,6 +85,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-qual
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/security-reviewer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/tdd-guide/scripts/verify-skill.sh
 edcd63fcfd8be0ab639dd4e8b214d8cbaa9d8108508f3e534f25a1fe56f54b6b  skills/06-quality/verification-before-completion/scripts/verify-skill.sh
+c398221082b84560c1c49a2c42a581247c3af349847ac2151a490737ff1376ed  skills/07-devops/automation-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/build-system-design/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/ci-cd-builder/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/cloud-architect/scripts/verify-skill.sh

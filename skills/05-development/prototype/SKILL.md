@@ -178,6 +178,8 @@ Before writing any code, define what you are testing and why.
    |-- Output: Scoped prototype plan with estimated time.
 ```
 
+  Complete when: A one-sentence design question, a falsifiable hypothesis with a clear failure condition, and a scoped prototype plan estimable at ≤20 minutes are all written down before any code.
+
 ### Phase 2: Build and Run
 
 ```
@@ -205,6 +207,8 @@ Before writing any code, define what you are testing and why.
    |   Document why and what narrower question to try next.
 ```
 
+  Complete when: The prototype ran against the falsifiable condition within 20 minutes and produced a clear result (CONFIRMED/DISPROVED/INCONCLUSIVE) with recorded evidence and numbers.
+
 ### Phase 3: Decide and Dispose
 
 ```
@@ -221,6 +225,8 @@ Before writing any code, define what you are testing and why.
    |-- Verify: prototype code is GONE. No trace in the main repo.
    |-- The decision document IS the artifact. The code was the instrument.
 ```
+
+  Complete when: A decision document is committed to the main repo (with hypothesis, results, decision, evidence quality rating) AND the prototype directory is fully disposed — no prototype code remains anywhere.
 
 ## Best Practices
 **(STANDARD)**
@@ -583,6 +589,14 @@ Before concluding any prototype session, verify every item. An unchecked item is
 - [ ] **Negative results celebrated:** If the hypothesis was DISPROVEN, the decision document explicitly frames this as valuable: "This prototype saved $X in avoided development by proving approach Y doesn't work for constraint Z."
 - [ ] **Next action clear:** Decision document ends with: (a) proceed to production implementation with path Y, (b) run confirmation prototype with broader conditions, or (c) abandon approach Z permanently.
 - [ ] **No prototype UI shown to non-technical stakeholders:** If a visual prototype existed, it was destroyed before stakeholder demos. Any UI feedback needed was gathered through wireframes, mockups, or static comps — not running code.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Prototype code lands in production — abandoned in main repo with no tests, no docs, hardcoded TTLs | $50K-$200K in incident response and rewrites | NEVER prototype in main repo; use `git worktree add` or temp directory outside repo; isolation forces explicit disposal; R6 ground rule is non-negotiable |
+| Compound question confounds results — testing 2+ design questions in one spike masks failures | $25K-$75K in wrong architectural decisions | One prototype, one question; if you have two questions, run two 20-minute spikes; compound questions produce false confidence |
+| Skipping prototype because "docs look perfect" — 2 sprints in, discover API doesn't work for your constraints | $40K-$120K in wasted development | Always run at least one 20-minute prototype even when docs look perfect; docs describe what API CAN do generically, not what it CAN do for YOUR constraints |
 
 ## Verification
 

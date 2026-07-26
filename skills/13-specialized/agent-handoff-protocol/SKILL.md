@@ -181,6 +181,7 @@ Before any handoff, serialize the current agent's complete state into the standa
 ```
 
 **Checkpoint:** Is `handoff_version` compatible with target agent? Is `pipeline_id` consistent?
+  Complete when: Handoff JSON is valid, handoff_version matches target agent compatibility matrix, and pipeline_id is consistent across the chain.
 
 ### Phase 2: Prune Context
 
@@ -198,6 +199,7 @@ Apply pruning rules from [Context Pruning Rules](references/context-pruning-rule
 ```
 
 **Checkpoint:** Is `token_budget_after` ≤ 12,000? Are all `non_negotiable: true` constraints intact?
+  Complete when: token_budget_after ≤ 12,000 and all non_negotiable constraints are preserved intact.
 
 ### Phase 3: Record Decision Gate
 
@@ -214,6 +216,7 @@ Every architectural or strategic choice goes into the decision gate ledger. See 
 - Implementation details (which library version within chosen stack)
 - Formatting preferences
 - Temporary workarounds with clear sunset dates
+  Complete when: Every architecture pattern, technology choice, API contract, security boundary, and data ownership decision is recorded in the decision gate ledger.
 
 ### Phase 4: Sign Contract
 
@@ -230,6 +233,7 @@ If deliverable fails acceptance → BREACHED
 ```
 
 **Checkpoint:** All P0 requests acknowledged? All deliverable paths resolve?
+  Complete when: All P0 requests acknowledged by the downstream agent, and every deliverable path resolves to ACCEPTED or escalated.
 
 ### Phase 5: Deliver and Verify
 
@@ -242,6 +246,7 @@ Downstream agent:
 4. Audits constraint inheritance (all `non_negotiable` from prior handoffs present?)
 5. Accepts or rejects contract
 6. Begins work
+  Complete when: State file written to ~/.agents/state/handoffs/, downstream agent loads Tier 1-2, verifies checksums, audits constraint inheritance, and begins work.
 
 ---
 

@@ -439,6 +439,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 *   **Advanced — Federation Migration:** Take a monolithic GraphQL schema and split it into 3 subgraphs organized by business domain. Implement entity resolution, contract testing in CI, and deploy with Apollo Router. Handle the migration without breaking existing clients.
 *   **Expert — GraphQL Gateway from Scratch:** Build a simple GraphQL gateway/router that receives a query, splits it across subgraph backends, and assembles the response. Implement query planning, entity fetching, and error partial-failure handling.
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| N+1 in resolvers — list field resolves one DB query per item, 100 items = 101 queries | $20K-$60K in performance degradation | Use DataLoader or equivalent batching on every list field resolver, verify with DB query log showing batch queries not sequential |
+| Query depth attack — unauthenticated client sends 20-level nested query, server OOMs | $40K-$100K in outage and data exposure | Enforce query depth limit (5-7 max), configure complexity budget per field, disable introspection in production |
+| Null propagation explosion — `non-null` field returns null, entire response nulls up to root | $10K-$30K in broken clients | Use non-null only where null propagation is acceptable; wrap nullable data in nullable fields; mutations return payload types with user errors |
+
 ## Verification
 
 - [ ] GraphQL endpoint has: depth limit, complexity budget, rate limiting

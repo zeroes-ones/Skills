@@ -150,6 +150,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 2. **Project scaffold**: Framework CLI — `npm init electron-app@latest`, `npm create tauri-app@latest`, `dotnet new maui`, or CMake-based Qt project.
 ...
 > 📎 **Full content (188 lines):** [references/core-workflow.md](references/core-workflow.md)
+  Complete when: Framework is selected via decision tree, project scaffold runs and opens a window on the target platform, and the documented constraints (platforms, perf budget, team skills) are filed.
 
 ## Best Practices
 
@@ -476,6 +477,16 @@ When desktop apps go wrong, they go wrong in predictable ways. Here are the most
 | Native module crashes with `Error: The module was compiled against a different Node.js version` — Electron version bump breaks everything | Native Node.js addons (better-sqlite3, node-pty, keytar) are compiled against a specific Node.js/Electron ABI. When you update Electron, the ABI changes and all native modules must be recompiled | Run `npx electron-rebuild` after every Electron version bump. Pin `electron-rebuild` in devDependencies. Add `"postinstall": "electron-rebuild"` to package.json scripts. Use `prebuild-install` or `@electron/rebuild` for faster CI builds | Native modules bind to a specific Node.js ABI version. An Electron upgrade is really a Node.js upgrade plus a Chromium upgrade — native modules need recompilation for both |
 | Window opens at wrong position on secondary monitor — 4K monitor at 150% scaling shows window half off-screen | DPI awareness not configured. Windows defaults to DPI virtualization which scales the app as a bitmap. The app thinks the monitor is 1920x1080 but it's actually 3840x2160 at 150% scale. Window coordinates are computed in virtual pixels | Set `"dpiAwareness": "PerMonitorV2"` in the Windows manifest. Use `screen.getAllDisplays()` to detect actual monitor bounds and scale factors. Save and restore window position using `screen.dipToScreenRect()` conversions. Test on multi-monitor setups with mixed DPI | DPI awareness isn't about sharp text — it's about knowing where the screen actually is. An app that's DPI-unaware sees a fictional coordinate space that doesn't match any physical monitor |
 | IPC message silently dropped — main process handler registered with `ipcMain.handle('get-data')` but renderer calls `ipcRenderer.send('get-data')` | `invoke`/`handle` and `send`/`on` are different IPC patterns. `handle` returns a Promise to the renderer. `send` is fire-and-forget — there's no return value. Using `send` on a `handle` channel means the renderer never receives the response | Standardize on `invoke`/`handle` for all request-response IPC. Reserve `send`/`on` for fire-and-forget events. Define typed IPC channels: `const channels = { GET_DATA: 'app:get-data', SAVE_DATA: 'app:save-data' } as const`. Add a linter rule that bans raw string channel names | IPC has two modes with incompatible semantics. Calling the wrong one produces zero errors — the message simply vanishes. Typed channel contracts are the only defense |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Shipping unsigned Windows builds — SmartScreen warning blocks 60%+ of installs, users assume malware | $50K-$150K in lost installs and support tickets | EV code signing certificate from day one. Sign in CI, never locally. macOS notarization via `xcrun notarytool`. The installer IS the first product experience. |
+| Using `ipcRenderer.sendSync()` — blocks the renderer thread, UI freezes for the duration of the IPC round-trip | $10K-$30K in "app is slow" complaints and 1-star reviews | Standardize on `ipcMain.handle()`/`ipcRenderer.invoke()` for all request-response IPC. `sendSync()` is synchronous and blocking — it freezes the entire UI until the main process responds. |
+| Ignoring DPI awareness on multi-monitor setups — window opens off-screen on 4K monitor at 150% scaling | $5K-$15K in support burden and accessibility complaints | Set `PerMonitorV2` DPI awareness in Windows manifest. Save/restore window position using `screen.dipToScreenRect()` conversions. Test on multi-monitor setups with mixed DPI scaling. |
+| Bundling native modules without prebuilt binaries — users must compile C++ at install time, 40% fail | $15K-$40K in install-abandonment and support costs | Distribute prebuilt binaries via `@mapbox/node-pre-gyp` or `napi-rs`. Build for all target platforms in CI. Never require a compiler on the user's machine. |
+| Forgetting to recompile native modules after Electron version bump — `Error: The module was compiled against a different Node.js version` | $8K-$20K in broken CI pipelines and delayed releases | Run `npx electron-rebuild` after every Electron version bump. Add `"postinstall": "electron-rebuild"` to package.json. Pin `electron-rebuild` in devDependencies. |
 
 ## Verification
 
