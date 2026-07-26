@@ -34,3 +34,8 @@ build/
 
 # Compiled skill XML output
 .skills-compiled/
+.claude/skills
+.copilot/skills
+.cursor/skills
+.openclaw/workspace/skills
+.gemini/skills
