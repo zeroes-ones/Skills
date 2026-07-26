@@ -1,38 +1,18 @@
 ---
 name: cryptography-engineer
-description: 'Use when designing or auditing TLS configurations for web services,
-  APIs, or internal microservices; when implementing encryption at rest or in transit
-  with proper algorithm selection and key management; when managing the certificate
-  lifecycle (issuance via ACME, renewal automation, revocation via OCSP/CRL); when
-  selecting cryptographic primitives (AEAD ciphers, key exchange algorithms, signature
-  schemes, hash functions) for new systems; when designing key management hierarchies
-  with HSM integration for FIPS 140-2 Level 3 or PCI PIN compliance; when implementing
-  password storage with Argon2id, bcrypt, or scrypt; when planning post-quantum cryptography
-  migration and crypto agility; when responding to a cryptographic vulnerability disclosure
-  (e.g., Bleichenbacher, ROBOT, POODLE, Heartbleed-class); or when conducting a cryptographic
-  architecture review. Handles TLS 1.3 hardening (AEAD cipher selection, X25519/ECDHE
-  key exchange, OCSP stapling, Certificate Transparency enforcement, HSTS preloading,
-  JA3/JA4 fingerprinting), certificate lifecycle automation (ACME/Let''s Encrypt,
-  cert-manager for Kubernetes, short-lived vs long-lived certificate strategy, wildcard
-  vs SAN trade-off analysis), symmetric encryption implementation (AES-GCM nonce management
-  — 96-bit MUST NOT repeat, XChaCha20-Poly1305 for random nonce safety, Encrypt-then-MAC
-  for AES-CBC), asymmetric encryption and key exchange (RSA-OAEP with 4096-bit preference,
-  ECIES for elliptic curve encryption, hybrid post-quantum X25519+Kyber-1024), hashing
-  and password storage (Argon2id parameter selection — memory, iterations, parallelism;
-  bcrypt cost >= 12; SHA-1/SHA-256/MD5 deprecation rationale), key derivation (HKDF
-  for key splitting, PBKDF2 migration path to Argon2id, envelope encryption with cloud
-  KMS + local DEK pattern), HSM architecture (CloudHSM vs TPM vs secure enclave selection,
-  key ceremony procedures, FIPS 140-2 Level 3 compliance mapping, PCI PIN HSM requirements),
-  digital signature scheme selection (Ed25519 for new systems, ECDSA with deterministic
-  RFC 6979, RSA-PSS over PKCS#1 v1.5, JWT signing algorithm RS256 vs ES256 vs EdDSA),
-  and post-quantum readiness (CRYSTALS-Kyber/Dilithium/SPHINCS+ migration plan, harvest-now-decrypt-later
-  threat assessment, crypto agility design patterns, hybrid classical+PQ schemes for
-  transition). Do NOT use for general application security (route to appsec-engineer),
-  TLS/HTTPS web server configuration (route to backend-developer or devops-engineer),
-  password policy design (route to iam-architect), or data privacy regulations (route
-  to gdpr-privacy or privacy-engineer).
-
-  '
+description: >
+  Use when designing or auditing TLS, implementing encryption at rest or in transit, managing
+  certificate lifecycle (ACME, renewal, OCSP), selecting cryptographic primitives (AEAD, key
+  exchange, signatures, hash), designing key management with HSMs (FIPS 140-2 L3, PCI PIN),
+  implementing password storage (Argon2id, bcrypt), planning post-quantum migration, responding to
+  cryptographic vulns, or conducting a cryptographic architecture review. Handles TLS 1.3 (AEAD
+  ciphers, X25519, OCSP stapling, CT, HSTS), symmetric encryption (AES-GCM, XChaCha20-Poly1305),
+  asymmetric/signatures (RSA-OAEP, ECIES, Ed25519, ECDSA, RSA-PSS, hybrid PQ), key derivation and
+  password storage (HKDF, Argon2id, bcrypt, envelope encryption), HSM architecture
+  (CloudHSM/TPM/enclave, key ceremonies, FIPS 140-2 L3), and post-quantum readiness
+  (Kyber/Dilithium/SPHINCS+, crypto agility, hybrid PQ). Do NOT use for general appsec
+  (appsec-engineer), TLS server config (devops-engineer), password policy (iam-architect), or data
+  privacy (gdpr-privacy).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

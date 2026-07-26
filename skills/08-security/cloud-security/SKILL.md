@@ -1,37 +1,17 @@
 ---
 name: cloud-security
 description: >
-  Use when designing cloud IAM architecture with least privilege across AWS, Azure,
-  or GCP; when hardening cloud network security with VPC design, security groups, WAF,
-  and DDoS protection; when implementing secrets management with automatic rotation
-  across cloud providers (AWS Secrets Manager, Azure Key Vault, GCP Secret Manager);
-  when automating cloud compliance with CIS benchmarks, PCI DSS, HIPAA, or SOC 2
-  control mapping; when evaluating and deploying CSPM/CNAPP tools (Wiz, Orca, Prisma
-  Cloud, AWS Security Hub); when securing Kubernetes or container workloads in cloud
-  environments; when scanning Infrastructure as Code (Terraform, CloudFormation,
-  Pulumi) for security misconfigurations; when conducting cloud incident response
-  and forensics; or when establishing multi-cloud security governance with unified
-  posture management. Handles cloud IAM architecture and policy analysis (AWS IAM
-  roles/policies/boundaries/SCPs, Azure RBAC/PIM, GCP IAM conditions, policy analysis
-  with IAM Access Analyzer/Zelkova), cloud network security design (VPC/VNet/VCN
-  with private endpoints/PrivateLink, layered security groups/NACLs, WAF rules, DDoS
-  mitigation tiers), secrets management architecture (automatic rotation with
-  cloud-native services, dynamic secrets via Vault, JIT credential generation,
-  environment variable elimination), cloud compliance automation (CIS benchmarks via
-  Prowler/ScoutSuite, PCI DSS/HIPAA/SOC 2 control mapping, compliance-as-code with
-  Terraform Sentinel/OPA/Regula), CSPM/CNAPP evaluation and deployment (agentless vs
-  agent-based, runtime protection, vulnerability prioritization with cloud context),
-  Kubernetes/container security (Pod Security Standards admission, NetworkPolicy
-  design with zero-trust defaults, etcd encryption, image signing with
-  Cosign/Sigstore), IaC security scanning (tfsec/checkov/terrascan for Terraform,
-  cfn-nag/cfn-guard for CloudFormation, pre-commit hooks and CI/CD integration),
-  cloud incident response (CloudTrail/Audit Logs forensics, GuardDuty/Security
-  Command Center alert analysis, IAM key emergency rotation, blast radius containment
-  via security group isolation), and multi-cloud security governance (federated
-  identity, centralized logging to SIEM, unified security posture dashboard). Do NOT
-  use for general cloud architecture design (route to cloud-architect), application
-  security controls (route to security-engineer), IAM identity provider design (route
-  to iam-architect), or compliance audit management (route to compliance-officer).
+  Use when designing cloud IAM with least privilege across AWS/Azure/GCP, hardening cloud networks
+  (VPC, security groups, WAF, DDoS), implementing secrets management with automatic rotation,
+  automating cloud compliance (CIS, PCI DSS, HIPAA, SOC 2), evaluating CSPM/CNAPP tools (Wiz, Orca,
+  Prisma Cloud), securing Kubernetes/container workloads, scanning IaC for misconfigurations, or
+  conducting cloud incident response. Handles cloud IAM and secrets (AWS roles/SCPs, Azure PIM, GCP
+  conditions, Vault, JIT creds), cloud networks (VPC/PrivateLink, NACLs, WAF, DDoS), Kubernetes
+  security (Pod Security Standards, NetworkPolicy, etcd encryption, Cosign), IaC and compliance
+  scanning (tfsec/checkov, cfn-nag, CIS via Prowler, OPA/Regula), cloud IR (CloudTrail forensics,
+  GuardDuty, key rotation), and multi-cloud governance (federated identity, centralized SIEM). Do
+  NOT use for cloud architecture (cloud-architect), appsec (security-engineer), IAM design
+  (iam-architect), or compliance audit (compliance-officer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: security

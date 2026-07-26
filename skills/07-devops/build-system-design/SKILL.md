@@ -1,26 +1,19 @@
 ---
 name: build-system-design
 description: >
-  Use when build times exceed 5 minutes for incremental builds or 30 minutes for
-  clean builds; when evaluating build system options (Bazel, Buck2, Pants, Nx,
-  Turborepo, Make) for a codebase; when planning a build system migration or
-  modernization; when designing build infrastructure for a monorepo with 50+
-  engineers; when build flakiness or non-determinism is causing CI failures;
-  when build caching benefits are under investigation; or when scaling build
-  infrastructure for remote execution. Handles build system taxonomy and
-  selection (task-based vs artifact-based vs convention-based), hermetic build
-  design for deterministic caching and reproducibility, incremental build
-  optimization (dependency tracking, content-addressable caching, remote caching
-  with Bazel REAPI/BuildBarn/BuildBuddy), remote execution architecture for
-  large monorepos, build graph analysis (critical path, parallelism tuning, test
-  sharding), multi-language build coordination (cross-compilation, protobuf,
-  FFI), build rule authoring (Starlark for Bazel, plugin design for
-  Pants/Buck2), migration planning to artifact-based systems (cost estimation,
-  timeline, tooling: Kythe/buildifier), and anti-pattern recognition (when Bazel
-  is overkill and Make is correct). Do NOT use for monorepo tooling selection
-  (route to monorepo-manager), CI/CD pipeline optimization (route to
-  ci-cd-builder), compiler optimization (route to performance-engineer), or task
-  runner configuration within an existing build system.
+  Use when build times exceed 5m incremental/30m clean; when evaluating build
+  systems (Bazel, Buck2, Pants, Nx, Turborepo, Make); when planning a build
+  system migration; when designing build infrastructure for 50+ engineer
+  monorepos; when build flakiness causes CI failures; when investigating build
+  caching; or when scaling remote execution. Handles build system taxonomy and
+  selection (task-based vs artifact-based vs convention-based), hermetic builds
+  for deterministic caching, incremental build optimization (dependency tracking,
+  content-addressable caching, remote caching), remote execution architecture,
+  build graph analysis (critical path, parallelism, test sharding), multi-language
+  build coordination, build rule authoring (Starlark, plugin design), migration
+  planning, and anti-pattern recognition. Do NOT use for monorepo tooling (route
+  to monorepo-manager), CI/CD optimization (route to ci-cd-builder), compiler
+  optimization (route to performance-engineer), or task runner config.
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

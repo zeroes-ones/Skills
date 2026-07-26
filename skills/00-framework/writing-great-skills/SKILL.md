@@ -1,21 +1,16 @@
 ---
 name: writing-great-skills
 description: >
-  Use when writing a new skill for an AI agent (Claude Code, Copilot CLI, Cursor,
-  Codex, Gemini CLI); when editing or improving an existing skill; when a skill
-  is producing inconsistent results; when designing skill composition patterns
-  (user-invoked orchestrating model-invoked); or when auditing a skill collection
-  for quality. Handles skill authoring vocabulary and principles, information
-  hierarchy ladder design (steps → reference → external), steps-vs-reference
-  distinction with completion criteria, leading word selection for token
-  efficiency, failure mode identification (premature completion, duplication,
-  sediment, sprawl, no-op, negation), pruning discipline with no-op test,
-  user-invoked vs model-invoked invocation strategy, description field
-  optimization (triggers only, never process), anti-rationalization table design,
-  progressive disclosure architecture, skill composition patterns, and skill
-  auditing against quality dimensions. Do NOT use for writing code documentation,
-  API docs, user manuals, or README files (route to technical-writer or
-  documentation-engineer).
+  Use when writing a new skill for an AI agent (Claude Code, Copilot CLI, Cursor, Codex, Gemini
+  CLI); when editing or improving an existing skill; when a skill produces inconsistent results;
+  when designing the invocation pattern for a skill; when setting token budgets and chain
+  configurations; or when testing skill routing across consumer agents. Handles skill structure
+  (YAML frontmatter, invocation, decision tree, body, routing), trigger design (unique phrases,
+  avoiding false positives, Trigger vs context), decision tree construction (MECE, fail-safe
+  fallback, 3-Option Rule), token budget calibration, and cross-agent testing (Claude Code, Copilot
+  CLI, Cursor, Codex, Gemini CLI). Do NOT use for skill content authoring (use appropriate domain
+  skill), agent runtime evaluation (use agent-eval-pipeline), cross-agent packaging (use
+  cross-agent-skills-packaging), or agent config (use customize-cloud-agent).
 author: Sandeep Kumar Penchala
 license: MIT
 output: "skill"

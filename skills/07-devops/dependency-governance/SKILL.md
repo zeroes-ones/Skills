@@ -1,22 +1,20 @@
 ---
 name: dependency-governance
 description: >
-  Use when managing dependencies across 10+ repositories; when dependency version
-  sprawl is causing bugs, security vulnerabilities, or CI failures; when
-  establishing organization-wide dependency policies; when responding to a
-  critical CVE that affects multiple repos; when auditing license compliance
-  across a codebase; or when reducing dependency-related technical debt. Handles
-  multi-repo dependency inventory and graphing, version alignment policy design
-  and enforcement, automated breaking change detection through canary tests and
-  compiler checks, security vulnerability triage with CVSS + exploitability +
-  reachability scoring, license compliance automation (copyleft detection,
-  approval workflows), Renovate/Dependabot configuration at scale (shared
-  presets, auto-merge rules, grouping strategies), unused dependency detection
-  and safe removal, and SBOM (Software Bill of Materials) generation for supply
-  chain security. Do NOT use for monorepo workspace configuration (route to
+  Use when managing dependencies across 10+ repos; when version sprawl causes
+  bugs, vulnerabilities, or CI failures; when establishing org-wide dependency
+  policies; when responding to a critical CVE affecting multiple repos; when
+  auditing license compliance; or when reducing dependency technical debt.
+  Handles multi-repo dependency inventory and graphing, version alignment policy
+  design and enforcement, automated breaking change detection (canary tests,
+  compiler checks), CVE triage with CVSS + exploitability + reachability
+  scoring, license compliance automation (copyleft detection, approval
+  workflows), Renovate/Dependabot at scale (shared presets, auto-merge,
+  grouping), unused dependency detection and safe removal, and SBOM generation
+  for supply chain security. Do NOT use for monorepo config (route to
   monorepo-manager), CI/CD pipeline setup (route to ci-cd-builder), security
-  incident response (route to incident-responder), or legal review of specific
-  licenses (route to legal-advisor).
+  incident response (route to incident-responder), or legal license review
+  (route to legal-advisor).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

@@ -1,29 +1,17 @@
 ---
 name: cross-repo-refactoring
 description: >
-  Use when planning a breaking API change that affects consumers in other
-  repositories; when migrating consumers of a deprecated API across 5+ repos;
-  when designing a deprecation and removal strategy for a shared library or
-  service; when estimating the blast radius and timeline for a cross-repo
-  refactoring; when building automated migration tooling (codemods, automated
-  PRs) for cross-repo changes; or when establishing cross-repo refactoring
-  policies and playbooks for an organization. Handles comet-style migration
-  planning (HEAD/TAIL/COMET three-phase approach with quantified timelines),
-  backwards compatibility pattern design (API versioning, feature flags,
-  protobuf field deprecation, GraphQL @deprecated), consumer discovery and
-  blast radius estimation (GitHub code search, registry analytics, runtime
-  dependency graphs), automated migration tooling (jscodeshift codemods, comby
-  structural search, ast-grep patterns, automated migration PR generation),
-  deprecation communication strategy (changelogs, migration guides,
-  compile-time AND runtime deprecation warnings), cross-repo contract testing
-  (Pact consumer-driven contracts, Spring Cloud Contract), breaking change risk
-  assessment (blast radius quantification, rollback planning, canary deployment
-  for breaking changes), and the "when NOT to break" decision framework
-  (quantifying migration cost vs benefit). Do NOT use for single-repo
-  refactoring (route to appropriate developer skill), API design (route to
-  api-designer), deprecation lifecycle management within a single codebase
-  (route to deprecation-engineer), or code search and analysis (route to
-  code-reviewer).
+  Use when planning a breaking API change affecting consumers in other repos; when migrating
+  consumers of a deprecated API across 5+ repos; when designing a deprecation strategy for a
+  library; when estimating blast radius for cross-repo changes; when building automated migration
+  tooling (codemods, automated PRs); or when establishing cross-repo refactoring policies. Handles
+  comet-style migration (HEAD/TAIL/COMET), backward compat (API versioning, feature flags, protobuf
+  deprecation, GraphQL @deprecated), consumer discovery and blast radius estimation (code search,
+  registry analytics, dep graphs), automated migration (jscodeshift, comby, ast-grep, automated
+  PRs), deprecation communication (changelogs, migration guides, warnings), cross-repo contract
+  testing, breaking change risk assessment, and the "when NOT to break" framework. Do NOT use for
+  single-repo refactoring (appropriate developer skill), API design (api-designer), deprecation
+  lifecycle (deprecation-engineer), or code search (code-reviewer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

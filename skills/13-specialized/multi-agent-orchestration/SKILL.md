@@ -1,6 +1,18 @@
 ---
 name: multi-agent-orchestration
-description: Use when designing multi-agent systems with specialized micro-agents, selecting topology patterns (supervisor/hierarchical/peer-to-peer/debate/swarm) for task execution, implementing typed shared state with LangGraph TypedDict checkpoints or CrewAI Pydantic task outputs, configuring agent delegation protocols with capability-based routing and fallback chains, resolving conflicts between agents via voting/supervisor-override/consensus/escalation, or instrumenting observability across agent-to-agent handoffs. Handles 5 topology patterns (Supervisor for centralized task routing with clear ownership, Hierarchical for complex decomposition with domain-specific sub-agents, Peer-to-Peer for independent verification with message passing, Debate for adversarial refinement with critic-agent feedback loops, Swarm for emergent specialization with role self-organization), typed shared state architecture (LangGraph TypedDict with checkpoint-based persistence for graph-node state transitions, CrewAI Pydantic BaseModel for structured task output contracts, AutoGen ConversableAgent message-bus for event-driven coordination), agent delegation protocol (task decomposition by complexity/domain, capability matching against agent skill manifest, handoff routing with explicit state serialization per agent-handoff-protocol, fallback chain configuration with N-retry and escalation timeout), state synchronization across sequential agent calls (checkpoint-based LangGraph with conditional edges, message-bus event sourcing for replay, shared-memory with distributed lock for write-after-read safety), conflict resolution strategies (simple majority voting for low-stakes decisions, supervisor override for deadline-pressure, consensus threshold with 2/3 quorum for architecture choices, escalation path to human-in-the-loop for budget-exceeding decisions), and failure mode prevention (hallucination cascade detection via inter-agent consistency check, state corruption guard with cryptographic hash of handoff payload, infinite delegation loop prevention via max-depth counter and cycle detection). Do NOT use for single-agent workflow design (use agent-handoff-protocol), LLM prompt engineering (use llm-engineer), distributed systems design (use system-architect), or microservices orchestration (use devops-engineer).
+description: >
+  Use when designing multi-agent systems, selecting topology patterns
+  (supervisor/hierarchical/peer-to-peer/debate/swarm), implementing typed shared state with
+  LangGraph or CrewAI, configuring agent delegation with capability-based routing, resolving
+  inter-agent conflicts, or instrumenting observability across agent handoffs. Handles 5 topology
+  patterns (Supervisor, Hierarchical, Peer-to-Peer, Debate, Swarm), typed shared state (LangGraph
+  checkpoints, CrewAI outputs, AutoGen message-bus), delegation protocol (task decomposition,
+  capability matching, handoff routing, fallback chains), state sync (checkpoint, event sourcing,
+  shared memory), conflict resolution (voting, override, consensus, HITL escalation), and failure
+  prevention (hallucination cascade detection, state corruption guards, loop prevention). Do NOT use
+  for single-agent workflows (use agent-handoff-protocol), LLM prompt engineering (use
+  llm-engineer), distributed systems (use system-architect), or microservices orchestration (use
+  devops-engineer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

@@ -1,6 +1,17 @@
 ---
 name: agent-eval-pipeline
-description: Use when designing automated behavioral evaluation suites for AI agents, implementing LLM-as-judge rubrics with inter-rater reliability calibration, setting up statistical eval frameworks (SPRT sequential testing, bootstrapping confidence intervals, AgentAssay methodology), configuring CI/CD evaluation gates that block merging agents failing quality thresholds, detecting behavioral drift between prompt updates with daily comparison runs, or building containerized eval harnesses that mock project environments and inject intentionally flawed prompts. Handles the agent testing pyramid (unit tests for single tool call correctness, integration tests for multi-turn scenario adherence, E2E tests for full pipeline compliance across 10-phase workflows), LLM-as-judge rubric design (Cohen's kappa >= 0.7 for inter-rater reliability, position bias mitigation through symmetric evaluation, groundedness scoring against reference outputs), statistical evaluation methodology (SPRT for sequential testing with configurable alpha=0.05/beta=0.20 bounds, bootstrap confidence intervals for small-sample metrics, AgentAssay's statistical detection framework achieving 86% true defect detection vs 0% for binary pass/fail), behavioral drift detection (daily CI comparisons against golden baselines, cosine similarity on embedding vectors of agent outputs, token budget compliance trending over time), and evaluation harness architecture (containerized agent deployment per Dockerfile, mock project environment with 10-dimension scenario generators, intentionally flawed prompt injection for gotcha-detection scoring). Do NOT use for code testing (use qa-engineer), model training evaluation (use ml-ai-engineer), security penetration testing (use security-reviewer), or performance benchmarking (use performance-engineer).
+description: >
+  Use when designing automated behavioral evaluation suites for AI agents, implementing LLM-as-judge
+  rubrics with inter-rater reliability calibration, setting up statistical eval frameworks (SPRT
+  sequential testing), building eval datasets with ground truth generation, or integrating evals
+  into CI/CD gates. Handles eval architecture (unit tests for deterministic, behavioral evals for
+  non-deterministic, online + offline eval, regression suites), LLM-as-judge (rubric design,
+  pairwise comparison, position bias mitigation, inter-rater reliability via Cohen's kappa),
+  statistical frameworks (SPRT for A/B eval with early stopping, MDE and sample size), dataset
+  engineering (golden set curation, adversarial test generation, difficulty stratification,
+  contamination detection), and CI/CD integration (pre-commit checks, PR eval gates, nightly suites,
+  regression alerting, cost dashboards). Do NOT use for model training eval (ml-engineer), security
+  red-teaming (ai-security), or prompt engineering (llm-engineer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor)
