@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # ==============================================================================
 # sandbox-exec.sh — Isolated Execution Environment for Untrusted Code
 # ==============================================================================
@@ -82,24 +83,24 @@ INJECTION_PATTERNS=(
     'YOU ARE NOW'
     'NEW (SYSTEM|AGENT) (PROMPT|INSTRUCTIONS)'
     'YOUR (NEW|ONLY) (ROLE|JOB|TASK) IS'
-    
+
     # System prompt extraction
     'REPEAT (THE|YOUR) (SYSTEM|INITIAL) (PROMPT|INSTRUCTIONS)'
     'PRINT (THE|YOUR) (SYSTEM|INITIAL) (PROMPT|INSTRUCTIONS)'
     'WHAT (IS|ARE) YOUR (SYSTEM|INITIAL) (PROMPT|INSTRUCTIONS)'
     'OUTPUT YOUR (SYSTEM|BASE) PROMPT'
-    
+
     # Tool/execution hijacking
     'EXECUTE (THIS|THE FOLLOWING) (COMMAND|CODE)'
     'RUN (THIS|THE FOLLOWING) (COMMAND|SCRIPT|CODE) WITHOUT (ASKING|CONFIRMATION)'
     'curl.*\|.*(bash|sh|python)'
     '\$\(.*rm -rf.*\)'
-    
+
     # Data exfiltration
     'SEND.*(TO|AT).*(http|https)://'
     'curl.*http.*\$\{?[A-Z_]+\}?'
     'ENV\|ENVIRONMENT\|SECRET\|TOKEN\|PASSWORD\|CREDENTIAL'
-    
+
     # Instruction embedding
     '\[SYSTEM\]:'
     '\[INST\]:'
@@ -108,7 +109,7 @@ INJECTION_PATTERNS=(
     '<<SYS>>'
     '<system>'
     'Human:.*Assistant:'
-    
+
     # Token smuggling
     '(IGNORE|DISREGARD).*ABOVE.*(INSTRUCTION|RULE)'
     'IMPORTANT:.*IGNORE'
@@ -118,17 +119,17 @@ INJECTION_PATTERNS=(
 scan_file() {
     local file="$1"
     local findings=0
-    
+
     # Skip binary files
     if file "$file" 2>/dev/null | grep -q "binary\|data\|archive\|image\|audio\|video"; then
         return 0
     fi
-    
+
     # Skip node_modules, .git, build artifacts
     if echo "$file" | grep -qE "(node_modules|\.git/|\.next/|dist/|build/|\.venv/|__pycache__)"; then
         return 0
     fi
-    
+
     # Size check
     local fsize
     fsize=$(wc -c < "$file" 2>/dev/null || echo 0)
@@ -136,7 +137,7 @@ scan_file() {
         log_audit "WARN" "File too large ($fsize bytes), skipping: $file"
         return 0
     fi
-    
+
     # Scan for patterns
     local line_num=0
     while IFS= read -r line; do
@@ -149,13 +150,13 @@ scan_file() {
             fi
         done
     done < "$file"
-    
+
     [[ $findings -gt 0 ]] && return 1 || return 0
 }
 
 sanitize_content() {
     local content="$1"
-    
+
     # Strip known injection markers
     content=$(echo "$content" | sed -E '
         s/\[SYSTEM\]://gI
@@ -166,7 +167,7 @@ sanitize_content() {
         s/<system>//gI
         s/<\/system>//gI
     ')
-    
+
     # Neutralize instruction overrides (wrap in code blocks)
     content=$(echo "$content" | sed -E '
         s/(IGNORE (PREVIOUS|ALL) (INSTRUCTIONS|RULES|CONSTRAINTS))/`\1`/gI
@@ -175,7 +176,7 @@ sanitize_content() {
         s/(OVERRIDE (SYSTEM|AGENT) (PROMPT|INSTRUCTIONS))/`\1`/gI
         s/(YOU ARE NOW)/`\1`/gI
     ')
-    
+
     echo "$content"
 }
 
@@ -187,7 +188,7 @@ if [[ -n "$SANITIZE_FILE" ]]; then
         echo "🧹 Sanitizing: $SANITIZE_FILE"
         ORIGINAL=$(cat "$SANITIZE_FILE")
         CLEANED=$(sanitize_content "$ORIGINAL")
-        
+
         # Check if anything was sanitized
         if [[ "$ORIGINAL" != "$CLEANED" ]]; then
             echo "⚠️  Injection patterns neutralized in $SANITIZE_FILE"
@@ -206,13 +207,13 @@ fi
 # Mode 2: Security scan
 if $SCAN_ONLY; then
     [[ -d "$PROJECT" ]] || { echo "ERROR: Project directory not found: $PROJECT"; exit 1; }
-    
+
     echo "🔍 Scanning for prompt injection patterns in: $PROJECT"
     echo "═══════════════════════════════════════════════════════════"
-    
+
     TOTAL_FILES=0
     SUSPICIOUS_FILES=0
-    
+
     # Focus on high-risk files
     HIGH_RISK_PATTERNS=(
         "README.md" "README" "CONTRIBUTING.md" "CODE_OF_CONDUCT.md"
@@ -220,7 +221,7 @@ if $SCAN_ONLY; then
         "*.md" "*.txt" "*.cfg" "*.ini" "*.yaml" "*.yml" "*.toml"
         "Makefile" "Dockerfile" "docker-compose*.yml"
     )
-    
+
     for pattern in "${HIGH_RISK_PATTERNS[@]}"; do
         while IFS= read -r file; do
             [[ -z "$file" ]] && continue
@@ -230,14 +231,14 @@ if $SCAN_ONLY; then
             fi
         done < <(find "$PROJECT" -path "$pattern" -type f 2>/dev/null || true)
     done
-    
+
     echo ""
     echo "───────────────────────────────────────────────────────────"
     echo "  Files scanned:  $TOTAL_FILES"
     echo "  Suspicious:     $SUSPICIOUS_FILES"
     echo "  Audit log:      $AUDIT_LOG"
     echo "───────────────────────────────────────────────────────────"
-    
+
     if [[ $SUSPICIOUS_FILES -gt 0 ]]; then
         echo ""
         echo "⚠️  Found $SUSPICIOUS_FILES files with potential injection patterns."
@@ -254,7 +255,7 @@ fi
 if [[ -n "$COMMAND" ]]; then
     [[ -n "$PROJECT" ]] || PROJECT="."
     [[ -d "$PROJECT" ]] || { echo "ERROR: Project directory not found: $PROJECT"; exit 1; }
-    
+
     echo "🔒 Sandbox Execution"
     echo "═══════════════════════════════════════════════════════════"
     echo "  Command:    $COMMAND"
@@ -263,7 +264,7 @@ if [[ -n "$COMMAND" ]]; then
     echo "  Network:    $($ALLOW_NETWORK && echo 'ALLOWED' || echo 'BLOCKED')"
     echo "  Writes:     $($ALLOW_WRITES && echo 'ALLOWED' || echo 'RESTRICTED')"
     echo "───────────────────────────────────────────────────────────"
-    
+
     # Step 1: Quick pre-scan of project for injection patterns
     log_audit "INFO" "Pre-scan: checking for injection patterns"
     SCAN_FINDINGS=0
@@ -275,7 +276,7 @@ if [[ -n "$COMMAND" ]]; then
             log_audit "WARN" "Pre-scan pattern match: $pattern → $(echo "$MATCHES" | tr '\n' ' ')"
         fi
     done
-    
+
     if [[ $SCAN_FINDINGS -gt 0 ]]; then
         log_audit "WARN" "Pre-scan found $SCAN_FINDINGS potential injection pattern categories"
         echo "⚠️  Pre-scan found potential injection patterns in project files."
@@ -284,7 +285,7 @@ if [[ -n "$COMMAND" ]]; then
         echo "✅ Pre-scan: No injection patterns detected."
     fi
     echo ""
-    
+
     # Step 2: Execute in sandbox
     # Create a read-only bind mount of the project (Linux-only, macOS uses copy)
     if [[ "$(uname)" == "Darwin" ]]; then
@@ -293,10 +294,10 @@ if [[ -n "$COMMAND" ]]; then
         SANDBOX_PROJECT="$SANDBOX_ROOT/project"
         cp -R "$PROJECT" "$SANDBOX_PROJECT" 2>/dev/null || true
         chmod -R u-w "$SANDBOX_PROJECT" 2>/dev/null || true
-        
+
         cd "$SANDBOX_PROJECT"
         log_audit "INFO" "Executing: $COMMAND (pwd=$PWD)"
-        
+
         if $ALLOW_NETWORK; then
             bash -c "$COMMAND" > "$OUTPUT_DIR/stdout.txt" 2> "$OUTPUT_DIR/stderr.txt"
         else
@@ -310,7 +311,7 @@ if [[ -n "$COMMAND" ]]; then
         log_audit "INFO" "Linux: using namespace isolation"
         SANDBOX_PROJECT="$SANDBOX_ROOT/project"
         cp -R "$PROJECT" "$SANDBOX_PROJECT"
-        
+
         cd "$SANDBOX_PROJECT"
         if $ALLOW_NETWORK; then
             unshare -r -m -p --fork bash -c "$COMMAND" > "$OUTPUT_DIR/stdout.txt" 2> "$OUTPUT_DIR/stderr.txt"
@@ -319,7 +320,7 @@ if [[ -n "$COMMAND" ]]; then
         fi
         EXIT_CODE=$?
     fi
-    
+
     # Step 3: Report
     echo ""
     echo "───────────────────────────────────────────────────────────"
@@ -328,20 +329,20 @@ if [[ -n "$COMMAND" ]]; then
     echo "  Stderr:      $OUTPUT_DIR/stderr.txt ($(wc -c < "$OUTPUT_DIR/stderr.txt" 2>/dev/null || echo 0) bytes)"
     echo "  Audit log:   $AUDIT_LOG"
     echo "───────────────────────────────────────────────────────────"
-    
+
     # Show truncated output
     if [[ -s "$OUTPUT_DIR/stdout.txt" ]]; then
         echo ""
         echo "--- STDOUT (first 50 lines) ---"
         head -50 "$OUTPUT_DIR/stdout.txt"
     fi
-    
+
     if [[ -s "$OUTPUT_DIR/stderr.txt" ]]; then
         echo ""
         echo "--- STDERR (first 20 lines) ---"
         head -20 "$OUTPUT_DIR/stderr.txt"
     fi
-    
+
     log_audit "INFO" "Command completed with exit code: $EXIT_CODE"
     exit $EXIT_CODE
 fi

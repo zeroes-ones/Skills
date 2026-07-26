@@ -1,6 +1,6 @@
 # Skills Library
 
-> **Author:** Sandeep Kumar Penchala  
+> **Author:** Sandeep Kumar Penchala
 > **Goal:** A practical, comprehensive skills library that helps you build products end-to-end — from idea to production, solo to enterprise.
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
@@ -238,9 +238,75 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — which skills to invoke at each of 10 phases |
 | [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 2,000+ sub-skills across all domains with industry variations |
 | [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | 10/10 grading rubric with progressive disclosure, error recovery, state logs, and 12 governance gates |
+| [`scripts/lint.sh`](scripts/lint.sh) | Master lint runner — 5 categories (files, markdown, yaml, shell, template) with --fix, --json, --ci |
 | [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates (sections, frontmatter, chains, anti-hallucination) |
 | [`scripts/run-evals.sh`](scripts/run-evals.sh) | Automated evaluation harness — 43+ scenarios verifying skill correctness against dummy projects |
-| [`scripts/pre-commit`](scripts/pre-commit) | Git pre-commit hook — runs validation before every commit |
+| [`.githooks/pre-commit`](.githooks/pre-commit) | Git pre-commit hook — 13-gate lint & validate before every commit |
+
+## Linting & Validation
+
+The repository has a comprehensive, zero-dependency linting system that enforces quality across all files.
+
+### Quick Reference
+
+```bash
+# Run all linters on changed files
+./scripts/lint.sh
+
+# Run all linters on the entire repo
+./scripts/lint.sh --all
+
+# Auto-fix formatting issues (trailing whitespace, line endings, final newlines)
+./scripts/lint.sh --fix
+
+# Check only YAML frontmatter
+./scripts/lint.sh --category yaml
+
+# Check only markdown style
+./scripts/lint.sh --category markdown
+
+# CI-friendly JSON output
+./scripts/lint.sh --all --json --ci
+
+# Template compliance check (14 sections, anti-hallucination, gotchas, decision trees)
+./scripts/lint.sh --category template
+```
+
+### Lint Categories
+
+| Category | Script | Rules | Checks |
+|----------|--------|-------|--------|
+| **files** | `scripts/lib/lint-files.py` | 7 (FMT001-007) | UTF-8, LF endings, trailing whitespace, final newline, tabs, mixed indent, empty files |
+| **markdown** | `scripts/lib/lint-markdown.py` | 14 (MD001-051) | Heading structure, blank lines, code fence language, bare URLs, duplicate headings |
+| **yaml** | `scripts/lib/lint-yaml.py` | 10 (YML001-010) | Frontmatter validity, description ≤1024, required fields, name=dir, chain refs, trigger format |
+| **shell** | `scripts/lib/lint-shell.py` | 10 (SHL001-010) | Shebang, `set -euo pipefail`, `[[ ]]` vs `[ ]`, backticks→`$()`, `read -r`, trap cleanup |
+| **template** | `scripts/lib/lint-template.py` | 20+ checks | 14 required sections, anti-hallucination guardrails, dollar-quantified gotchas, ground rules, completion criteria, decision trees, chain connectivity |
+
+### Pre-Commit Hook
+
+The `.githooks/pre-commit` hook runs a 13-gate system on every commit:
+
+| Gate | Check | Blocks Commit? |
+|------|-------|---------------|
+| G0 | Script integrity (SHA256 manifest) | Yes |
+| G1 | File format (UTF-8, LF, no trailing whitespace, final newline, no tabs) | Yes |
+| G2 | Shell script (shebang, strict mode, quoting, trap) | Yes |
+| G3 | JSON validity | Yes |
+| G4 | YAML frontmatter (valid, description ≤1024, trigger format, name=dir, chain refs) | Yes |
+| G5 | Markdown style (headings, blank lines, code fences, duplicate headings) | Yes |
+| G6 | Template compliance (14 sections, anti-hallucination, gotchas, ground rules) | Yes |
+| G7 | Completion criteria (≥8 "Complete when") | No (warning) |
+| G8 | Decision trees (≥3 under ## Decision Trees) | No (warning) |
+| G9 | Chain connectivity (consumes_from + feeds_into) | Yes |
+| G10 | Reference link integrity | No (warning) |
+| G11 | Per-skill artifacts (verify-skill.sh + references/) | No (warning) |
+| G12 | Portability target | No (warning) |
+
+### Installing the Pre-Commit Hook
+
+```bash
+git config core.hooksPath .githooks
+```
 
 ## Contributing
 
@@ -248,30 +314,12 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 2. Read [`AGNOSTIC-PRINCIPLES.md`](AGNOSTIC-PRINCIPLES.md) — universal by default, specific by reference
 3. Read [`SCALE-DEPTH-FRAMEWORK.md`](SCALE-DEPTH-FRAMEWORK.md) — every skill covers Solo→Small→Medium→Enterprise
 4. Follow the four-layer architecture: SKILL.md + scripts/ + references/ + assets/
-5. Every `SKILL.md` must pass the 12-section validation (`bash scripts/validate-skills.sh`):
-   - Full YAML frontmatter with `name`, `description`, `author`, `license`, `type`, `version`, `updated`, `token_budget`, `output`, `chain`, `portability`
-   - `<!-- QUICK: 30s -->` markers for progressive disclosure
-   - `## Route the Request` — ASCII decision tree routing to right skill/mode
-   - `## Ground Rules — Read Before Anything Else` — domain-specific rules with mechanical triggers and violation responses
-   - `## The Expert's Mindset` — mental models, what masters know, cognitive biases
-   - `## Operating at Different Levels` — Solo → Small → Medium → Enterprise depth
-   - `## When to Use` — trigger-based decision table
-   - `## Decision Trees` — at least 2 concrete decision frameworks
-   - `## Core Workflow` — phased workflow with time estimates and completion criteria
-   - `## Error Recovery` — symptom/root cause/fix/lesson decoder (5+ war stories)
-   - `## Cross-Skill Coordination` — upstream/downstream tables with escalation paths
-   - `## State Log` — decision ledger with anti-drift checks for cross-session continuity
-   - `## Proactive Triggers` — trigger → action → why for events needing immediate attention
-   - `## What Good Looks Like` — concrete aspirational outcome
-   - `## Deliberate Practice` — exercises to build instinct before production use
-   - `## Verification Guardrails` — self-check checklist agent runs before delivering
-   - `## References` — deep reference files and external links
-   - Token budget declared in frontmatter (~3000-4000 target)
-6. YAML frontmatter: `name`, `description`, `author: Sandeep Kumar Penchala`, `license: MIT`, `type`, `version`, `updated`, `token_budget`
-7. No fluff — if a sentence doesn't help someone DO something, cut it
-8. Test with at least one AI agent before submitting
-9. Run `bash scripts/validate-skills.sh` to verify all 12 gates pass
-10. Run `bash scripts/run-evals.sh` to verify 43+ automated scenarios
+5. Install the pre-commit hook: `git config core.hooksPath .githooks`
+6. Run the lint suite before committing: `./scripts/lint.sh --all`
+7. Auto-fix formatting issues: `./scripts/lint.sh --fix`
+8. Verify all 12 governance gates pass: `bash scripts/validate-skills.sh`
+9. No fluff — if a sentence doesn't help someone DO something, cut it
+10. Test with at least one AI agent before submitting
 
 ## License
 
