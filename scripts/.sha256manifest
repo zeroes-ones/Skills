@@ -1,13 +1,14 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-26T23:33:44Z
+# Generated: 2026-07-27T00:15:49Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    64841ce0d8fb115bf74f1d8af78b588f675e6bdf
+# Commit:    f7d61c21cfa49b551cc75363d12e7e6efaead431
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
+e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
 1e2ba49d36ad27cd3bd7e46db7d4f6db058d4f011068238ef9c720a5f2104ff6  .githooks/pre-commit
-f129889d26a132fab17ce6b3546fd65bec3a6baf5238afdc77d0fead8bc0f9eb  .githooks/pre-push
+ac4b4761266c8fe143a57bc552ba67398ca6f03c8bdae9a0fcb784ff9017f16b  .githooks/pre-push
 655cdc9a64ff46197ba7f06f1553b88b5ffae74c7f4c4138dd545ac5dd4814eb  scripts/_compile_skill.py
 158880b0bd253ee05757d80e778650d4740e3ea569d9c4a88d6ee929833ad5f8  scripts/agent-handshake.sh
 5e967a4ccc318b31d0af47e02174382a23afa24dd767f44e70174cff25be087a  scripts/behavioral-evals.py

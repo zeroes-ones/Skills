@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# commit-msg: Strip Copilot Co-authored-by trailers from commit messages.
+# The Copilot CLI appends these automatically — this hook strips them before
+# the commit is finalized. Does NOT strip non-Copilot co-authors (human
+# collaborators are preserved).
+# ==============================================================================
+set -euo pipefail
+
+COMMIT_MSG_FILE="$1"
+
+# Skip during merge, rebase, cherry-pick (preserve original trailers)
+if [[ -f .git/MERGE_HEAD || -f .git/REBASE_HEAD || -f .git/CHERRY_PICK_HEAD ]]; then
+    exit 0
+fi
+
+# Strip only Copilot Co-authored-by lines
+if grep -qi '^Co-authored-by:.*[Cc]opilot' "$COMMIT_MSG_FILE" 2>/dev/null; then
+    sed -i '' '/^Co-authored-by:.*[Cc]opilot/d' "$COMMIT_MSG_FILE"
+    echo "[commit-msg] Stripped Copilot Co-authored-by trailer"
+fi
+
+exit 0
