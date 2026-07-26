@@ -118,7 +118,7 @@
    Stage 1: Coarse grid search (3-5 values per param) → find promising region
    Stage 2: Bayesian optimization (Optuna, Hyperopt) in the promising region
    Stage 3: Manual fine-tuning on the most sensitive parameters
-   
+
    Priority order (most impactful first):
    - Learning rate
    - Model complexity (max_depth, n_estimators, num_layers)
@@ -220,7 +220,7 @@
 4. **CI/CD for ML — distinct from software CI/CD:**
    ```
    Trigger: new training data available OR scheduled retrain OR code change
-   
+
    Pipeline stages:
    1. Data validation (Great Expectations, TFX Data Validation)  → schema, stats, drift check
    2. Feature computation (point-in-time correct)                → push to offline feature store

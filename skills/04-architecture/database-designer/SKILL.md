@@ -132,7 +132,7 @@ Competent database designers model the data. Masters model **how the data will b
 | **Index cargo culting** | Adding indexes to every foreign key "because that's best practice" without running EXPLAIN ANALYZE on actual query patterns | Every index costs write performance and storage. Index the queries your application actually runs, not the ones it might run someday. Unused indexes are dead weight. |
 | **ORM trust** | Assuming the ORM generates efficient queries — discovering at 5M rows that the "simple" `user.orders` generates 50,000 individual SELECTs | Always log and review generated SQL in development. Set a query count threshold per request — if any endpoint generates > 20 queries, investigate. ORMs are conveniences with sharp edges. |
 
-### What Database Masters Know That Others Don't  
+### What Database Masters Know That Others Don't
 - **The query planner is a liar until proven otherwise.** `EXPLAIN ANALYZE` on production-sized data is the only truth. Estimated row counts, cost calculations, index suggestions — all approximations. Never trust a query plan on a 100-row dev database.
 - **Migrations are the highest-risk operation in your system.** A migration that locks a table blocks all writes. A migration that fails mid-way leaves the schema in an unknown state. Always: test on a production-sized copy, use `lock_timeout`, batch large data changes, and have a tested rollback.
 - **Connection pooling is not optional at scale.** A default PostgreSQL install allows 100 connections. With 20 application servers each opening 10 connections, you're at 200 — double the database's capacity. Use PgBouncer or built-in poolers. Connection count must be monitored and capped at the pooler level.

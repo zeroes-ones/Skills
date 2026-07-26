@@ -41,7 +41,7 @@
 // View — dumb renderer
 struct ProfileView: View {
     @StateObject private var viewModel: ProfileViewModel
-    
+
     var body: some View {
         Group {
             switch viewModel.state {
@@ -62,7 +62,7 @@ struct ProfileView: View {
 final class ProfileViewModel: ObservableObject {
     @Published private(set) var state: ViewState<ProfileDisplayModel> = .loading
     private let getProfileUseCase: GetProfileUseCase
-    
+
     func send(_ action: ProfileAction) {
         switch action {
         case .load:
@@ -71,7 +71,7 @@ final class ProfileViewModel: ObservableObject {
             Task { await loadProfile() }
         }
     }
-    
+
     private func loadProfile() async {
         state = .loading
         do {

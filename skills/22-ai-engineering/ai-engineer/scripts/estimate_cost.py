@@ -24,15 +24,15 @@ def main():
     parser.add_argument("--input-tokens", type=int, default=500, help="Average input tokens per request")
     parser.add_argument("--output-tokens", type=int, default=300, help="Average output tokens per request")
     args = parser.parse_args()
-    
+
     prices = MODEL_PRICES[args.model]
     daily_requests = args.rps * 86400
-    
+
     daily_input_cost = daily_requests * args.input_tokens * prices["input"] / 1_000_000
     daily_output_cost = daily_requests * args.output_tokens * prices["output"] / 1_000_000
     daily_total = daily_input_cost + daily_output_cost
     monthly_total = daily_total * 30
-    
+
     print(f"\n=== AI Cost Estimate ===")
     print(f"Model: {args.model}")
     print(f"RPS: {args.rps} ({daily_requests:,.0f} requests/day)")
@@ -43,14 +43,14 @@ def main():
     print(f"Daily total:       ${daily_total:,.2f}")
     print(f"Monthly total:     ${monthly_total:,.2f}")
     print()
-    
+
     if monthly_total > 1000:
         print("WARNING: Monthly cost exceeds $1,000. Consider:")
         print("  - Downgrade to cheaper model")
         print("  - Semantic caching (30% savings typical)")
         print("  - Prompt compression (trim system prompt)")
         print("  - Batch processing (50% discount)")
-    
+
     # Show alternatives
     print("\n--- Alternative Models ---")
     for alt_model, alt_prices in MODEL_PRICES.items():

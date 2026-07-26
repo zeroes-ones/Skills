@@ -528,7 +528,7 @@ Unlike iOS where UIKit/SwiftUI are the only game in town, macOS development requ
 
 ### Anti-Pattern: Hardened Runtime Without Plugin Validation Disabled
 **What it looks like:** App uses audio units, Photoshop plugins, or Finder Sync extensions. Hardened Runtime is on. All third-party plugins silently fail to load — `dlopen` blocked. Developer can't reproduce because dev machine doesn't use hardened runtime.
-**Why it fails:** Hardened Runtime, by default, prevents loading unsigned or third-party libraries. Every plugin silently fails. Bug reports accumulate while developer searches for a code bug that doesn't exist. 
+**Why it fails:** Hardened Runtime, by default, prevents loading unsigned or third-party libraries. Every plugin silently fails. Bug reports accumulate while developer searches for a code bug that doesn't exist.
 **Do this instead:** If your app loads plugins, add `com.apple.security.cs.disable-library-validation = true`. Pair with `com.apple.security.cs.disable-executable-page-protection = false` (never allow writable+executable memory unless required for JIT). Document validated library paths.
 
 ### Anti-Pattern: `NSHostingView` ColorScheme Never Updates

@@ -53,7 +53,7 @@ class SPRTRunner:
         self.llr = 0.0
         self.passes = 0
         self.fails = 0
-    
+
     def update(self, passed: bool) -> Optional[str]:
         """Update SPRT with a test result. Returns decision or None."""
         if passed:
@@ -62,9 +62,9 @@ class SPRTRunner:
         else:
             lr = (1 - self.config.p1) / (1 - self.config.p0)  # LR for fail
             self.fails += 1
-        
+
         self.llr += math.log(lr)
-        
+
         if self.llr >= self.A:
             return "accept_null"  # Agent is good enough
         elif self.llr <= self.B:
@@ -98,25 +98,25 @@ When sample sizes are small (< 50), bootstrap CIs provide reliable uncertainty q
 ```python
 import numpy as np
 
-def bootstrap_ci(scores: List[float], n_bootstrap: int = 10000, 
+def bootstrap_ci(scores: List[float], n_bootstrap: int = 10000,
                  ci_level: float = 0.95) -> Tuple[float, float]:
     """
     Compute bootstrap confidence interval for mean score.
-    
+
     For n=20 samples, a 95% CI might be [0.62, 0.88] —
     very different from the point estimate of 0.75.
     """
     n = len(scores)
     boot_means = []
-    
+
     for _ in range(n_bootstrap):
         sample = np.random.choice(scores, size=n, replace=True)
         boot_means.append(np.mean(sample))
-    
+
     alpha = (1 - ci_level) / 2
     lower = np.percentile(boot_means, alpha * 100)
     upper = np.percentile(boot_means, (1 - alpha) * 100)
-    
+
     return lower, upper
 
 # Always report CI alongside point estimate:
@@ -148,7 +148,7 @@ def agent_assay_test(
 ) -> dict:
     """
     AgentAssay: detect behavioral defects using effect size analysis.
-    
+
     Returns:
       - defect_detected: bool
       - effect_size: Cohen's d
@@ -159,13 +159,13 @@ def agent_assay_test(
     statistic, p_value = stats.mannwhitneyu(
         candidate_scores, baseline_scores, alternative='two-sided'
     )
-    
+
     # Effect size (Cohen's d)
     pooled_std = np.sqrt((np.std(baseline_scores)**2 + np.std(candidate_scores)**2) / 2)
     effect_size = abs(np.mean(candidate_scores) - np.mean(baseline_scores)) / pooled_std
-    
+
     defect_detected = (p_value < p_value_threshold) and (effect_size > effect_size_threshold)
-    
+
     # Confidence based on both statistical significance and practical significance
     if p_value < 0.01 and effect_size > 0.5:
         confidence = "high"
@@ -173,7 +173,7 @@ def agent_assay_test(
         confidence = "medium"
     else:
         confidence = "low"
-    
+
     return {
         "defect_detected": defect_detected,
         "effect_size": round(effect_size, 3),

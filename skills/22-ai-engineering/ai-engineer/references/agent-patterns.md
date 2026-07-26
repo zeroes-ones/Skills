@@ -12,25 +12,25 @@ Thought → Action → Observation → Thought → Action → ... → Final Answ
 def react_agent(task, tools, max_steps=10):
     messages = [{"role": "system", "content": REACT_SYSTEM_PROMPT}]
     messages.append({"role": "user", "content": task})
-    
+
     for step in range(max_steps):
         response = llm.chat(messages, tools=tools)
-        
+
         if response.has_final_answer():
             return response.final_answer
-        
+
         # Execute tool
         tool_result = execute_tool(response.tool_call)
         messages.append({"role": "assistant", "content": response.thought})
         messages.append({"role": "tool", "content": tool_result})
-    
+
     raise AgentTimeout("Max steps reached without final answer")
 ```
 
 ## Pattern 2: Plan-Execute
 
 ```
-Task → Planner generates steps → Executor runs step 1 → Validate → 
+Task → Planner generates steps → Executor runs step 1 → Validate →
 Executor runs step 2 → Validate → ... → Final Synthesis
 ```
 

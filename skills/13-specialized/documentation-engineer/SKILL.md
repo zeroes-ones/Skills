@@ -210,9 +210,9 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
                                                 │(SaaS)  │ │Press  │
                                                 └────────┘ └───────┘
 ```
-**Docusaurus** for most teams — best balance of features, plugins, versioning, and community.  
-**Nextra** for Next.js-first teams wanting MDX and custom React components.  
-**Mintlify** for teams wanting zero-infrastructure SaaS with beautiful defaults at $600+/mo.  
+**Docusaurus** for most teams — best balance of features, plugins, versioning, and community.
+**Nextra** for Next.js-first teams wanting MDX and custom React components.
+**Mintlify** for teams wanting zero-infrastructure SaaS with beautiful defaults at $600+/mo.
 **ReadTheDocs** for Python-only projects using Sphinx. **VitePress** for minimal Vue-based docs.
 
 ### 2. When to Version Docs
@@ -265,8 +265,8 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
                                 └───────┘│pages       │
                                          └────────────┘
 ```
-**Pagefind for <1000 pages** — zero infrastructure, build-time index, works offline.  
-**Algolia DocSearch for OSS** — free, relevance-tuned, faceted search.  
+**Pagefind for <1000 pages** — zero infrastructure, build-time index, works offline.
+**Algolia DocSearch for OSS** — free, relevance-tuned, faceted search.
 **Algolia paid for enterprise** — >1000 pages, need search analytics, faceted by version.
 
 ### 4. Content Quality Priority
@@ -295,8 +295,8 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
   │ ity scores │    │ ness checks   │    │               │
   └────────────┘    └───────────────┘    └───────────────┘
 ```
-**Hard to read → Vale + cspell + readability scoring.**  
-**Wrong/outdated → auto-generate from specs + freshness automation.**  
+**Hard to read → Vale + cspell + readability scoring.**
+**Wrong/outdated → auto-generate from specs + freshness automation.**
 **Hard to navigate → Diátaxis IA restructure + search relevance tuning.**
 
 ### 5. When to Internationalize
@@ -322,8 +322,8 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
     │            │    │ rest.        │    │              │
     └────────────┘    └──────────────┘    └──────────────┘
 ```
-**<10% non-English → don't invest in i18n.**  
-**10-30% → translate most-visited pages only, English fallback.**  
+**<10% non-English → don't invest in i18n.**
+**10-30% → translate most-visited pages only, English fallback.**
 **>30% → full i18n pipeline with Crowdin/GitLocalize and RTL support.**
 
 
@@ -429,36 +429,36 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Docs Health Audit
-**Input:** Repository with `docs/` directory  
-**Steps:** 1) Run health scan (broken links, stale pages, unowned docs, readability) 2) Generate JSON metrics 3) Identify top 3 issues by impact  
+**Input:** Repository with `docs/` directory
+**Steps:** 1) Run health scan (broken links, stale pages, unowned docs, readability) 2) Generate JSON metrics 3) Identify top 3 issues by impact
 **Output:** Prioritized backlog of docs fixes
   Complete when: Health scan complete with JSON metrics, top 3 issues identified by impact, and prioritized backlog of docs fixes ready.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): SSG Selection & Setup
-**Input:** Team skillset, content volume (pages), budget, versioning needs  
-**Steps:** 1) Apply SSG decision tree 2) Scaffold site with chosen SSG 3) Configure build pipeline in CI 4) Verify deploy previews work  
+**Input:** Team skillset, content volume (pages), budget, versioning needs
+**Steps:** 1) Apply SSG decision tree 2) Scaffold site with chosen SSG 3) Configure build pipeline in CI 4) Verify deploy previews work
 **Output:** Docs site building from `main` with preview deploys on PRs
   Complete when: SSG selected and scaffolded, CI build pipeline configured and passing, and deploy previews working on PRs.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Information Architecture Design
-**Input:** Content inventory (all existing docs, API specs, guides)  
-**Steps:** 1) Categorize using Diátaxis framework (tutorials, how-tos, reference, explanation) 2) Design navigation tree with max 4 levels 3) Configure search indexing 4) Set up landing page with quickstart path  
+**Input:** Content inventory (all existing docs, API specs, guides)
+**Steps:** 1) Categorize using Diátaxis framework (tutorials, how-tos, reference, explanation) 2) Design navigation tree with max 4 levels 3) Configure search indexing 4) Set up landing page with quickstart path
 **Output:** Navigable, searchable docs site with clear content hierarchy
   Complete when: All content categorized by Diátaxis framework (tutorials/how-tos/reference/explanation), navigation tree at ≤4 levels deep, search indexing configured, and landing page with quickstart path live.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Quality Gates
-**Input:** Docs CI/CD pipeline  
-**Steps:** 1) Add Vale prose linting with style guide 2) Add cspell with custom dictionary 3) Add link checking (internal + external) 4) Add frontmatter validation 5) Add code snippet validation if applicable  
+**Input:** Docs CI/CD pipeline
+**Steps:** 1) Add Vale prose linting with style guide 2) Add cspell with custom dictionary 3) Add link checking (internal + external) 4) Add frontmatter validation 5) Add code snippet validation if applicable
 **Output:** Every PR validated against quality standards before merge
   Complete when: Vale prose linting, cspell, link checking (internal+external), frontmatter validation, and code snippet validation all passing in CI on every PR.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Maintenance Automation
-**Input:** Live docs site with analytics  
-**Steps:** 1) Set up freshness checks (flag pages >6 months stale) 2) Configure feedback widget on every page 3) Set up docs metrics dashboard (coverage, freshness, quality, usage) 4) Assign CODEOWNERS for docs paths  
+**Input:** Live docs site with analytics
+**Steps:** 1) Set up freshness checks (flag pages >6 months stale) 2) Configure feedback widget on every page 3) Set up docs metrics dashboard (coverage, freshness, quality, usage) 4) Assign CODEOWNERS for docs paths
 **Output:** Self-maintaining docs system with automated quality monitoring
   Complete when: Freshness checks flagging pages >6 months stale, feedback widget on every page, docs metrics dashboard operational (coverage/freshness/quality/usage), and CODEOWNERS assigned for all docs paths.
 

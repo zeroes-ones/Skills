@@ -15,9 +15,10 @@ chain:
     - backend-developer
     - accessibility-auditor
   feeds_into:
-    - qa-engineer
-    - security-reviewer
-    - performance-engineer
+  - automation-engineer
+  - qa-engineer
+  - security-reviewer
+  - performance-engineer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
@@ -294,6 +295,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `qa-engineer` | AAB build, device coverage plan, Espresso/Compose test harness, performance baselines | QA blocked without build and test config |
 | `security-reviewer` | R8 mapping, Keystore implementation, cert pinning, root detection | Security review can't assess Android attack surface |
 | `performance-engineer` | Profile data, baseline profiles, macrobenchmark results, APK size breakdown | Performance optimization needs instrumented measurement |
+| `automation-engineer` | Gradle config, keystore, Play Store credentials | Android builds stay manual — Play Store blocked |
 
 #
 

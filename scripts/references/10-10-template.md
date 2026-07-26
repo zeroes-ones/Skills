@@ -108,7 +108,7 @@ Every SKILL.md must have ALL sections below. Skills receive a grade A (10/10), B
 
 Every major section heading MUST carry a depth marker:
 - `**(QUICK)**` — essential for basic output
-- `**(STANDARD)**` — thorough for typical scenarios 
+- `**(STANDARD)**` — thorough for typical scenarios
 - `**(DEEP)**` — exhaustive for critical/edge cases
 
 At minimum, 3 sections must have all three markers:
@@ -124,7 +124,7 @@ Replace or augment `## Operating at Different Levels` with:
 
 ```
 ### Solo (0-10 users)
-### Small Team (10-100 users)  
+### Small Team (10-100 users)
 ### Medium Team (100-10K users)
 ### Enterprise (10K+ users)
 ### Transition Triggers

@@ -27,6 +27,7 @@ token_budget: 4000
 chain:
   consumes_from:
   - api-test-suite-builder
+  - automation-engineer
   - backend-developer
   - devops-engineer
   - monorepo-manager
@@ -35,6 +36,7 @@ chain:
   - translation-manager
   feeds_into:
   - accessibility-testing
+  - automation-engineer
   - devops-engineer
   - docker-kubernetes
   - monorepo-manager
@@ -499,6 +501,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `devops-engineer` | Terraform modules, infrastructure deployment specs, environment promotion workflows | Before designing deploy stages or environment management |
 | `qa-engineer` | Test parallelization strategy, coverage thresholds, quality gate criteria | Before configuring test stages or quality gates |
 | `security-engineer` | OIDC setup for cloud auth, secret injection patterns, signed commit verification | Before integrating secrets or cloud authentication into pipelines |
+| `automation-engineer` | CI pipeline config, test stages, artifact storage | Before building end-to-end delivery automation |
 
 | Downstream Skill | What You Provide | Impact of Delay |
 |---|---|---|
@@ -506,6 +509,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `release-manager` | Build artifacts, deployment pipeline, quality gate results | Release train stalls — no artifacts to promote |
 | `qa-engineer` | Test integration stages, coverage reports, flaky test quarantine | QA can't validate builds — quality gates block everything |
 | `docker-kubernetes` | Image build pipeline, registry integration, image signing | Containers can't be built or scanned — deploy blocked |
+| `automation-engineer` | CI pipeline config, test stages, artifact storage | Can't build automated pipeline — delivery blocked |
 
 ## Proactive Triggers
 
@@ -613,4 +617,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

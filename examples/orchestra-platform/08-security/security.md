@@ -2,8 +2,8 @@
 
 ## Penetration Test Results
 
-**Engagement**: July 5–9, 2026, by Cobalt.io (3 testers, 40 hours)  
-**Scope**: orchestra.dev web application, API, and mobile app  
+**Engagement**: July 5–9, 2026, by Cobalt.io (3 testers, 40 hours)
+**Scope**: orchestra.dev web application, API, and mobile app
 **Findings**: 2 Medium severity, 0 High, 0 Critical
 
 **MED-001 — Rate Limiting Bypass on Login API**: The `/api/auth/login` endpoint enforced rate limiting by source IP, but did not account for the `X-Forwarded-For` header being spoofed. An attacker could cycle through IPs in the header to bypass the 5-attempt-per-minute limit. **Fix**: Rate limiting moved to the ALB level using AWS WAF token-based rate limiting with a client-signed challenge, independent of IP headers. Deployed July 10. Verified by retest July 12.

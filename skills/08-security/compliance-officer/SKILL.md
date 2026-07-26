@@ -27,6 +27,7 @@ updated: 2026-07-23
 token_budget: 2625
 chain:
   consumes_from:
+  - automation-engineer
   - gdpr-privacy
   - health-regulatory-submission
   - hipaa-technical-implementation
@@ -442,6 +443,7 @@ If a command or approach fails, follow this escalation path before giving up:
 |---|---|---|
 | `legal-advisor` | DPA terms, SCCs for data transfers, breach notification requirements, regulatory filing deadlines | Before interpreting regulatory obligations or drafting compliance policies |
 | `security-engineer` | Technical control evidence, vulnerability management metrics, audit preparation support, control implementation status | Before mapping controls to frameworks or preparing audit evidence |
+| `automation-engineer` | Pipeline audit trails, evidence collection, attestations | Before designing compliance evidence collection |
 | `regulatory-specialist` | Jurisdiction-specific regulatory requirements, filing procedures, regulator communication protocols | Before scoping frameworks or determining regulatory applicability |
 
 | Downstream Skill | What You Provide | Impact of Delay |
@@ -450,6 +452,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `incident-responder` | Breach classification criteria, regulatory notification clock triggers, evidence preservation requirements | Incident response misses regulatory deadlines — fines and penalties |
 | `gdpr-privacy` | Data subject rights requirements, DPIA triggers, cross-border transfer restrictions | GDPR compliance gaps — regulatory exposure |
 | `privacy-engineer` | Privacy-by-design requirements, data classification guidance, PII handling policies | Privacy controls not embedded in architecture — retrofitting costs |
+| `automation-engineer` | Pipeline audit trails, evidence collection, attestations | Compliance evidence missing — audit fails |
 
 ## Proactive Triggers
 
@@ -541,4 +544,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

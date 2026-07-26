@@ -31,7 +31,7 @@ while [[ $# -gt 0 ]]; do
         --budget) BUDGET="$2"; shift 2 ;;
         --json) JSON=true; shift ;;
         --quiet) QUIET=true; shift ;;
-        -h|--help) 
+        -h|--help)
             sed -n '2,30p' "$0" | grep -v '^#' | head -20
             exit 0 ;;
         *) echo "ERROR: $1"; exit 1 ;;
@@ -65,7 +65,7 @@ fi
 # awk classifies each section at ## heading boundaries and applies trim rules
 
 TRIMMED=$(echo "$CONTENT" | awk -v tier1="$TIER1" -v tier3="$TIER3" -v trim="$TRIM_LEVEL" '
-BEGIN { 
+BEGIN {
     in_section=0; section_tier=2; section_lines=0; section=""; heading="";
     kept=0; compacted=0; dropped=0; output="";
 }
@@ -77,7 +77,7 @@ function classify(h) {
 function flush_section() {
     if (heading == "") { output = output section; return; }
     tier = classify(heading);
-    
+
     if (tier == 1) {
         # Tier 1: Keep (or compact at trim level 3)
         if (trim >= 3 && heading !~ /Ground Rules|Error Recovery/) {

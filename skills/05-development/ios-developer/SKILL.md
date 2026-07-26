@@ -26,6 +26,7 @@ chain:
     - system-architect
     - ui-ux-designer
   feeds_into:
+    - automation-engineer
     - mobile-developer
     - qa-engineer
     - security-reviewer
@@ -210,6 +211,10 @@ If a command or approach fails, follow this escalation path before giving up:
 |---|---|---|
 | `system-architect` | Architecture decisions, technology constraints, system boundaries | Before implementing features that cross system boundaries |
 | `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|
+| `automation-engineer` | Xcode project, signing certs, provisioning profiles | iOS builds stay manual — App Store blocked |
 
 
 ## Proactive Triggers

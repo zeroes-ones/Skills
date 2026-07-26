@@ -52,12 +52,12 @@ class AgentContainerConfig:
 
 class DockerAgentRunner:
     """Runs agent evaluations in isolated Docker containers."""
-    
+
     def __init__(self, docker_client):
         self.client = docker_client
         self.network = self._ensure_network("eval_network")
-    
-    def run_eval(self, config: AgentContainerConfig, 
+
+    def run_eval(self, config: AgentContainerConfig,
                  scenario_dir: str) -> EvalResult:
         """Run a single agent evaluation in a container."""
         container = self.client.containers.run(
@@ -79,7 +79,7 @@ class DockerAgentRunner:
             mem_limit=config.memory_limit,
             detach=True
         )
-        
+
         try:
             result = container.wait(timeout=config.timeout)
             if result["StatusCode"] != 0:
@@ -89,11 +89,11 @@ class DockerAgentRunner:
                     error=f"Container exited with code {result['StatusCode']}",
                     logs=logs
                 )
-            
+
             # Collect structured output
             output = self._collect_output(container)
             return EvalResult(success=True, data=output)
-        
+
         except docker.errors.APIError as e:
             if "out of memory" in str(e):
                 return EvalResult(success=False, error="OOM killed")
@@ -120,16 +120,16 @@ SCENARIO_DIMENSIONS = {
 
 class ScenarioGenerator:
     """Generates diverse evaluation scenarios across 10 dimensions."""
-    
+
     def __init__(self, seed: int = 42):
         self.rng = random.Random(seed)
         self.combinatorial_space = self._compute_space()
-    
-    def generate_suite(self, n_scenarios: int, 
+
+    def generate_suite(self, n_scenarios: int,
                        coverage_strategy: str = "diverse") -> List[Scenario]:
         """
         Generate n scenarios.
-        
+
         Strategies:
         - "diverse": maximize coverage across dimensions
         - "targeted": focus on historically failing dimensions
@@ -141,12 +141,12 @@ class ScenarioGenerator:
             return self._generate_targeted(n_scenarios)
         elif coverage_strategy == "combinatorial":
             return self._generate_pairwise(n_scenarios)
-    
+
     def _generate_diverse(self, n: int) -> List[Scenario]:
         """Latin hypercube sampling across dimensions."""
         scenarios = []
         dims = list(SCENARIO_DIMENSIONS.keys())
-        
+
         for i in range(n):
             scenario_dims = {}
             for dim in dims:
@@ -154,7 +154,7 @@ class ScenarioGenerator:
                 # Cycle through values to ensure coverage
                 scenario_dims[dim] = values[i % len(values)]
             scenarios.append(self._build_scenario(scenario_dims))
-        
+
         return scenarios
 ```
 
@@ -163,20 +163,20 @@ class ScenarioGenerator:
 ```python
 class MockProjectEnvironment:
     """Creates realistic but controlled project environments for testing."""
-    
+
     def __init__(self, base_dir: Path):
         self.base_dir = base_dir
-    
+
     def create_web_app_project(self) -> Path:
         """Create a realistic web app project structure."""
         project = self.base_dir / "mock-web-app"
-        
+
         # Directory structure
         (project / "src" / "components").mkdir(parents=True)
         (project / "src" / "utils").mkdir(parents=True)
         (project / "tests").mkdir(parents=True)
         (project / "docs").mkdir(parents=True)
-        
+
         # Files with realistic content
         (project / "package.json").write_text(json.dumps({
             "name": "mock-web-app",
@@ -186,7 +186,7 @@ class MockProjectEnvironment:
                 "typescript": "^5.0.0"
             }
         }, indent=2))
-        
+
         (project / "src" / "app.tsx").write_text("""
 import React from 'react';
 // TODO: Implement authentication flow
@@ -196,19 +196,19 @@ export const App = () => {
   return <div>Mock App</div>;
 };
 """)
-        
+
         # Intentional flaws for gotcha detection
         (project / "src" / "config.ts").write_text("""
 // WARNING: Hardcoded credentials for testing only
 export const API_KEY = "sk-mock-key-do-not-use-in-production-12345";
 export const DB_PASSWORD = "admin123";
 """)
-        
+
         # Git history simulation
         self._init_mock_git(project)
-        
+
         return project
-    
+
     def inject_flaw(self, flaw_type: str, project: Path):
         """Inject intentional flaws for gotcha detection."""
         flaws = {
@@ -267,7 +267,7 @@ GOTCHA_TESTS = [
 def score_gotcha_detection(agent_output: str, injected_flaws: List[str]) -> dict:
     """
     Score agent on gotcha detection.
-    
+
     Returns:
       - detection_rate: fraction of injected flaws detected
       - false_positive_rate: flaws reported that weren't injected
@@ -276,15 +276,15 @@ def score_gotcha_detection(agent_output: str, injected_flaws: List[str]) -> dict
     """
     detected = set()
     hallucinated = set()
-    
+
     for flaw_id in injected_flaws:
         if flaw_detected_in_output(flaw_id, agent_output):
             detected.add(flaw_id)
-    
+
     for reported_flaw in extract_reported_flaws(agent_output):
         if reported_flaw not in injected_flaws:
             hallucinated.add(reported_flaw)
-    
+
     return {
         "detection_rate": len(detected) / len(injected_flaws),
         "false_positive_rate": len(hallucinated) / max(len(injected_flaws), 1),
@@ -300,7 +300,7 @@ def score_gotcha_detection(agent_output: str, injected_flaws: List[str]) -> dict
 harness:
   name: "agent-eval-harness"
   version: "2.0.0"
-  
+
   agents:
     baseline:
       image: "agent-registry/agent:golden-v3.1.0"
@@ -308,14 +308,14 @@ harness:
     candidate:
       image: "agent-registry/agent:${CANDIDATE_TAG}"
       version: "${CANDIDATE_VERSION}"
-  
+
   scenarios:
     generator: "diverse"
     count: 50
     seed: 42
     dimensions: "all"
     inject_flaws: ["hardcoded_secret", "sql_injection", "missing_error_handling"]
-  
+
   evaluation:
     judge_model: "gpt-4o"
     judge_temperature: 0
@@ -326,12 +326,12 @@ harness:
       p1: 0.80
       alpha: 0.05
       beta: 0.20
-  
+
   output:
     format: "json"
     path: "eval_results/${TIMESTAMP}/"
     dashboard_push: true
-  
+
   limits:
     max_runtime_seconds: 3600
     max_cost_usd: 75.00

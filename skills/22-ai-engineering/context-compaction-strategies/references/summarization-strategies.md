@@ -5,7 +5,7 @@
 ### Conversation History
 **Strategy:** Hierarchical summarization
 - Turns 1-5 → 2-3 sentence paragraph
-- Turns 6-10 → Bullet points of key decisions  
+- Turns 6-10 → Bullet points of key decisions
 - Turns 11+ → 1-line per turn (action + outcome)
 - Preserve: decisions, constraints, action items, errors
 

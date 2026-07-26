@@ -1,7 +1,7 @@
 # QA Report — Release v0.9.0
 
-**Test Period**: July 10–18, 2026  
-**Release Candidate**: v0.9.0-rc3 → v0.9.0  
+**Test Period**: July 10–18, 2026
+**Release Candidate**: v0.9.0-rc3 → v0.9.0
 **QA Lead**: Maria Santos
 
 ## Test Pyramid

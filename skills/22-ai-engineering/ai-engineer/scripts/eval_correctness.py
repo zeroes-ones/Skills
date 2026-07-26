@@ -30,7 +30,7 @@ def main():
     parser.add_argument("--test-set", required=True, help="Path to golden test cases (JSONL)")
     parser.add_argument("--threshold", type=float, default=0.85, help="Minimum score to pass")
     args = parser.parse_args()
-    
+
     try:
         with open(args.test_set) as f:
             cases = [json.loads(line) for line in f if line.strip()]
@@ -38,32 +38,32 @@ def main():
         print(f"ERROR: Test set not found: {args.test_set}")
         print("Create one with format: {\"query\": \"...\", \"golden_answer\": \"...\", \"context\": \"...\"}")
         sys.exit(2)
-    
+
     if not cases:
         print("ERROR: Test set is empty")
         sys.exit(2)
-    
+
     scores = {"faithfulness": [], "relevancy": [], "correctness": []}
     failures = []
-    
+
     for i, case in enumerate(cases):
         # In production: call your AI pipeline here
         # response = your_pipeline(case["query"])
         # For now, evaluate against golden
         result = evaluate(case.get("query", ""), case.get("golden_answer", ""))
-        
+
         for metric in scores:
             scores[metric].append(result[metric])
-        
+
         if any(result[m] < args.threshold for m in scores):
             failures.append({"case": i, "scores": result})
-    
+
     # Report
     print(f"\n=== AI Correctness Evaluation ===")
     print(f"Test cases: {len(cases)}")
     print(f"Threshold: {args.threshold}")
     print()
-    
+
     all_pass = True
     for metric, values in scores.items():
         avg = sum(values) / len(values)
@@ -71,11 +71,11 @@ def main():
         if avg < args.threshold:
             all_pass = False
         print(f"  {metric:<20} avg={avg:.3f}  [{status}]")
-    
+
     if failures:
         print(f"\n  {len(failures)}/{len(cases)} cases below threshold")
         all_pass = False
-    
+
     print()
     if all_pass:
         print("RESULT: ALL CHECKS PASSED")

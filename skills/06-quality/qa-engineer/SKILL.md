@@ -243,7 +243,7 @@ Debugging flaky tests and improving test stability
       └────────┘ └──────────┘ └──────────┘ │Jest)     │
                                            └──────────┘
 ```
-**When to choose E2E:** Covers signup → purchase → fulfillment. Revenue-impacting. Used by > 80% of users. Run on every merge to main.  
+**When to choose E2E:** Covers signup → purchase → fulfillment. Revenue-impacting. Used by > 80% of users. Run on every merge to main.
 **When to choose Unit test:** Pure logic, data transformation, validation rules. No I/O. Must run in < 5ms. Covers all edge cases and error paths.
 
 ### Performance Test Depth
@@ -272,7 +272,7 @@ Debugging flaky tests and improving test stability
     │ Soak test  │ │ (p95 < 500ms)│
     └────────────┘ └──────────────┘
 ```
-**When to run full suite:** Major version release, infrastructure migration, expected traffic surge (Black Friday, launch event).  
+**When to run full suite:** Major version release, infrastructure migration, expected traffic surge (Black Friday, launch event).
 **When smoke test suffices:** Routine deploy. No infrastructure changes. Response time trend is stable over past 7 days.
 
 ### Coverage Strategy
@@ -294,7 +294,7 @@ Debugging flaky tests and improving test stability
         │ merge on < 90%.  │    └──────────────────────┘
         └──────────────────┘
 ```
-**When 90%+ is required:** Auth, billing, data export, permission systems. Any code where a bug = money lost or data breached.  
+**When 90%+ is required:** Auth, billing, data export, permission systems. Any code where a bug = money lost or data breached.
 **When 80% is acceptable:** Internal tools, admin dashboards, non-critical UI components. Cost of 100% coverage exceeds risk of bug.
 
 ### Flaky Test Response
@@ -316,7 +316,7 @@ Debugging flaky tests and improving test stability
         │ fix ticket (P1). │  │ shared state leak?   │
         └──────────────────┘  └──────────────────────┘
 ```
-**When to quarantine immediately:** CI reliability dropping below 90%. Flaky test blocking > 3 PRs in a week. Root cause unknown and fix estimate > 1 day.  
+**When to quarantine immediately:** CI reliability dropping below 90%. Flaky test blocking > 3 PRs in a week. Root cause unknown and fix estimate > 1 day.
 **When to fix in place:** Root cause obvious (missing await, unseeded random). Fix takes < 30 minutes. Test provides unique coverage no other test provides.
 
 ## Core Workflow **(STANDARD)**
@@ -563,4 +563,3 @@ Detailed reference material loaded on demand:
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

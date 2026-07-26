@@ -1,6 +1,6 @@
 # Project Bootstrap Guide
 
-> **Author:** Sandeep Kumar Penchala  
+> **Author:** Sandeep Kumar Penchala
 > **Purpose:** Master navigation map — which skills to invoke at every phase of building a product from scratch
 
 ---
@@ -42,7 +42,7 @@ Invoke: ceo-strategist → business-strategist
 | Can we make money? | Unit economics: CAC < LTV/3 | `business-strategist > Unit Economics` |
 | Who are competitors? | Porter's Five Forces + Blue Ocean | `ceo-strategist > Competitive Strategy` |
 
-**Outputs:** Business Model Canvas, Market Sizing, Competitive Analysis  
+**Outputs:** Business Model Canvas, Market Sizing, Competitive Analysis
 **Gate:** Market > $100M TAM? Unit economics work at scale? → Proceed to 0.2 or kill idea
 
 ### Step 0.2: Technical Feasibility
@@ -58,7 +58,7 @@ Invoke: cto-advisor → system-architect
 | Team needed? | Roles × timeline | `cto-advisor > Hiring Timeline` |
 | Cost to MVP? | Infrastructure + engineer cost | `cto-advisor > TCO Model` |
 
-**Outputs:** Technical feasibility assessment, Stack decision, MVP cost estimate  
+**Outputs:** Technical feasibility assessment, Stack decision, MVP cost estimate
 **Gate:** MVP buildable in < 4 weeks with 1-3 devs? → Proceed to Phase 1
 
 ---
@@ -93,7 +93,7 @@ Invoke: product-manager → idea-to-spec
 | What's NOT in MVP? | Anti-goals documentation | `idea-to-spec > Scoping` |
 | How do we prioritize? | RICE/ICE scoring | `product-manager > Prioritization` |
 
-**Outputs:** MVP scope (walking skeleton), North Star metric, Prioritized backlog  
+**Outputs:** MVP scope (walking skeleton), North Star metric, Prioritized backlog
 **Gate:** MVP scope < 4 weeks? Clear pass/fail success criteria? → Proceed to Phase 2
 
 ### Step 1.3: PRD Creation

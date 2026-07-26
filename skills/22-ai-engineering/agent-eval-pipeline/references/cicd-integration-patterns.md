@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash scripts/validate-skills.sh
-  
+
   unit-evals:
     needs: static-checks
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
         skill: ${{ fromJSON(needs.discover-skills.outputs.changed) }}
     steps:
       - run: python scripts/run-evals.py --level unit --skill ${{ matrix.skill }}
-  
+
   integration-evals:
     needs: unit-evals
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

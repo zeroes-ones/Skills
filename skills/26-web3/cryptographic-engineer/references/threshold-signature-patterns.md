@@ -17,7 +17,7 @@ Flexible Round-Optimized Schnorr Threshold Signatures.
    - Aggregate commitment: `R = prod(D_i) * prod(E_i)^rho_i`
    - Challenge: `c = H(R, PK, msg)`
    - Signature share: `z_i = d_i + e_i*rho_i + lambda_i * s_i * c`
-   
+
 4. **Aggregation:** `z = sum(z_i)`, signature = `(R, z)` — standard Schnorr
 
 ### Security Properties

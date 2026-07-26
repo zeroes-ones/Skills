@@ -26,12 +26,14 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - automation-engineer
   - ci-cd-builder
   - devops-engineer
   - project-manager
   - qa-engineer
   - site-reliability-engineer
   feeds_into:
+  - automation-engineer
   - devops-engineer
   - project-manager
   - site-reliability-engineer
@@ -422,12 +424,14 @@ If a command or approach fails, follow this escalation path before giving up:
 | `ci-cd-builder` | Build artifacts, deployment pipeline, quality gate results, canary/blue-green configuration | Before planning a release train or scheduling deployments |
 | `qa-engineer` | Test results, regression suite coverage, go/no-go testing criteria, quality sign-off | Before go/no-go decision or release candidate promotion |
 | `devops-engineer` | Infrastructure change risk assessment, migration rollback plan, environment availability status | Before coordinating infrastructure changes in a release window |
+| `automation-engineer` | Version strategy, release schedule, approval workflow | Before designing automated release pipelines |
 
 | Downstream Skill | What You Provide | Impact of Delay |
 |---|---|---|
 | `devops-engineer` | Release plan, deployment coordination, environment promotion workflow | Deployment orchestration stalls — releases pile up |
 | `site-reliability-engineer` | Error budget status, deploy risk assessment, rollback decision criteria, canary rollout gating | SRE can't gate risky deploys — reliability compromised |
 | `project-manager` | Release scope, feature readiness, deployment calendar, stakeholder communication | Project timelines disconnected from release reality — expectations mismanaged |
+| `automation-engineer` | Version strategy, release schedule, approval workflow | No coordinated release — chaos deployments |
 
 ## Proactive Triggers
 
@@ -531,4 +535,3 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

@@ -56,4 +56,3 @@ for skill in ~/.agents/skills/core/*/; do
   test -f "${skill}PROCESS_TREE.md" || echo "MISSING PROCESS_TREE.md: ${skill}"
 done
 ```
-

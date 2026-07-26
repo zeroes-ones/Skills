@@ -3,7 +3,7 @@
 ```
 # Step 1: Quick bottleneck detection
 python3 scripts/perf_scan.py --service checkout --output json
-# Returns: {"p95_ms": 850, "db_time_pct": 65, "cache_hit_pct": 23, 
+# Returns: {"p95_ms": 850, "db_time_pct": 65, "cache_hit_pct": 23,
 #           "gc_pause_ms": 15, "top_slow_query": "SELECT * FROM orders WHERE..."}
 
 # Step 2: Decision tree → single action
@@ -18,7 +18,7 @@ psql $DATABASE_URL -c "EXPLAIN ANALYZE SELECT * FROM orders WHERE status='pendin
 
 # Run k6 load test for 60 seconds, check P95
 k6 run --duration 60s --vus 50 load-test.js 2>&1 | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); 
+  python3 -c "import sys,json; d=json.load(sys.stdin);
   print(f'P95: {d[\"metrics\"][\"http_req_duration\"][\"p(95)\"]}ms')"
 
 # Step 4: Post-fix verification

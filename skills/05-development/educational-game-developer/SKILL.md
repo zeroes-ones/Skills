@@ -583,8 +583,8 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ## References
 
-- **Adaptive Learning Algorithms**: Bayesian Knowledge Tracing (Corbett & Anderson, 1995), Item Response Theory (3PL model), ELO rating for educational content. 
-- **Child Safety Compliance**: COPPA Rule (16 CFR Part 312), GDPR-K (Article 8 + DPA guidance), FERPA (34 CFR Part 99), COPPA Safe Harbor programs (PRIVO, kidSAFE, CARU). 
+- **Adaptive Learning Algorithms**: Bayesian Knowledge Tracing (Corbett & Anderson, 1995), Item Response Theory (3PL model), ELO rating for educational content.
+- **Child Safety Compliance**: COPPA Rule (16 CFR Part 312), GDPR-K (Article 8 + DPA guidance), FERPA (34 CFR Part 99), COPPA Safe Harbor programs (PRIVO, kidSAFE, CARU).
 - **Age-Specific UX Guidelines**: Developmental milestones by age (motor skills, cognitive load, attention span, reading level), touch target sizes by age, session length recommendations, feedback design per developmental stage..
 - **Accessibility for Learning**: WCAG 2.2 AA applied to games, dyslexia-friendly design patterns, ADHD-friendly UI design, autism spectrum design considerations, switch access implementation, cognitive accessibility guidelines..
 - **Game Mechanic → Learning Objective Mapping**: Complete matrix of game mechanics and the learning objectives they best serve, with example implementations and assessment strategies..

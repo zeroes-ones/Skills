@@ -17,9 +17,10 @@ chain:
     - system-architect
     - security-reviewer
   feeds_into:
-    - qa-engineer
-    - performance-engineer
-    - devops-engineer
+  - automation-engineer
+  - qa-engineer
+  - performance-engineer
+  - devops-engineer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
@@ -204,10 +205,10 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
               └──────────────────┘ └──────────────┘
 ```
 
-**When Tauri:** Binary size <10MB required. Memory budget <100MB. Security-sensitive (Rust's memory safety). Team has or can learn Rust. Target: Win/Mac/Linux + mobile in future.  
-**When Electron:** Team is JS/TS only. Complex rendering (WebGL, rich text). Rapid development with web UI libraries. User base has modern hardware. Time-to-market is primary constraint.  
-**When .NET MAUI:** Cross-platform Win+Mac (+mobile). Team is C#/.NET. Need native controls (not web-based). Enterprise ecosystem (Azure AD).  
-**When WPF:** Windows-only. Team is C#/XAML. Deep Windows integration (registry, COM, Win32). Legacy enterprise app modernization.  
+**When Tauri:** Binary size <10MB required. Memory budget <100MB. Security-sensitive (Rust's memory safety). Team has or can learn Rust. Target: Win/Mac/Linux + mobile in future.
+**When Electron:** Team is JS/TS only. Complex rendering (WebGL, rich text). Rapid development with web UI libraries. User base has modern hardware. Time-to-market is primary constraint.
+**When .NET MAUI:** Cross-platform Win+Mac (+mobile). Team is C#/.NET. Need native controls (not web-based). Enterprise ecosystem (Azure AD).
+**When WPF:** Windows-only. Team is C#/XAML. Deep Windows integration (registry, COM, Win32). Legacy enterprise app modernization.
 **When Qt:** Cross-platform native C++ performance. Embedded/kiosk/IoT. Complex custom rendering (CAD, video editing, scientific visualization). Team has C++ expertise.
 
 ### Native vs Web-Based Renderer
@@ -237,7 +238,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
                                            └──────────────┘
 ```
 
-**When Native UI:** Accessibility critical (gov, healthcare). Sub-frame input latency (music, video editing, drawing). Pixel-perfect OS integration required.  
+**When Native UI:** Accessibility critical (gov, healthcare). Sub-frame input latency (music, video editing, drawing). Pixel-perfect OS integration required.
 **When WebView:** Team is web developers. Rapid iteration with hot reload. Information-dense but not latency-sensitive UI (dashboards, chat, docs). Code sharing with web app.
 
 ### Auto-Update Strategies
@@ -268,9 +269,9 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
    └─────────────────────────────────────────────────────────────┘
 ```
 
-**When electron-updater:** Electron app. S3 as update server (cheap, reliable, CDN). Supports NSIS, DMG, AppImage. Differential updates via blockmap.  
-**When Sparkle:** Non-Electron native macOS app. Used by 90%+ of Mac apps. Appcasts over RSS with DSA/EdDSA signatures.  
-**When ClickOnce:** .NET/WPF Windows app in enterprise. Integrated with AD/Group Policy.  
+**When electron-updater:** Electron app. S3 as update server (cheap, reliable, CDN). Supports NSIS, DMG, AppImage. Differential updates via blockmap.
+**When Sparkle:** Non-Electron native macOS app. Used by 90%+ of Mac apps. Appcasts over RSS with DSA/EdDSA signatures.
+**When ClickOnce:** .NET/WPF Windows app in enterprise. Integrated with AD/Group Policy.
 **When Tauri updater:** Tauri app. Static JSON endpoint. Rust-native verification and extraction.
 
 ### IPC Mechanism Selection
@@ -296,7 +297,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
    │ config, DB,      │ │ status, logs │ │ real-time data   │
    │ settings         │ │              │ │                  │
    └──────────────────┘ └──────────────┘ └──────────────────┘
-   
+
    Tauri equivalent:
    ┌──────────────────┐ ┌──────────────┐ ┌──────────────────┐
    │ #[tauri::command]│ │ emit()/      │ │ File system APIs │
@@ -304,8 +305,8 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
    └──────────────────┘ └──────────────┘ └──────────────────┘
 ```
 
-**When request-response:** Operations returning data/confirmation. Use `ipcMain.handle` + `ipcRenderer.invoke` (Electron) or `#[tauri::command]` (Tauri). Always validate input, return typed output.  
-**When fire-and-forget:** Events, status updates, log entries. Use `webContents.send` (main→renderer) or `ipcRenderer.send`. Risk: queue overflow if receiver is slow.  
+**When request-response:** Operations returning data/confirmation. Use `ipcMain.handle` + `ipcRenderer.invoke` (Electron) or `#[tauri::command]` (Tauri). Always validate input, return typed output.
+**When fire-and-forget:** Events, status updates, log entries. Use `webContents.send` (main→renderer) or `ipcRenderer.send`. Risk: queue overflow if receiver is slow.
 **When streaming:** File transfers >10MB, real-time feeds, WebRTC. Use MessagePort for zero-copy or SharedArrayBuffer for shared memory. Avoid serializing large buffers through IPC — doubles memory.
 
 ### Installer Packaging
@@ -332,9 +333,9 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
    NSIS  MSIX MSI/Int.   DMG   MAS/MDM      pkg mgr  AppImage
 ```
 
-**When NSIS:** Direct Windows distribution. Widest compatibility (Win7+). Customizable UI. Supports install directory, shortcuts, file associations, uninstaller.  
-**When DMG:** Direct macOS distribution. Must be notarized. Include `/Applications` shortcut. Background image, license.  
-**When AppImage:** Linux portable. Single file, no install needed. Works on any distro.  
+**When NSIS:** Direct Windows distribution. Widest compatibility (Win7+). Customizable UI. Supports install directory, shortcuts, file associations, uninstaller.
+**When DMG:** Direct macOS distribution. Must be notarized. Include `/Applications` shortcut. Background image, license.
+**When AppImage:** Linux portable. Single file, no install needed. Works on any distro.
 **When MSIX:** Windows Store. Sandboxed, clean install/uninstall. Automatic Store updates. Limited filesystem access.
 
 ## Error Recovery **(STANDARD)**
@@ -366,6 +367,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `devops-engineer` | Build matrix (3 platforms), signing config, notarization steps, installer targets, update server endpoint | DevOps can't build CI/CD pipeline without understanding the full build matrix and signing requirements |
 | `qa-engineer` | E2E test scenarios, platform test matrix, GPU configuration variants, power-state test cases, auto-update test plan | QA can't design comprehensive desktop tests without knowing platform-specific failure modes |
 | `performance-engineer` | Cold/warm startup metrics, memory baseline, GPU rendering paths, IPC latency budget | Performance can't set budgets without understanding desktop-specific bottlenecks |
+| `automation-engineer` | Desktop build config, signing certs, packaging specs | Desktop builds stay manual — distribution blocked |
 
 ### Communication Triggers
 

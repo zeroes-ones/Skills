@@ -1,6 +1,6 @@
 # MVP Migration Patterns for 1-3 Dev Teams
 
-> **Audience:** Small teams (1-3 devs) needing to migrate databases, schemas, or platforms without a dedicated migration team, DBA, or SRE.  
+> **Audience:** Small teams (1-3 devs) needing to migrate databases, schemas, or platforms without a dedicated migration team, DBA, or SRE.
 > **Principle:** Every migration pattern here assumes you're on-call for the app AND the migration. Keep it simple enough to debug at 2 AM.
 
 ---
@@ -50,7 +50,7 @@ Phase 5: RETIRE OLD (wait 1-2 weeks, then deploy)
   ALTER TABLE users DROP COLUMN email;
 ```
 
-**Tooling needed:** A batch update script (30 lines of Python/Node) + your existing deploy pipeline.  
+**Tooling needed:** A batch update script (30 lines of Python/Node) + your existing deploy pipeline.
 **Rollback:** At any phase, revert the app code to the previous phase. The column still exists.
 
 ---
@@ -98,7 +98,7 @@ Week 6: RETIRE MYSQL
   - Then terminate
 ```
 
-**Tooling needed:** pgloader (free) or custom Python ETL (200-300 lines), checkpoint table, verification queries.  
+**Tooling needed:** pgloader (free) or custom Python ETL (200-300 lines), checkpoint table, verification queries.
 **Cost:** New PG instance ($15-50/mo during migration) + engineering time (2-6 weeks part-time).
 
 ---
@@ -131,7 +131,7 @@ def process_batch(db, start_id):
     ) WHERE id > %s AND id <= %s AND org_id IS NULL"""
     end_id = start_id + BATCH_SIZE
     db.execute("""
-        UPDATE projects 
+        UPDATE projects
         SET org_id = (SELECT u.org_id FROM users u WHERE u.id = projects.owner_id)
         WHERE id > %s AND id <= %s AND org_id IS NULL
     """, (start_id, end_id))
@@ -140,18 +140,18 @@ def process_batch(db, start_id):
 def main():
     db = connect(os.environ['DATABASE_URL'])
     last_id = get_last_id()
-    
+
     while True:
         last_id = process_batch(db, last_id)
         save_checkpoint(last_id)
-        
+
         # Exit condition: no more rows to process
         remaining = db.query("SELECT COUNT(*) FROM projects WHERE org_id IS NULL")
         if remaining == 0:
             break
-        
+
         time.sleep(SLEEP_MS / 1000)
-    
+
     print("Backfill complete.")
 
 if __name__ == '__main__':

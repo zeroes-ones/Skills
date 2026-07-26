@@ -28,7 +28,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 def create_hybrid_cert(csr: x509.CertificateSigningRequest,
                        ca_ecdsa_key, ca_mldsa_key) -> x509.Certificate:
     """Build X.509 cert with dual signature algorithm"""
-    
+
     builder = x509.CertificateBuilder()
     builder = builder.subject_name(csr.subject)
     builder = builder.issuer_name(ca_cert.subject)
@@ -36,14 +36,14 @@ def create_hybrid_cert(csr: x509.CertificateSigningRequest,
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.not_valid_before(datetime.utcnow())
     builder = builder.not_valid_after(datetime.utcnow() + timedelta(days=365))
-    
+
     # Standard ECDSA signature (classical)
     cert_bytes = builder.sign(ca_ecdsa_key, hashes.SHA256())
-    
+
     # ML-DSA-44 alternate signature (PQC) in certificate extension
     # OID: 2.16.840.1.101.3.4.3.17 (id-alg-mldsa-44)
     mldsa_sig = sign_mldsa44(cert_bytes.tbs_certificate_bytes, ca_mldsa_key)
-    
+
     cert = cert_bytes.add_extension(
         x509.UnrecognizedExtension(
             oid=MLDSA44_SIG_OID,
@@ -69,7 +69,7 @@ def inventory_crypto_endpoints(hosts: list[str]) -> dict:
             cipher = s.cipher()
             cert_der = s.getpeercert(binary_form=True)
             cert = x509.load_der_x509_certificate(cert_der)
-            
+
             results[host] = {
                 "kex_algorithm": cipher[0],           # e.g., ECDHE-RSA
                 "sig_algorithm": cert.signature_algorithm_oid._name,

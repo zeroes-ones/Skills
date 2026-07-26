@@ -30,7 +30,13 @@ chain:
   - backend-developer
   - frontend-developer
   feeds_into:
-  - all skills
+  - backend-developer
+  - frontend-developer
+  - fullstack-developer
+  - mobile-developer
+  - data-engineer
+  - devops-engineer
+  - system-architect
 ---
 # Explore Tools — Universal Tool Discovery & Evaluation
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

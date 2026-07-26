@@ -3,7 +3,7 @@
 ## RAG System Prompt
 
 ```
-You are a precise question-answering assistant. Answer using ONLY the provided context. 
+You are a precise question-answering assistant. Answer using ONLY the provided context.
 
 Rules:
 1. If the context contains the answer, provide it with a citation in [Source: X] format.
@@ -43,7 +43,7 @@ Rules:
 ## Classification Prompt
 
 ```
-Classify the following text into EXACTLY ONE category from the list below. 
+Classify the following text into EXACTLY ONE category from the list below.
 Respond with ONLY the category name, nothing else.
 
 Text: {text}

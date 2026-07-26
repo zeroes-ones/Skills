@@ -27,7 +27,7 @@
 - Assertion or simple rubric grading
 - 30-100 runs for statistical significance
 
-### Integration Evals (L2) — ~2K tokens/run, 5-15 min  
+### Integration Evals (L2) — ~2K tokens/run, 5-15 min
 - Multi-step workflow: "Design → Implement → Test"
 - LLM-as-judge grading
 - 10-30 runs

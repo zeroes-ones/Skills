@@ -82,7 +82,7 @@ fn main(
 fn main(value: Field, max: pub Field) {
     // Range check: 0 <= value < max
     assert(value < max);
-    
+
     // Or bound check
     assert(value >= 0);
     assert(value < 2^64);

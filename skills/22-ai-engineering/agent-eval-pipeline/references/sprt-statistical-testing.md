@@ -25,7 +25,7 @@ def sprt_test(runs_a, runs_b, alpha=0.05, beta=0.2, delta=0.05):
     n = len(runs_a)
     mean_a, mean_b = np.mean(runs_a), np.mean(runs_b)
     std_a, std_b = np.std(runs_a, ddof=1), np.std(runs_b, ddof=1)
-    
+
     # Log-likelihood ratio for normal distribution
     se = np.sqrt(std_a**2/n + std_b**2/n)
     z = (mean_b - mean_a) / se if se > 0 else 0
@@ -33,10 +33,10 @@ def sprt_test(runs_a, runs_b, alpha=0.05, beta=0.2, delta=0.05):
         ((r - mean_a)/std_a)**2 - ((r - mean_b)/std_b)**2
         for r in runs_a + runs_b
     )
-    
+
     A = np.log((1 - beta) / alpha)
     B = np.log(beta / (1 - alpha))
-    
+
     if llr >= A: return "SIGNIFICANT"
     elif llr <= B: return "NOT_SIGNIFICANT"
     else: return "COLLECT_MORE"

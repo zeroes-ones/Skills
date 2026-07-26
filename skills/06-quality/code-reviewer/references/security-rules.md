@@ -195,7 +195,7 @@ req\.body\.isAdmin|request\.data\.get\('role'|@RequestParam.*role
 DEBUG\s*=\s*True|NODE_ENV\s*=\s*['"]development['"]
 DEBUG\s*=\s*True|app\.run\(debug\s*=\s*True\)
 
-# Default credentials  
+# Default credentials
 admin\s*:\s*admin|root\s*:\s*root|password\s*:\s*['"]password['"]
 
 # Stack traces

@@ -51,7 +51,7 @@ Landmarks allow screen reader users to navigate directly to major page sections.
 <!-- Accordion container -->
 <div role="region" aria-labelledby="accordion-heading">
   <h2 id="accordion-heading">FAQs</h2>
-  
+
   <!-- Accordion header/trigger -->
   <h3>
     <button id="accordion-trigger-1"
@@ -61,7 +61,7 @@ Landmarks allow screen reader users to navigate directly to major page sections.
       <span aria-hidden="true" class="icon">▼</span>
     </button>
   </h3>
-  
+
   <!-- Accordion panel -->
   <div id="accordion-panel-1"
        role="region"
@@ -95,16 +95,16 @@ Landmarks allow screen reader users to navigate directly to major page sections.
      aria-labelledby="dialog-title"
      aria-describedby="dialog-description"
      tabindex="-1">
-  
+
   <h2 id="dialog-title">Confirm Deletion</h2>
-  
+
   <p id="dialog-description">
     Are you sure you want to delete this item? This action cannot be undone.
   </p>
-  
+
   <button>Cancel</button>
   <button>Delete</button>
-  
+
   <!-- Close button -->
   <button aria-label="Close dialog">✕</button>
 </div>
@@ -138,7 +138,7 @@ Landmarks allow screen reader users to navigate directly to major page sections.
 ```html
 <div role="region" aria-labelledby="tabs-title">
   <h2 id="tabs-title">Account Settings</h2>
-  
+
   <!-- Tab list -->
   <div role="tablist" aria-label="Account settings tabs">
     <button role="tab"
@@ -163,7 +163,7 @@ Landmarks allow screen reader users to navigate directly to major page sections.
       Billing
     </button>
   </div>
-  
+
   <!-- Tab panels -->
   <div role="tabpanel"
        id="tabpanel-1"
@@ -309,7 +309,7 @@ Landmarks allow screen reader users to navigate directly to major page sections.
      aria-expanded="false"
      aria-owns="combo-listbox"
      aria-haspopup="listbox">
-  
+
   <input id="combo-input"
          type="text"
          role="combobox"
@@ -318,7 +318,7 @@ Landmarks allow screen reader users to navigate directly to major page sections.
          aria-autocomplete="list"
          aria-activedescendant=""
          autocomplete="off">
-  
+
   <ul id="combo-listbox"
       role="listbox"
       aria-label="Fruits"
@@ -439,7 +439,7 @@ Live regions announce dynamic content changes to screen readers without moving f
 <script>
   // Correct: inject into existing live region
   document.getElementById('live-region').textContent = '5 results found';
-  
+
   // Incorrect: dynamically create the live region — may not be detected
   // document.body.insertAdjacentHTML('beforeend', '<div aria-live="polite">5 results found</div>');
 </script>

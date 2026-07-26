@@ -1,7 +1,7 @@
 # Self-Hosting Breakeven Calculator
 
 ```
-Monthly cost to self-host = (server_cost + backup_cost + monitoring_cost) + 
+Monthly cost to self-host = (server_cost + backup_cost + monitoring_cost) +
                            (engineer_salary / 12 × ops_time_fraction × team_size)
 
 Example: Self-hosting PostgreSQL

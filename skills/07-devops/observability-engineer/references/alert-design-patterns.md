@@ -72,13 +72,13 @@ rate(http_requests_total[5m]) / rate(http_requests_total[5m] offset 1h) < 0.5
 ### Errors (Failed requests)
 ```promql
 # Error rate > 1% for 5 minutes
-sum(rate(http_requests_total{status=~"5.."}[5m])) 
-/ 
+sum(rate(http_requests_total{status=~"5.."}[5m]))
+/
 sum(rate(http_requests_total[5m])) > 0.01
 
 # Error rate > 5% for 1 minute (fast-burning)
-sum(rate(http_requests_total{status=~"5.."}[1m])) 
-/ 
+sum(rate(http_requests_total{status=~"5.."}[1m]))
+/
 sum(rate(http_requests_total[1m])) > 0.05
 ```
 
@@ -166,8 +166,8 @@ groups:
   rules:
   - alert: HighErrorRate
     expr: |
-      sum(rate(http_requests_total{status=~"5.."}[5m])) 
-      / 
+      sum(rate(http_requests_total{status=~"5.."}[5m]))
+      /
       sum(rate(http_requests_total[5m])) > 0.05
     for: 5m
     labels:
@@ -243,7 +243,7 @@ route:
 ```yaml
 - alert: HighLatency
   expr: |
-    histogram_quantile(0.99, 
+    histogram_quantile(0.99,
       sum(rate(http_request_duration_seconds_bucket{service="api"}[5m])) by (le, endpoint)
     ) > 1.0
   for: 10m

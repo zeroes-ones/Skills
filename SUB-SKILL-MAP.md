@@ -1,6 +1,6 @@
 # Sub-Skill Architecture Map
 
-> **Author:** Sandeep Kumar Penchala  
+> **Author:** Sandeep Kumar Penchala
 > **Purpose:** Iterative sub-skill thinking for every domain — industry-specific, phase-specific, role-specific depth
 
 ---

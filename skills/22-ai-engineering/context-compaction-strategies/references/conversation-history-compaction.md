@@ -5,8 +5,8 @@
 ### Level 1: Light (Turns 5-15)
 Keep full last 3 turns, summarize turns 1-remaining.
 ```
-Turn 1-2: [Summary: User asked for architecture design. 
-Agent proposed microservices with 3 services. 
+Turn 1-2: [Summary: User asked for architecture design.
+Agent proposed microservices with 3 services.
 Decision: Microservices accepted. Constraint: Must use AWS.]
 Turn 3: Agent designed data model...
 Turn 4: Agent created API spec...

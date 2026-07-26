@@ -8,7 +8,7 @@ Reference companion to healthcare-security/SKILL.md. Detailed anti-patterns with
 - **Unencrypted backup tapes**: Physical media stolen from vehicles ($2.25M HHS fine for unencrypted drives)
 - **Email without TLS**: PHI transmitted over unencrypted SMTP — interceptable in transit
 
-## FHIR Anti-Patterns  
+## FHIR Anti-Patterns
 - **No scoping on SMART on FHIR tokens**: Access token grants entire patient record instead of specific resources
 - **Hardcoded client secrets in mobile apps**: OAuth2 client credentials extractable from APK/IPA binary
 - **Missing `aud` claim validation**: Not verifying the token audience is your FHIR server

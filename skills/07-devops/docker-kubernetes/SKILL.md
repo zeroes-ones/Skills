@@ -32,6 +32,7 @@ chain:
   - devops-engineer
   - networking-engineer
   feeds_into:
+  - automation-engineer
   - devops-engineer
   - observability-engineer
   - platform-engineer
@@ -442,6 +443,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `site-reliability-engineer` | Container reliability patterns, health probe configuration, resource limit enforcement | SRE can't guarantee container uptime — reliability targets at risk |
 | `platform-engineer` | Containerized workloads and Helm charts deployable via platform golden paths | Developer self-service stuck — no deployable artifacts |
 | `observability-engineer` | Container metrics, PodMonitors, OpenTelemetry sidecar injection, Fluent Bit config | Can't observe container workloads — blind spots in monitoring |
+| `automation-engineer` | Dockerfile, Helm charts, container scanning config | Containers can't be built or deployed |
 
 **What good looks like:** Docker image builds in under 5 minutes and is under 200MB. Kubernetes manifests pass `kubeval` validation. Pod startup time < 10 seconds. Liveness and readiness probes configured on every deployment. Resource requests and limits set on every container.
 
@@ -548,4 +550,3 @@ Detailed reference material loaded on demand:
 - **When Kubernetes is Overkill**: See [k8s-overkill.md](references/k8s-overkill.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

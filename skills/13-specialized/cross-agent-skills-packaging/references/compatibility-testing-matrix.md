@@ -75,7 +75,7 @@ RESULTS='{"skill": "'$SKILL_NAME'", "timestamp": "'$(date -Iseconds)'", "results
 test_agent() {
   local agent="$1"
   local skill_dir="$HOME/.${agent}/skills/${SKILL_NAME}"
-  
+
   if [ -L "$skill_dir" ] && [ -e "$skill_dir" ]; then
     echo "  [PASS] $agent: symlink exists and resolves"
     RESULTS=$(echo "$RESULTS" | jq ".results[\"$agent\"] = {symlink: \"ok\"}")

@@ -1,10 +1,10 @@
 # PRD (Product Requirements Document) Template
 
 ## Executive Summary
-**Product/Feature:** [Name]  
-**Status:** Draft | In Review | Approved | In Development  
-**Author:** [Name]  
-**Date:** [YYYY-MM-DD]  
+**Product/Feature:** [Name]
+**Status:** Draft | In Review | Approved | In Development
+**Author:** [Name]
+**Date:** [YYYY-MM-DD]
 **Version:** [X.Y]
 
 ### Problem Statement

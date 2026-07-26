@@ -193,7 +193,7 @@ Business strategy scales from a single product line to corporate strategy. The t
         └─────────┘ └────────┘  │fee      │ └──────────┘
                                 └────────┘
 ```
-**When to choose Usage-based:** Product value directly correlates with API calls, data processed, or compute consumed. CAC payback < 12 months at median usage.  
+**When to choose Usage-based:** Product value directly correlates with API calls, data processed, or compute consumed. CAC payback < 12 months at median usage.
 **When to choose Tiered/Flat:** Predictable value delivery per customer. Buyers need budget predictability. Implementation cost is similar regardless of usage volume.
 
 ### GTM Channel Strategy
@@ -214,7 +214,7 @@ Business strategy scales from a single product line to corporate strategy. The t
             │ Marketing│ │ + Content│ │ Outbound SDR  │
             └──────────┘ └──────────┘ └──────────────┘
 ```
-**When to choose PLG/Content:** Self-serve onboarding exists. Product demonstrates value in < 15 minutes. CAC target < $200.  
+**When to choose PLG/Content:** Self-serve onboarding exists. Product demonstrates value in < 15 minutes. CAC target < $200.
 **When to choose Enterprise Sales:** Requires procurement, security review, or executive approval. Implementation takes > 2 weeks. ACV justifies > $1K CAC.
 
 ### Market Entry Decision
@@ -235,7 +235,7 @@ Business strategy scales from a single product line to corporate strategy. The t
         │ expansion        │  │ in current market   │
         └──────────────────┘  └────────────────────┘
 ```
-**When to expand:** Current market share > 30% OR TAM in adjacent market > 2x current. Can repurpose > 60% of existing tech/sales motion.  
+**When to expand:** Current market share > 30% OR TAM in adjacent market > 2x current. Can repurpose > 60% of existing tech/sales motion.
 **When to deepen:** Current market share < 15%. CAC is trending down. Unit economics improving with scale.
 
 ### Fundraising Readiness
@@ -257,7 +257,7 @@ Business strategy scales from a single product line to corporate strategy. The t
         │ Gross margin>70%?│  │ Revisit in 6 months. │
         └──────────────────┘  └──────────────────────┘
 ```
-**When to fundraise:** > 6 months runway remaining. Clear use of funds tied to milestones. Strong founder-market fit narrative.  
+**When to fundraise:** > 6 months runway remaining. Clear use of funds tied to milestones. Strong founder-market fit narrative.
 **When to wait:** < 4 months runway (emergency mode — bridge round). Growth is flat. Missing key hires needed to deploy capital effectively.
 
 ### Cross-skills Integration

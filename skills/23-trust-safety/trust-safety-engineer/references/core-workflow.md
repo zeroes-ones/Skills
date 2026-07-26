@@ -169,7 +169,7 @@ Token Bucket Algorithm (per-entity):
   Email-verified:             60 actions / minute
   Phone-verified:            120 actions / minute
   Established (> 90 days):   300 actions / minute
-  
+
   Hard limits (regardless of tier):
     Account creations: 3 / hour / IP
     Password resets: 5 / hour / account

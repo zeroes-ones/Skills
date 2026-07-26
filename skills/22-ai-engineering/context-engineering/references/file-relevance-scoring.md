@@ -7,9 +7,9 @@ How to score every candidate file for context inclusion. A file should earn its 
 ## The Scoring Formula
 
 ```
-relevance(file) = 0.35 * recency_score(file) 
-                + 0.30 * proximity_score(file) 
-                + 0.25 * semantic_score(file) 
+relevance(file) = 0.35 * recency_score(file)
+                + 0.30 * proximity_score(file)
+                + 0.25 * semantic_score(file)
                 + 0.10 * size_penalty(file)
 ```
 
@@ -90,7 +90,7 @@ size_penalty = min(1.0, 500 / max(file_lines, 1))
 ## Scoring Pipeline
 
 ```
-Raw file list → Recency scoring → Proximity scoring → Semantic scoring 
+Raw file list → Recency scoring → Proximity scoring → Semantic scoring
 → Size penalty → Decay/Boost → Final score → Sort descending → Threshold filter
 ```
 

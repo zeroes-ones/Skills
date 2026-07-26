@@ -7,7 +7,7 @@ How to calculate the real cost of architectural complexity and when it's justifi
 ## The Complexity Cost Formula
 
 ```
-complexity_cost_per_year = 
+complexity_cost_per_year =
     (onboarding_time_days × new_hires_per_year × daily_rate) +
     (bugs_per_month × complexity_factor × avg_fix_hours × hourly_rate) +
     (deploy_freq_per_month × deploy_complexity_hours × hourly_rate) +

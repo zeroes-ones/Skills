@@ -205,7 +205,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                           │day        │
                                           └───────────┘
 ```
-**When to declare SEV1:** Complete outage of core product. Data loss or corruption confirmed. Security breach with active exploitation. PagerDuty alerts all engineering.  
+**When to declare SEV1:** Complete outage of core product. Data loss or corruption confirmed. Security breach with active exploitation. PagerDuty alerts all engineering.
 **When SEV3/SEV4:** Cosmetic issue, non-blocking, workaround available. Affects < 5% of users. No data risk. Create ticket, address in next sprint.
 
 ### Escalation Trigger
@@ -233,7 +233,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ → VP → CTO │ │ still stale. │
     └────────────┘ └──────────────┘
 ```
-**When to escalate:** SEV1 not contained within 30 minutes. Customer data potentially exposed. Decision needed beyond IC authority (external comms, legal exposure).  
+**When to escalate:** SEV1 not contained within 30 minutes. Customer data potentially exposed. Decision needed beyond IC authority (external comms, legal exposure).
 **When to hold:** Progress is being made. Mitigation is active and working. ETA to resolution is credible and within SLA.
 
 ### Postmortem Depth
@@ -256,7 +256,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
         │ within 48 hours  │  └──────────────────────┘
         └──────────────────┘
 ```
-**When full postmortem required:** Customer data loss or exposure. Revenue loss > $10K. Regulatory notification triggered. Mean time to resolve > 4 hours.  
+**When full postmortem required:** Customer data loss or exposure. Revenue loss > $10K. Regulatory notification triggered. Mean time to resolve > 4 hours.
 **When light postmortem suffices:** SEV3 with quick resolution. Known failure mode with existing runbook. No user impact or < 1% user impact.
 
 ### Runbook Automation Priority
@@ -286,7 +286,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                             │ sprints    │  │ quarterly    │
                             └────────────┘  └──────────────┘
 ```
-**When to automate immediately:** Recurring incident (> 2x/quarter). Resolution requires > 10 minutes of human time. Error rate in manual resolution > 10%.  
+**When to automate immediately:** Recurring incident (> 2x/quarter). Resolution requires > 10 minutes of human time. Error rate in manual resolution > 10%.
 **When documentation suffices:** Incident occurred once and root cause was permanently fixed. Resolution is simple (restart service, scale up). Annual recurrence expected.
 
 ## Core Workflow **(STANDARD)**
@@ -533,4 +533,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

@@ -191,7 +191,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
                           │ Apple)     │  │ Google)      │
                           └────────────┘  └──────────────┘
 ```
-**When Branded House:** Single strong master brand. Products are features/verticals of one promise. Marketing efficiency through unified awareness.  
+**When Branded House:** Single strong master brand. Products are features/verticals of one promise. Marketing efficiency through unified awareness.
 **When House of Brands:** Acquired companies with existing equity. Targeting different audiences with conflicting brand promises. Risk isolation between brands.
 
 ### Logo System Complexity
@@ -215,7 +215,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ variants.        │    └──────────────────────┘
         └──────────────────┘
 ```
-**When full system needed:** Multi-platform product (web, iOS, Android, print). Logo appears at extreme sizes. Brand used by external partners.  
+**When full system needed:** Multi-platform product (web, iOS, Android, print). Logo appears at extreme sizes. Brand used by external partners.
 **When minimal suffices:** Single-context use (web only). Logo always appears at predictable sizes. Internal or B2B tool with limited brand exposure.
 
 ### Color Palette Scope
@@ -241,7 +241,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ 30–50 tokens.    │    └──────────────────────┘
         └──────────────────┘
 ```
-**When full token system:** Product UI with light/dark mode. Analytics dashboards with charts. White-label or multi-tenant theming requirements.  
+**When full token system:** Product UI with light/dark mode. Analytics dashboards with charts. White-label or multi-tenant theming requirements.
 **When core palette:** Marketing site + simple app. Light mode only. No data visualization beyond status indicators. Fast time to launch.
 
 ### Typography Hierarchy Depth
@@ -267,7 +267,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ 10–14 sizes.     │
         └──────────────────┘
 ```
-**When full scale:** Blog, documentation, marketing site with long-form reading. Multiple content types (articles, case studies, legal). Readability-critical.  
+**When full scale:** Blog, documentation, marketing site with long-form reading. Multiple content types (articles, case studies, legal). Readability-critical.
 **When compact scale:** Dashboard, admin panel, B2B tool. Primarily UI components. Short text mostly. Consistency over typographic expression.
 
 ### Governance Model
@@ -291,7 +291,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ violation tiers. │    └──────────────────────┘
         └──────────────────┘
 ```
-**When full governance:** Co-branding with partners. Multiple agencies creating assets. Brand used in 20+ countries. Enterprise with legal/compliance requirements.  
+**When full governance:** Co-branding with partners. Multiple agencies creating assets. Brand used in 20+ countries. Enterprise with legal/compliance requirements.
 **When light governance:** Single design team. Assets consumed only by internal engineering. No external co-branding. Brand changes < quarterly.
 
 ## Core Workflow
@@ -553,4 +553,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

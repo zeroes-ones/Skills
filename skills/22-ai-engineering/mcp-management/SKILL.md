@@ -244,7 +244,7 @@ Where does the MCP server run?
             │   └── Good for: long-running tool execution, progress updates
             │
             └── No → Plain Streamable HTTP (simpler)
-            
+
             └── Legacy system using old SSE-only spec?
                 └── SSE transport (deprecated, migrate when possible)
 ```

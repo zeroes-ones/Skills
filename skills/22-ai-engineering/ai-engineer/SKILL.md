@@ -166,19 +166,19 @@ Follow this sequence. Do not skip steps.
    ├── Ingest → Parse (Unstructured, LlamaParse, PyPDF) → Clean
    ├── Chunk → Select strategy (see Decision Tree: Chunking)
    └── Embed → Select model (see Decision Tree: Embeddings)
-   
+
 2. RETRIEVAL
-   ├── Select vector DB (see Decision Tree: Vector Database)  
+   ├── Select vector DB (see Decision Tree: Vector Database)
    ├── Index → Batch embed → Upsert with metadata
    ├── Query → Embed query → ANN search (cosine, dot, euclidean)
    └── Re-rank → Cross-encoder (Cohere, BGE-reranker) on top-20 results
-   
+
 3. GENERATION
    ├── Assemble context → Top-5 chunks + metadata + conversation history
    ├── Prompt → System: "Answer using only provided context. Cite sources."
    ├── Generate → Stream tokens to user
    └── Verify → Check answer contains entities from retrieved chunks
-   
+
 4. EVALUATION
    ├── Retrieval: recall@5, MRR, NDCG on 100+ query pairs
    ├── Generation: faithfulness, relevancy, correctness (LLM-as-judge)
@@ -248,7 +248,7 @@ DESIGN THE AGENT LOOP:
 ```
 What type of document?
 ├── Structured (tables, JSON) → Chunk by section/field, 200-500 tokens
-├── Narrative (articles, docs) → Semantic chunking (split on topic shifts), 500-1000 tokens  
+├── Narrative (articles, docs) → Semantic chunking (split on topic shifts), 500-1000 tokens
 ├── Code → Chunk by function/class, 100-300 tokens
 ├── Legal/regulatory → Chunk by clause/section, preserve numbering
 └── Mixed → Recursive split: 1000 char chunks, 200 char overlap
@@ -465,7 +465,7 @@ After building an AI feature, run this sequence. Do not proceed past a failure.
 
 1. **Smoke test:** `python scripts/smoke_test.py --endpoint $ENDPOINT`
    - Sends 10 known queries, checks response shape (non-empty, has citations if RAG, streaming headers if streaming)
-   
+
 2. **Correctness:** `python scripts/eval_correctness.py --test-set golden.jsonl --threshold 0.85`
    - Runs LLM-as-judge on 100 golden queries with known answers
    - Computes faithfulness, relevancy, correctness

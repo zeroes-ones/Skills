@@ -32,16 +32,18 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
-    - ci-cd-builder
-    - qa-engineer
-    - security-reviewer
-    - performance-engineer
-    - release-manager
+  - automation-engineer
+  - ci-cd-builder
+  - qa-engineer
+  - security-reviewer
+  - performance-engineer
+  - release-manager
   feeds_into:
-    - incident-responder
-    - release-manager
-    - site-reliability-engineer
-    - observability-engineer
+  - automation-engineer
+  - incident-responder
+  - release-manager
+  - site-reliability-engineer
+  - observability-engineer
   alternatives: []
 ---
 # Shipping and Launch
@@ -481,6 +483,11 @@ If a command or approach fails, follow this escalation path before giving up:
 |---|---|---|
 | `cloud-architect` | Infrastructure design, networking, IAM, cost model | Before provisioning infrastructure or designing deployment pipelines |
 | `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
+| `automation-engineer` | Launch checklist, rollback plan, comms timeline | Before automating launch delivery pipelines |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|
+| `automation-engineer` | Launch checklist, rollback plan, comms timeline | Launch without automation — manual errors |
 
 
 ## Proactive Triggers

@@ -533,4 +533,3 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 * [invocation-strategy.md](references/invocation-strategy.md) — User-invoked vs model-invoked: cost tradeoffs, orchestration patterns, invocation conditions
 * [description-design.md](references/description-design.md) — Writing descriptions that are triggers-only with boundary specification and routing
 * [anti-rationalization-tables.md](references/anti-rationalization-tables.md) — Designing anti-rationalization tables with excuse-reality pairs that preempt model rationalizations
-

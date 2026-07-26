@@ -10,7 +10,7 @@
 
 ### Indirect Injection
 - Malicious content in retrieved documents
-- Poisoned web pages in browsing context  
+- Poisoned web pages in browsing context
 - Tool output containing injected instructions
 
 ### Context Manipulation

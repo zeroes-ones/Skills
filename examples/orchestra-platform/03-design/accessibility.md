@@ -1,7 +1,7 @@
 # Accessibility Audit — WCAG 2.2 AA
 
-**Audit Date**: July 15, 2026  
-**Auditor**: Orchestra Accessibility Team + external consultant (Deque Systems)  
+**Audit Date**: July 15, 2026
+**Auditor**: Orchestra Accessibility Team + external consultant (Deque Systems)
 **Overall Pass Rate**: 94% (281 of 299 success criteria passed)
 
 ## Findings Summary

@@ -48,7 +48,7 @@ rules:
     type: exact_match
     condition: "l1_pass_count == l1_total_count"
     failure_message: "{failed_count} L1 tool tests failed. Merge blocked."
-    
+
   - name: test_coverage_maintained
     type: comparison
     condition: "current_l1_test_count >= baseline_l1_test_count"
@@ -109,7 +109,7 @@ rules:
   - name: phase_regression_check
     type: per_phase
     condition: "phase.success_rate >= baseline_phase.success_rate - 0.10"
-    
+
 timeout: 1800  # seconds (30 min)
 cost_budget: 40.00  # USD
 ```
@@ -161,7 +161,7 @@ class CostBudgetEnforcer:
     def __init__(self, monthly_budget: float = 500.00):
         self.monthly_budget = monthly_budget
         self.spent_this_month = self._query_current_spend()
-    
+
     def approve_gate_run(self, gate: str, estimated_cost: float) -> bool:
         """Check if running this gate fits within budget."""
         if self.spent_this_month + estimated_cost > self.monthly_budget:
@@ -182,17 +182,17 @@ class CostBudgetEnforcer:
 skip_conditions:
   - pattern: "docs/**"
     skip_gates: [l3_e2e_pipeline]  # Docs changes don't need E2E
-    
+
   - pattern: "config/**"
     skip_gates: [l3_e2e_pipeline]
-    
+
   - pattern: "tests/**"
     skip_gates: []  # Test changes need all gates
-    
+
   - label: "skip-e2e"
     require_approval: true
     skip_gates: [l3_e2e_pipeline]
-    
+
   - label: "emergency-fix"
     require_approval: true
     skip_gates: [l3_e2e_pipeline]  # L1 and L2 still required
@@ -207,30 +207,30 @@ def automated_rollback_decision(metrics: dict) -> str:
     Returns: 'rollback', 'continue_monitoring', or 'promote'
     """
     decisions = []
-    
+
     # Safety checks (any trigger → immediate rollback)
     if metrics.get("safety_violations", 0) > 0:
         return "rollback"
-    
+
     # Quality checks (statistical test)
     if metrics.get("agent_assay_defect_detected", False):
         decisions.append("rollback")
-    
+
     # Performance checks
     if metrics.get("p95_latency_increase_pct", 0) > 50:
         decisions.append("rollback")
-    
+
     # Error rate checks
     if metrics.get("error_rate", 0) > 0.05:
         decisions.append("rollback")
-    
+
     if "rollback" in decisions:
         return "rollback"
-    
+
     # If all metrics are better than baseline
     if all_metrics_improved(metrics):
         return "promote"
-    
+
     return "continue_monitoring"
 ```
 

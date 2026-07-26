@@ -70,19 +70,19 @@ In a security incident, these fields answer the key questions:
 ### Implementation Pattern
 ```sql
 -- Detect credential stuffing in real-time (evaluated every 60 seconds)
-SELECT 
+SELECT
     source_ip,
     COUNT(*) as attempts,
     COUNT(DISTINCT user_id) as unique_accounts,
     SUM(CASE WHEN status_code = 401 THEN 1 ELSE 0 END) as failures,
     SUM(CASE WHEN status_code = 200 THEN 1 ELSE 0 END) as successes
 FROM api_audit_log
-WHERE 
+WHERE
     event_type = 'auth.login'
     AND timestamp > NOW() - INTERVAL '5 minutes'
 GROUP BY source_ip
-HAVING 
-    failures > 20 
+HAVING
+    failures > 20
     OR unique_accounts > 50
     OR (failures > 0 AND successes > 0 AND attempts > 10); -- Mixed success/failure from one IP
 ```
@@ -102,7 +102,7 @@ app.get('/api/v1/internal/admin/debug/users', (req, res) => {
         honeytoken: 'admin_debug_users',
         action: 'Auto-block source IP, rotate all API keys for tenant',
     });
-    
+
     // Return fake data to delay the attacker
     res.json({ users: [{ id: 'honeytoken_001', role: 'admin_trap' }] });
 });

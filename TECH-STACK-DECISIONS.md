@@ -1,6 +1,6 @@
 # Technology Stack Decision Framework
 
-> **Author:** Sandeep Kumar Penchala  
+> **Author:** Sandeep Kumar Penchala
 > **Purpose:** Make wise, cost-effective tech stack decisions at every stage
 
 ---
@@ -46,9 +46,9 @@ Before evaluating any technology, answer:
 | Deployment | Vercel / Railway | AWS ECS / GCP Cloud Run | Multi-region K8s |
 | Monthly Cost | $50-150 | $500-2,000 | $5,000-20,000 |
 
-**When to choose Next.js:** React team, SEO matters, fullstack JS  
-**When to choose Remix:** Web standards focus, progressive enhancement important  
-**When to choose SPA + API:** Mobile app also needs API, separate frontend/backend teams  
+**When to choose Next.js:** React team, SEO matters, fullstack JS
+**When to choose Remix:** Web standards focus, progressive enhancement important
+**When to choose SPA + API:** Mobile app also needs API, separate frontend/backend teams
 
 #### Archetype B: API-First (Mobile backend, B2B integrations)
 
@@ -61,10 +61,10 @@ Before evaluating any technology, answer:
 | Message Queue | Redis / DB polling | RabbitMQ / SQS | Kafka |
 | Monthly Cost | $100-300 | $1,000-5,000 | $10,000-50,000 |
 
-**When Python/FastAPI:** AI/ML integration, data-heavy, rapid prototyping  
-**When Go:** High concurrency, low latency requirement, networking  
-**When TypeScript/Node:** Fullstack JS team, I/O heavy, real-time (WebSocket)  
-**When Rust:** Performance-critical, WASM, systems-level  
+**When Python/FastAPI:** AI/ML integration, data-heavy, rapid prototyping
+**When Go:** High concurrency, low latency requirement, networking
+**When TypeScript/Node:** Fullstack JS team, I/O heavy, real-time (WebSocket)
+**When Rust:** Performance-critical, WASM, systems-level
 
 #### Archetype C: Mobile App (Consumer-facing)
 
@@ -77,9 +77,9 @@ Before evaluating any technology, answer:
 | Analytics | Firebase Analytics | Mixpanel/Amplitude | Custom + data warehouse |
 | Monthly Cost | $25-100 | $500-2,000 | $5,000-25,000 |
 
-**When React Native:** React web team, code sharing with web, rapid iteration  
-**When Flutter:** Pixel-perfect custom UI, no web code sharing needed, small team  
-**When Native (Swift/Kotlin):** GPU-intensive, AR/VR, heavy hardware integration, platform feel is market differentiator  
+**When React Native:** React web team, code sharing with web, rapid iteration
+**When Flutter:** Pixel-perfect custom UI, no web code sharing needed, small team
+**When Native (Swift/Kotlin):** GPU-intensive, AR/VR, heavy hardware integration, platform feel is market differentiator
 
 #### Archetype D: Data-Heavy (Analytics, ML platform)
 

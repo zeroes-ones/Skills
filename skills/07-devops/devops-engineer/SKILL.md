@@ -576,4 +576,3 @@ Detailed reference material loaded on demand:
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Self-Hosting Breakeven Calculator**: See [self-hosting.md](references/self-hosting.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

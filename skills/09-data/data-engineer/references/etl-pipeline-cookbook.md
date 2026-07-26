@@ -282,7 +282,7 @@ PostgreSQL → Debezium Connector (Kafka Connect) → Kafka Topic → Consumer (
         updated_at='updated_at',
     )
 %}
-SELECT 
+SELECT
   after.order_id AS order_id,
   after.customer_id AS customer_id,
   after.amount AS amount,

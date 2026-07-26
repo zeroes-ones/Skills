@@ -45,7 +45,7 @@ The 5-level context hierarchy is the foundational architecture for all context a
 
 **Priority tiers:**
 - **A (always):** Files the agent is currently editing or has edited in this session
-- **B (conditional):** Direct dependencies (imports) of Priority A files  
+- **B (conditional):** Direct dependencies (imports) of Priority A files
 - **C (stretch):** Same-module siblings, test files for Priority A
 
 **Token range:** 30K-80K tokens (typically 60-70% of total context)

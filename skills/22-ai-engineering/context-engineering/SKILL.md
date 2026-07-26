@@ -170,13 +170,13 @@ def allocate_budget(model: str, task_complexity: str) -> dict:
     window = MODEL_WINDOWS[model]
     # Safety margin: never exceed 80% of window
     usable = int(window * 0.80)
-    
+
     budgets = {
         "simple":  {"L1": 0.04, "L2": 0.08, "L3": 0.30, "L4": 0.03, "L5": 0.05, "buffer": 0.30},
         "standard":{"L1": 0.03, "L2": 0.10, "L3": 0.35, "L4": 0.05, "L5": 0.07, "buffer": 0.20},
         "complex": {"L1": 0.02, "L2": 0.12, "L3": 0.40, "L4": 0.08, "L5": 0.08, "buffer": 0.10},
     }
-    
+
     alloc = budgets[task_complexity]
     return {k: int(usable * v) for k, v in alloc.items()}
 ```
@@ -211,19 +211,19 @@ Algorithm: INVERSE_CONTEXT_PACKING
 ### Step 3: Priority Ordering Within Level 3
 
 ```python
-def score_file_relevance(file_path: str, task_description: str, 
+def score_file_relevance(file_path: str, task_description: str,
                           dependency_graph: dict, edit_history: list) -> float:
     """
     Returns 0.0-1.0 relevance score.
-    Factors: edit recency (0.35), import distance (0.30), 
+    Factors: edit recency (0.35), import distance (0.30),
              semantic similarity (0.25), file size penalty (0.10)
     """
     recency = _recency_score(file_path, edit_history)        # 0.35 weight
     proximity = _import_distance(file_path, dependency_graph) # 0.30 weight
     semantic = _embedding_similarity(file_path, task_description) # 0.25 weight
     size_penalty = min(1.0, 500 / max(os.path.getsize(file_path), 1)) # 0.10 weight
-    
-    return (0.35 * recency + 0.30 * proximity + 
+
+    return (0.35 * recency + 0.30 * proximity +
             0.25 * semantic + 0.10 * size_penalty)
 ```
 

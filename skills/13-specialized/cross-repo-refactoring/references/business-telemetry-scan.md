@@ -119,7 +119,7 @@ marketing sends + 8 hours emergency dashboard rewiring.
 
 ```
 1. FIND MARKETING TRIGGERS ON AFFECTED EVENTS
-   |-- Search for marketing platform configs: rg "(braze|customer.io|hubspot|market|iterable|klaviyo)" 
+   |-- Search for marketing platform configs: rg "(braze|customer.io|hubspot|market|iterable|klaviyo)"
    |-- Check for webhook triggers: rg "webhook.*affected_field\|trigger.*affected_field"
    |-- Check for email template personalization: `{{ user.plan_type }}`, `{{ event.plan_type }}`
 

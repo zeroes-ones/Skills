@@ -10,17 +10,17 @@ class CKKSMetricTracker:
         self.bootstrap_count = 0
         self.bootstrap_cost_ms = bootstrap_cost_ms
         self.total_latency_ms = 0.0
-    
+
     def consume_level(self, op_name: str):
         self.levels -= 1
         if self.levels <= 0:
             raise BudgetExhausted(f"{op_name}: No levels remaining — $200K+ data corruption risk")
-    
+
     def bootstrap(self):
         self.levels = self.initial_levels  # Reset to top
         self.bootstrap_count += 1
         self.total_latency_ms += self.bootstrap_cost_ms
-    
+
     def estimate_latency(self) -> float:
         return self.total_latency_ms + (self.initial_levels - self.levels) * 5.0
 ```

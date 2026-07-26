@@ -31,6 +31,7 @@ chain:
   - tdd-guide
   - ui-ux-designer
   feeds_into:
+  - automation-engineer
   - localization-engineer
   - qa-engineer
   - security-reviewer
@@ -228,7 +229,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                              │ sync queue │  │ + assets  │
                              └────────────┘  └───────────┘
 ```
-**When full offline-first:** Field workers, travelers, areas with unreliable connectivity. Users must create/edit data offline. Conflict resolution needed.  
+**When full offline-first:** Field workers, travelers, areas with unreliable connectivity. Users must create/edit data offline. Conflict resolution needed.
 **When read-only offline:** Content consumption app (news, docs, media). Users don't create data. Pre-cache on WiFi, serve from local when offline.
 
 ### Navigation Architecture
@@ -258,7 +259,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                             │ linking    │  │ link support │
                             └────────────┘  └──────────────┘
 ```
-**When Tab + Stack:** Instagram/YouTube pattern. 3-5 top-level sections. Each tab has its own navigation history. Deep linking into nested screens required.  
+**When Tab + Stack:** Instagram/YouTube pattern. 3-5 top-level sections. Each tab has its own navigation history. Deep linking into nested screens required.
 **When Stack only:** Linear flows (onboarding, checkout wizard, setup). No persistent bottom navigation. Each screen leads to the next or back.
 
 ### Push Notification Strategy
@@ -289,7 +290,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                              │ + analytics│  │ reminders.   │
                              └────────────┘  └──────────────┘
 ```
-**When data-only + WebSocket:** Real-time chat/messaging. Push delivers wake-up signal; actual content fetched via persistent connection. Avoids 4KB APNs limit.  
+**When data-only + WebSocket:** Real-time chat/messaging. Push delivers wake-up signal; actual content fetched via persistent connection. Avoids 4KB APNs limit.
 **When FCM/APNs with deep link:** Transactional alerts, marketing. Notification tappable → deep link to relevant screen. Rich media (images, video thumbnails) for engagement.
 
 ### State Management
@@ -318,7 +319,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                           │            │  │ Provider     │
                           └────────────┘  └──────────────┘
 ```
-**When TanStack Query:** API-driven data that needs caching, pagination, and optimistic updates. Server is source of truth. Background refetch on focus.  
+**When TanStack Query:** API-driven data that needs caching, pagination, and optimistic updates. Server is source of truth. Background refetch on focus.
 **When Zustand/Riverpod:** Client-only global state (auth token, theme mode, feature flags). Cross-screen persistence without API round-trip. Lightweight (< 5KB).
 
 ## Core Workflow **(STANDARD)**
@@ -406,6 +407,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `qa-engineer` | Device coverage plan (low-end + high-end), Maestro/Detox configuration, offline/connectivity test scenarios | QA can't test without the mobile build and test harness |
 | `security-reviewer` | Biometric auth implementation, Keychain/Keystore patterns, certificate pinning, jailbreak/root detection | Security review can't assess mobile-specific threats without implementation |
 | `localization-engineer` | Platform-specific locale files, App Store/Play Store metadata, mobile formatting constraints | Localization pipeline can't process mobile strings in isolation |
+| `automation-engineer` | Build configs, signing identities, platform capabilities | Mobile builds stay manual — slow release cycles |
 
 ### Communication Triggers
 
@@ -608,4 +610,3 @@ Detailed reference material loaded on demand:
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

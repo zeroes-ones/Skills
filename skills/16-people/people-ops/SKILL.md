@@ -573,4 +573,3 @@ Detailed reference material loaded on demand:
 - **Scale Depth: Seed → Series A → Series C → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
-

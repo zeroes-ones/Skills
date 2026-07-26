@@ -1,6 +1,6 @@
 # MVP Growth Experiments
 
-> **Audience:** 1-3 person startups (pre-PMF to 1K users) running growth experiments on zero budget.  
+> **Audience:** 1-3 person startups (pre-PMF to 1K users) running growth experiments on zero budget.
 > **Principle:** You don't need a platform. You need analytics + feature flags + a spreadsheet.
 
 ---
@@ -29,7 +29,7 @@ analytics.track(eventName, {
   // Standard properties on every event
   userId: user.id,
   plan: user.plan,           // free | pro | enterprise
-  signupDate: user.createdAt, 
+  signupDate: user.createdAt,
   // Event-specific properties
   ...eventProperties
 });
@@ -89,7 +89,7 @@ D: Converted users (met success criteria)
 E: Conversion rate (=D/C)
 F: Lift vs control (=(treatment_rate - control_rate) / control_rate)
 G: Sample size needed (for 80% power, 5% alpha, MDE=10%)
-   Formula: =ROUND((NORM.S.INV(0.975)+NORM.S.INV(0.8))^2 * 
+   Formula: =ROUND((NORM.S.INV(0.975)+NORM.S.INV(0.8))^2 *
            (C5*(1-C5)+$C$4*(1-$C$4)) / (0.1*$C$4)^2, 0)
 H: Is significant? Manual: check if actual n > required n
 

@@ -186,8 +186,8 @@ Common chains:
     │ highest payoff.        │
     └────────────────────────┘
 ```
-**Lift-and-Shift:** When deadline <3 months or budget <$50K. Accept suboptimal architecture; optimize after migration.  
-**Strangler Fig:** When zero downtime is required. Replace pieces incrementally behind a proxy/router.  
+**Lift-and-Shift:** When deadline <3 months or budget <$50K. Accept suboptimal architecture; optimize after migration.
+**Strangler Fig:** When zero downtime is required. Replace pieces incrementally behind a proxy/router.
 **Refactor-and-Migrate:** When long-term ROI matters more than speed. Highest payoff, highest risk.
 
 ### 2. Database Migration Approach
@@ -220,8 +220,8 @@ Common chains:
                     └─────────┘ │ eventual cutover │
                                 └──────────────────┘
 ```
-**Big-bang:** Writes paused → dump → transform → load → verify → cut over. For <100GB with a maintenance window.  
-**Dual-write:** Write to both old and new, backfill history, verify consistency, cut reads, then cut writes.  
+**Big-bang:** Writes paused → dump → transform → load → verify → cut over. For <100GB with a maintenance window.
+**Dual-write:** Write to both old and new, backfill history, verify consistency, cut reads, then cut writes.
 **CDC:** For >100GB or high-throughput — Debezium/Kafka pipelines, no application changes needed for reads.
 
 ### 3. Framework/Library Migration Decision
@@ -248,8 +248,8 @@ Common chains:
                             │ pattern  │ │              │
                             └──────────┘ └──────────────┘
 ```
-**<10K LOC → big-bang rewrite.** One sprint, full replacement.  
-**Stable APIs → Strangler with adapters.** Migrate module-by-module behind same interface.  
+**<10K LOC → big-bang rewrite.** One sprint, full replacement.
+**Stable APIs → Strangler with adapters.** Migrate module-by-module behind same interface.
 **Unstable APIs → Feature flags per module.** Gradual, safe, allows A/B testing each component.
 
 ### 4. Cloud Migration Strategy (6 R's)
@@ -275,9 +275,9 @@ Common chains:
   └────────────┘     └───────────────┘    │ needed.          │
                                           └──────────────────┘
 ```
-**Rehost:** VM to cloud VM. Fastest, cheapest migration. Optimize later.  
-**Replatform:** Containerize + use managed services (RDS instead of self-managed Postgres). Better TCO.  
-**Refactor:** Rewrite for cloud-native. Highest effort, highest long-term ROI.  
+**Rehost:** VM to cloud VM. Fastest, cheapest migration. Optimize later.
+**Replatform:** Containerize + use managed services (RDS instead of self-managed Postgres). Better TCO.
+**Refactor:** Rewrite for cloud-native. Highest effort, highest long-term ROI.
 **Retain/Retire:** Keep on-prem if already optimized. Retire if app is deprecated.
 
 ### 5. When to Roll Back
@@ -307,8 +307,8 @@ Common chains:
                                │ spike       │ │ duration.    │
                                └─────────────┘ └──────────────┘
 ```
-**Data corruption → immediate rollback. No waiting. No investigation during incident.**  
-**P95 >3x baseline or error rate >1% → roll back after confirming non-transient.**  
+**Data corruption → immediate rollback. No waiting. No investigation during incident.**
+**P95 >3x baseline or error rate >1% → roll back after confirming non-transient.**
 **Everything else → extend bake period. Never roll back on the first small anomaly.**
 
 ## Core Workflow **(STANDARD)**
@@ -316,36 +316,36 @@ Common chains:
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Discovery & Assessment
-**Input:** Existing system (codebase, infra, DB, dependencies)  
-**Steps:** 1) Inventory all services, databases, and dependencies 2) Score each component by complexity (1-5) 3) Map dependency graph 4) Identify highest-risk components 5) Build migration wave plan  
+**Input:** Existing system (codebase, infra, DB, dependencies)
+**Steps:** 1) Inventory all services, databases, and dependencies 2) Score each component by complexity (1-5) 3) Map dependency graph 4) Identify highest-risk components 5) Build migration wave plan
 **Output:** Scored inventory + dependency map + migration wave sequencing plan
   Complete when: All services/databases/dependencies inventoried, each component scored 1-5 by complexity, dependency graph mapped, and migration wave sequencing plan produced.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Pattern Selection & Proof of Concept
-**Input:** Assessment results and constraints (time, budget, downtime tolerance)  
-**Steps:** 1) Apply migration strategy decision tree 2) Select pattern (Strangler/Parallel/Lift-and-Shift/etc.) 3) Build PoC on 1-2 low-risk components 4) Validate approach with real data and traffic 5) Document pattern with code templates  
+**Input:** Assessment results and constraints (time, budget, downtime tolerance)
+**Steps:** 1) Apply migration strategy decision tree 2) Select pattern (Strangler/Parallel/Lift-and-Shift/etc.) 3) Build PoC on 1-2 low-risk components 4) Validate approach with real data and traffic 5) Document pattern with code templates
 **Output:** Validated migration pattern + PoC results + reusable templates
   Complete when: Migration pattern selected and validated via PoC on low-risk components, approach verified with real data and traffic, and reusable code templates documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Data Migration Execution
-**Input:** Source database schema and target schema design  
-**Steps:** 1) Apply Expand-Contract for zero-downtime schema changes 2) Set up dual-write or CDC pipeline 3) Run backfill with checkpointing (resumable) 4) Verify consistency (row counts + checksums + business queries) 5) Cut over reads, monitor, cut over writes  
+**Input:** Source database schema and target schema design
+**Steps:** 1) Apply Expand-Contract for zero-downtime schema changes 2) Set up dual-write or CDC pipeline 3) Run backfill with checkpointing (resumable) 4) Verify consistency (row counts + checksums + business queries) 5) Cut over reads, monitor, cut over writes
 **Output:** Migrated database with verified consistency, rollback path ready
   Complete when: Expand-Contract applied to all schema changes, dual-write or CDC pipeline operational, backfill complete with checkpointing, consistency verified (row counts+checksums+business queries), and rollback path tested.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Application Migration
-**Input:** Validated patterns, migrated data plane  
-**Steps:** 1) Migrate by wave (low-risk first) 2) Route percentage of traffic via feature flags/canary 3) Compare old vs new responses (diffing system) 4) Increase traffic 10% → 25% → 50% → 100% with monitoring gates 5) Keep old system in read-only mode for bake period  
+**Input:** Validated patterns, migrated data plane
+**Steps:** 1) Migrate by wave (low-risk first) 2) Route percentage of traffic via feature flags/canary 3) Compare old vs new responses (diffing system) 4) Increase traffic 10% → 25% → 50% → 100% with monitoring gates 5) Keep old system in read-only mode for bake period
 **Output:** Application running on target platform with rollback capability
   Complete when: All waves migrated through graduated gates (10%→25%→50%→100%) with monitoring at each step, diffing system confirms old vs new response parity, and rollback capability verified.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Verification & Decommission
-**Input:** Fully migrated system in production  
-**Steps:** 1) Complete bake period (24-72h depending on component) 2) Run final data integrity reconciliation 3) Verify all monitoring/alerting operational on new system 4) Decommission old system (after confirmed no rollback needed) 5) Conduct retrospective, document lessons learned  
+**Input:** Fully migrated system in production
+**Steps:** 1) Complete bake period (24-72h depending on component) 2) Run final data integrity reconciliation 3) Verify all monitoring/alerting operational on new system 4) Decommission old system (after confirmed no rollback needed) 5) Conduct retrospective, document lessons learned
 **Output:** Old system decommissioned, migration complete, retrospective document
   Complete when: Full business cycle bake period completed (24-72h), final data reconciliation passes, monitoring/alerting verified on new system, old system decommissioned after connection audit, and retrospective documented.
 
@@ -608,4 +608,3 @@ Detailed reference material loaded on demand:
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)
-

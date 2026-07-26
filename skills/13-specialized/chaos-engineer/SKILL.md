@@ -178,7 +178,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                               │ kill test    │  │ patterns FIRST│
                               └──────────────┘  └──────────────┘
 ```
-**Pick services with incident history** — test the failures you've already experienced before hypothetical ones.  
+**Pick services with incident history** — test the failures you've already experienced before hypothetical ones.
 **If no resilience patterns exist** — chaos engineering without circuit breakers just proves you're fragile. Build resilience first.
 
 ### 2. Experiment Type Selection
@@ -201,8 +201,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ CPU stress   │  │ Packet loss  │  │ → GameDay event│
     └──────────────┘  └──────────────┘  └────────────────┘
 ```
-**Infrastructure tests** verify auto-scaling and self-healing. Start here — they're the safest.  
-**Dependency tests** verify circuit breakers, retries, and timeouts. Run after infra tests pass.  
+**Infrastructure tests** verify auto-scaling and self-healing. Start here — they're the safest.
+**Dependency tests** verify circuit breakers, retries, and timeouts. Run after infra tests pass.
 **System-wide tests** verify multi-AZ/region failover. Run as GameDays with full team participation.
 
 ### 3. Observability Gate
@@ -236,7 +236,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
      │to prod│ │thresholds   ││
      └───────┘ └─────────────┘│
 ```
-**No observability = no experiment.** If you can't detect the fault, you can't learn from it.  
+**No observability = no experiment.** If you can't detect the fault, you can't learn from it.
 **Fix dashboards and alerts before anything else** — running chaos without observability is just breaking things.
 
 ### 4. Production Readiness Gate
@@ -264,7 +264,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                │ first    │ │ neck. Fix it.│
                └──────────┘ └──────────────┘
 ```
-**Staging GameDay first** — never your first experiment in production.  
+**Staging GameDay first** — never your first experiment in production.
 **Multi-AZ/region failover is the highest-value production experiment** — test what protects you from real outages.
 
 ### 5. Tool Selection
@@ -289,8 +289,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                └──────────┘ │(free)│ │(paid)   ││(AWS)  │
                             └──────┘ └─────────┘└───────┘
 ```
-**K8s-only + free → Chaos Mesh or LitmusChaos.**  
-**Multi-platform → Gremlin.**  
+**K8s-only + free → Chaos Mesh or LitmusChaos.**
+**Multi-platform → Gremlin.**
 **AWS-only → AWS FIS** (IAM integration, pay-per-action).
 
 
@@ -395,36 +395,36 @@ Chaos engineering is inherently cross-team — you break things that other teams
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Baseline
-**Input:** Service name, environment (staging/prod), observability dashboards.  
-**Steps:** 1) Collect P50/P95/P99 latency, error rate, throughput for 5+ minutes under normal load. 2) Verify all dashboards, alerts, and logs show the service clearly. 3) Record baseline metrics as JSON artifact.  
+**Input:** Service name, environment (staging/prod), observability dashboards.
+**Steps:** 1) Collect P50/P95/P99 latency, error rate, throughput for 5+ minutes under normal load. 2) Verify all dashboards, alerts, and logs show the service clearly. 3) Record baseline metrics as JSON artifact.
 **Output:** Baseline metrics file + observability verification checklist passed.
   Complete when: P50/P95/P99 latency, error rate, and throughput baselines collected for 5+ minutes under normal load, all dashboards and alerts verified operational, and baseline metrics saved as JSON artifact.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Hypothesis & Experiment Design
-**Input:** Baseline metrics, failure mode catalog (42 experiments in references).  
-**Steps:** 1) Select one failure mode (e.g., pod kill, network latency). 2) Write falsifiable hypothesis: "When X happens, Y metric stays below Z for T minutes." 3) Define blast radius (traffic %, pods, AZ, time window). 4) Set abort conditions with specific numeric thresholds.  
+**Input:** Baseline metrics, failure mode catalog (42 experiments in references).
+**Steps:** 1) Select one failure mode (e.g., pod kill, network latency). 2) Write falsifiable hypothesis: "When X happens, Y metric stays below Z for T minutes." 3) Define blast radius (traffic %, pods, AZ, time window). 4) Set abort conditions with specific numeric thresholds.
 **Output:** Experiment document with hypothesis, blast radius, abort triggers, rollback steps.
   Complete when: Experiment document finalized with falsifiable hypothesis, defined blast radius (traffic%/pods/AZ/time window), specific numeric abort thresholds, and rollback steps documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Staging Validation
-**Input:** Experiment document, staging environment, chaos tooling access.  
-**Steps:** 1) Run experiment in staging at full blast radius. 2) Verify steady state hypothesis holds. 3) Confirm observability detects the fault within 2 minutes. 4) Test abort mechanism — stop experiment, verify recovery. 5) If hypothesis refuted, fix the gap and re-run.  
+**Input:** Experiment document, staging environment, chaos tooling access.
+**Steps:** 1) Run experiment in staging at full blast radius. 2) Verify steady state hypothesis holds. 3) Confirm observability detects the fault within 2 minutes. 4) Test abort mechanism — stop experiment, verify recovery. 5) If hypothesis refuted, fix the gap and re-run.
 **Output:** Staging validation report — passed/failed, MTTR measured, gaps documented.
   Complete when: Experiment passes in staging at full blast radius, observability detects fault within 2 minutes, abort mechanism verified, and hypothesis validated or gap documented for remediation.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Progressive Production Rollout
-**Input:** Staging validation passed, production access, on-call notified.  
-**Steps:** 1) Canary: single pod/internal traffic, 15 minutes. 2) 1% traffic, 30 minutes. 3) 10% traffic, 30 minutes. 4) Full scope (if applicable). At each step: monitor abort triggers, compare metrics to baseline.  
+**Input:** Staging validation passed, production access, on-call notified.
+**Steps:** 1) Canary: single pod/internal traffic, 15 minutes. 2) 1% traffic, 30 minutes. 3) 10% traffic, 30 minutes. 4) Full scope (if applicable). At each step: monitor abort triggers, compare metrics to baseline.
 **Output:** Production experiment results — hypothesis verdict, blast radius respected, MTTR measured.
   Complete when: Progressive rollout complete through all gates (canary→1%→10%→full), no abort triggers fired, and production experiment results documented with MTTR measured.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Analysis & Remediation
-**Input:** Experiment results, Scribe notes, Observer analysis.  
-**Steps:** 1) Document: what worked, what broke, what surprised us. 2) Create action items with owner + severity + due date. 3) Update experiment catalog status (designed → tested-staging → tested-prod → automated). 4) Share findings with service owners and leadership.  
+**Input:** Experiment results, Scribe notes, Observer analysis.
+**Steps:** 1) Document: what worked, what broke, what surprised us. 2) Create action items with owner + severity + due date. 3) Update experiment catalog status (designed → tested-staging → tested-prod → automated). 4) Share findings with service owners and leadership.
 **Output:** After-action report, tracked action items, updated experiment catalog.
   Complete when: After-action report published, all action items assigned with owner/severity/due date, experiment catalog updated to production-tested status, and findings shared with service owners and leadership.
 

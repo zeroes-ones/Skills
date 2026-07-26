@@ -55,17 +55,17 @@ from struct import pack
 def ceremony_entropy(num_bytes: int = 64) -> bytes:
     """Mix entropy from hardware RNG + timing jitter + CPU RDRAND"""
     sources = []
-    
+
     # Source 1: OS CSPRNG (getrandom syscall)
     sources.append(os.urandom(num_bytes))
-    
+
     # Source 2: CPU RDRAND (Intel/AMD hardware RNG)
     # Each RDRAND instruction: 64 bits of hardware entropy
     rdrand_bytes = b""
     for _ in range(num_bytes // 8):
         rdrand_bytes += pack("<Q", rdrand64())  # CPU intrinsic
     sources.append(rdrand_bytes)
-    
+
     # Source 3: Timing jitter (clock jitter entropy, SP 800-90B)
     jitter = b""
     for _ in range(num_bytes * 8):
@@ -74,7 +74,7 @@ def ceremony_entropy(num_bytes: int = 64) -> bytes:
         t2 = time.perf_counter_ns()
         jitter += pack("<Q", t2 - t1)
     sources.append(hashlib.sha512(jitter).digest()[:num_bytes])
-    
+
     # Mix via HKDF: entropy = HKDF-Extract(source1 || source2 || source3)
     mixed = hashlib.sha512(b"".join(sources)).digest()
     return mixed[:num_bytes]

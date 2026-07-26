@@ -31,6 +31,7 @@ chain:
   - security-engineer
   - system-architect
   feeds_into:
+  - automation-engineer
   - devops-engineer
   - docker-kubernetes
   - finops-engineer
@@ -430,6 +431,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `docker-kubernetes` | Node group design, cluster networking, service mesh architecture, autoscaling config | Cluster architecture decisions stall — containers can't launch |
 | `site-reliability-engineer` | Multi-region HA design, failover architecture, RPO/RTO targets, capacity forecasts | Reliability targets can't be met without resilient infrastructure |
 | `platform-engineer` | Landing zone integration, network topology, IAM guardrails for self-service | Platform can't enforce cloud governance — shadow IT risk |
+| `automation-engineer` | Infrastructure design, Terraform modules, IAM topology | Can't provision or manage infra as code |
 
 ## Proactive Triggers
 
@@ -544,4 +546,3 @@ Detailed reference material loaded on demand:
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Serverless Cost Traps**: See [serverless-traps.md](references/serverless-traps.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

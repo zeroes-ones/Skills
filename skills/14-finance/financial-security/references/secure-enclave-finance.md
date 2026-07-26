@@ -122,7 +122,7 @@ Payment Processing:
 2. Model runs in confidential computing environment (Nitro Enclave, SGX, SEV)
 3. Before model is loaded, cloud provider attests environment is genuine:
    - Boot measurement (PCR0): firmware hash
-   - Kernel measurement (PCR1): kernel + initrd hash  
+   - Kernel measurement (PCR1): kernel + initrd hash
    - Application measurement (PCR2): container/enclave image hash
 4. Institution only releases model weights if attestation passes
 5. Enclave processes data, returns results, never exposes model or raw data

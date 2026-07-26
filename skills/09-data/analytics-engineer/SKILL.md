@@ -107,7 +107,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 - **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
 - **VERIFIED**: Mark all definitive claims with **[VERIFIED]** when confirmed by documentation. Mark uncertain claims with **[BEST-KNOWN]** and provide the citation path to verify.
 
-## 
+##
 ## The Expert's Mindset
 
 Masters of analytics engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -191,7 +191,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                               └──────┘ └────────────┘
 ```
 **When to choose Snapshot:** Historical tracking needed (SCD Type 2), audit trail required, or regulatory timestamp tracking.
-**When to choose View:** Small reference tables (<1M rows), always want live data, zero storage cost, acceptable latency.  
+**When to choose View:** Small reference tables (<1M rows), always want live data, zero storage cost, acceptable latency.
 **When to choose Incremental:** >1M rows or runtime >5 min — append-only for event data, merge for mutable entities.
 
 ### Metric Layer: dbt vs BI Tool vs Semantic Layer
@@ -222,7 +222,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                   └─────────┘ └──────────────┘
 ```
 **When to choose Semantic Layer:** Multi-tool consumption (Looker + Metabase + embedded), need centralized governance, access control per metric.
-**When to choose dbt mart:** Complex logic requiring SQL, need version control and testing, single source of truth in warehouse.  
+**When to choose dbt mart:** Complex logic requiring SQL, need version control and testing, single source of truth in warehouse.
 **When to choose BI tool:** Single-tool consumption only, simple arithmetic (ratio, sum), rapid prototyping by analysts.
 
 ### A/B Test Design
@@ -635,4 +635,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

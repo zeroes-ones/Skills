@@ -11,7 +11,7 @@
 void Client::OnServerState(const ServerState& state, int32_t tick) {
     const PlayerState& authoritative = state.playerStates[localPlayerId];
     const PlayerState& predicted = predictionHistory[tick];
-    
+
     float error = Distance(predicted.position, authoritative.position);
     if (error > RECONCILIATION_THRESHOLD) {
         currentState = authoritative;  // Rewind

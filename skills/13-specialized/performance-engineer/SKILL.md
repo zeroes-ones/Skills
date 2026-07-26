@@ -184,8 +184,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ rewrite    │       │ tune, heap   │       │ image optimize  │
     └────────────┘       └──────────────┘       └─────────────────┘
 ```
-**DB time >50% → optimize queries and indexes.**  
-**App CPU >80% or GC pauses >100ms → profile CPU/memory.**  
+**DB time >50% → optimize queries and indexes.**
+**App CPU >80% or GC pauses >100ms → profile CPU/memory.**
 **Frontend LCP >2.5s → bundle analysis and rendering path optimization.**
 
 ### 2. Caching Strategy Selection
@@ -212,8 +212,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
         │             │  │ 300s)       │  │ if read-heavy   │
         └─────────────┘  └─────────────┘  └─────────────────┘
 ```
-**Shared data → CDN with long TTL + stale-while-revalidate.**  
-**User-specific → application cache (Redis) with TTL 30-300s.**  
+**Shared data → CDN with long TTL + stale-while-revalidate.**
+**User-specific → application cache (Redis) with TTL 30-300s.**
 **Volatile data → don't cache; scale reads with replicas.**
 
 ### 3. Load Test Strategy
@@ -242,8 +242,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
   └─────────────┘     └───────────────┘        │ regression  │
                                                └─────────────┘
 ```
-**Capacity planning → stress test (ramp until failure).**  
-**Pre-launch → load test at expected peak for 5-10 min.**  
+**Capacity planning → stress test (ramp until failure).**
+**Pre-launch → load test at expected peak for 5-10 min.**
 **Per-change → benchmark 60s, compare P95 against baseline.**
 
 ### 4. When to Profile
@@ -274,8 +274,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                           │ tuning   │ │ → flame graph  │
                           └──────────┘ └────────────────┘
 ```
-**No APM → install APM before profiling. You need to know WHERE to look.**  
-**DB is slow → EXPLAIN ANALYZE before CPU profiling. 80% of slowness is queries.**  
+**No APM → install APM before profiling. You need to know WHERE to look.**
+**DB is slow → EXPLAIN ANALYZE before CPU profiling. 80% of slowness is queries.**
 **App is slow → flame graph to find the specific function burning CPU.**
 
 ### 5. When to Scale Horizontally
@@ -307,9 +307,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
   │ stateless services.    │
   └────────────────────────┘
 ```
-**Vertical scaling → always try first. Cheaper, simpler, 5 minutes.**  
-**Query/index fix → second line of defense. One dev-hour for 10x improvement.**  
-**Caching → third option. Add targeted cache, measure hit rate.**  
+**Vertical scaling → always try first. Cheaper, simpler, 5 minutes.**
+**Query/index fix → second line of defense. One dev-hour for 10x improvement.**
+**Caching → third option. Add targeted cache, measure hit rate.**
 **Horizontal → only when all simpler options are exhausted.**
 
 
@@ -411,36 +411,36 @@ Performance is not a solo activity — it requires instrumentation from develope
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Baseline & Instrumentation
-**Input:** Production or production-like environment  
-**Steps:** 1) Verify APM/RUM/Distributed tracing is active 2) Establish P50/P95/P99 latency, throughput, error rate per endpoint 3) Enable DB slow query logging and GC logging 4) Run Lighthouse for Core Web Vitals baseline  
+**Input:** Production or production-like environment
+**Steps:** 1) Verify APM/RUM/Distributed tracing is active 2) Establish P50/P95/P99 latency, throughput, error rate per endpoint 3) Enable DB slow query logging and GC logging 4) Run Lighthouse for Core Web Vitals baseline
 **Output:** Instrumented system with numeric performance baseline per component
   Complete when: APM/RUM/distributed tracing verified active, P50/P95/P99 baseline established per endpoint, and Lighthouse Core Web Vitals baseline recorded.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Bottleneck Identification
-**Input:** APM dashboards and baseline metrics  
-**Steps:** 1) Identify endpoint with highest P95 latency × request volume (latency-budget impact) 2) Use APM to classify bottleneck: DB (time >50%), App CPU, Memory/GC, or I/O 3) Apply decision tree to select profiling tool 4) Run targeted profiler to isolate specific function/query  
+**Input:** APM dashboards and baseline metrics
+**Steps:** 1) Identify endpoint with highest P95 latency × request volume (latency-budget impact) 2) Use APM to classify bottleneck: DB (time >50%), App CPU, Memory/GC, or I/O 3) Apply decision tree to select profiling tool 4) Run targeted profiler to isolate specific function/query
 **Output:** One confirmed performance bottleneck with root cause and fix plan
   Complete when: One confirmed bottleneck identified with root cause classified (DB/CPU/Memory/I/O), targeted profiler output isolating the specific function or query, and fix plan documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Optimization & Verification
-**Input:** Identified bottleneck with root cause  
-**Steps:** 1) Apply fix: add index, rewrite query, tune GC, split bundle, add cache layer 2) Run benchmark: 60s load test comparing pre/post P95 3) Verify no regression on other endpoints 4) If improvement <20%, go back to Phase 2  
+**Input:** Identified bottleneck with root cause
+**Steps:** 1) Apply fix: add index, rewrite query, tune GC, split bundle, add cache layer 2) Run benchmark: 60s load test comparing pre/post P95 3) Verify no regression on other endpoints 4) If improvement <20%, go back to Phase 2
 **Output:** Verified performance improvement with before/after metrics
   Complete when: Fix applied and verified via 60s load test showing ≥20% P95 improvement, no regressions on other endpoints, and before/after metrics recorded.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Hardening
-**Input:** Verified optimization  
-**Steps:** 1) Add performance budget in CI to prevent regression 2) Set SLO with burn-rate alert 3) Document root cause and fix in ADR 4) Add to load test suite so regression is caught automatically  
+**Input:** Verified optimization
+**Steps:** 1) Add performance budget in CI to prevent regression 2) Set SLO with burn-rate alert 3) Document root cause and fix in ADR 4) Add to load test suite so regression is caught automatically
 **Output:** Regression-proofed optimization with monitoring and alerting
   Complete when: Performance budget added to CI with regression gates, SLO with burn-rate alert configured, root cause documented in ADR, and optimization added to load test suite.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Capacity Planning
-**Input:** Current capacity ceiling and growth projections  
-**Steps:** 1) Run stress test to determine breaking point (max TPS, failure mode) 2) Calculate headroom: (ceiling − peak) / ceiling × 100 3) If headroom <50%, create scaling plan (vertical first, then horizontal) 4) Schedule next capacity review based on growth rate  
+**Input:** Current capacity ceiling and growth projections
+**Steps:** 1) Run stress test to determine breaking point (max TPS, failure mode) 2) Calculate headroom: (ceiling − peak) / ceiling × 100 3) If headroom <50%, create scaling plan (vertical first, then horizontal) 4) Schedule next capacity review based on growth rate
 **Output:** Capacity plan with headroom percentage, scaling triggers, and timeline
   Complete when: Stress test identifies breaking point (max TPS, failure mode), headroom calculated as percentage, scaling plan created if headroom <50%, and next capacity review scheduled.
 

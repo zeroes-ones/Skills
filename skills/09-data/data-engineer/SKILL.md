@@ -30,6 +30,7 @@ chain:
   - database-reliability-engineer
   feeds_into:
   - analytics-engineer
+  - automation-engineer
   - business-intelligence-engineer
   - data-scientist
   - database-reliability-engineer
@@ -193,8 +194,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                  │+ Kafka │ │Flink    │
                  └────────┘ └─────────┘
 ```
-**When to choose Batch:** Data freshness SLA ≥ 1 hour, large historical reprocessing needed, SQL-first transformations via dbt.  
-**When to choose CDC:** Database replication, audit trail capture, cache invalidation — need <5 min freshness from transactional DBs.  
+**When to choose Batch:** Data freshness SLA ≥ 1 hour, large historical reprocessing needed, SQL-first transformations via dbt.
+**When to choose CDC:** Database replication, audit trail capture, cache invalidation — need <5 min freshness from transactional DBs.
 **When to choose Streaming:** Real-time dashboards, fraud detection, alerting — need sub-second to sub-minute latency.
 
 ### Data Warehouse vs Lakehouse vs Data Mesh
@@ -220,8 +221,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                      └─────────┘ │BigQuery │
                                                   └─────────┘
 ```
-**When to choose Warehouse:** SQL-only analytics, BI-dominant, no unstructured data — Snowflake/BigQuery/Redshift.  
-**When to choose Lakehouse:** Mix of SQL + Spark + ML, unstructured data (logs, images), open table formats — Databricks.  
+**When to choose Warehouse:** SQL-only analytics, BI-dominant, no unstructured data — Snowflake/BigQuery/Redshift.
+**When to choose Lakehouse:** Mix of SQL + Spark + ML, unstructured data (logs, images), open table formats — Databricks.
 **When to choose Data Mesh:** 5+ teams, domain autonomy required, each team needs to own data quality and SLAs.
 
 ### Star Schema vs Data Vault vs OBT
@@ -247,8 +248,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                     │Fact+Dim │  │  Vault   │
                                     └─────────┘  └──────────┘
 ```
-**When to choose Star Schema:** BI and self-service analytics, predictable query patterns, 3-10 dimensions, Kimball methodology.  
-**When to choose Data Vault:** Enterprise data warehouse integrating 10+ source systems, full audit trail required, frequent schema evolution.  
+**When to choose Star Schema:** BI and self-service analytics, predictable query patterns, 3-10 dimensions, Kimball methodology.
+**When to choose Data Vault:** Enterprise data warehouse integrating 10+ source systems, full audit trail required, frequent schema evolution.
 **When to choose OBT:** Performance-critical, simple dimensional model (≤ 5 dims), no SCD Type 2 history, dashboard-specific.
 
 ### Pipeline Reliability Pattern
@@ -275,8 +276,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │+ Checkpt │ │silver)   │
                   └──────────┘ └──────────┘
 ```
-**When to use Idempotent + Checkpointing:** Financial data, regulatory reports, any pipeline where duplicate rows cause incorrect metrics. Use MERGE/UPSERT with unique keys.  
-**When to use At-least-once:** High-volume event streams where occasional duplicates are tolerable and downstream dedup handles it.  
+**When to use Idempotent + Checkpointing:** Financial data, regulatory reports, any pipeline where duplicate rows cause incorrect metrics. Use MERGE/UPSERT with unique keys.
+**When to use At-least-once:** High-volume event streams where occasional duplicates are tolerable and downstream dedup handles it.
 **When to add DLQ:** Any streaming pipeline — bad messages must go to dead letter queue, never silently dropped.
 
 ### dbt Materialization Strategy
@@ -301,9 +302,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                     │fresh  │ │(reusable)│
                                     └───────┘ └──────────┘
 ```
-**When to use Incremental:** Append-only fact tables >100M rows, daily partitions, 3-day lookback for late data.  
-**When to use View:** Staging layer, small datasets, always-fresh requirement — but recomputed on every query.  
-**When to use Table:** Dashboard source tables, complex joins queried 100×/day — fast reads at storage cost.  
+**When to use Incremental:** Append-only fact tables >100M rows, daily partitions, 3-day lookback for late data.
+**When to use View:** Staging layer, small datasets, always-fresh requirement — but recomputed on every query.
+**When to use Table:** Dashboard source tables, complex joins queried 100×/day — fast reads at storage cost.
 **When to use Ephemeral:** Reusable CTEs needed by multiple downstream models, never queried directly.
 
 ## Core Workflow
@@ -419,6 +420,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `analytics-engineer` | Raw data schemas, freshness SLAs, data dictionary, PII classification, partitioning strategy | Analytics can't build models — dashboards show stale data |
 | `data-scientist` | Data schema documentation, SLAs for freshness, backfill capabilities, quality checks | Scientists can't access reliable data — experiments invalid |
 | `ml-engineer` | Feature computation schedules, point-in-time correctness, historical backfill, embedding storage | ML models can't train — feature pipelines empty |
+| `automation-engineer` | Data pipeline specs, ETL schedules, quality checks | Data pipelines stay manual — analytics delayed |
 | `business-intelligence-engineer` | Clean data warehouse tables, query performance optimization, data catalog with lineage | BI reports can't run — business decisions on hold |
 
 ## Proactive Triggers
@@ -583,4 +585,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

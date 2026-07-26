@@ -410,18 +410,18 @@ After training a model, run this sequence. Do not proceed past a failure.
    - No overlap between train and test samples (exact duplicate check)
    - No test data statistics leaking into training (scaler/encoder fitted on train only)
    - Class distribution preserved across splits (± 2% tolerance)
-   
+
 2. **Reproducibility:** `python scripts/verify_reproducibility.py --train-script train.py --seed 42`
    - Train twice with same seed, compare predictions — must be identical within 1e-10
-   
+
 3. **Baseline comparison:** `python scripts/compare_baseline.py --model model.pkl --baseline baseline.pkl`
    - Model must outperform baseline on all primary metrics by ≥ 5%
    - If not, model adds complexity without sufficient benefit
-   
+
 4. **Fairness check:** `python scripts/audit_fairness.py --model model.pkl --test test.csv --protected-attr gender`
    - Disparate impact ratio > 0.8
    - Equal opportunity difference < 0.1
-   
+
 5. **Calibration:** `python scripts/check_calibration.py --model model.pkl --test test.csv`
    - Brier score < 0.1
    - Calibration curve within 10% of diagonal

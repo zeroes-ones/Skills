@@ -26,11 +26,13 @@ updated: 2026-07-23
 token_budget: 3525
 chain:
   consumes_from:
+  - automation-engineer
   - cloud-architect
   - devops-engineer
   - docker-kubernetes
   - observability-engineer
   feeds_into:
+  - automation-engineer
   - backend-developer
   - devops-engineer
   - frontend-developer
@@ -392,6 +394,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `devops-engineer` | Infrastructure building blocks, IaC modules, cluster templates, CI/CD pipeline design | Before building golden paths or self-service infrastructure APIs |
 | `docker-kubernetes` | Containerized workloads deployable via golden paths, Helm chart standards, ingress patterns | Before designing deployment workflows or container defaults |
 | `cloud-architect` | Landing zone integration, network topology, IAM guardrails for self-service | Before enforcing cloud governance in platform templates |
+| `automation-engineer` | Platform APIs, internal tooling, developer experience config | Before automating platform delivery pipelines |
 
 | Downstream Skill | What You Provide | Impact of Delay |
 |---|---|---|
@@ -399,6 +402,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `frontend-developer` | Portal UX, developer CLI ergonomics, onboarding experience, preview environments | Frontend teams can't self-serve — deployment friction |
 | `devops-engineer` | Platform APIs, module contracts, golden path requirements, pipeline template needs | Infrastructure teams build without platform guidance — fragmentation risk |
 | `observability-engineer` | Standard observability integration across all services, self-service dashboards | No consistent monitoring — every service reinvents observability |
+| `automation-engineer` | Platform APIs, internal tooling, developer experience config | Platform can't be automated — dev velocity blocked |
 
 ## Proactive Triggers
 
@@ -512,4 +516,3 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

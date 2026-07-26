@@ -179,7 +179,7 @@ Distributed transactions without 2PC (Two-Phase Commit). A saga is a sequence of
 
 **Choreography** (decentralized):
 ```
-Order Service: "OrderPlaced" → Payment Service listens → "PaymentProcessed" 
+Order Service: "OrderPlaced" → Payment Service listens → "PaymentProcessed"
 → Inventory Service listens → "StockReserved" → Shipping Service listens
 ```
 
@@ -188,7 +188,7 @@ Order Service: "OrderPlaced" → Payment Service listens → "PaymentProcessed"
 
 **Orchestration** (centralized):
 ```
-Saga Orchestrator: 
+Saga Orchestrator:
   1. Tell Payment Service to process payment → wait for response
   2. Tell Inventory Service to reserve stock → wait for response
   3. Tell Shipping Service to create shipment → wait for response
@@ -223,7 +223,7 @@ Step 4: Create Shipment   → Compensate: Cancel Shipment
 -- In the SAME transaction:
 BEGIN;
   INSERT INTO orders (id, user_id, status, amount) VALUES (...);
-  INSERT INTO outbox (id, aggregate_type, aggregate_id, event_type, payload) 
+  INSERT INTO outbox (id, aggregate_type, aggregate_id, event_type, payload)
     VALUES (gen_random_uuid(), 'order', 'ord_123', 'OrderPlaced', '{"order_id": "ord_123", ...}');
 COMMIT;
 ```
@@ -265,7 +265,7 @@ Idle timeout:    30-60 seconds (close idle connections to save server resources)
 ### Circuit Breaker Thresholds
 ```
 Failure rate threshold: > 50% in 60s rolling window → OPEN
-Half-open probe: After 30s, try 1 request → 
+Half-open probe: After 30s, try 1 request →
   Success → CLOSED (normal)
   Failure → OPEN (wait another 30s)
 Minimum requests before evaluation: 10 (don't trip on first failure)

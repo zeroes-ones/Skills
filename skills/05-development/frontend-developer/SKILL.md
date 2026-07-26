@@ -242,7 +242,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │ only   │    │ seconds   │
                              └────────┘    └───────────┘
 ```
-**When to choose SSR:** Content is per-user (dashboards, settings) or real-time (live scores, stock prices). SEO is critical and content changes by request.  
+**When to choose SSR:** Content is per-user (dashboards, settings) or real-time (live scores, stock prices). SEO is critical and content changes by request.
 **When to choose SSG:** Content changes < once per deploy (blog posts, docs, marketing pages). Maximum cache hit ratio desired. Build time < 5 minutes.
 
 ### State Management Selection
@@ -270,7 +270,7 @@ The same frontend task produces fundamentally different output depending on the 
                           │ (global)   │  │ (local)      │
                           └────────────┘  └──────────────┘
 ```
-**When TanStack Query:** Data originates from API. Needs caching, background refetch, optimistic updates. Pagination/infinite scroll required.  
+**When TanStack Query:** Data originates from API. Needs caching, background refetch, optimistic updates. Pagination/infinite scroll required.
 **When Zustand:** Client-only global state (theme, auth status, UI preferences). Cross-component shared state not tied to server. Avoids prop drilling across > 3 levels.
 
 ### CSS Architecture
@@ -299,7 +299,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │        │    │components │
                              └────────┘    └───────────┘
 ```
-**When Tailwind + tokens:** Team with design system. Design tokens (colors, spacing, typography) defined once. Rapid iteration with constraints.  
+**When Tailwind + tokens:** Team with design system. Design tokens (colors, spacing, typography) defined once. Rapid iteration with constraints.
 **When CSS Modules:** Scoped styles per component. No utility-class learning curve. Complex pseudo-selectors or animations that don't map well to utilities.
 
 ### Component Testing Strategy
@@ -330,7 +330,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │assert  │    └───────────┘
                              └────────┘
 ```
-**When Testing Library + MSW:** Component fetches data, handles form submission, or manages async state. Need to test loading → success → error states.  
+**When Testing Library + MSW:** Component fetches data, handles form submission, or manages async state. Need to test loading → success → error states.
 **When snapshot test:** Presentational component with stable output. No dynamic data. Quick regression detector. Avoid for large component trees.
 
 ## Core Workflow **(STANDARD)**
@@ -632,4 +632,3 @@ Detailed reference material loaded on demand:
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

@@ -2,10 +2,10 @@
 
 ## ADR-[NNNN]: [Title]
 
-**Status:** Proposed | Accepted | Deprecated | Superseded  
-**Date:** [YYYY-MM-DD]  
-**Deciders:** [Names]  
-**Supersedes:** ADR-[NNNN] (if applicable)  
+**Status:** Proposed | Accepted | Deprecated | Superseded
+**Date:** [YYYY-MM-DD]
+**Deciders:** [Names]
+**Supersedes:** ADR-[NNNN] (if applicable)
 **Superseded by:** ADR-[NNNN] (if applicable)
 
 ---

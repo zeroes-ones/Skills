@@ -728,11 +728,11 @@ Before considering the task complete, verify:
 
 ## References
 
-- **Mutual Aid Data Models**: Database schemas for request tracking, volunteer matching, and inventory management — 
-- **Privacy Framework**: Threat modeling templates, data retention policies, and encryption architecture for community organizing — 
-- **Offline-First Architecture**: Patterns for local-first data, CRDT sync, and conflict resolution — 
-- **Community Mapping**: Geospatial schemas, asset mapping workflows, and service gap analysis — 
-- **Participatory Budgeting**: Voting algorithms (RCV, approval voting), ballot design, and transparency dashboards — 
-- **Accessibility & Inclusion**: WCAG implementation guide, language justice patterns, and digital divide bridging strategies — 
-- **Impact Measurement**: Community-defined metrics frameworks, equity dashboards, and story collection — 
-- **Security for Activists**: Encrypted communication, metadata protection, and surveillance defense — 
+- **Mutual Aid Data Models**: Database schemas for request tracking, volunteer matching, and inventory management —
+- **Privacy Framework**: Threat modeling templates, data retention policies, and encryption architecture for community organizing —
+- **Offline-First Architecture**: Patterns for local-first data, CRDT sync, and conflict resolution —
+- **Community Mapping**: Geospatial schemas, asset mapping workflows, and service gap analysis —
+- **Participatory Budgeting**: Voting algorithms (RCV, approval voting), ballot design, and transparency dashboards —
+- **Accessibility & Inclusion**: WCAG implementation guide, language justice patterns, and digital divide bridging strategies —
+- **Impact Measurement**: Community-defined metrics frameworks, equity dashboards, and story collection —
+- **Security for Activists**: Encrypted communication, metadata protection, and surveillance defense —

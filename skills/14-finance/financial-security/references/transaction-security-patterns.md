@@ -116,11 +116,11 @@ async def transfer_funds_saga(from_acct, to_acct, amount):
         # Step 1: Debit
         txn_id = await debit_account(from_acct, amount)
         steps.append(lambda: credit_account(from_acct, amount))  # compensate
-        
-        # Step 2: Credit  
+
+        # Step 2: Credit
         await credit_account(to_acct, amount)
         steps.append(lambda: debit_account(to_acct, amount))  # compensate
-        
+
         return Success(txn_id)
     except Exception as e:
         # Compensate in reverse order

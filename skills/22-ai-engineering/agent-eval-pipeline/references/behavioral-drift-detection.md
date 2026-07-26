@@ -37,19 +37,19 @@ class EmbeddingDriftDetector:
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
         self.model = SentenceTransformer(model_name)
         self.baseline_embeddings = {}  # test_id → embedding vector
-    
+
     def set_baseline(self, test_id: str, output: str):
         """Store baseline embedding for a test case."""
         self.baseline_embeddings[test_id] = self.model.encode(output)
-    
+
     def compute_drift(self, test_id: str, current_output: str) -> dict:
         """Compare current output against baseline."""
         current_emb = self.model.encode(current_output)
         baseline_emb = self.baseline_embeddings[test_id]
-        
+
         similarity = cosine_similarity([current_emb], [baseline_emb])[0][0]
         drift_score = 1.0 - similarity  # 0 = identical, 1 = completely different
-        
+
         return {
             "similarity": float(similarity),
             "drift_score": float(drift_score),
@@ -83,15 +83,15 @@ def detect_token_drift(
 ) -> List[TokenBudgetDriftAlert]:
     """Detect significant changes in token consumption patterns."""
     alerts = []
-    
+
     for dim in ["prompt_tokens", "completion_tokens", "total_tokens"]:
         current_vals = [getattr(r, dim) for r in current_runs]
         baseline_vals = [getattr(r, dim) for r in baseline_runs]
-        
+
         current_mean = np.mean(current_vals)
         baseline_mean = np.mean(baseline_vals)
         pct_change = ((current_mean - baseline_mean) / baseline_mean) * 100
-        
+
         if abs(pct_change) > threshold_pct:
             alerts.append(TokenBudgetDriftAlert(
                 dimension=dim,
@@ -101,7 +101,7 @@ def detect_token_drift(
                 trend="increasing" if pct_change > 0 else "decreasing",
                 severity="critical" if abs(pct_change) > 50 else "warning"
             ))
-    
+
     return alerts
 ```
 
@@ -118,23 +118,23 @@ def detect_tool_usage_drift(
     """
     baseline_tool_freq = Counter()
     current_tool_freq = Counter()
-    
+
     for run in baseline_runs:
         for tool_call in run.tool_calls:
             baseline_tool_freq[tool_call.name] += 1
-    
+
     for run in current_runs:
         for tool_call in run.tool_calls:
             current_tool_freq[tool_call.name] += 1
-    
+
     drift_report = {}
     all_tools = set(baseline_tool_freq.keys()) | set(current_tool_freq.keys())
-    
+
     for tool in all_tools:
         baseline_pct = baseline_tool_freq[tool] / len(baseline_runs) if baseline_runs else 0
         current_pct = current_tool_freq[tool] / len(current_runs) if current_runs else 0
         delta = current_pct - baseline_pct
-        
+
         if abs(delta) > 0.10:  # 10 percentage point change
             drift_report[tool] = {
                 "baseline_frequency": round(baseline_pct, 3),
@@ -142,7 +142,7 @@ def detect_tool_usage_drift(
                 "delta": round(delta, 3),
                 "direction": "increased" if delta > 0 else "decreased"
             }
-    
+
     return drift_report
 ```
 
@@ -158,16 +158,16 @@ def detect_quality_drift(
 ) -> dict:
     """Use Mann-Whitney U to detect statistically significant score changes."""
     drift_report = {}
-    
+
     for dim in current_scores:
         stat, p_value = stats.mannwhitneyu(
             current_scores[dim], baseline_scores[dim], alternative='two-sided'
         )
-        
+
         current_mean = np.mean(current_scores[dim])
         baseline_mean = np.mean(baseline_scores[dim])
         effect_size = (current_mean - baseline_mean) / np.std(baseline_scores[dim])
-        
+
         drift_report[dim] = {
             "baseline_mean": round(baseline_mean, 2),
             "current_mean": round(current_mean, 2),
@@ -176,7 +176,7 @@ def detect_quality_drift(
             "effect_size_cohens_d": round(effect_size, 3),
             "significant": p_value < significance_level
         }
-    
+
     return drift_report
 ```
 
@@ -198,14 +198,14 @@ def detect_safety_drift(
 ) -> dict:
     """Detect if safety-related outputs are changing."""
     drift_report = {}
-    
+
     for pattern_name, pattern in SAFETY_PATTERNS_DICT.items():
         baseline_matches = sum(1 for o in baseline_outputs if re.search(pattern, o, re.I))
         current_matches = sum(1 for o in current_outputs if re.search(pattern, o, re.I))
-        
+
         baseline_rate = baseline_matches / len(baseline_outputs)
         current_rate = current_matches / len(current_outputs)
-        
+
         if abs(current_rate - baseline_rate) > 0.02:  # 2% change triggers
             drift_report[pattern_name] = {
                 "baseline_rate": round(baseline_rate, 4),
@@ -213,7 +213,7 @@ def detect_safety_drift(
                 "delta": round(current_rate - baseline_rate, 4),
                 "concern": "Safety regression" if current_rate > baseline_rate else "Safety improvement"
             }
-    
+
     return drift_report
 ```
 
@@ -232,13 +232,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Run Golden Baseline Tests
         run: python scripts/run_golden_tests.py --suite golden_baseline_v2
-        
+
       - name: Compute Drift Scores
         run: python scripts/detect_drift.py --baseline baselines/golden_v2.json
-        
+
       - name: Alert on Drift
         if: failure()
         uses: slackapi/slack-github-action@v1

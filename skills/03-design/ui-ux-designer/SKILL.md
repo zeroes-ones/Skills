@@ -163,7 +163,7 @@ Design skill scales from individual components to org-wide design systems to com
 ```
 Team size and product stage?
 ├── Solo developer → Skip design system. Use Tailwind/shadcn/ui. Component specs = README.
-├── Small team (2-10) → Design tokens + core components (button, input, card, modal). 
+├── Small team (2-10) → Design tokens + core components (button, input, card, modal).
 │     Figma shared library. Handoff = Figma inspect + spec doc.
 ├── Medium (10-50) → Full design system. Token pipeline (Style Dictionary). Storybook.
 │     Component API docs. Interactive pattern library. Design QA process.
@@ -436,4 +436,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

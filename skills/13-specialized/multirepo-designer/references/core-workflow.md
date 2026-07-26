@@ -42,4 +42,3 @@
 3. Integration tests: spin up dependent services (Docker Compose, Testcontainers) for cross-repo integration testing.
 4. End-to-end tests: test the full cross-repo flow in a staging environment. Run on every PR to shared libraries.
 5. Test impact analysis: only run integration/e2e tests for repos affected by the change. Use dependency graph to determine affected repos.
-

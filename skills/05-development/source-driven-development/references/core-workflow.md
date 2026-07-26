@@ -127,9 +127,9 @@ Use the standard citation format for every framework call:
 
 **Unverified claim flagging:**
 ```
-⚠️ UNVERIFIED: No official source found for {claim}. 
-  Assuming: {exact assumption being made}. 
-  Risk: {LOW|MEDIUM|HIGH|CRITICAL}. 
+⚠️ UNVERIFIED: No official source found for {claim}.
+  Assuming: {exact assumption being made}.
+  Risk: {LOW|MEDIUM|HIGH|CRITICAL}.
   Recommended: {action to verify}.
 ```
 

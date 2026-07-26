@@ -150,7 +150,7 @@ What's the primary task?
 └── Need networking topology (VPN, BGP, CDN) → **networking-engineer**
 ```
 
-**Coordination pattern:** When multiple skills are needed, system-architect goes first — produce the architecture (C4 diagrams, ADRs, service topology). Then downstream skills implement: cloud-architect maps to cloud services, backend-developer implements services, devops-engineer provisions infrastructure, api-designer writes contracts. Never invoke downstream skills until the architecture is stable; rework cascades. 
+**Coordination pattern:** When multiple skills are needed, system-architect goes first — produce the architecture (C4 diagrams, ADRs, service topology). Then downstream skills implement: cloud-architect maps to cloud services, backend-developer implements services, devops-engineer provisions infrastructure, api-designer writes contracts. Never invoke downstream skills until the architecture is stable; rework cascades.
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 

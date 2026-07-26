@@ -366,7 +366,7 @@ How many skills have Tier 2+ content loaded?
     ├── Downgrade remaining skills to Tier 1 (headline only)
     ├── Log fragmented skills for post-hoc analysis
     └── Re-check saturation; may trigger eviction (Decision Tree 1)
-    
+
 Attention distribution check:
 ├── Any single skill > 40% of context?
 │   └── Potential over-focus — verify skill relevance to current task

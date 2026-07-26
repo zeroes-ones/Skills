@@ -4,8 +4,8 @@ Real-world Apple platform traps and their business impact.
 
 ### 1. ATS Blocks HTTP Connections (~$50K)
 
-**Symptom:** Network requests silently fail with `Error Domain=NSURLErrorDomain Code=-1022`.  
-**Cause:** App Transport Security blocks plain HTTP connections.  
+**Symptom:** Network requests silently fail with `Error Domain=NSURLErrorDomain Code=-1022`.
+**Cause:** App Transport Security blocks plain HTTP connections.
 **Fix:** Add `NSAppTransportSecurity > NSAllowsArbitraryLoads` to `Info.plist` — but prefer per-domain exceptions:
 
 ```xml
@@ -26,8 +26,8 @@ Real-world Apple platform traps and their business impact.
 
 ### 2. Main Actor Isolation Warning Cascade (~$20K)
 
-**Symptom:** `Expression requiring global actor 'MainActor' cannot appear in default-value expression of property '_viewModel'`.  
-**Cause:** `@StateObject` / `@State` on a `@MainActor`-isolated type in a non-isolated View.  
+**Symptom:** `Expression requiring global actor 'MainActor' cannot appear in default-value expression of property '_viewModel'`.
+**Cause:** `@StateObject` / `@State` on a `@MainActor`-isolated type in a non-isolated View.
 **Fix:** Annotate the View with `@MainActor`:
 
 ```swift
@@ -42,7 +42,7 @@ struct ProductListView: View {
 
 ### 3. Retain Cycles in Closures (~$100K memory leak)
 
-**Symptom:** ViewModel never deinitializes; `deinit` never called. Memory grows with each navigation cycle.  
+**Symptom:** ViewModel never deinitializes; `deinit` never called. Memory grows with each navigation cycle.
 **Cause:** Strong capture of `self` in escaping closures:
 
 ```swift
@@ -59,7 +59,7 @@ service.onUpdate = { [weak self] products in
 
 ### 4. unowned Crash in Asynchronous Context (~$75K)
 
-**Symptom:** `Thread 1: EXC_BAD_ACCESS` or `Fatal error: Attempted to read an unowned reference but the object was already deallocated`.  
+**Symptom:** `Thread 1: EXC_BAD_ACCESS` or `Fatal error: Attempted to read an unowned reference but the object was already deallocated`.
 **Cause:** `[unowned self]` when `self` can deallocate before the closure executes:
 
 ```swift
@@ -80,8 +80,8 @@ imageLoader.load { [weak self] image in
 
 ### 5. Core Data Thread Confinement (~$60K)
 
-**Symptom:** `CoreData: error: Serious application error. An exception was caught from the delegate... NSManagedObjectContext is accessed from wrong thread`.  
-**Cause:** Reading `NSManagedObject` properties on a thread other than its context's queue.  
+**Symptom:** `CoreData: error: Serious application error. An exception was caught from the delegate... NSManagedObjectContext is accessed from wrong thread`.
+**Cause:** Reading `NSManagedObject` properties on a thread other than its context's queue.
 **Fix:**
 
 ```swift
@@ -108,7 +108,7 @@ Task.detached {
 
 ### 6. SwiftUI View Identity Breakage (~$40K)
 
-**Symptom:** Animations break, `onAppear` fires unexpectedly, state resets.  
+**Symptom:** Animations break, `onAppear` fires unexpectedly, state resets.
 **Cause:** Using `id(_:)` unnecessarily, or relying on indices for `ForEach` with mutable data:
 
 ```swift
@@ -127,7 +127,7 @@ ForEach(items) { item in
 
 ### 7. Xcode Previews Crash Silently (~$15K)
 
-**Symptom:** Preview canvas shows "Preview Crashed" or hangs on spinner.  
+**Symptom:** Preview canvas shows "Preview Crashed" or hangs on spinner.
 **Cause (common):**
 
 ```swift
@@ -153,8 +153,8 @@ Or use mock services in previews: `ProductListView(service: MockAPIService())`.
 
 ### 8. Missing Entitlement Silently Breaks Feature (~$45K)
 
-**Symptom:** Feature works on Simulator, fails on device with no clear error.  
-**Example:** Push notifications silently fail without `aps-environment` entitlement. iCloud sync quietly doesn't work without `com.apple.developer.icloud-container-identifiers`.  
+**Symptom:** Feature works on Simulator, fails on device with no clear error.
+**Example:** Push notifications silently fail without `aps-environment` entitlement. iCloud sync quietly doesn't work without `com.apple.developer.icloud-container-identifiers`.
 **Fix:** Verify entitlements in `App.entitlements`:
 
 ```xml

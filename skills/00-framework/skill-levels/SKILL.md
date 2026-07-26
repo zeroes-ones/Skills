@@ -507,4 +507,3 @@ If any checkbox fails, revise before delivering. When all pass, add to the state
 Detailed reference material loaded on demand:
 
 - **Production Checklist**: See [checklist.md](references/checklist.md)
-

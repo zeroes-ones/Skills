@@ -191,7 +191,7 @@ WHAT IS THE SEVERITY?
     → Response < 24 hours. Queue for sprint or backlog.
 
 IS THIS A KNOWN ISSUE?
-├── YES, has KB article → Share article link. Verify version/environment matches. 
+├── YES, has KB article → Share article link. Verify version/environment matches.
 │   If article doesn't resolve → Update article with new findings.
 ├── YES, open bug → Add customer report as +1. Share bug link. Offer workaround if exists.
 └── NO, new issue → Start investigation. Check: logs, recent deploys, affected versions, environment.
@@ -497,4 +497,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

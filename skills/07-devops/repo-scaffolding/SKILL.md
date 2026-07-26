@@ -714,4 +714,3 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 * [Anti-Patterns](references/anti-patterns.md) — Catalog of common template and scaffolding failures: fork-and-forget, over-engineering, template-as-product, broken CI templates, too-many-prompts, and the "we are small so we do not need templates" fallacy with real cost data.
 * [Monorepo Scaffolding](references/monorepo-scaffolding.md) — Package generation with nx generate, turbo gen, plop.js, and custom generators. Integration with monorepo-manager for workspace configuration and project graph awareness.
 * [CI/CD Template Sharing](references/cicd-template-sharing.md) — GitHub reusable workflows, GitLab CI templates, CircleCI orbs, Jenkins shared libraries, and custom CI template patterns. Versioning, testing, and deprecation strategies for CI templates treated as products.
-

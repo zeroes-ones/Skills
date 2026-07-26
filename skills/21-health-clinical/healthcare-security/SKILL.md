@@ -53,7 +53,7 @@ chain:
     - regulatory-specialist
   feeds_into:
     - incident-responder
-    - cloud-security-architect
+    - cloud-security
     - database-reliability-engineer
     - security-engineer
     - hipaa-technical-implementation

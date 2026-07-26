@@ -17,16 +17,16 @@ Epoch transition (old committee → new committee):
   1. Each old holder i (with share s_i^old):
      a. Generate random polynomial f_i of degree (t-1) with f_i(0) = s_i^old
      b. Send sub-share f_i(j) to new holder j (via secure channel)
-  
+
   2. Each new holder j:
      a. Collect sub-shares from at least t old holders
      b. Compute new share: s_j^new = sum(Lambda_i * f_i(j)) mod q
         where Lambda_i is Lagrange coefficient for old holders
-     
+
   3. Verification:
      a. New holders verify shares against public commitments
      b. Old shares s_i^old are securely deleted
-  
+
   Result: Same group secret s, new committee with fresh shares
 ```
 
@@ -50,7 +50,7 @@ def verify_reshare(new_shares: dict[int, int], old_commitments: list[int],
             rhs = (rhs * pow(commit, lagrange, P)) % P
         if lhs != rhs:
             return False
-    
+
     # Verify group public key unchanged
     reconstructed = reconstruct(list(new_shares.items())[:len(new_shares)-1])
     return pow(G, reconstructed, P) == group_pk

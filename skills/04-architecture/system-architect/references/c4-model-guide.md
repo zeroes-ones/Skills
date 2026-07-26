@@ -204,16 +204,16 @@ workspace {
     model {
         customer = person "Customer"
         admin = person "Administrator"
-        
+
         ecommerce = softwareSystem "E-Commerce Platform" {
             webapp = container "Web Application" "React SPA"
             api = container "API Gateway" "Nginx + Kong"
             ordersvc = container "Order Service" "Go + Gin"
             orderdb = container "Order Database" "PostgreSQL 16"
         }
-        
+
         payment = softwareSystem "Payment Gateway" "Stripe"
-        
+
         customer -> webapp "Browses products, places orders"
         admin -> webapp "Manages inventory"
         webapp -> api "Makes API calls" "JSON/HTTPS"
@@ -221,12 +221,12 @@ workspace {
         ordersvc -> orderdb "Reads/writes orders" "SQL/TCP"
         ordersvc -> payment "Processes payments" "JSON/HTTPS"
     }
-    
+
     views {
         systemContext ecommerce {
             include *
         }
-        
+
         container ecommerce {
             include *
         }

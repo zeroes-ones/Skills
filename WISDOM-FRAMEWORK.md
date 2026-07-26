@@ -1,6 +1,6 @@
 # Engineering Wisdom Framework
 
-> **Author:** Sandeep Kumar Penchala  
+> **Author:** Sandeep Kumar Penchala
 > **Purpose:** Universal decision-making principles applied across all skills
 
 ---
@@ -19,7 +19,7 @@ Every skill must minimize token consumption:
 | **Exact commands** | Write copy-paste ready commands, not descriptions of commands. |
 | **Fail fast** | Return non-zero exit codes for quality gates. Agent doesn't need to parse output — exit code is enough. |
 
-**Anti-pattern:** A 500-line SKILL.md that the agent reads entirely for every invocation.  
+**Anti-pattern:** A 500-line SKILL.md that the agent reads entirely for every invocation.
 **Pattern:** A 150-line SKILL.md with 5 references (each 200+ lines) loaded only when relevant.
 
 ### 2. MVP-First Thinking
@@ -153,7 +153,7 @@ Every skill should instruct agents to:
 
 ```
 1. ASSESS: Run diagnostic script → get structured output → decide phase
-2. DECIDE: Use decision tree → pick approach → confirm with human if > 1hr impact  
+2. DECIDE: Use decision tree → pick approach → confirm with human if > 1hr impact
 3. EXECUTE: Run tools directly (don't read source) → verify with exit codes
 4. VERIFY: Re-run diagnostics → confirm fix → report metrics (before/after)
 5. DOCUMENT: Update only what changed → minimal, precise commit

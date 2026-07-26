@@ -652,12 +652,12 @@ Payment Flow:                              Wallet & Ledger:
   │  → Store response in idemp store│       └──────────────────────────┘
   │  → Return 200 + payment result  │       balance = SUM(credits) -
   └─────────────────────────────────┘                 SUM(debits)
-                                                                       
+
   Webhooks:                              P2P Transfer:
   signature verified → event.id dedup'd  INITIATED → PENDING_DEBIT →
   → process event → reconciliation job    DEBITED → PENDING_CREDIT →
   closes gap every hour                   COMPLETED (or ROLLED BACK)
-                                                                       
+
   Result:                                Result:
   Zero duplicate charges.                Zero money in limbo.
   Every cent reconciled.                 Both balances correct or

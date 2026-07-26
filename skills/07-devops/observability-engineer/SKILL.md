@@ -28,6 +28,7 @@ token_budget: 4000
 chain:
   consumes_from:
   - algorithmic-trader
+  - automation-engineer
   - backend-developer
   - devops-engineer
   - docker-kubernetes
@@ -446,6 +447,7 @@ If a command or approach fails, follow this escalation path before giving up:
 |---|---|---|
 | `devops-engineer` | Prometheus/Thanos deployment, Grafana provisioning, Alertmanager config, PagerDuty integration | Before deploying monitoring infrastructure or configuring alert routing |
 | `site-reliability-engineer` | SLI/SLO definitions, burn rate alert formulas, synthetic monitoring requirements | Before designing dashboards or configuring alert thresholds |
+| `automation-engineer` | Pipeline metrics, deploy frequency, DORA data | Before designing delivery performance dashboards |
 | `backend-developer` | RED metrics implementation, structured logging format, trace context propagation, custom business metrics | Before instrumenting services or defining metric taxonomy |
 
 | Downstream Skill | What You Provide | Impact of Delay |
@@ -454,6 +456,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `devops-engineer` | Monitoring infrastructure deployment specs, log aggregation endpoints, alert routing configuration | Infrastructure teams blind to system health — ops risk |
 | `incident-responder` | Alert correlation signals, dashboard links, anomaly detection, metric trends | Incident responders can't diagnose issues — MTTR skyrockets |
 | `platform-engineer` | Standard observability across all services, self-service dashboards, alert templates | Platform can't provide observability — developer experience degraded |
+| `automation-engineer` | Pipeline metrics, deploy frequency, DORA data | Can't measure delivery performance |
 
 ## Proactive Triggers
 
@@ -555,4 +558,3 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

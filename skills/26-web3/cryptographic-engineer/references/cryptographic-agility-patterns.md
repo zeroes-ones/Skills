@@ -27,28 +27,28 @@ Single source of truth for what algorithms are permitted:
 ```python
 class CryptoRegistry:
     """Controls all cryptographic algorithm selection and negotiation."""
-    
+
     def __init__(self):
         self.algorithms = {}
         self.policies = {}  # Per-category policies
-    
+
     def register(self, algo: AlgorithmProto):
         """Register algorithm with metadata and implementation."""
         self.algorithms[algo.id] = algo
-    
+
     def negotiate(self, peer_offers: list[str], category: str):
         """Select best mutually-supported algorithm.
-        
+
         Priority: PQC-first > ACTIVE classical > DEPRECATED (warn) > reject
         """
-        ours = [a for a in self.algorithms.values() 
+        ours = [a for a in self.algorithms.values()
                 if a.category == category and a.status == ACTIVE]
         ours.sort(key=lambda a: (0 if a.is_pqc else 1, -a.security_level))
-        
+
         for algo in ours:
             if algo.id in peer_offers:
                 return algo
-        
+
         # No common active algorithm — fail closed
         return None
 ```

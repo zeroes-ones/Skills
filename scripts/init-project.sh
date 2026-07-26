@@ -142,7 +142,7 @@ while [ $# -gt 0 ]; do
         --solo)   TIER="solo"; shift ;;
         --grow)   TIER="grow"; shift ;;
         --full)   TIER="full"; shift ;;
-        --status) 
+        --status)
             cd "${2:-.}" 2>/dev/null || true
             show_status
             exit 0 ;;

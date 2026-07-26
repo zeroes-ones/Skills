@@ -228,7 +228,7 @@ Debugging issues that cross the frontend-backend boundary
                           │ packages   │  │ coordination │
                           └────────────┘  └──────────────┘
 ```
-**When Monorepo:** Shared types/Zod schemas between frontend and backend. Single CI triggering. Atomic cross-cutting changes. Team < 30 engineers.  
+**When Monorepo:** Shared types/Zod schemas between frontend and backend. Single CI triggering. Atomic cross-cutting changes. Team < 30 engineers.
 **When Polyrepo:** Fully independent services with separate deploy cadences. Teams don't need each other's code. Published API contracts are sufficient.
 
 ### API Architecture Decision
@@ -258,7 +258,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ Apollo     │  └──────────────┘
                             └────────────┘
 ```
-**When tRPC:** TypeScript monorepo. Same team owns frontend + backend. No third-party API consumers. Prototype speed matters.  
+**When tRPC:** TypeScript monorepo. Same team owns frontend + backend. No third-party API consumers. Prototype speed matters.
 **When REST:** Public API consumed by third parties. Caching via CDN/HTTP important. Simple CRUD with predictable resource patterns.
 
 ### Auth Strategy
@@ -287,7 +287,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ (managed)  │  │ or JWT.      │
                             └────────────┘  └──────────────┘
 ```
-**When NextAuth:** Next.js app. OAuth providers (Google, GitHub) needed. JWT sessions adequate. Team wants fast setup with configuration over code.  
+**When NextAuth:** Next.js app. OAuth providers (Google, GitHub) needed. JWT sessions adequate. Team wants fast setup with configuration over code.
 **When Clerk/WorkOS:** Enterprise SSO (SAML). Multi-tenant with org management. Need pre-built UI components. Don't want to store passwords.
 
 ### Deployment Platform
@@ -317,7 +317,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ ECS        │  │ container    │
                             └────────────┘  └──────────────┘
 ```
-**When Vercel:** Next.js/SvelteKit app. Edge functions useful. Preview deployments needed. Team < 10. Don't want to manage infrastructure.  
+**When Vercel:** Next.js/SvelteKit app. Edge functions useful. Preview deployments needed. Team < 10. Don't want to manage infrastructure.
 **When Docker/ECS:** Background workers, cron jobs, WebSocket servers. Specific networking requirements (VPC, service mesh). Compliance requires specific base images.
 
 ## Core Workflow **(STANDARD)**
@@ -629,4 +629,3 @@ Detailed reference material loaded on demand:
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

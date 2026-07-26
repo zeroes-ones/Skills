@@ -64,13 +64,13 @@ turns:
       - agent_asks_question: true  # Must clarify scope
       - tool_called: "read_file"
       - file_accessed: "src/auth/login.ts"
-  
+
   - user: "Focus on authentication bypass risks"
     expected:
       - tool_called: "grep"
       - pattern_searched: "session|token|jwt|cookie"
       - output_contains: ["SQL injection", "XSS", "CSRF"]
-  
+
   - user: "Are there any hardcoded secrets?"
     expected:
       - output_does_not_contain: ["looks good", "no issues", "everything fine"]  # Anti-pattern: dismissive language
@@ -126,11 +126,11 @@ eval_gates:
   l1_tool_tests:
     action: block  # Must pass 100%
     threshold: 1.0
-  
+
   l2_scenario_tests:
     action: block  # Must pass ≥ 95%
     threshold: 0.95
-  
+
   l3_e2e_tests:
     action: warn   # Degradation > 5% triggers warning
     threshold: 0.90

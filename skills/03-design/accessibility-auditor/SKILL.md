@@ -195,7 +195,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                             │ mitigation │  │ or MVP.      │
                             └────────────┘  └──────────────┘
 ```
-**When AA required:** Government, healthcare, education, financial services. Public-facing with > 10K users. Legal department advises or ADA litigation risk exists.  
+**When AA required:** Government, healthcare, education, financial services. Public-facing with > 10K users. Legal department advises or ADA litigation risk exists.
 **When A acceptable:** Internal admin tool used by < 100 known employees. Early-stage MVP with accessibility roadmap. No legal obligation (confirmed by counsel).
 
 ### Testing Method Selection
@@ -226,7 +226,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                             │ NVDA, JAWS)│  │ automate.    │
                             └────────────┘  └──────────────┘
 ```
-**When automated suffices:** ~30% of WCAG criteria are machine-testable. Color contrast, heading structure, ARIA validity, alt text presence. Run in CI on every PR.  
+**When automated suffices:** ~30% of WCAG criteria are machine-testable. Color contrast, heading structure, ARIA validity, alt text presence. Run in CI on every PR.
 **When manual required:** ~70% of WCAG criteria need human judgment. Keyboard operability, focus management, meaningful alt text (not just presence), modal focus trapping.
 
 ### Remediation Priority
@@ -255,7 +255,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                              │ weeks.     │  │ months.   │
                              └────────────┘  └───────────┘
 ```
-**When P0 (Critical):** Task-blocking for any disability group. Login, checkout, core navigation not operable. Legal exposure from ADA lawsuit precedent.  
+**When P0 (Critical):** Task-blocking for any disability group. Login, checkout, core navigation not operable. Legal exposure from ADA lawsuit precedent.
 **When P2:** Enhancement-level issue. Workaround exists. Affects WCAG AAA criteria only. Low-traffic page with no critical function.
 
 ### Legal Risk Assessment
@@ -284,7 +284,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                              └────────────┘  │ changes.  │
                                              └───────────┘
 ```
-**When HIGH risk:** US consumer-facing website/app. > 10K monthly visitors. E-commerce, education, healthcare, employment, or financial services.  
+**When HIGH risk:** US consumer-facing website/app. > 10K monthly visitors. E-commerce, education, healthcare, employment, or financial services.
 **When LOW risk:** Internal tool with < 100 known users. B2B SaaS with enterprise contracts (accessibility negotiated per deal). No US nexus.
 
 ## Core Workflow

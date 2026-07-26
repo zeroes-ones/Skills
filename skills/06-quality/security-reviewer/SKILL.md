@@ -199,7 +199,7 @@ Security review scales from single-PR review to org-wide security program design
                           │ OWASP cats │  │ scan only    │
                           └────────────┘  └──────────────┘
 ```
-**When full STRIDE + OWASP All:** Auth flows, payment processing, PII handling, cryptographic operations. Any change that could expose user data or enable privilege escalation.  
+**When full STRIDE + OWASP All:** Auth flows, payment processing, PII handling, cryptographic operations. Any change that could expose user data or enable privilege escalation.
 **When light review suffices:** Documentation changes, test-only changes, configuration changes with no security surface. SAST passes + `npm audit` clean = approve.
 
 ### Auth Vulnerability Severity
@@ -230,7 +230,7 @@ Security review scales from single-PR review to org-wide security program design
                             │            │  │ algorithm.   │
                             └────────────┘  └──────────────┘
 ```
-**When CRITICAL:** Auth bypass discovered. Any user can access another user's data (IDOR). Admin functions accessible without role check.  
+**When CRITICAL:** Auth bypass discovered. Any user can access another user's data (IDOR). Admin functions accessible without role check.
 **When MEDIUM:** JWT with `algorithm: none` possible but mitigated elsewhere. Session timeout is too long (72h+). Missing `SameSite` on non-critical cookie.
 
 ### Dependency Risk Triage
@@ -258,7 +258,7 @@ Security review scales from single-PR review to org-wide security program design
                             │ days.      │  │ days.        │
                             └────────────┘  └──────────────┘
 ```
-**When immediate hotfix:** Log4Shell-level vulnerability. RCE with public exploit. Dependency used in request path. CVSS ≥ 9.0 with network attack vector.  
+**When immediate hotfix:** Log4Shell-level vulnerability. RCE with public exploit. Dependency used in request path. CVSS ≥ 9.0 with network attack vector.
 **When 30-day fix:** Vulnerable in dev dependency only. Reachable code path requires non-default config. CVSS < 7.0 with local attack vector only.
 
 ### Tool vs Manual Review
@@ -282,7 +282,7 @@ Security review scales from single-PR review to org-wide security program design
         │                   │    │ conditions.          │
         └──────────────────┘    └──────────────────────┘
 ```
-**When SAST is sufficient:** SQL injection via string concatenation. Hardcoded API keys. Missing CSRF tokens. XSS via innerHTML. High true-positive rate.  
+**When SAST is sufficient:** SQL injection via string concatenation. Hardcoded API keys. Missing CSRF tokens. XSS via innerHTML. High true-positive rate.
 **When manual review required:** Authorization logic (role checks, ownership verification). Race conditions in financial transactions. Cryptographic algorithm misuse.
 
 ## Core Workflow **(STANDARD)**
@@ -617,4 +617,3 @@ Detailed reference material loaded on demand:
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

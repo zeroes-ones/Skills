@@ -167,7 +167,7 @@ This is the worst of both worlds and the most common outcome of unprepared micro
 ## Decision Algorithm
 
 ```
-1. How many engineers? 
+1. How many engineers?
    < 15 → Modular Monolith (stop here)
    ≥ 15 → Continue
 

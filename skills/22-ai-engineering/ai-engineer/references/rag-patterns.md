@@ -24,7 +24,7 @@ def naive_rag(query, documents, top_k=5):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{
-            "role": "system", 
+            "role": "system",
             "content": f"Answer using only this context:\n{context}"
         }, {
             "role": "user",
@@ -50,7 +50,7 @@ co = Client()
 def rag_with_rerank(query, documents, top_k=20, rerank_k=5):
     q_embed = embed(query)
     candidates = vector_store.search(q_embed, top_k=top_k)
-    
+
     # Re-rank with cross-encoder
     reranked = co.rerank(
         query=query,
@@ -58,7 +58,7 @@ def rag_with_rerank(query, documents, top_k=20, rerank_k=5):
         top_n=rerank_k,
         model="rerank-english-v3.0"
     )
-    
+
     context = "\n\n".join([candidates[r.index].content for r in reranked.results])
     return generate(query, context)
 ```
@@ -80,7 +80,7 @@ Query transformations:
 ## Pattern 4: Agentic RAG
 
 ```
-Query → Agent decides: retrieve/search/web/calculate → Tool execution → 
+Query → Agent decides: retrieve/search/web/calculate → Tool execution →
 Observe → Decide next action → ... → Final answer with citations
 ```
 

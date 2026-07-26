@@ -29,6 +29,7 @@ chain:
   - mlops-engineer
   - quantitative-analyst
   feeds_into:
+  - automation-engineer
   - data-scientist
   - llm-engineer
   - mlops-engineer
@@ -182,9 +183,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                 │LoRA/QLoRA│ │Few-shot││CatBoost││framing   │
                                 └────────┘ └──────┘└───────┘└─────────┘
 ```
-**When to choose Heuristic:** Simple rules cover 90%+ of cases, error tolerance is high, shipping speed beats marginal accuracy improvement.  
-**When to choose Classical ML:** Structured tabular data, 1K-10K labeled examples, interpretability matters (SHAP values).  
-**When to choose RAG:** No labeled data, knowledge is in documents, answer must be grounded in specific context with citations.  
+**When to choose Heuristic:** Simple rules cover 90%+ of cases, error tolerance is high, shipping speed beats marginal accuracy improvement.
+**When to choose Classical ML:** Structured tabular data, 1K-10K labeled examples, interpretability matters (SHAP values).
+**When to choose RAG:** No labeled data, knowledge is in documents, answer must be grounded in specific context with citations.
 **When to choose Fine-tuned LLM:** Need specific style/tone/task adaptation, have 100-1K high-quality examples, latency budget allows inference.
 
 ### Real-time vs Batch vs Streaming Inference
@@ -209,9 +210,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │10-200ms │ │<1ms   │ │daily│ │<100ms    │
                   └─────────┘ └───────┘ └─────┘ └──────────┘
 ```
-**When to choose Real-time API:** User-facing features (search, recommendations, chat), P99 < 200ms, use FastAPI/Triton with auto-scaling.  
-**When to choose Batch:** Nightly reports, risk scoring, ETL enrichment — run Spark jobs, cost-efficient, millions/day.  
-**When to choose Streaming:** Fraud detection, real-time personalization — Kafka + Flink, <100ms processing, sub-second freshness.  
+**When to choose Real-time API:** User-facing features (search, recommendations, chat), P99 < 200ms, use FastAPI/Triton with auto-scaling.
+**When to choose Batch:** Nightly reports, risk scoring, ETL enrichment — run Spark jobs, cost-efficient, millions/day.
+**When to choose Streaming:** Fraud detection, real-time personalization — Kafka + Flink, <100ms processing, sub-second freshness.
 **When to choose Embedded:** Scoring within SQL queries — ONNX Runtime in PostgreSQL, <1ms, no network overhead.
 
 ### RAG vs Fine-tuning vs Prompt Engineering
@@ -238,9 +239,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │1K+ exs │ │5-50 exs ││ DB  │ │only      │
                   └────────┘ └─────────┘└─────┘ └──────────┘
 ```
-**When to choose RAG:** Knowledge changes faster than retraining, need citations/attribution, zero labeled data — Pinecone/Weaviate + embedding model.  
-**When to choose Fine-tuning:** Teach a specific task/format persistently, have 100-1K high-quality examples, want cost reduction vs long prompts.  
-**When to choose Few-shot:** 5-50 examples in prompt, model already capable but needs guidance, no training infrastructure.  
+**When to choose RAG:** Knowledge changes faster than retraining, need citations/attribution, zero labeled data — Pinecone/Weaviate + embedding model.
+**When to choose Fine-tuning:** Teach a specific task/format persistently, have 100-1K high-quality examples, want cost reduction vs long prompts.
+**When to choose Few-shot:** 5-50 examples in prompt, model already capable but needs guidance, no training infrastructure.
 **When to choose Zero-shot:** Simple tasks with capable models (GPT-4, Claude), no examples needed, fastest path.
 
 ### Overfitting Diagnosis
@@ -271,8 +272,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                   │met││quality│
                                   └───┘└──────┘
 ```
-**When to increase regularization:** Train acc >> Val acc, high variance across CV folds — add L1/L2, dropout, early stopping, data augmentation.  
-**When to increase capacity:** Both train and val are low — model too simple, underfitting. Add layers, reduce regularization, engineer better features.  
+**When to increase regularization:** Train acc >> Val acc, high variance across CV folds — add L1/L2, dropout, early stopping, data augmentation.
+**When to increase capacity:** Both train and val are low — model too simple, underfitting. Add layers, reduce regularization, engineer better features.
 **When to audit data:** Perfect train, random val — likely data leakage or bad split. Audit time-based/group-based splits.
 
 ### Model Monitoring Thresholds
@@ -305,8 +306,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                    │+ retrain│ └──────┘
                                                    └───────┘
 ```
-**When to trigger retrain:** PSI > 0.25 on any critical feature — data distribution shifted significantly. Investigate upstream pipeline first.  
-**When to rollback:** Prediction error rate > 5× baseline for 15+ min — model performance collapsed. Immediate rollback to last known good.  
+**When to trigger retrain:** PSI > 0.25 on any critical feature — data distribution shifted significantly. Investigate upstream pipeline first.
+**When to rollback:** Prediction error rate > 5× baseline for 15+ min — model performance collapsed. Immediate rollback to last known good.
 **When to scale infra:** P99 latency > 2× SLA — model isn't broken, infrastructure is. Add replicas, optimize model with quantization.
 
 ## Core Workflow
@@ -419,6 +420,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `data-scientist` | Model artifacts, feature engineering code, inference pipeline requirements, monitoring thresholds | Scientists can't productionize research — models stay in notebooks |
 | `mlops-engineer` | Model serving API contract, GPU/CPU resource requirements, canary deployment strategy, drift detection rules | MLOps can't deploy models — no serving infrastructure configured |
 | `llm-engineer` | RAG architecture patterns, embedding pipelines, prompt engineering frameworks, model evaluation harness | LLM applications lack foundation — hallucination and quality risks |
+| `automation-engineer` | Model architecture, training pipeline, evaluation metrics | ML models can't be deployed — MLOps blocked |
 
 ## Proactive Triggers
 
@@ -573,4 +575,3 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-

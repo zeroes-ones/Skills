@@ -13,14 +13,14 @@ public:
         freeList.reserve(capacity);
         for (size_t i = 0; i < capacity; ++i) freeList.push_back(i);
     }
-    
+
     T* Acquire() {
         if (freeList.empty()) return nullptr;  // Pool exhausted
         size_t idx = freeList.back();
         freeList.pop_back();
         return &pool[idx];
     }
-    
+
     void Release(T* obj) {
         size_t idx = obj - pool.data();
         freeList.push_back(idx);
@@ -38,7 +38,7 @@ class LinearAllocator {
     size_t offset{0};
 public:
     LinearAllocator(size_t sz) : buffer(new uint8_t[sz]), size(sz) {}
-    
+
     void* Allocate(size_t sz, size_t alignment = 16) {
         size_t aligned = (offset + alignment - 1) & ~(alignment - 1);
         if (aligned + sz > size) return nullptr;
@@ -46,7 +46,7 @@ public:
         offset = aligned + sz;
         return ptr;
     }
-    
+
     void Reset() { offset = 0; }  // Per-frame reset
 };
 ```

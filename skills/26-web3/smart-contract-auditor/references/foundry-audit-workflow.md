@@ -7,12 +7,12 @@ import {StdInvariant} from "forge-std/StdInvariant.sol";
 
 contract AuditInvariants is StdInvariant, Test {
     Token token;
-    
+
     function setUp() public {
         token = new Token();
         targetContract(address(token));
     }
-    
+
     function invariant_totalSupply_eq_balanceSum() public {
         assertEq(token.totalSupply(), balanceSum());
     }

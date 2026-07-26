@@ -25,6 +25,7 @@ updated: 2026-07-23
 token_budget: 3900
 chain:
   consumes_from:
+  - automation-engineer
   - bizdev-manager
   - business-strategist
   - content-strategist
@@ -37,6 +38,7 @@ chain:
   - revops-manager
   - seo-specialist
   feeds_into:
+  - automation-engineer
   - bizdev-manager
   - brand-guidelines
   - demand-generation
@@ -380,6 +382,11 @@ Analyst evaluation outcome materially negative → CEO Strategist + VP Product +
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product positioning, competitive analysis, value proposition | Before engaging prospects or designing partnerships |
+| `automation-engineer` | Content calendar, campaign specs, audience segments | Before automating marketing delivery pipelines |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|
+| `automation-engineer` | Content calendar, campaign specs, audience segments | Marketing stays manual — launches go unannounced |
 
 
 ## Proactive Triggers
@@ -578,4 +585,3 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
-

@@ -1,7 +1,7 @@
 # Denormalization ROI Calculator
 
 ```
-For each denormalization: 
+For each denormalization:
 ROI = (read_latency_reduction_ms × reads_per_second × user_value_per_ms) - (write_penalty_ms × writes_per_second × write_cost_factor) - (storage_cost)
 
 Example: Denormalizing `order_count` onto `users` table:

@@ -228,7 +228,7 @@ from prometheus_client import Counter, Gauge, Histogram, Summary
 l1_tests_total = Counter('eval_l1_tests_total', 'Total L1 tests run', ['result'])
 l1_test_duration = Histogram('eval_l1_test_duration_seconds', 'L1 test duration')
 
-# L2 Scenario Tests  
+# L2 Scenario Tests
 l2_pass_rate = Gauge('eval_l2_pass_rate', 'L2 scenario pass rate')
 l2_sprt_decision = Gauge('eval_l2_sprt_decision', 'SPRT decision', ['decision'])
 
@@ -338,21 +338,21 @@ groups:
           severity: critical
         annotations:
           summary: "L2 scenario pass rate dropped below 85%"
-          
+
       - alert: EvalCostOverrun
         expr: sum(increase(eval_cost_total_dollars[30d])) > 500
         labels:
           severity: warning
         annotations:
           summary: "Monthly eval cost exceeded $500 budget"
-          
+
       - alert: SafetyRegression
         expr: eval_injection_pass_rate{category="system_prompt_extraction"} < 1.0
         labels:
           severity: critical
         annotations:
           summary: "Prompt injection resistance degraded — system prompt extractable"
-          
+
       - alert: BehavioralDriftDetected
         expr: eval_embedding_drift > 0.15
         for: 1h
@@ -360,7 +360,7 @@ groups:
           severity: warning
         annotations:
           summary: "Agent behavior drift detected (embedding similarity < 0.85)"
-          
+
       - alert: JudgeDecalibration
         expr: eval_judge_kappa < 0.60
         labels:

@@ -199,4 +199,3 @@ fun requestInAppReview(activity: Activity) {
 // Must acknowledge purchases within 3 days or Google auto-refunds
 // Must handle pending purchases (slow payment methods in India, Brazil)
 ```
-

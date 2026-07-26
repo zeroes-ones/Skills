@@ -307,10 +307,10 @@ async def log_modification(db: AsyncSession, *, user_id, ip_address, record_id, 
 ### Phase 3: Encryption at Rest and in Transit (~3 hours)
 
 ```yaml
-# Encryption checklist — implement each:  
+# Encryption checklist — implement each:
 
 # ── AT REST ─────────────────────────────────────
-# PostgreSQL: 
+# PostgreSQL:
 #   ALTER SYSTEM SET ssl = on;
 #   CREATE EXTENSION pgcrypto;  -- for column-level encryption if needed
 #   AWS RDS: enable encryption at creation (cannot retrofit)
@@ -606,4 +606,3 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
-

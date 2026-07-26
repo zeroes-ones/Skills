@@ -102,4 +102,3 @@ Execute in order. Do not skip steps.
    |-- Track CVE age: escalate any critical CVE unfixed >48h to security leadership.
   Complete when: CVE scanning is configured in CI on every PR and daily schedule, triage workflow is documented with CVSS + exploitability + reachability criteria, and response SLA is published with escalation path.
 ```
-

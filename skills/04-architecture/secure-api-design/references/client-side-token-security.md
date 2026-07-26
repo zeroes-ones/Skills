@@ -26,10 +26,10 @@ Single-Page Applications have no secure persistence mechanism:
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const tokens = await authServer.authenticate(username, password);
-    
+
     // Store tokens server-side in session (Redis)
     req.session.tokens = tokens;
-    
+
     // Issue httpOnly cookie to SPA (token never reaches browser)
     res.cookie('session_id', req.sessionID, {
         httpOnly: true,

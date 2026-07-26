@@ -200,7 +200,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
       │        │ │wrapper   │ │      │    │  vendor)   │
       └────────┘ └──────────┘ └──────┘    └───────────┘
 ```
-**When to BUILD:** It's core IP that creates competitive moat. Team has domain expertise. Time-to-market > 6 months is acceptable. Total cost of build < 3x annual license cost over 3 years.  
+**When to BUILD:** It's core IP that creates competitive moat. Team has domain expertise. Time-to-market > 6 months is acceptable. Total cost of build < 3x annual license cost over 3 years.
 **When to BUY:** Commodity infrastructure (auth, payments, monitoring, CI/CD). Vendor switching cost is manageable (< 3 months migration). Build would divert > 30% of engineering from product work.
 
 ### Architecture Pattern Selection
@@ -229,7 +229,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
     └────────────┘ │ packages     │
                    └──────────────┘
 ```
-**When to choose Microservices:** 3+ teams with independent release cycles. Different scaling requirements per component. Polyglot persistence is needed.  
+**When to choose Microservices:** 3+ teams with independent release cycles. Different scaling requirements per component. Polyglot persistence is needed.
 **When to choose Modular Monolith:** < 20 engineers. Single deployment pipeline is adequate. Data consistency across domains is critical. Premature distribution adds latency and <!-- DEEP: 10+min -->
 debugging complexity.
 
@@ -258,7 +258,7 @@ debugging complexity.
                             │ weeks      │  │ file anyway  │
                             └────────────┘  └──────────────┘
 ```
-**When to fix immediately (P0):** Security vulnerability with known exploit. Data corruption risk. Prevents shipping revenue-generating feature.  
+**When to fix immediately (P0):** Security vulnerability with known exploit. Data corruption risk. Prevents shipping revenue-generating feature.
 **When to defer (P2):** Legacy code that works reliably. Module slated for replacement within 6 months. No customer-facing impact.
 
 ### Vendor Selection
@@ -294,7 +294,7 @@ debugging complexity.
   │         │        │ find alt     │
   └─────────┘        └──────────────┘
 ```
-**When to proceed:** Vendor passes security review, POC succeeds on critical path, pricing fits budget, and data migration OUT is feasible.  
+**When to proceed:** Vendor passes security review, POC succeeds on critical path, pricing fits budget, and data migration OUT is feasible.
 **When to reject:** Vendor < 2 years old with < 50 customers. No SOC 2 or equivalent. Proprietary data format with no export API. Key-person dependency (single maintainer).
 
 ## Core Workflow

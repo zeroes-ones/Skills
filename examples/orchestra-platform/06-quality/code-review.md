@@ -1,7 +1,7 @@
 # Code Review Summary — Sprints 4–6
 
-**Review Period**: June 1 – July 18, 2026 (3 sprints, 2-week cadence)  
-**Total PRs Reviewed**: 47 (18 in Sprint 4, 15 in Sprint 5, 14 in Sprint 6)  
+**Review Period**: June 1 – July 18, 2026 (3 sprints, 2-week cadence)
+**Total PRs Reviewed**: 47 (18 in Sprint 4, 15 in Sprint 5, 14 in Sprint 6)
 **Reviewers**: 4 senior engineers rotating primary/secondary roles
 
 ## Finding Categories

@@ -370,7 +370,7 @@ Always run physics at a multiple of your display rate when possible (e.g., 120Hz
 struct MyJob : IJobChunk {
     [ReadOnly] public NativeArray<int> inputs;
     public NativeList<float>.ParallelWriter results; // Disposed by caller
-    
+
     public void Execute(in ArchetypeChunk chunk, ...) {
         // Never store NativeList locally without Dispose
     }
@@ -392,15 +392,15 @@ void Client::OnServerState(const ServerState& state, int32_t tick) {
     // Find predicted state for this tick
     auto it = predictionHistory.find(tick);
     if (it == predictionHistory.end()) return;
-    
+
     const PlayerState& predicted = it->second;
     const PlayerState& authoritative = state.playerStates[localPlayerId];
-    
+
     float error = Distance(predicted.position, authoritative.position);
     if (error > RECONCILIATION_THRESHOLD) {
         // Rewind: reset state to authoritative
         currentState = authoritative;
-        
+
         // Replay all inputs from tick+1 to current
         for (int32_t t = tick + 1; t <= currentTick; ++t) {
             auto inputIt = inputHistory.find(t);

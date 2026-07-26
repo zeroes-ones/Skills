@@ -107,19 +107,19 @@ def normalize_frontmatter(skill_path: Path, target_agent: str) -> dict:
     """Parse, strip, map, add, validate for target agent."""
     with open(skill_path) as f:
         content = f.read()
-    
+
     # Extract YAML frontmatter between --- markers
     parts = content.split("---", 2)
     if len(parts) < 3:
         raise ValueError("No YAML frontmatter found")
-    
+
     frontmatter = yaml.safe_load(parts[1])
     supported = AGENT_FIELDS.get(target_agent, set())
     required = REQUIRED_FIELDS.get(target_agent, set())
-    
+
     # Step 2: Strip unsupported fields
     normalized = {k: v for k, v in frontmatter.items() if k in supported}
-    
+
     # Step 3: Map fields (Codex special case)
     if target_agent == "codex":
         normalized = {
@@ -130,27 +130,27 @@ def normalize_frontmatter(skill_path: Path, target_agent: str) -> dict:
             },
             **normalized
         }
-    
+
     # Step 4: Add agent-specific fields
     if target_agent == "copilot-cli" and "portability" not in normalized:
         normalized["portability"] = "works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI"
-    
+
     # Step 5: Validate required fields
     missing = required - set(normalized.keys())
     # For Codex, check info block
     if target_agent == "codex" and "info" in normalized:
         missing = required - {"name", "description", "version"}
-    
+
     if missing:
         print(f"WARNING: Missing required fields for {target_agent}: {missing}", file=sys.stderr)
-    
+
     return normalized
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print(f"Usage: {sys.argv[0]} <SKILL.md> <target-agent>", file=sys.stderr)
         sys.exit(1)
-    
+
     result = normalize_frontmatter(Path(sys.argv[1]), sys.argv[2])
     print(yaml.dump(result, default_flow_style=False, sort_keys=False))
 ```

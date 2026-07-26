@@ -61,4 +61,3 @@ while (running) {
 3. **Do:** Snapshot interpolation: server sends state snapshots at tickrate (e.g., 64Hz). Client buffers 2-3 snapshots, renders interpolated state between tick `N` and `N+1` at `N + interp_delay` ticks. Jitter buffer: adaptive size based on network jitter measurement.
 4. **Verify:** Client prediction: 0ms input latency visually, no "swimming" feel. Reconciliation: teleport correction < 1cm for <100ms ping. Interpolation: no stutter with ±30ms jitter.
 5. **Recover:** Prediction overshoot (>10cm at 50ms ping) → reduce prediction time window or add velocity damping. Interpolation starvation → increase `interp_delay` by one tick.
-

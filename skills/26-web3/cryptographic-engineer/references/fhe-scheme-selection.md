@@ -61,7 +61,7 @@
 Google's HEIR uses MLIR to compile high-level encrypted computation:
 
 ```
-[ High-level MLIR ] 
+[ High-level MLIR ]
     → heir-scheme-lowering (TFHE/CKKS/BGV dialect selection)
     → heir-bootstrap-placement (automatic bootstrapping insertion)
     → heir-noise-analysis (budget verification)

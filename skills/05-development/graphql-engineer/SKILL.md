@@ -399,7 +399,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 ### Anti-Pattern: GraphQL Without Query Depth Limiting
 **What it looks like:** A public GraphQL endpoint with no depth limit, no complexity budget, no rate limiting. A recursive query `{ user { posts { author { posts { author ... } } } } }` with depth 10 returns billions of nodes in one request.
-**Why it fails:** Without depth limiting, your API is a public DDoS tool. A single request from a buggy client, a malicious actor, or a new developer testing in production can saturate CPU, exhaust memory, and crash the server. 
+**Why it fails:** Without depth limiting, your API is a public DDoS tool. A single request from a buggy client, a malicious actor, or a new developer testing in production can saturate CPU, exhaust memory, and crash the server.
 **Do this instead:** Set query depth limit (5-7 max). Implement query complexity budgets (assign costs to fields: scalar=1, list=10x multiplier). Add rate limiting per operation. Use persisted queries in production. All three defenses, not just one.
 
 ### Anti-Pattern: N+1 Problem in Production

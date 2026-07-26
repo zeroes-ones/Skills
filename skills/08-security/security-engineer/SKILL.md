@@ -26,6 +26,7 @@ updated: 2026-07-23
 token_budget: 2835
 chain:
   consumes_from:
+  - automation-engineer
   - cloud-architect
   - compliance-officer
   - devops-engineer
@@ -35,6 +36,7 @@ chain:
   - privacy-engineer
   - system-architect
   feeds_into:
+  - automation-engineer
   - backend-developer
   - ci-cd-builder
   - cloud-architect
@@ -342,6 +344,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | System topology, trust boundaries, data flow diagrams, component interactions | Before threat modeling or designing security architecture |
 | `cloud-architect` | KMS key policies, SCP design, CloudTrail/Audit Log configuration, WAF rules, DDoS protection | Before configuring cloud security posture or IAM policies |
 | `devops-engineer` | Vault/Secrets Manager architecture, security group/NetworkPolicy design, IAM least-privilege, container hardening | Before implementing secrets management or network security controls |
+| `automation-engineer` | OIDC setup, secrets injection, signed commit verification | Before automating security in delivery pipelines |
 
 | Downstream Skill | What You Provide | Impact of Delay |
 |---|---|---|
@@ -349,6 +352,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `backend-developer` | Auth design patterns, data protection requirements, secure coding guidance, dependency security policies | Developers implement insecure patterns — technical debt accumulates |
 | `incident-responder` | Detection rules, SOAR playbooks, forensic tooling access, threat intelligence sharing | Incident response has no detection capability — breaches go unnoticed |
 | `compliance-officer` | Technical control evidence, vulnerability management metrics, security monitoring coverage | Compliance audits fail without technical evidence — certification at risk |
+| `automation-engineer` | OIDC setup, secrets injection, signed commit verification | Pipeline lacks security — audit fails |
 
 ## Proactive Triggers
 
