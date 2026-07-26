@@ -1,24 +1,20 @@
 ---
 name: repo-scaffolding
 description: >
-  Use when establishing repo creation standards for an organization; when new
-  repos take more than 30 minutes to configure from scratch; when repos have
-  inconsistent CI/CD, linting, or security configurations; when maintaining a
-  template repo that multiple teams derive from; when onboarding new teams who
-  need consistent project scaffolding; or when auditing repo consistency across
-  an organization. Handles golden repo template design (one canonical template
-  per language/framework), template engine selection (GitHub templates,
-  cookiecutter, degit, Yeoman, custom CLI), template content specification
-  (CI/CD, linters, TypeScript, .gitignore, CODEOWNERS, SECURITY.md, README),
-  template inheritance hierarchy (base->language->framework->team), downstream
-  sync strategies (automated PR propagation, drift detection), scaffolding for
-  monorepo packages (nx generate, turbo gen, plop.js), CI/CD template sharing
-  (reusable workflows, orbs, GitLab CI templates), and anti-pattern avoidance
-  (fork-and-forget, over-engineering, template-as-product). Do NOT use for
-  monorepo tooling configuration (route to monorepo-manager), CI/CD pipeline
-  design (route to ci-cd-builder), developer platform design (route to
-  platform-engineer), or code generation within a project (route to appropriate
-  developer skill).
+  Use when establishing repo creation standards; when new repos take >30m to
+  configure; when repos have inconsistent CI/CD, linting, or security configs;
+  when maintaining a template repo multiple teams derive from; when onboarding
+  teams needing consistent scaffolding; or when auditing repo consistency. Handles
+  golden repo template design (one canonical template per language/framework),
+  template engine selection (GitHub templates, cookiecutter, degit, Yeoman, custom
+  CLI), template content (CI/CD, linters, .gitignore, CODEOWNERS, SECURITY.md,
+  README), template inheritance hierarchy, downstream sync strategies (automated
+  PR propagation, drift detection), scaffolding for monorepo packages (nx
+  generate, turbo gen, plop.js), CI/CD template sharing (reusable workflows,
+  orbs), and anti-pattern avoidance. Do NOT use for monorepo tooling (route to
+  monorepo-manager), CI/CD design (route to ci-cd-builder), dev platform design
+  (route to platform-engineer), or code generation (route to appropriate developer
+  skill).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

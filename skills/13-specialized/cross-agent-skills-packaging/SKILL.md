@@ -1,28 +1,16 @@
 ---
 name: cross-agent-skills-packaging
 description: >
-  Use when packaging skills for deployment across multiple AI agent terminals (Claude Code, Copilot CLI,
-  Cursor, Codex, Gemini CLI, OpenClaw), configuring the ~/.agents/skills/ cross-agent shared directory
-  with symbolic link strategies, resolving agent-specific frontmatter conflicts (Claude Code vs Copilot
-  vs Cursor field compatibility), generating skills-manifest.json for agent auto-discovery, or testing
-  skill compatibility across 6+ agent platforms simultaneously. Handles the ~/.agents/skills/ emerging
-  standard (de facto cross-agent directory convention for 15+ terminals, symlink-based sharing with
-  per-agent overrides, manifest-based auto-discovery), per-agent directory mapping (.claude/skills/
-  for Claude Code with PROCESS_TREE.md conventions, .copilot/skills/ for Copilot CLI with frontmatter
-  validation, .cursor/skills/ for Cursor with .cursorrules integration, .codex/skills/ for OpenAI Codex
-  with OpenAPI-style skill descriptors, .gemini/skills/ for Gemini CLI with Google-style directives,
-  .opencode/skills/ for OpenCode), symbolic link strategy (symlink shared skills from
-  ~/.agents/skills/core/ to each agent directory, copy agent-specific overrides to
-  ~/.agents/skills/overrides/<agent>/, use hashing for deduplication and change detection), frontmatter
-  normalization (strip vendor-specific fields per agent, map common fields to agent equivalents, validate
-  required fields per agent specification), skill manifest generation (skills-manifest.json with
-  name/description/author/dependencies/tags for agent auto-discovery, incremental manifest rebuild on
-  skill changes, version tracking with semantic versioning), and cross-agent compatibility testing (load
-  skill in each agent environment, verify intent routing works on all platforms, test decision tree
-  execution consistency, benchmark token efficiency per agent, generate compatibility report matrix).
-  Do NOT use for skill content authoring (use individual skill templates), agent runtime behavior (use
-  agent-eval-pipeline), platform-specific optimization (use per-platform docs), or CI/CD pipeline setup
-  (use ci-cd-builder).
+  Use when packaging skills for deployment across multiple AI agent terminals (Claude Code, Copilot
+  CLI, Cursor, Codex, Gemini CLI, OpenClaw), configuring the ~/.agents/skills/ cross-agent directory
+  with symlink strategies, resolving agent-specific frontmatter conflicts, generating
+  skills-manifest.json for auto-discovery, or testing skill compatibility across 6+ platforms.
+  Handles the ~/.agents/skills/ standard (symlink-based sharing, manifest-based auto-discovery),
+  symbolic link strategy, frontmatter normalization (strip vendor fields, validate per spec),
+  manifest generation (skills-manifest.json, incremental rebuild, semver), and cross-agent
+  compatibility testing (load per agent, verify routing, benchmark tokens, compatibility report). Do
+  NOT use for skill content authoring, agent runtime behavior (use agent-eval-pipeline),
+  platform-specific optimization, or CI/CD setup (use ci-cd-builder).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

@@ -1,19 +1,16 @@
 ---
 name: ai-engineer
 description: >
-  Use when building AI-powered applications or features, designing RAG (Retrieval-Augmented
-  Generation) systems, architecting AI agent workflows, selecting and integrating foundation
-  models (LLMs, embeddings, multi-modal), building vector search systems, implementing
-  function calling and tool use, optimizing AI pipeline latency and cost, evaluating AI
-  output quality at scale, or designing AI safety guardrails for user-facing products.
-  Handles AI product architecture (chat, copilot, agent patterns), RAG pipeline design
-  (chunking, embedding, retrieval, re-ranking), vector database selection and optimization,
-  agent orchestration (ReAct, plan-execute, multi-agent), model gateway and routing,
-  prompt management at scale, AI evaluation and observability, streaming architectures
-  (SSE, WebSocket), and AI cost engineering. Do NOT use for model training or fine-tuning
-  (route to ml-engineer), MLOps infrastructure (route to mlops-engineer), LLM-specific
-  prompt engineering patterns (route to llm-engineer), or AI safety evaluation (route to
-  ai-safety-engineer).
+  Use when building AI-powered applications or features, designing RAG systems, architecting AI
+  agent workflows, selecting and integrating foundation models (LLMs, embeddings, multimodal),
+  implementing AI safety guardrails, optimizing model inference latency and cost, or building
+  evaluation pipelines. Handles RAG architecture (chunking strategies, embedding model selection,
+  vector DB and hybrid search, re-ranking, context window optimization), agent design (tool- using
+  patterns, ReAct/Plan-Execute, multi-agent coordination, memory architectures), model selection
+  (GPT-4, Claude, Gemini, Llama, Mistral), and AI safety (guardrails, prompt injection defense,
+  output validation, bias detection). Do NOT use for ML model training (ml-engineer), MLOps pipeline
+  design (mlops-engineer), AI security testing (ai-security), or LLM guardrails implementation
+  (applying-llm-guardrails).
 license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering

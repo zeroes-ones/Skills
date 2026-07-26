@@ -1,33 +1,17 @@
 ---
 name: game-engine-architect
 description: >
-  Use when architecting real-time game engine systems, optimizing rendering
-  pipelines (deferred/forward/PBR/ray tracing), designing entity-component-system
-  (ECS) architectures with data-oriented layouts, writing high-performance C++
-  game loops with fixed timestep interpolation, integrating Unity DOTS/ECS with
-  Burst compiler and Job System, configuring Unreal Engine 5 Nanite virtualized
-  geometry and Lumen global illumination, optimizing shaders (Unity Shader Graph,
-  Unreal Material Editor, HLSL/GLSL compute), implementing multiplayer networking
-  with client-side prediction and server reconciliation, or managing cross-platform
-  GPU pipelines (wgpu/Vulkan/Metal/DirectX 12). Handles ECS architecture (Unity
-  DOTS entities-archetypes-chunks, Flecs, EnTT, data-oriented design with SoA
-  layouts and cache-friendly iteration), rendering pipeline selection (forward
-  for transparency/mobile, deferred for many dynamic lights, clustered forward
-  for balance, PBR with Cook-Torrance BRDF, ray tracing for reflections/global
-  illumination/ambient occlusion), C++ game loop design (fixed timestep 16.67ms
-  physics at 60Hz, variable rendering at display refresh, interpolation factor
-  for smooth visuals, input sampling at start of frame, Robert Nystrom's GameLoop
-  patterns), Unity optimization (IL2CPP AOT compilation, Burst compiler SIMD
-  intrinsics, Job System IJobFor parallel processing, Addressables for memory
-  streaming, GPU instancing draw calls vs SRP Batcher), Unreal Engine 5
-  architecture (Nanite meshlet-based LOD with software rasterization fallback,
-  Lumen surface cache with screen-space traces, Mass Entity for crowd simulation,
-  Gameplay Ability System attribute-grant-tag pattern), and GPU pipeline
-  abstraction (wgpu for WebGPU-native cross-platform, SPIR-V shader compilation,
-  descriptor set layout optimization, compute shader particle systems with
-  indirect draw). Do NOT use for mobile game optimization (use mobile-developer),
-  UI/UX design (use ui-ux-designer), backend server architecture (use
-  backend-developer), or general C++ development (use cpp-developer).
+  Use when architecting real-time game engine systems, optimizing rendering pipelines
+  (deferred/forward/PBR/ray tracing), designing ECS architectures, writing high-performance C++ game
+  loops, integrating Unity DOTS/ECS with Burst, configuring UE5 Nanite and Lumen, optimizing shaders
+  (HLSL/GLSL), implementing multiplayer networking with client-side prediction, or managing
+  cross-platform GPU pipelines (wgpu/Vulkan/Metal/DirectX). Handles ECS architecture (Unity DOTS,
+  Flecs, EnTT, SoA layouts), rendering pipelines (forward/deferred/clustered forward, PBR
+  Cook-Torrance, ray tracing), C++ game loop design (fixed timestep, interpolation), Unity
+  optimization (IL2CPP AOT, Burst SIMD, Job System, Addressables), UE5 architecture (Nanite meshlet
+  LOD, Lumen surface cache, Mass Entity, GAS), and GPU pipeline abstraction (wgpu cross-platform,
+  SPIR-V, compute shaders). Do NOT use for mobile optimization (mobile-developer), UI/UX
+  (ui-ux-designer), backend servers (backend-developer), or general C++ (language skill).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

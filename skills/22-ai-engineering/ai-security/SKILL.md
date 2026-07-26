@@ -1,6 +1,17 @@
 ---
 name: ai-security-engineer
-description: Use when securing LLM-based applications against prompt injection, jailbreaks, and training data poisoning; when implementing AI guardrails and content safety filters; when conducting AI red-teaming with garak or PyRIT; when evaluating model security for deployment; when designing AI supply chain security (model provenance, signed weights); or when aligning AI systems with the NIST AI RMF. Handles OWASP LLM Top 10 v1.1 vulnerability assessment and mitigation, prompt injection defense (input sanitization, instruction hierarchy, structured output), LLM supply chain security (model signing, provenance verification, SLOPSQUATTING detection), sensitive information disclosure prevention in LLM contexts, excessive agency control (tool call sandboxing, permission scoping, human-in-the-loop approval), AI red-teaming methodology (garak probes, PyRIT attack orchestration, adversarial suffix generation), guardrails implementation (NVIDIA NeMo, Guardrails AI, custom policy engines), adversarial ML defense (evasion, poisoning, extraction, inversion attacks), model theft prevention (rate limiting, canary tokens, watermarking), and NIST AI RMF mapping (GOVERN, MAP, MEASURE, MANAGE functions). Do NOT use for general application security (route to appsec-engineer), AI model development (route to llm-engineer or mlops-engineer), AI safety/alignment policy (route to ai-safety-engineer), or data privacy compliance (route to privacy-engineer).
+description: >
+  Use when securing LLM-based applications against prompt injection, jailbreaks, and training data
+  poisoning; when implementing AI guardrails and content safety filters; when conducting AI
+  red-teaming with automated adversarial testing; when evaluating OWASP Top 10 for LLM Applications
+  risks; when securing RAG data pipelines and vector databases; or when detecting model extraction
+  and inversion attacks. Handles LLM threat modeling (OWASP LLM Top 10 risks), adversarial testing
+  (Garak, Promptfoo, automated red-teaming), guardrail architecture (pre-prompt, runtime,
+  post-generation layers), RAG security (document ACL, query sanitization, response grounding),
+  vector DB hardening (access control, encryption, poisoning detection), and model extraction
+  defense (rate limiting, output filtering, query fingerprinting). Do NOT use for general appsec
+  (appsec-engineer), content safety policy (content-policy-manager), LLM guardrails
+  (applying-llm-guardrails), or AI model dev (ai-engineer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
