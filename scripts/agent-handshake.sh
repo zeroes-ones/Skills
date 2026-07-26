@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # ==============================================================================
 # agent-handshake.sh — Cross-Agent Handshake Runtime Protocol
 # ==============================================================================
@@ -107,13 +108,13 @@ SESSION_DIR="$HANDOFF_DIR/$SESSION_ID"
 propose_handoff() {
     [[ -n "$FROM_AGENT" ]] || { echo "ERROR: --from required"; exit 1; }
     [[ -n "$TO_AGENT" ]] || { echo "ERROR: --to required"; exit 1; }
-    
+
     mkdir -p "$SESSION_DIR"
-    
+
     # Build state payload
     local timestamp
     timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-    
+
     cat > "$SESSION_DIR/state.json" << STATE
 {
   "handoff_id": "$SESSION_ID",
@@ -127,11 +128,11 @@ propose_handoff() {
   "artifacts": []
 }
 STATE
-    
+
     # Generate checksum
     sha256sum "$SESSION_DIR/state.json" | awk '{print $1}' > "$SESSION_DIR/checksums.sha256"
     echo "state.json $(cat "$SESSION_DIR/checksums.sha256")" >> "$SESSION_DIR/checksums.sha256"
-    
+
     # Create contract (PROPOSED state)
     cat > "$SESSION_DIR/contract.json" << CONTRACT
 {
@@ -147,15 +148,15 @@ STATE
   "rejection_rationale": null
 }
 CONTRACT
-    
+
     # Initialize ledger if not exists
     if [[ ! -f "$SESSION_DIR/ledger.jsonl" ]]; then
         touch "$SESSION_DIR/ledger.jsonl"
     fi
-    
+
     # Log the proposal
     echo "{\"timestamp\":\"$timestamp\",\"event\":\"HANDOFF_PROPOSED\",\"from\":\"$FROM_AGENT\",\"to\":\"$TO_AGENT\",\"handoff_id\":\"$SESSION_ID\"}" >> "$SESSION_DIR/ledger.jsonl"
-    
+
     echo "✅ Handoff PROPOSED: $FROM_AGENT → $TO_AGENT"
     echo "   Session: $SESSION_ID"
     echo "   Path:    $SESSION_DIR"
@@ -167,26 +168,26 @@ CONTRACT
 accept_handoff() {
     [[ -d "$SESSION_DIR" ]] || { echo "ERROR: Session $SESSION_ID not found"; exit 1; }
     [[ -n "$TO_AGENT" ]] || { echo "ERROR: --as required"; exit 1; }
-    
+
     # Verify checksum
     if ! verify_checksum; then
         echo "❌ Checksum verification FAILED. Handoff may be corrupted."
         exit 2
     fi
-    
+
     # Read contract
     local contract_to
     contract_to=$(python3 -c "import json; print(json.load(open('$SESSION_DIR/contract.json'))['to'])" 2>/dev/null || echo "")
-    
+
     if [[ "$contract_to" != "$TO_AGENT" ]]; then
         echo "⚠️  Contract is addressed to '$contract_to' but you are '$TO_AGENT'"
         echo "   Accept anyway? Only proceed if you are a supervisor agent."
     fi
-    
+
     # Update contract
     local timestamp
     timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-    
+
     python3 -c "
 import json
 with open('$SESSION_DIR/contract.json') as f:
@@ -207,10 +208,10 @@ with open('$SESSION_DIR/contract.json', 'w') as f:
 }
 EOF
     }
-    
+
     # Log acceptance
     echo "{\"timestamp\":\"$timestamp\",\"event\":\"HANDOFF_ACCEPTED\",\"by\":\"$TO_AGENT\",\"handoff_id\":\"$SESSION_ID\"}" >> "$SESSION_DIR/ledger.jsonl"
-    
+
     # Output state for downstream agent consumption
     echo "✅ Handoff ACCEPTED: $SESSION_ID"
     echo "   Contract signed by: $TO_AGENT at $timestamp"
@@ -222,10 +223,10 @@ EOF
 reject_handoff() {
     [[ -d "$SESSION_DIR" ]] || { echo "ERROR: Session $SESSION_ID not found"; exit 1; }
     [[ -n "$TO_AGENT" ]] || { echo "ERROR: --as required"; exit 1; }
-    
+
     local timestamp
     timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-    
+
     python3 -c "
 import json
 with open('$SESSION_DIR/contract.json') as f:
@@ -237,9 +238,9 @@ c['rejection_rationale'] = '${RATIONALE:-No rationale provided}'
 with open('$SESSION_DIR/contract.json', 'w') as f:
     json.dump(c, f, indent=2)
 " 2>/dev/null
-    
+
     echo "{\"timestamp\":\"$timestamp\",\"event\":\"HANDOFF_REJECTED\",\"by\":\"$TO_AGENT\",\"rationale\":\"${RATIONALE:-none}\",\"handoff_id\":\"$SESSION_ID\"}" >> "$SESSION_DIR/ledger.jsonl"
-    
+
     echo "❌ Handoff REJECTED by $TO_AGENT"
     echo "   Rationale: ${RATIONALE:-No rationale provided}"
 }
@@ -247,11 +248,11 @@ with open('$SESSION_DIR/contract.json', 'w') as f:
 verify_checksum() {
     [[ -f "$SESSION_DIR/checksums.sha256" ]] || { echo "ERROR: No checksum file"; return 1; }
     [[ -f "$SESSION_DIR/state.json" ]] || { echo "ERROR: No state file"; return 1; }
-    
+
     local expected actual
     expected=$(head -1 "$SESSION_DIR/checksums.sha256")
     actual=$(sha256sum "$SESSION_DIR/state.json" | awk '{print $1}')
-    
+
     if [[ "$expected" == "$actual" ]]; then
         return 0
     else
@@ -264,23 +265,23 @@ verify_checksum() {
 record_ledger() {
     [[ -d "$SESSION_DIR" ]] || { echo "ERROR: Session $SESSION_ID not found"; exit 1; }
     [[ -n "$DECISION_TEXT" ]] || { echo "ERROR: --decision required"; exit 1; }
-    
+
     local timestamp
     timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-    
+
     cat >> "$SESSION_DIR/ledger.jsonl" << LEDGER
 {"timestamp":"$timestamp","event":"DECISION_RECORDED","decision":"$DECISION_TEXT","rationale":"${RATIONALE:-none}","reversible":${REVERSIBLE:-false}}
 LEDGER
-    
+
     echo "📝 Decision recorded in ledger: $DECISION_TEXT"
 }
 
 show_status() {
     [[ -d "$SESSION_DIR" ]] || { echo "ERROR: Session $SESSION_ID not found"; exit 1; }
-    
+
     echo "📋 Handoff: $SESSION_ID"
     echo "═══════════════════════════════════════"
-    
+
     if [[ -f "$SESSION_DIR/contract.json" ]]; then
         python3 -c "
 import json
@@ -293,7 +294,7 @@ if c.get('accepted_at'): print(f\"   Accepted:  {c['accepted_at']} by {c.get('ac
 if c.get('rejected_at'): print(f\"   Rejected:  {c['rejected_at']} — {c.get('rejection_rationale', 'no rationale')}\")
 " 2>/dev/null || cat "$SESSION_DIR/contract.json"
     fi
-    
+
     if [[ -f "$SESSION_DIR/checksums.sha256" ]]; then
         echo ""
         echo "   Checksum:  $(head -1 "$SESSION_DIR/checksums.sha256")"
@@ -303,7 +304,7 @@ if c.get('rejected_at'): print(f\"   Rejected:  {c['rejected_at']} — {c.get('r
             echo "   Integrity: ❌ FAILED"
         fi
     fi
-    
+
     if [[ -f "$SESSION_DIR/ledger.jsonl" ]]; then
         local entries
         entries=$(wc -l < "$SESSION_DIR/ledger.jsonl" | tr -d ' ')
@@ -315,27 +316,27 @@ list_handoffs() {
     local agent_filter="${1:-}"
     echo "📋 Pending Handoffs"
     echo "═══════════════════════════════════════"
-    
+
     local found=0
     for dir in "$HANDOFF_DIR"/*/; do
         [[ -d "$dir" ]] || continue
         local contract="$dir/contract.json"
         [[ -f "$contract" ]] || continue
-        
+
         local status to_agent
         status=$(python3 -c "import json; print(json.load(open('$contract')).get('status','?'))" 2>/dev/null || echo "?")
         to_agent=$(python3 -c "import json; print(json.load(open('$contract')).get('to','?'))" 2>/dev/null || echo "?")
-        
+
         if [[ -n "$agent_filter" ]] && [[ "$to_agent" != "$agent_filter" ]]; then
             continue
         fi
-        
+
         local sid
         sid=$(basename "$dir")
         echo "   [$status] $sid → $to_agent"
         found=$((found + 1))
     done
-    
+
     if [[ $found -eq 0 ]]; then
         echo "   (no handoffs found)"
     fi
