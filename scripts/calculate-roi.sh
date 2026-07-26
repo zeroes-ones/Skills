@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # ==============================================================================
 # calculate-roi.sh — Dynamic ROI Calculator (Researches at Invocation Time)
 # ==============================================================================
@@ -180,12 +181,12 @@ IFS=',' read -ra FILE_ARRAY <<< "$FILES"
 for file in "${FILE_ARRAY[@]}"; do
     file=$(echo "$file" | xargs)  # trim whitespace
     FULL_PATH="$PROJECT/$file"
-    
+
     if [[ -f "$FULL_PATH" ]]; then
         FILE_COUNT=$((FILE_COUNT + 1))
         LOC=$(wc -l < "$FULL_PATH" 2>/dev/null || echo 0)
         TOTAL_LOC=$((TOTAL_LOC + LOC))
-        
+
         # Complexity indicators
         if grep -q "describe\|it(\|test(" "$FULL_PATH" 2>/dev/null; then
             HAS_TESTS=true
@@ -196,7 +197,7 @@ for file in "${FILE_ARRAY[@]}"; do
         if grep -q "router\.\(get\|post\|put\|patch\|delete\)\|@app\.\|@router\.\|@Get\|@Post\|@Put\|@Patch\|@Delete" "$FULL_PATH" 2>/dev/null; then
             HAS_API_CHANGES=true
         fi
-        
+
         # Count imports as rough dependency indicator
         IMPORT_COUNT=$(grep -c "^import\|^from\|^require(" "$FULL_PATH" 2>/dev/null) || IMPORT_COUNT=0
         IMPORT_COUNT=${IMPORT_COUNT:-0}
@@ -231,16 +232,16 @@ else
         migration) LOC_PER_HOUR=10 ;;
         *) LOC_PER_HOUR=20 ;;
     esac
-    
+
     BASE_HOURS=$(echo "scale=1; $TOTAL_LOC / $LOC_PER_HOUR" | bc 2>/dev/null || echo 1)
-    
+
     # Complexity multipliers
     COMPLEXITY_MULTIPLIER=1.0
     if $HAS_MIGRATIONS; then COMPLEXITY_MULTIPLIER=$(echo "$COMPLEXITY_MULTIPLIER * 1.5" | bc); fi
     if $HAS_API_CHANGES; then COMPLEXITY_MULTIPLIER=$(echo "$COMPLEXITY_MULTIPLIER * 1.3" | bc); fi
     if [[ $FILE_COUNT -gt 5 ]]; then COMPLEXITY_MULTIPLIER=$(echo "$COMPLEXITY_MULTIPLIER * 1.2" | bc); fi
     if [[ $DEPENDENCY_COUNT -gt 50 ]]; then COMPLEXITY_MULTIPLIER=$(echo "$COMPLEXITY_MULTIPLIER * 1.15" | bc); fi
-    
+
     DEV_HOURS=$(echo "scale=1; ($BASE_HOURS * $COMPLEXITY_MULTIPLIER) + 1" | bc)
 fi
 
