@@ -391,6 +391,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
    - name: Deploy to production
      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
    ```
+  Complete when: pipeline topology is diagrammed with fan-in/fan-out, conditional execution gates are documented, and the pipeline completes a full build-test-deploy cycle in under 15 minutes.
 
 ### Phase 2 (~30 min): GitHub Actions Deep-Dive
 
@@ -433,6 +434,17 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
            required: true
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+  Complete when: reusable workflow is published and consumed by at least one downstream repo, composite actions eliminate duplicated steps across 3+ workflows, and OIDC-based auth replaces all static credentials in pipelines.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Using `actions/checkout@v3` with `persist-credentials: true` (default) — the GITHUB_TOKEN persists across workflow steps, allowing a compromised dependency in `npm install` to push to the repo | $50K-$500K in supply chain compromise and credential exfiltration | Set `persist-credentials: false` on checkout; use fine-grained PATs with minimum scope only for steps that need push access; pin actions by SHA, not tag |
+| Matrix build explosion — adding a new dimension silently multiplies job count; 3 OS × 4 Node versions × 4 DBs = 48 jobs × $0.008/min = $230/hr | $10K-$50K in unexpected CI costs per month | Cap matrix size with a CI check; use `exclude` to prune impossible combinations; calculate total jobs = product of all dimension sizes before committing |
+| Deploy step runs without `environment:` protection — no required reviewers, no wait timer, no branch protection; a merged PR goes straight to production with zero gates | $10K-$100K per incident in un-reviewed production changes | Configure GitHub Environments with required reviewers, wait timers, and deployment branch restrictions; never let `deploy:prod` run without an environment gate |
+| Cache poisoning via pull_request_target — the workflow runs in the base repo's context with full secrets access on PRs from forks | $100K-$1M in full repository compromise | Use `pull_request` trigger (not `pull_request_target`) for PR workflows; never check out untrusted code with secrets available; use `github.event.pull_request.head.sha` explicitly |
 
 
 ## Error Decoder — War Stories from the Trenches

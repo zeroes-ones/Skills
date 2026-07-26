@@ -357,12 +357,16 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    - **Prefect**: Dynamic workflows, Pythonic API, easy local dev. Best for developer experience.
    - **dbt Cloud**: SQL transformations only, zero-infra. Best for analytics engineering teams.
 
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Data Modeling
 
 1. **Modeling Approach Decision**:
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
 
 
 ## Best Practices
@@ -532,6 +536,26 @@ graph LR
 | dbt model silently stale — no error, just old data | `dbt run --select stg_orders` doesn't auto-select downstream dependents. Downstream models serve old data. | Use `dbt run --select state:modified+` to run modified models AND their dependents. Or `dbt run --select +model_name` for full upstream chain. | dbt's `--select` is surgical, not cascading — explicit `+` suffix is required for downstream propagation. |
 | Partitioned table scan still reads all partitions | WHERE clause uses a function on the partitioned column (e.g., `WHERE YEAR(dt) = 2024`). The optimizer can't prune. | Use direct partition column: `WHERE dt >= '2024-01-01' AND dt < '2025-01-01'`. Avoid functions on partition columns in WHERE. | Partition pruning depends on the query planner seeing the raw column — any transformation breaks the optimization. |
 | `INSERT INTO` duplicates data on retry | Non-idempotent writes. Pipeline fails mid-write, retry appends same data again. | Use `INSERT OVERWRITE` with partition-level granularity. Design every write operation to be idempotent. | Idempotency is not automatic — it must be designed into every write operation from the start. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
 

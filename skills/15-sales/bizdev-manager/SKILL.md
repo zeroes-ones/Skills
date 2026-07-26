@@ -312,11 +312,15 @@ A - Ability to Execute (0-3)
 
 Build a partner ICP: who serves your buyer before, during, or after they buy your product? Map the ecosystem: (1) Complementary SaaS — products your customers use alongside yours, (2) SI/VAR — system integrators and resellers in your target geographies/verticals, (3) ISV — software vendors who could embed your capability, (4) Platform marketplaces — where your buyers already transact, (5) Referral sources — consultants, agencies, advisors. Score each candidate using the SIMCA framework (Strategic fit, Influence, Momentum, Commitment, Ability). Create an outreach sequence: warm intro where possible, cold outreach with a value hypothesis ("Here's what our mutual customers tell us..."), discovery call, qualification scorecard, business case. Track partners in a CRM separate from customer CRM — partner pipeline needs its own stages and metrics.
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2 (~60 min): Ecosystem & Program Design
 
 For API/ISV ecosystems: (1) Define the integration value proposition — what does the integration unlock for the end customer that neither product achieves alone? (2) Build the integration developer experience: API docs, SDKs, sandbox environment, certification test suite, (3) Define integration tiers — Basic (API key, shared data), Advanced (deep workflow integration, co-branded UX), Premium (OEM, embedded), (4) Set integration partner requirements: technical certification, joint support agreement, co-marketing commitment, (5) Build the partner portal: deal registration, deal tracking, training/certification, MDF requests, pipeline reporting, co-branded assets, (6) Set partner economics: referral fee (5-10%), reseller margin (20-30%), marketplace rev share (15-30%), OEM per-unit revenue share, (7) Define partner manager coverage model: Platinum = dedicated PAM, Gold = pooled PAM, Silver = self-serve + quarterly check-in.
+
+  Complete when: Model trained, hyperparameters documented, and baseline performance metrics established on holdout set.
 
 <!-- DEEP: 10+min -->
 
@@ -325,6 +329,8 @@ For API/ISV ecosystems: (1) Define the integration value proposition — what do
 Structure the economics: (1) Revenue model — commission on sourced deals, margin on resold deals, revenue share on marketplace, per-unit fee on OEM, (2) Payment terms — net-30 or net-45, minimum thresholds for payout, (3) Performance commitments — minimum revenue ($X/yr), minimum certifications completed, minimum customer satisfaction (NPS > X), (4) Exclusivity — if granted, bounded by territory + segment + time + performance gates, (5) Term & termination — initial term (1-3 years), auto-renewal, termination for convenience (90 days notice), termination for cause (30 days, material breach), (6) IP & data — who owns customer data? who owns integrat
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
 
 
 ## Error Recovery
@@ -548,6 +554,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Term sheet emailed to partner, partner claims it's a binding agreement | Verbal agreement documented in email; term sheet lacked NON-BINDING header | No legal review gate before sending term sheets; no standardized NON-BINDING template | Never send a term sheet without NON-BINDING header in first 10 lines; always include legal-advisor review as mandatory gate; use standardized template with binding/non-binding sections clearly marked |
 | Partner champion leaves, integration goes from "strategic" to "legacy" | Single point of contact at partner; no relationship depth | BizDev built relationship with one person, not the organization | Require 3+ contacts per strategic partner; document partner org chart; schedule cross-functional relationship mapping quarterly |
 | Partner program has 50 partners but top 3 drive 85% of revenue | Resources spread evenly across all partners; low performers consuming disproportionate support | No tiered coverage model; no offboarding process for zero-revenue partners | Implement tiered coverage: Platinum = dedicated PAM (1:10-15), Gold = pooled (1:20-30), Silver = self-serve; offboard partners with zero pipeline in 6+ months |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
 
 ## Verification
 

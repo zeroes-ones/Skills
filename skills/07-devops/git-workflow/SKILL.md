@@ -164,6 +164,7 @@ What Git task are you working on?
    |-- git push origin feature/branch-name
    |-- NEVER git push --force to shared branches
 ```
+  Complete when: `git diff --cached` shows exactly one logical change with a conventional commit message, pre-commit hooks pass, and `git log -1` shows a well-formed commit with body explaining the WHY.
 
 ### Phase 2: Quality Gates (Git Hooks)
 
@@ -198,6 +199,7 @@ What Git task are you working on?
    |-- Build verification
    |-- Branch naming convention check
 ```
+  Complete when: `pre-commit run --all-files` passes with zero failures, commit-msg hook enforces conventional commit format, and pre-push hook runs the full test suite successfully.
 
 ### Phase 3: Versioning and Changelogs
 
@@ -219,6 +221,7 @@ What Git task are you working on?
    |-- Annotated tags (git tag -a) include author, date, message
    |-- Push tags: git push origin v1.2.0 or git push --tags
 ```
+  Complete when: version bump type is determined from commit history, changelog follows Keep a Changelog format with human-readable impact descriptions, and an annotated tag is pushed to the remote.
 
 ## Decision Trees **(QUICK)**
 
@@ -348,6 +351,16 @@ What did you lose?
 |   |-- git checkout -b new-branch-name (create branch at current position)
 |   |-- Or: git switch -c new-branch-name
 ```
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| `git push --force` on a shared branch — overwrites teammates' commits that were pushed after your last fetch; their work is lost and unrecoverable unless they have a local copy | $10K-$50K in lost engineering work and team trust | Never `--force` to shared branches; use `--force-with-lease` which checks that your local ref matches the remote before overwriting; configure branch protection to reject force pushes on `main` and release branches |
+| `git add .` without reviewing — commits secrets, large binaries, debug logs, and temporary files into the repository history where they live forever | $5K-$30K in secret rotation, repo size bloat, and `.gitignore` cleanup | Always use `git add -p` for interactive staging; maintain a comprehensive `.gitignore`; run `git diff --cached` before every commit; use pre-commit hooks to block secrets and large files |
+| Rebasing a shared branch — rewriting history that others have based work on; every teammate's local branch now diverges and requires force-push recovery | $20K-$100K in team-wide git recovery and merge conflict resolution | Only rebase private branches that nobody else depends on; once a branch is pushed and shared, use merge commits instead; communicate branch state changes to the team |
+| Squash-merging without preserving the PR description — the squash commit has a generic "Fix bug" message and the design rationale from the PR body is lost | $5K-$20K in lost context when debugging 6 months later | Configure squash-merge to use PR title + body as the commit message; every commit on `main` should be self-contained with the WHY in the body; link back to the PR for full discussion history |
 
 
 ## Error Decoder — War Stories from the Trenches

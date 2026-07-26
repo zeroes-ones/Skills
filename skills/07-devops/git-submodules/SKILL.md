@@ -161,6 +161,16 @@ Execute in order. Do not skip steps.
 
 #
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| CI checkout without `submodules: recursive` — `git submodule update` runs but `.gitmodules` wasn't fetched; builds fail with "file not found" and the error looks like a missing dependency | $5K-$30K in CI debugging and blocked deploys | Set `submodules: recursive` on the checkout action itself, not as a separate step; if using a separate step, run `git submodule sync --recursive` first; test CI with a fresh clone |
+| Pushing parent without pushing submodule first — developer commits in the submodule, commits the pointer in the parent, pushes parent; CI references a commit hash that only exists locally | $10K-$50K in broken CI builds and team confusion | Add a pre-push hook: `git submodule foreach 'git push'` before pushing the parent; add a CI check that verifies `git ls-remote <submodule-url> <commit-hash>` for every pointer before merging |
+| `git submodule update --remote` during a hotfix — silently updates the submodule to the remote's HEAD instead of the pinned commit; production deploys untested code from an unverified commit | $50K-$200K in untested code reaching production | Never use `--remote` outside of a deliberate update workflow; use `git submodule update --init --recursive` (no `--remote`) for checkout; updates must go through branch → PR → CI → merge |
+| Full clone of heavy submodules in CI — a 2GB `llvm-project` submodule is cloned in full for 3 shared files; CI checkout takes 8 minutes instead of 30 seconds | $10K-$40K in wasted CI time and storage | Use `--shallow-submodules --depth=1` for CI; consider converting heavy submodules to `git subtree`; measure submodule clone time per CI run and alert on regressions |
+
+
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**

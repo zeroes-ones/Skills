@@ -261,6 +261,8 @@ LOCALE DETECTION — How should we decide which language to show?
    Subdirectory is the default recommendation — best SEO, simplest infrastructure.
    - **Output**: Locale routing live. Language switcher functional.
 
+  Complete when: i18n library is chosen and configured per stack, ICU MessageFormat standard is documented with linter enforcement, all hardcoded strings are extracted to source locale file with CI guard, and locale routing is live with a functional language switcher.
+
 ### Phase 2 (~30 min): Translation Pipeline — Connect Dev to Translator
 <!-- DEEP: 10+min -->
 
@@ -287,6 +289,8 @@ LOCALE DETECTION — How should we decide which language to show?
        # Scheduled: every 6 hours or on d
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: TMS is selected and integrated, and the continuous localization CI/CD pipeline is operational — source strings flow from repo to TMS on merge, and translated strings are pulled back as locale files on schedule/webhook trigger.
 
 ## Best Practices
 
@@ -508,6 +512,14 @@ graph LR
 | "RTL support is just flipping the layout" | RTL affects every CSS property with left/right, every icon direction, every text-alignment, and every custom drawing — "just flipping" misses 40% of the UI and creates mirror-logic bugs |
 | "We only need to support 5 languages at launch" | Adding language #6 after launch costs 2-3x more per language than adding it during initial i18n setup; the architecture debt compounds with each post-launch locale |
 | "Plurals work the same as English — just add 's'" | Arabic has 6 plural forms, Russian has 3, Japanese has none — hardcoding English plural logic means grammatically broken UI in 80% of target languages from day one |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| RTL layout breaks — CSS `direction: rtl` flips text but not SVGs, icons, carousels, or custom elements | $25K-$60K in redesign sprints | Use logical properties (`margin-inline-start`), add `transform: scaleX(-1)` for directional icons, test `ar` locale from day one |
+| German text expansion breaks UI — fixed-width containers truncate 30% longer strings | $15K-$40K in layout fixes | Design all UI with 30-40% expansion headroom, use `min-width`/`max-width`, pseudo-localize with length expansion in CI |
+| ICU zero-plural in English — `{count, plural, one {...} other {...}}` shows "0 items" not "No items" | $5K-$15K in linguistic QA | Always add explicit `=0 {No items}` case; ICU `zero` is a CLDR category for Arabic/Latvian, not English |
 
 ## Verification
 

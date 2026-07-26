@@ -226,12 +226,22 @@ Average deal size (ACV)?
 4. **Opportunity sizing**: TAM → SAM → SOM. Top-down + bottom-up.
 5. **Value proposition**: For [customer] who [problem], [product] is a [category] that [benefit]. Unlike [alternatives], we [differentiator].
 
+Complete when:
+- Problem validation summary from 20+ target user interviews documented
+- Jobs-to-be-Done canvas with functional, emotional, and social jobs completed
+- Competitive landscape map with win/loss analysis and opportunity sizing (TAM/SAM/SOM) saved
+
 ### Phase 2 (~30 min): Strategy & Planning
 
 1. **Vision (3-5yr) → Strategy (12-18mo) → Tactics (quarterly)**
 2. **OKRs**: Objectives (qualitative, inspiring). KRs (quantitative, outcome-based). NOT output-based.
 3. **Roadmap**: Now → Next → Later. Theme-based, tied to objectives.
 4. **North Star metric**: Single metric capturing core value. Supporting: AARRR or HEART.
+
+Complete when:
+- Vision → Strategy → Tactics hierarchy documented with 12-18 month strategic plan
+- OKRs documented: objectives (qualitative, inspiring) with KRs (quantitative, outcome-based)
+- Theme-based Now/Next/Later roadmap tied to objectives and North Star metric defined
 
 ### Phase 3 (~20 min): Prioritization
 
@@ -240,6 +250,11 @@ Average deal size (ACV)?
 3. **Cost of Delay**: CD3 = Cost of Delay ÷ Duration. Highest CD3 first.
 4. **Opportunity Scoring**: Importance × (1 − Satisfaction). High importance + low satisfaction = biggest opportunity.
 
+Complete when:
+- RICE-scored feature backlog with Reach, Impact, Confidence, and Effort estimates
+- Kano model classification (Basic/Performance/Delighters) applied to feature set
+- Cost of Delay (CD3) calculated for top initiatives with ranked priority order
+
 ### Phase 4 (~15 min): Growth & Optimization
 
 1. **Growth loops**: Identify bottleneck in Acquisition → Activation → Retention → Revenue → Referral. Optimize.
@@ -247,6 +262,10 @@ Average deal size (ACV)?
 3. **Pricing optimization**: Value metric research. Willingness-to-pay studies.
 4. **Retention**: Cohort analysis. Identify "aha moment". Drive users there faster.
 
+Complete when:
+- Growth loop analysis with bottleneck identified across Acquisition → Activation → Retention → Revenue → Referral
+- PLG strategy documented: time-to-value target, PQL scoring criteria, and sales handoff triggers
+- Retention cohort analysis with "aha moment" identified and optimization plan documented
 
 ## Error Recovery
 **(STANDARD)**
@@ -423,6 +442,16 @@ Before any product strategy deliverable leaves this skill, verify:
 - [ ] Customer journey map exists for primary persona covering acquisition, activation, retention, referral, revenue
 - [ ] Feature adoption tracked by cohort — features used by < 5% of customers flagged for sunset consideration
 - [ ] Product strategy document includes explicit assumptions, risk register, and early warning indicators
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Building features from competitor parity without strategic differentiation | Commoditization — you compete on price alone, margins erode to zero | Every feature must answer: "Why would a customer choose US for this instead of the incumbent?" If the answer is "because we have it too," it's not worth building. Identify your unique advantage and build around it. |
+| OKRs that measure output (features shipped) instead of outcomes (behavior changed) | Ship factory — lots of features, zero impact on retention or revenue | Frame every OKR as a customer behavior change: "X% of users now do Y weekly" instead of "Ship Z feature." If you can't describe the behavior change, you haven't defined the outcome. |
+| Skipping problem validation and jumping to solution design | Building the wrong thing really well — months wasted on a solution nobody needs | Run at least 10 customer discovery interviews before writing a single requirement. Find the "struggling moment" — the specific situation where customers feel acute pain. If they're not already hacking together a workaround, the problem isn't urgent enough. |
+| Pricing based on competitor-minus instead of willingness-to-pay | Leaving 20-40% of potential revenue on the table, or pricing yourself out of the market | Run Van Westendorp or conjoint analysis on your target segment. Your price should reflect YOUR value delivered, not what competitors charge. A competitor's price anchors on THEIR value, not yours. |
+| Confusing TAM (total addressable market) with SAM (serviceable available market) in board decks | Overstated market opportunity that erodes investor and board trust | TAM = everyone who could theoretically use your product. SAM = the segment you can actually reach with your current GTM motion. Present SAM as your near-term reality. Break TAM into SAM → SOM (serviceable obtainable market) with documented assumptions at each layer. |
 
 ## Verification
 

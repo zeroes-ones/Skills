@@ -175,6 +175,15 @@ Execute in order. Do not skip steps.
 
 #
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Auto-merging major version bumps without runtime smoke tests — Renovate auto-merges `lodash@5.0.0` because CI passes TypeScript checks, but legacy JS files call removed functions in production | $20K-$100K in production breakage from uncaught breaking changes | Add runtime smoke tests that exercise a dependency's API surface before auto-merge; run `node -e "require('lodash').pluck"` for every major version bump; only auto-merge patch updates |
+| Pinning all dependencies to exact versions — eliminates auto-updates entirely; three years later you're 47 patch versions behind on Express with a critical CVE that requires a multi-week upgrade project | $30K-$150K in accumulated upgrade debt and security exposure | Use `^` ranges for well-maintained packages with good test coverage; reserve exact pinning for packages that have broken semver historically; auto-merge patch updates, require review for major |
+| Generating an SBOM without classification — the 14,000-line report includes every dev and test dependency; compliance team flags all of them and engineering can't explain which 2,000 actually run in production | $10K-$50K in compliance audit churn and false-positive remediation | Generate a trimmed SBOM with `--omit dev --omit optional`; add a `bom-ref` classification layer marking components as `runtime`, `build`, `test`, or `optional`; compliance only cares about `runtime` |
+
+
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**

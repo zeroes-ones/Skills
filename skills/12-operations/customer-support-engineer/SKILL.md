@@ -215,6 +215,8 @@ IS THIS A KNOWN ISSUE?
 4. **Escalation path**: L1 → L2 → L3 → Engineering on-call → Incident Commander. Document for each severity + scenario (security, data, outage). Output: escalation runbook.
 5. **On-call rotation**: Define schedule, handoff process, escalation policy. Output: on-call schedule + runbook.
 
+  Complete when: Tier definitions with SLAs per severity are documented; SLA matrix is configured in the support tooling; escalation runbook with severity-based paths and on-call handoff schedule is published; tool stack selection is documented with rationale.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Ticket Management Workflow
 
@@ -225,11 +227,15 @@ IS THIS A KNOWN ISSUE?
 5. **Customer Communication (L2/L3)**: Update customer with findings, expected timeline, workaround if available. Never go silent — even "still investigating, no update yet" counts. Output: ticket update.
 6. **Verification & Close (L2)**: Customer confirms fix works. Document resolution in ticket and KB if reusable. Output: closed ticket with resolution notes.
 
+  Complete when: Ticket triage classification with severity assignment is operational; first-response SLA template is configured in the ticketing tool; bug filing workflow linking support tickets to engineering backlog is documented; ticket close checklist with resolution documentation standard is defined.
+
 ### Phase 3 (~20 min): <!-- DEEP: 10+min -->
 Debugging & Root Cause Analysis
 
 1. **Information gathering**: Environment (version, OS, browser, device), exact steps to reproduce, expected vs actual behavior, screenshots/recordings, logs (application, error, network HAR), timing (when did it start? after deploy?).
 2. **Reproduction**: Set up matching environment. Follow exact steps. If cannot reproduce → ask customer for screen recording or live session. Output: reproduction confirmed or docum
+
+  Complete when: Debug information gathering checklist is documented; reproduction environment setup guide is created; root cause analysis template with timeline and fix classification is available; KB article template for reusable resolutions is established.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -456,6 +462,14 @@ graph LR
 - **Escalating tickets to engineering without complete context.** A support agent escalates with "customer reports slow API" — the engineer spends 45 minutes reproducing the environment, checking API keys, and gathering the same details the agent should have collected, then another 30 minutes in a Slack thread clarifying the actual issue. **Total cost: $15K-$50K/year in wasted engineering hours on context gathering across routine escalations.** Enforce a mandatory escalation template that includes: account ID, affected endpoint, exact error message, reproduction steps, HAR file or API trace, and a 1-line hypothesis — reject escalations that don't complete the template.
 - **Measuring support team performance by tickets closed rather than customer satisfaction.** A support agent closes 80 tickets/day — but 30% of customers re-open within 48 hours because the first response was a template link that didn't actually resolve the issue. High ticket velocity with low CSAT means you're generating churn at scale, not solving problems. **Total cost: $30K-$200K/year in hidden churn from customers who silently leave after unresolved tickets rather than escalating.** Weight CSAT scores and first-contact resolution rate at least equally with ticket volume in performance reviews, and trigger proactive follow-up on any ticket closed without customer confirmation within 72 hours.
 - **Major incidents without proactive customer communication.** A payment processing outage takes down checkout for 4 hours on Black Friday — engineering is scrambling in a war room, but nobody updates the status page, sends a customer email, or posts to the in-app notification banner. Customers flood support with duplicate tickets, tweet about the outage, and open chargebacks. By the time the incident resolves, 200 enterprise tickets are filed, 40% of affected customers haven't heard a single word from the company, and 15 accounts cite "poor communication during outages" as their cancellation reason within 90 days. **Total cost: $50K-$500K in lost annual contract value from churning accounts that might have stayed if they'd received even one status update during the incident.** Implement an incident communication playbook that triggers a status page update within 5 minutes of incident declaration, a customer-facing update within 15 minutes, and follow-up communication within 24 hours of resolution — even if the update says "we're still investigating."
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Skipping triage depth in favor of quick answers | $30K-$100K in rework effort | Follow the triage decision tree every time — even for "simple" tickets |
+| Not documenting resolution patterns after tier-2+ tickets | $20K-$80K in onboarding delays for new engineers | After every tier-2+ resolution, write a public KB article or update the playbook |
+| Failing to communicate proactively during incidents | $50K-$200K in reputation damage and churn | Trigger status page update within 5 min of incident declaration, customer update within 15 min |
 
 ## Verification
 

@@ -217,6 +217,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 - The reproduction steps may be incomplete — request clarification from the reporter.
 
 **Output**: Evidence of the bug BEFORE the fix (screenshot, log, test failure).
+  Complete when: Bug reproduced using reporter's exact steps with captured failure evidence.
 
 ### Phase 2: Apply Fix (~10-30 min)
 
@@ -229,6 +230,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 **Gate**: The fix must be the smallest change that resolves the reproduction case. Over-engineered fixes introduce their own regressions.
 
 **Output**: Code change (diff) ready for verification.
+  Complete when: Minimal fix applied that resolves reproduction case with no over-engineering.
 
 ### Phase 3: Verify Fix (~5 min)
 
@@ -242,6 +244,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 **Gate**: Cannot proceed to Phase 4 until the reproduction case passes with correct output. If it passes but the output is wrong, the fix is incomplete.
 
 **Output**: Evidence of the bug AFTER the fix, showing correct behavior.
+  Complete when: Fix verified against exact reproduction case with correct output confirmed.
 
 ### Phase 4: Regression Check (~10 min)
 
@@ -255,6 +258,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 **Gate**: All existing tests must pass. Any new failure is a regression and must be investigated before status transition.
 
 **Output**: Test suite results (pass/fail counts, any new failures).
+  Complete when: Full test suite passes with no regressions in affected modules.
 
 ### Phase 5: Evidence Collection (~5 min)
 
@@ -270,6 +274,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 **Gate**: No issue or PR should be closed without at least one piece of verifiable evidence attached.
 
 **Output**: Closing comment with verification evidence.
+  Complete when: Before/after evidence compiled into issue/PR with test results and verification summary.
 
 
 ## Best Practices
@@ -495,19 +500,19 @@ For one week, require verification evidence (BEFORE + AFTER + TEST SUITE) on eve
 
 ## Gotchas
 
-- **The "obviously correct" change that introduces a regression**: A developer adds a null check to `getUser()`. The null check is correct, but it changes the return type from `User` to `User | null`. Every caller that didn't handle null now has a latent bug. Cost: **$50,000+** in debugging, hotfix, and customer compensation for a payment-processing outage caused by an unhandled null in the checkout flow.
+- **The "obviously correct" change that introduces a regression**: A developer adds a null check to `getUser()`. The null check is correct, but it changes the return type from `User` to `User | null`. Every caller that didn't handle null now has a latent bug. **Total cost: $50,000-$200,000** in debugging, hotfix, and customer compensation for a payment-processing outage caused by an unhandled null in the checkout flow.
 
-- **Manual-only testing that can't be reproduced**: A bug is "fixed" and "tested manually" but no reproduction case is documented. Three months later, the same bug resurfaces. Nobody remembers how to reproduce it or what the fix was. The team spends **$15,000** in engineering time rediscovering the bug and re-fixing it.
+- **Manual-only testing that can't be reproduced**: A bug is "fixed" and "tested manually" but no reproduction case is documented. Three months later, the same bug resurfaces. Nobody remembers how to reproduce it or what the fix was. The team spends **$15,000-$45,000** in engineering time rediscovering the bug and re-fixing it.
 
-- **Skipping the exact reproduction case**: The developer writes a test that exercises the general area of the bug but not the EXACT scenario from the report. The test passes, the issue is closed. Two weeks later, the reporter comments: "Still broken." The fix addressed a different code path. Cost: **$10,000** in rework and lost trust from the reporter.
+- **Skipping the exact reproduction case**: The developer writes a test that exercises the general area of the bug but not the EXACT scenario from the report. The test passes, the issue is closed. Two weeks later, the reporter comments: "Still broken." The fix addressed a different code path. **Total cost: $10,000-$40,000** in rework and lost trust from the reporter.
 
-- **False-positive verification from weak assertions**: A test checks `expect(result).toBeTruthy()` and passes. But `result` is `{}` (empty object, truthy) when it should be `{ price: 19.99 }`. The bug ships to production. Cost: **$25,000** in incorrect invoices that require manual correction and customer apologies.
+- **False-positive verification from weak assertions**: A test checks `expect(result).toBeTruthy()` and passes. But `result` is `{}` (empty object, truthy) when it should be `{ price: 19.99 }`. The bug ships to production. **Total cost: $25,000-$100,000** in incorrect invoices that require manual correction and customer apologies.
 
-- **Unverified status transitions in issue trackers**: A project manager moves 15 issues to "Done" because the sprint ended, not because verification happened. Two sprints later, 8 of those issues are reopened with "Actually, this still doesn't work." Cost: **$40,000** in wasted sprint capacity and demoralized teams discovering that "done" meant nothing.
+- **Unverified status transitions in issue trackers**: A project manager moves 15 issues to "Done" because the sprint ended, not because verification happened. Two sprints later, 8 of those issues are reopened with "Actually, this still doesn't work." **Total cost: $40,000-$150,000** in wasted sprint capacity and demoralized teams discovering that "done" meant nothing.
 
-- **Deferred verification ("I'll check later")**: A developer merges a fix on Friday, planning to verify on Monday. Over the weekend, the fix causes a regression that affects 5,000 users. Monday morning, the support queue is flooded. Cost: **$75,000** in support hours, emergency engineering time, and reputational damage from a weekend outage.
+- **Deferred verification ("I'll check later")**: A developer merges a fix on Friday, planning to verify on Monday. Over the weekend, the fix causes a regression that affects 5,000 users. Monday morning, the support queue is flooded. **Total cost: $75,000-$250,000** in support hours, emergency engineering time, and reputational damage from a weekend outage.
 
-- **Verification in the wrong environment**: A fix is verified in the developer's local environment (Node 20, fresh database). In production (Node 18, 2TB database with specific data), the fix fails because of a runtime API difference. Cost: **$100,000+** in production incident response, rollback, and post-mortem process.
+- **Verification in the wrong environment**: A fix is verified in the developer's local environment (Node 20, fresh database). In production (Node 18, 2TB database with specific data), the fix fails because of a runtime API difference. **Total cost: $100,000-$500,000** in production incident response, rollback, and post-mortem process.
 
 ## Anti-Patterns
 

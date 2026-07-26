@@ -133,6 +133,8 @@ What experimentation task do you need?
    b. **Verify the randomization mechanism is correct before launch.** Test: hash(user_id + experiment_key + salt) % 100 < 50 → control, ≥ 50 → variant. The salt must be experiment-specific to prevent correlation between experiments. Verify that the same user always gets the same variant (deterministic assignment). Check that assignment is independent of user characteristics — plot the distribution of signup date, country, and device type across variants; they should be identical.
    c. **Document the mutual exclusion strategy.** Will users in this experiment be excluded from other concurrent experiments? Define exclusion groups: experiments in the same exclusion group never overlap — a user in Experiment A cannot be in Experiment B. Experiments in different exclusion groups can overlap. This prevents the interaction effects problem while allowing higher experiment velocity for unrelated tests (e.g., checkout experiment + notification experiment can overlap; two checkout experiments cannot).
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 ### Phase 2: Experiment Analysis
 
 1. Sanity checks: SRM test (are users split evenly?), data quality (any logging gaps?)
@@ -164,6 +166,8 @@ What experimentation task do you need?
    a. **Classify the result into one of three outcomes.** (1) SHIP: statistically significant with practical effect size, guardrails clean, stable across segments and time. (2) ITERATE: directionally positive but not significant (increase sample or redesign for larger effect), or significant but guardrail concerns need addressing. (3) DISCARD: flat or negative result. Document the learning — a discarded test is not a failure if it prevents shipping a harmful or useless feature.
    b. **Estimate business impact with uncertainty.** Convert the lift to a dollar figure: lift × annual baseline metric value. Report as a range: "+2.3% lift (95% CI: +0.8% to +3.8%) = +$450K ARR (95% CI: $155K to $745K)." Include implementation cost estimate — a +$200K ARR lift that costs $300K to implement is a net negative.
    c. **Write a 3-sentence executive summary.** Sentence 1: what we tested and what happened (in plain language). Sentence 2: the business impact with uncertainty. Sentence 3: recommendation and next steps. Example: "We tested removing the create-account step from checkout. Conversion increased 2.3% (95% CI: 0.8-3.8%), adding an estimated $450K ARR. Recommend shipping with 30-day guardrail monitoring plan; no guardrail degradation detected."
+
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
 
 ## Decision Trees
 **(QUICK)**
@@ -490,6 +494,26 @@ Before any experiment launches or ships, verify ALL of:
 | **Relative lift:** (variant_rate - control_rate) / control_rate × 100% | Express effect as percentage | Control rate, variant rate |
 | **Duration estimate:** days = (n_per_variant × variants) / daily_eligible_users × buffer | Plan experiment calendar | Required n, variants, daily traffic, buffer (1.5 recommended) |
 | **Minimum detectable effect (proportions):** MDE = Zα/2 × √(p(1-p) × 2/n) | What effect size can this test detect? | Baseline rate p, sample n per variant, α |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
 

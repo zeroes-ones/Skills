@@ -388,6 +388,7 @@ Before a single line of code, verify that you are solving the right problem WITH
    |-- YES: "80% of reported potholes fixed within 30 days" (outcome metric).
    |-- Output: Theory of Change with 3-5 measurable outcome indicators.
 ```
+  Complete when: Community problem statement validated by 5+ community interviews with documented attribution, stakeholder matrix completed with accessibility/connectivity profiles for all affected groups, ranked feature list produced by community prioritization exercise, and Theory of Change defined with 3-5 measurable outcome indicators.
 
 ### Phase 2: Accessibility & Inclusion Architecture (~45 min)
 
@@ -415,6 +416,7 @@ Design for the full spectrum of human ability — visual, motor, cognitive, lite
    |-- Plan for community-contributed translations (Crowdin, Weblate, Transifex).
    |-- Output: i18n configuration with minimum 2 languages at launch.
 ```
+  Complete when: WCAG 2.2 AA requirements documented with specific criteria per disability category, i18n framework configured with at least 2 languages and RTL support verified, plain language audit completed (all text ≤ Flesch-Kincaid grade 8), and accessibility specification document signed off with screen reader/switch/keyboard/voice control requirements enumerated.
 
 ### Phase 3: Multi-Channel Delivery Design (~60 min)
 
@@ -448,6 +450,7 @@ Design for the devices and connectivity people actually have.
    |-- Short codes for high-volume deployments (regulatory approval required).
    |-- Output: SMS command grammar and IVR menu flow diagram.
 ```
+  Complete when: Channel strategy selected with rationale for each channel (web/SMS/IVR/USSD/print), offline architecture diagram produced with sync protocol and conflict resolution strategy, SMS command grammar defined with keyword parsing rules, IVR menu tree flowcharted with timeout handling, and PWA configured with Service Worker caching and background sync pending queues.
 
 ### Phase 4: Privacy-First Data Architecture (~45 min)
 
@@ -479,6 +482,7 @@ Design data handling that protects users — especially the most vulnerable.
     |-- Warrant canary: publish a statement that expires if served with secret orders.
     |-- Output: Data lifecycle policy document.
 ```
+  Complete when: Data minimization audit completed — every field has documented collection justification, encryption architecture defined (TLS 1.3 in transit + AES-256-GCM at rest + client-side encryption for vulnerable populations), data lifecycle policy documented with retention periods, auto-deletion rules, and user export/deletion workflows, and warrant canary published.
 
 ### Phase 5: Open Data & Transparency Layer (~45 min)
 
@@ -511,6 +515,7 @@ Make civic data open, interoperable, and government-integratable.
     |-- State/local procurement: identify sole-source justification or RFP path.
     |-- Output: Procurement pathway document.
 ```
+  Complete when: Open data standards mapped to data types (GTFS/Open311/DCAT/Fiscal Data Package as applicable), public REST API with OpenAPI 3.1 spec and rate limiting designed, bulk CSV/JSON export endpoint documented, CKAN/Socrata integration pathway identified, and government procurement readiness assessed (Section 508 VPAT, SOC 2 gap analysis, FedRAMP pathway for federal).
 
 ### Phase 6: Sustainability & Maintenance Planning (~30 min)
 
@@ -540,6 +545,7 @@ Ensure the tool outlasts the initial funding.
     |-- Reporting cadence: quarterly for internal, annual for funders/public.
     |-- Output: Impact measurement framework with baseline data collection plan.
 ```
+  Complete when: 3-year funding projection with diversified revenue (government SaaS + grants + earned revenue + in-kind), institutional home identified with named partner commitments or transition plan, and impact measurement framework defined with Theory of Change logic model, automated metrics collection, and quarterly/annual reporting cadence.
 
 ## Best Practices
 **(STANDARD)**
@@ -687,6 +693,16 @@ A 10/10 civic tech deployment: The tool was co-designed with community members w
 The government staff dashboard shows new reports within 30 seconds, tracks SLAs, and integrates with the existing ticketing system. A sustainability plan is publicly documented: 3-year funding projection, named institutional home, operational budget with line items for hosting, SMS gateway, maintenance engineering, and community management. The impact measurement framework tracks outcomes (problems resolved, equity of participation, time to resolution), not just outputs (signups, downloads, page views). A warrant canary is published and dated. A transparency report is published quarterly. A shutdown runbook is written and tested — if the tool must end, the community can export their data, migrate to an alternative, and receive 90 days' notice.
 
 No community member has ever been harmed by using this tool. No data has ever been breached. No feature has ever been built without community validation. The technology is invisible — what's visible is that potholes get fixed faster, disaster aid reaches people who need it, and residents have a voice in how public money is spent. This is what civic tech looks like when engineering serves democracy.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Government API integration breaks silently — city's Open311 endpoint changes authentication method without notice, all citizen reports stop flowing to municipal systems | $15K-$40K in emergency engineering and 2-4 weeks of zero citizen report processing | Implement API health monitoring with automated tests that submit/retrieve a test report daily; build circuit breakers that queue reports locally when APIs fail; maintain direct contact with government IT liaison for advance notice of changes |
+| Data privacy violation from well-intentioned feature — adding "share your report publicly" option exposes domestic violence shelter locations, witness identities, or undocumented residents' addresses | $100K-$500K+ in legal liability, regulatory fines (GDPR/CCPA), and permanent community trust loss | Default everything to private; run privacy threat modeling sessions before every feature release; implement geo-fuzzing (reduce precision to neighborhood level); never expose reporter identity without explicit opt-in per report |
+| Accessibility mandate lawsuit — civic tool funded by government grant fails Section 508 audit, grant is rescinded and city faces ADA lawsuit from disability advocacy group | $50K-$200K in legal defense, remediation costs, and lost grant funding | Build WCAG 2.2 AA compliance from day one with VPAT documentation; test with screen reader users before first release; keyboard-only walkthrough for all citizen workflows; maintain accessibility conformance report updated every 6 months |
+| Civic engagement dropoff after launch — 10K users sign up in week 1, 9.7K never return because the tool doesn't close the feedback loop (reports filed but never see resolution) | $30K-$80K in wasted launch marketing and permanently dormant user base | Design the "status loop": every report gets status updates (received → assigned → in progress → resolved) with ETA; send proactive notifications when status changes; celebrate wins publicly ("37 potholes fixed this month thanks to your reports") |
+| SMS/IVR channel abandoned after pilot — built smartphone-first, SMS gateway was bolted on later, feature phone users get degraded experience and stop participating | $20K-$50K in re-architecture costs and exclusion of the most digitally marginalized residents | Co-design SMS/IVR channel as co-equal, not secondary; test every civic workflow on $30 feature phone before declaring it done; maintain feature parity between web and SMS channels (report filing, status check, feedback) |
 
 ## Verification Guardrails
 

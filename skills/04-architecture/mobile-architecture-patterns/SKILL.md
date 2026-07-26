@@ -279,6 +279,15 @@ Before beginning a new phase, verify:
 | Unit test for ViewModel/Presenter requires mocking 5+ dependencies | Refactor — excessive mock count indicates the class violates Single Responsibility | A ViewModel needing 5+ mocks is doing too much. Decompose into smaller use cases or introduce a facade. Inflated mock count is the canary for architectural rot |
 | Navigation deep link test fails for 1+ screens in CI | Block release — deep link contract is part of the architecture guarantee | Broken deep links mean push notification routing, email links, and widget shortcuts all fail silently. This is a P0 architecture violation, not a UI bug |
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Business logic in ViewControllers/Activities — framework migration becomes impossible | $200K-$500K in rewrite costs when UI framework migration or platform switch is blocked | All business logic must be in ViewModels/Presenters/UseCases. View layer has zero logic beyond presentation. Enforce with architecture tests |
+| No offline-first architecture — app fails on unreliable mobile networks | $150K-$400K in user churn when app is unusable in subways, elevators, or rural areas | Design offline-first from v1. Local database (Room/Core Data) is source of truth. Sync engine handles network transitions transparently |
+| Skipping dependency injection setup — painful refactoring when adding tests | $100K-$300K in refactoring costs to retroactively add DI and break tight coupling | Set up DI (Dagger/Hilt, Koin, Swinject) on Day 1. Inject dependencies through constructors. Never use service locator pattern |
+| No state restoration for process death — user loses context after app backgrounding | $80K-$200K in user frustration and abandonment from lost navigation/workflow state | Save UI state to Bundle/SavedStateHandle on every onSaveInstanceState. Restore in onCreate. Test by killing app process from developer options |
+
 ## References
 
 Detailed reference material loaded on demand:

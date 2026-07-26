@@ -148,7 +148,7 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (202 lines):** [references/core-workflow.md](references/core-workflow.md)
-
+  Complete when: All IAM roles scoped to least privilege, zero standing admin access, MFA enforced on all human accounts, and IAM Access Analyzer confirms no overly permissive policies.
 
 ## Error Decoder — War Stories from the Trenches
 
@@ -592,6 +592,15 @@ Cloud Practitioner                     Cloud Security Architect
 ### Compliance Gotchas
 
 *   **CloudTrail data events are NOT enabled by default and cost extra.** Management events (create, update, delete) are free and enabled by default. Data events (S3 object-level, Lambda invocations, DynamoDB item-level) cost $0.10 per 100,000 events and must be explicitly enabled. In a PCI DSS environment, missing S3 data events means you cannot prove which objects were accessed during a breach -- failing PCI Requirement 10 (audit logging). Enable data events on S3 buckets containing cardholder data and security logs. A production S3 bucket with 10M monthly GET/PUT operations costs $10/month for data event logging -- a fraction of a PCI non-compliance fine. **Total cost: $100-$500/month for CloudTrail data events vs $5K-$100K PCI non-compliance fine.**
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Assuming cloud provider defaults are secure — S3 Block Public Access was opt-in for accounts created before 2023, default VPCs create public subnets with auto-assigned public IPs, and default security groups allow all outbound traffic. | $1M-$5M from a single public S3 bucket exposure containing customer data | Run a cloud security baseline assessment (CIS, AWS Foundational Security Best Practices) on every account. Enable account-level S3 Block Public Access. Review default VPC configurations and replace with hardened VPC designs. |
+| Managing IAM with individual user policies instead of groups and roles — when an engineer changes teams, their permissions accumulate across roles. After 2 years, everyone is effectively an admin because no one can safely remove any permission without breaking something. | $200K-$500K in privilege escalation risk and compliance audit failures | Use IAM groups for human users and IAM roles for services. Assign permissions to groups/roles, never to individual users. Implement permission boundaries and SCPs at the organization level. Audit IAM with Access Analyzer and IAM Credential Report monthly. |
+| Running Kubernetes clusters with the default service account token mounted in every pod — a compromised web app pod can now authenticate to the Kubernetes API, enumerate cluster resources, and escalate to cluster-admin if RBAC is misconfigured. | $500K-$2M in cluster compromise from a single vulnerable application pod | Set `automateServiceAccountToken: false` on all pods that don't need Kubernetes API access. Use IRSA (IAM Roles for Service Accounts) or Workload Identity for cloud resource access. Never bind cluster roles to the default service account. |
 
 ## Verification
 

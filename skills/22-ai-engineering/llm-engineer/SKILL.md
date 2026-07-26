@@ -285,6 +285,8 @@ If a command or approach fails, follow this escalation path before giving up:
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+  Complete when: Chunking strategy selected with documented rationale; embedding model benchmarked on domain data (recall@5); vector database selected with index type and parameters configured; evaluation criteria defined (retrieval recall@5, faithfulness).
+
 ## Best Practices
 
 1. **Pin exact model versions, never use `latest`.** Provider model updates change behavior without notice — a prompt that works on `gpt-4-0613` may produce different outputs on `gpt-4-0125`. Pin dated version suffixes and include model version in all evaluation metadata and deployment configs.
@@ -630,6 +632,15 @@ Before any LLM pipeline reaches production, verify:
 - [ ] Streaming tested under load: concurrent connections, memory profile, chunk iteration verified
 - [ ] Hallucination rate monitored continuously with alert on spike > 2× baseline
 - [ ] Fallback behavior defined: model unavailable → graceful degradation with user-facing message
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Embedding model provider silently deprecates model — old vectors incompatible with new | $100K-$300K in full re-embedding costs and degraded retrieval quality | Store embedding model name + version as metadata on every vector. Re-embed 10% of vectors and measure cosine similarity before full migration. Pin model versions. |
+| Using `latest` model tag — provider update silently changes behavior overnight | $200K-$500K per incident from unvalidated model behavior changes | Pin exact dated model versions (e.g., `gpt-4-0613`). Re-run full evaluation suite on any model version change. Alert on model version changes in production config. |
+| No semantic caching — repeating 60% of LLM requests at full cost | $100K-$400K/year in unnecessary LLM API costs | Implement semantic caching keyed by embedding similarity (cosine > 0.95). Cache at API gateway layer. Track cache hit rate — target > 60%. |
+| Chunking naively by character count — sentences split mid-thought, retrieval quality drops 40% | $50K-$200K/year in wasted context tokens and poor answer quality | Use recursive character split with 10-20% overlap or semantic chunking. Always re-rank with cross-encoder on top-20 results. Test chunking strategy on your domain data. |
 
 ## Verification
 

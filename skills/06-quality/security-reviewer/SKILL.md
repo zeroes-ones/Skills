@@ -320,6 +320,7 @@ Apply STRIDE per component by examining the code, not just architecture diagrams
 - Grep for: role checks in client code only, missing ownership verification
 - Verify: server-side authZ on every endpoint, resource ownership checks, JWT scope validation
 - Code smell: `if (user.role === 'admin')` checked ONLY on the client
+  Complete when: STRIDE threat model applied to every component with findings recorded per STRIDE category.
 
 ### Phase 2 (~30 min): OWASP Top 10 2021 -- Language-Specific Code Patterns
 
@@ -332,6 +333,7 @@ Apply STRIDE per component by examining the code, not just architecture diagrams
 | **Ruby on Rails** | `before_action :set_order` without ownership scope | `current_user.orders.find(params[:id])` instead of `Order.find(params[:id])` |
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+  Complete when: OWASP Top 10 2021 reviewed per language with SAST pre-gate findings resolved and secrets scan completed.
 
 
 ## Best Practices
@@ -548,6 +550,16 @@ graph LR
 - **Timing attacks on string comparison**: `password === storedHash` uses early-exit comparison — the comparison is faster when the first byte differs. Attackers can measure response times to brute-force byte by byte. Use `crypto.timingSafeEqual()`.
 - **Open redirect in login flow**: `GET /login?redirect=/dashboard` — if the redirect parameter is not validated against a whitelist, `redirect=//evil.com` sends the user's session token to an attacker's server.
 - **Prototype pollution in `Object.assign` or spread operators**: If user input like `{"__proto__": {"isAdmin": true}}` reaches a merge function, it pollutes `Object.prototype`. Every `{}` in the application now has `isAdmin: true`. Use `Object.create(null)` or libraries that sanitize keys.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Only scanning with SAST, never doing manual threat modeling | $100K-$500K per incident for logic-level auth bypasses SAST cannot detect | Pair SAST pre-gate with STRIDE manual review for every critical component |
+| Assuming dependency scanning = security review | $200K-$1M average data breach cost from zero-day vulnerabilities in direct dependencies | Use SBOM generation (Syft) + vulnerability scanning (Grype); set SLAs: critical <48h, high <1 week |
+| Skipping IaC security review for "infrastructure" code | $100K-$500K in cloud resource exposure from open S3 buckets, public RDS, or overly permissive IAM | Run tfsec/checkov on every Terraform/K8s PR; review security group rules and IAM policies with least-privilege mindset |
+| Reviewing auth in client code but not verifying server-side enforcement | $50K-$200K in data breaches from client-side-only access controls bypassed by direct API calls | Every server endpoint must independently verify auth + authz — never trust client assertions |
+| Using weak JWT algorithm configuration (`none` algorithm accepted) | $100K-$500K in account takeover incidents from unsigned tokens | Always whitelist algorithms: `jwt.verify(token, secret, { algorithms: ['HS256', 'RS256'] })` |
 
 ## Verification
 

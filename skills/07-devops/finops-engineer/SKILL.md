@@ -354,6 +354,7 @@ Code change detected — what kind?
    - No EXPLAIN ANALYZE on new queries → Request changes, do not approve.
 
 4. **Output:** PR comment with cost delta summary, flagged patterns with line references, and fix recommendations (eager loading, batch queries, timeout guards, right-sizing).
+  Complete when: cost impact table is posted on PR with per-file breakdown, all 🔴 >$100/month items have senior approval, and any >$1000/month change has a committed cost justification doc.
 
 ### Phase 1 (~15 min): Inform — Visibility and Allocation
 1. **Implement comprehensive tagging strategy**: mandatory tags (`Environment`, `Service`, `Team`, `CostCenter`, `Owner`) enforced via SCP/Azure Policy/Org Policy.
@@ -367,6 +368,7 @@ Code change detected — what kind?
    - Output: Budget alerting pipeline; alerts routed to team channels (Slack, email, PagerDuty).
 5. **Enable anomaly detection**: AWS Cost Anomaly Detection, Azure Anomaly Alerts, GCP Billing anomaly detection.
    - Output: Anomaly alerting with < 24-hour detection; > 90% of anomalies investigated within 48 hours.
+  Complete when: > 95% resource tag compliance is verified, cost-per-team dashboards are live and accessible, budget alerts fire correctly at all thresholds, and anomaly detection is configured with alert routing.
 
 ### Phase 2 (~30 min): Optimize — Cost Reduction
 1. **Right-size underutilized resources**: run Compute Optimizer / Recommender across all compute; implement changes.
@@ -387,6 +389,7 @@ Code change detected — what kind?
 6. **Optimize Kubernetes costs**: right-size nodes, pods, and adopt spot (see Decision Tree #5).
    - Input: kubecost or equivalent cost allocation data.
    - Output: K8s optimization backlog ranked by savings; implemented changes.
+  Complete when: right-sizing plan has estimated savings with implementation timeline, RI/SP purchase covers baseline with < 12-month payback, > 40% non-prod compute is on spot, and lifecycle policies apply to all storage.
 
 ### Phase 3 (~20 min): Operate — Governance and Continuous Improvement
 1. **Establish cost governance**: define approval workflow for resources above cost threshold; auto-approve below.
@@ -400,6 +403,7 @@ Code change detected — what kind?
    - Output: Waste elimination automation with weekly savings report; < 5% idle resource waste.
 5. **Manage cloud provider relationships**: negotiate EDP/private pricing, track credit consumption, renew commitments.
    - Output: Provider relationship dashboard; quarterly business review with providers.
+  Complete when: cost governance policy is documented with approval workflows, unit cost dashboard shows cost-per-customer and cost-per-transaction, monthly FinOps review is on the calendar, and idle resource waste is below 5%.
 
 ### Phase 4 (~15 min): Carbon-Aware Optimization (GreenOps)
 1. **Measure carbon footprint**: cloud provider carbon dashboards (AWS Customer Carbon Footprint Tool, Azure Emissions Impact, GCP Carbon Footprint).
@@ -408,6 +412,18 @@ Code change detected — what kind?
    - Output: Carbon-aware region selection policy; migration plan for eligible workloads.
 3. **Optimize for carbon**: schedule batch workloads during low-carbon-intensity hours; right-size reduces carbon proportionally.
    - Output: Carbon optimization playbook integrated into standard FinOps practices.
+  Complete when: carbon baseline is measured, carbon-aware region selection policy is adopted for new workloads, and carbon optimization playbook is integrated into the standard FinOps review.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Enabling S3 versioning without noncurrent-version expiration — every object update creates a new chargeable version; a 10GB file updated daily accumulates 300GB in 30 days with no lifecycle rule to clean old versions | $10K-$50K in unexpected storage costs within the first month | Always pair versioning with `NoncurrentVersionExpiration` lifecycle rules; set `NoncurrentDays: 3` for non-critical data; monitor `NumberOfObjects` and `BucketSizeBytes` per storage class |
+| Buying 3-year RIs for a workload that gets deprecated in 6 months — the RI commitment outlives the workload; you pay for compute you can't use for 2.5 years | $20K-$100K in stranded commitment costs | Purchase 1-year commitments for any workload whose lifetime is uncertain; use Savings Plans (more flexible than RIs) for variable instance families; never commit beyond the known workload roadmap horizon |
+| Leaving NAT Gateways in dev/staging environments running 24/7 — a $32/month NAT Gateway × 3 environments × 12 months = $1,152/year for traffic that never leaves the VPC | $1K-$5K per year per environment in idle NAT Gateway costs | Schedule non-production NAT Gateways to shut down during off-hours (nights/weekends); use VPC endpoints for S3/DynamoDB to avoid NAT Gateway charges entirely; monitor NAT Gateway data transfer costs weekly |
+| Not setting billing alerts on new accounts — a misconfigured autoscaling group spins up 500 instances overnight; the bill arrives at $15,000 before anyone notices | $10K-$50K in a single-month billing spike | Set budget alerts at 50%, 80%, 100%, and 120% on every account; configure hard spending limits where the cloud provider supports them; use AWS Budget Actions to auto-apply SCP deny policies at the hard limit |
+
 
 ## Error Decoder — War Stories from the Trenches
 

@@ -258,6 +258,15 @@ Before beginning a new phase, verify:
 | Auto-update check fails silently in production for 24+ hours | Escalate to P1 — users are running outdated, potentially vulnerable versions | Desktop apps have no forced update mechanism like web apps. Silent update failures mean security patches never reach users |
 | IPC channel adds synchronous blocking call | Reject — all IPC calls must be async with timeout | Synchronous IPC blocks the renderer's main thread, freezing the UI. A single sync IPC call in the renderer process makes the app feel broken |
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Choosing Electron without considering memory budget on target hardware | $150K-$400K in poor user reviews and uninstalls from 500MB+ memory usage | Profile memory on target hardware (4GB RAM machines). Consider Tauri for memory-constrained use cases |
+| No IPC timeout handling leading to frozen UI | $100K-$300K in frozen UI incidents when backend process hangs | Every IPC call must have a timeout and error handler. Test with intentionally slow responses |
+| Ignoring auto-update architecture from day 1 | $200K-$500K in stranded users running unpatched vulnerable versions | Implement auto-update (electron-updater, Sparkle, WinGet) before first release. Test update path in CI |
+| Single-thread UI blocking during I/O operations | $80K-$200K in crash reports from unresponsive UI during file/network access | Move all file I/O, network calls, and DB queries off the main thread. Use web workers, async IPC, or background processes |
+
 ## References
 
 Detailed reference material loaded on demand:

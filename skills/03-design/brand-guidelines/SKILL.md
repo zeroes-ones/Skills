@@ -338,6 +338,11 @@ Before designing, document:
 5. **Brand Voice:** Tone attributes for copy and content.
    - *Example: "Stripe is: clear over clever, direct over decorative, helpful over hype."*
 
+Complete when:
+- Brand architecture model (Branded House/House of Brands/Endorsed/Hybrid) selected with written rationale
+- Brand strategy foundation documented: promise, personality, audience personas, competitive landscape, voice
+- Design token file (JSON) created with byte-for-byte alignment to brand guidelines
+
 ### Phase 2 (~30 min): Logo System
 
 #### 2.1 Logo Variants
@@ -349,6 +354,11 @@ Every brand needs a logo system, not just one logo. Define all variants:
 | **Primary / Horizontal** | Full logo (icon + wordmark, horizontal layout) | Website header, marketing, default usage |
 | **Stacked / Vertical** | Full logo (icon above wordmark) | Square spaces, social media avatars, app icons |
 | **Icon-only / Mark
+
+Complete when:
+- Logo system defined with all variants (primary/horizontal, stacked/vertical, icon-only, wordmark, monochrome) and usage rules
+- Logo construction specs documented: clear space, minimum size, color variations, placement rules
+- Logo asset package exported in all required formats (SVG, PNG @1x/2x/3x) with naming convention
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -368,6 +378,14 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Design system built without accessibility validation — brand colors chosen purely for aesthetics without checking WCAG 2.2 contrast ratios. The primary palette fails 4.5:1 minimum on half the approved background pairings. The "accessible" palette becomes a separate, inconsistent override layer. | $50K-$150K to redesign the palette post-launch + $10K-$50K per ADA demand letter targeting non-compliant brand assets | Validate every text-on-brand-background combination during palette creation with automated contrast tools (Stark, WebAIM). Document accessible pairings explicitly in brand guidelines: "Primary Blue on White passes at 5.2:1. Do NOT use on Mid-Gray (fails at 2.8:1)." Ship dark mode, high-contrast, and color-blind-safe variants as first-class palette assets — not as remediation workarounds. |
+| Brand delivered as a static PDF uploaded to a shared drive — marketing uses the old logo file saved on their desktop, product invents its own color palette, and sales pulls assets from Google Images. The 80-page brand deck was opened once, by one person, on the day it was sent. | $100K-$300K in fragmented brand expression across channels + 2-3 weeks per brand remediation project when inconsistencies are discovered + permanently diminished brand recognition | Build the brand system as a living, searchable digital resource: a documentation site (zeroheight, Supernova, or custom), design tokens as a versioned npm/json package consumed by Figma plugins and code, and a self-serve asset library (Canva brand kit, email template variables). If the primary delivery medium is a PDF, brand consistency dies with the file download. |
+| Design tokens that don't map to code — brand defines tokens in Figma only. Developers hard-code hex values, font sizes, and spacing as raw numbers. When the primary brand color changes from #0066FF to #0055DD, design makes the change in an afternoon; engineering needs 3 sprints to find and replace 400 hard-coded occurrences across 6 codebases. | $30K-$100K per brand refresh in engineering labor — and the change is never fully complete, leaving a permanent mix of old and new brand values in production | Export tokens as a single source of truth consumed everywhere: Style Dictionary generates CSS custom properties, Swift, and Kotlin/XML from one JSON file. Tokens use semantic naming: `color-surface-primary`, not `color-gray-100`. Token changes follow semver with deprecation timelines. If a token exists only in Figma, it's a design opinion. If it exists as a versioned package consumed by code, it's a design system. |
 
 ## Best Practices
 

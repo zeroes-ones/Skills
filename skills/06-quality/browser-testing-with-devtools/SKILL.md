@@ -584,6 +584,16 @@ Dev: Verification: record new Performance profile → 340ms total (8x improvemen
 - **Exporting a HAR file that contains authentication tokens or session cookies and sharing it insecurely.** A HAR file contains every request header including `Authorization: Bearer eyJ...` and `Cookie: session=...`. Sharing this file in Slack, email, or a public bug tracker is a credential leak. Always strip sensitive headers before sharing: open HAR in text editor, search for `Authorization` and `Cookie`, replace values with `[REDACTED]`. **Total cost: $50,000-$500,000 in security incident response and credential rotation.**
 - **Using mobile emulation and assuming it matches real device behavior.** Chrome DevTools emulates viewport, touch events, and user agent — but NOT: GPU rendering differences, actual CPU/memory constraints, browser engine quirks (Safari/iOS WebKit handles flexbox differently than Chrome), real network variability, or device-specific bugs. Always verify on a real device before shipping. **Total cost: $15,000-$50,000 in post-release hotfixes for device-specific bugs found by users.**
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Debugging in production via console.log without stripping PII | $50K-$500K in compliance fines (GDPR/CCPA) for leaked user data | Use structured logging library with debug-level disabled in prod; strip PII at the logging boundary |
+| Relying solely on Lighthouse score for performance decisions | $30K-$150K in user churn from field-measured performance that lab scores missed | Correlate Lighthouse lab data with RUM field data (web-vitals); set budgets on field percentiles |
+| Taking heap snapshots on live production tabs | $10K-$50K in self-inflicted downtime from freezing production browser tabs | Use Memory panel in DevTools on staging/dev; for prod, use Chrome DevTools Protocol (CDP) remotely |
+| Trusting the Accessibility panel alone without screen reader testing | $50K-$250K in legal exposure from accessibility issues that only manifest on real screen readers | Pair automated axe-core audits with manual NVDA/VoiceOver walkthroughs on critical flows |
+| Sharing HAR files containing auth tokens or session cookies insecurely | $50K-$500K in security incident response and credential rotation | Strip sensitive headers before sharing: search for `Authorization` and `Cookie` and replace with `[REDACTED]` |
+
 ## Verification
 
 - [ ] Reproduced the bug with DevTools open and captured evidence (screenshot, HAR, or profile)

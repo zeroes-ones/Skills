@@ -330,6 +330,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 6. Pin base images by digest: `FROM node:20-alpine@sha256:abc...` — not by tag.
 7. Add HEALTHCHECK instructions for container orchestrators to detect hung processes.
 8. Leverage BuildKit features: `--mount=type=cache` for package manager caches, `--mount=type=secret` for credentials during build.
+  Complete when: Dockerfile builds successfully with `docker build`, image passes vulnerability scan with zero CRITICAL CVEs, and image size is within 20% of minimal baseline.
 
 ### Phase 2 (~30 min): Kubernetes Manifests
 1. Use Deployments for stateless workloads, StatefulSets for databases/queues with persistent identity, DaemonSets for node-level agents.
@@ -340,6 +341,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 6. Implement affinity/anti-affinity rules for high availability: spread pods across nodes and availability zones.
 7. Set PodSecurityStandard to `restricted` by default; relax only with explicit exceptions and justifications.
 8. Apply NetworkPolicy to deny all traffic by default; explicitly allow only required ingress/egress flows.
+  Complete when: `kubectl apply --dry-run=server` validates all manifests without errors, all pods pass readiness probes in a test namespace, and security context passes PodSecurityStandard `restricted`.
 
 ### Phase 3 (~20 min): Helm Charts
 1. Structure charts with `templates/`, `values.yaml`, `Chart.yaml`, and optional `values-{env}.yaml` environment overrides.
@@ -349,6 +351,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 5. Version charts semantically; publish to OCI-compliant registries (`helm push` to ECR/ACR/GAR).
 6. Test charts with `helm lint`, `helm template --debug`, and `helm unittest` plugin.
 7. Sign charts with `helm package --sign` using GPG or Cosign keys.
+  Complete when: `helm lint` passes, `helm template --debug` renders valid YAML, and chart is pushed to OCI registry with signature verified.
 
 ### Phase 4 (~15 min): Service Mesh and Traffic Management
 1. Deploy a service mesh (Istio/Ambient, Linkerd, Cilium) when you need mTLS, traffic splitting, or fine-grained observability.
@@ -356,6 +359,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 3. Configure traffic splitting for canary deployments: 90% → stable, 10% → canary; shift progressively based on metrics.
 4. Use request timeouts, circuit breakers, and retries at the sidecar level to implement resilience patterns.
 5. Ingress: use cert-manager with Let's Encrypt for automatic TLS; external-dns for automatic Route53/Cloud DNS record creation.
+  Complete when: mTLS is enforced mesh-wide, canary traffic split is configured with progressive shift, and ingress resolves with valid TLS certificate.
 
 ### Cross-skills Integration
 
@@ -368,6 +372,16 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 Common chains:
 - **Chain**: backend-developer → docker-kubernetes → ci-cd-builder — App is containerized; CI/CD pipeline automates image builds and deployments
 - **Chain**: devops-engineer → docker-kubernetes → platform-engineer — Infrastructure is provisioned; containers are deployed; platform provides self-service container orchestration
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Running containers as root in production — a compromised container gains host-level privileges, leading to cluster takeover | $50K-$500K in incident response, downtime, and potential data breach | Always set `USER 1000:1000` in Dockerfiles; enforce `runAsNonRoot: true` in PodSecurityPolicy or PodSecurityStandard `restricted` |
+| Using `:latest` tags for production deployments — a new push to `:latest` silently replaces running images with untested code | $10K-$100K per incident in rollback time and degraded customer experience | Pin images by SHA256 digest in deployment manifests; CI should auto-replace tags with digests; block `:latest` via admission webhook |
+| Hardcoding secrets in ConfigMaps or env vars — exposed in `kubectl describe`, logs, and crash dumps; leads to credential leaks | $20K-$200K in security incident response, credential rotation, and potential compliance fines | Use External Secrets Operator or CSI Secret Store driver; mount secrets as files at runtime; enable etcd encryption at rest |
+| Skipping resource limits — a pod with a memory leak consumes all node memory, OOM-kills neighboring pods, and cascades across the cluster | $5K-$50K in cascading outage costs from unrelated services going down | Set `resources.requests` and `resources.limits` on every container; use LimitRange defaults in namespaces; monitor OOMKill events with alerting |
 
 
 ## Error Decoder — War Stories from the Trenches

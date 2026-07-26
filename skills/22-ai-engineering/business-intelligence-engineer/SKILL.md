@@ -723,6 +723,15 @@ Before any board-facing dashboard or critical BI pipeline goes live, verify ALL 
 | "We refresh dashboards daily — that's real-time enough" | Daily refresh means Monday morning's dashboard shows Friday's data. A weekend pricing error, fraud spike, or inventory depletion goes undetected for 72 hours while the business operates on stale information. |
 | "The data pipeline succeeded — data must be correct" | A green pipeline means the job ran, not that the data is right. Silent schema drift, duplicate ingestion, NULL-creating JOINs, and timezone misalignment all produce "success" status with garbage output. Pipeline success ≠ data correctness. |
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Building real-time streaming pipeline when daily batch suffices | $50K-$250K/year in unnecessary infrastructure costs | Default to batch. Require a named business decision requiring sub-minute data before approving streaming. 80% of BI use cases are served by daily batch. |
+| No semantic layer — "revenue" has 5 conflicting definitions across teams | $100K-$500K in misinformed strategic decisions from metric fragmentation | Implement centralized semantic layer (dbt Metrics, LookML) before the organization has > 3 teams building dashboards. Every metric has exactly one governed definition. |
+| BI tool selected by feature matrix instead of organizational fit | $50K-$200K in switching costs within 18 months | Select by: (1) alignment with existing data stack and team skills, (2) primary user persona match, (3) semantic layer governance needs, (4) embedding/distribution model. The tool your team actually adopts is better than the "objectively best" tool. |
+| Dashboard built without a clear question — "interesting chart" with no action | $50K-$150K/year in dashboard maintenance for content nobody uses | Every dashboard must answer a specific decision: "What action will you take based on this metric?" If nobody can name the decision, the dashboard is decoration. Require decision documentation before dashboard development. |
+
 ## Verification
 
 - [ ] Dashboard load test: open dashboard in production — all charts render within 5 seconds

@@ -214,29 +214,35 @@ Rule: gameplay code must NEVER exceed 3ms at 60fps. If it does, profile and slic
 2. **Game loop**: `Update()` → input collection → gameplay logic → `FixedUpdate()` → physics step → LateUpdate → rendering. Never mix physics and rendering logic.
 3. **Scene architecture**: Bootstrap scene (persistent) → managers (GameManager, AudioManager, PoolManager) → level scenes (additive loaded)
 4. **Singleton pattern**: `MonoBehaviour` singletons ONLY for managers. All other objects injected or referenced via Inspector. Rule: max 5 singletons per project.
+  Complete when: Engine is selected, game loop scaffold runs at target frame rate, and a persistent bootstrap scene loads a test level additively.
 
 ### Phase 2 (~25 min): Player Controller & Input
 - **Input System**: Unity Input System Package (event-driven, rebindable, multi-device) or Unreal Enhanced Input. Never use legacy `Input.GetKey()`.
 - **Controller architecture**: Input → Input Handler → Command → Controller → Movement/Abilities. Decouple input from action.
 - **Camera**: Cinemachine (Unity) or SpringArmComponent (Unreal). Collision detection, camera shake, FOV changes. Never parent camera directly to player — use virtual camera with damping.
+  Complete when: Input → Command → Controller pipeline works with at least one rebindable action, and the camera follows the player with collision detection.
 
 ### Phase 3 (~30 min): Combat & Damage Systems
 - **Hit detection**: Raycast (hitscan), sphere cast (melee AOE), projectile (physics-based). Pick based on weapon type.
 - **Damage pipeline**: Attacker → DamageData (amount, type, source, penetration) → Receiver.Armor.Reduce() → Health.Apply(). Each step is testable independently.
 - **Status effects**: Buff/Debuff as components with duration, tick rate, stack behavior. ScriptableObject for data, MonoBehaviour for runtime.
+  Complete when: A damage event flows through the full pipeline — from attacker to receiver health bar — with armor reduction applied and at least one status effect ticking.
 
 ### Phase 4 (~30 min): Multiplayer Implementation
 - **Client-Server model**: Server runs gameplay simulation. Client sends inputs, receives state. Client predicts locally for responsiveness.
 - **State sync**: SyncVars (Unity NGO/Mirror) or Replicated properties (Unreal). Only sync what changed, only to relevant clients.
 - **RPCs**: ServerRpc (client→server, validated), ClientRpc (server→clients, broadcast or targeted). Never trust ClientRpc parameters — validate on server.
+  Complete when: Two clients connect to a server, player movement replicates with <50ms reconciliation error at 100ms simulated latency, and a ServerRpc executes with server-side validation.
 
 ### Phase 5 (~25 min): Animation Integration
 - **State machine**: Idle → Walk → Run → Jump → Fall → Land. Blend trees for direction + speed. Animation events for footstep sounds, hit frames, weapon trails.
 - **Procedural animation**: IK for foot placement on uneven terrain, look-at for head tracking, weapon sway. Reduces animation asset count by 60%.
+  Complete when: Idle→Walk→Run blend tree transitions by speed, jump/fall states trigger correctly, and at least one animation event fires a gameplay callback (footstep, hit frame).
 
 ### Phase 6 (~20 min): Save/Load & Persistence
 - **Save architecture**: GameState → serialized to JSON/binary → compressed → written to disk. Always write to temp file, rename atomically — prevents corruption on crash mid-save.
 - **What to save**: Player position (checkpoint), inventory, quest progress, world state (opened doors, killed enemies, collected items). NEVER save: visual effects, transient audio, temporary decals.
+  Complete when: Save writes atomically (temp file → rename), loads with version header validation, and survives a crash mid-save with zero corruption. Load from save restores all game state.
 
 
 ## Best Practices
@@ -265,6 +271,16 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Using `Instantiate`/`Destroy` for bullets without object pooling — GC runs every 2 seconds at 200 projectiles/second, 15ms hitches | $20K-$80K in post-launch optimization patches and "poorly optimized" reviews | Pre-warm `ObjectPool<T>` with `Get()` → reset → `Release()`. Pool bullets, particles, enemies, and UI elements. A bullet-hell game without pooling is unshippable on console. |
+| Building single-player, then retrofitting multiplayer — every gameplay system must be rewritten for authoritative server | $50K-$200K in near-complete rewrite (100% overhead vs 20% if done from day one) | Input → Command pattern, server-authoritative validation, and state serialization from day one. Day-1 multiplayer costs 20% overhead; retroactive multiplayer costs 100%. |
+| Not multiplying forces by `Time.fixedDeltaTime` in `FixedUpdate()` — physics behave differently at 50Hz vs 30Hz (thermal throttling) | $20K-$80K in post-launch patches, "floaty controls" reviews, and lost featuring | Test physics at `fixedDeltaTime = 0.033` (30Hz), `0.02` (50Hz), `0.013` (75Hz). Character behavior must be identical. Console certification REQUIRES stable frame rate — 0 dropped frames in certification run. |
+| AI tested only on clean test levels (3 enemies, no dynamic obstacles) — 20 enemies with destructible cover on production levels takes 14ms, leaving 2ms for everything else | $15K-$50K in AI rewrite weeks before ship | Profile AI on production levels with full enemy counts, dynamic navmesh obstacles, and destructible cover. Test-level AI performance is fantasy data. Production is the only benchmark that matters. |
+| Saving directly to the save file instead of atomic write-then-rename — crash mid-save corrupts the file, user loses 40+ hours of progress | $30K-$100K in support burden and review-bombing from save corruption | Write to temp file → fsync → rename over target. Include `saveVersion` header for migration. SHA256 checksum detects corruption on load. Atomic saves prevent the most rage-inducing bug in gaming. |
 
 ## Verification Guardrails
 

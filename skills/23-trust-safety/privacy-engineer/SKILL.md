@@ -352,6 +352,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - Automated monitoring: sub-processor status pages and security bulletins monitored for undisclosed incidents
 - Breach simulation: annual tabletop exercise with each Tier 1 sub-processor
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 ### Phase 2 — Data Minimization Architecture
 
 **Goal:** Design systems that collect only necessary data, retain it only as long as needed, and enforce purpose limitations at the technical level.
@@ -365,6 +367,8 @@ If a command or approach fails, follow this escalation path before giving up:
 **Retention Policies:**
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
 
 
 ## State Log
@@ -446,6 +450,26 @@ graph LR
 | "Deleting the database row satisfies the deletion request" | Data exists in backups, replicas, logs, analytics exports, and third-party processors. GDPR Article 17 requires erasure from ALL systems. A DSAR audit finding residual data in an S3 analytics bucket invalidates the entire deletion. |
 | "Differential privacy is academic, not practical for production" | Apple, Google, and Microsoft deploy differential privacy in production across billions of devices. The US Census Bureau used it for the 2020 Census. Failing to ε-bound query responses on user telemetry exposes raw individual data in aggregate reports. |
 | "We'll add privacy review to the launch checklist" | Privacy-by-design under GDPR Article 25 requires Data Protection Impact Assessments BEFORE processing begins. Retrofitting privacy after the data model is designed costs 10x more and may require schema migrations that break production systems. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
 
 ## Verification
 

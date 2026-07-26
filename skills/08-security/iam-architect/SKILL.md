@@ -159,6 +159,7 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (200 lines):** [references/core-workflow.md](references/core-workflow.md)
+  Complete when: OAuth2/OIDC flows designed with PKCE, JWT validation hardened against algorithm confusion, token lifetimes minimized, and authorization server configuration reviewed against OAuth 2.1 best practices.
 
 ## Decision Trees **(QUICK)**
 
@@ -590,6 +591,15 @@ graph LR
 ### API Key Gotchas
 
 *   **Storing API keys in plaintext in the database.** If the database is compromised (SQL injection, backup theft, insider threat), all API keys are immediately usable. Hash API keys with SHA-256 before storage. Show the plaintext key exactly once at creation. API key compromise requires key rotation for every affected user, not just a password reset. **Total cost: $50,000-$200,000 in forced rotation costs (engineering time, customer communication, downtime) plus breach notification costs if customer data was accessed via stolen keys.**
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Using access tokens (opaque OAuth2 tokens) for authentication decisions — access tokens are meant for resource access, not identity. The ID token (JWT with identity claims) is the only token that proves who the user is. Confusing the two leads to authorization bypass when the access token is valid but belongs to a different user context. | $500K-$2M in authorization bypass vulnerabilities | ID tokens for authentication (who you are). Access tokens for authorization (what you can access). Never use access tokens to establish user identity. Validate ID token claims (iss, aud, exp, sub) on every authentication decision. |
+| Implementing RBAC without an permission audit trail — when a SOC 2 auditor asks "who had access to PII data in Q3?", you can't answer because permissions are computed dynamically from group memberships that changed 4 times during the quarter. | $50K-$200K in compliance audit failures and remediation sprints | Log all role assignments and permission changes to an immutable audit store. Maintain periodic snapshots of effective permissions per user. The question "who had access to X at time T?" must be answerable within 5 minutes. |
+| Storing JWTs in localStorage — any XSS vulnerability in your SPA gives the attacker access to the token, enabling full account takeover that persists even after the user closes the browser. | $100K-$1M in account takeover incidents from XSS-compromised localStorage tokens | Store tokens in httpOnly, Secure, SameSite=Strict cookies with short expiration (15 minutes). Use refresh token rotation with automatic invalidation on reuse. Never put tokens in localStorage or sessionStorage. |
 
 ## Verification
 

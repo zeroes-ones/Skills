@@ -31,6 +31,7 @@ Execute in order. Do not skip steps.
    |-- Per repo: % dependencies on latest major, % with known CVEs, dependency count vs. industry benchmark
    |-- Per org: % repos aligned on framework versions, average CVE age, orphan dependency count
    |-- Baseline: establish current state before governance changes
+  Complete when: dependency graph covers all repos with version mapping, version sprawl report is generated for top-20 packages, and dependency health score baseline is documented.
 ```
 
 ### Phase 2: Establish Governance Policies
@@ -66,6 +67,7 @@ Execute in order. Do not skip steps.
    |-- Grouping strategy: group related packages (all React packages, all ESLint plugins)
    |-- Schedule: staggered by repo priority (critical repos on Monday, others Tuesday-Thursday)
    |-- Auto-merge: enabled for dev tools (patch/minor only) with required CI checks
+  Complete when: version alignment policy is documented with tier classifications, update cadence policy is published, new dependency review checklist is in the PR template, and shared Renovate config is deployed and extended by all repos.
 ```
 
 ### Phase 3: CVE Triage & Response
@@ -98,5 +100,6 @@ Execute in order. Do not skip steps.
    |-- High + exploitable + reachable: Fix within 7 days.
    |-- All others: Schedule in Renovate update cycle. Do not create emergency PRs.
    |-- Track CVE age: escalate any critical CVE unfixed >48h to security leadership.
+  Complete when: CVE scanning is configured in CI on every PR and daily schedule, triage workflow is documented with CVSS + exploitability + reachability criteria, and response SLA is published with escalation path.
 ```
 

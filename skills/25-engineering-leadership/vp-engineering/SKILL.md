@@ -252,6 +252,8 @@ Strategy isn't a roadmap — it's a set of choices about where to invest and, mo
 
 **Output:** Annual engineering strategy document (5-8 pages), socialized with ELT and board. Updated quarterly.
 
+  Complete when: Strategy document drafted, socialized with ELT, and board presentation scheduled. Every major investment has a documented rationale for what we're NOT funding alongside it.
+
 ### Phase 2: Organizational Architecture
 
 **Designing the Organization for Scale.**
@@ -265,10 +267,13 @@ Org design is your most powerful (and dangerous) lever. Wrong boundaries create 
 
 **Output:** Org chart with charters, succession plan for every director+ role, location strategy document.
 
+  Complete when: Org chart published with team charters, every director+ role has a named successor, and location strategy is documented with explicit trade-offs.
+
 ### Phase 3: Executive Leadership
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+  Complete when: Board materials translated to business outcomes, ELT peers confirm alignment on engineering priorities, and quarterly business review deck is ready for CFO review.
 
 ## Error Recovery
 
@@ -439,6 +444,14 @@ graph LR
 - **Treating technical debt as a "we'll address it later" backlog item — later becomes never, and never becomes a rewrite that threatens the company.** A startup defers addressing a monolithic codebase's scaling issues while adding features rapidly. After 3 years, the monolith is so brittle that even simple changes cause cascading failures, feature velocity drops from 20 releases/month to 3, and competitors on cleaner architectures ship 2x faster. The board mandates a rewrite — which takes 18 months, freezes all feature development, and consumes $3M-$5M in engineering resources while the product stagnates in market. Many companies don't survive the rewrite; those that do lose 12-18 months of market momentum. **Total cost: $3M-$8M in rewrite costs and lost market opportunity from deferred technical debt.** Allocate 20-30% of every team's sprint capacity to technical health: refactoring, paying down high-interest debt, improving test coverage, upgrading dependencies. Technical debt isn't a project — it's a permanent budget line item. If you can't afford 20% maintenance, you're building on borrowed time.
 - **Hiring for "culture fit" instead of "culture add" creates homogeneous teams that ship mediocre products for a narrow audience.** When interviewers hire people they'd "enjoy getting a beer with," the engineering org becomes demographically and cognitively homogeneous — same backgrounds, same schools, same problem-solving approaches. Homogeneous teams build products that work for people like them and miss use cases for everyone else. A study of 1,700+ companies found that cognitively diverse teams solve problems 2x faster and make fewer critical errors. For a consumer product with 10M users, homogeneous engineering blind spots translate to 5-15% lower market penetration in underrepresented segments — easily $10M-$50M in annual revenue at mid-size scale. **Total cost: $5M-$50M in lost market opportunity from homogeneous product thinking.** Redefine "culture fit" as "culture add" in every hiring rubric: evaluate what perspective, background, or approach the candidate adds that the team currently lacks. Diverse teams don't happen by accident — they require intentional sourcing, structured interviews, and panel diversity in every loop.
 - **Promoting senior ICs to engineering managers without management training or aptitude assessment — the most expensive personnel mistake in engineering leadership.** A senior engineer who ships brilliant code gets promoted to manager because "it's the only way to advance." They don't want to manage people, weren't assessed for management aptitude, and receive no training. Within 6 months: they're doing IC work instead of unblocking their team, 1:1s are cancelled, performance issues go unaddressed, and 2-3 engineers on their team have started interviewing elsewhere. Research shows the #1 driver of engineering attrition is the direct manager, and untrained first-time managers cause 2-3x the attrition of trained, experienced managers. The math: lose a great senior IC ($250K annual value), lose 2 reports to attrition ($260K-$400K replacement cost for two seniors), and carry a struggling manager who now needs coaching, demotion, or exit. **Total cost: $500K-$750K per failed IC-to-manager transition.** Create a technical leadership track parallel to management (Staff → Principal → Distinguished) with equivalent compensation, so ICs aren't forced into management for career growth. For anyone moving to management: require a 3-month pilot period with formal training, an experienced manager as mentor, and a clear off-ramp back to IC if it's not the right fit — with no stigma.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Hiring to fill headcount instead of specific capability gaps — opening reqs because you have budget, not because you've identified the concrete skill or capacity gap that's blocking a business outcome | $500K-$2M in wasted salary for engineers who don't solve the problems that actually constrain the org | Write a "hire for gap" one-pager before every req: what specific capability is missing, which business outcome it blocks, and how you'll know the hire closed the gap within 6 months |
+| Reorgs that shuffle boxes on the org chart without changing decision rights, accountability, or resource allocation — structure changes but behavior doesn't | 20% productivity loss for 4-6 weeks with zero improvement in delivery velocity, repeated quarterly | Before any reorg, define the 3 specific decisions that will be made differently post-reorg, who gains/loses authority for each, and measure whether those decisions actually changed 90 days later |
+| Platform team created without a product manager or internal customer feedback loop — builds infrastructure nobody asked for while teams keep building their own | $2M-$5M/year in duplicated infrastructure effort because the platform team solves problems product teams don't have | Assign a PM to the platform team with an NPS survey of internal customers, publish a quarterly roadmap voted on by consuming teams, and sunset any platform service with < 2 adopting teams within 6 months |
 
 ## Verification
 

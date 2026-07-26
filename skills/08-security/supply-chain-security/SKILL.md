@@ -259,6 +259,7 @@ What are you signing?
 4. For SLSA L3: enforce two-person code review on all changes. Harden the build platform — ephemeral runners, no persistent state between builds, OIDC-based authentication.
 5. Store provenance attestations in a verifiable transparency log (Rekor). Verify attestations before deployment via policy engine.
 6. Document SLSA level per artifact in the project README or SECURITY.md; update on every major release.
+  Complete when: Current build maturity assessed against SLSA L0-L3, target level defined with implementation roadmap, provenance generation configured (slsa-github-generator or equivalent), attestations stored in Rekor transparency log, and SLSA level documented per artifact.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~20 min): SBOM Lifecycle Management
@@ -268,6 +269,7 @@ What are you signing?
 4. Generate VEX (Vulnerability Exploitability eXchange) for each SBOM: for every CVE in the SBOM components, assert whether the vulnerability is exploitable in your usage context.
 5. Implement SBOM diffing on dependency updates: every Renovate/Dependabot PR includes an SBOM diff showing added, removed, and changed components.
 6. Ensure NTIA minimum elements compliance: supplier name, component name, version string, unique identifier, dependency relationship, author, and timestamp.
+  Complete when: SBOM format selected (SPDX 3.0 or CycloneDX 1.6), CI-integrated SBOM generation configured, SBOM published alongside releases, VEX documents generated per CVE, SBOM diffing enabled on dependency updates, and NTIA minimum elements met.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~25 min): Build Provenance and Integrity
@@ -277,6 +279,7 @@ What are you signing?
 4. Create SLSA provenance predicate: include builder ID, build type, source repository, source commit SHA, build invocation parameters, and all materials (dependencies) used.
 5. Verify provenance before deployment: policy engines (Kyverno, OPA, Binary Authorization) check that artifacts have valid attestations from trusted builders.
 6. Store attestations alongside artifacts: container registries (cosign attachments), OCI referrers API, or dedicated attestation store.
+  Complete when: Sigstore keyless signing configured with OIDC federation, in-toto layout defined for multi-step supply chain, SLSA provenance predicate generated per build, provenance verification enforced at deployment via policy engine, and attestations stored alongside artifacts.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~20 min): Dependency Security
@@ -286,6 +289,7 @@ What are you signing?
 4. Detect dep-revving counterfeits: monitor for anomalous version jumps (packages jumping from 1.0.0 to 99.0.0). Verify maintainer identity continuity.
 5. Run full-depth dependency scanning in CI: `npm audit --all` (all depths), `trivy fs`, `osv-scanner`. Block builds on critical/high CVEs that are reachable.
 6. Implement automated dependency updates: Renovate or Dependabot with auto-merge for patch-level updates that pass CI. Separate critical CVE patching SLA: <24 hours.
+  Complete when: Typosquatting detection active, dependency confusion defenses configured (private registry scoping), slopsquatting and dep-revving detection operational, full-depth dependency scanning blocking builds on reachable critical/high CVEs, and automated dependency updates configured with <24h critical CVE SLA.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~20 min): CI/CD Pipeline Hardening
@@ -295,6 +299,7 @@ What are you signing?
 4. Run secret scanning as a pre-commit hook AND in CI: gitleaks, detect-secrets, truffleHog. Block commits containing secrets at `git commit` time.
 5. Use ephemeral, isolated runners: no persistent state between builds. Network isolation for sensitive steps. Separate runners for public and private repo builds.
 6. Protect against inject-poison attacks: never use `${{ github.event.pull_request.title }}` or similar untrusted input in `run:` commands or shell scripts without sanitization. Use intermediate environment variables.
+  Complete when: Branch protection rules enforced, OIDC federation configured for all cloud/registry auth, pipeline-as-code review gates active, secret scanning blocking commits pre-push and in CI, ephemeral isolated runners deployed, and inject-poison protections verified across all workflows.
 
 <!-- DEEP: 10+min -->
 ### Phase 6 (~20 min): Artifact Signing and Verification
@@ -304,6 +309,7 @@ What are you signing?
 4. Manage signing identity via OIDC federation: GitHub Actions OIDC → Fulcio certificate issuance for short-lived signing keys (10-minute validity). No key rotation overhead.
 5. Monitor transparency logs: query Rekor for unexpected signatures on your artifacts. A signature you didn't create indicates a compromise.
 6. Implement signature verification in consuming pipelines: if your artifact is a library consumed by downstream projects, publish verification instructions alongside the artifact.
+  Complete when: All published artifacts signed (containers/npm/PyPI/Go/release binaries), binary authorization rejecting unsigned images at admission control, signature verification enforced at deployment, OIDC-based signing identity managed, Rekor transparency log monitoring active, and downstream verification instructions published.
 
 <!-- DEEP: 10+min -->
 ### Phase 7 (~20 min): Vendor Risk Assessment
@@ -313,6 +319,7 @@ What are you signing?
 4. Continuously monitor vendor vulnerability disclosures: subscribe to vendor security advisories, CVE feeds, and GitHub Advisory Database for vendor components.
 5. Maintain a third-party inventory with risk scoring: for each vendor, track SLSA level, last SBOM received, open critical CVEs, and contract security commitments.
 6. Conduct periodic re-assessments: vendor security posture degrades over time. Annual reassessment with triggered review on major incidents or ownership changes.
+  Complete when: SBOM collected from every third-party vendor, NIST SSDF evaluation completed per vendor, contractual attestation requirements specified (SLSA L2, 30-day CVE SLA), continuous vulnerability monitoring configured, third-party inventory with risk scoring maintained, and annual reassessment cadence established.
 
 <!-- DEEP: 10+min -->
 ### Phase 8 (~15 min): Open Source Governance
@@ -322,6 +329,7 @@ What are you signing?
 4. Evaluate fork sustainment risk: if a critical dependency's maintainer abandons the project, can you fork and maintain it? Document this for every tier-1 dependency.
 5. Implement a dependency allowlist/blocklist: approved packages (vetted supply chain), blocked packages (known malicious, unsupported, or incompatible license).
 6. Contribute back: fund critical dependencies (Open Collective, GitHub Sponsors), submit patches upstream, participate in community governance.
+  Complete when: License compliance scanning active with incompatible-license blocking, dependency freshness scoring operational, community health assessed for all critical dependencies, fork sustainment risk documented per tier-1 dependency, allowlist/blocklist enforced, and contribution-back program established.
 
 <!-- DEEP: 10+min -->
 ### Phase 9 (~15 min): Regulatory Compliance Mapping
@@ -330,6 +338,7 @@ What are you signing?
 3. Prepare for CISA Secure Software Development Attestation Form: attest that your software was developed using NIST SSDF practices, including supply chain integrity checks.
 4. Document compliance evidence: for each regulatory requirement, maintain a living document mapping requirements → implemented controls → evidence artifacts (SBOM, attestation logs, audit trails).
 5. Monitor regulatory landscape: supply chain regulations are rapidly evolving. Subscribe to CISA, ENISA, and NIST updates for new requirements.
+  Complete when: Controls mapped to EU Cyber Resilience Act, US EO 14028 SBOM mandate compliance confirmed, CISA Secure Software Attestation Form prepared, compliance evidence matrix maintained (requirement → control → evidence), and regulatory monitoring subscription active.
 
 
 ## Error Decoder — War Stories from the Trenches
@@ -479,6 +488,15 @@ graph LR
 | "The vulnerability scanner passed with zero criticals — we’re clear to ship" | Scanners miss ~78% of malicious packages; they check known CVEs, not typosquatting, protestware, or dependency-confusion attacks |
 | "Our base image is :latest but we scan on every registry push — that catches drift" | Scanning at push time doesn’t prevent TOCTOU; the image pulled during deploy can differ from the one scanned minutes earlier |
 | "We trust the CI runner — it’s GitHub’s infrastructure, they handle security" | Shared runners execute untrusted third-party code; a compromised dependency’s postinstall script has access to your repo secrets and deployment credentials |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Generating SBOMs but never consuming them — the SBOM sits in the release artifacts while a critical Log4j-level CVE in a transitive dependency goes unpatched for weeks because no tooling correlates SBOM components to vulnerability databases. | $500K-$5M in breach costs from a known-vulnerable dependency that was visible in the SBOM but never actioned | Automate SBOM-to-vulnerability correlation in CI. Every SBOM generation step must be followed by a vulnerability scan against the SBOM components. Block deployments when CVEs with CVSS ≥ 7 are found in reachable dependencies. |
+| Signing container images with cosign but never verifying signatures at deployment — the signing infrastructure is in place, but admission controllers don't enforce signature verification, so an unsigned (or attacker-signed) image deploys to production without any error. | $200K-$2M in supply chain compromise when unsigned images reach production | Configure Kubernetes admission controllers (Kyverno, OPA, or Binary Authorization) to reject unsigned images. Run `cosign verify` as a required step in every deployment pipeline. Monitor for deployment attempts of unsigned images as a security signal. |
+| Allowing developers to use `:latest` tags in production deployments — the image deployed today may be different from the image deployed tomorrow, making provenance verification impossible and rollbacks unpredictable. | $50K-$200K in incident response when a compromised `:latest` image ships to production and the previous known-good version cannot be identified | Enforce immutable tags or content-digest pinning for all production deployments. Block `:latest` at admission control. Every production deployment must reference a specific SHA256 digest. |
 
 ## Verification
 

@@ -372,6 +372,8 @@ ATO risk score = weighted_sum(
 - Absolute session timeout (12 hours max for health platforms) with re-authentication
 - Concurrent session limits with oldest-session-termination policy
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 ### Phase 2 — Abuse Detection Systems
 
 **Goal:** Build a detection pipeline that moves from static rules to adaptive ML while keeping false positive rates below 0.1%.
@@ -392,6 +394,8 @@ Layer 2: ML Classification (async, post-write, 100-500ms)
   └── Confidence threshold: > 0.95 auto-action, 0.70-0.95 human review, < 0.70 pass
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
 
 ## What Good Looks Like
 
@@ -469,6 +473,26 @@ graph LR
 | "False positives are just a minor annoyance for users" | A false positive on a marginalized creator's content generates media coverage, advertiser inquiries, and platform trust erosion disproportionate to one moderation action. Algorithmic bias in moderation is a reputational risk, not just an engineering metric. |
 | "Appeals are edge cases — we'll handle them when volume justifies it" | The EU Digital Services Act mandates that ALL content moderation decisions be appealable with a "statement of reasons." Launching without an appeals pipeline means every action is legally non-compliant — fines start at 6% of global annual turnover. |
 | "Child safety is the legal team's problem, not engineering's" | PhotoDNA, CSAI Match, and NCMEC CyberTipline reporting are technical integrations engineering must implement. Failure to detect and report CSAM is criminal liability in most jurisdictions, not a policy oversight — the CTO shares legal exposure with the GC. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
 
 ## Verification
 

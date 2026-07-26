@@ -194,18 +194,42 @@ Target audience?
 ### Phase 1 (~15 min): Design System Audit & Tokens
 Audit the existing UI for inconsistencies: colors (run a color extraction across all screen captures), typography (font families, sizes, weights, line-heights), spacing (margin/padding patterns), border radii, and shadow/elevation values. Consolidate into design tokens — name tokens semantically (e.g., `color-surface-primary`, not `color-blue-500`) so they can be re-themed. Define a tiered token architecture: global tokens (raw values), alias tokens (semantic mapping), and component tokens (component-specific). Output a token JSON file compatible with Style Dictionary or similar transformation tooling.
 
+Complete when:
+- UI inconsistency audit complete with color, typography, spacing, border-radius, and elevation findings documented
+- Design token JSON file with global/alias/component tier architecture exported and validated
+- Token file confirmed compatible with Style Dictionary or equivalent transformation pipeline
+
 ### Phase 2 (~30 min): Component Specification
 For each component, document: purpose and usage guidelines, visual states (default, hover, focus, active, disabled, loading, error), variants with prop-to-variant mappings, content slots and children composition rules, responsive behavior per breakpoint, keyboard interaction model, ARIA role/state/properties, animation specs (duration, easing curve, trigger), and design tokens consumed. Use a consistent template — do not rely solely on Figma inspect; text descriptions prevent ambiguity. Include do/don't examples with rationale.
+
+Complete when:
+- Component specification template defined and populated for all core components
+- Each component documented with all visual states, variants, responsive behavior, and ARIA specs
+- Do/don't examples with rationale provided for every component
 
 ### Phase 3 (~20 min): Responsive & Layout System
 Define the grid system: column count, gutter width, margin, max-width per breakpoint. Specify breakpoints: mobile (320–767px), tablet (768–1023px), desktop (1024–1439px), wide (1440px+). For each layout region, define the responsive behavior: stack, reflow, collapse, hide, or transform. Document container queries usage for component-level responsiveness. Specify font-size and spacing fluid scales using `clamp()` or equivalent. Produce a layout reference page showing every region at every breakpoint.
 
+Complete when:
+- Grid system defined with column count, gutter, margin, and max-width per breakpoint
+- Layout reference page showing all regions at every breakpoint (mobile/tablet/desktop/wide)
+- Fluid typography and spacing scales using clamp() documented with container query strategy
+
 ### Phase 4 (~15 min): Interaction Patterns
 Catalog all recurring interaction patterns: navigation transitions, form validation feedback, loading states (skeleton vs. spinner vs. progress bar), empty states, error recovery flows, confirmation dialogs, drag-and-drop, infinite scroll vs. pagination. For each pattern: define the trigger, the animation/transition (duration, easing, properties animated), the system feedback, and the accessibility considerations (prefers-reduced-motion, focus management). Provide a Lottie or CSS animation reference for motion specs.
+
+Complete when:
+- Interaction pattern catalog documented with trigger, animation specs, feedback, and accessibility considerations for each pattern
+- Motion specs provided as Lottie or CSS animation reference for all animated interactions
+- prefers-reduced-motion alternatives defined for every motion-based interaction
 
 ### Phase 5 (~25 min): Developer Handoff
 Package the handoff with: Figma file with dev-mode annotations, token JSON export, component API documentation (props table, slots, events), icon set in SVG sprite or icon font with names, illustration/asset library with sizing guidelines, and a changelog since the last handoff. Include a "gotchas" section: common implementation pitfalls for each component. Schedule a walkthrough with the engineering team; record it for async reference. Define the feedback loop: how developers request design changes or flag spec gaps.
 
+Complete when:
+- Developer handoff package assembled: annotated Figma, token JSON, component API docs, icon set, asset library
+- Changelog and "gotchas" document with common implementation pitfalls per component included
+- Handoff walkthrough scheduled with engineering team and feedback loop process defined
 
 ## Error Recovery
 
@@ -222,6 +246,14 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Designing with placeholder content — lorem ipsum fills every text block, perfect stock photos stand in for user-generated images, and every name is "John Smith" (14 characters with no special characters). Launch week: real customer names overflow by 40 characters, product descriptions truncate mid-sentence on the pricing page, and user-uploaded images are 4:3 portrait when every design assumed 1:1 square. | $25K-$75K in emergency redesign sprints + 2-4 week launch delay while every layout is rebuilt for real content lengths and aspect ratios | Design with representative data from day one: longest-possible names, edge-case addresses (international formats), zero-data and overflow scenarios, and varied image aspect ratios. Pull real content samples from the database or a content inventory audit. Every component must survive the "ugliest data" test — paste the longest, weirdest, most edge-case real content in and verify the layout holds. |
+| Ignoring loading, empty, and error states — designs show only the perfect-data happy path. Developers ship with no skeleton screens (content jumps when it loads), a blank white page on API errors, and "No results." in 12px gray text for every empty state. Users interpret loading gaps as broken pages and empty states as bugs. | $30K-$80K in post-launch state remediation — every component needs retroactive state design, developers implement 5 different loading spinners across the app, and user abandonment spikes 15-25% during loading and error states | Define all 8 component states before handoff: default, hover, focus, active, disabled, loading/skeleton, empty, and error. Each state needs visual spec + microcopy + recovery action. An empty state isn't "No results" — it's "No recent orders. Start your first project →" with a clear CTA. An error state tells the user what happened and what to do next — not just "Something went wrong." |
+| Designing in isolation without engineering feasibility check — months of pixel-perfect Figma work presented to engineering 2 days before sprint planning. The hero animation requires a 2MB WebGL library that adds 30% to the bundle, the custom cascading dropdown needs 3 weeks of bespoke accessible JavaScript, and the drag-and-drop kanban conflicts with the existing virtualized list library. Half the designs are descoped; the sprint is replanned from scratch. | $50K-$200K in rework — designs that took 3 months are reduced to a 2-week MVP, sprint commitments are broken, and the shipped product looks nothing like the approved mockups | Engineering review at wireframe stage, not final design review. For every new interaction pattern: "Can this be built with existing components? What's the rough LOE? Are there technical constraints that should shape the design?" Co-design sessions with engineers before high-fidelity work begins reduce the spec-to-sprint gap from weeks to hours. Ship a working prototype, not a perfect mockup — the best design decisions happen in code, not in Figma. |
 
 ## Best Practices
 

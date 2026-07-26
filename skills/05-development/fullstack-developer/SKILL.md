@@ -338,6 +338,7 @@ Debugging issues that cross the frontend-backend boundary
    ```
 3. **Shared types**: Single source of truth for API contracts. `packages/shared` exports DTOs, Zod validation schemas, TypeScript interfaces. Imported by both frontend and backend.
 4. **Turborepo pipeline**: Define `turbo.json` with dependency-aware tasks: `build`, `lint`, `typecheck`, `test`, `dev`. Caching for unchanged packages.
+  Complete when: `pnpm dev` starts all apps without import errors, shared types resolve correctly in both frontend and backend IDEs.
 
 ### Phase 2 (~30 min): Full-Stack Feature Development
 <!-- DEEP: 10+min -->
@@ -346,6 +347,7 @@ Debugging issues that cross the frontend-backend boundary
 3. **Frontend integration**: Call API with TanStack Query (client components) or direct fetch (server components). Handle loading, error, empty, and success states. Implement optimistic updates for mutations.
 4. **End-to-end type safety**: tRPC for full type safety from DB to UI without code generation. Or use OpenAPI-generated client from shared spec.
 5. **Authentication awareness**: Protected routes on both server (middleware) and client (redirect unauthenticated). Access session/user in API, pass to frontend via server components or API response.
+  Complete when: A full CRUD flow works end-to-end — database write → API response → frontend render — with typed responses across the stack.
 
 ### Phase 3 (~20 min): Data Flow Patterns
 1. **Server Components (Next.js App Router)**: Fetch data directly in Server Components — `async` components calling DB or internal APIs. No client-side waterfall.
@@ -353,6 +355,7 @@ Debugging issues that cross the frontend-backend boundary
 3. **REST with generated client**: OpenAPI spec → `openapi-typescript` + `openapi-fetch` for type-safe fetch wrapper. Share spec as workspace package.
 4. **GraphQL**: Codegen from schema to generate typed hooks (`useQuery`, `useMutation`). Fragment colocation for component-level data requirements.
 5. **Server Actions** (Next.js): Form mutations handled on server. Use `useFormState` + Zod validation. Revalidate affected paths with `revalidatePath`/`revalidateTag`.
+  Complete when: At least one data flow pattern is wired end-to-end with type safety — no `any` types cross the frontend/backend boundary.
 
 ### Phase 4 (~15 min): Authentication Flows
 1. **Credentials**: Email/password with bcrypt hashing. Session-based (Iron Session, express-session) or JWT. CSRF protection for cookie-based auth.
@@ -360,6 +363,7 @@ Debugging issues that cross the frontend-backend boundary
 3. **Session management**: HttpOnly, Secure, SameSite=Lax cookies. Session expiry with sliding expiration. Refresh token rotation with reuse detection (family-based).
 4. **Authorization**: Role-based access control (RBAC) checked in middleware and API layer. Column-level or row-level security in database (PostgreSQL RLS) for multi-tenant apps.
 5. **Protected page patterns**: Middleware redirect for unauthenticated requests. Loading state while session resolves. Graceful handling of expired sessions.
+  Complete when: Login, session persistence, protected route redirect, and logout all work across frontend and backend. CSRF protection is active.
 
 ### Phase 5 (~25 min): Testing Across the Stack
 1. **Database tests**: Integration tests with real PostgreSQL (testcontainers or Docker Compose). Apply migrations, seed data, run tests, rollback. Each test in its own transaction.
@@ -367,6 +371,7 @@ Debugging issues that cross the frontend-backend boundary
 3. **Frontend tests**: Vitest + Testing Library for components. Mock API responses with MSW (Mock Service Worker) for realistic network simulation.
 4. **E2E tests**: Playwright with real backend (no mocking). Test critical flows: signup, login, core CRUD, checkout. Run against staging environment.
 5. **Contract tests**: Verify frontend expectations match backend responses. Use shared Zod schemas as contract. Consider Pact for cross-team scenarios.
+  Complete when: `npm test` passes across all layers (unit, integration, E2E) with real database and no mocked network in integration tests.
 
 ### Phase 6 (~25 min): Deployment & Observability
 1. **Platform**: Vercel (Next.js, SvelteKit), Railway/Render (Docker), Fly.io (edge), AWS ECS/EKS (enterprise). Use Infrastructure as Code (Terraform/Pulumi).
@@ -374,6 +379,7 @@ Debugging issues that cross the frontend-backend boundary
 3. **Database migrations in CI/CD**: Run migrations as part of deploy pipeline. Transactional migrations with rollback capability. Backup before migration.
 4. **Observability**: OpenTelemetry for distributed tracing across frontend and backend. Structured logging with correlation IDs propagated through all layers. Frontend RUM (Real User Monitoring) with web-vitals.
 5. **Feature flags**: LaunchDarkly, GrowthBook, or homegrown. Wrap new features; toggle per environment, user segment, or percentage rollout.
+  Complete when: Staging deploy succeeds, database migrations run in pipeline, OpenTelemetry traces span from browser to database, and a feature flag gates the new feature.
 
 
 ## Best Practices
@@ -587,6 +593,16 @@ When full-stack apps go wrong, they go wrong in predictable ways. Here are the m
 | SSR page renders, then disappears and re-renders — flash of unstyled content, layout shift, poor Core Web Vitals | The server renders the page, sends HTML, the client hydrates and immediately triggers a data fetch because the server didn't pass the data. The fetch updates state → re-render. The user sees: rendered → blank → rendered | Pass all page data via `getServerSideProps`/`loader` functions. Don't fetch the same data on the client that the server already fetched. Use React Query with `initialData` from server props. Use `dehydrate`/`hydrate` for cache transfer | SSR is wasted if the client immediately fetches the same data. The user pays the SSR cost (server time) AND the CSR cost (client fetch + render). Data must flow from server to client through the initial HTML payload |
 | Frontend sends POST with `Content-Type: application/json`, backend receives empty body — `req.body` is `{}` | Express `express.json()` middleware is declared AFTER the route handler. Or body parser is configured with a size limit smaller than the payload. The middleware never processes the body before the handler runs | Declare `app.use(express.json({ limit: '1mb' }))` BEFORE all route definitions. Add request logging middleware that logs `req.body` to catch empty bodies. Use Zod/Yup validation that fails fast on missing fields with clear error messages | Middleware order is execution order. Express processes middleware sequentially — a body parser declared after routes will never run for those routes. This bug survives code review because the middleware is "in the file" |
 | API version mismatch — frontend deployed with v2 schema, backend still serves v1. Production breaks, staging works | Frontend and backend deployments are not atomic. The CDN caches the new frontend bundle while the backend rollout is still in progress. For 2-3 minutes, users get v2 frontend talking to v1 backend | Version your API in the URL: `/api/v1/users` and `/api/v2/users`. Never deploy breaking changes without a new version. Backend must support N-1 version for the duration of the rollout. Use feature flags to decouple deploy from release | Deployments are not instantaneous. During a rolling deploy, some instances run old code and some run new code. Your API must handle both old and new clients for at least one deploy cycle |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Duplicating validation logic between frontend and backend — client says "valid" but server rejects | $20K-$60K in bug fixes and data integrity repairs | Share Zod/Yup schemas in a monorepo `packages/shared` package. Both API and forms import from the same schema. With tRPC, the procedure input IS the validation. |
+| Hydration mismatch from `Date.now()` or `typeof window` checks in render — React re-renders entire page on client | $10K-$30K in performance debugging and Core Web Vitals regressions | Guard browser-only code with `useEffect` (client-only). Pass server data via `getServerSideProps`/`loader`. Build for production and check console for "did not match" warnings. |
+| API version mismatch during rolling deploy — v2 frontend talks to v1 backend for 2-3 minutes | $25K-$75K in production incidents and rollback costs | Version API in URL: `/api/v1/` and `/api/v2/`. Backend must support N-1 version during rollout. Use feature flags to decouple deploy from release. |
+| Mixing server state into client state management (Redux/Zustand) — cache synchronization bugs multiply | $15K-$50K in debugging stale-data bugs | Server state → TanStack Query/SWR. Form state → React Hook Form. Client ephemeral state → Zustand/Context. Never duplicate server data in client stores. |
+| Deploying with `nodeIntegration: true` in Electron or missing CSP headers — XSS turns into RCE on user machines | $50K-$200K in security incident response and reputational damage | Set `contextIsolation: true`, `nodeIntegration: false`. Use Content-Security-Policy headers. Expose only needed APIs via `contextBridge`. Audit with `grep -rn 'nodeIntegration.*true'`. |
 
 ## Verification
 

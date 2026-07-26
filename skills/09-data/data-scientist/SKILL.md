@@ -250,6 +250,8 @@ What question are you answering?
    - Document known biases: selection bias, survivorship bias, measurement error
    - Determine if existing data can answer the question or if new data collection is needed
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Exploratory Data Analysis (EDA)
 
@@ -275,6 +277,8 @@ What question are you answering?
    - Duplicate records, near-duplicates
    - Input: dataset. Output: data quality issues log with remediation actions
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Statistical Testing & Experimentation
 
@@ -285,6 +289,8 @@ What question are you answering?
    - If assumptions violated: use non-parametric alternative or transform data
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Experiment results analyzed with confidence intervals, guardrail checks passed, and ship/iterate/discard recommendation documented.
 
 ## Best Practices
 
@@ -457,6 +463,26 @@ graph LR
 | SHAP says feature X is most important, but removing it doesn't change predictions | Correlated features: SHAP splits importance between X and its correlated proxy Y. Individually both look moderate, together they're critical. | Use permutation importance as sanity check. Group correlated features and report group-level importance. | SHAP explains prediction, not causation. Correlated features create attribution ambiguity. |
 | Notebook cell [3] output doesn't match when re-run | Out-of-order execution: cell [5] ran first, defined a variable, then cell [3] used it. State persists but execution order is invisible. | Kernel → Restart & Run All before sharing. Use `%autoreload` for external modules. | Notebook state is a hidden dependency. The only reliable notebook is one that runs top-to-bottom from a fresh kernel. |
 | Time series model perfect on test but fails in production | Random train/test split leaked future into past. Model learned to predict tomorrow from tomorrow's features. | Use `TimeSeriesSplit` or manual chronological split. Never `shuffle=True` for temporal data. | Temporal leakage is subtler than feature leakage because the split "looks" random but the time index carries information. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline silently produces stale data due to missing freshness checks | $5K-$25K in bad decisions per week | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| Incremental model divergence from source of truth beyond 2% | $10K-$50K in incorrect executive reports per quarter | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
 

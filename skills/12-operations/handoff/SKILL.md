@@ -160,6 +160,7 @@ Execute in order. Do not skip steps.
    |   - ## Next Steps (concrete, ordered, with expected outcomes)
    |-- Format: markdown with machine-parseable prefixes (DONE:, DOING:, TODO:, DECIDED:, BLOCKED:)
 ```
+  Complete when: Workspace directory created, session context captured, and ledger initialized with all required sections.
 
 ### Phase 2: Capture Progress (Continuous)
 
@@ -187,6 +188,7 @@ Throughout the session, update the ledger as work happens. Do not batch at the e
    |-- Maintain a FILE MANIFEST section listing all files touched
    |-- Include: path, operation (create/edit/delete), purpose (1 line)
 ```
+  Complete when: All completed tasks, decisions, blockers, and file changes recorded in ledger with timestamps and verification evidence.
 
 ### Phase 3: Produce Handoff Document
 
@@ -211,6 +213,7 @@ When compaction is imminent or session is ending:
 3. APPEND TO LEDGER INDEX
    |-- .handoff/index.md: chronological list of all handoff documents with date, summary, status
 ```
+  Complete when: Handoff document reviewed by receiving team lead or next session, and all open items have owners.
 
 ## Decision Trees
 
@@ -591,6 +594,14 @@ Handoff scales from a 5-minute pause between sessions to formal cross-agent tran
 | **Stakeholder handoff** | PM, tech lead, or non-agent consumer | Progress summary with milestone tracking, risk register, resource needs. Less technical detail, more decision context and timeline impact | 20 minutes |
 
 **Scaling rule:** The recipient's context distance determines handoff depth. Same agent + same day = minimal (5 min). Different team + different tools = exhaustive (30 min). Over-producing handoff for a quick pause wastes time; under-producing for a cross-agent transfer wastes far more.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Cramming the handoff into the last 15 minutes of a session | $30K-$100K in duplicate effort and rework | Update the ledger continuously — a 2-minute update after each task prevents 2-hour handoff fire drills |
+| Missing context that the next person needs to resume work | $20K-$80K in onboarding delays | Always include the resume command with exact file path and line number plus mental state |
+| No decision log leading to repeated debates | $10K-$40K in wasted re-discussion time | Every decision gets a DECIDED: entry with options, choice, rationale, and tradeoffs — even "obvious" ones |
 
 ## Verification
 

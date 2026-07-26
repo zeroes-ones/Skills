@@ -366,6 +366,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
        ├─ Grafana Cloud, Datadog, Honeycomb, New Relic
        └─ Best for: Small team, rapid onboarding, reduced ops burden
    ```
+  Complete when: SLIs are defined for all critical user journeys, Prometheus recording rules compute SLIs over 7d/30d rolling windows, error budget policy is documented with burn rate thresholds, and stack selection decision is documented with rationale.
 
 ### Phase 2 (~30 min): Metrics & Dashboard Design
 
@@ -374,6 +375,16 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
    For every resource (CPU, memory, disk, network):
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+  Complete when: USE dashboards exist for every infrastructure resource type, RED dashboards exist for every service endpoint, and dashboards are stored as code in git with CI validation.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Running observability on the same infrastructure as production — when production goes down, observability goes down with it, and you're blind during the incident | $50K-$200K in extended MTTR from lack of observability during outages | Run observability stack (Prometheus, Grafana, Alertmanager) in a separate cluster or account; use a SaaS provider for alerting delivery (PagerDuty/Opsgenie) that doesn't depend on your infrastructure |
+| High-cardinality labels in Prometheus — adding `user_id` or `request_id` as a label creates a new time series per unique value; 1M users = 1M time series = Prometheus OOM | $10K-$50K in Prometheus outage and metric data loss | Never put unbounded values in metric labels; use structured logging for request-level detail; limit label values to low-cardinality dimensions (<100 unique values); monitor `prometheus_tsdb_head_series` and alert if > 1M series |
+| No log retention policy — keeping DEBUG logs for 6 months costs $20K/month in storage; when you actually need debug logs for an incident, they've been purged by the 7-day retention default | $5K-$50K in unnecessary storage costs or missing forensic data | Ship INFO-and-above to central platform with 30-day retention; keep DEBUG/TRACE locally with 24-hour rotation; use cold storage (S3 Glacier) for compliance logs; tier retention by severity |
 
 
 ## Error Decoder — War Stories from the Trenches

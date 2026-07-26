@@ -319,30 +319,35 @@ Common chains:
 **Input:** Existing system (codebase, infra, DB, dependencies)  
 **Steps:** 1) Inventory all services, databases, and dependencies 2) Score each component by complexity (1-5) 3) Map dependency graph 4) Identify highest-risk components 5) Build migration wave plan  
 **Output:** Scored inventory + dependency map + migration wave sequencing plan
+  Complete when: All services/databases/dependencies inventoried, each component scored 1-5 by complexity, dependency graph mapped, and migration wave sequencing plan produced.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Pattern Selection & Proof of Concept
 **Input:** Assessment results and constraints (time, budget, downtime tolerance)  
 **Steps:** 1) Apply migration strategy decision tree 2) Select pattern (Strangler/Parallel/Lift-and-Shift/etc.) 3) Build PoC on 1-2 low-risk components 4) Validate approach with real data and traffic 5) Document pattern with code templates  
 **Output:** Validated migration pattern + PoC results + reusable templates
+  Complete when: Migration pattern selected and validated via PoC on low-risk components, approach verified with real data and traffic, and reusable code templates documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Data Migration Execution
 **Input:** Source database schema and target schema design  
 **Steps:** 1) Apply Expand-Contract for zero-downtime schema changes 2) Set up dual-write or CDC pipeline 3) Run backfill with checkpointing (resumable) 4) Verify consistency (row counts + checksums + business queries) 5) Cut over reads, monitor, cut over writes  
 **Output:** Migrated database with verified consistency, rollback path ready
+  Complete when: Expand-Contract applied to all schema changes, dual-write or CDC pipeline operational, backfill complete with checkpointing, consistency verified (row counts+checksums+business queries), and rollback path tested.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Application Migration
 **Input:** Validated patterns, migrated data plane  
 **Steps:** 1) Migrate by wave (low-risk first) 2) Route percentage of traffic via feature flags/canary 3) Compare old vs new responses (diffing system) 4) Increase traffic 10% → 25% → 50% → 100% with monitoring gates 5) Keep old system in read-only mode for bake period  
 **Output:** Application running on target platform with rollback capability
+  Complete when: All waves migrated through graduated gates (10%→25%→50%→100%) with monitoring at each step, diffing system confirms old vs new response parity, and rollback capability verified.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Verification & Decommission
 **Input:** Fully migrated system in production  
 **Steps:** 1) Complete bake period (24-72h depending on component) 2) Run final data integrity reconciliation 3) Verify all monitoring/alerting operational on new system 4) Decommission old system (after confirmed no rollback needed) 5) Conduct retrospective, document lessons learned  
 **Output:** Old system decommissioned, migration complete, retrospective document
+  Complete when: Full business cycle bake period completed (24-72h), final data reconciliation passes, monitoring/alerting verified on new system, old system decommissioned after connection audit, and retrospective documented.
 
 
 ## Error Decoder — War Stories from the Trenches
@@ -550,6 +555,15 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 | "Zero downtime is over-engineering for our scale" | Even 30 minutes of downtime for a payment system during business hours costs $50K-$250K in lost transactions; the migration tooling for zero-downtime costs $5K-$15K in engineering time |
 | "We can skip the dry run; our migration script is well-tested" | A migration script tested on a 1GB dev database behaves completely differently on 5TB of production data; dry runs catch timeout, OOM, and lock-contention issues before they become outages |
 | "The old system can stay running as a fallback indefinitely" | Running dual systems doubles infrastructure cost, splits operational knowledge, and accumulates divergence — within 6 months, the "fallback" is an untested liability that can't actually be used |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Strangler fig migration is strangled by its own intercept layer — the routing proxy that decides "old system or new system" grows into a 10K-line routing engine with its own database, its own bugs, and its own deployment pipeline. The intercept layer becomes the hardest system to decommission. | $40K-$150K in maintaining a migration routing layer that was supposed to be temporary. After 18 months, the intercept layer has 3 dedicated engineers and is blocking the completion of the migration it was designed to enable. | Routing logic must be stateless and simple: look up one key, route to one target. No business logic in the intercept layer. Set a hard limit: the routing proxy must not exceed 500 lines. The intercept layer must have its own deprecation date. |
+| Data migration validated by row count, not checksum — 50M rows migrated, row counts match, but 12K rows have silently corrupted floating-point values because the target database uses a different precision. Three months later, financial reports are off by $200K. | $50K-$500K in financial restatement and audit costs from undetected data corruption. Checksum mismatches caught 3 months later require replaying all transactions since the migration. | Checksum every row: `MD5(CONCAT_WS('|', col1, col2, ...))` on source, same on target. Run checksums in parallel across shards. Validate a random 1% sample with full row comparison. Checksum mismatches are blocking — do not proceed past Phase 2 with any mismatches. |
+| Dual-write without ordering guarantees — writes go to old and new system in parallel. Under concurrent load, the order of writes differs between systems. New system has record v2→v3 while old system has v3→v2. Data is inconsistent in subtle, untestable ways. | $50K-$300K in data reconciliation when dual-write race conditions create heisenbugs that only manifest under production concurrency. Every reconciliation pass finds new inconsistencies because the root cause (ordering) was never fixed. | Dual-write with a sequencing log (Kafka, Kinesis) as the source of truth. Both sides consume from the same ordered stream. Verify monotonicity: record version on new system must never be less than old system. Run drift detection continuously during dual-write phase. |
+| Migration timeline estimated by the engineering team without measuring data volume — "We'll migrate 5TB in a weekend." At 500MB/s with 4 parallel streams, that's actually 2.8 hours of pure transfer, plus 6 hours of validation, plus 4 hours of application smoke testing. The cutover window is physically impossible. | $25K-$100K in business impact when the migration overruns the approved window and systems are unavailable during business hours. Plus $15K-$40K in emergency communications and post-mortem overhead. | Measure actual throughput end-to-end with a 100GB sample. Include validation and smoke testing time — not just transfer time. Migration time = (data_volume / measured_throughput) × 1.5 (buffer) + validation_time + smoke_test_time. If total > approved window, you need zero-downtime migration, not a bigger window. |
 
 ## Verification
 

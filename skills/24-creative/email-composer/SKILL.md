@@ -157,6 +157,7 @@ What type of email are you composing?
 - **Customer (unhappy):** Empathetic, accountable, solution-focused — no defensiveness
 
 **Step 6 — Add follow-up trigger.** If no response in 3 business days, what happens next? Schedule it mentally or in CRM.
+  Complete when: Single outcome defined in 6 words or fewer, framework selected and matched to context, subject line under 50 characters with value signal, body composed following framework with one CTA, tone calibrated to relationship type, and follow-up trigger scheduled.
 
 ### Phase 2: Sales Sequence (Multi-Touch)
 
@@ -170,6 +171,7 @@ Design 4-email sequence:
 | 4 | 14 | Break-up | "Should I close your file?" + final value | Binary: yes/no |
 
 Never use "just checking in" or "touching base" — every follow-up adds standalone value.
+  Complete when: 4-touch sequence designed across 14 days, each touch has distinct subject pattern and CTA, value-add content assigned to touches 2-3, and break-up email with binary yes/no decision written for touch 4.
 
 ### Phase 3: Introduction Email (Double Opt-In)
 
@@ -179,6 +181,7 @@ Never use "just checking in" or "touching base" — every follow-up adds standal
 1. Context for Person A: who Person B is and why the connection is valuable
 2. Context for Person B: who Person A is and why the connection is valuable
 3. Clear suggested next step: "I'll let you two take it from here — [Name], want to suggest a time?"
+  Complete when: Permission obtained from both parties via private notes, context written for each person explaining the connection's value, clear next step suggested, and BCC plan set for after first reply.
 
 ### Phase 4: Apology Email (EAR Framework)
 
@@ -187,6 +190,7 @@ Never use "just checking in" or "touching base" — every follow-up adds standal
 **Acknowledge:** Own the mistake without deflection. No "if you felt" or "misunderstanding." Say "We made an error in [specific error]. Here's what happened."
 
 **Resolve:** Concrete fix + prevention: "We've [immediate fix]. To prevent recurrence, we've [process change]. As a gesture, [make-good offer]."
+  Complete when: Empathy statement acknowledges specific recipient impact (not generic regret), acknowledgment owns the error without deflection language, resolution includes concrete fix + prevention + make-good offer, and no defensive or minimizing language anywhere in the draft.
 
 ## Decision Trees
 
@@ -452,6 +456,16 @@ Master email composition through progressive difficulty — from single emails t
 | "Dark mode is cosmetic, not a priority" | 81.9% of iPhone users and 70%+ of Android users use dark mode. Without `@media (prefers-color-scheme: dark)`, white-on-transparent logos become invisible, text renders illegible, and brand presentation breaks — this is a deliverability and brand perception issue. |
 | "We'll use one big image as the email body — looks great in design" | Enterprise email clients (Outlook 2016/2019) block images by default. Recipients see a blank white rectangle. The 3-second preview window in Apple Mail and Gmail shows nothing. Image-only emails have 40% lower click-through rates than HTML-text hybrids. |
 | "GDPR consent is legal's problem — I just write the emails" | GDPR Article 7 requires documented proof of consent: timestamp, source, and scope. Marketing emails sent without documented consent history expose you to €20M/4% global revenue fines AND kill sender reputation so even compliant sends never reach inboxes. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| **Spam filter triggers** — words like "free," "guaranteed," "act now," excessive exclamation marks, or ALL CAPS subject lines send your carefully crafted email straight to the spam folder. | $10K-$100K in wasted campaign spend — a $100K campaign with 0% inbox placement is $100K burned. | Avoid spam trigger words. Test subject lines against spam checkers (GlockApps, Mail-Tester). Keep HTML-to-text ratio balanced. Authenticate with SPF, DKIM, and DMARC. Warm up new sending domains over 4-6 weeks. |
+| **Dark mode rendering breaks** — white-on-transparent logos become invisible, light-colored text on light backgrounds washes out, and brand colors invert unpredictably in dark mode clients. | $5K-$50K in brand perception damage and lost engagement — 81.9% of iPhone users and 70%+ of Android users use dark mode. | Add `@media (prefers-color-scheme: dark)` CSS block. Use opaque-background logo variants. Test with Litmus or Email on Acid across Apple Mail, Gmail, and Outlook dark modes. Never rely on transparent PNGs for critical visuals. |
+| **Broken personalization tokens** — "Dear [FIRST_NAME]" or "Hi {CONTACT_NAME}" appears in the live email because the merge field has no fallback and the CRM record is missing the field. | $20K-$200K in lost trust and unsubscribes — broken personalization signals "mass spam" and triggers instant deletion for 60%+ of recipients. | Always include a fallback value for every personalization token: `{FIRST_NAME:there}` or `[FIRST_NAME,fallback=there]`. Test with a seed list that includes null records and special characters (apostrophes, umlauts, emoji in name fields). Never send without a full personalization audit. |
+| **Mobile rendering failures** — desktop-perfect emails break on mobile: multi-column layouts shatter, fonts render too small, CTAs require pinch-to-zoom to tap, and long subject lines truncate after 35 characters. | $50K-$500K in lost conversions — 60%+ of email opens are on mobile, and mobile-optimized emails see 15% higher click-through. | Use single-column layouts. Set 16px minimum body text, 44px minimum tap targets. Keep subject lines under 35 characters for mobile preview. Use responsive `max-width: 600px` containers. Test rendering in Litmus across iOS Mail, Gmail Mobile, and Outlook Mobile. |
+| **Image-only emails with no fallback** — designed as one big image in Photoshop, exported as a single JPEG. Enterprise clients (Outlook 2016/2019) block images by default; recipients see a blank white rectangle. | $30K-$200K in lost engagement — image-only emails have 40% lower click-through rates than HTML-text hybrids. | Use HTML text for headlines, body copy, and CTAs. Images should supplement, not replace, content. Always include descriptive alt text. Design bulletproof buttons with padding + border (not image-based). Test with images disabled — the email must still convey the message and have tappable CTAs. |
 
 ## Verification
 

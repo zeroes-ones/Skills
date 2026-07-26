@@ -218,6 +218,8 @@ Health communities have a different threat model than general social apps. Map y
 
 ```markdown
 
+  Complete when: Threat model documented, risks prioritized by severity, and mitigation owners assigned with deadlines.
+
 
 ## Error Recovery
 
@@ -369,6 +371,26 @@ graph LR
 | "De-identified community data can be sold to researchers without consent." | Community members consider their lived-experience narratives as personal as medical records. Selling de-identified health community data without explicit opt-in consent has triggered class-action lawsuits under state biometric and consumer health data laws (Washington My Health My Data Act, Nevada SB 370). $5M+ settlements for unauthorized health data monetization. |
 | "Automated content flags + human review is sufficient for suicide risk detection." | Machine learning suicide risk classifiers have 40-60% false negative rates on nuanced expressions of suicidal ideation ("I'm tired of fighting this" vs "I want to kill myself"). Every false negative is a potential preventable death. Hybrid systems require trained clinical moderators, not just content moderators, with ≤15 minute response SLAs for flagged crisis content. |
 
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
 
 ## Verification
 

@@ -176,6 +176,7 @@ What launch activity are you working on?
    |-- Changelog entry written for user-facing changes
    |-- Internal wiki updated: onboarding, setup, common issues
 ```
+  Complete when: all 6 gates (code quality, security, performance, accessibility, infrastructure, documentation) have zero failing CRITICAL items signed off by the release commander.
 
 ### Phase 2: Staged Rollout
 
@@ -213,6 +214,7 @@ What launch activity are you working on?
    |-- Schedule flag removal ticket for 2-4 weeks post-launch
    |-- Post-launch retro scheduled within 1 week
 ```
+  Complete when: canary metrics are within baseline for error rate and latency at each stage, dark launch shows zero discrepancies in mirrored responses, and the feature flag kill switch is confirmed operational.
 
 ### Phase 3: Launch Communication
 
@@ -235,6 +237,7 @@ What launch activity are you working on?
    |-- Support handoff: known issues, workarounds, escalation criteria
    |-- Feature flag cleanup ticket created with owner and deadline
 ```
+  Complete when: stakeholder email is sent, support team is trained with FAQ and escalation path, launch day communication template is ready, and feature flag cleanup ticket is assigned with a deadline.
 
 ## Decision Trees **(QUICK)**
 
@@ -396,6 +399,15 @@ Launch War Room Setup (for high/critical risk launches):
 |-- Timeline document: real-time log of events, decisions, metrics
 |-- Communication: status updates every 15 minutes to stakeholders
 ```
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Launching on a Friday at 5 PM — if something breaks, the on-call engineer is alone, tired, and has no escalation path until Monday morning | $50K-$300K in extended outage over a weekend with no senior engineers available | Schedule launches for Tuesday-Thursday mornings; never launch before a holiday or weekend; ensure at least 2 engineers are available for the first 4 hours post-launch |
+| Dark launching with 1% mirrored traffic but never comparing responses — the dark launch runs for 24 hours "successfully" but the new code returns 500s on 3% of mirrored requests because no one checked the comparison | $20K-$100K in deploying broken code that was "verified" by dark launch | Dark launch must include automated response comparison: diff old vs new responses, alert on any discrepancy > 0%; a dark launch without comparison is just warming CPUs |
+| Killing a feature flag after 2 weeks without checking if the flag is still referenced in code — removing the flag key crashes the application for users who had it cached | $10K-$50K in production crash from stale flag references | Keep flags as kill switches for minimum 2 weeks post 100% rollout; before removal, grep the entire codebase for the flag key; schedule flag removal as a separate deploy, not bundled with feature work |
 
 
 ## Error Decoder — War Stories from the Trenches

@@ -295,6 +295,11 @@ API design skill manifests in the scope of the API — from single endpoints to 
 3. **gRPC**: High-performance service-to-service, streaming (bidirectional), strongly-typed contracts, polyglot microservices. Use Protocol Buffers for internal service mesh.
 4. **WebSocket/SSE**: Real-time push, live updates, collaborative features, streaming events to browsers.
 
+Complete when:
+- API paradigm (REST/GraphQL/gRPC/WebSocket) selected with written rationale tied to use case requirements
+- Decision documented with trade-offs: caching needs, client flexibility, performance requirements, team expertise
+- Paradigm selection approved or acknowledged by consuming frontend/backend teams
+
 ### Phase 2 (~30 min): Specification-First Design
 <!-- DEEP: 10+min -->
 1. Write the OpenAPI 3.1 specification before implementation.
@@ -303,6 +308,11 @@ API design skill manifests in the scope of the API — from single endpoints to 
 4. Define **responses** for all status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500) with consistent error body schema.
 5. Add **security schemes** (Bearer JWT, OAuth2, API Key) and `security` requirements per operation.
 6. Include `servers` with environment URLs, `tags` for grouping, `info` with version and contact.
+
+Complete when:
+- OpenAPI 3.1 specification written with all paths, schemas, responses, and security schemes defined
+- Resource naming follows conventions: plural nouns, nested sub-resources, no verbs in URLs
+- Spec validated by linter (e.g., spectral, redocly) with zero errors
 
 ### Phase 3 (~20 min): Consistency & Governance
 <!-- DEEP: 10+min -->
@@ -314,11 +324,21 @@ API design skill manifests in the scope of the API — from single endpoints to 
 3. **Filtering & Sorting** — Query parameters: `?filter[status]=active&filter[createdAt][gte]=2024-01-01&sort=-createdAt&fields=id,name,email` (sparse fieldsets).
 4. **Idempotency** — Require `Idempotency-Key` header for mutating operations (POST/PUT/PATCH/DELETE); return stored response for duplicate keys.
 
+Complete when:
+- RFC 7807 Problem Details error schema standardized and applied across all endpoints
+- Pagination strategy (cursor-based or offset-based) selected and enforced with consistent envelope format
+- Filtering, sorting, sparse fieldsets, and idempotency conventions documented in API style guide
+
 ### Phase 4 (~15 min): Versioning & Lifecycle
 1. **URL path versioning** (`/v1/users`) — explicit, simple, allows major breaking changes. Preferred for public APIs.
 2. **Header versioning** (`Accept: application/vnd.api+json; version=1`) — cleaner URLs but harder to explore.
 3. **Deprecation** — Use `Sunset` and `Deprecation` HTTP headers; emit `Deprecation` notice in API changelog at least 6 months before removal.
 4. **Sunset policy**: vN supported for 12 months after vN+1 release.
+
+Complete when:
+- Versioning strategy (URL path vs header) selected and documented with rationale
+- Deprecation policy defined: Sunset/Deprecation headers, changelog notification process, minimum 6-month notice
+- Sunset timeline documented: vN supported for 12 months after vN+1 release
 
 ### Cross-skills Integration
 
@@ -476,6 +496,15 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Exposing sequential internal database IDs in API responses.** Using auto-increment integer IDs (`/users/4261`) leaks competitive intelligence — anyone can scrape your API and estimate total customer counts, growth rate, and order volume by sampling IDs. Sequential IDs also enable trivial enumeration attacks: an attacker iterates `/orders/1` through `/orders/100000` and extracts every customer's purchase history, shipping address, and payment metadata. **Total cost: $30,000-$200,000 in data exposure incidents, competitive intelligence leakage, and security incident response from bulk data scraping.** Fix: Use non-sequential, non-guessable identifiers (UUIDv4, ULID, or Snowflake-style IDs) in every public API response; never expose internal primary keys or auto-increment values; add authorization checks that verify the requesting principal owns the resource, not just that the ID resolves.
 - **No published deprecation and sunset policy.** APIs evolve and endpoints are replaced, but without a communicated deprecation timeline clients never migrate. Years later you're maintaining `/v1/reports` (XML-SOAP), `/v2/reports` (REST-JSON), and `/v3/reports` (GraphQL) simultaneously — each with independent bugs, security vulnerabilities, and infrastructure costs. Three versions of the same feature drain 3x engineering budget on maintenance alone. **Total cost: $20,000-$60,000 per year per deprecated-but-not-sunset API version in maintenance engineering time, security patching, and server costs.** Fix: Publish a deprecation policy with fixed timelines (announcement → 6-month grace → 3-month sunset warning → removal); communicate via `Sunset` and `Deprecation` HTTP headers on every versioned response; track active client versions at the API gateway and proactively reach out to stragglers; enforce the sunset date in infrastructure (automated shutdown after deadline).
 - **Static API keys that never expire.** Long-lived API keys hardcoded in client configs, mobile app binaries, and third-party integration scripts are never rotated. When a key leaks — via an accidental GitHub commit, a former employee's laptop, or a compromised CI pipeline — every system using that key is exposed until someone notices, and there's no audit trail of which keys are active, who owns them, or when they were last used. **Total cost: $50,000-$500,000 in security breach costs from leaked static API keys, including incident response, mandatory customer notification, and credential rotation across all integrators.** Fix: Issue short-lived access tokens (1-24 hours) with refresh token rotation; support API key rotation with overlapping validity windows so clients transition without downtime; log and alert on anomalous key usage patterns; never accept API keys in URL query strings where they land in server access logs.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| No pagination on list endpoints from day 1 — breaking change when data grows | $100K-$300K in breaking changes when clients break after adding pagination | Add pagination (cursor-based preferred) to ALL list endpoints in v1. Default page size: 25-100. Document pagination contract in OpenAPI |
+| Inconsistent error response format across endpoints | $50K-$200K in client-side parsing bugs and integration delays | Define a single ErrorResponse schema (code, message, details, request_id). Use it for ALL 4xx and 5xx responses |
+| No rate limiting design in API contract — uncontrolled traffic spikes | $200K-$1M in infrastructure costs from uncontrolled client traffic spikes | Document rate limits in OpenAPI spec using X-RateLimit headers. Implement per-user/per-endpoint throttles before launch |
+| Versioning strategy not decided upfront | $150K-$500K in migration costs when breaking changes force a new version | Choose URL path vs header vs query param versioning before v1 ships. Document sunset policy. Never remove fields without deprecation period |
 
 ## Verification
 

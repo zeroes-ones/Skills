@@ -499,6 +499,15 @@ Run `git log --name-only` on your repo for the last 50 commits. Group files that
 
 **Total cost: $5,000-$15,000 in interface creep per ungoverned module per year.** Without active minimization, modules gain 1-2 public methods per quarter. After 2 years, a module that started with 5 methods has 13-21. Each addition seemed harmless at the time, but the cumulative depth erosion makes the module progressively harder to understand and change.
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Deep module classified incorrectly, leading to wrong abstraction boundaries | $100K-$500K in rewrites from wrong abstraction boundaries | Apply the deletion test: if removing the module's interface breaks nothing, it's shallow. Score depth before committing to interface |
+| Interface creep without governance — public methods accumulate unchecked | $50K-$200K per year in maintenance drag from bloated module APIs | Implement interface minimization reviews every quarter. Cap public methods at N per module. Document seam placement rationale |
+| Pass-through modules kept alive instead of deleted | $30K-$100K per year in avoidable testing and dependency update costs | Apply the deletion test quarterly. If a module only delegates without adding behavior, delete it and let consumers call the dependency directly |
+| Module locality violations causing circular dependencies | $200K-$500K in refactoring costs to untangle cyclic module graphs | Enforce strict dependency direction with architecture tests. Use dependency-cruiser or similar to fail CI on cycles |
+
 ## Verification
 
 ```bash

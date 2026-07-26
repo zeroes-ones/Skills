@@ -283,6 +283,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Edge/mobile | ONNX Runtime / TFLite | Cross-platform, quantized, small footprint |
 | Simple API, low traffic (<10 QPS) | FastAPI + Transformers | Simple, well-understood, easy to debug |
 
+  Complete when: Serving framework selected (vLLM/Triton/Ray Serve/etc.) with documented rationale; model deployed to staging; inference endpoint responds with correct predictions within latency SLA.
+
 ### Phase 2 (~30 min): Monitoring and Observability
 
 #### Prediction Drift Detection
@@ -294,6 +296,8 @@ If a command or approach fails, follow this escalation path before giving up:
    - **Formula**: PSI = Σ (P_prod − P_ref) × ln(P_prod / P_ref) across bins
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: PSI drift detection implemented per feature with alerting thresholds; feature parity between training and serving verified at 100% match; GPU utilization profiled and cost attribution tags applied.
 
 ## Best Practices
 
@@ -631,6 +635,15 @@ Before any model reaches production, verify:
 - [ ] Cost attribution: GPU $ per model per day, $ per 1M predictions, idle GPU hours tracked
 - [ ] Dependency versions pinned in lockfile committed with model artifact (container-based deployment preferred)
 - [ ] Pipeline caching configured with code hash in input key (or caching disabled on training steps)
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Training-serving feature skew — features computed differently in batch training vs real-time serving | $100K-$500K per incident from silent model degradation in production | Sample 1,000 requests, compute features both ways, assert 100% match. Gate deployment on parity check passing. Use feature store for consistent computation. |
+| GPU underutilization below 30% — paying for compute that's not being used | $50K-$200K/year in wasted GPU spend from overprovisioned inference | Profile GPU utilization. Enable dynamic batching. Right-size GPU (A100 → A10G if utilization permits). Use spot instances for batch inference. Track $ per model per day. |
+| Continuous batching disabled in vLLM — serving at 10% of potential throughput | $50K-$150K/year in excess GPU costs from suboptimal LLM serving config | Enable continuous batching in vLLM. Profile throughput at batch sizes 1, 2, 4, 8, 16, 32. Use PagedAttention (enabled by default in vLLM). |
+| Model registry shows version mismatch — "production" label points to wrong model during incident | $200K-$500K per incident from rolling back to wrong model version | Verify registry production version matches serving version as part of CI/CD. Use automated stage transitions with webhook triggers. Run `verify_registry.py` on every deploy. |
 
 ## Verification
 

@@ -285,17 +285,21 @@ TM health degrading — where to start?
 
 ### Phase 1: String Extraction & Key Design (~2 hours)
 Audit the codebase for hardcoded strings. Implement key-based extraction using the framework's native i18n library: `i18next` (React/Next.js), `vue-i18n` (Vue), `ngx-translate` (Angular), `flutter_localizations` (Flutter), `react-native-i18n` (React Native). Design the key naming convention: `{domain}.{feature}.{component}.{element}`. Example: `checkout.payment.creditcard.cvv_label`. Extract all source strings to a base locale JSON file (typically `en.json`). Verify no hardcoded strings remain using eslint-plugin-i18next or a grep for quote patterns.
+  Complete when: All hardcoded strings are extracted to a base locale JSON file with a consistent key naming convention, and CI validation confirms zero hardcoded strings remain.
 
 ### Phase 2: Translation Memory Setup (~1 hour)
 <!-- DEEP: 10+min -->
 Initialize TM from existing translations if available. Configure TM format (TMX is the standard interchange format — every TMS supports it). Set fuzzy match thresholds: ≥80% for auto-population, 60-79% for suggestion, < 60% sent to MT. TM stores: source string, target string, locale, context (file path + key), last modified, and quality score. A 10,000-entry TM with 80% leverage across 5 new locales saves ~40,000 new translations.
+  Complete when: TM is initialized (TMX format), fuzzy match thresholds are configured (≥80% auto, 60-79% suggest, <60% MT), and TM stores all required fields (source, target, locale, context, last modified, quality score).
 
 ### Phase 3: TMS Integration (~3 hours)
 Choose TMS: Lokalise (best UX, generous free tier), Phrase (most powerful API, best for developers), Crowdin (best open-source support, GitHub integration), Transifex (enterprise focus). Configure API-based pull/push workflow: source strings pushed from CI on merge to main → TMS auto-translates via configured MT engine → translated strings pulled back to repo as locale JSON files on a schedule or trigger. Implement webhook-based PR creation: when translations are ready in TMS, a PR is automatically created with the new locale files.
+  Complete when: TMS is integrated with CI/CD — source strings push on merge to main, translations pull back as locale JSON files on schedule/webhook, and automated PRs are created when translations are ready.
 
 ### Phase 4: Automated Quality Gates (~2 hours)
 <!-- DEEP: 10+min -->
 Implement pre-commit and CI quality checks for translation files. Placeholder integrity: every `{0}`, `%s`, `{{variable}}` in the source must appear in the translation. ICU MessageFormat validation: parse ICU syntax and verify plural forms and selectors are intact. Length constraint check: flag translations exceeding UI element character limits (button: 30 chars, heading: 60 chars, body: 300 chars). Forbidden character detection: flag translations containing characters outside the target locale's expected character set. LQA scoring: automated score based on placeholder match (30%), length compliance (25%), ICU validity (25%), and termbase consistency (20%). Gate threshold: score ≥ 90 to pass, 80-89 warns, < 80 blocks.
+  Complete when: Pre-commit and CI quality gates are in place covering placeholder integrity, ICU syntax validation, length constraints, and forbidden characters, with automated LQA scoring at ≥90 gate threshold.
 
 ## Best Practices
 **(STANDARD)**
@@ -509,6 +513,14 @@ Before shipping any localized release, verify every item. Each unchecked item is
 - [ ] **TM stale entries pruned:** Translations unused for > 18 months flagged for review. Dead translation keys removed from codebase and TM. Locale file bloat under control — no locale file > 20% larger than source.
 - [ ] **Pipeline latency measured:** Time from source string push to translated locale file PR < 48 hours for Tier 1 languages, < 72 hours for Tier 2/3. Bottlenecks identified and escalated.
 - [ ] **Localization budget tracked per locale:** Cost per word, MT vs human split, and TM leverage savings calculated per locale per release. Budget variance > 20% triggers root cause analysis.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| TM not shared across teams — 3 different teams translate "dashboard" 3 different ways in German | $30K-$150K/year in duplicate translation work | Centralize TM in one TMS; all teams push/pull from same TM; run quarterly deduplication; TM shared across teams is the #1 ROI lever in localization |
+| String freeze violated — design changes copy mid-translation cycle, translators redo work 3-4x | $20K-$60K in wasted translation budget and launch delays | Enforce 2-week string freeze before translation; freeze checklist signed by PM/design/content; post-freeze changes go to "next release" batch |
+| MT quality tiers ignored — uniform post-editing applied to all language pairs | $15K-$40K/year in overpaying for Tier 1 editing or shipping poor Tier 3 quality | Segment into Tier 1 (ES/FR/DE, light post-edit), Tier 2 (JA/ZH/KO, full human review), Tier 3 (FI/HU/AR, MT + mandatory native reviewer); budget proportional to tier |
 
 ## Verification
 

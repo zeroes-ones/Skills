@@ -281,6 +281,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: Dashboard with baseline measurements, 6-month targets.
 4. **Select platform team model**: embedded, consulting, enabling, or product — based on org size (see Decision Tree #4).
    - Output: Team charter with mission, operating model, and stakeholder map.
+  Complete when: developer journey map is documented with pain points, top-3 friction points are ranked by developer-hours-saved, North Star metrics have baseline measurements and 6-month targets.
 
 ### Phase 2 (~30 min): Golden Path Design
 1. **Define the minimum service template**: language runtime, container, health checks, CI pipeline, observability, secrets.
@@ -294,6 +295,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: `.github/workflows/deploy.yml` (or equivalent) that any service can consume via 5 lines of config.
 5. **Write "day 2" operations runbooks**: common tasks (scale up, rotate secrets, restore backup) as self-service workflows.
    - Output: 10-15 runbook entries in the developer portal.
+  Complete when: reference implementation deploys to production in under 1 hour from scaffold, `platform create service` produces a deployable skeleton, and 8-12 infrastructure modules are cataloged with input schemas.
 
 ### Phase 3 (~20 min): Developer Portal
 1. **Select and deploy portal**: Backstage (oss), Port (SaaS), Cortex (SaaS), or custom.
@@ -306,6 +308,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: Documentation auto-published on every merge to main.
 5. **Add scorecards**: define 8-12 tech health checks (CI passing, dependency freshness, coverage %, SLO compliance).
    - Output: Scorecard dashboard showing red/amber/green per service.
+  Complete when: developer portal is deployed with service catalog auto-registering services, 3-5 software templates cover 80% of service types, and scorecards show health scores for all registered services.
 
 ### Phase 4 (~15 min): Environment-as-a-Service
 1. **Design ephemeral environment lifecycle**: per-PR namespace, provision on PR open, tear down on merge/close.
@@ -315,6 +318,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: `pr-<number>.dev.example.com` fully functional within 5 minutes of PR open.
 3. **Add cost controls**: TTL-based auto-cleanup (default 48h), per-team budget caps, idle detection.
    - Output: Dashboard showing ephemeral environment spend per team per month.
+  Complete when: PR opens trigger namespace provisioning within 5 minutes, `pr-<number>.dev.example.com` is fully functional per PR, and cost controls prevent runaway spend with TTL auto-cleanup verified.
 
 ### Phase 5 (~25 min): Platform as Product Operations
 1. **Establish platform SLAs**: availability (99.9%), template freshness (< 30 days behind), support response (< 4h during business hours).
@@ -325,6 +329,16 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: Changelog page, #platform-announcements channel, weekly office hours.
 4. **Deprecation process**: announce → deprecation warning in tooling → migration guide → removal (minimum 90 days).
    - Output: Deprecation tracker with migration status per team.
+  Complete when: platform SLA page is published, NPS survey cadence is on the calendar, changelog is active with last update within 30 days, and deprecation tracker has zero overdue migrations.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Building the platform without measuring developer productivity first — you optimize the wrong things and platform adoption stays at 20% because it doesn't solve real pain points | $200K-$1M in wasted platform engineering effort | Measure DORA metrics and run developer NPS surveys before building anything; prioritize the top 3 friction points by developer-hours-saved; validate each golden path with a pilot team before broad rollout |
+| Treating the platform as a project, not a product — after initial launch, the platform team moves to the next project and the platform stagnates with broken templates, stale docs, and zero adoption growth | $100K-$500K in abandoned platform investment and shadow-IT proliferation | Staff a permanent platform product team (not a temporary tiger team); maintain a public roadmap; run quarterly NPS surveys; treat deprecation as a first-class feature with 90-day migration windows |
+| Designing golden paths that work for the platform team but not for service teams — template requires 8 manual steps after scaffolding because the platform team "just knows" them | $50K-$200K in onboarding friction and developer frustration | Dogfood every golden path by having a platform engineer join a service team for a sprint and use the path end-to-end; time-to-10th-PR is the metric; if it's over 1 hour, the path is broken |
 
 
 ## Error Decoder — War Stories from the Trenches

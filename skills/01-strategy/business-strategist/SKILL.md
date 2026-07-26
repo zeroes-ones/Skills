@@ -287,12 +287,22 @@ Common chains:
 4. Size the market: TAM, SAM, SOM with bottom-up validation
 5. Map competitive positioning on key dimensions
 
+Complete when:
+- Business Model Canvas fully populated with all 9 building blocks and saved to docs/
+- TAM/SAM/SOM market sizing model with bottom-up validation data calculated
+- Unit economics model (CAC, LTV, gross margin, payback period) documented with assumptions
+
 ### Phase 2 (~30 min): Go-to-Market Strategy
 1. Define target customer profile and ideal customer profile (ICP)
 2. Design customer acquisition funnel with conversion targets
 3. Select distribution channels with rationale
 4. Create pricing and packaging strategy
 5. Build sales motion: self-serve, sales-assisted, PLG, enterprise
+
+Complete when:
+- ICP document with target customer profile and acquisition funnel targets saved
+- Pricing and packaging strategy with tier comparison documented
+- Distribution channel selection with rationale and conversion targets per channel recorded
 
 ### Phase 3 (~20 min): Financial Planning
 1. Build 3-year financial model: revenue, costs, headcount, cash
@@ -301,6 +311,10 @@ Common chains:
 4. Calculate funding requirements and dilution impact
 5. Create board/investor reporting package
 
+Complete when:
+- 3-year financial model with base/optimistic/pessimistic scenarios saved
+- Funding requirements and dilution impact calculated with assumptions documented
+- Investor reporting package with key metrics and milestones exported
 
 ## Error Recovery
 **(STANDARD)**
@@ -463,6 +477,16 @@ Before any deliverable leaves this skill, verify:
 - [ ] Revenue model designed with clear monetization mechanics, pricing tiers, and expansion revenue path
 - [ ] Stakeholder map identifies all key decision-makers, influencers, and blockers with engagement plan
 - [ ] Exit strategy or long-term value creation thesis documented (IPO path, strategic acquirer profile, or sustainable private model)
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Revenue models that sound good on slides but collapse under unit economics | Burn through runway chasing a model that loses money on every customer | Model unit economics before anything else: CAC, LTV, gross margin per customer, payback period. If LTV:CAC < 3:1 at scale, the model doesn't work no matter how compelling the narrative. Fix unit economics first, then build the deck. |
+| GTM strategies that assume viral growth without viral coefficient measurement | Overhire sales team expecting hockey-stick growth that never materializes | Viral coefficient must be MEASURED, not assumed. Run $0 marketing experiments for 3 months. If viral coefficient < 1.0 without paid acquisition, you don't have product-led growth — you have paid growth. Plan GTM spend accordingly. |
+| Pricing that leaves money on the table by not segmenting willingness-to-pay | 30-50% revenue left uncaptured from high-WTP segments | Segment by: company size, use case intensity, geography, vertical. Enterprise buyers have 5-10x willingness-to-pay vs SMB. Offer tiered pricing (not just feature-gating) or usage-based components to capture surplus from high-WTP customers without losing low-WTP ones. |
+| Confusing TAM expansion with "adjacent market entry" when the adjacent market requires entirely different GTM | 2x budget overrun entering a market you can't actually sell into | Adjacent ≠ easy. Test with 5 pilot customers in the adjacent segment before committing resources. If the sales cycle, buyer persona, or channel differs by > 50%, treat it as a new market entry with full discovery, not an extension. |
+| Annual planning that projects linear growth from exceptional quarters | Missed targets, board credibility damage, morale collapse | Use trailing-12-month averages, not best-quarter extrapolation. Exceptional quarters regress to the mean. Build plans on 70th-percentile confidence, not "if everything goes perfectly." Leave stretch goals for internal motivation, not board commitments. |
 
 ## Verification
 

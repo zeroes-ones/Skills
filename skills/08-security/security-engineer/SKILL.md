@@ -203,6 +203,7 @@ Team size?
 3. Identify threats and rank by likelihood × impact using a risk matrix (CVSS or custom scoring).
 4. Define mitigations: eliminate the threat, reduce likelihood, reduce impact, transfer risk, or accept with justification.
 5. Document in a threat model register; review quarterly or on major architectural changes.
+  Complete when: Threat model register populated for all Tier 1 services, STRIDE-per-element completed, risk matrix applied, and mitigations documented with owners.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Application and API Security
@@ -212,6 +213,7 @@ Team size?
 4. Harden API endpoints: implement rate limiting, input validation, output encoding, proper CORS, and content security policies.
 5. Enforce authentication and authorization at the API gateway; use OAuth2/OIDC with short-lived tokens and refresh token rotation.
 6. Protect against OWASP Top 10: parameterized queries for SQL injection, HTML entity encoding for XSS, strict deserialization.
+  Complete when: SAST/SCA/DAST integrated in CI pipeline, OWASP Top 10 mitigations verified, API endpoints hardened with rate limiting and input validation, and blocking mode enabled for CRITICAL findings.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Identity and Access Management (IAM)
@@ -221,6 +223,7 @@ Team size?
 4. Enforce multi-factor authentication (MFA) for all human users; hardware security keys for administrative roles.
 5. Implement permission boundaries and service control policies to limit the blast radius of compromised credentials.
 6. Audit IAM quarterly: review unused roles, overly permissive policies, and inactive users; use IAM Access Analyzer or Policy Simulator.
+  Complete when: RBAC designed with least-privilege defaults, JIT access implemented for privileged operations, MFA enforced for all human users, and quarterly IAM audit schedule established.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Secrets Management
@@ -230,6 +233,7 @@ Team size?
 4. Never log, echo, or commit secrets; use pre-commit hooks (detect-secrets, gitleaks) to block accidental exposure.
 5. Rotate secrets automatically: database passwords, API keys, TLS certificates — all on a defined rotation schedule.
 6. For Kubernetes: use External Secrets Operator or Sealed Secrets; never store raw secrets in etcd without encryption at rest.
+  Complete when: All secrets centralized in a vault, dynamic secrets configured for databases, pre-commit hooks blocking secret commits, and automatic rotation enabled for all credential types.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Network Security and Zero Trust
@@ -239,6 +243,7 @@ Team size?
 4. Zero trust principles: never trust, always verify — authenticate every request regardless of source network.
 5. Use mutual TLS (mTLS) for service-to-service communication; manage certificates with cert-manager or a service mesh.
 6. Implement outbound traffic inspection with a forward proxy to detect data exfiltration and command-and-control traffic.
+  Complete when: Micro-segmentation deployed with default-deny policies, WAF active on all public endpoints, DDoS protection configured, and mTLS enforced for service-to-service communication.
 
 <!-- DEEP: 10+min -->
 ### Phase 6 (~25 min): Security Monitoring and Incident Detection
@@ -247,6 +252,7 @@ Team size?
 3. Set up SOAR playbooks for automated triage: enrich alerts with threat intelligence, quarantine compromised hosts, revoke credentials.
 4. Hunt for threats proactively: run hypothesis-driven threat hunts monthly based on threat intelligence and MITRE ATT&CK.
 5. Tune alerting to balance signal-to-noise: measure mean time to detect (MTTD) and mean time to acknowledge (MTTA).
+  Complete when: Centralized SIEM ingesting all log sources, detection rules defined for top attack patterns, SOAR playbooks operational, and threat hunting cadence established with MTTD/MTTA baselines measured.
 
 ### Cross-skills Integration
 
@@ -384,6 +390,15 @@ graph LR
 - **JWT `alg: none` accepted by API** — an attacker crafts a JWT with `{"alg":"none"}` in the header and arbitrary claims in the payload (e.g., `{"sub":"admin@company.com", "role":"admin"}`). The server's JWT library, if misconfigured, sees `alg: none` and skips signature verification entirely, trusting the tampered claims. This is not a theoretical attack — multiple major identity provider SDKs have shipped with `alg: none` enabled by default. **Total cost: $50K-$500K per breach from a single JWT library misconfiguration that takes 30 seconds to exploit — one attacker gaining full admin access to customer data, PII, and internal systems.** Fix: explicitly whitelist allowed algorithms in JWT verification: `jwt.verify(token, secret, { algorithms: ['RS256'] })`. Never accept `alg: none`. Add a test case: `assertThrows(() => jwt.verify(noneAlgToken, secret))`. Audit every JWT verification call site in the codebase.
 - **Transitive dependency RCE at depth 4 in the dependency tree** — a logging library at depth 4 in `package-lock.json` has a critical RCE vulnerability (CVSS 9.8). Your vulnerability scanner's default configuration only scans direct dependencies (depth 0) or up to depth 2. The vulnerability is exploitable, unpatched, and invisible to your tooling for 6 months. An attacker finds it via the public CVE database, launches a reverse shell on your production server, and exfiltrates the customer database. **Total cost: $100K-$2M in breach response (forensic investigation, incident response retainer, customer notification, credit monitoring) plus regulatory fines — GDPR penalties up to 4% of annual global revenue, easily $500K-$20M for a mid-market SaaS company.** Fix: configure dependency scanners (`npm audit --all`, `trivy`, `snyk`) to scan the full tree including transitive dependencies. Add a CI gate: builds fail on any vulnerability with CVSS ≥ 7, regardless of depth. Subscribe to the GitHub Advisory Database for your ecosystem. Run `npm audit fix --force` monthly on a staging branch and test before merging.
 - **S3 bucket with `public-read` ACL containing database backups — "just for testing" that became permanent** — a developer sets up a test environment, copies a production database backup to an S3 bucket with `public-read` for easy access, and never deletes it. Marketing team later discovers the bucket and shares the download link internally. 18 months pass. A security researcher finds the exposed bucket, verifies it contains unencrypted customer PII (names, emails, hashed passwords, billing addresses), and responsibly discloses — or worse, posts it on Twitter. **Total cost: $250K-$5M in breach notification costs (all 50 states' AG notification requirements), GDPR/CCPA fines, class-action settlement ($500-$1,500 per affected customer), mandatory credit monitoring for 2 years, and permanent reputational damage — customers churn at 5-10%. A mid-market B2B SaaS with 50K customer records faces $2M-$4M in hard costs alone.** Fix: enable S3 Block Public Access at the account level. Use AWS Config rule `s3-bucket-public-read-prohibited` with automatic remediation. Run quarterly automated scans of all S3 buckets for public access. Database backups must be encrypted at rest and access-granted only via IAM roles with least privilege. Never use `public-read` for any bucket — there is always a better access pattern.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Security tooling deployed without tuning generates 10,000+ alerts/week — the SOC is overwhelmed, alert fatigue sets in, and critical incidents are missed because every alert looks like noise. | $500K-$1M in undetected intrusions over 6-12 months | Deploy security tools in monitor-only mode first. Tune alert thresholds against 30 days of baseline data before enabling production alerting. Target < 50 actionable alerts per week per analyst. |
+| Implementing MFA everywhere except the one service account with production admin access that uses a static API key — attackers target the gap, compromise the un-MFA'd account, and have full production access. | $250K-$2M in breach costs from the single un-MFA'd admin account | Audit all authentication mechanisms quarterly. Every account with production access — human or machine — must have MFA or equivalent (OIDC with short-lived tokens for machines). No exceptions for "legacy" or "too hard to change." |
+| Security engineers designing controls without shadowing developers for a sprint — the controls assume an idealized development workflow that doesn't exist, developers work around them, and security becomes a checkbox rather than an enabler. | $150K-$500K in wasted security engineering effort and bypassed controls | Every security engineer must shadow at least one development sprint per quarter. Security controls must be designed for how developers actually work, not how you wish they worked. Measure control adoption rate, not just control existence. |
 
 ## Verification
 

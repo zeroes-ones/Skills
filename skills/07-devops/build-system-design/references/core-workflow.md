@@ -39,6 +39,7 @@ Execute in order. Do not skip steps.
    |-- Check for environment variable leaks: compare build outputs with different PATH, HOME
    |-- Check for timestamp embedding: build twice, compare binary hashes
    |-- Findings: _____ targets are non-hermetic (___% of build graph)
+  Complete when: baseline metrics are captured with benchmarks for incremental/clean/CI build times, profiling identifies the binding constraint, and hermeticity audit quantifies non-hermetic target percentage.
 ```
 
 ### Phase 2: Hermetic Build Design
@@ -69,6 +70,7 @@ Execute in order. Do not skip steps.
    |-- Build on two different machines: diff outputs (must be bit-identical)
    |-- Build with and without cache: cached output must match uncached output
    |-- If outputs differ: use diffoscope, Bazel's --experimental_execution_log_file to find source
+  Complete when: no target accesses network during build, all toolchains are hermetic (no /usr/bin dependencies), and build outputs are bit-identical across two machines.
 ```
 
 ### Phase 3: Caching & Incrementality
@@ -96,6 +98,7 @@ Execute in order. Do not skip steps.
    |-- Header hygiene (C/C++): include-what-you-use, forward declarations, precompiled headers
    |-- Unnecessary dependency pruning: bazel query 'deps(//target)' and remove unused edges
    |-- Test-only changes: --test_filter to run only affected tests, not full suite
+  Complete when: local cache hit rate exceeds 90%, second build after cache warm is under 10% of first build, and remote caching is configured with cache poisoning recovery.
 ```
 
 ### Phase 4: Build Graph Optimization
@@ -121,4 +124,5 @@ Execute in order. Do not skip steps.
    |-- Optimal shard count: total_test_time / target_test_time = number of shards
    |-- Avoid over-sharding: setup/teardown overhead exceeds benefit below ~10 sec/shard
    |-- Flaky test isolation: move flaky tests to separate target, do not block critical path
+  Complete when: critical path is under 20% of total build time, parallelism is tuned to RAM constraints (not CPU), and test sharding splits suites within 10% of optimal shard count.
 ```

@@ -222,6 +222,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Validate profiles against base FHIR specification using the FHIR validator (`org.hl7.fhir.validator`). Run `StructureDefinition.snapshot` generation to ensure differential constraints produce valid snapshots.
 5. Document each profile with: clinical context, ValueSet bindings with OIDs, example instances, and mapping to source EHR fields. Share profiles via a FHIR ImplementationGuide on a public registry (Simplifier.net or local FHIR server).
 
+Complete when:
+- FHIR StructureDefinition profiles created and validated against base FHIR specification
+- ImplementationGuide published with clinical context, ValueSet bindings, and example instances
+- Each profile documented with mapping to source EHR fields
+
+
 ### Phase 2 (~25 min): PRO Data Standards and ePRO Implementation
 1. Select the appropriate PRO instrument for the clinical context: PROMIS (generic + domain-specific banks for physical function, pain, fatigue, depression), PRO-CTCAE (symptomatic adverse events in clinical trials), disease-specific instruments (e.g., Haem-A-QoL for hemophilia, HAL for hemophilia activities).
 2. Model PRO instruments as FHIR Questionnaires: each item → Questionnaire.item, response options → answerValueSet, scoring logic → extension for scoring algorithm. Map responses to FHIR QuestionnaireResponse resources.
@@ -229,9 +235,21 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Validate the PRO instrument in the target population: check the validation study's sample size, demographics, language, literacy level, and condition match. Document the validation evidence with the instrument selection rationale.
 5. Build the data flow: ePRO app → FHIR QuestionnaireResponse → FHIR server → Observation resources (scored items) → analytics pipeline. Ensure each scored item maps to a LOINC code for interoperability.
 
+Complete when:
+- PRO instrument modeled as FHIR Questionnaire with LOINC-coded response mappings
+- ePRO administration schedule defined with reminder, adherence tracking, and alert thresholds
+- Data flow validated: ePRO app → FHIR QuestionnaireResponse → Observation resources → analytics pipeline
+
+
 ### Phase 3 (~30 min): Clinical Terminology Mapping and Normalization
 1. Inventory all coded clinical data elements in the source system and identify the target terminology for each: diagnoses → SNOMED CT (or ICD-10-CM for billing), lab results → LOINC, medications → RxNorm, adverse events → MedDRA, procedures → SNOMED CT or CPT.
 2. Build terminology maps usi
+
+Complete when:
+- Complete terminology map inventory with source-to-target mappings for all coded clinical data elements
+- FHIR ValueSet resources defined and bound to all coded fields in StructureDefinitions
+- Mapping coverage report generated showing >95% of coded elements mapped to standard terminologies
+
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -429,6 +447,16 @@ graph LR
 - [ ] Lab result dashboards use LOINC+specimen type composite keys — no cross-specimen conflation
 - [ ] Terminology version alignment verified: SNOMED, LOINC, ICD-10-CM editions match between source EHR and FHIR server
 - [ ] All HIE/TEFCA connections include Direct Secure Messaging endpoint verification and certificate rotation schedule
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| FHIR `$validate` fails with "Unknown code in ValueSet" — terminology server edition mismatch. EHR sends codes from July release, FHIR server validates against January release. | $50K-$200K per integration delay — failed validation blocks all data exchange until edition gap resolved, delaying clinical workflows by weeks | Verify terminology version alignment between source EHR and FHIR server quarterly; document edition gap in integration runbook; hold validation until server is updated to match EHR edition |
+| Bulk FHIR export NDJSON files empty despite source data present — `_typeFilter` uses incorrect search parameter or patient compartment membership missing | $100K-$500K in failed population health reporting — empty exports delay analytics, quality reporting, and regulatory submissions requiring timely data | Verify `GET /Group/[id]/$export` returns manifest; check `_type` includes expected resource types; test Group membership and scope before production export |
+| EHR API returns 403 for previously working SMART on FHIR app — app registration disabled, OAuth scopes narrowed, IP allowlist changed, or rate-limit triggered with no warning | $50K-$300K per incident in clinical workflow disruption — blocked integration impacts provider workflows, patient data access, and downstream analytics | Monitor EHR vendor API changelog proactively; implement exponential backoff with jitter; maintain backup integration channel; document app registration dependencies in runbook |
+| SNOMED→ICD-10 cross-map produces billing rejections — auto-mapping without episode-of-care context. Single SNOMED code maps to 3 ICD-10 codes (initial, subsequent, sequela). | $200K-$1M in denied claims and revenue cycle disruption — rejected claims take 30-60 days to reprocess, delaying $5K-$50K per claim depending on service | Implement context-aware mapping requiring episode-of-care flag (initial/subsequent/sequela) from EHR; flag ambiguous mappings for manual review rather than auto-mapping |
+| CCDA schematron validation fails on documents generated from FHIR — CCDA generated via string templates instead of canonical FHIR Composition→C-CDA mapping | $100K-$500K in interoperability non-compliance — failed C-CDA validation blocks HIE participation and ONC certification requirements | Replace string-concatenation with FHIR Composition→C-CDA transformer using ONC bidirectional mapping spec; validate output with NIST C-CDA Validation Suite |
 
 ## Verification
 

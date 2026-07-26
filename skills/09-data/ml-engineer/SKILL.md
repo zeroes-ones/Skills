@@ -172,6 +172,8 @@ Execute in order. Do not skip steps.
    └── FIT on train only, TRANSFORM on val and test. Never fit on test.
 ```
 
+  Complete when: Model trained, hyperparameters documented, and baseline performance metrics established on holdout set.
+
 ### Phase 2: Model Selection & Training
 
 ```
@@ -204,6 +206,8 @@ Execute in order. Do not skip steps.
    ├── Save: model artifact, scaler, encoders, feature names, hyperparameters
    └── Log experiment: MLflow tracking URI, parameters, metrics, artifacts
 ```
+
+  Complete when: Model trained, hyperparameters documented, and baseline performance metrics established on holdout set.
 
 ### Phase 3: Evaluation & Validation
 
@@ -239,6 +243,8 @@ Execute in order. Do not skip steps.
    ├── LIME: local explanations for individual predictions
    └── For NNs: Integrated Gradients, SmoothGrad
 ```
+
+  Complete when: Model trained, hyperparameters documented, and baseline performance metrics established on holdout set.
 
 ## Decision Trees
 
