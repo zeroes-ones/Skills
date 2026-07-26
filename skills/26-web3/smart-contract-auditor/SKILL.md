@@ -1,6 +1,18 @@
 ---
 name: smart-contract-auditor
-description: "Use when auditing Solidity/Vyper smart contracts for security vulnerabilities, evaluating DeFi protocol attack surfaces, configuring automated analysis pipelines (Slither + Echidna + Manticore + Foundry), performing formal verification with Certora Prover, or writing audit reports with Trail of Bits severity classification. Handles 13 vulnerability types (reentrancy, integer overflow, access control, frontrunning, oracle manipulation, MEV, flash loan attacks, logic errors, unchecked returns, DoS, timestamp dependence, short address, storage collision), automated analysis workflow (Slither static, Echidna fuzzing, Manticore symbolic, manual review), Foundry test suite (forge test, invariant testing, differential testing), gas optimization with adversarial considerations, DeFi-specific attack surfaces (lending pool manipulation, AMM curve exploitation, bridge message verification, liquid staking derivatives), and audit report standards (Critical/High/Medium/Low/Informational severity with CVSS-aligned scoring). Do NOT use for general smart contract development (use solidity-developer), protocol design (use system-architect), economic modeling (use quantitative-analyst), or web frontend security (use security-reviewer)."
+description: >
+  Use when auditing Solidity/Vyper smart contracts for security vulnerabilities, evaluating DeFi
+  protocol attack surfaces, configuring automated analysis pipelines (Slither, Echidna, Manticore,
+  Foundry), assessing upgradeable contract patterns for storage collision and proxy risks, reviewing
+  cross-chain bridge and oracle security, or conducting economic attack simulations. Handles
+  automated analysis (Slither, Aderyn, Mythril), fuzzing (Echidna, Foundry invariant), formal
+  verification (Certora Prover, Halmos, Manticore), vulnerability taxonomy (reentrancy,
+  over/underflow, access control, front-running, oracle manipulation, flash loans, storage
+  collision, delegatecall), DeFi attack surfaces (lending, AMM/DEX, yield, liquid staking),
+  cross-chain security (bridges, message verification, replay protection), and upgradeable contracts
+  (Transparent vs UUPS, Beacon proxy). Do NOT use for smart contract development
+  (blockchain-developer), protocol design (blockchain-developer), or security testing
+  (security-reviewer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

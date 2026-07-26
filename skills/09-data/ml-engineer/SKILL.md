@@ -1,20 +1,17 @@
 ---
 name: ml-engineer
 description: >
-  Use when training machine learning models, performing feature engineering, selecting
-  model architectures, tuning hyperparameters, evaluating model performance with rigorous
-  metrics, tracking ML experiments, handling imbalanced data, building training pipelines,
-  or preparing datasets for ML training. Handles model selection (XGBoost, LightGBM, neural
-  networks, transformers), training pipeline design (cross-validation, data splits, class
-  weighting), hyperparameter optimization (Optuna, Bayesian, grid/random search), feature
-  engineering (encoding, scaling, imputation, feature selection), evaluation frameworks
-  (confusion matrices, precision-recall, ROC-AUC, calibration, fairness metrics), experiment
-  tracking (MLflow, W&B), data preparation (splitting, stratification, augmentation,
-  synthetic minority oversampling), and model interpretability (SHAP, LIME, feature
-  importance). Do NOT use for AI product integration (route to ai-engineer), LLM prompt
-  engineering or RAG (route to llm-engineer), MLOps deployment or serving (route to
-  mlops-engineer), data pipeline construction (route to data-engineer), or statistical
-  hypothesis testing and BI (route to data-scientist).
+  Use when training machine learning models, performing feature engineering, selecting model
+  architectures, tuning hyperparameters, evaluating model performance, tracking ML experiments,
+  handling imbalanced data, building training pipelines, or preparing datasets for ML training.
+  Handles model selection (XGBoost, LightGBM, neural networks, transformers), training pipeline
+  (cross-validation, data splits, class weighting), hyperparameter optimization (Optuna, Bayesian,
+  grid search), feature engineering (encoding, scaling, imputation, selection), evaluation
+  (confusion matrices, precision-recall, ROC-AUC, calibration, fairness), experiment tracking
+  (MLflow, W&B), data preparation (splitting, stratification, augmentation, SMOTE), and model
+  interpretability (SHAP, LIME, feature importance). Do NOT use for AI product integration
+  (ai-engineer), LLM engineering/RAG (llm-engineer), MLOps serving (mlops-engineer), data pipelines
+  (data-engineer), or statistical testing (data-scientist).
 license: MIT
 author: Sandeep Kumar Penchala
 type: data

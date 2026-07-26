@@ -1,19 +1,16 @@
 ---
 name: graphql-engineer
 description: >
-  Use when designing GraphQL schemas, implementing resolvers, optimizing query
-  performance (N+1 prevention, data loader patterns, query complexity analysis),
-  building GraphQL federation/supergraph architectures, managing subscriptions
-  (real-time GraphQL), designing schema stitching and API composition, implementing
-  GraphQL security (depth limiting, rate limiting, auth patterns), or building
-  GraphQL client applications with Apollo, Relay, or urql. Handles schema design
-  patterns (nullability semantics, pagination, error handling), resolver optimization
-  (DataLoader batching, field-level caching, query-to-SQL optimization), federation
-  architecture (subgraph boundaries, entity resolution, contract testing), security
-  hardening (depth limiting, complexity budgets, persisted queries), and production
-  observability (field-level tracing, operation metrics). Do NOT use for REST API
-  design (route to api-designer), general backend development (route to backend-developer),
-  or frontend data fetching without GraphQL (route to frontend-developer).
+  Use when designing GraphQL schemas, implementing resolvers, optimizing query performance (N+1
+  prevention, DataLoader patterns, query complexity analysis), building GraphQL
+  federation/supergraph architectures, designing GraphQL subscriptions with real-time transports,
+  securing GraphQL APIs (depth limiting, query cost analysis, allow-listing), or generating
+  type-safe GraphQL clients and SDKs. Handles schema design (modular schemas, interface/union types,
+  custom scalars, schema stitching), federation architecture (Apollo Federation v2, subgraph design,
+  entity resolution, @key/@requires/@provides), and resolver optimization (DataLoader batching,
+  field-level caching, query complexity budgeting, persisted queries). Do NOT use for REST API
+  design (api-designer), backend development (backend-developer), API security (secure-api-design),
+  or frontend GraphQL integration (frontend-developer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: development

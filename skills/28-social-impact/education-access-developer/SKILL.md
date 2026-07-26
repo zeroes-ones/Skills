@@ -1,20 +1,19 @@
 ---
 name: education-access-developer
 description: >
-  Use when building educational technology for underserved learners — open educational
-  resource (OER) platforms, offline-first learning apps for low-connectivity regions,
-  adult literacy and basic education tools, vocational skills training platforms, language
-  learning for immigrants and refugees, low-cost school management systems for under-
-  resourced schools, community learning hubs, or any edtech focused on equity and access.
-  Handles offline-first content delivery (progressive web apps, local storage, peer-to-
-  peer sync), low-bandwidth optimization (< 100KB page loads), SMS/USSD-based learning
-  delivery, multi-language content with RTL support, accessible design for low-literacy
-  users, open standards (SCORM, xAPI, LTI, Common Cartridge), device diversity (feature
-  phones to low-end smartphones to shared tablets), and sustainable funding models for
-  free/low-cost edtech (grants, government contracts, philanthropic funding). Do NOT use
-  for commercial LMS/LXP platforms (route to fullstack-developer), educational games
-  with game mechanics (route to educational-game-developer), or corporate training
-  platforms (route to backend-developer).
+  Use when building educational technology for underserved learners — OER
+  platforms, offline-first learning apps for low-connectivity regions, adult
+  literacy and basic education tools, vocational skills training, language
+  learning for immigrants and refugees, low-cost school management systems, or
+  any edtech focused on equity and access. Handles offline-first content
+  delivery (PWAs, local storage, peer-to-peer sync), low-bandwidth optimization
+  (<100KB page loads), SMS/USSD-based learning, multi-language content with RTL
+  support, accessible design for low-literacy users, open standards (SCORM,
+  xAPI, LTI, Common Cartridge), device diversity (feature phones to shared
+  tablets), and sustainable funding models for free/low-cost edtech. Do NOT use
+  for commercial LMS/LXP platforms (route to fullstack-developer), educational
+  games (route to educational-game-developer), or corporate training platforms
+  (route to backend-developer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: development

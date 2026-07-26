@@ -1,21 +1,20 @@
 ---
 name: polyrepo-strategy
 description: >
-  Use when evaluating whether to adopt monorepo, polyrepo, or hybrid repo
-  architecture; when cross-repo coordination overhead is causing delivery delays;
-  when deciding whether to split a monorepo or merge polyrepos; when designing
-  cross-repo CI/CD pipelines; when managing breaking changes across independently
-  versioned repos; or when establishing repo architecture standards for an
-  organization. Handles monorepo-vs-polyrepo-vs-hybrid decision framework with
-  quantified trade-offs, cross-repo coordination patterns (repo-to-repo CI,
-  contract testing, version alignment), shared code strategies across repos
-  (internal registry, submodules, vendoring, copy-paste thresholds), breaking
-  change propagation across repo boundaries, split/merge migration planning
-  (Conway's Law alignment, team topology mapping), and inner source contribution
-  models for polyrepo ecosystems. Do NOT use for monorepo tooling configuration
-  (route to monorepo-manager), CI/CD pipeline implementation (route to
-  ci-cd-builder), API design (route to api-designer), or team org design (route
-  to engineering-manager or cto-advisor).
+  Use when evaluating monorepo, polyrepo, or hybrid repo architecture; when
+  cross-repo coordination overhead causes delivery delays; when deciding whether
+  to split a monorepo or merge polyrepos; when designing cross-repo CI/CD; when
+  managing breaking changes across independently versioned repos; or when
+  establishing repo architecture standards. Handles monorepo-vs-polyrepo-vs-
+  hybrid decision framework with quantified trade-offs, cross-repo coordination
+  patterns (repo-to-repo CI, contract testing, version alignment), shared code
+  strategies (internal registry, submodules, vendoring, copy-paste thresholds),
+  breaking change propagation across repo boundaries, split/merge migration
+  planning (Conway's Law alignment, team topology mapping), and inner source
+  contribution models for polyrepo ecosystems. Do NOT use for monorepo tooling
+  (route to monorepo-manager), CI/CD implementation (route to ci-cd-builder),
+  API design (route to api-designer), or team org design (route to
+  engineering-manager or cto-advisor).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

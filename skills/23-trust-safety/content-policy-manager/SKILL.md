@@ -1,24 +1,17 @@
 ---
 name: content-policy-manager
 description: >
-  Use when designing medical misinformation taxonomies, writing community guidelines
-  for health platforms, building enforcement frameworks with escalation pathways, or
-  preparing transparency reports for content moderation. Handles medical misinformation
-  taxonomy (diagnostic claims, treatment claims, conspiracy theories, miracle cures,
-  anti-vaccine, with severity tiers from life-threatening to low-quality), community
-  guidelines creation (what is/isn't allowed with examples, rationale, cultural
-  adaptations, plain-language versions), policy enforcement framework (first offense
-  warning + education, second offense temporary suspension, third offense permanent
-  removal, emergency bypass for imminent harm), escalation framework (clinical review
-  pathway, legal review triggers, public health authority notification), regulatory
-  and liability considerations (FDA social media guidance, HIPAA implications, Section
-  230, platform liability for medical content), policy-in-practice loop (quarterly
-  policy review, community feedback integration, emerging misinformation pattern updates),
-  medical expert review board (clinical advisory panel establishment, policy review
-  cadence, expert dispute resolution), and transparency reporting (takedown statistics,
-  appeal rates, policy change log, public-facing transparency reports). Do NOT use
-  for trust and safety detection infrastructure, privacy engineering, or clinical
-  content review.
+  Use when designing medical misinformation taxonomies, writing community guidelines for health
+  platforms, building enforcement frameworks with escalation pathways, or preparing transparency
+  reports for digital services regulation. Handles policy taxonomy design (medical misinformation
+  classification, harm severity tiers, health claim evidence standards), enforcement infrastructure
+  (strike systems, escalating consequences, content removal/suspension/referral, appeals and
+  reinstatement), regulatory transparency (DSA Art 15/24/42, UK OSA transparency reports, EU
+  Terrorist Content Regulation), cross-functional governance (Trust & Safety advisory boards,
+  clinical review panels, public/private partnerships), and global standards (Global Internet Forum
+  CSAM, Santa Clara Principles, Christchurch Call). Do NOT use for automated detection
+  (trust-safety-engineer), moderation UX design (ui-ux-designer), legal compliance (gdpr-privacy),
+  or incident response (incident-responder).
 license: MIT
 author: Sandeep Kumar Penchala
 type: governance

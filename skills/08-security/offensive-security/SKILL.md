@@ -1,37 +1,17 @@
 ---
 name: offensive-security
-description: 'Use when planning and executing penetration tests (web, mobile, API,
-  network, cloud, social engineering); when conducting attack surface analysis to
-  identify unknown or unmanaged internet-exposed assets; when designing and executing
-  red team exercises mapped to MITRE ATT&CK techniques; when hardening defenses against
-  ransomware attacks with backup strategy and lateral movement detection; when assessing
-  and mitigating supply chain attack risks (dependency confusion, compromised packages,
-  build pipeline security); when running purple team exercises to measure and improve
-  detection engineering coverage; when designing security awareness training and phishing
-  simulation programs; or when conducting physical security assessments. Handles penetration
-  testing methodology (PTES phases, OWASP WSTG/ASVS/MSVS, exploitation and post-exploitation
-  technique classification by impact), attack surface discovery (external: DNS/subdomain
-  enumeration, cloud asset discovery, API endpoint mapping, Shodan/Censys reconnaissance;
-  internal: microservice topology, database accessibility, message queue exposure),
-  web application exploitation patterns (SQLi variants, XSS/CSRF/SSRF/XXE, deserialization
-  in Java/PHP/Python, SSTI, prototype pollution in Node.js, IDOR detection methodology),
-  Active Directory attack chains (Kerberoasting, AS-REP roasting, DCSync, Golden Ticket,
-  Pass-the-Hash/Ticket, BloodHound for attack path visualization), cloud exploitation
-  (IMDSv1/v2, metadata service endpoints, IAM role enumeration, public S3/blob/bucket
-  discovery), social engineering framework (pretext design, phishing campaign metrics,
-  physical social engineering assessment, awareness training effectiveness measurement),
-  supply chain attack defense (dependency confusion detection, SLSA framework implementation,
-  package signing, artifact provenance verification), ransomware defense architecture
-  (3-2-1 backup with immutable/air-gapped tiers, LAPS rollout, EDR deployment validation,
-  RRA scoring methodology, lateral movement detection via deception technology), and
-  purple teaming operations (continuous security validation with Atomic Red Team/Caldera,
-  detection coverage by MITRE ATT&CK technique, automated attack simulation pipelines).
-  Do NOT use for vulnerability scanning and CVE triage (route to vulnerability-management),
-  threat modeling during design phase (route to security-engineer), incident response
-  during active breach (route to incident-responder), or security control implementation
-  (route to security-engineer).
-
-  '
+description: >
+  Use when planning and executing penetration tests (web, mobile, API, network, cloud, social
+  engineering), conducting attack surface analysis, designing red team exercises mapped to MITRE
+  ATT&CK, hardening ransomware defense, assessing supply chain attack risks, running purple team
+  exercises, designing phishing simulations, or conducting physical security assessments. Handles
+  pen-testing methodology (PTES, OWASP WSTG/ASVS/MSVS), attack surface and web exploitation (DNS
+  enumeration, cloud assets, Shodan/Censys, SQLi, XSS/CSRF/SSRF, SSTI, IDOR), AD attack chains
+  (Kerberoasting, DCSync, Golden Ticket, BloodHound), cloud exploitation (IMDS, metadata, IAM
+  enumeration, public S3), supply chain and ransomware defense (dependency confusion, SLSA, 3-2-1
+  backup, immutable/air-gapped, LAPS), purple teaming (Atomic Red Team, Caldera, MITRE ATT&CK).
+  Do NOT use for vuln scanning (vulnerability-management), threat modeling (security-engineer),
+  breach response (incident-responder), or security controls (security-engineer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: security

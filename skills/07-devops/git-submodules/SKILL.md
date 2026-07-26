@@ -1,28 +1,19 @@
 ---
 name: git-submodules
 description: >
-  Use when sharing code across multiple repositories and evaluating git
-  submodules, git subtree, or alternative approaches; when managing vendor
-  dependencies that need local modification; when extracting a subdirectory
-  from a monorepo into its own repository while preserving git history; when
-  troubleshooting submodule CI failures (detached HEAD, recursive clone
-  failures, merge conflicts); when deciding between submodules, subtrees,
-  private package registries, or copy-paste for cross-repo code sharing; or
-  when recovering from submodule disasters (out-of-sync pointers, accidental
-  deletions, corrupted .gitmodules). Handles submodule vs subtree vs package
-  registry vs vendoring decision matrix (update frequency, contributor count,
-  CI complexity), submodule lifecycle management (add, update, deinit,
-  recursive operations, tracking branches), submodule CI/CD configuration
-  (recurse-submodules cloning, GitHub Actions checkout, caching strategies),
-  git subtree workflows (add, pull, push, split for bidirectional code
-  sharing), the split-filter extraction pattern (git filter-repo for
-  monorepo-to-polyrepo extraction with history preservation), vendoring
-  strategies and when to vendor vs link, common disaster recovery procedures
-  (detached HEAD fixes, merge conflict resolution, submodule restoration), and
-  alternative tools evaluation (git-subrepo, gitslave, repo tool, myrepos). Do
-  NOT use for monorepo architecture decisions (route to monorepo-manager),
-  package publishing workflows (route to appropriate language skill), or CI/CD
-  pipeline design (route to ci-cd-builder).
+  Use when sharing code across multiple repos and evaluating git submodules, git
+  subtree, or alternatives; when managing vendor dependencies needing local
+  modification; when extracting a subdirectory from a monorepo preserving history;
+  when troubleshooting submodule CI failures; when deciding between submodules,
+  subtrees, private registries, or vendoring; or when recovering from submodule
+  disasters. Handles submodule vs subtree vs registry vs vendoring decision matrix,
+  submodule lifecycle (add, update, deinit, recursive ops, tracking branches),
+  submodule CI/CD (recurse-submodules, checkout, caching), git subtree workflows
+  (add, pull, push, split), the split-filter extraction pattern (git filter-repo
+  for monorepo-to-polyrepo), vendoring strategies, disaster recovery, and
+  alternative tools (git-subrepo, gitslave, repo tool, myrepos). Do NOT use for
+  monorepo architecture (route to monorepo-manager), package publishing (route to
+  appropriate language skill), or CI/CD pipeline design (route to ci-cd-builder).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

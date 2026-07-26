@@ -1,50 +1,17 @@
 ---
 name: financial-security
 description: >
-  Use when implementing PCI DSS 4.0 compliance for systems that process, store,
-  or transmit cardholder data; when designing financial fraud detection systems
-  with transaction monitoring, velocity checks, and graph-based fraud ring
-  detection; when implementing KYC (Know Your Customer) and AML (Anti-Money
-  Laundering) compliance programs including beneficial ownership verification
-  and PEP screening; when building secure payment APIs with idempotency, dual
-  control, and transaction signing; when implementing PSD2/PSD3 Strong Customer
-  Authentication (SCA) and FAPI-compliant open banking APIs; when hardening
-  payment infrastructure (ISO 8583, HSM-based PIN security, EMV chip
-  authentication); when preparing for FFIEC CAT, NYDFS 23 NYCRR 500, or DORA
-  regulatory assessments; or when responding to a payment card data breach or
-  financial fraud incident. Handles PCI DSS 4.0 implementation (12 requirements
-  with SAQ type selection, CDE scoping and network segmentation to reduce scope,
-  tokenization vs encryption for PAN, P2PE for card-present, new 4.0
-  requirements: targeted risk analysis, customized compensating controls),
-  financial fraud detection architecture (rule-based + ML anomaly detection
-  pipeline, velocity checks with geo-velocity, device fingerprinting, graph
-  analysis for fraud rings, real-time scoring with risk-based step-up
-  authentication, chargeback prevention patterns), KYC/AML program design
-  (CDD/EDD trigger framework, FinCEN beneficial ownership identification,
-  sanctions screening integration — OFAC/UN/EU, SAR filing with 30-day
-  discovery/60-day extension tracking, structuring/smurfing detection
-  algorithms, PEP and adverse media screening workflow), transaction security
-  patterns (idempotency keys for payment APIs with replay protection, dual
-  control/four-eyes principle for >$10K transactions, digital signature for
-  transaction non-repudiation, compensating transactions for distributed saga
-  rollback), open banking security (PSD2/PSD3 SCA implementation — two-factor
-  from {knowledge, possession, inherence}, FAPI 1.0 Advanced and FAPI 2.0
-  profile mapping, eIDAS QWAC/QSealC certificate management, CIBA for decoupled
-  authentication flows, TPP revocation workflow), payment infrastructure
-  security (ISO 8583 message protection with MAC, HSM-based PIN translation
-  with Thales Payshield and Utimaco, EMV offline data authentication —
-  SDA/DDA/CDA, contactless relay attack mitigation with transaction limits and
-  proximity checks), financial regulatory cybersecurity (FFIEC CAT maturity
-  self-assessment, NYDFS 23 NYCRR 500 annual certification, DORA ICT risk
-  management framework for EU financial entities, GLBA Safeguards Rule
-  implementation), and secure enclave architecture for finance (Nitro Enclaves
-  for isolated payment processing with cryptographic attestation, Azure
-  confidential computing for KYC data in-use encryption, hardware-based
-  algorithm protection for proprietary trading models). Do NOT use for general
-  application security (route to appsec-engineer), identity verification and
-  IAM (route to iam-architect), compliance audit management (route to
-  compliance-officer), or accounting/financial controls (route to accountant or
-  fp-and-a-analyst).
+  Use when implementing PCI DSS 4.0 for systems processing cardholder data; when designing financial
+  fraud detection (transaction monitoring, graph analysis); when building KYC/AML programs; when
+  building secure payment APIs with idempotency and dual control; when implementing PSD2/PSD3 SCA
+  and FAPI open banking; when hardening payment infrastructure (ISO 8583, HSM, EMV); when preparing
+  for FFIEC CAT, NYDFS, DORA exams; or when responding to payment card breaches. Handles PCI DSS 4.0
+  (SAQ, CDE scoping, tokenization, P2PE), fraud detection (rule-based + ML, fingerprinting, graph
+  analysis), KYC/AML (CDD/EDD, sanctions screening, SAR filing), transaction security (idempotency,
+  dual control, digital signatures), open banking security (SCA, FAPI, eIDAS, CIBA), payment
+  infrastructure hardening, regulatory cybersecurity for finance, and secure enclave architectures.
+  Do NOT use for general appsec (appsec-engineer), IAM (iam-architect), compliance
+  (compliance-officer), or accounting (accountant or fp-and-a-analyst).
 license: MIT
 author: Sandeep Kumar Penchala
 type: finance

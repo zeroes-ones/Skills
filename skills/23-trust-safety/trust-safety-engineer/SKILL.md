@@ -1,23 +1,17 @@
 ---
 name: trust-safety-engineer
 description: >
-  Use when building abuse detection systems for health platforms, implementing account
-  integrity and ATO defense, deploying automated harm detection (CSAM, self-harm,
-  misinformation), or designing moderation tooling with evidence preservation. Handles
-  account integrity and signup abuse prevention (CAPTCHA, phone verification, device
-  fingerprinting), account takeover (ATO) detection and session hijacking defense,
-  abuse detection systems (rule-based detection to ML classification to real-time
-  streaming pipelines with false positive tuning), in-app reporting infrastructure
-  (report submission UX, triage queues, automated actions like hide/suspend/ban, appeal
-  workflows), automated harm detection (keyword/phrase matching with multilingual
-  support, image/video CSAM detection via PhotoDNA and Thorn, self-harm content detection),
-  anti-bot and anti-spam (behavioral analysis, rate limiting, CAPTCHA strategies,
-  device/browser fingerprinting), threat modeling for patient communities (patient
-  data scraping, predatory behavior, medical misinformation amplification), evidence
-  preservation (content freeze, cryptographic chain of custody, legal hold workflows),
-  and moderation tooling (automated flagging, bulk action, review queues, moderator
-  safety against secondary trauma exposure). Do NOT use for content policy design,
-  patient community safety protocols, or general cybersecurity.
+  Use when building abuse detection systems for health platforms, implementing account integrity and
+  ATO defense, deploying automated harm detection (CSAM, self-harm, misinformation), or designing
+  moderation tooling with appeal workflows. Handles abuse detection (behavioral analytics,
+  graph-based fraud rings, coordinated inauthentic behavior, custom risk scoring), account integrity
+  (credential stuffing, ATO via impossible travel + device fingerprinting, bot detection,
+  shadowban), content harm detection (CSAM hash-matching, self-harm classifier, medical
+  misinformation taxonomy, health claim verification), moderation UX (flagging/review queues,
+  human-in-the-loop escalation, appeal/reinstatement, transparency reporting), and platform safety
+  regulatory compliance (DSA, UK OSA, EU Terrorist Content Regulation). Do NOT use for content
+  policy creation (content-policy-manager), threat modeling (security-engineer), AI model dev
+  (ai-engineer, ml-engineer), or legal compliance (gdpr-privacy).
 license: MIT
 author: Sandeep Kumar Penchala
 type: security

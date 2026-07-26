@@ -1,19 +1,20 @@
 ---
 name: business-intelligence-engineer
 description: >
-  Use when designing semantic layers, building board-ready dashboards with SaaS metrics,
-  modeling star schemas for BI, creating clinical outcomes analytics, or implementing
-  embedded customer-facing analytics. Handles semantic layer design (dbt metrics, LookML
-  explores, MetricFlow, metric definitions with business logic), self-serve dashboard
-  architecture (Looker/Metabase/Lightdash/Holistics with governed self-service), board
-  and investor reporting with SaaS metrics (ARR, NRR, LTV/CAC, magic number), clinical
-  outcomes analytics (patient-reported outcome trends, treatment adherence patterns,
-  quality-of-life indices), pharma partner reporting (real-world evidence dashboards,
-  patient population analytics, de-identification requirements), dimensional data modeling
-  (star schemas, slowly changing dimensions, snapshots vs incrementals), dbt transformation
-  pipelines with testing and freshness SLAs (dbt tests, Great Expectations), and embedded
-  analytics with data export compliance. Do NOT use for data engineering pipeline
-  infrastructure, machine learning model building, or general-purpose data science.
+  Use when designing semantic layers, building board-ready dashboards with SaaS
+  metrics, modeling star schemas for BI, creating clinical outcomes analytics,
+  or implementing embedded customer-facing analytics. Handles semantic layer
+  design (dbt metrics, LookML explores, MetricFlow, metric definitions), self-
+  serve dashboard architecture (Looker/Metabase/Lightdash/Holistics with
+  governed self-service), board/investor reporting with SaaS metrics (ARR, NRR,
+  LTV/CAC, magic number), clinical outcomes analytics (patient-reported outcome
+  trends, treatment adherence, quality-of-life indices), pharma partner
+  reporting (real-world evidence dashboards, patient population analytics,
+  de-identification), dimensional data modeling (star schemas, slowly changing
+  dimensions, snapshots vs incrementals), dbt transformation pipelines with
+  testing and freshness SLAs, and embedded analytics with data export compliance.
+  Do NOT use for data engineering pipeline infrastructure, ML model building, or
+  general-purpose data science.
 license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering

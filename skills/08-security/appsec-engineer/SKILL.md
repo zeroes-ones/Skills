@@ -1,26 +1,17 @@
 ---
 name: appsec-engineer
 description: >
-  Use when establishing a secure software development lifecycle (SSDLC) for an engineering
-  organization; when performing threat modeling on a new feature, service, or architecture;
-  when integrating SAST, DAST, SCA, or IAST tools into CI/CD pipelines; when conducting a
-  security-focused code review on authentication, authorization, or cryptography code; when
-  implementing OWASP ASVS verification levels; when setting up a security champions program;
-  when designing or launching a bug bounty program; or when responding to a zero-day
-  vulnerability disclosure. Handles threat modeling methodology selection (STRIDE for
-  per-element, DREAD for risk scoring, PASTA for attack simulation, attack trees for complex
-  systems), SAST/DAST/SCA tool evaluation and pipeline integration (Semgrep, CodeQL, OWASP
-  ZAP, Snyk, Dependabot) with false positive triage workflows, secure code review methodology
-  (auth/token handling checklist, input validation patterns by language, crypto API misuse
-  detection), OWASP ASVS level mapping to SDLC phases (L1 through L3 verification requirements),
-  security champions program design (selection criteria, training curriculum, empowerment model,
-  impact measurement), bug bounty program architecture (VDP vs private vs public, CVSS-based
-  reward calculation, safe harbor legal framework, triage SLA), SBOM generation and verification
-  (CycloneDX/SPDX, dependency reachability analysis), and security regression testing (fuzzing
-  integration, mutation testing for authZ controls, BDD security scenarios). Do NOT use for
-  penetration testing execution (route to offensive-security), incident response and breach
-  containment (route to incident-responder), compliance audit preparation (route to
-  compliance-officer), or IAM architecture design (route to iam-architect).
+  Use when establishing a secure SDLC for an engineering organization; when performing threat
+  modeling on a new feature or architecture; when integrating SAST, DAST, SCA, or IAST tools into
+  CI/CD; when designing secure code review programs; when building security champions programs; or
+  when implementing security requirements traceability. Handles threat modeling (STRIDE, PASTA,
+  attack trees, LINDDUN), SAST/DAST/SCA integration (Semgrep, CodeQL, Snyk, GitHub Advanced Security
+  in CI/CD, OWASP ZAP, dependency scanning), secure code review (automated + manual, security
+  patterns, PR-based gates), vulnerability triage (CVSS + EPSS + exploit maturity, deduplication),
+  hardened SDLC (security requirements, pre-commit hooks, CI/CD gates), and security champions
+  (curriculum, guild facilitation, rotational programs). Do NOT use for vulnerability management
+  (vulnerability-management), penetration testing (offensive-security), cloud security
+  (cloud-security), or incident response (incident-responder).
 license: MIT
 author: Sandeep Kumar Penchala
 type: security

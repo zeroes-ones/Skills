@@ -1,6 +1,17 @@
 ---
 name: mcp-management
-description: Use when configuring Model Context Protocol (MCP) servers, diagnosing MCP connection failures, securing MCP tool access against poisoning and injection, designing mcp-config.json schemas for skills to expose live data hooks, or implementing multi-server MCP routing with namespace collision prevention. Handles MCP server lifecycle management (initialize, list tools/resources/prompts, invoke, shutdown), transport layer configuration (STDIO for local, Streamable HTTP for remote, SSE for streaming), MCP security hardening (tool poisoning defense, XML-wrapped resource isolation, OAuth 2.0 bearer tokens for HTTP transport), server type specialization (filesystem, database/PostgreSQL/SQLite, API gateway, memory/Knowledge Graph, web search/Brave/Fetch), mcp-config.json schema design with tool authorization policies, multi-server routing with namespace prefixes, MCP diagnostics (connection testing, tool listing validation, resource URI resolution), and Claude Code/Codex/Cursor/Gemini CLI MCP integration patterns. Do NOT use for general API design (use api-designer), database schema design (use database-designer), agent behavior design (use agent-handoff-protocol), or LLM prompt engineering (use llm-engineer).
+description: >
+  Use when configuring Model Context Protocol (MCP) servers, diagnosing MCP connection failures,
+  securing MCP tool access against poisoning and injection, designing mcp-config.json schemas for
+  skills to declare tool dependencies, optimizing MCP performance, or implementing MCP with the
+  @modelcontextprotocol/sdk. Handles MCP architecture (server/client/transport layers, stdio and
+  HTTP+SSE transports, tool/resource/prompt primitives), MCP security (tool access scoping, input
+  validation, output sanitization, tool poisoning defense, auth context propagation), MCP
+  configuration (mcp-config.json schema, multi-agent routing, per-skill tool allowlists), MCP
+  diagnostics (connection health, tool discovery, JSON-RPC error categorization, transport
+  debugging), and MCP performance (connection pooling, response caching, streaming optimization). Do
+  NOT use for MCP protocol specification (api-designer), agent orchestration
+  (multi-agent-orchestration), or general API security (appsec-engineer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

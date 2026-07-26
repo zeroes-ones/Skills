@@ -1,31 +1,17 @@
 ---
 name: iam-architect
-description: 'Use when designing IAM architecture for a new application or migrating
-  from a legacy auth system; when implementing OAuth2/OIDC authentication and authorization
-  flows; when designing role-based, attribute-based, or relationship-based access
-  control models (RBAC/ABAC/ReBAC); when adopting Zero Trust architecture (NIST SP
-  800-207) for an organization; when implementing privileged access management (PAM)
-  with just-in-time elevation and session recording; when hardening JWT token handling,
-  session management, or API key security; when integrating multi-factor authentication
-  (WebAuthn/FIDO2, passkeys, hardware tokens); when setting up identity federation
-  across SAML/OIDC providers; or when responding to a credential leak or secrets exposure
-  incident. Handles OAuth2/OIDC grant type selection and token hardening (PKCE, refresh
-  rotation, asymmetric JWTs), access control model design (RBAC role explosion prevention,
-  ABAC attribute sourcing, ReBAC relationship graphs with Zanzibar/SpiceDB), Zero
-  Trust architecture implementation (microsegmentation, continuous auth, device trust
-  scoring), JWT security (short expiry, claim minimization, algorithm validation,
-  key rotation), session management (httpOnly/Secure/SameSite, fixation prevention,
-  invalidation triggers), API key lifecycle management (scoping, rotation automation,
-  HMAC request signing, revocation), PAM implementation (just-in-time, session recording,
-  break-glass, standing privilege elimination), MFA hardening (WebAuthn biometrics,
-  FIDO2/U2F hardware tokens, SMS deprecation rationale), and secrets detection automation
-  (pre-commit scanning, CI/CD integration, post-leak rotation procedures). Do NOT
-  use for cloud IAM configuration (route to cloud-security), application-level authorization
-  logic (route to security-engineer or backend-developer), compliance audit of IAM
-  controls (route to compliance-officer), or identity proofing/NIST 800-63 implementation
-  (route to privacy-engineer).
-
-  '
+description: >
+  Use when designing IAM architecture or migrating from legacy auth, implementing OAuth2/OIDC flows,
+  designing RBAC/ABAC/ReBAC access control, adopting Zero Trust, implementing PAM with just-in-time
+  elevation, hardening JWT/session/API key security, integrating MFA (WebAuthn/FIDO2, passkeys),
+  setting up SAML/OIDC identity federation, or responding to credential leaks. Handles OAuth2/OIDC
+  grant types and token hardening (PKCE, refresh rotation, asymmetric JWTs), access control (RBAC,
+  ABAC, ReBAC via Zanzibar/SpiceDB), Zero Trust (microsegmentation, continuous auth), JWT security
+  (short expiry, key rotation), session management (httpOnly/Secure/SameSite, fixation prevention),
+  API key lifecycle (scoping, rotation, HMAC), PAM (just-in-time, session recording, break-glass),
+  MFA (WebAuthn, FIDO2, SMS deprecation), and secrets detection (pre-commit, CI/CD). Do NOT use for
+  cloud IAM (cloud-security), app authorization (backend-developer), compliance
+  (compliance-officer), or identity proofing (privacy-engineer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: security
