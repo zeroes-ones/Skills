@@ -298,6 +298,7 @@ Critical bug found in production:
    - Output: Release scope document with owner, risk level, and feature flag plan per item.
 4. **Assign release roles**: release commander, QA lead, deployment engineer, communications liaison.
    - Output: Release role assignment for each release in the calendar.
+  Complete when: release calendar covers the next quarter with dates for code freeze, QA windows, and deploy windows; release dependency graph shows ordering constraints; and release roles are staffed for every release.
 
 ### Phase 2 (~30 min): Release Preparation
 1. **Create release branch**: branch from main at code freeze; cherry-pick approved changes only after freeze.
@@ -311,6 +312,7 @@ Critical bug found in production:
    - Output: Release notes in changelog format (Keep a Changelog) with breaking change callouts.
 5. **Brief stakeholders**: support team, customer success, marketing — provide release summary and expected impact.
    - Output: Stakeholder briefing doc (1-pager) sent 48 hours before deploy window.
+  Complete when: release branch is cut and frozen, full test suite passes on the release branch, feature flag manifest is current, release notes are drafted, and stakeholder briefing is sent.
 
 ### Phase 3 (~20 min): Go/No-Go Decision
 1. **Run go/no-go checklist**: evaluate all CRITICAL and CONDITIONAL criteria (see Decision Tree #2).
@@ -321,6 +323,7 @@ Critical bug found in production:
    - Output: GO/NO-GO decision documented in release tracker.
 3. **NO-GO resolution**: fix failures, re-run tests, reconvene. Maximum 2 NO-GO attempts before scope reduction.
    - Output: Updated scope (smaller, safer) or new release date.
+  Complete when: go/no-go scorecard is complete with all CRITICAL criteria passing, meeting has documented GO/NO-GO decision with sign-off from release commander and product owner.
 
 ### Phase 4 (~15 min): Deployment Execution
 1. **Pre-deploy verification**: smoke tests on staging, database migration dry-run, load balancer health check.
@@ -334,6 +337,7 @@ Critical bug found in production:
    - Output: Release verification checklist signed off within 30 minutes of 100% rollout.
 5. **Feature flag rollout**: enable features gradually over 1-3 days, monitoring each increment.
    - Output: Feature rollout plan with % increments and verification windows.
+  Complete when: pre-deploy checklist is all green, deployment progresses through all stages with automated metric verification at each gate, smoke tests pass against production, and feature flags begin phased rollout.
 
 ### Phase 5 (~25 min): Post-Release
 1. **Monitor for 24-72 hours**: watch error budgets, performance, user reports, support ticket volume.
@@ -345,6 +349,17 @@ Critical bug found in production:
    - Output: Retrospective doc with < 5 action items prioritized.
 4. **Archive release artifacts**: release branch, build artifacts, test results, go/no-go decision record.
    - Output: Release archive for audit and future reference.
+  Complete when: T+72h monitoring report shows no regression, release notes are published, retrospective is scheduled within 1 week, and release artifacts are archived.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Code freeze but no branch protection — developers continue merging to the release branch because there's no enforcement; the "frozen" branch has 14 new commits by deploy day | $10K-$50K in last-minute regression fixes and delayed deploy | Enable branch protection on release branches: require PR reviews, block direct pushes; use CODEOWNERS to require release commander approval; CI verifies branch hasn't diverged from freeze commit |
+| No rollback rehearsal before production deploy — the rollback procedure was documented but never tested; when it's needed, it takes 45 minutes instead of 5 because of an undiscovered state mismatch | $50K-$200K in extended outage from slow rollback | Run a rollback drill in staging before every release: deploy → verify → rollback → verify; time it; the rollback must complete in under 5 minutes; fix the procedure if it doesn't |
+| Release notes auto-generated from commits without human curation — breaking changes buried in a 200-line changelog; customers upgrade and their integrations break because they didn't see the one critical line | $20K-$100K in customer support incidents and churn | Auto-generate the draft from conventional commits, then have a human write the summary, call out breaking changes in bold at the top, and add upgrade instructions; keep a Changelog format with human-readable impact descriptions |
+| Skipping the go/no-go meeting because "everything looks fine" — the one failing integration test was marked as "known flaky" 3 months ago but today it's a real regression | $30K-$150K in production incident from uncaught regression | Never skip the go/no-go meeting; every CONDITIONAL failure must be discussed, not rubber-stamped; track flaky test resolution — a test that's been flaky for 3 months is a test that's been ignored for 3 months |
 
 
 ## Error Decoder — War Stories from the Trenches

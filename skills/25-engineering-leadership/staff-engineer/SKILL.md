@@ -294,6 +294,8 @@ Archetype: Principal/Distinguished. Focus: organization-wide technical direction
 5. **Decide and commit**: Pick ONE problem for the quarter. Staff engineers who chase three things
    accomplish zero. Depth beats breadth at this level.
 
+  Complete when: Problem brief shared with CTO/Director and acknowledged, one problem selected for the quarter with explicit scope boundaries, and stakeholders for the selected problem confirmed.
+
 ### Phase 2: Design (~3-4 weeks)
 1. **Research**: Study how other companies solved this (design docs, conference talks, open-source
    implementations). Don't rediscover solved problems.
@@ -309,6 +311,8 @@ Archetype: Principal/Distinguished. Focus: organization-wide technical direction
 6. **Revise and publish v2.** Address substantive feedback. Tag people who commented. Show that you
    listened.
 
+  Complete when: RFC v2 published with all substantive comments addressed or explicitly deferred with rationale, executive summary reviewed by Director, and at least one skeptic confirms their primary concern was resolved.
+
 ### Phase 3: Alignment (~2-3 weeks)
 1. **Final design review** (60 min, mandatory attendees only): Present the v2 proposal. State
    non-negotiables upfront ("The constraint is we must be on our existing Kubernetes cluster").
@@ -319,6 +323,8 @@ Archetype: Principal/Distinguished. Focus: organization-wide technical direction
    Director. An imperfect decision today beats a perfect decision next quarter.
 4. **Announce the decision**: Write a brief summary for the engineering-wide channel. What we
    decided, why, what changes for each team, and a link to the full RFC and ADR.
+
+  Complete when: ADR published with decision context and consequences, engineering-wide announcement sent with team-by-team impact summary, and every implementing team confirms they understand their responsibilities.
 
 ### Phase 4: Execution (~6-8 weeks, part-time)
 1. **Pair with implementing teams**: Spend 1-2 days per week embedded with each team. Write code,
@@ -332,6 +338,7 @@ Archetype: Principal/Distinguished. Focus: organization-wide technical direction
 5. **Write the retrospective**: After launch, publish a 1-page retro: what worked, what didn't,
    what we'd do differently. This becomes organizational learning, not just project memory.
 
+  Complete when: Retrospective published and shared with all stakeholders, success metrics measured against RFC targets, and adoption rate meets or exceeds the defined threshold (or escalation triggered with a remediation plan).
 
 ## Error Recovery
 
@@ -528,6 +535,14 @@ graph LR
 | "I'll document the design decisions later" | Undocumented architecture decisions require reverse-engineering 6 months later when the original author is on a different project; every hour spent documenting rationale saves 10+ hours of future debugging and re-litigation. |
 | "My influence comes from technical expertise, not relationships" | Without stakeholder relationships, even the best technical proposals die in review — nobody champions them. Staff+ influence is 50% technical depth and 50% organizational trust built through deliberate relationship investment. |
 | "I can fix this cross-team issue myself faster than coordinating" | Solo cross-team fixes create single points of failure and rob other teams of ownership; the 3 teams that should own the solution never learn it, and the problem recurs the moment you step away. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Solving problems nobody has — building frameworks, abstractions, or platforms without a concrete customer team that has a burning need today | $300K-$1M in wasted engineering time on solutions that rot unused while the actual cross-team pain points go unaddressed | Every staff-level initiative starts with a named customer team: which specific team has this problem right now, what's the quantifiable pain (hours/week, error rate, time-to-ship), and will they commit an engineer to pilot the solution within the quarter |
+| Writing design docs that dictate implementation instead of defining constraints and trade-offs — telling teams HOW to build instead of defining WHAT the system must do and which trade-offs are acceptable | Teams resent and ignore the design, building their own approach in parallel; wasted RFC effort plus duplicate implementation cost ($200K-$500K) | Structure RFCs around constraints (must support X throughput, must degrade gracefully under Y failure), trade-offs (we're optimizing for Z at the expense of W), and non-negotiables. Leave implementation patterns to the teams that own the code — they have context you don't |
+| Avoiding messy organizational problems because they're "not technical" — the performance issue is really a team-trust problem, the architecture bottleneck is really a political turf war, but you only engage with the code | The underlying problem festers for 6-12 months, teams build workarounds that compound technical debt, and the eventual resolution costs 5-10x what early intervention would have | When you identify a problem, ask: "Is this a technical problem, a people problem, or a process problem?" If it's people or process, your job is to name it, surface it to the right leader (EM, Director), and offer to facilitate — not to fix it alone through code |
 
 ## Verification
 

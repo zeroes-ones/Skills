@@ -301,6 +301,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 3. Inventory existing workloads: compute, databases, storage, DNS, identity providers, third-party integrations.
 4. Identify constraints: latency budgets between services, egress costs, data sovereignty, vendor lock-in tolerance.
 5. Select cloud provider(s) based on feature parity, team expertise, existing commitments, and geographic presence.
+  Complete when: provider selection is documented with trade-off analysis, RPO/RTO targets are signed off by business stakeholders, and constraints inventory is complete with no "TODO" gaps.
 
 ### Phase 2 (~30 min): Landing Zone and Governance
 1. Design the organization structure: AWS OUs/accounts per environment and workload; GCP folders/projects; Azure management groups/subscriptions.
@@ -310,6 +311,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 5. Define IAM strategy: SSO via identity provider (Okta, Azure AD), permission sets based on job function, break-glass roles for emergencies.
 6. Implement Service Control Policies (AWS) or Organization Policies (GCP) to deny high-risk actions organization-wide.
 7. Automate account/project provisioning with Terraform or custom Control Tower/Azure Landing Zone accelerator.
+  Complete when: landing zone Terraform applies cleanly, IAM roles are tested with least-privilege access, and SCPs/Org Policies block high-risk actions in a test account.
 
 ### Phase 3 (~20 min): Workload Architecture
 1. Choose compute: containers (EKS, GKE, AKS) for microservices; serverless (Lambda, Cloud Run, Azure Functions) for event-driven; VMs for lift-and-shift.
@@ -318,6 +320,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 4. Implement service discovery: CloudMap, Consul, or Kubernetes native DNS; use private API endpoints (PrivateLink, Private Service Connect) for intra-VPC traffic.
 5. Design CI/CD integration: OIDC-based authentication from pipelines to cloud APIs; immutable infrastructure deployments.
 6. Select appropriate managed services and justify trade-offs: RDS vs. self-managed PostgreSQL on EC2 — consider backup, patching, scaling overhead.
+  Complete when: architecture diagram covers compute, data, networking, and CI/CD integration; managed service decisions have documented trade-offs; HA/DR strategy is validated against RPO/RTO targets.
 
 ### Phase 4 (~15 min): Cost Optimization (FinOps)
 1. Tag all resources with `Environment`, `Service`, `Team`, `CostCenter`; enforce tagging with SCPs or policy.
@@ -326,6 +329,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 4. Right-size underutilized resources using Compute Optimizer or Recommender services.
 5. Implement data lifecycle policies: transition infrequently accessed objects to colder storage tiers; auto-delete after retention period.
 6. Review egress costs: prefer PrivateLink/Private Service Connect over NAT Gateway for service-to-service traffic; use CloudFront/CDN to reduce origin egress.
+  Complete when: tagging strategy is enforced, budgets with alerts are configured, RI/SP coverage plan is documented with estimated savings, and lifecycle policies apply to all storage resources.
 
 ### Phase 5 (~25 min): Security and Compliance
 1. Encrypt data at rest with KMS/Cloud KMS customer-managed keys; encrypt data in transit with TLS 1.2+.
@@ -333,6 +337,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 3. Use AWS Config, Azure Policy, or GCP Security Command Center for continuous compliance monitoring.
 4. Establish incident response runbooks specific to cloud attack vectors: compromised credentials, exposed buckets, cryptomining.
 5. Conduct regular Well-Architected Framework reviews and penetration tests.
+  Complete when: encryption is enabled for all data at rest and in transit, compliance monitoring reports zero critical findings, and incident response runbooks are tested via tabletop exercise.
 
 ### Cross-skills Integration
 
@@ -345,6 +350,16 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 Common chains:
 - **Chain**: cto-advisor → cloud-architect → devops-engineer — Strategy informs architecture; architecture is codified into infrastructure
 - **Chain**: system-architect → cloud-architect → finops-engineer — System design maps to cloud services; FinOps validates cost estimates and optimizes spend
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Designing for single-region without multi-AZ — an AZ outage takes down the entire application because all instances land in one zone | $100K-$1M in revenue loss during 4-8 hour AZ outage | Deploy across 3 AZs minimum; configure auto-scaling across zones; use ALB/NLB with cross-zone load balancing; test AZ failure in game days |
+| Forgetting about data egress costs — cross-region replication or inter-service traffic over public internet generates $50K+ monthly bills | $50K-$500K in unexpected monthly cloud bills | Prefer PrivateLink/Private Service Connect for service-to-service traffic; use VPC endpoints for AWS/GCP services; architect data flows to minimize cross-AZ and cross-region traffic |
+| Centralizing all IAM in one "admin" role — a compromised admin session gives attacker access to every account and service | $500K-$2M in full environment compromise and data exfiltration | Implement least-privilege with role-based access; use permission boundaries; require MFA for all human users; use separate break-glass roles with just-in-time elevation |
+| Using default VPC and default security groups — broad `0.0.0.0/0` ingress rules expose services to the internet unintentionally | $50K-$300K in data exposure and incident response | Never deploy production workloads in default VPC; create custom VPCs with explicit security group rules; use AWS Config rule to detect open security groups |
 
 
 ## Error Decoder — War Stories from the Trenches

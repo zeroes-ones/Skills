@@ -369,6 +369,7 @@ Map the full disability spectrum your product will serve. For each disability ca
 - Task scenarios written at Flesch-Kincaid grade 6-8
 - All visual materials described in text for screen reader users
 - Prototypes tested with at least one screen reader before user testing
+  Complete when: Disability spectrum mapped with functional needs and technology solutions for all 6 categories (visual/motor/hearing/cognitive/speech/multiple), minimum 5 participants per disability category recruited through disability organizations, research materials produced in screen-reader-compatible HTML/large print/plain language format, and consent protocols established for accessible remote testing with assistive technology accommodations.
 
 ### Phase 2: Accessibility Architecture & Tech Stack (~45 min)
 
@@ -409,6 +410,7 @@ Define the assistive technology combinations you will support and test against:
 | Mobile iOS | Voice Control | System-wide | Voice control | P2 — If voice input targeted |
 | Mobile Android | Voice Access | System-wide | Voice control | P2 — If voice input targeted |
 | Switch Access | Switch Control (iOS) / Switch Access (Android) | Any | Switches (Bluetooth) | P1 — If motor accessibility targeted |
+  Complete when: 7 Principles of Universal Design applied as architectural constraints with documented compliance per principle, accessibility API integration plan defined for all target platforms (Web ARIA 1.2 + iOS NSAccessibility + Android AccessibilityNodeInfo), and assistive technology test matrix defined with P0/P1/P2 priority levels covering 6+ screen reader/browser/OS combinations.
 
 ### Phase 3: Screen Reader & Assistive Tech Integration (~60 min)
 
@@ -469,6 +471,7 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 - **Sign language:** Provide sign language interpretation video as an alternative to audio/text. Position prominently — not hidden behind a settings menu. For critical information (emergency alerts, instructions), sign language is essential.
 - **Visual alerts:** Flashing/pulsing visual indicator for audio alerts and notifications. Configurable intensity. Avoid flash rates between 3-50 Hz (seizure risk per WCAG 2.3.1).
 - **Hearing aid compatibility:** Support telecoil (T-coil) for audio output. Reduce background noise in audio processing. Provide volume amplification beyond system maximum.
+  Complete when: Semantic HTML landmarks (header/nav/main/aside/footer) in place with correct heading hierarchy (no skipped levels), screen-reader-specific behaviors documented and tested for VoiceOver/NVDA/JAWS/TalkBack, braille display integration verified for all content and dynamic updates, and all media has captions (WebVTT, 99%+ accuracy), transcripts with visual descriptions, and sign language alternatives for critical content.
 
 ### Phase 4: Cognitive & Learning Accessibility (~45 min)
 
@@ -508,6 +511,7 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 - Animation control: respect `prefers-reduced-motion`. Provide pause/stop for all animations
 - Notification control: granular notification preferences. "Do not disturb" mode
 - Single-column layout option: no multi-column text for reading. Reduce visual density
+  Complete when: All user-facing text at Flesch-Kincaid grade 6-8 with active voice and short sentences, navigation is consistent across all pages with same-icon-same-action and breadcrumbs for depth, error prevention patterns (disable-submit-until-complete, confirmation dialogs, undo, auto-save) implemented for all destructive/irreversible actions, memory support features (preference persistence, progress saving, recent items) active, and reading mode with animation control and notification preferences available.
 
 ### Phase 5: Motor & Physical Accessibility (~60 min)
 
@@ -556,6 +560,7 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 - Minimum 8px spacing between adjacent touch targets
 - Hit area can be larger than visual element using padding
 - Touch target size maintained at all zoom levels and font sizes
+  Complete when: Switch access implemented with user-configurable timing parameters (scan speed/dwell/debounce/acceptance delay) and Bluetooth/USB switch interface support, eye/head tracking integration designed with calibration profiles and dwell-to-click fallback, voice control command vocabulary defined with numbered/grid overlays, keyboard-only navigation verified — every element reachable via Tab with visible focus indicator (3px, 3:1 contrast), and all touch targets meet 44x44 CSS pixels minimum.
 
 ### Phase 6: Testing with Disabled Users & Certification (~60 min)
 
@@ -573,6 +578,7 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 - **VPAT/ACR (Voluntary Product Accessibility Template / Accessibility Conformance Report):** Document conformance to WCAG 2.2 AA/AAA, Revised Section 508, and EN 301 549. List supported assistive technology combinations. Document known issues with remediation timelines.
 - **Accessibility statement:** Public statement including conformance target, testing methodology, supported assistive technologies, known issues with workarounds, feedback mechanism, and last review date. Must be in accessible format (HTML, not PDF/image).
 - **Assistive technology support matrix:** Document every screen reader/browser/OS combination tested with results. Update with each major release.
+  Complete when: Automated scan passes axe-core/Lighthouse/pa11y with zero WCAG 2.2 AA violations, keyboard-only walkthrough completed for all user flows with zero traps, screen reader testing passed on 4+ combinations (VoiceOver+macOS, NVDA+Windows, TalkBack+Android, VoiceOver+iOS), disabled user testing conducted with minimum 3 participants per target community, VPAT/ACR completed and published, and accessibility statement in accessible HTML format with known issues and remediation timelines.
 
 
 ## Best Practices
@@ -711,6 +717,16 @@ New disability category needs support (product expanding to serve additional dis
 ## What Good Looks Like
 
 > A blind user navigates the entire application with NVDA and never hears "button" without knowing what the button does. A motor-impaired user activates every control with a single switch and never encounters a double-activation. A non-speaking user constructs "I need my pain medication" on an AAC grid in under 15 seconds and the TTS pronounces it clearly. A deaf user watches a product demo with 99% accurate captions including speaker identification and sound effects. A user with cognitive disabilities completes a multi-step form without a single error because the interface prevented mistakes instead of reporting them. A 75-year-old with age-related vision and motor changes uses the app confidently because touch targets are large, text is clear, and the interface does not assume 25-year-old reflexes. Every accessibility feature was co-designed with people who have the disability it serves. The VPAT is current, honest about known issues, and backed by test results from 6+ assistive technology combinations. The accessibility statement is in accessible HTML, not a PDF. Disabled users were compensated fairly for their research participation — at professional consultation rates, not gift cards. This is what a 10/10 access tech product looks like.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Screen reader compatibility breaks after framework update — React/Angular/Vue minor version bump changes DOM structure, ARIA live regions stop announcing, focus management breaks on route changes | $10K-$30K in regression testing and hotfix development per incident | Pin assistive technology test matrix to CI pipeline — axe-core + screen reader smoke tests (VoiceOver + NVDA) run on every PR; never upgrade UI framework without full AT regression pass |
+| WCAG 2.2 AA audit fails at contract renewal — VPAT was written 18 months ago, 6 new features shipped without accessibility review, enterprise client withholds $100K payment | $50K-$200K in emergency remediation, lost contract revenue, and legal exposure | Run automated accessibility audit (axe-core/Lighthouse/pa11y) weekly; update VPAT every 6 months; require accessibility sign-off in definition of done for every feature; maintain living accessibility conformance report |
+| Assistive technology fragmentation — building for VoiceOver+iOS passes testing, but TalkBack+Android users report completely broken experience because ARIA roles behave differently across platforms | $20K-$60K in cross-platform remediation spanning 2-3 sprints | Test on minimum 4 AT combinations (VoiceOver+Safari, NVDA+Firefox, TalkBack+Chrome, VoiceOver+iOS) from day one; budget for 2 Android test devices and 2 iOS test devices in CI farm; never declare "accessible" based on single-platform testing |
+| Touch target regression after responsive redesign — mobile breakpoint changes shrink 44px targets to 36px, motor-impaired users can no longer reliably activate controls | $15K-$25K in UX rework and user re-engagement after dropoff spike | Enforce 44x44px minimum touch target as lint rule in design system; visual regression tests at 320px/375px/414px breakpoints; test with motor-impaired users after any layout change |
+| Overlay "accessibility widget" creates liability — adding third-party overlay toolbar creates false sense of compliance, conflicts with users' screen readers, and attracts ADA lawsuit from advocacy groups | $50K-$150K in legal defense, overlay removal, and real accessibility remediation | Never use accessibility overlays — 800+ professionals signed the Overlay Fact Sheet, 400+ lawsuits filed against overlay companies; invest overlay budget in native accessibility development and disabled user testing |
 
 ## Verification Guardrails
 

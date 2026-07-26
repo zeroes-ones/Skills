@@ -311,6 +311,12 @@ Voting mechanism?
 4. **Data retention**: Every table gets `created_at`, `updated_at`, `retain_until` (nullable), `deleted_at` (soft delete). Automated cleanup jobs for expired data.
 5. **Encryption design**: PII fields encrypted at rest (application-level encryption with per-user keys). Communication metadata minimized. Audit log for all PII access.
 
+Complete when:
+- Data minimization audit complete: every field justified or removed before code written
+- RBAC model documented with explicit permissions per role and data type
+- Encryption design documented: application-level encryption for PII, per-user keys, audit log for all PII access
+
+
 ### Phase 2 (~30 min): Volunteer Coordination
 <!-- DEEP: 10+min -->
 1. **Volunteer profiles**: Skills inventory (taxonomy with proficiency levels), availability (recurring weekly blocks + ad-hoc), location (approximate for matching), contact preferences. Background check status if required.
@@ -319,6 +325,12 @@ Voting mechanism?
 4. **Matching algorithm**: `match_score = (skill_overlap / required_skills) × 0.4 + availability_match × 0.3 + proximity_score × 0.2 + reliability_bonus × 0.1`. Sort descending, show top N to coordinator.
 5. **Hour tracking**: Check-in/check-out (QR code, geofence, manual). Verified by coordinator. Export for grant reporting. Volunteer recognition: milestones (10 hrs, 50 hrs, 100 hrs).
 6. **Retention**: Engagement scoring (recent activity, no-show rate, response time). Auto-suggest re-engagement for dormant volunteers. Personalized opportunity recommendations.
+
+Complete when:
+- Volunteer profile schema defined with skills taxonomy, availability, location, and contact preferences
+- Matching algorithm tested: skill overlap × 0.4 + availability × 0.3 + proximity × 0.2 + reliability × 0.1
+- Hour tracking workflow designed: QR/geofence check-in → coordinator verification → export for grant reporting
+
 
 ### Phase 3 (~30 min): Mutual Aid Networks
 1. **Request submission**: Multi-channel intake — web form, SMS bot, IVR phone tree, paper form (digitized by volunteer). Categorize: food, housing, transportation, childcare, medical transport, utility assistance, emergency funds.
@@ -330,12 +342,24 @@ Voting mechanism?
 7. **Emergency funds**: Application → review → approval → disbursement workflow. Budget tracking per fund. Receipt/documentation upload. Anonymous reporting option.
 8. **Recurring needs**: Pattern detection — same household requesting food every 2 weeks → suggest recurring assistance enrollment. Proactive outreach.
 
+Complete when:
+- Multi-channel request intake flow designed: web form, SMS bot, IVR phone tree, paper form digitization
+- Request matching algorithm defined with auto-match against inventory, volunteers, and partner orgs
+- Fulfillment workflow documented: submitted → triaged → matched → claimed → in_progress → fulfilled → verified with SLA tracking
+
+
 ### Phase 4 (~25 min): Petition & Advocacy
 1. **Petition creation**: Clear demand statement, target identification (elected official, corporation, institution), signature goal, deadline. Supporting materials (fact sheets, testimonies).
 2. **Signature collection**: Online (email verification + optional SMS 2FA) + offline (PDF/paper forms with unique batch codes for data entry). Duplicate detection (email + name + zip fuzzy matching).
 3. **Target database**: Integration with Google Civic Information API for elected officials. Custom target types: corporations (manual entry with contact info), institutions (universities, hospitals).
 4. **Campaign tools**: Email-your-rep (pre-written + customizable templates), click-to-call with scripts, social media amplification (pre-written posts with hashtags). Action tracking per supporter.
 5. **Victory tracking**: Petition status (active, delivered, responded, won, lost). Target response tracking. Campaign timeline visualization. Impact narrative for funders.
+
+Complete when:
+- Petition schema defined: demand statement, target identification, signature goal, deadline, supporting materials
+- Target database integrated with Google Civic Information API and custom target types
+- Campaign tools designed: email-your-rep templates, click-to-call scripts, social amplification with action tracking
+
 
 ### Phase 5 (~25 min): Field Organizing Tools
 1. **Offline-capable canvassing app**: PWA + Service Worker + IndexedDB. All scripts, maps, and constituent data synced before going offline. Form submissions queued and synced when online.
@@ -345,6 +369,12 @@ Voting mechanism?
 5. **Event check-in**: QR code or name lookup. Attendance tracking. New contact capture. Real-time dashboard for organizers.
 6. **Materials distribution**: Literature tracking (flyers, yard signs distributed per turf). Inventory alerts. Restock requests.
 
+Complete when:
+- Offline-capable PWA designed: Service Worker + IndexedDB, all scripts/maps/constituent data cached
+- Turf cutting algorithm specified: polygon assignment → volunteer dispatch → coverage heatmap
+- Sync protocol defined: queued submissions, conflict resolution strategy (CRDT), no 'no internet' errors for core functions
+
+
 ### Phase 6 (~25 min): Geographic & Community Mapping
 1. **Asset mapping**: Community-submitted locations with categories (food, health, education, safety, recreation). Moderation queue for new submissions. Verification workflow.
 2. **Participatory mapping**: Drawing tools for community members to add: "This is where we gather," "This intersection is dangerous," "We need a bus stop here." Story + photo attachment.
@@ -352,6 +382,12 @@ Voting mechanism?
 4. **Service gap analysis**: Overlay asset locations + demographic data → identify underserved areas. "There are 0 food sources within 1 mile of this census tract with 40% poverty rate."
 5. **Route optimization**: Delivery route planning for mutual aid. Traveling salesman approximation for multi-stop routes. Estimated time and distance per route.
 6. **Print exports**: High-quality printable maps for distribution at community meetings. QR codes on printed maps linking to digital version.
+
+Complete when:
+- Asset mapping workflow defined: community submission → moderation → verification with category taxonomy
+- Service gap analysis configured: asset locations + census ACS data overlay → underserved area identification
+- Print export designed: high-quality printable maps with QR codes linking to digital interactive version
+
 
 ### Phase 7 (~25 min): Participatory Budgeting
 1. **Proposal submission**: Community members submit project proposals with: description, estimated cost, location, supporting materials, endorsements. Moderation and feasibility review by staff.
@@ -361,12 +397,24 @@ Voting mechanism?
 5. **Results**: Transparent tally with round-by-round breakdown for RCV. Winning projects announced. Budget allocation visualization.
 6. **Implementation tracking**: Each funded project tracked through implementation: design → procurement → construction → complete. Status updates with photos. Spending transparency.
 
+Complete when:
+- Proposal submission → moderation → feasibility review → ballot creation workflow fully defined
+- Voting method selected (RCV, approval, or cumulative) with budget constraint enforcement
+- Results transparency designed: round-by-round breakdown, winning projects, allocation visualization
+
+
 ### Phase 8 (~20 min): Time Banks & Skill Exchanges
 1. **Member profiles**: Skills offered (with proficiency), skills needed, availability, location. Trust building: references, completed exchanges, community endorsements.
 2. **Time credit system**: 1 hour of service = 1 time credit, regardless of service type. All hours are equal — a lawyer's hour and a babysitter's hour are both 1 credit.
 3. **Exchange matching**: Member posts need → system matches members with that skill → direct messaging → exchange agreement → both parties confirm completion → credits transfer.
 4. **Accounting**: Ledger per member: credits earned, credits spent, credits donated (to community pool). Transaction history. Monthly statements.
 5. **Orientation**: New member onboarding workflow: profile setup, skill listing, orientation to time banking philosophy. Required before first exchange.
+
+Complete when:
+- Time credit system defined: 1 hour = 1 credit regardless of service type, community pool for donations
+- Exchange matching designed: need posting → skill matching → direct messaging → mutual confirmation → credit transfer
+- New member orientation workflow created: profile setup, skill listing, philosophy introduction, required before first exchange
+
 
 ### Phase 9 (~20 min): Coalition Building
 1. **Multi-org coordination**: Organization profiles with: mission, member count, service areas, programs. Shared calendar with coalition events, actions, and deadlines.
@@ -376,11 +424,23 @@ Voting mechanism?
 5. **Communication bridges**: Cross-org announcements, shared Slack/Discord bridges, email listserv integration. Escalation protocol for coalition-wide decisions.
 6. **Collective impact measurement**: Shared metrics across all coalition members. Aggregated dashboards: total people served, total volunteers, total policy wins.
 
+Complete when:
+- Multi-org coordination schema defined: org profiles, shared calendar, action planning with progress tracking
+- Resource sharing directory designed: meeting spaces, equipment, funding opportunities with request/offer board
+- Collective impact measurement framework: shared metrics, aggregated dashboards across all coalition members
+
+
 ### Phase 10 (~20 min): Donation & Fundraising
 1. **Grassroots fundraising pages**: Campaign pages with: story, goal, progress bar, donor wall (opt-in). Recurring donation option (Stripe + monthly).
 2. **In-kind donation tracking**: Item donations (food, supplies, equipment) with: description, quantity, value estimate, pickup/dropoff coordination. Tax receipt generation.
 3. **Fiscal sponsorship management**: If fiscally sponsored: grant tracking, fund segregation, reporting to sponsor. Compliance dashboard.
 4. **Transparency reporting**: Public dashboard: funds raised, funds distributed, programs funded, admin overhead percentage. Donor communication: impact updates, thank-you automation.
+
+Complete when:
+- Grassroots fundraising page designed: story → goal → progress → donor wall with recurring donation option
+- In-kind donation tracking defined: item description → quantity → value → pickup/dropoff → tax receipt
+- Transparency dashboard configured: funds raised/distributed, programs funded, admin overhead percentage, impact updates
+
 
 ### Phase 11 (~20 min): Neighborhood Communication
 1. **Hyperlocal forums**: Geographically-bounded discussion (neighborhood, block, building). Category-based (buy nothing, recommendations, safety, events).
@@ -389,11 +449,23 @@ Voting mechanism?
 4. **Moderation**: Community guidelines. Flag → review → action workflow. Appeal process. Moderation transparency reports.
 5. **Rumor control**: Verification workflow for community claims. "Is this true?" → fact-check → publish finding. Trusted source designation.
 
+Complete when:
+- Hyperlocal forum structure defined: geographically-bounded discussions with category taxonomy
+- Alert system designed: multi-channel delivery (push + SMS + email) with confirmation of receipt
+- Moderation workflow created: flag → review → action → appeal with transparency reporting
+
+
 ### Phase 12 (~20 min): Impact Measurement
 1. **Metrics framework**: People served (demographic breakdown), volunteers engaged (hours, retention), resources distributed (food lbs, dollars, rides), petitions signed and won, policies changed, dollars raised and distributed.
 2. **Equity metrics**: Who is being reached? Demographic breakdown by race, income, language, geography, disability status. Who is being missed? Gap analysis against community demographics.
 3. **Dashboards**: Real-time dashboards for organizers, summary reports for funders, public transparency dashboards for community accountability.
 4. **Story collection**: Qualitative impact — beneficiary stories, volunteer testimonials, community narratives. Consent management for sharing.
+
+Complete when:
+- Metrics framework approved with community: people served, volunteers engaged, resources distributed, policies changed
+- Equity metrics defined: demographic breakdown by race, income, language, geography, disability; gap analysis vs community demographics
+- Dashboards designed: real-time organizer dashboard, funder summary reports, public transparency dashboard
+
 
 ## Best Practices
 
@@ -618,6 +690,16 @@ When community organizing tech goes wrong, it goes wrong in ways that hurt real 
 | Petition signature campaign invalidated because 30% of signatures couldn't be verified — email confirmations went to spam | Email-only verification for petition signatures. No backup verification method. No offline signature collection | Implement: email verification + SMS backup + offline paper signatures with unique batch codes. Verification status dashboard with "at risk" signatures flagged for re-contact. **Lesson:** Single-channel verification has a failure rate that compounds across thousands of signatures — multi-channel is essential for legal validity |
 | Offline canvassing app lost 3 days of door-knocking data because sync failed silently | Sync success not verified. No local backup. Conflict resolution defaulted to "server wins" and overwrote new data | Verify: sync confirmation with checksum. Local backup before sync. Conflict resolution: merge, not overwrite. "Last synced" timestamp displayed prominently. Sync health dashboard. **Lesson:** In offline-first apps, sync is the most dangerous operation — it must be verified, not assumed |
 | Community event had 200 RSVPs, 30 showed up — organizers were using a platform that sent confirmation emails to spam folders | Single-channel communication. No RSVP confirmation workflow. No reminder sequence | Implement: multi-channel RSVP (app + SMS + email), confirmation required (one-tap "Yes, I'm coming"), reminder sequence (1 week, 1 day, 2 hours before), "can't make it" workflow. RSVP confidence score. **Lesson:** RSVPs without confirmation and reminders are fantasy numbers — design for the communication channels people actually check |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Engagement dropoff after initial signup wave — 5K members join during campaign launch, 4.5K never return because onboarding requires email confirmation that lands in spam or is too complex | $15K-$40K in wasted organizing momentum and permanently dormant member base within 3 months | Multi-channel onboarding (SMS + email + in-app); allow immediate limited participation without email verification (upgrade to full access after confirmation); send re-engagement sequence at days 3/7/14 for dormant accounts |
+| Data sovereignty violation — volunteer database hosted on US cloud provider, but organizing work is in EU/Global South where data localization laws (GDPR, local data protection acts) require in-country storage | $50K-$200K in regulatory fines, data migration costs, and community trust repair | Choose hosting region based on community location from day one; implement data residency controls; document data flow map showing where every byte lives; provide community data export in standard formats (CSV, JSON); run quarterly data sovereignty audit |
+| Volunteer burnout from bad UX — shift scheduling requires 12 clicks across 4 screens, volunteers give up and stop responding to coordination requests | $10K-$30K in volunteer churn costs (recruitment, training, lost capacity) per quarter | One-tap shift confirmation from push notification; reduce scheduling flow to ≤ 3 screens; show "hours contributed this month" and recognition milestones prominently; survey volunteers quarterly on tool friction |
+| Mutual aid request matching fails at scale — manual triage works for 50 requests/week but collapses at 500/week, urgent needs (food, shelter, medical transport) go unmet while coordinators drown in spreadsheets | $20K-$50K in emergency staffing and service gaps within 2 months of scaling | Implement auto-triage with urgency scoring (food insecurity > utility assistance); build matching algorithm with proximity + volunteer capacity + resource availability; designate escalation path for unmatched requests within SLA windows |
+| Offline field data loss during canvassing — 8 hours of door-knocking data lost when canvasser's phone dies because background sync never triggered and IndexedDB wasn't persisting properly on low-storage device | $5K-$15K in re-canvassing costs and data gaps per incident | Implement aggressive auto-save to IndexedDB after every interaction; show "unsynced records" count prominently; trigger sync on app resume (not just background sync); test with device storage at 95%+ full; add manual "Force Sync" button with checksum verification |
 
 ## Verification
 

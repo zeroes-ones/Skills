@@ -407,6 +407,14 @@ When game development goes wrong, it goes wrong in predictable ways. Here are th
 | Coroutine continues after `GameObject` is destroyed — `NullReferenceException` flood in console, unpredictable behavior | `StartCoroutine()` runs on the MonoBehaviour instance. When the GameObject is destroyed, `StopAllCoroutines()` is called — but only if the destruction is explicit. Scene unloading with `LoadSceneMode.Single` bypasses this on certain Unity versions | Check `if (this == null || !gameObject.activeInHierarchy) yield break` at the top of every coroutine loop. Use `CancelInvoke()` and `StopAllCoroutines()` in `OnDestroy()`. Prefer async/await with `CancellationToken` for long-running operations | Coroutines are bound to GameObject lifecycle, but the binding is fragile. Scene unloads, pooling, and `DestroyImmediate` can leave coroutines running on destroyed objects. A null check at the top of every loop iteration is cheap insurance |
 | Save file corrupted after game crash during save — 60-hour RPG save gone, player rage-quits forever | Save operation writes directly to the save file. The game crashes (or the OS kills it) mid-write. The file is truncated — half old data, half new data, completely unreadable | Write to a temporary file first: `saveData.tmp`. On successful write, atomically rename: `File.Move(saveData.tmp, saveData.dat)`. Include a version header and checksum in every save file. Keep the last N save files as backups. Run save/load resilience tests where you kill the process mid-save | File writes are not atomic. A crash during `File.WriteAllText` produces a truncated file. The atomic write-then-rename pattern costs one extra line of code and prevents the most devastating bug in gaming — lost save files |
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Frame-rate-dependent physics — Update() without deltaTime, game runs 2x speed on 144Hz | $15K-$40K in post-launch patches | Multiply every continuous change by `Time.deltaTime`, set `Application.targetFrameRate` for testing, profile at 30/60/144 FPS |
+| Save file corruption on crash — game crashes mid-write, player loses 60-hour save | $30K-$100K in reputation damage and refunds | Write to temp file first, then atomic rename; include version header + checksum; keep last N backups; test kill-process-mid-save |
+| Asset memory leak — `AssetBundle.Unload(false)` keeps textures, OOM after 10 level loads | $20K-$50K in delayed crashes | Use `Unload(true)` or `Resources.UnloadUnusedAssets()`, profile memory per scene load, implement Addressables with explicit `Release()` |
+
 ## Verification
 
 - [ ] Game loop decouples update (fixed timestep) from render (variable frame rate)

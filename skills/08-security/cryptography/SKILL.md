@@ -153,6 +153,7 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (103 lines):** [references/core-workflow.md](references/core-workflow.md)
+  Complete when: Cryptographic inventory cataloged across all services, threat model identifies data sensitivity horizons, weak algorithms flagged for migration, and PQC readiness timeline established based on data confidentiality requirements.
 
 ## Decision Trees **(QUICK)**
 
@@ -633,6 +634,15 @@ Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server
 | "This custom PRNG passed the NIST Statistical Test Suite — it’s fine for production key generation" | Passing statistical tests proves nothing about cryptographic security — Dual_EC_DRBG passed them too and was a backdoor |
 | "We can hardcode the key in the backend source — nobody outside the team sees the repo" | Secrets in source survive forever in git history, CI logs, developer laptops, and backup tapes; rotation is impossible without a redeploy |
 | "Constant-time comparison is overkill — timing attacks are a lab curiosity, not a real threat" | Timing side-channels are exploitable over LAN in under 100 requests; over WAN, statistical sampling reduces noise with a few thousand probes |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Using a non-cryptographic PRNG (Math.random, rand(), mt_rand) for token generation, password reset codes, or session IDs — tokens are predictable and brute-forceable in minutes, granting attacker access to any account. | $100K-$1M in account takeover losses from predictable tokens | Use only CSPRNGs: `crypto.randomBytes()` (Node), `secrets.token_urlsafe()` (Python), `java.security.SecureRandom` (Java). Audit every token generation call site. Add a linter rule that flags non-crypto PRNG usage in security contexts. |
+| Rolling your own encryption protocol, key derivation, or authentication scheme — "it's just XOR with a twist" or "I added a salt to SHA-256" — instead of using well-vetted libraries (libsodium, Tink, WebCrypto). Custom crypto is broken in ways the author cannot foresee. | $500K-$5M in breach costs when custom crypto fails — data encrypted with the custom scheme is silently decryptable by attackers | Never implement cryptographic primitives. Use libsodium (NaCl) for symmetric operations, Tink for key management, and WebCrypto for browser-based crypto. If you're writing AES, RSA, or ECC code directly, you're doing it wrong. |
+| Hardcoding encryption keys in source code, config files, or environment variables — keys survive forever in git history, CI logs, backup tapes, and developer laptops. When (not if) the key leaks, all data ever encrypted with it is compromised, and rotation is impossible without full redeployment. | $250K-$2M in data breach costs and mandatory key rotation across all affected systems | Use a KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) or HSM for key storage. Keys never touch application code. Rotate keys on schedule (DEK monthly, KEK quarterly). Use envelope encryption for data at scale. |
 
 ## Verification
 

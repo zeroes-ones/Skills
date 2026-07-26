@@ -199,6 +199,8 @@ another 10 years with < $50K of incremental improvements.
 
 > 📎 **Full TCO methodology:** See `references/roi-calculation-methods.md`
 
+  Complete when: Annual pain is quantified in dollars, rewrite cost is estimated with risk premium included, and a clear STOP/PROCEED/BYPASS decision is documented with explicit assumptions for every input.
+
 ### Phase 2: Full ROI Calculation (~30 min)
 
 <!-- STANDARD: 5min — for tasks > 40 engineer-hours -->
@@ -439,6 +441,8 @@ Before approving any non-trivial task (> 8 hours), verify:
 
 **AMBIGUOUS:** "TCO shows payback at 1.7 years with ±30% uncertainty. Task cost: $35K estimated. Exceeds $25K autonomous threshold. Escalating to cto-advisor."
 
+  Complete when: Full 3-year NPV calculation is complete with discounted cash flows, cost breakdown (development + maintenance + opportunity), risk-adjusted benefit quantification, and a final ROI percentage with payback period. Every dollar figure is tagged [VERIFIED] or [ESTIMATED].
+
 ## Deliberate Practice
 
 Building ROI analysis intuition takes calibrated judgment. Practice these scenarios:
@@ -465,6 +469,16 @@ This log must be maintained in `files/roi-gate-state.md`. Each entry must record
 - [ESTIMATED] or [VERIFIED] tag on every dollar figure
 - Assumptions stated explicitly (traffic %, annual value, loaded cost rate)
 - Trade-off acknowledged (what are we NOT building?)
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Rewriting for engineering satisfaction when ROI is negative | Wasted $100K+ and 6+ months with zero business value | Run the Phase 1 triage before greenlighting any rewrite. If annual pain × 2 < rewrite cost, STOP. Engineering enjoyment is not a business case. |
+| Underestimating rewrite costs by ignoring onboarding, dependency, and risk costs | 20-50% cost overrun, blowing the ROI case | Always apply the +20% risk premium. Add 2 weeks for team onboarding to new architecture. Include regression testing and bug-fixing stabilization period (typically 1-3 months post-launch). |
+| Not factoring opportunity cost of features NOT built during rewrite | The "hidden" cost that makes a borderline-positive ROI actually negative | Calculate the value of the highest-priority displaced work. If 6 engineers rewrite for 3 months, that's ~18 engineer-months of features NOT shipping. Subtract displaced value from calculated ROI. |
+| Treating developer salary as the opportunity cost instead of displaced work value | Inflated ROI (developer salary is a sunk cost — they get paid regardless) | Opportunity cost = value of displaced work, not hourly rate. Developers don't sit idle — they'd work on the next-highest-priority item. If you can't quantify displaced work value, you can't calculate real ROI. |
+| "Everyone else is doing it" as justification without running your own numbers | Cargo-cult engineering that's ROI-negative in your context | Different companies have different revenue-per-engineer, growth trajectories, and tech debt profiles. Run the decision tree with YOUR actual numbers. Only your context matters. |
 
 ## Verification Guardrails
 

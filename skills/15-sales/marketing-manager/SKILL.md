@@ -274,11 +274,15 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 Positioning is the single sentence that defines who you're for, what you do, and why you're different. Start with the positioning template: "For [target buyer] who [pain/need], [Product] is the [category] that [key benefit/differentiator]. Unlike [competitors], we [unique advantage]." Test it against the logo-swap test. Then build the messaging house: (1) Umbrella value prop — one sentence, (2) 3 Pillars — each pillar has a headline, 2-3 proof points, and a customer story, (3) Tagline — memorable, 5-7 words, (4) Boilerplate — 100-word company description. Validate with 5-10 target buyers: "In your own words, what does this company do?" If they can't articulate it clearly, iterate. Document the final messaging in a single source of truth — the messaging document that every team references.
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2 (~90 min): Launch Management
 
 Define the launch tier: Tier 1 (company-defining — all hands, major PR, analyst tour, customer event), Tier 2 (significant feature — blog, email, social, sales enablement), Tier 3 (minor update — changelog, in-app notification). Build a launch plan with: (1) Launch narrative & key messages, (2) Target audience segments with channel plan, (3) Asset checklist: blog post, press release, pitch deck update, battle card update, demo update, website update, social posts, customer email, (4) Timeline with owner per asset and dependencies called out, (5) Internal comms: Slack announcement, all-hands slot, sales training session, (6) Success metrics: awareness (press mentions, social reach), engagement (blog views, demo requests), pipeline ($ influenced within 30/60/90 days). Hold a launch readiness review 1 week before: every asset reviewed, every owner confirmed, every dependency green. Post-launch retro within 2 weeks: what worked, what didn't, pipeline impact.
+
+  Complete when: Analysis results documented with effect sizes and confidence intervals, segment analysis complete, and findings communicated to stakeholders.
 
 <!-- DEEP: 10+min -->
 
@@ -286,17 +290,23 @@ Define the launch tier: Tier 1 (company-defining — all hands, major PR, analys
 
 Sales enablement means: when an AE opens their laptop Monday morning, they have everything they need to sell effectively. Build and maintain: (1) Pitch deck — 10-12 slides max, problem-forward not product-forward, 1 data point per slide, strong close with CTA, (2) Battle cards — 1 per competitor, updated quarterly, format: their strengths (be honest), their weaknesses (with evidence), our positioning (reframe, don't trash), trap questions to ask, trap questions they'll ask, customer evidence (logos, quotes, case study links), (3) One-pagers — 1 per use case or vertical, hook at top, 3 bullets on value, customer logo row, CTA, (4) Discovery questions — 10 questions per buyer persona to uncover pain, (5) ROI calculator — simple inputs, credible outputs, vetted by finance, (6) Competitive displacement kit — for when competitor is the incumbent: migration guide, TCO comparison, "why switch" deck. Train sales: 30-minute lunch-and-learn on every new asset. Record it. Track asset usage: what's being opened, what's gathering digital dust.
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 4 (~30 min): Campaign Brief
 
 Write campaign briefs that demand generation can execute without back-and-forth. Structure: (1) Campaign objective — one sentence. "Generate 200 MQLs in financial services segment within 90 days." (2) Target audience — specific persona, segment, pain trigger. (3) Core message — the one thing we want them to remember. (4) Offer — what value are we providing in exchange for their attention/contact info? (5) Channel mix — which channels, why, budget allocation per channel. (6) Asset requirements — what needs to be built (landing page, ebook, webinar, ads, email sequences). (7) Success metrics — MQL target, MQL→SQL conversion target, pipeline target, CAC target. (8) Timeline — launch date, campaign duration, key milestones. (9) Handoff checklist — what demand gen needs from you before they can start. Review the brief with the demand generation lead before locking it. A bad brief creates 3 rounds of revision and a delayed launch.
 
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 5 (~45 min): Analyst Relations
 
 Analyst relations (AR) is a long game, not a deal-sprint. Strategy: (1) Identify the 2-3 analyst firms that matter for your category (Gartner, Forrester, IDC — but also category-specific analysts). (2) Build relationships with the analysts who cover your space — quarterly check-ins, not just evaluation-time panic. Share roadmap directionally, customer wins, market observations. (3) For Magic Quadrant / Forrester Wave evaluations: start 6 months before the research cycle begins. Align your product roadmap messaging to the evaluation criteria. Brief the analyst on your vision, not just your features. Submit responses that are concise, evidence-backed, and customer-validated. (4) Customer references for analysts: hand-pick 3-5 reference customers who will say you're strategic, not tactical. Prepare them with a briefing doc. (5) Post-evaluation: regardless of placement, publish a response. If you placed well, amplify. If not, acknowledge the feedback and share your plan. Analysts reward transparency. Track: analyst mentions, report placements, inquiry volume, and deal influence from analyst references.
+
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
 
 
 ## Error Recovery
@@ -524,6 +534,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Content generates 10K monthly visits but zero pipeline | Content ranks for informational keywords ("what is X") not buyer-intent keywords ("X pricing," "X vs Y") | Content calendar built from brainstorming, not keyword research; no buyer intent filtering | Audit content for buyer intent keywords; redirect 80% of content budget to bottom-of-funnel topics; measure pipeline per content dollar, not traffic |
 | Price increase announcement triggers 15% churn inquiry rate | Customers blindsided — no communication runway, no value-add narrative, no grandfathering | Price increase treated as financial event, not marketing event; no customer communication plan | Halt increase for existing customers; build 90-day communication plan: value-add narrative, grandfathering offer, customer FAQ, AE talking points; announce only after plan is complete |
 | Sales team ignores new battle cards and pitch deck — "the old one works fine" | Sales enablement created without sales input; content doesn't address real field objections | PMM built enablement in a silo; didn't interview AEs about what they actually need | Interview 10 AEs about top 5 objections they face; co-create enablement materials with top-performing AEs; pilot with 3 AEs for 2 weeks before full rollout |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
 
 ## Verification
 

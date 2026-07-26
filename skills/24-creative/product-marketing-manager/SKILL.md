@@ -200,6 +200,12 @@ Orchestrate launches that coordinate product, sales, marketing, and clinical tea
 3. **Cross-functional coordination**: Product (feature freeze date, known issues), Engineering (deployment schedule, rollback plan), Sales (training, comp plan alignment), CS (support docs, escalation path), Clinical (evidence package, KOL briefings), Regulatory (claims review, disclaimer approval), Legal (terms updates, privacy review).
 4. **Post-launch retrospective**: What worked (keep), what didn't (fix), what we'd do differently (learn). Metrics: pipeline generated, win rate change, NPS impact, support ticket volume, analyst coverage.
 
+Complete when:
+- Launch tier determined and checklist fully signed off (messaging locked, sales trained, demand gen ready)
+- Cross-functional coordination confirmed: product freeze date, engineering deployment, clinical evidence package, regulatory sign-off
+- Post-launch retrospective scheduled within 2 weeks with metrics: pipeline generated, win rate, NPS, support volume
+
+
 ### Phase 2 (~25 min): Competitive Positioning
 
 Build defensible differentiation based on evidence, not opinion.
@@ -209,6 +215,12 @@ Build defensible differentiation based on evidence, not opinion.
 3. **Battle cards**: One card per competitor. Sections: competitor overview (1 line), their strengths (be honest), their weaknesses (be specific), our differentiation (evidence-backed), objection handlers (3-5 per competitor), trap-setting questions (3-5 to ask prospects), win stories (2-3 named or anonymous).
 4. **Differentiation strategy for health tech**: Lead with clinical outcomes when you have peer-reviewed evidence. Lead with workflow efficiency when clinical parity. Lead with patient experience when both are parity. Never lead with "we're cheaper" in healthcare — that signals lower quality.
 5. **Positioning statement formula**: For [target healthcare audience] wh
+
+Complete when:
+- Competitive matrix complete with axes mapped and KLAS/evidence-backed differentiation documented
+- Battle cards published for all active competitors with honest strengths, specific weaknesses, and 3+ objection handlers each
+- Win/loss analysis framework active: standardized interview template deployed, quarterly aggregation cadence set
+
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -334,11 +346,13 @@ Common chains:
 
 ## Gotchas
 
-- **"Our product is an AI-powered, enterprise-grade, cloud-native, end-to-end platform"** — that's 5 buzzwords and 0 meaning. If your competitor can say the same sentence (and they can), it's not positioning. Positioning is: "We're the only CRM that sales teams don't need training to use." One sentence, no buzzwords, a claim your competitor can't make. **Total cost: $500K-$5M in wasted marketing spend with zero differentiation ROI and lost pipeline velocity.**
-- **Competitive battlecard that's a feature grid** — your column is all checkmarks, competitor's column has some gaps. "We have feature X, they don't." The competitor's AE says "Feature X ships next quarter" and the deal stalls. Battlecard must include: YOUR unique value (features only you CAN build), AIR COVER (analyst quotes scoring you higher), and KILL POINTS (specific pain their customers experience that you solve). **Total cost: $100K-$1M per lost enterprise deal due to sales teams being outmaneuvered without adequate competitive intelligence.**
-- **Messaging that works in a pitch deck but fails on a landing page** — the deck is presented with a narrative by a salesperson. The landing page is scanned in 8 seconds by someone who doesn't know your company name. Landing page messaging must answer: WHAT is this, WHO is it for, WHY should I care — in that order, in 3 seconds or less. **Total cost: $200K-$2M in wasted ad spend from high bounce rates and poor conversion on paid traffic.**
-- **Case study that reads like a press release** — "Company X achieved 10x ROI with our platform" without naming the baseline, timeline, or methodology. Enterprise buyers see through this immediately and discount every other claim you make. Credibility-destroying fluff costs more than having no case study at all. Every claim needs a named customer (or permissioned blind), a quantified baseline, and a measured timeframe. **Total cost: $250K-$1M in lost enterprise pipeline when buyer trust is eroded by unsubstantiated claims in sales collateral.**
-- **Product launch with messaging frozen 6 months prior** — the launch deck was finalized in January for a July launch. In March, a competitor launched a similar feature. In May, the market narrative shifted. The July launch messaging ignores both changes and lands flat. Messaging must be revisited 2 weeks before launch with a fresh competitive and market scan. **Total cost: $1M-$5M in wasted launch spend and missed category-creation windows when stale messaging meets a moved market.**
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| **Buzzword positioning: "AI-powered, enterprise-grade, cloud-native, end-to-end platform"** — 5 buzzwords and 0 meaning. If your competitor can say the same sentence, it's not positioning. | $500K-$5M in wasted marketing spend with zero differentiation ROI and lost pipeline velocity. | Write a one-sentence positioning statement your competitor can't truthfully say: "We're the only CRM that sales teams don't need training to use." No buzzwords. |
+| **Competitive battlecard that's a feature grid** — your column is all checkmarks, competitor's has gaps. Competitor's AE says "Feature X ships next quarter" and the deal stalls. | $100K-$1M per lost enterprise deal from sales teams outmaneuvered without adequate competitive intelligence. | Include unique value (features only you CAN build), air cover (analyst quotes scoring you higher), and kill points (specific pain their customers experience that you solve). |
+| **Messaging that works in a pitch deck but fails on a landing page** — the deck has a narrative by a salesperson; the landing page is scanned in 8 seconds by someone who doesn't know your company. | $200K-$2M in wasted ad spend from high bounce rates and poor conversion on paid traffic. | Landing page messaging must answer WHAT is this, WHO is it for, WHY should I care — in that order, in 3 seconds or less. |
+| **Case study that reads like a press release** — "Company X achieved 10x ROI with our platform" without baseline, timeline, or methodology. | $250K-$1M in lost enterprise pipeline when buyer trust is eroded by unsubstantiated claims. | Every claim needs a named customer (or permissioned blind), a quantified baseline, and a measured timeframe. Credibility-destroying fluff costs more than no case study. |
+| **Product launch with messaging frozen 6 months prior** — the deck finalized in January launches in July, ignoring a competitor's March launch and May market shift. | $1M-$5M in wasted launch spend and missed category-creation windows from stale messaging. | Revisit messaging 2 weeks before launch with a fresh competitive and market scan. Messaging must be alive, not frozen. |
 
 ## Anti-Rationalization — No Excuses
 

@@ -477,6 +477,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 *   **Advanced — Venue Negotiation Simulation:** Role-play a venue contract negotiation. Research real venue pricing in your area. Practice: initial pricing, negotiation points, contract redlines. Learn where venues have flexibility and where they don't.
 *   **Expert — Crisis Planning:** Design a complete crisis response plan for a 1,000-person event. Identify top 10 failure scenarios by likelihood × impact. For each: prevention, detection, response protocol, communication plan, and recovery plan.
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Signing venue contracts without reviewing cancellation and attrition clauses | $10K-$50K in wasted spend | Have legal review every venue contract — pay special attention to force majeure, attrition, and F&B minimums |
+| No run-of-show or day-of coordination plan | $20K-$80K in day-of chaos and attendee dissatisfaction | Create a minute-by-minute run-of-show with every line owned and transition buffers included |
+| AV and WiFi not tested on-site before event day | $15K-$60K in failed presentations and attendee complaints | Test AV with actual equipment and WiFi under simulated load at least 24 hours before doors open |
+
 ## Verification
 
 - [ ] Budget established with 15% contingency and per-category allocations

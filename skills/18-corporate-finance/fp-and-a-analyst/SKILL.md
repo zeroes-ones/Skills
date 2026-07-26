@@ -234,24 +234,28 @@ ARR growth < 30% YoY?
 3. **Build revenue model:** Top-down (TAM × penetration) AND bottom-up (new customers × ARPU + existing × expansion). Must reconcile. Include seasonality adjustments if applicable.
 4. **Build opex model:** Headcount-driven costs (salary + benefits + payroll tax = 1.25-1.35× base salary), non-HC costs (vendor contracts, rent, software — grow at 15% of HC growth).
 5. **Build the three statements:** P&L → balance sheet (AR = revenue × DSO/30, AP = opex × DPO/30) → cash flow (indirect method: net income + non-cash adjustments + working capital changes). Check: ending cash = beginning cash + net cash flow. If it doesn't tie, fix working capital.
+  Complete when: Three-statement financial model ties (ending cash equals beginning cash plus net cash flow), all formulas trace to assumptions tab (no hard-coded numbers), and ARR model reconciles top-down and bottom-up within 5%.
 
 ### Phase 2: Headcount & OpEx (~30 min)
 1. **Department-level headcount:** Sales (AE + SDR, ratio 1:1 at early stage, 1:2 at scale), Engineering (1 PM : 5-8 engineers), G&A (1 finance per 50 employees, 1 HR per 75 employees).
 2. **Fully-loaded cost per head:** Base salary × 1.08 (payroll tax) + benefits ($12K-18K/yr US) + equipment ($3K one-time) + software ($3K-6K/yr). RULE: never model salary alone.
 3. **Revenue-linked hiring:** Sales hires = target ARR growth / (quota × ramp-adjusted attainment). E.g., $5M new ARR / ($500K quota × 70% attainment in year 1) = 14.3 → hire 15 AEs with staggered start dates.
 4. **Ramp curves:** Month 1 = 0% of quota, Month 2 = 25%, Month 3 = 50%, Month 4 = 75%, Month 5+ = 100%. First-year productivity = ~60% of full quota.
+  Complete when: Headcount plan by department documented with hire dates and ramp curves, each role carries fully-loaded cost (salary × 1.25-1.35×), and total opex ties to headcount drivers.
 
 ### Phase 3: Model Audit (~20 min)
 1. **Sanity checks:** ARR per employee (seed: $50K-100K, Series A: $150K-200K, growth: $200K-300K), gross margin (SaaS: 70-85%), opex as % of revenue, cash runway (months).
 2. **Formula audit:** Trace every P&L line to its driver. Trace cash to P&L + balance sheet deltas. No hard-coded numbers outside assumptions tab.
 3. **Sensitivity check:** Worst case: churn doubles AND sales attainment drops to 50% AND payment terms stretch 30 days. If the company survives 18 months, model is conservative enough.
 4. **Peer comparison:** Run against public SaaS benchmarks (see Best Practices). If your model shows 95% gross margin when median is 78%, explain the difference.
+  Complete when: All sanity checks within benchmarks (ARR/employee, gross margin, Rule of 40), worst-case sensitivity confirms 18+ months runway, peer benchmarks reconciled with documented explanations for outliers, and formula audit confirms zero hard-coded numbers outside assumptions tab.
 
 ### Phase 4: Scenario Planning (~25 min)
 1. **Define scenarios:** Base case (most likely), upside (specific catalyst), downside (specific risk). Each scenario changes 3-5 key drivers, not everything.
 2. **Build scenario selector:** Single dropdown that toggles all assumptions. Each scenario has its own assumptions column.
 3. **Sensitivity tables:** Revenue vs. 2 key drivers (e.g., CAC and churn), cash out date vs. burn and growth rate. Use data tables, not manual iteration.
 4. **Output comparison:** Side-by-side: ARR, gross margin, opex, EBITDA, cash balance, runway months, Rule of 40, burn multiple.
+  Complete when: Three scenarios (base, upside, downside) defined with 3-5 driver changes each, scenario selector toggle functional, sensitivity tables populate dynamically, and side-by-side output comparison shows ARR, EBITDA, cash, runway, and burn multiple for all scenarios.
 
 ### Phase 5: Board Financials (~30 min)
 <!-- DEEP: 10+min -->
@@ -259,6 +263,7 @@ ARR growth < 30% YoY?
 2. **Cohort view:** Revenue retention by cohort (monthly cohorts for first 24 months, quarterly after). Include logo retention alongside dollar retention.
 3. **Burn analysis:** Gross burn (total cash out), net burn (cash out - cash in), runway (cash / net burn). Highlight date when cash runs out in each scenario.
 4. **Ask slide:** If fundraising, include: amount raising, use of funds (% hiring, % marketing, % buffer), milestones achieved with this round, dilution at different valuations.
+  Complete when: Board package includes one-page dashboard, cohort retention view, burn waterfall chart, and fundraising ask slide (if applicable). All numbers verified against model outputs.
 
 <!-- QUICK: 30s — key numbers that matter -->
 
@@ -437,6 +442,14 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Headcount budget: "New hire cost = salary + 30% benefits." Actual all-in cost = salary + 65% — budget understates by $35K/hire, 10 hires = $350K miss | Missing from the 30% estimate: equipment ($3K/hire), software licenses ($500/person/month), office space ($500-$1,500/person/month), training ($2K/person/year), recruiting fees (20% of first-year salary for agency hires). The 30% rule works only for companies with zero overhead. | All-in headcount cost = salary + 50-70%. Include in your model: benefits & payroll taxes (20-25%), equipment (amortize over 3 years), software (actual per-seat costs), facilities (per-head allocation), training & development, recruiting (internal cost per hire or agency fees). Validate with actuals quarterly. | Every new hire costs 50-70% more than their salary — and the 30% rule-of-thumb is off by 2×. An FP&A team that budgets at salary + 30% will miss headcount costs by $350K+ on every 10 hires. The error compounds. |
 | Variance report: "Marketing is 5% over budget — RED FLAG" — but Marketing ran a campaign generating 3× pipeline, making it the best-spent money in the company | Variance analysis without the question "why?" A 5% overage flagged as "bad" without context. The variance is a signal, not a problem. The analysis must distinguish between "spent more, got nothing" (bad) and "spent more, got 3× return" (investment). | Variance analysis framework: (1) identify the variance, (2) ask "why did this happen?", (3) assess "is this good or bad for the business?", (4) recommend action. Never present a variance number without the story behind it. Color-code: red = negative impact on business outcomes, not just "over budget." | A variance is a data point, not a judgment. The FP&A team that flags every overspend as "red" trains the business to hide spending. The team that distinguishes investment from waste becomes the CEO's most trusted partner. |
 | Excel model with circular reference — every iteration produces different numbers, final output depends on Excel's iteration settings | Circular reference in interest calculation: interest expense depends on debt balance, which depends on cash flow, which depends on interest expense. Excel resolves deterministically but differently depending on maximum iterations and change tolerance settings — open on two machines, get two different forecasts. | Never use circular references in financial models. Break the loop: use a copy-paste macro for iterative calculations or solve algebraically. If unavoidable, use a single "circuit breaker" cell and set Excel to 1 iteration with 0.001 maximum change. Document: "This model contains a circular reference in cells X, Y, Z — the iteration settings are…" | A model that gives different answers on different computers is not a model — it's a random number generator. Circular references are a shortcut that costs credibility. Solve algebraically or document exhaustively. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Circular references in models — interest expense depends on debt balance which depends on cash flow which depends on interest expense; Excel produces different numbers on different machines depending on iteration settings | $500K-$5M in misinformed decisions; loss of CFO credibility when numbers don't reconcile | Never use circular references. Break the loop: solve algebraically (rearrange equations) or use a copy-paste macro for iterative calculations. If unavoidable, use a single "circuit breaker" cell, set Excel to 1 iteration with 0.001 maximum change, and document the circular reference explicitly in the model. |
+| Optimistic revenue assumptions without bottom-up validation — "15% growth" typed into the model without validating pipeline coverage, sales capacity, or historical conversion rates | $1M-$10M in missed forecasts; budget overruns from hiring against phantom revenue | Every revenue assumption needs bottom-up validation: pipeline coverage ratio, rep capacity, historical win rates, and churn forecasts. Build top-down AND bottom-up models — they must reconcile within 5%. Flag any assumption that exceeds historical trend by >20% as "requires executive approval." |
+| Confusing cash flow with EBITDA — presenting P&L net income as proof of financial health while AR has 90-day terms and AP is due in 30 days | Insolvency while "profitable on paper"; $500K+ in emergency financing costs | Every financial model must include a 13-week cash flow forecast separate from the P&L. The cash flow statement bridges net income to actual cash position by accounting for AR timing, AP terms, payroll cycles, and Capex. "Profit is an opinion; cash is a fact." |
 
 ## Best Practices
 

@@ -205,6 +205,12 @@ Create diagrams that are accurate enough for clinicians, clear enough for patien
 4. **Anatomical illustrations**: Anatomical position (anterior/posterior/lateral/superior/inferior) specified. Structures labeled using Terminologia Anatomica where applicable. Cross-section indicators shown. Magnification/scale bar where relevant. Reference: Netter's, Gray's, or equivalent.
 5. **Anatomical accuracy requirements**: Proportional accuracy ±5% for key structures, structural relationships preserved, no invented anatomy, artistic simplification must be disclosed ("simplified for clarity — see cross-reference for detailed anatomy").
 
+Complete when:
+- Diagrams accuracy-reviewed against Netter's/Gray's anatomical references with proportional accuracy ±5%
+- All anatomical structures labeled using Terminologia Anatomica where applicable
+- Visual hierarchy confirmed: primary structures prominent, labels legible, magnification/scale bar included
+
+
 ### Phase 2 (~20 min): Patient Education Visuals
 
 Design for understanding at a glance — the visual does the heavy lifting.
@@ -215,7 +221,18 @@ Design for understanding at a glance — the visual does the heavy lifting.
 4. **Bleed location diagrams**: Body map with internal/external bleed sites. Severity indicators (mild/moderate/severe) with color coding. "Seek emergency care" sites in red with ambulance icon. "Contact your doctor" sites in amber.
 5. **Treatment comparison infographics**: Side-by-side visual comparison. Efficacy shown as consistent visual metaphor (e.g., shield size = protection level). Dosing frequency as calendar visualization. Administration route icons. Disclaimer: "Based on clinical trial data. Individual results may vary."
 
+Complete when:
+- All patient education visual aids completed: injection guides, infusion process, joint health, bleed location, treatment comparison
+- Health literacy review passed: visuals understandable at a glance without reading clinical text
+- Accessibility checked: color-blind-safe palette, minimum 3:1 contrast ratio, alt text for all images
+
+
 ### Phase 3 (~20 min): Visual Health Literacy
+
+Complete when:
+- All patient-facing visuals verified at ≤6th grade comprehension level through testing with 3 target patients
+- Color safety audit passed: CVD-safe palette verified, red/green combinations eliminated for critical indicators
+- Visual metaphor consistency confirmed: same icon = same meaning across all patient education materials
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -340,11 +357,13 @@ Common chains:
 
 ## Gotchas
 
-- **Anatomical accuracy at the expense of communicative clarity** — a technically perfect illustration of the brachial plexus that a neurosurgeon loves but a patient finds terrifying. Know your AUDIENCE: patient education uses simplified forms with warm colors; surgical planning uses precise anatomy with clinical palette. **Total cost: $50K-$500K in medical miscommunication liability and revision cycles when illustrations fail their intended audience.**
-- **3D model for web that's 500MB** — the surgeon opens it on a hospital computer (typical specs: integrated graphics, 8GB RAM, throttled internet). The browser tab crashes. Medical environments run on outdated hardware. Target: load in < 10 seconds on a 3-year-old hospital workstation with shared WiFi. **Total cost: $100K-$300K in development rework and lost contract value when models fail acceptance testing on target hospital hardware.**
-- **Color choices that are inaccessible** — red/green coding for healthy vs diseased tissue is invisible to 8% of male surgeons (color vision deficiency). Use blue/orange or add texture/pattern differentiation. A surgeon who can't see the contrast may miss the pathology you highlighted. **Total cost: $100K-$1M in surgical error liability and malpractice claims from missed pathology due to inaccessible color coding.**
-- **Unversioned medical illustrations in EHR systems** — an illustration of a surgical procedure is embedded in the electronic health record. Six months later, the procedure technique changes (new guideline). The old illustration stays in the EHR and a resident follows the outdated visual guide during surgery. Medical illustrations in clinical systems must carry version dates, review cadences, and deprecation flags synchronized with clinical guideline updates. **Total cost: $500K-$5M in surgical error liability and guideline non-compliance when outdated illustrations influence clinical decisions.**
-- **Patient education illustrations without health literacy validation** — an illustration explaining a colonoscopy prep procedure uses anatomical cross-sections and medical terminology. The target patient population has an average 6th-grade reading level, and 40% speak English as a second language. The illustrated instructions are incomprehensible to the majority of patients, leading to improper prep and cancelled procedures. **Total cost: $100K-$300K annually in cancelled procedures, rescheduled appointments, and repeat prep kits when illustrations fail health literacy standards.**
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| **Anatomical accuracy at the expense of communicative clarity** — a technically perfect illustration of the brachial plexus that a neurosurgeon loves but a patient finds terrifying. | $50K-$500K in medical miscommunication liability and revision cycles when illustrations fail their intended audience. | Match rendering to audience: patient education uses simplified forms with warm colors; surgical planning uses precise anatomy with clinical palette. Know your audience before you draw. |
+| **3D model for web that's 500MB** — the surgeon opens it on a hospital computer (integrated graphics, 8GB RAM, throttled internet) and the browser tab crashes. | $100K-$300K in development rework and lost contract value when models fail acceptance testing on target hospital hardware. | Target load time under 10 seconds on a 3-year-old hospital workstation with shared WiFi. Medical environments run on outdated hardware — design for it. |
+| **Color choices that are inaccessible** — red/green coding for healthy vs diseased tissue is invisible to 8% of male surgeons with color vision deficiency. | $100K-$1M in surgical error liability and malpractice claims from missed pathology due to inaccessible color coding. | Use blue/orange or add texture/pattern differentiation. Never rely on color alone to convey critical clinical information. Test with colorblind simulators. |
+| **Unversioned medical illustrations in EHR systems** — a surgical illustration embedded in the EHR stays unchanged after procedure guidelines update. A resident follows the outdated visual guide during surgery. | $500K-$5M in surgical error liability and guideline non-compliance when outdated illustrations influence clinical decisions. | Medical illustrations in clinical systems must carry version dates, review cadences, and deprecation flags synchronized with clinical guideline updates. |
+| **Patient education illustrations without health literacy validation** — colonoscopy prep instructions use anatomical cross-sections and medical terminology for a population with 6th-grade reading level and 40% ESL. | $100K-$300K annually in cancelled procedures, rescheduled appointments, and repeat prep kits. | Validate all patient-facing illustrations against health literacy standards. Simplified does not mean inaccurate — simplification applies to detail level, not correctness. |
 
 ## Anti-Rationalization — No Excuses
 

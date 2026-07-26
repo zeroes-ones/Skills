@@ -320,6 +320,7 @@ Common chains:
 3. Initialize workspace: `pnpm-workspace.yaml` with package globs, root `package.json` with dev tooling only.
 4. Configure shared tooling: TypeScript base config, ESLint, Prettier, Jest/Vitest — all as shared packages.
 5. Set up the repository structure: `apps/` for deployables, `packages/` for libraries, `tools/` for generators/scripts.
+  Complete when: Toolchain selected and initialized (pnpm-workspace.yaml configured), shared TypeScript/ESLint/Prettier/Jest configs in place, and repository structure (apps/packages/tools) created.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~20 min): Dependency Governance
@@ -328,6 +329,7 @@ Common chains:
 3. Run `syncpack` or `manypkg` to detect version mismatches across packages. Set up CI check.
 4. Enable `strict-peer-dependencies` in `.npmrc` to catch peer dependency violations at install time.
 5. Detect circular dependencies with `dpdm` or `madge`. Break cycles before they become entrenched.
+  Complete when: All dependency versions synced (syncpack/manypkg passes), strict-peer-dependencies enabled, and zero circular dependencies detected (dpdm/madge clean).
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~25 min): Build Orchestration and Caching
@@ -336,6 +338,7 @@ Common chains:
 3. Set up local caching: enable filesystem cache in CI with restore/save pattern. Use `--cache-dir` for CI isolation.
 4. Define `outputs` per task: `.next/**`, `dist/**`, `coverage/**`. Without outputs defined, caching doesn't work.
 5. Measure: `turbo run build --dry-run=json` or `nx graph` to verify task topology before committing.
+  Complete when: Task pipeline configured with dependsOn topology, remote caching connected and verified, and task graph validates with no errors.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~20 min): CI/CD Pipeline
@@ -344,6 +347,7 @@ Common chains:
 3. Set up cache warming: build `main` branch on push to warm the remote cache for all PRs.
 4. Add dependency boundary checks: `@nx/enforce-module-boundaries` or ESLint `import/no-restricted-paths`.
 5. Implement merge queue: require green CI on all affected packages before merge. No "skip CI" on monorepo PRs.
+  Complete when: Affected detection working in CI (verified by filter returning >0 projects), cache warming on main, dependency boundary rules enforced, and merge queue configured.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~15 min): Versioning and Release
@@ -352,6 +356,7 @@ Common chains:
 3. Configure release workflow: GitHub Action that runs `changeset version` on merge to main, creates Release PR.
 4. Publish to registry: `changeset publish` with `--no-private` to skip non-publishable packages.
 5. Automate changelog: link to PRs, categorize changes (feat/fix/breaking), notify affected teams.
+  Complete when: Versioning strategy chosen (independent/fixed), Changesets configured with automated changelog generation, release workflow tested, and publishing pipeline operational.
 
 
 ## Error Decoder — War Stories from the Trenches
@@ -505,6 +510,15 @@ graph LR
 - **Shared dependency hoisting creating phantom runtime dependencies** — your monorepo uses `node_modules` hoisting to deduplicate `lodash` at the root. Package `admin-ui` imports `lodash` but doesn't declare it in its `package.json` — it works because the hoisted `lodash` is there at runtime. Six months later, a refactor removes `lodash` from `shared-utils` (the ONLY package that declared it). The hoisting collapses — `lodash` disappears from `node_modules`. `admin-ui` breaks in production with `Cannot find module 'lodash'` despite passing all CI checks (which used cached `node_modules` from before the refactor). The bug takes 3 hours to trace because CI was green and nothing in `admin-ui`'s own package.json changed. **Total cost: $20K-$80K per incident in debugging phantom dependencies, plus $50K-$200K in revenue loss if the break affects a customer-facing production path.** Fix: Enforce strict dependency boundaries with ESLint rules (`no-extraneous-dependencies`, `import/no-extraneous-dependencies`) or Nx module boundary rules; configure your package manager to use strict hoisting (`pnpm` with `hoist: false` or `yarn` with `nmHoistingLimits: workspaces`); run a production-mode install+start smoke test in CI (not just dev mode) to catch missing runtime dependencies.
 - **CI pipeline parallelization hitting concurrency limits from monorepo scale** — each of your 20 packages has its own CI job. At 8 concurrent GitHub Actions runners (the default for most plans), jobs queue serially: package 9 waits for package 1, package 17 waits for package 9. Your CI pipeline takes 45 minutes because of queue time, not build time. Developers open PRs at 9 AM and get CI feedback at 9:45 AM — a 45-minute feedback loop. Over 8 PRs/day × 20 developers, that's 120 hours/month of developer waiting time. Three senior engineers ($150/hr) lose 30 hours/month each just waiting for CI — $13,500/month. **Total cost: $50K-$200K/year in developer idle time from CI queue delays, plus $20K-$50K/year in unnecessary CI runner costs from suboptimal parallelization.** Fix: Use affected-detection (`nx affected --target=test`) to only run jobs for changed packages; set up a self-hosted CI runner fleet with auto-scaling to handle peak loads; consolidate fast package tests into shared jobs that test multiple small packages together; negotiate increased runner concurrency with your CI provider for monorepo workloads.
 - **Tool version drift across packages causing silent inconsistencies** — your monorepo standardizes on TypeScript 5.3, but `packages/legacy-dashboard` uses TypeScript 4.9 (pinned during a migration that was never completed) and `packages/experiments` uses TypeScript 5.4 (a developer updated it locally to use a new feature). The root `tsconfig.json` extends base settings, but each package compiles with its own version. `packages/app` compiles with TS 5.3 and generates declarations that reference features from TS 5.4 (via an import from `packages/experiments`). The declarations work in VSCode (which uses the workspace TS version) but fail when published to npm and consumed by an external project running TS 4.9. An external integration partner's CI breaks, delaying their release by 4 days and triggering a contract escalation clause. **Total cost: $30K-$100K per incident in cross-team debugging and partner relationship damage from inconsistent tool versions.** Fix: Enforce a single TypeScript version at the monorepo root with `package.json` `resolutions` or `overrides`; use `syncpack` to ensure all `devDependencies` match across packages; add a CI check that fails if any package declares a different version of a shared dev tool than the root; use `npx syncpack fix-mismatches` as a pre-commit hook to auto-correct drift.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Affected detection silently falls back to "all projects" — CI rebuilds and retests every package on every commit. CI costs balloon and queue times stretch to 45 minutes per push. Nobody notices the cache is broken because "builds still pass." | $50K-$200K/year in wasted CI compute for a 20-package monorepo with 10+ developers. A $12K/month CI bill that should be $3K/month burns $108K/year unnecessarily. | Add a CI step that verifies affected detection: `nx affected --base=HEAD~1` must return >0 projects. Monitor remote cache hit rate as a KPI — alert if <70%. |
+| Circular dependency creeps in during a refactor — `packages/auth` imports from `packages/ui`, which imports from `packages/auth`. Build succeeds locally (cached), fails in production with "Cannot access before initialization." | $30K-$100K in refactoring costs to untangle entrenched circular dependencies discovered months after introduction. Each month without detection compounds the problem. | Enforce `eslint-plugin-import/no-cycle` with `maxDepth: 1` from day one. Run `madge --circular packages/` in CI — fail on any cycle. Retrofitting boundary rules is 5-10x more expensive. |
+| Single version policy enforced uniformly — `pnpm.overrides` forces React 18.3 on all packages. One legacy package requires React 17 and blocks deployment for the entire monorepo. | $20K-$50K in blocked deployments when the 5% of packages that can't upgrade hold the 95% hostage. Each blocked deploy delays feature delivery across all teams. | Implement version policy with documented exceptions: overrides for 95% of packages, per-package overrides for the 5% that can't. Maintain a version drift report and review exceptions quarterly. |
+| Dead packages consume CI time and generate noise PRs — 80% of packages are unmaintained but "someone might need them." Renovate opens weekly PRs against dead packages that nobody reviews. | $15K-$40K/year in review overhead from bot PRs against dead code, plus $30K-$80K/year in wasted CI compute rebuilding packages no one imports. | Implement package ownership with CODEOWNERS. Track usage with `nx graph`. Remove packages with 0 dependents and 0 recent commits (90+ days). Configure Renovate to skip archived/deprecated packages. |
 
 ## Verification
 

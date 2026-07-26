@@ -597,6 +597,16 @@ Before declaring a domain model complete or shipping any feature that depends on
 - [ ] **Audit trail exists:** For regulated domains: every domain rule is traceable from CONTEXT.md definition → enforcing code → test coverage → compliance requirement. A single `grep` from the compliance requirement finds the code that enforces it.
 - [ ] **Glossary steward assigned:** One person per bounded context is accountable for CONTEXT.md freshness in that context. Steward rotation documented. No glossary section is > 30 days without a designated owner.
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Letting CONTEXT.md go stale beyond 30 days — every onboarded developer spends 2-3 weeks learning the domain through trial and error | $30K-$80K per developer in wasted onboarding time | CI check: `find . -name "CONTEXT.md" -mtime +30` flags staleness. Assign a glossary steward per bounded context. Treat CONTEXT.md freshness with the same rigor as test coverage. |
+| Failing to separate bounded contexts before designing database schemas — "Account" means Identity in one context and Billing in another, schema collision is inevitable | $100K-$500K in remediation when schemas collide | Draw a context map BEFORE any database schema. Each bounded context gets its own data model. "Account" in Identity ≠ "Account" in Billing. Map integration patterns (Partnership, Customer-Supplier, Conformist, ACL) explicitly. |
+| Encoding domain rules as implicit if-checks instead of named predicates — regulatory audit fails because rules are invisible | $20K-$60K per audit failure | Every domain rule must be a named, testable predicate: `isEligibleForDiscount(customer, order)` not `if (customer.age > 65 && order.total > 100)`. Named rules are grep-able, testable in isolation, and linkable to CONTEXT.md. |
+| Ignoring term drift across sprints — "UserStatus" means active/inactive in Sprint 6, but online/offline presence in Sprint 12 | $10K-$25K per quarter in misdirected development | Maintain a term drift log. When a term gains a second meaning, trigger the R2 disambiguation protocol: either namespace the terms or rename one. The second meaning is a future production bug until it's resolved. |
+| Treating all subdomains as equally important — 70% of engineering effort goes to generic subdomains (auth, payments) instead of the core domain | $50K-$150K in competitive disadvantage | Classify: Core domain (competitive advantage) gets 70% of effort. Supporting (custom, not differentiating) gets 20%. Generic (solved problems) gets 10% — buy, don't build. Invert the effort if you're spending more on auth than on the thing that makes you unique. |
+
 ## Verification
 <!-- Full 40 lines extracted to references/verification.md -->
 

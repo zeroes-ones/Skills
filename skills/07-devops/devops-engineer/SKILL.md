@@ -351,6 +351,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 2. **Architecture Mapping** — Diagram network topology (VPC peering, transit gateway, PrivateLink), data flows, and service dependencies. Document environment topology: dev → staging → UAT → production → DR.
 3. **Maturity Assessment** — Evaluate IaC coverage (%), CI/CD adoption, observability posture, incident response process. Score 1-5 on each DORA capability.
 4. **Security & Compliance Constraints** — Map regulatory requirements (SOC2, HIPAA, PCI-DSS, GDPR) to infrastructure controls: network segmentation, encryption requirements, data residency, audit logging.
+  Complete when: complete resource inventory is cataloged across all accounts, network topology diagram is documented, DORA maturity score is assessed, and regulatory control mapping is complete.
 
 ### Phase 2 (~30 min): Infrastructure as Code Design
 1. **Tool Selection Matrix**
@@ -388,6 +389,17 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
    - `sensitive = true` on all secret variables
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+  Complete when: Terraform/Pulumi/CDK tool selection is documented with trade-offs, repository structure follows bounded-context separation, remote state is configured with encryption and locking, and modules are versioned by git tag.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Running `terraform apply` directly from a laptop without remote state locking — two engineers apply simultaneously, corrupting the state file and leaving infrastructure in an unrecoverable split-brain state | $50K-$200K in infrastructure recovery and downtime | Always use remote state with DynamoDB (AWS) or GCS (GCP) locking; never run applies from local machines for shared state; CI/CD is the only path to production applies |
+| Hardcoding secrets in `.tfvars` files committed to git — the secret is now in the git history forever, accessible to anyone with repo access; rotation requires rewriting git history | $20K-$100K in secret rotation, incident response, and potential compliance violations | Use `data` sources to fetch secrets at plan time (AWS Secrets Manager, Vault); mark all secret variables with `sensitive = true`; add `.tfvars` to `.gitignore` and use CI-injected variables instead |
+| Refactoring a Terraform module without incrementing the version — 14 downstream environments pick up the breaking change on their next `terraform init -upgrade` and all fail to plan | $30K-$150K in cascading plan failures across the org | Always tag module releases with semantic versions; downstream consumers pin to a specific version, not `main`; run `terraform plan` in a canary environment before rolling out module updates broadly |
+| Destroying infrastructure with `terraform destroy` without checking `prevent_destroy` lifecycle rules — the production database is deleted because the RDS module didn't have deletion protection enabled | $100K-$500K in data loss and recovery | Enable `prevent_destroy = true` on all stateful resources (RDS, S3 buckets, DynamoDB tables); add `deletion_protection = true` at the cloud provider level; require manual approval for any destroy plan targeting production |
 
 
 ## Error Decoder — War Stories from the Trenches

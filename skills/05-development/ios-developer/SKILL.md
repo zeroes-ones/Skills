@@ -326,6 +326,16 @@ Build a complete feature — from Xcode project setup to TestFlight-ready archiv
 
 > 📎 Full content extracted to [references/gotchas.md](references/gotchas.md) — 171 lines of detailed guidance, patterns, and code examples.
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Using `unowned` in async closures — crashes with `EXC_BAD_ACCESS` when object deallocates before callback fires | $10K-$30K in crash-rate regressions and App Store rejections | Always use `weak` in async closures. `unowned` is safe ONLY when the captured object is guaranteed to outlive the closure. In network callbacks, `Task` blocks, and `DispatchQueue`, prefer `guard let self` with `weak`. |
+| Testing entitlements only on Simulator — push notifications, iCloud, HealthKit silently fail on device | $15K-$50K in launch-blocking bugs caught by App Store review | Test every entitlement-dependent feature on a physical device with Release configuration. Simulator doesn't enforce entitlements. Run `codesign -d --entitlements -` on the built .app to verify the plist. |
+| Shipping without code signing on a physical device test — SmartScreen/Gatekeeper blocks install, 60%+ install drop-off | $30K-$100K in lost users at install | Code sign in CI with EV certificate (Windows) and notarization (macOS). Test the installer on a clean VM. The installer IS the first product experience — a warning at install permanently reduces trust. |
+| Using `@ObservableObject` with `@Published` on iOS 17+ — `objectWillChange` broadcasts re-render every subscriber | $5K-$15K in performance regressions on complex view hierarchies | Migrate to `@Observable` macro (iOS 17+). It tracks field-level access and only re-renders views when accessed properties change. Eliminates the broadcast tax on deeply nested views. |
+| Saving user state only on `scenePhase: .background` — `.background` is not guaranteed, system may terminate first | $10K-$25K in data loss complaints | Save critical state on `.inactive` (Control Center, app switcher, incoming calls). `.background` fires after the app is fully backgrounded and may never execute if the system terminates the app. |
+
 ## Verification Checklist
 
 Before marking any iOS task complete:

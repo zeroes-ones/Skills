@@ -560,6 +560,15 @@ Before deploying any context compaction pipeline to production, verify ALL of:
 | 7 | **Uniform pruning without priority scoring:** Removed 30% of tokens uniformly — lost 2 critical ground rules but kept 5 verbose examples | Agent violates pruned ground rules, introduces compliance issues | $20K-$200K in compliance/security violations |
 | 8 | **Tier 3 loaded without Tier 2 grounding:** Agent received full gotchas but no decision tree context to understand when they apply — misapplied edge-case warnings to standard path | Over-cautious agent, unnecessarily complex solutions | $15K-$75K in over-engineering |
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Agent forgets binding architecture decision from turn 3 because it was compacted out without state ledger entry | $100K-$300K in contradictory design decisions and rework | Log every pruned decision to the state ledger with unique key. Before proposing architectural changes, check the ledger for prior decisions in the same domain. Context rotation without state ledger = amnesia. |
+| Negation dropped during minification — "Do NOT use for production" becomes "Use for production" | $50K-$250K in production incidents from semantically inverted instructions | Run behavioral equivalence validation at ≥ 95% threshold. Test negations and constraints specifically — they are the most fragile during compaction. Add negation-preservation check to the compiler pipeline. |
+| Recency-only eviction drops critical old content while keeping verbose recent logs | $50K-$150K/year in wasted tokens and lost context | Replace recency-only eviction with importance-weighted eviction: importance × recency × uniqueness. A binding decision from turn 3 matters more than a resolved error from turn 9. |
+| Compaction threshold set too high (95%) — pipeline runs at 90% saturation without triggering | $50K-$200K/year in degraded model performance from context overflow | Set proactive compaction trigger at 70% saturation. Compact Tier 3 content at 70%, evict Tier 3 at 85%+, emergency eviction at 95%. Proactive compaction at 70% produces better summaries than reactive compaction at 95%. |
+
 ## Verification
 
 | # | Check | Expected |

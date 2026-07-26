@@ -188,6 +188,8 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 2. **Backlog Establishment** — User story format, ordered by value (WSJF for complex prioritization), relative sizing (Fibonacci), top 2-3 sprints refined.
 3. **Sprint Cadence** — 2 weeks standard. Fixed ceremony schedule. Protect the rhythm.
 
+  Complete when: Team charter with DoR and DoD is documented and agreed by the team; prioritized product backlog with top 2-3 sprints refined is established; sprint cadence and ceremony schedule is locked in team calendar.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Ceremony Facilitation
 
@@ -197,12 +199,16 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 4. **Sprint Review** (1hr/week of sprint) — Collaborative inspection of increment + backlog adaptation.
 5. **Sprint Retrospective** (1.5hr for 2-week sprint) — Gather data → generate insights → decide 1-3 improvement experiments → close.
 
+  Complete when: Sprint planning template with capacity-based commitment is in use; daily scrum format (board right-to-left) is established; backlog refinement cadence (10% of capacity) is scheduled weekly; sprint retro template with 1-3 improvement experiments per sprint is defined.
+
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Metrics, Impediments & Scaling
 
 1. **Agile Metrics** — Velocity (3-sprint rolling avg), Sprint Burndown, Cumulative Flow Diagram (CFD), Cycle Time, Escaped Defects, Team Health, Sprint Goal Success Rate.
 2. **Impediment Removal** — External and internal impediments. Maintain impediment log. Track resolution time.
 3. **Scaling** — Nexus (3-9 teams), LeSS (up to 8 teams, single backlog), SAFe (if organizational mandate). Goal: minimize cross-team dependencies.
+
+  Complete when: Velocity tracking with 3-sprint rolling average is operational; cumulative flow diagram is generated; impediment log with resolution time tracking is maintained; scaling framework selection is documented with rationale and cross-team dependency map.
 
 
 ## Best Practices
@@ -418,6 +424,14 @@ graph LR
 - **Retrospective action items without owners** — "improve code review turnaround" becomes a recurring retro topic for 6 sprints. Every action item needs an owner AND a measurable target: "Sarah will reduce average PR review time from 8 hours to 4 hours by next retro by implementing CODEOWNERS routing." **Total cost: $100,000-$300,000 per year** in recurring inefficiencies — each unowned action item costs ~$25,000 in repeated engineer-hours across sprints.
 - **Daily standup as status report to the Scrum Master** — team members report to the SM instead of coordinating with each other. The SM becomes a bottleneck. Standup should be team-to-team coordination; the SM observes and removes blockers, not directs. **Total cost: $80,000-$200,000 per year** in lost engineering productivity — a 9-person team losing 15 minutes/day to status-report standups burns $100,000+ annually in meeting overhead.
 - **Skipping sprint reviews for "internal" work** — the team delivers features without stakeholder feedback for 3+ sprints. When stakeholders finally see the product, it solves the wrong problem. Rework costs 10-20x more than early feedback. **Total cost: $250,000-$1,000,000 per release** in scrapped features and re-implementation effort.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Zombie sprint goals that the team cannot articulate | $50K-$200K in misaligned effort | Every standup starts with the sprint goal — if anyone can't state it, pause the sprint |
+| Retrospective theater with no follow-through on action items | $30K-$100K in lost improvement velocity | Track retrospective action items to >=80% completion within the sprint they were assigned |
+| WIP limit violations that go unchecked | $40K-$160K in context switching overhead | Monitor WIP limits daily — no team member should have >3 items in progress simultaneously |
 
 ## Verification
 

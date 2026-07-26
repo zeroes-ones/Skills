@@ -209,6 +209,11 @@ VPC/BLOCK DESIGN — How many VPCs and what CIDR ranges?
    - **Input**: Service placement plan, internet access requirements.
    - **Output**: Subnet map per VPC per AZ. Route tables configured.
 
+Complete when:
+- Network topology diagram (draw.io/Lucidchart) with all regions, VPCs, subnets, NAT/Internet gateways, endpoints, and TGW/VPN connections exported
+- CIDR allocation spreadsheet with master supernet, per-region, per-environment, and per-AZ blocks documented
+- Subnet architecture (public/private/isolated/egress-only) mapped with route tables per VPC per AZ
+
 ### Phase 2 (~30 min): DNS & Traffic Management
 
 1. **Design DNS architecture**: Create public hosted zone (`example.com`) for customer-facing records.
@@ -226,6 +231,11 @@ VPC/BLOCK DESIGN — How many VPCs and what CIDR ranges?
 3. **Set up CDN and edge caching**: CloudFront (AWS), Cloud CDN (GCP), Azure Front Door.
    Origin: ALB or S3/Blob Storage. Cache behaviors: cache static assets (images, CSS, JS)
    for 1 year (version
+
+Complete when:
+- DNS architecture designed: public and private hosted zones, forwarding rules for hybrid resolution, TTL strategy documented
+- Load balancers configured: ALB for HTTP/S with SSL termination, NLB for non-HTTP, health checks passing, access logs enabled
+- CDN configured with origin, cache behaviors, and edge caching policies for static assets
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -375,6 +385,10 @@ graph LR
   - No → Either option works. Peering is simpler if transitivity isn't needed.
   - Need centralized egress (NAT, firewall, inspection) → TGW with a shared services VPC. Route all spoke traffic through centralized inspection before egress.
 
+Complete when:
+- VPC count, cross-region requirements, and transitive routing needs assessed and documented
+- Scale threshold decision (peering for ≤3 VPCs, TGW for 4+) made with written rationale
+
 #### Phase 2: Cost & Operational Tradeoffs
 - **Data transfer volume**: Calculate monthly cross-VPC traffic.
   - Intra-AZ: VPC peering is FREE. TGW charges $0.02/GB processed.
@@ -387,6 +401,11 @@ graph LR
   - Small team (<5 engineers) → VPC peering is simpler to debug, fewer moving parts. Each connection is explicit and self-documenting.
   - Larger team with IaC → TGW's centralized management through Terraform/CDK reduces per-VPC configuration overhead.
 - **Bandwidth**: VPC peering has no bandwidth limit (limited by instance bandwidth). TGW attachments support 50 Gbps burst each. For >50 Gbps per VPC, use multiple TGW attachments with ECMP.
+
+Complete when:
+- Monthly cross-VPC data transfer volume calculated with cost comparison (peering vs TGW)
+- Centralized control requirements (inspection, shared services, segmentation) assessed
+- Operational complexity evaluation completed factoring team size and IaC maturity
 
 **Decision Matrix:**
 
@@ -416,6 +435,10 @@ graph LR
   - Customer-facing web app, API, or SaaS → Internet-facing behind CDN/WAF.
   - Internal admin dashboard, CI/CD tools, monitoring → Internal LB with VPN/bastion access. NEVER expose admin tools directly to the internet.
 
+Complete when:
+- All service consumers identified and classified (public internet, external partners, internal services, admin tools)
+- Exposure decision per consumer type documented with rationale (internet-facing vs internal)
+
 #### Phase 2: Security & Compliance Assessment
 - Does the service handle regulated data (PCI-DSS, HIPAA, SOC2)?
   - Yes → Strongly prefer internal LB. If internet-facing is unavoidable: add WAF with managed rules, IP reputation filtering, geographic restrictions, bot control, and mandatory TLS 1.2+.
@@ -427,11 +450,21 @@ graph LR
   - Yes (data must never traverse public internet) → Internal LB + PrivateLink/VPC endpoints for cross-account/VPC access.
   - No → Internet-facing with TLS is acceptable.
 
+Complete when:
+- Regulated data handling requirements (PCI-DSS, HIPAA, SOC2) assessed with security controls documented
+- Blast radius analysis completed: what internal resources are reachable if the LB is compromised
+- Compliance mandates for data residency and network segmentation verified
+
 #### Phase 3: Architecture Patterns & Exceptions
 - **API Gateway pattern**: Use internet-facing API Gateway (AWS API Gateway, Kong, Envoy) as the single public entry point. All backend services use internal LBs behind the gateway. Limits your public surface area to one endpoint.
 - **CDN origin pattern**: Deploy internal ALB. Use CloudFront with VPC Origin (or equivalent CDN private origin feature) to keep the ALB private while serving public traffic through the CDN. Avoids exposing the origin to the internet entirely.
 - **PrivateLink pattern**: Expose a service to OTHER AWS accounts without internet. Deploy internal NLB + VPC Endpoint Service. Consumers in other accounts create VPC endpoints. Traffic never leaves the AWS backbone.
 - **Edge VPC pattern**: Centralize internet-facing LBs in a dedicated edge/ingress VPC. Route to internal LBs in workload VPCs via TGW or PrivateLink. Only the edge VPC has internet gateways — workload VPCs are fully private.
+
+Complete when:
+- Architecture pattern (API Gateway, CDN origin, PrivateLink, Edge VPC) selected based on consumer profile
+- Pattern decision documented with rationale and rejection of alternatives
+- Public surface area minimized to single entry point where possible
 
 **Decision Matrix:**
 
@@ -459,6 +492,15 @@ graph LR
 - **Flat network architecture without segmentation.** All production workloads share a single VPC with no micro-segmentation — when an attacker compromises a public-facing web server, they scan the entire `/16` and pivot to the database tier, the CI/CD runner, and the secrets management instance without any network controls slowing lateral movement. **Total cost: $500K-$2M in breach scope expansion from unrestricted lateral movement — a segmentation architecture typically limits blast radius to a single subnet.** Implement micro-segmentation with security groups per workload tier, Network Policy (Kubernetes) or AWS Firewall, and zero-trust network access between all non-adjacent tiers.
 - **Cloud egress cost surprise from cross-AZ or cross-region traffic.** A microservices architecture with NAT gateways in each AZ and inter-service calls across AZ boundaries generates $0.01-$0.02/GB in cross-AZ data transfer — a data-intensive pipeline moving 50TB/month cross-AZ accumulates $1,000-$2,000/month that nobody budgeted for. **Total cost: $5K-$50K/month in unexpected cloud egress charges for data-heavy workloads ($0.05-$0.12/GB internet egress, $0.01-$0.02/GB cross-AZ).** Deploy VPC endpoints (Gateway Endpoints for S3/DynamoDB, Interface Endpoints for other services), co-locate services that communicate heavily in the same AZ, and set billing alerts on data transfer line items before they become CFO conversations.
 - **Missing or stale network topology documentation after personnel changes.** The senior network engineer who architected the multi-cloud VPC peering, Transit Gateway, and Direct Connect topology leaves the company — the architecture existed only in their head. Six months later, a routine TLS certificate rotation on an internal-facing Application Load Balancer takes down production for 6 hours because nobody documented which certificates terminate where, which route tables reference which gateways, and which security groups allow health-check traffic between tiers. Network outages caused by missing documentation are the most common avoidable cause of extended MTTR — every minute of downtime from "figuring out how it's connected" is pure waste. **Total cost: $50K-$300K per extended outage from undocumented network topology, plus $10K-$25K in emergency consulting fees to reverse-engineer the architecture.** Maintain a living network diagram (Lucidchart, draw.io, or infrastructure-as-diagram tooling) updated with every infrastructure change, documenting every peering connection, route table entry, security group rule intent, and TLS termination point with expiration dates.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Single-region deployment with no multi-region failover | $100K-$500K/hour in revenue loss during a regional outage | Design active-passive multi-region from day 1. Test failover quarterly. Document RTO/RPO targets |
+| Flat network with no micro-segmentation — one compromise becomes full network access | $500K-$2M in breach scope expansion from unrestricted lateral movement | Implement least-privilege network segmentation. Use security group references not CIDR ranges. Zero-trust between all non-adjacent tiers |
+| Missing network cost monitoring — cross-AZ traffic surprises | $50K-$300K/month in unexpected cross-AZ and egress charges | Set billing alerts on data transfer line items. Co-locate chatty services in same AZ. Use VPC endpoints for S3/DynamoDB |
+| CIDR overallocation exhausting RFC 1918 space across environments | $15K-$50K/year in renumbering projects when ranges overlap across VPCs | Plan CIDR allocations with future growth. Use /22 per environment max. Reserve contiguous supernets for region expansion |
 
 ## Verification
 

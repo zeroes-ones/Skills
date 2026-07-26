@@ -150,6 +150,7 @@ What deprecation/migration task are you working on?
    |-- Tier 4 (Intervention Needed): Growing traffic on deprecated surface
    |-- Tier 5 (Contract-Bound): Paying customers, cannot remove unilaterally
 ```
+  Complete when: All deprecated surfaces inventoried with traffic categories (ZERO/DECLINING/STABLE/GROWING), zombie code measured (target <3% of codebase), and removal priority tiers (1-5) assigned to each surface.
 
 ### Phase 2: Migration Guide
 
@@ -178,6 +179,7 @@ What deprecation/migration task are you working on?
    |-- Identify slow migrators for direct outreach
    |-- Celebrate migration milestones to maintain momentum
 ```
+  Complete when: Migration guide published with before/after examples for every deprecated surface, migration tooling available (codemods or lint rules), and migration progress tracking dashboard operational.
 
 ### Phase 3: Removal Execution
 
@@ -204,6 +206,7 @@ What deprecation/migration task are you working on?
    |-- Announce removal completion to stakeholders
    |-- Retro: was the deprecation smooth? What could be improved?
 ```
+  Complete when: Zero traffic to removed surface confirmed for 30+ days, all consumers migrated or released, 48-hour post-removal monitoring shows zero errors, and retrospective documented.
 
 ## Decision Trees **(QUICK)**
 
@@ -487,6 +490,15 @@ Bad alternative (anti-pattern):
 - **A deprecation timeline set by engineering convenience, not user reality, forces churn.** Engineering sets a 30-day deprecation window for an API because "the migration is simple -- just change one parameter." Enterprise customers with change control boards, compliance reviews, and QA cycles need 90-120 days minimum. They cannot meet the deadline and escalate to their account executives. **Total cost: $50,000-$200,000 in account management time, contract renegotiations, and potential customer loss.** Fix: Survey your heaviest users before setting deprecation timelines. The sunset date should be: max(engineering_estimate * 3, slowest_customer_migration_time * 1.5, 90 days).
 
 - **Removing error handling for "impossible" conditions creates silent data corruption.** During a zombie hunt, a developer removes error handling for a database constraint violation because "this constraint is enforced at the application layer, so it can never fail in production." Six months later, a race condition in a new feature bypasses the application check, the constraint violation is unhandled, and the transaction silently fails -- corrupting financial data for 2 weeks before detection. **Total cost: $50,000-$500,000 in financial data correction and audit remediation.** Fix: Distinguish between "dead code" (never reached in any execution path) and "error handling for unlikely conditions." Zombie code removal must not remove safety nets. If you remove an error handler, replace it with an explicit assertion that fires an alarm if the impossible happens.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Deprecation announced but never enforced — consumers learn "deprecated" means "permanent." The old API accumulates 50K calls/day indefinitely, blocking removal of 15% of the codebase. | $50K-$200K in permanent maintenance overhead from maintaining dead code paths, plus $30K-$80K in delayed architecture improvements blocked by the undead API. | Escalate deprecation with progressive enforcement: warning header (3 months) → rate limiting (10% throttle/month) → scheduled brownouts (5 min/week) → hard cutoff. Communicate the escalation schedule upfront. |
+| Deprecation window set without measuring slowest consumer's release cycle — teams on quarterly cadences get 30 days, covering only ⅓ of a cycle. Impossible to migrate through normal process. | $25K-$100K in emergency-patch costs when teams are forced to hotfix migrations on weekends to meet an artificially short deadline. | Measure consumer release cadence before setting timeline. Timeline = max(slowest_consumer_release_cycle × 2, 90 days). For external consumers: minimum 6 months. |
+| Zombie code removal without traffic verification — removing a "dead" code path that handles 0.01% of edge-case traffic causes production errors for months before anyone connects the dots. | $15K-$50K per incident in debugging mysterious production errors correlated to a code removal that happened months ago. | Require 90-day traffic data (not 30-day) before removing any code path. Cross-reference static analysis with runtime telemetry. Keep removed code in a tombstone branch for 90 days after deletion. |
+| Deprecation communicated only via broadcast Slack channel that consumer teams have muted — teams discover the breaking change when their builds fail months later. | $20K-$60K in emergency migration costs when teams scramble under duress, plus $30K-$100K in delayed feature delivery from blocked deploys. | Multi-channel notification: Slack + email to team leads + runtime deprecation warning in API response header + GitHub issue tagged on consumer repos. Track acknowledgment — require explicit confirmation within 14 days. |
 
 ## Verification
 

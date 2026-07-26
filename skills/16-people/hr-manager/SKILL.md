@@ -298,6 +298,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 **What good looks like:** An employee's first day runs without a hitch — systems work, manager is present, handbook is signed. A departing employee receives their final paycheck on time and leaves with dignity. A leave runs concurrently where required, with no gaps in coverage or missed deadlines.
 
+  Complete when: Enablement materials delivered, recipient confirmation received, and follow-up cadence established.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2 (~20 min): Policy & Compliance
@@ -305,6 +307,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Employee Handbook:** Maintain a living document covering: anti-harassment and discrimination, code of conduct, leave policies (FMLA, state, parental, PTO), remote/hybrid work, expense reimbursement, data security, social media, progressive discipline. Review and update annually, or immediately when laws change. Every policy needs: purpose, scope, policy statement, procedures, consequences, and acknowledgment.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
 
 
 ## Error Recovery
@@ -576,6 +580,26 @@ Before implementing any HR program or policy change, verify ALL of:
 | "Top performer quit — exit interview reveals they were unhappy for 9 months" | Only conducted exit interviews, never stay interviews. Problems festered for months before the employee gave notice. | Implement quarterly 30-minute stay interviews: "What keeps you here? What might pull you away? When did you last think about leaving?" Track themes across org. | Replacing a senior employee costs $180K-$250K. Stay interviews reduce regrettable attrition by 25-35%. Ask before they leave. |
 | "80% of employees got 'Exceeds Expectations' — merit budget meaningless" | Performance reviews without calibration. Managers rate independently with different standards, all inflating to protect their teams. | Hold calibration sessions before finalizing ratings. All departmental managers discuss their ratings together, defend outliers with evidence, normalize distribution. | Uncalibrated reviews misallocate $200K+ merit budgets and drive top performers to leave within 2-3 cycles. |
 | "New hire quit in month 4 — said they never felt integrated" | No structured onboarding. Paperwork-only first week. 30/60/90-day check-ins never happened. Manager assumed "they'll figure it out." | Implement structured 90-day onboarding with BambooHR/Sapling. Day 1: meet team, understand "done," receive 30-day plan. 30/60/90 check-ins with written feedback. | Companies with structured onboarding see 58% higher 3-year retention. $15K-$40K replacement cost per hire. Invest in onboarding. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
 

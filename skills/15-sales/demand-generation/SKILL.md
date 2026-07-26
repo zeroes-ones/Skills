@@ -311,11 +311,15 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 Build a reverse funnel from revenue target: Revenue target → Pipeline needed (at close rate X) → SQLs needed (at SQL→Opp rate Y) → MQLs needed (at MQL→SQL rate Z) → Leads needed (at Lead→MQL rate W). Example: $2M quarterly revenue target. Avg deal size $50K = 40 closed deals. Close rate 25% = 160 opportunities. SQL→Opp rate 60% = 267 SQLs. MQL→SQL rate 15% = 1,780 MQLs. Lead→MQL rate 10% = 17,800 leads. Now allocate across channels: organic %, paid %, email %, events %, partner %. Track actuals vs. plan weekly. Reforecast monthly.
 
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2 (~60 min): Marketing Operations Setup
 
 Marketing ops is the infrastructure: choose your platform (HubSpot for SMB/mid-market, Marketo for enterprise, Pardot if Salesforce-native required). Set up: (1) Tracking — UTM parameters enforced on every outbound link, form submissions captured with source data, cookie-based tracking for anonymous visitors, first-touch and last-touch fields populated at conversion, (2) Lead lifecycle stages — Visitor → Lead → MQL → SQL → Opportunity → Customer → Evangelist, with automated stage transitions based on scoring and actions, (3) Email automation — nurture sequences triggered by behavior (content download → related nurture track, pricing page visit → sales outreach alert), (4) List hygiene — bounce management, unsubscribe compliance, deduplication, suppression lists, (5) Attribution — U-shaped model as default, campaign influence tracking, ROI dashboards by channel, (6) Reporting — weekly pipeline dashboard: leads by channel, MQL volume, MQL→SQL rate, SQL→Opp rate, pipeline created, CAC by channel, LTV:CAC ratio.
+
+  Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
 
 <!-- DEEP: 10+min -->
 
@@ -324,6 +328,8 @@ Marketing ops is the infrastructure: choose your platform (HubSpot for SMB/mid-m
 Design nurture sequences, not email blasts. Architecture: (1) Welcome sequence (3 emails over 7 days) — triggered on first conversion. Email 1: deliver the asset. Email 2: social proof + case study. Email 3: soft CTA (demo, trial, assessment), (2) Behavioral triggers — pricing page visit → case study email within 1 hour, feature page visit → product demo video, high engagement → sales alert, inactivity (30 days no click) → re-engagement drip (subject: "Still interested?"), (3) Newsletter (bi-weekly) — curated content, product updates, customer stories. Segment by persona so CTOs don't get end-user content, (4) Re-engagement — 3-email sequence for dormant leads. Email 1: "We miss you"
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
 
 
 ## Error Recovery
@@ -550,6 +556,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Attribution report shows "Campaign X drove $500K" but model is unspecified | Single number reported without methodology or lookback window | Attribution model not selected or documented; stakeholders don't understand model differences | Always report: model name (U-shaped/W-shaped/multi-touch), lookback window (90/180/365 days), and disclaimer that attribution is directional for budget allocation |
 | ABM program: 500 target accounts engaged, 3 opportunities created | Marketing generated engagement signals but sales didn't follow up within 48 hours | No sales follow-up SLA in ABM program; signal decay exponential after 48 hours | Implement 48-hour sales follow-up SLA; auto-escalate breaches to sales leadership; pause ABM spend if SLA breach rate exceeds 20%; add sales capacity check before launching new ABM campaigns |
 | LinkedIn ads: CPL rising 15% month-over-month, CTR declining | Creative fatigue — same ads running for 6+ weeks without refresh | No creative testing cadence; single variant per campaign; no kill criteria | Launch ≥5 variants per campaign; kill variants after $500 spend if CTR < 2× channel average; refresh weekly; never run same creative >14 days |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
 
 ## Verification
 

@@ -256,6 +256,7 @@ Need to prove N sequential computations
 3. Select proof system via Decision Tree 1
 4. Select circuit language via Decision Tree 2
 **Completion criteria:** Proof system and language selected with documented rationale. Alternatives considered and rejected with trade-off analysis.
+Complete when: Proving goal clearly defined (private computation, rollup, identity, zkML). Constraints assessed (on-chain verification, recursion needs, trusted setup tolerance). Proof system selected via Decision Tree 1 with trade-off analysis documented. Circuit language selected via Decision Tree 2 with rationale.
 
 ### Phase 2: Circuit Design & Implementation (est. 4-20 hours)
 1. Implement circuit in selected language (Circom 2, Noir, Halo2, ZoKrates)
@@ -265,6 +266,7 @@ Need to prove N sequential computations
 5. Apply Boolean constraints to all bit signals: `bit * (bit - 1) === 0`
 6. Verify intermediate signals are constrained by at least one quadratic equation
 **Completion criteria:** Circuit compiles without errors. All signals have corresponding constraints. Range checks and Boolean constraints applied. `circom --r1cs` shows expected constraint count.
+Complete when: Circuit compiles without errors in selected language (Circom 2/Noir/Halo2/ZoKrates). All public inputs, private inputs, and output signals defined. Constraint equations written for every signal relationship. Range checks (Num2Bits/LessThan) applied to all public inputs. Boolean constraints (`bit * (bit - 1) === 0`) applied to all bit signals. R1CS constraint count matches expected design.
 
 ### Phase 3: Constraint Auditing (est. 4-8 hours)
 1. Run automated under-constraint detection: `circom --inspect` or custom scripts
@@ -274,6 +276,7 @@ Need to prove N sequential computations
 5. Fuzz test: generate random valid inputs and verify proof verification passes
 6. Negative test: generate invalid witnesses and verify proof verification fails
 **Completion criteria:** Automated audit passes. All output signals are constrained. All public inputs have range checks. No free variables in the constraint system.
+Complete when: Automated under-constraint detection run with zero findings. Every `<--` verified to have corresponding `===` constraint. All public inputs verified with range constraints. Boolean constraint pattern confirmed for all bit signals. Positive fuzz tests pass (valid inputs verify). Negative fuzz tests pass (invalid witnesses fail verification).
 
 ### Phase 4: Recursive Composition & Optimization (est. 4-12 hours)
 1. If recursive proving needed: select Nova (IVC), SuperNova (NIVC), or Halo2
@@ -282,6 +285,7 @@ Need to prove N sequential computations
 4. Profile proving time and proof size
 5. Optimize: reduce constraint count, leverage lookup tables, tune FRI parameters
 **Completion criteria:** Recursive proving pipeline functional. Proving time and proof size meet performance targets. Folding verifier circuit constraints within budget.
+Complete when: Recursive proving scheme selected (Nova IVC/SuperNova NIVC/Halo2) with rationale. Folding scheme circuits implemented for iterative computation. Recursive verification circuit tested end-to-end. Proving time and proof size measured against performance targets. Folding verifier circuit constraints within gas/performance budget.
 
 ### Phase 5: Verifier Deployment & Integration (est. 2-8 hours)
 1. Generate Solidity verifier contract (snarkjs for Groth16, custom for others)
@@ -290,6 +294,7 @@ Need to prove N sequential computations
 4. Integrate verifier with application: frontend, wallet, or rollup node
 5. End-to-end test: generate proof off-chain, verify on-chain
 **Completion criteria:** Verifier deployed on target chain. Gas costs measured and documented. End-to-end proof generation and verification works end-to-end.
+Complete when: Solidity verifier contract generated and deployed to testnet. Gas costs measured and documented for verification. Verification gas optimized (batch verification, calldata optimization) if needed. Verifier integrated with application (frontend/wallet/rollup node). End-to-end test: proof generated off-chain and verified on-chain successfully.
 
 ### Phase 6: Security Hardening & Production Readiness (est. 4-8 hours)
 1. Run full under-constraint audit as final check
@@ -298,8 +303,17 @@ Need to prove N sequential computations
 4. Add monitoring for proof verification failures
 5. Write incident response plan for proof system vulnerability disclosure
 **Completion criteria:** Security audit report. Production readiness checklist completed. Incident response plan documented.
+Complete when: Full under-constraint audit completed as final check with zero findings. Trusted setup ceremony documentation verified (if Groth16). Security assumptions documented (soundness model, trusted setup, FRI parameters, curve security). Proof verification failure monitoring configured. Incident response plan for proof system vulnerability disclosure documented.
 
 <!-- STANDARD: 3min -->
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Under-constrained circuits allow malicious provers to generate valid proofs for false statements — a single missing constraint on an output signal means the prover can forge any value | $500K-$50M in exploited funds per incident | Every output signal (`<--`) must have a corresponding equality constraint (`===`). Audit with a dedicated under-constraint detector. Run negative fuzz tests with invalid witnesses to confirm verification fails. |
+| Missing range checks on public inputs enable overflow attacks — a maliciously large public input wraps around in the finite field to bypass protocol invariants | $200K-$10M depending on protocol TVL | Apply `Num2Bits`, `LessThan`, or custom range templates on every public input. Treat every public input as an attack surface. Verify ranges in both the circuit and on-chain verifier contract. |
+| Trusted setup ceremony without a public random beacon contribution allows the final participant to compute the toxic waste and forge unlimited proofs | Complete loss of soundness — all funds in the system at risk | Always append a recent Ethereum/Bitcoin block hash or NIST randomness beacon as the final contribution. Verify each contribution with on-chain attestations. Use a multi-party ceremony with at least one honest participant assumption verified. |
+
 ## Best Practices
 
 1. **Every output signal with `<--` must have a corresponding `===` constraint.** Missing the equality constraint allows a malicious prover to assign any field element to the output while still generating a valid proof. This is the #1 cause of ZKP circuit exploits — the prover can forge outputs at will.

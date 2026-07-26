@@ -175,6 +175,7 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 3. Determine server type(s) needed: filesystem, database, API, memory, search
 4. Confirm deployment context: local dev, remote service, multi-tenant
 ```
+  Complete when: All existing MCP servers inventoried; agent platform identified; server type requirements documented; deployment context confirmed.
 
 ### Phase 2: Transport Selection
 ```
@@ -183,6 +184,7 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 3. Remote server, streaming needed → Streamable HTTP + SSE (GET /mcp/sse for events)
 4. Legacy compatibility only → SSE (deprecated, prefer Streamable HTTP)
 ```
+  Complete when: Transport type selected (STDIO/Streamable HTTP/SSE) with documented rationale matching deployment context; legacy SSE identified for migration.
 
 ### Phase 3: Server Configuration
 ```
@@ -192,6 +194,7 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 4. Apply security hardening (filesystem scope, auth, resource whitelist)
 5. Configure namespace prefix for multi-server setups
 ```
+  Complete when: mcp-config.json written with server declaration, transport, and args; tool authorization set per-tool (allow/deny/require-approval); filesystem scope locked; namespace prefix configured.
 
 ### Phase 4: Validation & Diagnostics
 ```
@@ -202,6 +205,7 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 5. Test invocation: call a sample tool, verify response
 6. Test shutdown: verify clean disconnect, no orphaned process
 ```
+  Complete when: Connection, tools/list, resources/list, prompts/list, tool invocation, and shutdown all tested successfully; diagnostics log clean.
 
 ### Phase 5: Production Hardening
 ```
@@ -212,6 +216,7 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 5. Configure logging for all tool invocations (audit trail)
 6. Set up health checks and connection monitoring
 ```
+  Complete when: Filesystem scope minimized; OAuth enabled for remote transports; tool authorization deny-by-default; audit logging active; health checks passing.
 
 ---
 
@@ -552,6 +557,15 @@ Before deploying any MCP configuration to production, verify ALL of:
 6. **Hardcoded API keys in MCP server config** — **$200K+** credential leak. `mcp-config.json` committed to git with `GITHUB_TOKEN=ghp_xxxx` in the environment variables. Anyone with repo access gets the token. Mitigation: Use secrets manager references (`${env:GITHUB_TOKEN}`), never hardcode. Add `mcp-config.json` to `.gitignore` if it contains sensitive env vars. Use `--env-file` from a gitignored path.
 
 7. **Race condition in STDIO process management** — **$15K+** intermittent failures. Agent spawns an MCP server, sends `initialize` before the process is ready, gets a broken pipe. Under load, this causes cascading failures. Mitigation: Wait for server ready signal before sending initialize. Implement health-check before tool invocation. Use process supervision (systemd, supervisord) for production.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| MCP server with root filesystem scope — prompt injection reads ~/.ssh/id_rsa | $50K-$250K in credential exposure and lateral movement risk | Scope filesystem servers to specific project directories only (never `/` or `~`). Validate with `grep` for root-scoped paths before deploying. |
+| Database MCP server with `execute_sql` set to `allow` — agent can DROP TABLE | $100K-$500K in data loss and recovery costs | Set write operations to `require-approval`. Destructive operations (DDL, DROP) to `deny`. Audit every tool's capability before setting authorization. |
+| Streamable HTTP MCP server without authentication — open proxy to internal data | $50K-$200K in unauthorized data access from internal network attackers | Require OAuth 2.0 bearer tokens on every remote HTTP transport. Validate token on every request. Never expose unauthenticated MCP endpoints. |
+| Zombie MCP processes accumulate after agent disconnect — resource exhaustion over time | $20K-$100K in compute costs from orphaned STDIO processes | Implement shutdown handshake (initialize → use → shutdown). Use process supervision (systemd, supervisord) to reap orphaned processes. Monitor process count per MCP server. |
 
 ---
 

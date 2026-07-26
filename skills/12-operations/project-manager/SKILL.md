@@ -357,6 +357,8 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
 9. **Communication plan**: Stakeholder → information need → format → frequency → owner
 10. **Risk register (RAID)**: Risks, Assumptions, Issues, Decisions — T-shirt sizing (L/M/S), probability, impact, mitigation
 
+  Complete when: Project charter with problem statement and success criteria is signed off; WBS with work packages (8-80 hour rule) is decomposed; critical path diagram with zero-float activities is complete; RAID log is initialized with identified risks and mitigations.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Execution & Monitoring
 
@@ -367,6 +369,8 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
 5. **Burndown/burnup**: Track earned value vs planned value
 6. **Stakeholder updates**: Tailored by audience (executive summary vs detailed technical)
 
+  Complete when: Weekly status report template is operational; SPI/CPI tracking dashboard is configured; change control process with CCB review workflow is documented; stakeholder communication plan with audience-tailored formats is in place.
+
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Closure & Postmortem
 
@@ -375,6 +379,8 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
 3. **Postmortem report**: Timeline, metrics (planned vs actual), root causes, action items
 4. **Knowledge transfer**: Documentation, runbooks, architecture decisions archived
 5. **Celebration**: Acknowledge the team. Seriously — it matters for retention.
+
+  Complete when: Project closure checklist is completed and signed by sponsor; lessons learned document is published with action items; postmortem report with planned vs actual metrics (timeline, budget, quality) is delivered; knowledge transfer artifacts are handed to operations.
 
 
 ## Best Practices
@@ -579,6 +585,14 @@ graph LR
 - **Stakeholder who "approved" the spec but didn't actually read it** — they approved the idea, not the details. When the deliverable doesn't match their mental model: "This isn't what I approved." Approval must be specific: "I have reviewed the spec and confirm pages 3-7 accurately describe the workflow. I approve the design on page 8 with the noted changes on lines 45-50." **Total cost: $30,000-$300,000 in rework — a stakeholder rejection at delivery means rebuilding weeks of work. A 4-week feature built by 3 engineers at $150/hour is $72,000 in sunk cost that may need complete reimplementation.**
 - **Scope creep as "just a small change"** — 15 "small changes" later, the project is 40% over budget and 3 months late. Every change request goes through: impact assessment (schedule + budget + risk), stakeholder approval, and documentation. "Small" is a size, not a process exemption. **Total cost: $40,000-$400,000 in unbudgeted scope — 15 unmanaged "small" changes at 3-5 engineering days each = 45-75 extra days on a $500,000 project, silently consuming the contingency budget and pushing the launch past the fiscal quarter.**
 - **Project buffer pooled at the end** — a single 2-week buffer after the last task gives a false sense of safety. If Task B (week 2) slips by 5 days, the buffer absorbs it. But by week 6, 4 tasks have each slipped 3-4 days, consuming 14 of the 10 available buffer days before anyone notices. Buffers must be allocated per-workstream, not pooled at the end. **Total cost: $20,000-$200,000 in silent schedule erosion — pooled buffers hide cumulative slippage until the final weeks, when recovery options have shrunk to crunch-or-delay, both costing $10,000-$50,000 per week of extended timeline.**
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Scope creep without written impact assessment | $50K-$300K in blown budgets | Require written impact assessment and stakeholder sign-off for every scope change |
+| Status reporting by gut feel instead of remaining work math | $100K-$500K in missed deadlines | Use (remaining work / remaining time) formula — never ask "are we on track?" |
+| Unclear critical path with no named owners or buffers | $50K-$200K in cascading delays | Maintain a single-source-of-truth critical path map with named owners and buffer per node |
 
 ## Verification
 

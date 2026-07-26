@@ -285,6 +285,8 @@ Which integration is suspect?
 4. Scenario modeling: base case, upside (+15%), downside (-20%) with trigger assumptions
 5. Pipeline coverage check: 3x coverage at start of quarter minimum; under 2.5x -> demand gen acceleration needed
 
+  Complete when: Analysis results documented with effect sizes and confidence intervals, segment analysis complete, and findings communicated to stakeholders.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2: Pipeline Analytics
@@ -303,6 +305,8 @@ Which integration is suspect?
 4. Cohort trend: coverage ratio trend over last 6 quarters -- is it improving or degrading?
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Analysis results documented with effect sizes and confidence intervals, segment analysis complete, and findings communicated to stakeholders.
 
 
 ## Error Recovery
@@ -541,6 +545,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | "We can fix attribution after we scale revenue" | Without multi-touch attribution from day one, you can't distinguish a $50K campaign that influenced $2M in pipeline from one that influenced nothing. Retroactive attribution is impossible — the tracking data was never collected. Every dollar spent without attribution is spent blind. |
 | "Sales and marketing alignment is a culture problem, not a systems problem" | Mismatched MQL-to-SAL criteria cost mid-market B2B companies $1.2M/year in wasted marketing spend. This is fixed by shared lead scoring and SLA enforcement in the CRM, not by a joint team offsite. Systems enforce culture. |
 | "Comp plan design happens once a year in Excel" | A comp error overpaying 50 reps by $200/month for 8 months costs $80K in unrecoverable overpayments plus morale damage from clawbacks. Comp changes need sandbox simulation against 12 months of actual deal data before rollout. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Pipeline inflated with unqualified opportunities masking true forecast | $100K-$500K in missed quarter from forecast inaccuracy | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| Demo environment fails during critical prospect presentation | $50K-$250K in lost deal from technical credibility damage | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
 
 ## Verification
 

@@ -249,6 +249,8 @@ Using reflection, serialization, or annotation processors requiring class names?
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 203 lines of detailed guidance
 
+  Complete when: Gradle convention plugins are configured via buildSrc, feature-based modules are scaffolded with architecture pattern chosen (MVVM/MVI), and project compiles cleanly with all dependencies resolved.
+
 ## Best Practices
 
 1. **Derive UI state from ViewModel via `StateFlow<UiState>`** — Single sealed class per screen (`Loading`, `Success(data)`, `Error(message)`). Never expose mutable state directly to Compose — the ViewModel is the single source of truth.
@@ -475,6 +477,14 @@ When Android goes wrong, it goes wrong in predictable ways. Here are the most co
 | Compose UI state resets after screen rotation — `remember` loses form input, scroll position, and selected tab | `remember {}` survives recomposition but NOT configuration changes or process death. Rotation destroys and recreates the Activity, wiping all `remember`-ed state | Use `rememberSaveable {}` for any state that should survive configuration changes. For complex objects, provide a custom `Saver`. Use `SavedStateHandle` in ViewModels for process-death survival | `remember` and `rememberSaveable` look identical but have fundamentally different lifecycles. The compiler won't warn you — the bug only surfaces when users rotate their phone |
 | Image loading causes OOM crash on budget devices — `BitmapFactory` throws `OutOfMemoryError` on Galaxy A-series phones | Loading a full-resolution 12MP camera image into a `Bitmap` allocates ~48MB of contiguous memory. Budget devices have limited heap and fragmented memory | Use `BitmapFactory.Options.inSampleSize` to downsample by 4-8x. Prefer Coil or Glide which handle downsampling, caching, and memory management automatically. Always set `android:largeHeap="true"` only as last resort | A 12MP image decoded at full resolution consumes more memory than most budget devices can allocate in a single block. Image loading libraries earn their dependency weight 100x over |
 | WorkManager job runs on every app launch instead of once daily — battery drain complaints in Play Store reviews | `PeriodicWorkRequest` with `ExistingPeriodicWorkPolicy.REPLACE` enqueued in `Application.onCreate()`. Every cold start replaces the pending work, resetting the timer | Use `ExistingPeriodicWorkPolicy.KEEP` to preserve the existing schedule. Enqueue periodic work once in `Application.onCreate()` with KEEP policy. Use `WorkManager.enqueueUniqueWork()` for one-time work | `REPLACE` is the default enum value developers reach for because it compiles. Read the policy docs — KEEP, REPLACE, and APPEND have dramatically different behaviors for periodic work |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| ProGuard/R8 strips reflection-based classes — release build crashes, debug works fine | $15K-$45K in emergency hotfixes | Add `@Keep` on all serialization models, configure `-keep` rules for every reflection library, always test release build on physical device before shipping |
+| `remember` loses state on rotation — form inputs, scroll position wiped on config change | $10K-$30K in user frustration | Use `rememberSaveable` for state surviving config changes; provide custom `Saver` for complex objects; use `SavedStateHandle` in ViewModels |
+| Image loading OOM on budget devices — 12MP image decoded at full resolution allocates ~48MB | $20K-$50K in 1-star reviews | Use Coil/Glide for automatic downsampling, set `inSampleSize` for `BitmapFactory`, never load full-resolution images; budget devices dominate global Android market |
 
 ## Verification
 

@@ -174,6 +174,15 @@ Execute in order. Do not skip steps.
 
 #
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Template updated but downstream repos never sync — 6 months later, 40 repos still use the old ESLint config; a lint rule that would have blocked a CVE 3 months ago never propagated | $20K-$100K in security drift and accumulated inconsistency | Use automated PR syncs when templates update; add a `.github/workflows/template-sync.yml` that diffs against the latest template and opens PRs; target >90% repos matching template within 30 days |
+| Scaffolding assumes prerequisites exist — the golden template's `deploy.yml` references a GitHub Environment named `production` that 12 teams never created; deployments fail with "Environment not found" | $10K-$50K in blocked deploys and onboarding friction | Add a `pre-scaffold-check` step that validates all prerequisites (Environments, secrets, IAM roles, DNS); the scaffold CLI must either create missing resources or fail with a clear error listing what's missing |
+| Long-lived secrets created at scaffold time — `DEPLOY_KEY` was set 8 months ago and rotated 3 months ago; deployments fail silently because the error is swallowed by `|| true` | $15K-$60K in silent deploy failures and security risk from unrotated secrets | Use short-lived OIDC tokens instead of long-lived secrets; for secrets that must persist, add a `secret-expiry-check` CI job that fails when secrets are older than 90 days; never use `|| true` on critical path operations |
+
+
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**

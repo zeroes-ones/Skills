@@ -633,6 +633,14 @@ Before any framework-dependent code reaches production:
 - [ ] Generated code from specs (OpenAPI, protobuf) includes source provenance header with version, timestamp, and generator version
 - [ ] Spec files (OpenAPI, GraphQL schema, protobuf) pass validation in CI against their specification version
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Docs describe v14 API but codebase runs v13 — silent breakage, developers use removed methods | $25K-$75K in debugging and rewrites | Always pin exact versions, verify installed version matches docs URL before reading, add version-to-citation CI check |
+| LLM hallucinates framework APIs — generated code uses `widget.frobnicate()` which never existed | $10K-$50K in chasing phantom bugs | Every LLM-generated framework call must pass Level 1 doc verification before merge; never trust generated API surface without source confirmation |
+| Cherry-picked docs justify wrong decisions — developer quotes "X is good" while ignoring "but Y is better for your case" | $20K-$60K in architectural debt | Require full-context citation including caveats and alternatives; the citation must establish the case matches, not just quote the favorable part |
+
 ## Verification Checklist
 
 Before merging any code that touches a framework or library:

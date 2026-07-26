@@ -274,6 +274,8 @@ Build a comprehensive account plan for each strategic account. **Account Plan St
 <!-- DEEP: 10+min -->
 **War story:** An AM lost a $500K account because the champion — their only contact — left for a competitor. The new VP arrived, had a pre-existing relationship with a competitor's sales team, and switched within 60 days. The AM had never met anyone else at the account in 3 years. Fix: minimum multi-threading standard — 3 named contacts with relationship score ≥3, each contacted within the last 30 days. Run a "single-point-of-failure audit" on every account >$50K ACV quarterly. Any account with only 1 active contact is automatically flagged as at-risk.
 
+  Complete when: Account plan with stakeholder map (minimum 3 active relationships) is completed per strategic account; whitespace analysis with expansion targets per department is documented; risk register with probability and mitigation for each risk category is populated; single-point-of-failure audit is run for all accounts above $50K ACV.
+
 <!-- DEEP: 10+min -->
 
 ### Phase 2 (~35 min): Renewal Management
@@ -281,6 +283,8 @@ Build a comprehensive account plan for each strategic account. **Account Plan St
 **Renewal Timeline (120-day cycle):**
 - **Day 120-90:** Internal prep. Review account plan, health score, adoption data, support history. Compile value log. Draft ROI analysis. Identify risks. Set pricing strategy.
 - **Day 90-60:** Value delivery review with customer. Present ROI analysis to champion. Socialize value delivered. Identify gaps. Align on next year's objectives.
+
+  Complete when: 120-day renewal timeline with milestone gates is established; value delivery review template with ROI analysis is created; renewal forecast with at-risk account flags is operational; pricing strategy per account segment with expansion targets is documented.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -457,6 +461,14 @@ graph LR
 | Unsolicited 10% discount becomes 20% demand | Goodwill discount anchored the negotiation floor | Separate service recovery from renewal; tie concession to specific SLA breach with documented credit formula | Never open renewal with unsolicited discount — creates procurement precedent across accounts |
 | QBR rated "waste of time" by customer | Feature showcase instead of business outcome review; no data on value achieved | Restructure QBR: value delivered with metrics, adoption trends, next-quarter opportunities, blockers | QBRs exist to prove ROI — customer must be able to articulate value to their leadership after your QBR |
 | Forecasted "Commit" deal slips at quarter end | Gut-feel commit without verified procurement engagement | Implement objective commit criteria: procurement contact engaged, timeline confirmed, legal review initiated, budget approved | Forecast categories need mechanical triggers — 30%+ misses are preventable with verified procurement data |
+
+## Gotchas
+
+- **Focusing only on renewal month** — the account manager surfaces 30 days before contract end with a renewal proposal and a "value recap" deck. The customer hasn't heard from you in 11 months; everything you present feels retrofitted and self-serving. The renewal was won or lost in months 1-11 — every QBR, every escalation handled well, every expansion milestone reached. You can't build 12 months of trust in a 30-day sprint. **Total cost: $150K-$500K per lost renewal** — the account was winnable but the relationship was too thin. AMs who only engage at renewal lose 2-3x more accounts than those with continuous engagement cadence.
+
+- **Treating QBRs as a scripted demo** — the QBR deck is 40 slides: feature roadmap, product updates, "what's new in v4.2." The customer's VP spent an hour learning about features they don't need when they wanted a strategic conversation about whether your product is delivering ROI against the business case they sold internally. QBRs exist so the customer can justify the renewal to their CFO — not so you can showcase your product. **Total cost: $100K-$300K in wasted executive time and eroded trust** — a demo-QBR signals you don't understand their business. The customer disengages from future QBRs, and your champion loses internal credibility.
+
+- **Discounting to save a renewal that was already lost** — procurement cites a competitor at 30% less; you offer 25% off to "save the deal." But the customer had already decided to leave — they were extracting a benchmark quote to justify the switch. The discount anchors your price permanently lower for future negotiations (procurement remembers), and you still lose the renewal 6 months later. Meanwhile, you didn't map the political org chart after the original champion left, so nobody inside is advocating for you during the silent evaluation period. **Total cost: $50K-$200K per misplayed renewal** — discounting a lost deal trains procurement to negotiate harder next time AND masks the real churn signal (champion departure) that should have triggered emergency multi-threading months earlier.
 
 ## Best Practices
 **(STANDARD)**

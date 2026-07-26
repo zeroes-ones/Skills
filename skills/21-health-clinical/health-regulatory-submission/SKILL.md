@@ -356,6 +356,7 @@ that are NOT intended to diagnose, treat, cure, mitigate, or prevent any disease
 - Does it connect to a medical device for control? → definitely medical device
 
 ```
+  Complete when: Intended use statement documented, dated, and reviewed by regulatory counsel.
 
 ### Phase 2: Classification (~2 weeks)
 
@@ -378,6 +379,7 @@ open https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/denovo.cfm
 - Can a wrong result cause serious harm? → Class II or III
 - Is it non-invasive with low risk? → Class I possible
 - Does it use AI/ML with opaque reasoning? → FDA currently developing specific guidance
+  Complete when: Device class determined with documented rationale; predicate device(s) identified if 510(k) pathway.
 
 ### Phase 3: 510(k) Preparation (~6-12 months)
 
@@ -404,6 +406,7 @@ If 510(k) pathway (most common for health apps):
 6. Submit via eSTAR (electronic submission template)
 7. FDA review: 90 days (may extend with additional information requests)
 ```
+  Complete when: 510(k) submission package complete with predicate comparison table, IEC 62304 documentation, and verification and validation testing results.
 
 ### Phase 4: De Novo (~12-18 months)
 
@@ -423,6 +426,7 @@ If no predicate device exists:
 6. If granted: device is now reclassified, becomes a predicate for future 510(k)s
 
 ```
+  Complete when: De Novo classification request prepared with device description, testing summary, proposed special controls, and benefit-risk analysis.
 
 ### Phase 5: EU MDR / IVDR (~12-24 months)
 
@@ -458,6 +462,7 @@ Is your health software...
 6. Notified Body audit → CE Mark → Register in EUDAMED
 
 ```
+  Complete when: EU MDR/IVDR classification determined per Annex VIII, Notified Body engaged with confirmed scope and capacity, technical documentation prepared.
 
 ### Phase 6: Breakthrough Device Designation (~3 months)
 
@@ -482,6 +487,7 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - Reduced PMA/De Novo review times
 
 ```
+  Complete when: Breakthrough Device Designation criteria confirmed and application submitted, or documentation that criteria were not met.
 
 ## Anti-Patterns
 **(STANDARD)**
@@ -525,6 +531,15 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 | "The data gap is small — we'll address it in the 120-day response." | FDA cannot approve based on promised future data. If a pivotal trial has a 15% dropout rate and your SAP didn't pre-specify sensitivity analysis for missing data, the entire study may be deemed inconclusive. Address ALL data gaps pre-submission or expect a CRL. |
 | "We don't need a pre-submission meeting — we know what the division wants." | Skipping a Type B pre-NDA meeting is the #1 cause of RTF decisions for first-time sponsors. The meeting costs $50K and takes 60 days; the RTF costs $2M+ and 6 months. Sponsors who skip pre-submission meetings have a 3x higher RTF rate. |
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Incorrect device classification leading to the wrong submission pathway — AI diagnostic tool classified as Class I exempt when CADe functionality requires PMA. Sales halted during Series B due diligence. | $500K-$5M in sales halt, retrospective filing, and potential enforcement action from misclassified devices | Obtain formal classification from FDA regulatory consultant BEFORE development; submit 513(g) for novel devices; re-evaluate after any feature change affecting indications |
+| 510(k) submission rejected because predicate device was recalled — team identified predicate in 2020 but never re-checked FDA status. Predicate recalled for safety issues. | $500K-$2M in rejection, resubmission costs, and 6-12 month delayed market entry | Verify predicate device status within 30 days of submission; maintain predicate watchlist with quarterly checks; identify 2-3 backup predicates |
+| eCTD submission fails FDA gateway validation because XML references deprecated DTD version — team used last year's template. FDA validator rejects old versions. | $100K-$500K in submission delay and rework — each failed validation attempt costs 2-4 weeks of review clock | Subscribe to FDA eCTD update notifications; run FDA's free eCTD validator locally before upload; maintain pre-submission checklist with DTD version verification |
+| Clinical evidence demographics don't match intended use population — evidence from healthy volunteers but device targets immunocompromised and pediatric patients. CER rejected. | $500K-$2M in rejected submissions and repeat clinical studies costing $400K-$800K each | Verify clinical evidence demographics match intended use population before writing performance evaluation; submit gap analysis table showing evidence-population alignment |
+| Post-market surveillance report flagged because AE trending used wrong denominator — events per units sold instead of per patient-years of use. Devices sold 5 years ago have 5x the exposure. | $200K-$1M in regulatory non-compliance findings and potential missed safety signals due to understated AE rates | Use patient-years or device-years as denominator; document exposure calculation methodology; provide worst-case sensitivity analysis if exposure data incomplete |
 
 ## Verification
 

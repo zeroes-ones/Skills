@@ -135,6 +135,7 @@ Define what the skill does before writing a single line.
 4. DRAFT THE DESCRIPTION (one paragraph)
    |-- Format: "Use when [triggers]. Handles [capabilities]. Do NOT use for [boundaries]."
 ```
+  Complete when: Triggers are external situations recognizable by the user without knowing how the skill works, capabilities list covers what the skill handles with clear boundaries, and "Do NOT use for" exclusions are specific enough to prevent misrouting.
 
 ### Phase 2: Design the Information Hierarchy
 
@@ -154,6 +155,7 @@ Structure the skill for progressive disclosure.
    |-- Linked reference files in references/ directory
    |-- Detailed guides, templates, examples, calculators
 ```
+  Complete when: Information hierarchy designed with steps for primary workflow (procedural/checkable), reference for lookup data, templates for scaffolding, and resources for external links — each tier positioned correctly per progressive disclosure priority.
 
 ### Phase 3: Write Steps with Completion Criteria
 
@@ -172,6 +174,7 @@ Structure the skill for progressive disclosure.
    |-- Auto-Route: filesystem condition → immediate action
    |-- Intent Route: user question → directed jump to section
 ```
+  Complete when: Primary workflow has ordered phases with numbered steps, each step includes a checkable completion criterion, and 3+ decision trees cover all common branching decisions with ASCII-art format.
 
 ### Phase 4: Add Anti-Rationalization
 
@@ -193,6 +196,7 @@ Preempt the model's tendency to rationalize away constraints.
    |-- Conditions that fire automatically
    |-- Each trigger: detectable condition → automatic response
 ```
+  Complete when: 5-7 ground rules in table format with negative constraints, mechanical (grep-able) triggers, and violation responses; "There Is No Step 5" section with 3+ priority rules; and HARD GATE checklist with minimum 4 pre-delivery checks.
 
 ## <!-- STANDARD: 3min --> Decision Trees
 
@@ -444,7 +448,12 @@ description: >
 [ASCII tree with leaf actions]
 
 ## Gotchas
-- **[Gotcha].** **Total cost: $X-$Y.** Fix: [action].
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Writing triggers as process steps instead of external situations — e.g., "when the agent needs to design a database" instead of "when the user asks about schema design, indexing, or migrations." The model can't self-trigger; it needs to recognize a user's external request pattern. Triggers must describe what the *user says or asks*, not what the *agent is about to do*. | $50K-$200K in wasted skill development — skills that never fire are dead code. A skill with self-referential triggers gets zero invocations, meaning every hour spent writing it is sunk cost. | Write every trigger from the user's perspective: "Triggered by: [what the user types or asks]." Test by asking: "Would a user actually say this exact phrase?" If not, rewrite. |
+| Putting too much procedural detail in skill steps instead of referencing external documentation — a 3,000-word SKILL.md that embeds entire API references, schema definitions, and onboarding guides directly inline. Every invocation loads that context into the agent's window, consuming tokens that could be used for reasoning. | $100-$500/month in excess token costs per skill at scale. A skill invoked 50x/day with 2,000 unnecessary tokens per invocation burns 100K tokens/day — enough to meaningfully impact per-user costs in high-volume deployments. | Move reference material to external files (linked docs, API specs, schema files). Skill steps should say *what* to do and *where* to find details — not reproduce the details inline. Use grep-able paths the agent can resolve at runtime. |
+| Not adding anti-rationalization guardrails — the skill says "always validate with the user" but the model rationalizes skipping it because "the answer is obvious." Without explicit `REFUSE TO` directives and hard stops, the model talks itself out of constraints when under token pressure or when the correct-but-inconvenient path is visible. | $200K-$1M in downstream errors — a skill that silently drops safety checks or validation steps produces outputs that look correct but contain subtle, compounding mistakes. The cost surfaces in production incidents traced back to skill output that should have been caught. | Add `REFUSE TO` blocks for non-negotiable constraints. Use verification guardrails (`Before delivering work, verify:`) that the model must self-check against. Test skills with adversarial prompts designed to trigger rationalization. |
 
 ## Verification Guardrails
 

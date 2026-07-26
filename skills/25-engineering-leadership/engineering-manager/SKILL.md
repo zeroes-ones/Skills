@@ -244,6 +244,8 @@ Use a growth framework. Map each engineer to: (1) current level and performance,
 
 **Follow-up:** Send a brief written summary within 24 hours: key topics discussed, action items, commitments. This creates a searchable record you'll reference in performance reviews.
 
+  Complete when: Every direct report has a recurring 1:1 on the calendar (zero cancellations without reschedule in the same week), a shared notes doc exists per report, and the growth framework is filled out with current level, next level gaps, and timeline estimate for each engineer.
+
 ### Phase 2: Delivery Accountability
 
 Your team ships. You're accountable for what ships, when, and at what quality. You don't write the code, but you create the conditions for reliable delivery.
@@ -258,8 +260,9 @@ Your team ships. You're accountable for what ships, when, and at what quality. Y
 - Dependencies on other teams? You own the escalation. Don't make your engineers chase down other teams' EMs — you call the other EM directly
 - Ambiguous requirements? Schedule the SME meeting yourself and bring the clarity back to the team
 
-> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+  Complete when: Sprint velocity trend is stable (±20%) for 3 consecutive sprints, unblocking SLA is under 24 hours (time from blocker identified to resolution path confirmed), and retrospective action items have owners and due dates tracked to completion.
 
+> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 ## Error Recovery
 
@@ -414,6 +417,14 @@ After every difficult conversation: write down what you said, what they said, an
 - **Hiring for "culture fit"** as code for "like me" — you build a team of people with the same background, same communication style, same blind spots. Culture ADD (what unique perspective does this person bring?) is more valuable than culture fit. Homogeneous teams make homogenous mistakes.
 - **Shielding your team from ALL organizational chaos** — your team doesn't know about the re-org, the budget cut, or the strategy pivot. When the decision lands, they're blindsided and feel you weren't transparent. Share context proportionally: enough to understand WHY decisions are made, not enough to distract from execution.
 - **Tolerating a toxic high-performer who drives out the rest of the team.** An engineer delivers 40% of the team's critical output but belittles colleagues in code review ("this is amateur hour"), dismisses design proposals without reading them, and creates a culture where 3 of 7 team members avoid speaking in meetings. You rationalize keeping them because "they ship too much to lose" — but over 18 months, 3 strong engineers leave citing the toxic colleague as a primary reason, each costing $80K-$150K to replace, and the remaining team's psychological safety scores drop below 50%. **Total cost: $240K-$450K in attrition-driven replacement costs for the engineers who leave, plus 30-50% reduced team output from demoralized survivors — often 2-3x the departing high-performer's own output.** Address toxic behavior immediately with documented feedback, set behavioral expectations with clear consequences (regardless of technical output), and be willing to terminate a brilliant jerk — the net productivity gain from a psychologically safe team always exceeds one individual's contributions.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Cancelling 1:1s when busy — the busier you are, the more you need them. Cancelled 1:1s signal "you're not a priority" and the problems you're too busy to hear about are the ones that become resignations | $80K-$150K per engineer lost to attrition from neglected relationships; one skipped 1:1 in a sprinter's week is the week their counter-offer arrives | Treat 1:1s as production incidents: never cancel without rescheduling within the same week. If truly impossible, send a 5-minute async check-in covering "What's top of mind? What's stuck? How's your energy?" by end of day |
+| Performance reviews that surprise the engineer — feedback that's first delivered in the annual review instead of continuously throughout the year | $20K-$80K per failed PIP that could have been avoided; 70% of surprised engineers disengage or leave within 6 months of a blindsiding review | Give feedback within 48 hours of ANY performance event (good or corrective) and document it in the shared 1:1 notes doc. Before any review, ask yourself: "Is there anything in this review the engineer has never heard before?" If yes, you've already failed |
+| Taking credit for team wins and blaming context for team failures — "I shipped X" when it goes well, "the org made it impossible" when it doesn't | Complete loss of team trust within 2-3 quarters; high-performers leave managers who don't protect and elevate them; $200K-$400K in replacement costs | Always use "we" for wins and "I" for misses: "The team shipped X — let me tell you what each person did" and "I should have caught the dependency risk earlier — here's what I'll do differently." Engineers watch pronoun choice more than any other leadership signal |
 
 ## Verification
 

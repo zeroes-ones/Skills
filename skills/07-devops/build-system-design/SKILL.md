@@ -171,6 +171,16 @@ Execute in order. Do not skip steps.
 
 #
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Not persisting the build cache between CI runs — every CI job starts with a clean workspace; `bazel build` takes 90 minutes instead of 12 because every target rebuilds from scratch | $50K-$200K in wasted CI compute and developer wait time | Configure `--disk_cache` pointing to a persistent volume or use `--remote_cache` with bazel-remote/Buildbarn; verify with `bazel clean && bazel build` — second build should be instant |
+| Genrule escape hatches during migration — 6 weeks into a Make→Bazel migration, half the team wraps old Makefiles in `genrule` instead of writing BUILD files; the "new" build system is just a shell around the old one | $100K-$500K in failed migration with zero benefits realized | Enforce a lint rule blocking `genrule` wrappers around `make`; provide one-pager per language for Bazel-native builds; enforce "new targets must be Bazel-native" with a deadline |
+| Autoscaler killing all remote execution workers — the RE cluster scales to zero during low traffic because the autoscaler doesn't understand build traffic patterns; builds hang with DEADLINE_EXCEEDED | $10K-$50K in blocked builds and developer downtime | Set minimum instance count on RE worker pool to 1 during business hours; add a health check endpoint that the build system probes before starting with a 30-second timeout |
+| Affected graph showing every project as affected — `nx affected:lint` lints all 200 projects because `nx.json` implicit dependencies list is empty; one-line CSS change triggers a full monorepo rebuild | $20K-$80K in wasted CI minutes and slowed developer feedback | Define `targetDefaults` in `nx.json` with `dependsOn` chains; run `nx graph` to verify that changing one file only highlights projects that depend on it |
+
+
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**

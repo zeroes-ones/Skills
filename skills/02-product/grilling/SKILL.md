@@ -167,6 +167,8 @@ Before asking any questions, understand the shape of the decision.
    |-- Output: Ordered list of branches to walk.
 ```
 
+  Complete when: All decision branches enumerated, dependencies mapped, and unresolved questions assigned with owners.
+
 ### Phase 2: Walk Each Branch
 
 For each branch, in dependency order, execute the grilling loop.
@@ -197,6 +199,8 @@ For each branch B in dependency order:
    |-- ASSUMED: Treated as true for now, flagged for verification
 ```
 
+  Complete when: All decision branches enumerated, dependencies mapped, and unresolved questions assigned with owners.
+
 ### Phase 3: Verify Completion
 
 ```
@@ -213,6 +217,8 @@ For each branch B in dependency order:
    |-- If restatement matches the tree → DONE.
    |-- If restatement diverges → the branch was not truly resolved. Return to the divergent branch.
 ```
+
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
 
 ## Best Practices
 
@@ -548,6 +554,26 @@ Next time your team is in a circular discussion, step in as the griller. Ask eac
 | "We'll discover edge cases during beta testing" | Beta testers use the happy path; they won't stress-test your business model, revenue assumptions, or regulatory exposure |
 | "One round of grilling is enough" | First-round answers are rehearsed; second and third rounds expose the real gaps beneath the polished surface |
 | "Grilling is just being negative" | Structured adversarial questioning is not negativity — it's the difference between a $50K failed MVP and a $5M failed launch |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
 

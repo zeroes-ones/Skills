@@ -276,12 +276,16 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. **Verify:** Order the dev board. Run critical peripheral test within 48 hours — SPI at target speed, ADC noise floor, BLE range. Do not finalize schematic until dev board validation passes.
 5. **Recover:** Dev board fails → restart selection before PCB spins. Changing silicon after layout costs 4-6 weeks and $15K+.
 
+  Complete when: MCU/MPU selection matrix with all peripherals mapped and pin conflicts resolved is complete; power budget with 30% margin is calculated against battery capacity; memory map (flash partitions + RAM allocation) is documented with <80% capacity usage; dev board is ordered and critical peripheral test passes within 48 hours.
+
 ### Phase 2 (~6 hours): RTOS Configuration & Task Design
 1. **Do:** Choose RTOS per decision tree. Configure tick rate (1000 Hz precision, 100 Hz power-saving). Set `configTOTAL_HEAP_SIZE` to measured max + 20% headroom.
 2. **Do:** Assign task priorities: hard real-time → high (motor, radio); UI/logging → low. Document worst-case execution time (WCET) per task.
 3. **Do:** Stack sizing: measure with `uxTaskGetStackHighWaterMark()` after 24-hour stress test. Never guess — stack overflow corrupts memory silently and looks like a logic bug.
 4. **Verify:** Priority inversion stress test. Enable priority inheritance on mutexes. If any task starves >2× its deadline, refactor.
 5. **Recover:** Stack overflow → increase that task's stack by 50%, rerun. Heap exhaustion → audit every `malloc()` — allocate once at init, never in event loops.
+
+  Complete when: RTOS is selected per decision tree with tick rate configured; task priority assignment with WCET documented per task is complete; stack sizing is measured via high water mark after 24-hour stress test; priority inversion stress test passes with inheritance enabled on all mutexes.
 
 ### Phase 3 (~8 hours): Bootloader & OTA Design
 1. **Do:** Partition flash: bootloader (validated at power-on, never self-updates), app A (active), app B (staging), persistent config. Minimum: 32KB bootloader + app A + app B.
@@ -290,6 +294,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. **Verify:** Corrupted image → bootloader detects, rejects. Power loss during OTA → device recovers to previous working image.
 5. **Recover:** Bootloader corrupted → device bricked. Ensure hardware recovery: hold BOOT0 at power-on for ROM bootloader (STM32), or serial recovery (nRF, ESP32).
 
+  Complete when: Flash partition layout (bootloader + app A + app B + config) with minimum sizes is defined; image signature verification (Ed25519 or ECDSA P-256) is implemented in bootloader; A/B swap with power-loss recovery tested at every 10% of download is verified; hardware recovery mechanism (BOOT0/serial) is documented and tested.
+
 ### Phase 4 (~5 hours): Hardware-in-the-Loop Testing
 1. **Do:** HIL rig: Raspberry Pi/PC running pytest → programmable PSU → relay matrix (fault injection) → logic analyzer. Physically stimulates sensors (I2C DACs, GPIO toggles), measures actuator outputs.
 2. **Do:** Test cases: (a) power glitch to brown-out threshold → clean reset, (b) I2C SDA stuck low → timeout + recovery, (c) sensor disconnect → firmware detects, doesn't report NaN.
@@ -297,12 +303,16 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. **Verify:** Zero manual intervention. A human should never need to power-cycle a device under test.
 5. **Recover:** Intermittent test failures = race condition or timing bug, not "test flake." Do not increase timeouts — find the root cause.
 
+  Complete when: HIL rig with programmable PSU, relay matrix, and logic analyzer is operational; fault injection test cases (brown-out, I2C stuck, sensor disconnect) all pass; 24-hour soak with randomized fault injection completes with zero manual intervention and correct reset cause logging.
+
 ### Phase 5 (~3 hours): Real-Time Validation & Interrupt Budgeting
 1. **Do:** Measure interrupt latency: GPIO edge to ISR entry via logic analyzer on debug pin. Target: <1 µs for critical interrupts on Cortex-M4 at 80 MHz. >2 µs → investigate nested interrupts or disabled-IRQ regions.
 2. **Do:** ISR execution time <10 µs. ISR does: capture timestamp, set flag, unblock task. Move heavy work to a high-priority task.
 3. **Do:** Jitter analysis: 1000 consecutive periods of a 1 kHz timer. P95 jitter <5% of period. Higher → check interrupt masking or DMA bus contention.
 4. **Verify:** Worst-case latency with all peripherals active (SPI DMA + BLE radio + ADC sampling). Must still meet deadlines.
 5. **Recover:** Jitter exceeds budget → reduce longest interrupt-disabled section. `__disable_irq()` / `__enable_irq()` pairs <5 µs max. Use scope guards.
+
+  Complete when: Interrupt latency measurement (<1 µs target on Cortex-M4 at 80 MHz) is verified via logic analyzer; ISR execution time (<10 µs) is confirmed for all ISRs with heavy work deferred to tasks; jitter analysis (1000 periods, P95 <5% of period) passes; worst-case latency with all peripherals active meets all deadlines.
 
 
 ## Error Recovery
@@ -494,6 +504,15 @@ graph LR
 - **OTA firmware update pushed without a rollback mechanism** — 100K deployed devices receive an over-the-air update that passes QA on 50 test devices. But 2% of the fleet (2,000 devices) has a specific flash memory wear pattern from 18 months of field operation. The new firmware's slightly larger bootloader overwrites a worn sector, corrupting the application image. No fallback partition, no rollback protocol. 2,000 devices are bricked and require physical return for reflashing via JTAG. Average return cost: $75/device including shipping, rework labor, and customer goodwill credit. **Total cost: $150K-$500K in returns, rework, and replacements for a single bad OTA update — plus permanent customer trust damage in the IoT product category.** Fix: A/B partition scheme with boot count tracking. Bootloader attempts boot of new image up to 3 times; on third failure, automatically rolls back to previous known-good image. Staged rollout: 1% of fleet for 48 hours, then 10% for 1 week, then 100%. Monitor crash telemetry and error rates at each stage before expanding.
 - **Hardcoded credentials in production firmware** — the factory test mode leaves a default admin password (`admin:admin123`) in the firmware binary. A security researcher downloads the firmware update file from your public support portal, runs `strings firmware.bin | grep admin`, finds the credential, and posts a CVE. Within 72 hours, attackers scan Shodan for your devices and gain root access to 50K deployed units. They're now part of a Mirai-variant botnet launching DDoS attacks. Your customers' networks are compromised through your device. **Total cost: $100K-$2M in incident response (firmware rebuild, coordinated disclosure, customer notification, CVE management) plus brand damage — enterprise customers cancel $500K in pending orders citing "unacceptable security posture."** Fix: factory credentials must be unique per device and printed on a label (not in firmware). First-boot flow forces password change. CI pipeline scans firmware binaries for hardcoded strings matching credential patterns before release. Production firmware never includes debug/test backdoors — they are compiled out via `#ifdef DEBUG` guards.
 - **Flash wear leveling omitted on a configuration-write-heavy device** — a data logger writes its configuration state + timestamp every 60 seconds to the same NOR flash sector. NOR flash endurance: 100,000 erase cycles. At 1 write per minute, the sector wears out in 100,000 minutes = 69 days. The device is marketed with a "5-year field life" and installed in remote monitoring stations accessible only via helicopter. Field failures begin at month 3 — the device boots, reads corrupted config, and enters an unrecoverable error state. **Total cost: $200K-$1M in warranty claims, helicopter-site-visit replacements ($2K-$5K per site visit to remote locations), and product line recall — all from a single component-level spec oversight.** Fix: use a wear-leveling file system (LittleFS, SPIFFS) that distributes writes across flash blocks. For NOR flash without a FS, implement a simple ring-buffer across multiple sectors: write to sector 0, when full move to sector 1, cycling through N sectors. Calculate: flash endurance ÷ writes per day = minimum flash lifespan. Add 3x safety margin. Track erase counts in a reserved sector and log warnings at 80% of rated endurance.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| ISR too long causing missed interrupts & watchdog resets — `printf` or blocking I/O in ISR handler delays critical control loops | $50K–$200K in field failures & rework | Profile ISR with oscilloscope GPIO toggles; keep ISR <100µs; defer work to main loop via ring buffer; never block, malloc, or printf in ISR |
+| Dynamic memory allocation (`malloc`/`free`) in embedded causing heap fragmentation | $75K–$500K in warranty claims after days/weeks of uptime | Static allocation only; pre-allocate pools at init; avoid `malloc`/`free` after boot; use fixed-size block memory pools; `-Wl,--wrap,malloc` to trap accidental calls |
+| Voltage brownout during flash write/erase corrupting firmware | $100K–$1M in bricked deployed devices requiring physical reflash | Enable BOD at threshold above flash minimum programming voltage; test with programmable PSU ramping voltage during writes; BOD must trigger before corruption |
+| Stack overflow from deep recursion or large local variables on memory-constrained MCU | $100K–$500K in safety incidents, hardware damage & recalls | Use `-fstack-usage` and `-fstack-protector-strong`; size task stacks with 50% margin above worst-case; enable RTOS stack overflow detection; avoid >256B local buffers |
 
 ## Verification
 

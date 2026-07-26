@@ -307,6 +307,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    - **Scribe**: documents the timeline of events, decisions, and actions in the incident channel/tool.
 4. Set up incident channels: dedicated Slack/Teams channel per incident, war-room bridge (Zoom/Meet), and a status page.
 5. Choose tooling: PagerDuty or OpsGenie for alerting and scheduling; FireHydrant or incident.io for incident management.
+  Complete when: Severity levels defined with objective criteria, incident roles and responsibilities documented, response SLAs established, and incident management tooling configured with dedicated communication channels.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): On-Call and Escalation
@@ -316,6 +317,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Compensate on-call fairly: pay for on-call time and incident response; don't burn out your responders.
 5. Protect on-call sleep: tune alerts to page only on user-impacting symptoms (SLO burn rate), not noisy infrastructure alerts.
 6. Run on-call handoffs: outgoing on-call summarizes open incidents and known issues to incoming on-call.
+  Complete when: On-call rotations configured with primary/secondary, escalation policies defined with SLA timers, multi-channel alerting tested, and on-call compensation and handoff procedures documented.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Incident Response Execution
@@ -325,6 +327,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. **Communicate**: CL sends updates every 30 minutes (or at defined intervals) with: what's happening, what's impacted, what we're doing, estimated resolution.
 5. **Escalate if needed**: if the incident isn't contained within the expected time, IC escalates to senior leadership and broader teams.
 6. **Resolve**: once service is restored and monitoring confirms recovery, IC declares resolution, noting time and impact.
+  Complete when: Incident declaration process tested, IC/OL/CL roles assigned and trained, mitigation-first culture established, communication templates prepared, and resolution criteria defined with post-resolution monitoring window.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Postmortem and Learning
@@ -339,6 +342,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 3. Track action items in the team's backlog; review during sprint planning; don't let them rot.
 4. Share postmortems broadly to spread learnings across the organization.
 5. Hold postmortem readouts for SEV1/SEV2 incidents with leadership and cross-functional stakeholders.
+  Complete when: Postmortem template adopted, blameless culture established, action items captured as tickets with owners and deadlines, and postmortems shared organization-wide within 48 hours of resolution.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Continuous Improvement
@@ -347,6 +351,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 3. Measure incident metrics and trend over time: MTTD (detect), MTTA (acknowledge), MTTR (resolve), number of SEV1s per quarter.
 4. Use error budgets to drive reliability investments: when the budget is exhausted, freeze feature launches and prioritize reliability work.
 5. Reduce toil: identify manual steps during incidents and automate them — runbook automation, auto-rollback, self-healing.
+  Complete when: Runbook library maintained for all known failure modes, game days conducted quarterly, incident metrics (MTTD/MTTA/MTTR) trended, error budgets defined, and toil reduction backlog prioritized.
 
 ### Cross-skills Integration
 

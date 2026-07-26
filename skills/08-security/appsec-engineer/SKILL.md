@@ -169,7 +169,7 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (172 lines):** [references/core-workflow.md](references/core-workflow.md)
-
+  Complete when: SSDLC gates defined for each development phase, SAST/SCA integrated in CI with blocking mode on CRITICAL findings, security review process documented, and security champions identified with training scheduled.
 
 ## Error Decoder — War Stories from the Trenches
 
@@ -521,6 +521,15 @@ graph LR
 *   **Launching a public bug bounty without a triage process.** You will receive 100-500 reports per month. Without a triage workflow, response times stretch to weeks, researchers get frustrated and disclose publicly, and valid critical bugs sit unaddressed. Start with a VDP (low volume) for 3-6 months, graduate to private bounty (medium volume), then public. **Total cost: $100,000-$500,000 in reputation damage, emergency PR costs, and researcher relations when critical bugs are publicly disclosed because the triage queue is 3 weeks deep.**
 
 *   **Reward tables that underpay for impact.** A researcher finds a remote code execution vulnerability that could compromise your entire production environment. Your reward table offers $500 because "that's what similar programs pay." The researcher publishes it on Twitter instead. Pay for IMPACT: the cost of the vulnerability if exploited, not the "market rate." RCE on production should be $5,000-$15,000 minimum. **Total cost: $500,000-$5,000,000 in breach costs when a researcher who would have reported privately instead sells or publishes a critical vulnerability because the bounty was insultingly low.**
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Deploying WAF rules based on CVE signatures without testing against your application's actual request patterns causes false positives that block legitimate user traffic — checkout flows, API integrations, and file uploads break silently. | $50K-$250K in lost revenue from blocked transactions in the first 24 hours | Test WAF rules in monitor-only mode for at least 48 hours before enabling blocking. Review blocked request logs daily during the monitor phase. Maintain a per-application WAF exception list. |
+| Threat modeling a greenfield service but never updating the model after 3 major releases — new microservice dependencies, new data flows, and new trust boundaries introduce threats the original model never considered. | $100K-$500K in undiscovered architectural flaws per un-reviewed service | Schedule threat model reviews into the definition of done for any architecture change that crosses trust boundaries. Re-model at least quarterly for Tier 1 services. |
+| Running SAST on the entire codebase on every PR adds 15-45 minutes to developer feedback loops — developers bypass it, disable it, or ignore findings entirely. | $200K-$500K/year in lost developer productivity and tool abandonment | Configure SAST as diff-only on PRs with a hard 5-minute timeout. Reserve full-depth scans for main-branch nightly builds. Security that slows development gets routed around. |
 
 ## Verification
 

@@ -620,6 +620,15 @@ Before any context assembly strategy reaches production, verify:
 - [ ] Compression validation completed: summary quality > 90% accuracy on information retention test
 - [ ] Ground Rules 1-8 all passing: `python context_audit.py --check-ground-rules`
 
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Context window exceeds 90% utilization — Level 1 rules (including "always run tests") get silently truncated | $100K-$500K in shipping untested code from invisible instruction loss | Hard cap context utilization at 80% of model window. Evict lowest-scoring Level 3 files before touching Level 1 content. Monitor context utilization per turn; alert if > 80%. |
+| Cache prefix changes by 5 characters — cache hit rate drops from 70% to 10%, costs jump 25× | $100K-$400K/year in unnecessary token costs from cache busting | Freeze L1/L2 content ordering. Never reorder, reformat, or add comments to stable prefix between requests. Changes require explicit cache-prefix freeze approval. A 5-char comment can turn $0.015/request into $0.375/request. |
+| Excluding error output (L4) to save tokens — agent works from symptom description, implements wrong fix | $50K-$200K/incident in engineering hours wasted on wrong solutions | Never exclude Level 4 without explicit override. Trim to last 50 lines + stack trace only. Add ground rule: "Error stack traces are always higher priority than 20% additional source files." |
+| Relevance scoring doesn't prune stale files — costs grow 3× month over month | $50K-$250K/year in unchecked context cost growth | Apply relevance score decay: files unreferenced for 3+ turns get 0.5× multiplier. Switch to conversation summaries after 10 turns. Run cost trend audit weekly. Alert on > 20% cost growth. |
+
 ## Verification
 
 Run this checklist before any context-related change goes to production:

@@ -491,6 +491,26 @@ Before beginning a new phase, verify:
 
 **Dynamic data masking can be bypassed by privileged users.** Most database-native dynamic masking solutions (SQL Server DDM, PostgreSQL RLS) can be bypassed by users with elevated privileges (db_owner, superuser). The application layer may show masked data, but a DBA connecting directly with full privileges sees plaintext. **Total cost: $200K–$1M in insider threat data exposure when a DBA with plaintext access exfiltrates data thought to be universally masked.** Fix: Defense-in-depth — apply masking at multiple layers (database + application + API gateway). Use column-level encryption with application-layer decryption so even DBAs cannot access plaintext.
 
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Threat model missing a critical abuse vector discovered in production | $50K-$500K in incident response and brand damage per event | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| Privacy control bypass due to incomplete data flow mapping | $100K-$1M in regulatory fines (GDPR/CCPA) per incident | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+
 ## Verification
 
 | # | Verification Step | Expected Result |

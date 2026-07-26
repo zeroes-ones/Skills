@@ -48,6 +48,7 @@ Execute in order. Do not skip steps.
    |-- Option B: Scheduled drift detection. CI checks downstream against template. Alerts on drift.
    |-- Option C: Manual sync. Quarterly audit. Only for small orgs (<10 repos).
    |-- See Decision Trees: Downstream Sync for detailed strategies.
+  Complete when: template inheritance hierarchy is designed with org base → language → framework → team overlay levels, template engine is selected with documented rationale, and a new repo created from template passes CI in under 5 minutes.
 ```
 
 ### Phase 2: Audit & Sync
@@ -74,6 +75,7 @@ Execute in order. Do not skip steps.
    |-- % repos matching template (target: >90%)
    |-- Average drift age (target: <30 days)
    |-- Number of repos with undocumented customizations (target: 0)
+  Complete when: drift detection identifies all diverged repos, unintentional drift has automated PRs to realign, intentional customizations are documented in TEAM_CUSTOMIZATIONS.md, and consistency dashboard tracks the three targets.
 ```
 
 ### Phase 3: Migrate Existing Repos
@@ -101,5 +103,6 @@ Execute in order. Do not skip steps.
    |-- Add repo to downstream sync list
    |-- Document any permanent customizations in TEAM_CUSTOMIZATIONS.md
    |-- Monitor for 2 weeks: did migration introduce any issues?
+  Complete when: migration PR is approved by owning team, CI passes on all migrated repos, and migrated repos are added to downstream sync with documented customizations.
 ```
 

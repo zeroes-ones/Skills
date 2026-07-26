@@ -432,30 +432,35 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 **Input:** Repository with `docs/` directory  
 **Steps:** 1) Run health scan (broken links, stale pages, unowned docs, readability) 2) Generate JSON metrics 3) Identify top 3 issues by impact  
 **Output:** Prioritized backlog of docs fixes
+  Complete when: Health scan complete with JSON metrics, top 3 issues identified by impact, and prioritized backlog of docs fixes ready.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): SSG Selection & Setup
 **Input:** Team skillset, content volume (pages), budget, versioning needs  
 **Steps:** 1) Apply SSG decision tree 2) Scaffold site with chosen SSG 3) Configure build pipeline in CI 4) Verify deploy previews work  
 **Output:** Docs site building from `main` with preview deploys on PRs
+  Complete when: SSG selected and scaffolded, CI build pipeline configured and passing, and deploy previews working on PRs.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Information Architecture Design
 **Input:** Content inventory (all existing docs, API specs, guides)  
 **Steps:** 1) Categorize using Diátaxis framework (tutorials, how-tos, reference, explanation) 2) Design navigation tree with max 4 levels 3) Configure search indexing 4) Set up landing page with quickstart path  
 **Output:** Navigable, searchable docs site with clear content hierarchy
+  Complete when: All content categorized by Diátaxis framework (tutorials/how-tos/reference/explanation), navigation tree at ≤4 levels deep, search indexing configured, and landing page with quickstart path live.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Quality Gates
 **Input:** Docs CI/CD pipeline  
 **Steps:** 1) Add Vale prose linting with style guide 2) Add cspell with custom dictionary 3) Add link checking (internal + external) 4) Add frontmatter validation 5) Add code snippet validation if applicable  
 **Output:** Every PR validated against quality standards before merge
+  Complete when: Vale prose linting, cspell, link checking (internal+external), frontmatter validation, and code snippet validation all passing in CI on every PR.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Maintenance Automation
 **Input:** Live docs site with analytics  
 **Steps:** 1) Set up freshness checks (flag pages >6 months stale) 2) Configure feedback widget on every page 3) Set up docs metrics dashboard (coverage, freshness, quality, usage) 4) Assign CODEOWNERS for docs paths  
 **Output:** Self-maintaining docs system with automated quality monitoring
+  Complete when: Freshness checks flagging pages >6 months stale, feedback widget on every page, docs metrics dashboard operational (coverage/freshness/quality/usage), and CODEOWNERS assigned for all docs paths.
 
 
 ## Error Decoder — War Stories from the Trenches
@@ -580,6 +585,15 @@ graph LR
 | "API reference is enough, developers will figure out the rest" | API references without tutorials, guides, and conceptual overviews have 70% higher support ticket volume; developers abandon undocumented APIs within 15 minutes of frustration |
 | "Docs don't need maintenance, the product doesn't change that much" | Docs rot at ~5% per month; after 18 months of zero maintenance, half the documentation is misleading — and misleading docs are worse than no docs |
 | "We'll add examples when someone asks for them" | Reactive documentation means every missing example was already a frustrated user who didn't ask — they just left; for every support ticket filed, 10-100 users silently churned |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Documentation generated from source code comments without human review — 400 pages of auto-generated API docs that list every parameter but explain nothing. Developers spend 30 minutes per task hunting for the one paragraph that matters. | $30K-$100K/year in developer productivity loss from documentation that's comprehensive but unusable. Auto-generated docs create the illusion of documentation while actually being reference material without context. | Auto-generate as a starting layer, not the final product. Layer human-written guides, tutorials, and conceptual overviews on top. Every auto-generated page must have a human-written "Overview" section explaining when and why — not just the what and how. |
+| Documentation structure mirrors the codebase structure, not the user's mental model — `/api/v2/users/{id}/profile/password/reset` is perfectly organized by route hierarchy but impossible for a new developer to navigate. | $20K-$60K in onboarding friction when every new hire spends 3 extra days finding information. Over 2 years with 20 engineers, that's 120 lost workdays. | Organize docs by user task ("Reset a User's Password"), not by code location. Cross-reference: every task page links to the relevant API reference and vice versa. Validate with new-hire testing: can a new engineer find the answer in under 2 minutes? |
+| Documentation build failure treated as non-blocking — CI skips the doc build step on a transient error. Broken links and missing pages accumulate for weeks before anyone notices. External users submit "docs are broken" issues. | $15K-$40K in support overhead and reputation damage when broken docs erode trust. Developers who encounter broken docs are 3x less likely to read docs before asking questions next time. | Doc build must be a blocking CI step. Add `--fail-on-warnings` to the build. Run `muffet` or `lychee` link checker in CI. Set up a dead-link dashboard and alert on any regression. Broken docs are production incidents — treat them with the same severity. |
+| Changelog and migration guides written after the release ships — the release goes out, breaking changes aren't documented, and consumers discover them at upgrade time. Support tickets spike for 2 weeks after every release. | $25K-$75K per release cycle in support costs from preventable upgrade issues, plus $50K-$200K in delayed adoption from consumers who fear upgrading after seeing the chaos. | Changelog and migration guide are part of the release checklist — they must be complete BEFORE the release tag is cut. Write migration guide sections as you implement breaking changes, not after. Run `cliff` or `changesets` to auto-generate changelogs from conventional commits. |
 
 ## Verification
 

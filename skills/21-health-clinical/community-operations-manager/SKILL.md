@@ -223,12 +223,24 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Train mentors: active listening, boundaries (mentors are not clinicians — recognize when to escalate to clinical resources), crisis recognition (suicide risk, AE reporting), confidentiality expectations, and self-care (mentor burnout is real — limit to 2 active mentees).
 5. Structure the mentorship journey: week 1 icebreaker prompts, weeks 2-4 establishing trust, months 2-3 deepening the relationship, month 3 check-in and renewal decision. Provide conversation prompts each week. Measure: mentee satisfaction (≥4/5), mentor retention (>70% at 6 months), mentee community engagement increase post-mentorship.
 
+Complete when:
+- Mentorship program structure documented (matching model, duration, rematch policy)
+- Mentor training curriculum created covering boundaries, crisis recognition, and confidentiality
+- Matching algorithm specified with primary/secondary/tertiary criteria and evaluation metrics
+
+
 ### Phase 2 (~25 min): Community Health Metrics and Segmentation
 1. Define community health KPIs: engagement rate (DAU/MAU, target >30%), weekly active posters (>15% of members), reply rate (>3 replies per thread average), time-to-first-response (<1 hour median), sentiment score (net positive), member retention (30-day, 90-day, annual).
 2. Track clinical outcome correlations (where consented): does community engagement correlate with treatment adherence, PRO scores, HTC visit attendance, or reduced ER visits? This is the holy grail of health community metrics — it justifies clinical referral partnerships and payer interest.
 3. Implement churn prediction: member inactive for 14 days → automated re-engagement (personalized nudge, relevant thread, peer match suggestion). Member inactive for 30 days → human outreach. Track churn reasons: life improvement (good churn — patient no longer needs support), dissatisfaction, platform fatigue, health deterioration.
 4. Segment members for targeted programming: by condition subtype (Hem A vs Hem B vs VWD), treatment regimen (prophy vs on-demand vs gene therapy), age cohort (parents of young children, adolescents, young adults, adults, aging with condition), caregiver vs patient, language and culture group.
 5. Build a community health dashboard: real-time KPIs by segment, trend lines with anomaly detection, churn early warning, mentorship program metrics, event attendance and satisfaction. Share monthly with product, clinical, and executive stakeholders.
+
+Complete when:
+- Community health KPI dashboard built with engagement, retention, and sentiment metrics
+- Churn prediction rules implemented for 14-day and 30-day inactivity thresholds
+- Member segmentation definitions approved by clinical and product stakeholders
+
 
 ### Phase 3 (~20 min): Patient Events and Programming
 1. Design the event calendar: weekly (themed discussion threads, "Tuesday Treatment Talk"), monthly (Ask-Me-Anything with hematologist, peer support circle, caregiver coffee hour), quarterly (virtual roundtable with 3-5 patients sharing experiences, research update webinar), annual (in-person HTC meetup, conference gathering at NHF/ASH/ISTH).
@@ -237,11 +249,23 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Execute event promotion: announcement 14 days out (what, when, who, why attend), reminder 7 days out, day-before reminder, 1-hour reminder. Post-event: thank-you with recap, survey for feedback, share recordings/slides with those who could not attend.
 5. Measure event success: attendance rate (registered vs attended), satisfaction score (≥4/5), net promoter score, new member acquisition from event, returning attendee rate.
 
+Complete when:
+- 12-month event calendar approved with weekly, monthly, quarterly, and annual programming
+- Accessibility plan documented for virtual and in-person events (captions, interpreter, venue)
+- Event success metrics defined: attendance rate, satisfaction ≥4/5, NPS, returning attendee rate
+
+
 ### Phase 4 (~20 min): Community Growth and Advocacy Partnerships
 1. Build clinical referral partnerships: approach HTC social workers and nurse coordinators (they are the gatekeepers of patient resources), provide referral cards and digital assets, train care teams on what the community offers (and what it does not — it is not medical advice), track referral source for attribution.
 2. Partner with patient advocacy organizations: National Hemophilia Foundation (NHF), Hemophilia Federation of America (HFA), World Federation of Hemophilia (WFH), local chapters. Co-host events, cross-promote content, share research opportunities, coordinate advocacy campaigns.
 3. Drive organic growth: SEO-optimized content for condition-specific search terms ("living with hemophilia A," "parenting a child with hemophilia"), social media presence in patient groups (authentic participation, not promotion), patient-to-patient invitation with incentive ("bring a friend to our next event").
 4. Monitor growth health: are new members representative of the patient population? Track demographic diversity of new members vs target population. Growth that only reaches highly engaged, English-speaking, urban patients is not sustainable — it leaves behind the patients who need community most.
+
+Complete when:
+- Clinical referral partnership pipeline documented with 5+ HTC contacts and referral materials
+- Advocacy organization partnership agreements drafted (NHF, HFA, WFH, local chapters)
+- Growth diversity dashboard monitoring demographic representation vs target population
+
 
 
 ## Error Recovery
@@ -358,11 +382,13 @@ graph LR
 
 ## Gotchas
 
-- **Health community that becomes a symptom-swapping forum** — members share unverified remedies, one person's "miracle cure" becomes community lore, a new member tries it and has a severe adverse reaction. The community facilitated harm. Health communities need: evidence-based content guidelines, expert moderation for medical claims, and "this is not medical advice" prominence. **Total cost: $500,000-$5,000,000 per incident** in liability and regulatory exposure — a single adverse event traced to community-sourced medical advice can trigger FDA warning letters, platform liability lawsuits, and loss of user trust costing millions in brand damage.
-- **"Community engagement is up 200%!"** — because a controversial post about vaccine safety went viral. Engagement metrics alone are dangerous. A spike in activity could be a crisis, not a success. Disaggregate engagement: supportive comments vs argumentative comments, new member welcome rate, post-reporting rate. Quality of engagement > quantity. **Total cost: $200,000-$1,000,000 per year** in community health degradation — toxic engagement spikes drive away 15-25% of genuine members per incident, and re-acquiring quality community members costs $50-$200 each in outreach and moderation effort.
-- **Volunteer moderator burnout** — your 10 volunteer moderators handle 500 posts/day, including suicide ideation, terminal diagnosis grief, and caregiver trauma. After 6 months, 6 have vicarious trauma symptoms and 3 quit. Volunteer moderators need: psychological support (counseling access), mandatory breaks, and clear escalation paths for crisis content. **Total cost: $150,000-$400,000 per year** in moderator replacement and community disruption — recruiting, training, and onboarding a replacement moderator costs $5,000-$10,000 each, and moderator churn destabilizes community norms for 2-3 months per departure.
-- **Missing crisis escalation protocol** — a member posts suicidal ideation at 11 PM Friday. No moderator sees it until Monday morning. The 48-hour gap between crisis post and response can be fatal. **Total cost: $1,000,000-$10,000,000 per incident** in liability — failure to act on suicidal content where a platform has constructive knowledge can trigger wrongful death lawsuits and regulatory action.
-- **Health misinformation that outpaces fact-checking** — a viral post claiming "vitamin C cures cancer" gets 50,000 shares before moderation flags it. By the time the fact-check goes up, the misinformation has reached 500,000 people and the correction reaches only 5,000. **Total cost: $300,000-$2,000,000 per viral incident** — each health misinformation event erodes institutional trust with a remediation cost far exceeding the moderation budget.
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Health community becomes a symptom-swapping forum — members share unverified remedies, one person's "miracle cure" becomes lore, a new member tries it and has a severe adverse reaction. Community facilitated harm. | $500K-$5M per incident in liability — single adverse event from community-sourced medical advice triggers FDA warning letters, platform liability lawsuits, and loss of user trust | Implement evidence-based content guidelines, expert moderation for medical claims, prominent "not medical advice" disclaimers, and automated flagging of unverified remedies |
+| "Community engagement is up 200%!" — because a controversial vaccine safety post went viral. Engagement metrics alone are dangerous; spikes can signal crises, not success. Toxic engagement drives away genuine members. | $200K-$1M per year in community health degradation — toxic spikes drive away 15-25% of genuine members; re-acquiring quality members costs $50-$200 each in outreach and moderation | Disaggregate engagement into supportive vs argumentative comments, new member welcome rate, and post-reporting rate. Quality of engagement over quantity. |
+| Volunteer moderator burnout — 10 volunteers handle 500 posts/day including suicide ideation, terminal diagnosis grief, and caregiver trauma. After 6 months, 60% have vicarious trauma symptoms. | $150K-$400K per year in moderator replacement and community disruption — recruiting and onboarding replacements costs $5K-$10K each; churn destabilizes community norms for 2-3 months per departure | Provide psychological support (counseling access), mandatory breaks, clear escalation paths for crisis content. Limit shifts and rotate high-trauma content exposure. |
+| Missing crisis escalation protocol — member posts suicidal ideation at 11 PM Friday. No moderator sees it until Monday morning. The 48-hour gap between crisis post and response can be fatal. | $1M-$10M per incident in liability — failure to act on suicidal content where platform has constructive knowledge can trigger wrongful death lawsuits and regulatory action | Implement 24/7 crisis escalation with automated keyword detection, immediate escalation to trained crisis responders, and documented response SLA within 30 minutes |
+| Health misinformation outpaces fact-checking — viral post claiming "vitamin C cures cancer" gets 50,000 shares before moderation flags it. Correction reaches only 5,000 of the 500,000 exposed. | $300K-$2M per viral incident — each health misinformation event erodes institutional trust with remediation cost far exceeding the moderation budget | Deploy proactive content screening with automated medical claim detection before publishing; pre-approve high-risk topics; build rapid-response fact-check workflow under 2-hour SLA |
 
 ## Anti-Rationalization — No Excuses
 

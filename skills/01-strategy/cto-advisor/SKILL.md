@@ -343,6 +343,11 @@ Maintain a living document that classifies technologies into four rings:
 - **Assess**: worth exploring, not yet production-ready in your context — spike/experiment (e.g., WebAssembly, DuckDB)
 - **Hold**: proceed with caution — legacy, deprecated, or over-hyped (e.g., MongoDB for relational data, hand-rolled auth)
 
+Complete when:
+- Technology radar document with Adopt/Trial/Assess/Hold ratings and written rationale for every major dependency
+- Last 3 build-vs-buy decisions documented with 5-year TCO, alternatives considered, and accepted tradeoffs
+- Technology strategy memo that a new CTO can read and understand all technology choices within an afternoon
+
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 
@@ -511,6 +516,16 @@ Before any CTO-level deliverable leaves this skill, verify:
 - [ ] Scalability review: current capacity at N, target capacity at 10N, bottleneck identification, scaling plan
 - [ ] Disaster recovery plan tested within last 6 months with documented RPO/RTO targets
 - [ ] Technology radar published within last 6 months: Adopt / Trial / Assess / Hold for key technologies
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Adopting technology based on conference talks without team capability assessment | Failed adoption, wasted 3-6 months, team frustration and attrition | Before adopting: have 2+ engineers build a non-trivial prototype in 1 week using the new technology. If they can't ship something real in that time, your team doesn't have the capability to adopt it. Conference talks show best-case outcomes, not your-team reality. |
+| Build vs buy decisions that ignore the maintenance burden of "build" | 3-5x the initial build cost in ongoing maintenance — the gift that keeps on taking | Calculate TCO over 36 months, not just build cost. Include: ongoing engineering time for bug fixes, security patches, dependency upgrades, onboarding documentation, operational runbooks, and the bus-factor risk. Most "we'll just build it" decisions fail the 36-month TCO comparison. |
+| Architecture decisions made without defining non-functional requirements first | Architecture that works in dev but collapses under production load, latency, or compliance needs | Define NFRs BEFORE choosing architecture: p99 latency targets, throughput requirements, data consistency guarantees, availability SLOs, compliance boundaries (GDPR, SOC2, HIPAA), and expected growth rate. An architecture that's elegant for 100 RPS may be catastrophic at 10,000 RPS. |
+| Equating "modern" with "better" — rewriting working systems because the tech stack feels dated | Negative-ROI rewrites justified by technology preference, not business need | Modernization must be justified by one of: (a) hiring — can't recruit for the old stack, (b) cost — new stack significantly cheaper to run, (c) capability — old stack blocks required features. "It feels old" is none of these. Run an roi-gate analysis first. |
+| Vendor lock-in disguised as "strategic partnership" with no exit plan | 3-5x cost increase at renewal when switching costs are prohibitive | For every strategic vendor: document the migration path BEFORE signing. What's the data export format? What's the API surface you depend on? What would it cost (time + money) to switch? If switching cost > 18 months of vendor spend, you're locked in — negotiate accordingly or reconsider. |
 
 ## Verification
 

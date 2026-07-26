@@ -342,6 +342,7 @@ What game mechanic best teaches your learning objective?
 3. Map to curriculum standards: Common Core (math, ELA), Next Generation Science Standards (NGSS), C3 Framework (social studies), ISTE (technology), state-specific standards, IB, AP. Document standard code + game mechanic that teaches it.
 4. Define success criteria: What must the learner be able to DO after playing that they couldn't do before? Must be observable and measurable. "Understand fractions" is not measurable. "Solve fraction addition problems with unlike denominators at 85% accuracy within 30 seconds" is measurable.
 5. Identify prerequisite knowledge and common misconceptions: What must the learner already know? What do learners typically get wrong about this topic? Design the game to surface and correct misconceptions, not just mark answers wrong.
+  Complete when: Learning objectives are written as observable Bloom's Taxonomy actions, mapped to specific curriculum standard codes, with measurable success criteria and documented common misconceptions.
 
 ### Phase 2: Game Mechanic Selection & Mapping (~45 min)
 
@@ -350,6 +351,7 @@ What game mechanic best teaches your learning objective?
 3. Design the core loop: The 30-second cycle the learner repeats. Example (math RPG): Encounter enemy → Enemy presents math problem → Solve correctly to attack (incorrect = enemy attacks) → Receive reward/feedback → Repeat. The math problem isn't an interruption — it IS the combat system.
 4. Map difficulty progression to learning progression: Early game = prerequisite skills, mid-game = target skills, end-game = transfer/application. The game's difficulty curve IS the curriculum's scope and sequence.
 5. Design feedback loops: Immediate feedback on every learner action. Correct: reinforcement + explanation (why was it correct?). Incorrect: guidance + encouragement ("Almost! Remember to find a common denominator first — try again"). Never just "Wrong!" — every error is a teaching opportunity.
+  Complete when: The game mechanic IS the learning mechanic — a player cannot succeed at the game without demonstrating the target knowledge, and the difficulty progression mirrors the curriculum's scope and sequence.
 
 ### Phase 3: Age-Appropriate UX/UI Design (~45 min)
 
@@ -359,6 +361,7 @@ What game mechanic best teaches your learning objective?
 4. Accessibility baseline (every educational game MUST implement): OpenDyslexic or Atkinson Hyperlegible font option, text-to-speech on all instructional text (with word highlighting), color-blind safe palette (test with Coblis or Color Oracle), keyboard/switch-access navigation (full game playable without touch/mouse), closed captioning on all audio content, reduced-motion option, simplified language mode (shorter sentences, simpler vocabulary).
 5. Attention management: No background animations during instruction. Clear visual hierarchy — the learner should always know where to look. Transitions between activities should be calm, not stimulating. Avoid flashing elements (photosensitive epilepsy risk).
 6. Testing: Test with real learners in the target age range — not adults pretending to be children. A 45-year-old developer cannot accurately judge what a 6-year-old finds intuitive. Observe, don't ask: where do they tap? what do they ignore? where do they get stuck?
+  Complete when: UI/UX design is validated against the target device's ergonomics, all 5 accessibility baselines are specified (fonts, TTS, color-blind palette, keyboard nav, captions), and interaction models match developmental stage from Decision Tree 1.
 
 ### Phase 4: Adaptive Difficulty & Scaffolding (~60 min)
 
@@ -374,6 +377,7 @@ What game mechanic best teaches your learning objective?
 3. Implement the adaptive loop: Present problem → Observe response (correct/incorrect, time, help used) → Update skill model (BKT/ELO/IRT) → Select next problem at appropriate difficulty → Adjust scaffolding level → Repeat.
 4. Set difficulty guardrails: Never present problems with < 20% predicted success rate (frustration zone) or > 95% predicted success rate (boredom zone). Target zone of proximal development: 70-85% success rate — challenging but achievable with effort.
 5. Cross-skill adaptation: A learner strong in addition but weak in subtraction shouldn't get harder addition problems — the system should detect the subtraction gap and focus practice there, regardless of "curriculum sequence."
+  Complete when: Adaptive algorithm is chosen (ELO/IRT/BKT) based on data availability, scaffolding layers (L0-L3) are defined with fade triggers, and the zone of proximal development is calibrated to 70-85% success rate with guardrails at 20% and 95%.
 
 ### Phase 5: Child Safety & Parental Controls (~45 min)
 
@@ -387,6 +391,7 @@ What game mechanic best teaches your learning objective?
 4. Build parental controls dashboard: View child's progress, time spent, skills mastered, areas of difficulty. Set time limits per day/session. Approve/block social features. Download/delete child's data. Receive notifications (optional). The dashboard must be behind authentication that a child cannot bypass.
 5. School-focused architecture (if used in classrooms): Teacher dashboard replaces parental dashboard. Class rostering via Clever, ClassLink, or OneRoster. Single sign-on for students (no individual accounts for under-13). FERPA-compliant data handling: school owns the data, data used only for educational purposes, data deleted upon school request.
 6. Screen time management: Default daily limits by age (Pre-K: 30 min, K-2: 45 min, Grades 3-5: 60 min, Grades 6-8: 75 min, HS: 90 min — these are ceilings, not targets). "Time to take a break" prompts at limits with positive framing (not punishment). No mechanics that punish the learner for stopping.
+  Complete when: Applicable regulations (COPPA/GDPR-K/FERPA) are identified, data minimization is defined, verifiable parental consent flow is designed, and the parental/teacher dashboard is specified with all 5 required capabilities.
 
 ### Phase 6: Learning Outcome Assessment (~45 min)
 
@@ -404,6 +409,7 @@ What game mechanic best teaches your learning objective?
    - **Level 2 (moderate):** Correlate in-game performance with external measures (standardized test scores, grades) — does game mastery predict real-world performance?
    - **Level 3 (rigorous):** Randomized controlled trial — treatment group uses game, control group uses traditional instruction, compare outcomes on standardized measures. This is what school districts need to justify purchasing decisions.
 5. Implement continuous improvement loop: Analyze aggregate data → Identify content where learners consistently struggle → Redesign those game levels → A/B test new design → Measure improvement → Repeat. Educational games improve with data, not intuition.
+  Complete when: Multi-layer assessment (engagement, performance, learning) is designed with stealth assessment embedded in gameplay, the teacher dashboard shows skill mastery and intervention recommendations, and an efficacy evidence pipeline (Level 1-3) is planned.
 
 ## Best Practices
 
@@ -517,6 +523,14 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 | Data collection without consent — analytics SDK collects device IDs from 8-year-olds. COPPA violation discovered during school district security audit. | COPPA-compliant from day one: no PII collected from under-13 users without verifiable parental consent. COPPA Safe Harbor certification. All third-party SDKs audited for data collection. Privacy policy written for parent reading level. | Privacy-by-design architecture: all learning data processed on-device with optional encrypted sync. Teacher dashboard data is de-identified at the individual level. Data retention automated. Privacy impact assessment updated quarterly. School districts proactively approve the product for their approved vendor list. |
 | No efficacy evidence — "trust us, it teaches math." District asks for research, company has none. Sale lost. | Pre/post assessment built in: game measures skill growth from first session. Correlational data shows game mastery predicts standardized test scores. Published white paper with methodology. | Randomized controlled trial: treatment group using game outperforms control group on standardized measures with effect size d ≥ 0.3 (educationally meaningful). Study meets What Works Clearinghouse standards. Results published in peer-reviewed journal. Districts cite the research in procurement justifications. |
 | Teacher dashboard shows time spent and levels completed — vanity metrics that tell teachers nothing about learning | Skills dashboard: each student's mastery probability per standard, error pattern analysis, recommended intervention. Teachers can see in 30 seconds who needs help and on what. | Predictive dashboard: identifies students at risk of falling behind BEFORE they fail. Recommends specific in-game activities for each struggling student. Integrates with gradebook via LTI. Exportable for IEP meetings and parent conferences. Teachers describe it as "indispensable." |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| COPPA violation via third-party SDK — analytics SDK collects device IDs from under-13 users, FTC fine | $50K-$200K in fines per violation | Audit every third-party SDK for data collection, implement data minimization, use COPPA Safe Harbor certification, no behavioral ads for under-13 |
+| Engagement trap — game optimized for time-on-device, 80% session time in non-learning features | $25K-$75K in lost school contracts | Instrument productive vs. consumption time, target >70% productive, cut features that don't directly serve learning outcomes |
+| "Standards-aligned" misrepresentation — claimed Common Core alignment but topic only tangentially matches | $20K-$60K in procurement disqualification | Produce per-standard alignment document mapping standard code → game level → mechanic → assessment depth; school districts audit these claims |
 
 ## Verification Guardrails
 

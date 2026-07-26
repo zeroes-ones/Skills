@@ -168,6 +168,7 @@ Execute in order. The goal is to discover what we don't know.
    |-- Validate: topological sort must succeed (no cycles)
    |-- Output: `tickets/dependency-graph.md` with mermaid diagram
 ```
+  Complete when: All unknowns classified, dependency graph renders without cycles, and tickets created in tickets/ directory.
 
 ### Phase 2: Frontier Resolution
 
@@ -198,6 +199,7 @@ Work the frontier — tickets with all dependencies resolved.
    |-- New unknowns discovered during investigation → create new tickets
    |-- Dependencies that turned out to be false → remove edges
 ```
+  Complete when: All BLOCKING and ORDERING tickets resolved and knowledge artifacts produced for each completed ticket.
 
 ### Phase 3: Capstone Synthesis
 
@@ -219,6 +221,7 @@ After all BLOCKING and ORDERING tickets are resolved:
    |-- Update index with completion status
    |-- Knowledge artifacts remain as project documentation
 ```
+  Complete when: Decision document produced with recommendations, implementation tickets handed off, and investigation artifacts archived.
 
 ## Decision Trees
 
@@ -584,6 +587,14 @@ Wayfinder scales from a 10-minute quick scan to multi-month architecture investi
 | **Architecture investigation** | 30-100 unknowns, system-level | Full pipeline: elicitation → DAG → frontier → ADRs → transition plan. Feeds system-architect | 5-20 sessions |
 
 **Scaling rule:** The DAG is overhead for small investigations. For ≤5 INDEPENDENT unknowns, resolve without formal tickets. For 8+ unknowns with dependency relationships, the DAG pays for itself by preventing serialized investigation.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Shallow unknown elicitation that misses critical risks | $50K-$200K in late-stage surprises | Target 10-30 unknowns minimum; if fewer than 5 emerge, you're not digging deep enough |
+| Circular dependency graphs that stall investigation | $30K-$100K in wasted investigation time | Run topological sort validation before accepting any DAG — cycles must be resolved immediately |
+| Premature synthesis before all BLOCKING tickets are done | $100K-$500K in wrong strategic decisions | Do not enter Phase 3 until all BLOCKING and ORDERING tickets are marked done |
 
 ## Verification
 

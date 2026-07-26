@@ -315,20 +315,44 @@ Content is for which audience?
 
 **What good looks like:** A 5-8 minute patient education module at 6th-grade reading level. Patient can correctly answer 3/3 comprehension questions. A clinician reviewer confirms no clinical inaccuracies. Patient survey: "I understood everything and feel more confident managing my condition."
 
+Complete when:
+- Education module at ≤8th grade reading level (Hemingway/Flesch-Kincaid verified) with SMART learning objective
+- Patient comprehension validated: 3/3 correct on teach-back assessment questions
+- Clinician reviewer confirmed no clinical inaccuracies and safety boundaries included
+
+
 ### Phase 2 (~20 min): Adherence Program Design
 **Steps:** 1) Diagnose the adherence barrier using the decision tree above — use a short patient questionnaire (3-5 questions about their specific barriers) 2) Select intervention type: reminders (forgetfulness), skills training (anxiety), financial navigation (cost), peer support (isolation/denial), or behavioral activation (depression/lack of motivation) 3) Design the behavior change loop: cue → routine → reward (habit loop from Duhigg's framework). The cue is the notification; the routine is the injection; the reward must feel real (a streak, a badge, a message from a peer who also just dosed) 4) Build feedback loops: "You've taken your factor every day for 7 days. Your joint pain scores have decreased 30% compared to last month. Keep going!" — patients need to see their own data 5) Set up failing gracefully: if a patient misses 3 doses, trigger a different intervention (nudge from a peer, call from a nurse, simplified plan — not just another notification)
 
 **What good looks like:** Adherence intervention with a documented barrier diagnosis, a behavior change framework selected, a feedback loop designed, and a graceful degradation path for non-responders.
+
+Complete when:
+- Adherence barrier diagnosed via patient questionnaire with documented root cause
+- Behavior change framework selected (habit loop, motivational interviewing, or peer support) with feedback loop designed
+- Graceful degradation path defined for non-responders: 3 missed doses → alternative intervention trigger
+
 
 ### Phase 3 (~20 min): Skills Training Content (Injection, Self-Care)
 **Steps:** 1) Deconstruct the skill into teachable steps using task analysis: reconstitute factor → draw up → choose site → clean → inject → dispose → document 2) Create step-by-step content for each subtask with: video demonstration (gold standard), photo series with callouts (acceptable), text-only (last resort) 3) Include troubleshooting: "What if it burns during injection? What if blood appears in the syringe? What if I miss the vein?" 4) Add a practice/assessment mode: patient ticks off each completed step, app logs which steps they found difficult 5) Include safety boundaries: "Never inject into an area where you have a bleed. Never use a needle that's already been used. Dispose of all sharps in a puncture-proof container."
 
 **What good looks like:** A skills training module with video demonstration, step-by-step photo guide, troubleshooting FAQ, and a patient assessment that confirms they can correctly describe the injection steps before their first self-injection attempt.
 
+Complete when:
+- Task analysis complete with deconstructed steps and safety boundaries per subtask
+- Video demonstration or photo series guide created for each skill step
+- Troubleshooting FAQ written covering top 5 common issues with actionable guidance
+
+
 ### Phase 4 (~15 min): Outcome Measurement
 **Steps:** 1) Measure health literacy: use Brief Health Literacy Screening Tool (BRIEF) or Single Item Literacy Screener (SILS) at onboarding and at 3 months — track improvement 2) Measure adherence: patient-reported doses vs prescribed doses (app tracking), pharmacy refill data (if available), factor VIII trough levels (if EHR-integrated) 3) Measure knowledge retention: quiz patients at 1 day, 1 week, 1 month after education module — identify which concepts degrade fastest 4) Measure behavior change: have they adopted the target behavior? How consistently? 5) Report: patient education outcomes to clinical team, pharma partners (aggregate, de-identified), and IRB if part of a research study
 
 **What good looks like:** Outcome dashboard showing: health literacy score improvement (pre/post), adherence rate by patient, knowledge retention curve, and behavior adoption rate. Data used to iterate on education content — modules with poor retention get redesigned.
+
+Complete when:
+- Health literacy measurement instrument selected (BRIEF or SILS) with pre/post administration plan
+- Outcome dashboard design: adherence rate, knowledge retention curve, behavior adoption rate
+- Reporting plan: patient education outcomes to clinical team, aggregate de-identified data to pharma partners
+
 
 ## Cross-Skill Integration
 
@@ -383,11 +407,13 @@ graph LR
 
 ## Gotchas
 
-- **Health education handout at 12th-grade reading level** — your document about diabetes management uses words like "glycemic variability" and "microvascular complications." Your patient population's average reading level is 6th grade. They nod and don't understand, then don't follow the care plan, and are readmitted. **Total cost: $150,000-$500,000 per year** in avoidable readmissions — low health literacy contributes to 30-day readmission rates 30-50% higher than health-literate patients, with each readmission costing $15,000-$30,000 under CMS penalties.
-- **"Take with food" instruction** — but the patient fasts during Ramadan (30 days, dawn to sunset). The medication schedule needs a Ramadan-specific adjustment. Cultural and religious practices directly impact medication adherence. Don't discover this when the patient is admitted for complications. **Total cost: $50,000-$200,000 per year** in preventable complications — medication non-adherence due to cultural-instruction mismatch causes 10-15% of chronic disease exacerbations, each emergency admission costing $8,000-$25,000.
-- **Translation that's literal but culturally wrong** — "You need to exercise more" translated to a culture where women don't exercise in public. The instruction is linguistically correct but practically impossible. Health education needs cultural adaptation, not just translation. **Total cost: $100,000-$400,000 per year** in health disparities — culturally unadapted materials contribute to 20-30% lower treatment adherence in minority populations, widening outcome gaps that cost health systems $50B+ annually system-wide.
-- **Teach-back method** — you explain the care plan, the patient says "I understand." But when you ask "Can you tell me in your own words what you'll do at home?" — they can't. "Do you understand?" always gets "yes." "Tell me what you understood" reveals the gap. **Total cost: $200,000-$800,000 per year** in non-adherence complications — patients who can't teach back their care plan are 2-3x more likely to be readmitted within 30 days, and hospitals without teach-back protocols face CMS readmission penalties up to 3% of Medicare revenue.
-- **Low health literacy screening omission** — you deliver the same education to every patient regardless of health literacy level. A patient with low health literacy receives a complex medication schedule they can't follow, leading to polypharmacy errors. **Total cost: $100,000-$300,000 per year** in adverse drug events — patients with low health literacy have 50% higher rates of preventable ADEs, each costing $3,000-$10,000 in additional hospital care.
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Health education handout at 12th-grade reading level — document uses "glycemic variability" and "microvascular complications" but patient population averages 6th-grade reading level. Patients nod and don't follow care plan. | $150K-$500K per year in avoidable readmissions — low health literacy contributes to 30-50% higher 30-day readmission rates at $15K-$30K per readmission | Assess health literacy before designing content; use BRIEF or SILS screening at onboarding; deliver tiered content by literacy level; target ≤ 6th grade (SMOG or Flesch-Kincaid verified) |
+| "Take with food" instruction ignores Ramadan — patient fasts dawn to sunset for 30 days. Medication schedule needs Ramadan-specific adjustment. Cultural practices directly impact adherence. | $50K-$200K per year in preventable complications — 10-15% of chronic disease exacerbations from cultural-instruction mismatch, each emergency admission costing $8K-$25K | Review medication instructions against cultural/religious practices; create calendar-specific adjustments for fasting periods; engage cultural liaisons for major patient demographics |
+| Translation that's literal but culturally wrong — "You need to exercise more" translated to a culture where women don't exercise in public. Linguistically correct but practically impossible. | $100K-$400K per year in health disparities — culturally unadapted materials cause 20-30% lower treatment adherence in minority populations, costing health systems $50B+ system-wide | Use cultural adaptation not just translation; engage cultural liaisons for each demographic; test instructions with actual patients from the target culture before distribution |
+| Teach-back method omission — patient says "I understand" but can't explain the care plan in their own words. "Do you understand?" always gets "yes" but "Tell me what you understood" reveals gaps. | $200K-$800K per year in non-adherence complications — patients who can't teach back are 2-3x more likely to be readmitted within 30 days; hospitals face CMS penalties up to 3% of Medicare revenue | Include teach-back step in every education interaction; ask "Tell me in your own words what you'll do at home" not "Do you understand?"; document teach-back pass/fail and re-educate if needed |
+| Low health literacy screening omission — same education delivered to all patients regardless of literacy level. Low-literacy patient receives complex medication schedule they can't follow. | $100K-$300K per year in adverse drug events — low health literacy patients have 50% higher rates of preventable ADEs at $3K-$10K per event | Screen all patients for health literacy using validated tools (BRIEF, SILS, or PAM); segment education by activation level; Level 1 patients receive single daily action; Level 4 get comprehensive tools |
 
 ## Verification
 

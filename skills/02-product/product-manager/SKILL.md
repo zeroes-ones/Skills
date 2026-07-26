@@ -232,17 +232,27 @@ Strategic vs tactical feature?
 ### Phase 1 (~15 min): Problem Discovery
 Interview stakeholders and users. Separate expressed solutions from underlying problems. Draft the problem statement in one sentence: "[User] struggles to [outcome] because [constraint]." Define success criteria — choose one North Star metric and 2–3 supporting KPIs. Identify the target cohort with behavioral segmentation (not just demographics). Document the current-state workflow and quantify the pain with data where possible (time spent, error rate, churn).
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 ### Phase 2 (~30 min): PRD Writing
 Structure the PRD with these sections, in order: Executive Summary (3 sentences), Problem Statement, Success Metrics, Target Personas, User Stories (ordered), Functional Requirements, Non-Functional Requirements (performance, security, compliance), Out of Scope, Assumptions & Risks, Launch Plan, and Appendix with wireframe links and API references. Write user stories in the format: `As a [persona], I want [capability] so that [benefit].` Attach acceptance criteria using Gherkin syntax (`GIVEN/WHEN/THEN`). Define edge cases for each story — empty data, concurrent edits, offline, permission revocation.
+
+  Complete when: Strategy documented, success criteria defined, stakeholders aligned, and next-phase dependencies identified.
 
 ### Phase 3 (~20 min): RICE Prioritization
 Score each initiative on Reach (number of users impacted per quarter), Impact (1 = minimal, 2 = low, 3 = medium, 4 = high, 5 = massive), Confidence (20% = gut, 50% = qualitative data, 80% = quantitative data, 100% = proven), and Effort (person-months). Compute `(Reach × Impact × Confidence) / Effort`. Sort by RICE score descending. Flag items where Confidence < 50% for a spike or time-boxed investigation before committing. Review scores with the team to surface hidden assumptions.
 
+  Complete when: Prioritized backlog documented, RICE scores calculated, roadmap communicated to stakeholders, and dependencies mapped.
+
 ### Phase 4 (~15 min): Roadmap & Communication
 Build a Now/Next/Later roadmap — avoid date-based roadmaps beyond the current quarter. Now = committed and in active development. Next = discovered, spec'd, ready when capacity opens. Later = validated problems without committed solutions. For each initiative, describe the problem, not the solution syntax. Publish the roadmap visibly and update it monthly. Prepare stakeholder-specific summaries: engineering needs technical context, executives need risk/ROI, sales needs timelines and talking points.
 
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+
 ### Phase 5 (~25 min): Delivery Partnership
 Attend standups to unblock the team on requirements ambiguity. Triage incoming bugs and feature requests against the current roadmap. Run sprint demos and validate that acceptance criteria are met — not just functionally, but experientially. Collect launch metrics and compare against the success criteria in the PRD. Schedule a post-launch retro to capture product learnings within 2 weeks of GA.
+
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
 
 ## Best Practices
 
@@ -402,6 +412,26 @@ After every launch: what did you predict would happen? What actually happened? W
 - **Customer interview "would you use this?"** questions — people say yes to avoid conflict. 80% of users who say "I would definitely use this" in interviews never adopt. Instead, ask "when was the last time you had this problem?" and "how do you solve it today?".
 - **Roadmap as a Gantt chart** set 12 months out — the first unexpected customer escalation, competitor launch, or platform dependency change invalidates everything after month 2. Roadmaps should set outcomes and themes with rolling 6-week certainty windows, not fixed timelines.
 - **"Technical debt" as a catch-all** for "we need to refactor." Actual tech debt (trade-offs made knowingly) can be quantified with interest payments (e.g., "deployments take 3x longer due to X"). Vague "clean up the codebase" initiatives without interest-rate calculations never get prioritized.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
 

@@ -113,6 +113,7 @@ If the user shares an existing deck file (.pptx, .key, .pdf, Google Slides link)
 2. **Define the goal.** What ONE action do you want them to take? "Understand our product" is not a goal. "Schedule a follow-up demo with the CTO" is a goal.
 3. **Select narrative structure.** Minto Pyramid for executives (conclusion first). SCQA for problem-solving. Hero's Journey for keynotes. Chronological for project updates. Compare-contrast for competitive positioning.
 4. **Write the through-line.** One sentence that captures the entire presentation. Test: does it create curiosity? "How we grew revenue 300% by doing less" beats "Our Q4 results."
+  Complete when: Audience persona documented with 3 named individuals, single action goal defined, narrative structure selected, and through-line passes the curiosity test.
 
 ### Phase 2: Structure & Outline (20% of effort)
 
@@ -120,6 +121,7 @@ If the user shares an existing deck file (.pptx, .key, .pdf, Google Slides link)
 2. **Create the outline.** Each group becomes a section. Each section has 1-3 slides. Every slide has ONE job: advance the argument toward the goal.
 3. **Design the emotional arc.** Map audience emotional state: where do you want tension? Where do you want relief? Where do you want excitement? Structure slides to create this arc.
 4. **Place your strongest content at the beginning and end.** Primacy-recency effect: audiences remember the first and last things best. Open with your second-strongest point, close with your strongest.
+  Complete when: Brain dump is grouped and ranked, outline has 5-7 sections with 1-3 slides each, emotional arc is mapped across slides, and strongest content placed at primacy-recency positions.
 
 ### Phase 3: Slide Design (30% of effort)
 
@@ -129,6 +131,7 @@ If the user shares an existing deck file (.pptx, .key, .pdf, Google Slides link)
 4. **Typography.** Two fonts max: one for headlines (bold, large), one for body (clean, readable). Minimum 30pt for body text in a room; 24pt for virtual presentations. Never use Comic Sans, Papyrus, or more than 3 font sizes on one slide.
 5. **Color.** Use brand palette if available. If not: dark background for large rooms (projector), light background for virtual (screen glare). Ensure WCAG AA contrast (4.5:1 for normal text). One accent color for emphasis — use it sparingly.
 6. **Imagery.** Full-bleed images for emotional impact. Icons for concepts. Custom diagrams for processes. Zero stock photos of people who aren't your team/customers.
+  Complete when: Every slide headline states an insight (not a topic), visual hierarchy is established on each slide, data slides have highlighted insights with annotations, typography and color pass WCAG AA contrast checks, and zero generic stock photos remain.
 
 ### Phase 4: Speaker Notes & Rehearsal (20% of effort)
 
@@ -136,6 +139,7 @@ If the user shares an existing deck file (.pptx, .key, .pdf, Google Slides link)
 2. **Craft transitions between slides.** "So what does this mean for our Q4 strategy?" beats "Next slide." Transitions are where audiences check out — make them bridges, not gaps.
 3. **Time each section.** Typical pace: 1-2 minutes per slide. Flag sections that run long. Cut words, not slides — tighten language rather than rushing.
 4. **Three rehearsals minimum.** Run 1: fix timing. Run 2: fix flow and transitions. Run 3: full dress with clicker and timer. Record Run 3 and watch it — you'll catch things you never notice while presenting.
+  Complete when: Speaker notes written as full scripts with transitions for every slide, each section timed to 1-2 minutes per slide, and three full rehearsals completed with Run 3 recorded and reviewed.
 
 ## Decision Trees
 
@@ -418,6 +422,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "The deck will speak for itself if shared afterward" | Slide decks are props for live presenters, not documents; a deck designed for projection fails as a standalone read — 90% of forwarded decks are incomprehensible without the speaker |
 | "Fancy animations and transitions make it professional" | Motion for motion's sake adds cognitive load, not polish; every transition without narrative purpose costs audience focus |
 | "I'll design as I build the content" | Simultaneous content creation and design produces inconsistent visuals; separating content outline from visual design halves production time and doubles quality |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| **Death by bullet points** — slides packed with 6+ bullets of full sentences. Audiences read ahead instead of listening; the presenter becomes a narrator of a document nobody needs narrated. | $5K-$500K in lost deals, failed pitches, and unpersuaded stakeholders when audiences check out. | Limit 3 bullets per slide, 6 words per bullet max. Put the narrative in speaker notes, insights in headlines. Every bullet point beyond 3 costs ~10% of audience attention. |
+| **Font rendering failures across platforms** — custom fonts that looked perfect on your Mac disappear or fall back to Courier on the Windows machine running the projector. | $2K-$50K in professional embarrassment, lost credibility, and ruined first impressions when slides become illegible. | Embed all fonts in the file. Test on both Mac and Windows before showtime. Always have a PDF backup with fonts flattened. Use sRGB color profile. |
+| **Audience attention loss from poor structure** — the presentation opens with "About Us" and "Agenda" slides, squandering the highest-attention window. The narrative rambles without a clear through-line. | $5K-$100K in wasted preparation and lost influence — a board presentation fails to persuade, a sales pitch doesn't close, a conference talk nobody remembers. | Open with your best argument or a provocative hook in the first 30 seconds. Every slide must answer "why should I care?" Place a clear CTA slide before Q&A (never end on "Thank you" or "Questions?"). Map audience emotional arc across slides. |
+| **The "one more slide" trap** — adding slides to "be thorough" kills presentations. A 60-slide deck guarantees the last 40 slides are never remembered. | $5K-$2M — a $2M funding round lost because the audience checked out by slide 18. | Cut to the bone, then cut one more. 10 great slides beat 60 mediocre ones. Maximum 1 slide per 2 minutes of talk time. Flag "must-cover" vs "nice-to-have" in speaker notes. |
+| **Designing without knowing the room** — dark-background deck designed on a 27" retina display becomes illegible on a washed-out conference room projector from 2009. | $5K-$50K in production value wasted on a deck nobody can read. | Scout the room. Test slides on the actual projector. Always have a high-contrast backup version and a PDF on USB + email. |
 
 ## Verification
 

@@ -375,6 +375,7 @@ Is SEO critical OR do you need server-side rendering?
 | Learning curve | Steep (RSC model) | Moderate | Gentle | Gentle |
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+  Complete when: Framework is selected and justified against SEO, dynamic-content, and team-skill criteria. The scaffolded app renders a component with Storybook running and Lighthouse ≥95 baseline.
 
 
 ## Best Practices
@@ -594,6 +595,16 @@ When frontend apps go wrong, they go wrong in predictable ways. Here are the mos
 | Bundle contains entire library — importing `lodash` adds 72KB, but only `_.get` is used. Lighthouse flags excessive JavaScript | Default imports pull in the entire module. `import _ from 'lodash'` imports all 300+ functions. Tree-shaking can't eliminate because CommonJS modules have side effects | Use named imports: `import get from 'lodash/get'`. Configure `moduleResolution: 'bundler'` in tsconfig. Use `bundle-analyzer` to visualize what's in your bundle. Set bundle size budgets in CI | Tree-shaking is not magic — it can only eliminate dead code in ES modules without side effects. One default import from a CommonJS package adds 72KB to every page load |
 | CSS specificity war — adding `!important` to fix one style breaks three other components. Nobody can predict which style wins | Component styles compete in a global namespace. A deeply nested selector in one component overrides a simple class in another. `!important` escalates the war — the next developer needs `!important` to override your `!important` | Use CSS Modules (`*.module.css`) or CSS-in-JS for component-scoped styles. Use design tokens for shared values. Never use `!important` except to override third-party styles. Set `selector-max-specificity` lint rule to `"0,4,0"` | Global CSS is shared mutable state. Every style rule you write can be overridden by any other file in the codebase. Component-scoped styles eliminate the specificity arms race |
 | Async `useEffect` sets state after component unmounts — `Warning: Can't perform a React state update on an unmounted component` | `useEffect` fires an async fetch, user navigates away before it resolves, `setData()` is called on an unmounted component. Memory leak: the promise holds a reference to the component's closure | Use `AbortController`: `const controller = new AbortController(); fetch(url, { signal: controller.signal }); return () => controller.abort()`. Or use a `mounted` ref: `if (!isMountedRef.current) return` before `setData()`. Prefer React Query/TanStack Query which handles this automatically | Every async operation in a component is a potential memory leak. The component lifecycle and the promise lifecycle are independent — navigation can destroy the component while the promise is still in-flight |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Default-importing `lodash` — one `import _ from 'lodash'` adds 72KB to every page, LCP degrades by 500ms | $15K-$40K in Core Web Vitals regressions and conversion drops | Named imports: `import get from 'lodash/get'`. Use `bundle-analyzer` in CI. Set bundle size budgets. Tree-shaking can't eliminate CommonJS side effects. |
+| `useEffect` async fetch without cleanup — memory leak warning, component unmounts before promise resolves | $10K-$25K in debugging memory leaks and flaky tests | Use `AbortController`: `fetch(url, { signal: controller.signal }); return () => controller.abort()`. Or use TanStack Query which handles cleanup automatically. |
+| CSS specificity war — one `!important` cascades into 20 more `!important` declarations across the codebase | $10K-$30K in CSS maintenance debt and visual regression bugs | Use CSS Modules or CSS-in-JS for component-scoped styles. Use design tokens for shared values. Set `selector-max-specificity` lint rule. Ban `!important` except for third-party style overrides. |
+| Skipping `<ErrorBoundary>` at route level — one uncaught exception crashes the entire React tree to a white screen | $20K-$50K in production incidents and user churn | Wrap every route in `<ErrorBoundary fallback={...}>`. Log boundary errors to observability. Test by deliberately throwing in child components. The fallback UI must render, not the error overlay. |
+| Using `<div onclick>` instead of `<button>` — keyboard navigation broken, screen readers skip the element, form behavior fails | $8K-$20K in accessibility remediation and potential ADA lawsuits | Use semantic HTML first: `<button>` for actions, `<nav>` for navigation, `<main>` for content. WCAG 2.2 AA compliance starts with correct element choice, not ARIA patching bad markup. |
 
 ## Verification
 

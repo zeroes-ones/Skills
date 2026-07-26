@@ -217,6 +217,7 @@ grep -rn "console.log\|print\|logger.info" src/ app/ --include="*.ts" --include=
 ```
 
 Output: A PHI inventory spreadsheet with columns: Data Element, Storage Location, Transmission Path, Access Pattern, Retention Period, BAA Required.
+  Complete when: PHI inventory spreadsheet complete — all data elements mapped with storage location, transmission path, access pattern, retention period, and BAA requirement.
 
 ### Phase 2: PHI Audit Tables (~4 hours)
 
@@ -301,6 +302,7 @@ async def log_modification(db: AsyncSession, *, user_id, ip_address, record_id, 
     db.add(audit)
     await db.commit()
 ```
+  Complete when: Audit tables created for every PHI-containing table with immutable append-only design; audit logging middleware implemented for all CRUD operations.
 
 ### Phase 3: Encryption at Rest and in Transit (~3 hours)
 
@@ -354,6 +356,7 @@ class EncryptionService:
 # Key rotation: Use AWS KMS / GCP Cloud KMS with automatic rotation
 # aws kms create-key --description "PHI field encryption" --rotation-period 365
 ```
+  Complete when: Encryption at rest (AES-256 with KMS CMK) and in transit (TLS 1.2+ with verify-full) implemented and verified for all PHI data stores, connections, and backups.
 
 ### Phase 4: BAA Management (~2 hours)
 
@@ -526,6 +529,16 @@ graph LR
 | "It's just metadata — timestamps, IP addresses, and device IDs aren't PHI." | Metadata is PHI when it can identify an individual in a healthcare context. An IP address + timestamp of a telehealth session reveals the patient's location and appointment time — two PHI identifiers. OCR guidance (2024) explicitly includes online identifiers as PHI when related to health services. Metadata-only breaches have triggered $500K+ OCR settlements. |
 | "Event logging is optional — it's an 'addressable' specification." | "Addressable" under HIPAA does NOT mean optional. It means you must implement the specification OR document why it's not reasonable and implement an equivalent alternative. No major OCR settlement has accepted "we decided not to" as a valid alternative to audit logging. Implement or document with legal review. |
 
+  Complete when: BAA registry current for all vendors handling PHI; sub-processor audit completed; quarterly BAA review cadence established.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Production PHI copied to test environment via `mysqldump prod \| mysql test` — test DB has no access controls, audit logging, or HIPAA training for 50 developers and 12 contractors | $100K-$1M per incident in breach response — test environment is the most common PHI leak vector; OCR penalties multiplied by record count | Never copy production data to non-production environments; use data masking or synthetic data generators; test environments must meet same security controls as production |
+| Patient requests accounting of disclosures but team can't produce it — audit logs only go back 90 days due to storage costs. HIPAA requires 6 years of disclosure accounting. | $50K-$500K per OCR inquiry — inability to produce disclosure accounting within 30-60 days is a per-se violation under HIPAA | Configure audit log retention for 7 years minimum; archive logs to cold storage after 90 days; test retrieval capability quarterly |
+| Developer's laptop stolen containing "de-identified" patient data — ZIP+DOB+diagnosis date re-identifies 87% of patients via voter registration records (Sweeney study) | $250K-$5M per incident — releasing re-identifiable data triggers breach notification for every individual plus FTC action and civil lawsuits | Enforce HIPAA Safe Harbor: remove all 18 identifiers. For limited data sets, ensure Data Use Agreement. Never allow production PHI on developer laptops; require full-disk encryption |
+| Third-party SDK without BAA sends PHI to non-compliant service — analytics pixel on patient portal transmits appointment data to Google/Meta without HIPAA-compliant BAA | $100K-$1.5M per OCR fine — tracking technology violations under OCR 2024 guidance trigger penalties, patient lawsuits, and mandatory corrective action | Verify BAA coverage before merging any third-party dependency; deploy CSP headers and server-side analytics that strip PHI; audit all patient-facing pages for tracking pixels |
 
 ## Verification
 

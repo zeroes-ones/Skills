@@ -267,6 +267,7 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
    (use Contributor Covenant as base). Define moderation guidelines. Onboard first 10 community members
    personally — welcome DMs, intro posts, pair them with a buddy.
    - **Output**: Community platform(s) live. Code of conduct published. Moderation guide documented.
+Complete when: Developer persona cards produced and validated with 10+ developer interviews. Developer journey map with conversion rates per stage documented. KPI dashboard configured across all four DevRel levels (output, engagement, product, business). Community platform live with code of conduct and moderation guide.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Content Engine — Educate at Scale
@@ -283,7 +284,7 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
    - **Output**: 3-5 sample apps. CI tests that verify they build and run. Update on every major API change.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
-
+Complete when: 90-day content calendar published with assignments and distribution plan. 3-5 sample applications built, tested via CI, and updated for latest API version. Content mix balanced across tutorials (50%), docs (20%), thought leadership (15%), case studies (10%), and community stories (5%).
 
 ## Error Recovery
 **(STANDARD)**
@@ -426,6 +427,14 @@ graph LR
 | "Our Discord has 10K members — the community is thriving" | 1.5% activity rate means 9,850 ghosts and 10 actual contributors — community size without engagement metrics is theater, not DevRel. |
 | "The talk should showcase our product — that's the whole point" | Vendor pitches get rejected by conference committees — teach-first abstracts that solve real problems get accepted and generate authentic pipeline from the audience. |
 | "The tutorial worked when we wrote it 6 months ago" | Stale tutorials with deprecated APIs and vulnerable dependencies convince new developers your product is broken — tutorials without CI testing are liabilities, not assets. |
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Measuring DevRel by vanity metrics (stars, followers, pageviews) instead of product-qualified signups | $150K-$300K/year in DevRel headcount and program budget that looks successful on dashboards but generates zero attributable pipeline — the C-suite eventually cuts the team when revenue pressure hits and "engagement" doesn't pay the bills. | Tie every DevRel activity to a product metric: tutorial → signups within 30 days, conference talk → demo requests within 2 weeks, community answer → reduced support tickets. Report DevRel-attributed pipeline alongside engagement metrics in every quarterly review. |
+| Shipping tutorials and sample apps without automated CI testing against the latest SDK/API version | $30K-$80K in developer trust erosion per broken tutorial — a single "getting started" guide with a broken dependency causes 200+ developers to abandon evaluation, each representing $500-$5K in potential ACV. Multiply by 5-10 stale tutorials in a typical docs site. | Every tutorial and sample repo runs in CI on a weekly schedule against the latest release. Broken builds auto-assign to the DevRel engineer who owns that content. Publish a "last verified" date prominently on every tutorial. |
+| Treating community (Discord, forums, GitHub) as a free support channel instead of a developer experience feedback loop | $80K-$200K/year in duplicated support costs plus missed product signals — community members answer the same 15 questions for 18 months while the product team never fixes the underlying DX issues because no one is routing community patterns to product. The community burns out and the product stays broken. | Assign a DevRel engineer to triage community patterns weekly: top-3 recurring questions → product ticket, top-3 friction points → docs improvement, community contributors → champion program with early access and swag. Community is a product signal firehose — someone needs to hold the hose pointed at the product team. |
 
 ## Best Practices
 **(STANDARD)**

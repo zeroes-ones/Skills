@@ -319,6 +319,11 @@ Database design skill scales from single-table decisions to org-wide data strate
    - **Search (Elasticsearch/OpenSearch)**: Full-text search, faceted navigation, log analytics.
    - **Time-Series (TimescaleDB/InfluxDB)**: Metrics, IoT sensor data, monitoring, financial tick data.
 
+Complete when:
+- Access patterns documented: read/write ratios, query shapes, expected QPS, data volume projections
+- Consistency requirements (ACID vs BASE) and conflict resolution strategy defined
+- Database type selected with written rationale weighing access patterns, consistency needs, and team expertise
+
 ### Phase 2 (~30 min): Logical & Physical Data Modeling
 <!-- DEEP: 10+min -->
 1. **Entity-Relationship Modeling**: Identify entities, attributes, relationships (1:1, 1:N, M:N), and cardinality constraints.
@@ -327,6 +332,11 @@ Database design skill scales from single-table decisions to org-wide data strate
 4. **Data types**: Use the most specific type (`UUID` not `VARCHAR(36)`, `TIMESTAMPTZ` not `TIMESTAMP`, `NUMERIC(19,4)` for money, `INET` for IP addresses). Leverage domain-specific types: `JSONB` in PostgreSQL for semi-structured data, `ltree` for hierarchical paths, `PostGIS` for geospatial.
 5. **Constraints**: `NOT NULL` by default, `CHECK` constraints for business rules, `UNIQUE` on natural keys, `FOREIGN KEY` where referential integrity matters.
 
+Complete when:
+- Entity-Relationship diagram with entities, attributes, relationships, and cardinality constraints completed
+- Schema normalized to 3NF with intentional denormalization decisions documented
+- All data types, constraints (NOT NULL, CHECK, UNIQUE, FOREIGN KEY), and domain-specific types applied
+
 ### Phase 3 (~20 min): Indexing Strategy
 1. **Analyze query patterns**: Extract all queries from application code; order by frequency and latency sensitivity.
 2. **Covering indexes**: Index includes all columns needed by a query, avoiding heap lookups. PostgreSQL: `CREATE INDEX idx_orders_user_status ON orders(user_id, status) INCLUDE (amount, created_at)`.
@@ -334,6 +344,11 @@ Database design skill scales from single-table decisions to org-wide data strate
 4. **Composite index column order**: Equality filters first, then range filters, then sort columns. Most selective first.
 5. **Avoid over-indexing**: Each index costs storage and write performance. Monitor unused indexes (`pg_stat_user_indexes.idx_scan = 0`) and drop them.
 6. **Full-text search indexes**: `GIN` indexes for `tsvector` in PostgreSQL; Elasticsearch for advanced search features.
+
+Complete when:
+- All query patterns extracted from application code, ordered by frequency and latency sensitivity
+- Covering indexes, partial indexes, and composite indexes designed with documented column ordering rationale
+- Index usage monitoring plan and unused index cleanup process defined
 
 ### Phase 4 (~15 min): Migration Management
 1. **Expand-Contract pattern** for zero-downtime schema changes:
@@ -348,6 +363,11 @@ Database design skill scales from single-table decisions to org-wide data strate
    - Dropping column/table: only after verifying zero references.
 4. **Rollback planning**: Every migration must have a tested rollback path.
 
+Complete when:
+- Migration tooling selected (Flyway/Alembic/golang-migrate/Prisma) and configured
+- Expand-Contract pattern documented for zero-downtime schema changes
+- Migration safety rules applied: every migration has a tested rollback plan
+
 ### Phase 5 (~25 min): Query Optimization
 <!-- DEEP: 10+min -->
 1. Use `EXPLAIN ANALYZE` to profile slow queries.
@@ -355,6 +375,11 @@ Database design skill scales from single-table decisions to org-wide data strate
 3. **Rewrite queries**: Replace correlated subqueries with JOINs or `LATERAL`, use `WHERE EXISTS` instead of `IN` for large sets, avoid `SELECT *`, add `LIMIT` where appropriate.
 4. **Connection pooling**: PgBouncer (transaction mode) or built-in pool (HikariCP for JVM, `asyncpg` pool for Python).
 5. **Read replicas**: Route read queries to replicas; accept replication lag for non-critical reads.
+
+Complete when:
+- EXPLAIN ANALYZE run on all slow queries with execution plans documented
+- Query rewrites applied: correlated subqueries → JOINs, SELECT * eliminated, LIMIT added where appropriate
+- Connection pooling configured and read replica routing strategy documented
 
 ### Cross-skills Integration
 
@@ -514,6 +539,15 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **`NULL` in unique constraints**: In PostgreSQL, `NULL != NULL`, so multiple rows with NULL in a unique column are ALL allowed. A unique index on `(email, deleted_at)` where `deleted_at IS NULL` for active users? Every soft-deleted user with the same email coexists.
 - **`SERIAL`/`AUTO_INCREMENT`** gap on rollback: if you `BEGIN; INSERT; ROLLBACK;`, the sequence value is consumed. After enough rollbacks, your IDs have large gaps. This is expected behavior, not a bug, but it surprises developers who assume gapless.
 - **Migration that renames a column** deployed after the app code update: the old code references the old column name on the new schema, producing `column does not exist` errors during the deploy window. Always deploy schema changes first, then code.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Missing index on foreign key column causing cascading join degradation | $100K-$500K in cascading query degradation as join tables grow | Run EXPLAIN ANALYZE on all JOIN queries before deploy. Add indexes on every FK column |
+| No migration rollback plan leading to data loss | $50K-$200K per failed deploy when data loss prevents reversal | Every migration must have a tested DOWN script. Run migrate up AND down in CI before merging |
+| Schema designed without query patterns — normalized model can't serve read paths | $200K-$500K in rewrite costs when normalized schema can't support read paths | Design schema by writing the top 10 queries first, then model tables to serve them efficiently. Normalize for writes, denormalize for reads |
+| NULL handling surprises in unique constraints causing duplicate rows | $30K-$100K in data corruption from unexpected duplicate rows | Document NULL behavior per constraint. Use partial unique indexes for soft-delete patterns |
 
 ## Verification
 

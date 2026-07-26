@@ -235,6 +235,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Report to the appropriate authority: FDA MedWatch (Form 3500 for voluntary, 3500A for mandatory), EudraVigilance (EU), manufacturer pharmacovigilance system (if involving their product). Use the correct form and timeline for the jurisdiction.
 5. Document internally: create an incident record with timeline, reporter details, patient details, product details, event description, seriousness assessment, expectedness assessment, reporting timeline, and confirmation of submission. Retain per regulatory recordkeeping requirements (typically 10 years for FDA).
 
+Complete when:
+- AE detection rules implemented across all patient-facing channels with human triage workflow
+- Regulatory reporting pathway documented: FDA MedWatch 3500A, EudraVigilance, manufacturer PV
+- Internal incident record template created with timeline, seriousness/expectedness assessment, and submission confirmation
+
+
 ### Phase 1 Implementation: AE Reporting Code (~30 min)
 
 #### FDA MedWatch eMDR XML Generation (Form 3500A)
@@ -281,6 +287,12 @@ def generate_medwatch_3500a_xml(ae_report: dict) -> str:
     reporter = ET.SubElement(root, "reporter")
     ET.SubElement(reporter, "reportertype").text = "1"  # Physician
     ET.SubElement(reporter, "reportergivename").text = ae_report.get("reporter_name", "")
+
+Complete when:
+- MedWatch eMDR XML generator function tested with sample AE report and validated against ICH E2B schema
+- Reporting workflow validated end-to-end: detection → triage → form generation → submission → audit log
+- Code reviewed for HIPAA compliance: patient demographics de-identified, PII handled per data retention policy
+
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -402,11 +414,13 @@ graph LR
 
 ## Gotchas
 
-- **Crisis communication drafted during the crisis** — the CEO is writing a statement at 2 AM while the CTO investigates the breach, the PR team is fielding reporter calls with "no comment," and Legal is reviewing every word in real-time. Pre-drafted crisis templates for the TOP 5 crisis scenarios (data breach, product outage, executive departure, lawsuit, safety incident) save 4 hours. **Total cost: $500,000-$5,000,000 per incident** in reputational damage — the first 4 hours of a crisis define the narrative. Every hour without a statement increases negative media coverage by 30% and stock price impact by 2-5%.
-- **First statement minimizes the incident** — "A minor service disruption affected a small number of users." Two hours later: "We're investigating reports of a data breach." Four hours later: "We confirm unauthorized access to 10 million accounts." Each escalating statement destroys credibility. If you don't know the full scope yet, say "We don't know the full scope yet. Here's what we know, what we're doing, and when we'll update." **Total cost: $1,000,000-$20,000,000 per incident** in credibility loss — companies that issue escalating corrections face 3-5x higher customer churn post-crisis and 2x larger regulatory fines for misleading initial disclosures.
-- **Internal communications that leak** — you send an "Internal Only — Do Not Share" email to all 500 employees. Within 15 minutes, it's on Twitter. The "leak" was inevitable; the "Internal Only" label was wishful thinking. Crisis communications must be written as if they'll be published on the front page. There is no "internal" during a crisis. **Total cost: $200,000-$2,000,000 per leak** — leaked internal communications add 48-72 hours to crisis resolution as the comms team pivots to "respond to the leak about the response," and 40% of leaked memos become permanent search results.
-- **No post-crisis review process** — the crisis ends, everyone is exhausted, and you move on. Six months later, the same root cause triggers an identical incident. **Total cost: $1,000,000-$10,000,000 per repeat incident** — organizations without formal post-incident review repeat the same crisis type at 3x the rate, and repeat incidents face aggravated regulatory penalties.
-- **Single decision-maker during crisis** — the CEO is the only person authorized to approve the public statement, but the CEO is on a plane for 6 hours. The crisis escalates with no communication. **Total cost: $500,000-$3,000,000 per incident** in delayed response — every hour of silence during an active crisis costs $50,000-$200,000 in brand value erosion for mid-market companies.
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Crisis communication drafted during the crisis — CEO writing at 2 AM, PR fielding calls with "no comment," Legal reviewing in real-time. No pre-drafted templates. First 4 hours define the narrative. | $500K-$5M per incident in reputational damage — every hour without a statement increases negative media coverage by 30% and stock price impact by 2-5% | Pre-draft crisis templates for TOP 5 scenarios (data breach, product outage, executive departure, lawsuit, safety incident); review and update quarterly |
+| First statement minimizes the incident — "minor service disruption" escalates to "10 million accounts breached" over 4 hours. Each escalating statement destroys credibility. | $1M-$20M per incident in credibility loss — companies with escalating corrections face 3-5x higher customer churn and 2x larger regulatory fines | Say "We don't know the full scope yet. Here's what we know, what we're doing, and when we'll update." Never minimize unknown scope. |
+| Internal communications that leak — "Internal Only — Do Not Share" email to 500 employees is on Twitter within 15 minutes. 40% of leaked memos become permanent search results. | $200K-$2M per leak — leaked internal comms add 48-72 hours to crisis resolution; teams must respond to the leak about the response | Write all crisis communications as if they'll be published on the front page. Assume zero internal confidentiality during a crisis. |
+| No post-crisis review process — crisis ends, everyone is exhausted, and the same root cause triggers an identical incident 6 months later. Repeat incidents face aggravated penalties. | $1M-$10M per repeat incident — organizations without formal post-incident review repeat the same crisis type at 3x the rate | Conduct formal post-incident review within 30 days; update templates and playbooks; track repeat-crisis metrics quarterly |
+| Single decision-maker during crisis — CEO is sole approver of public statements but is on a plane for 6 hours. Crisis escalates with no communication. $50K-$200K per hour in brand erosion. | $500K-$3M per incident in delayed response — every hour of silence costs $50K-$200K in brand value erosion for mid-market companies | Designate 2+ authorized signatories with no overlapping unavailability; document delegation authority in crisis playbook; test decision-tree scenarios quarterly |
 
 ## Anti-Rationalization — No Excuses
 

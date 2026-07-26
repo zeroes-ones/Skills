@@ -250,6 +250,7 @@ How should you assess third-party vendor risk?
 2. Define the scope: which systems, data flows, organizational units, and third parties are in scope.
 3. Determine audit type: Type I (point-in-time design) vs. Type II (operating effectiveness over a period, typically 3–12 months).
 4. Engage a certified external auditor (AICPA for SOC 2, accredited certification body for ISO 27001, QSA for PCI-DSS).
+  Complete when: Applicable frameworks identified and scoped, audit type selected (Type I vs Type II), external auditor engaged with signed engagement letter, and scope document approved by leadership.
 
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Control Mapping and Gap Analysis
@@ -258,6 +259,7 @@ How should you assess third-party vendor risk?
 3. Perform a gap analysis: for each required control, assess current state (fully implemented, partially, not implemented).
 4. Prioritize gaps by risk: controls that address high-likelihood/high-impact risks get remediation priority.
 5. Create a remediation roadmap with owners, deadlines, and success criteria for each gap.
+  Complete when: Unified control framework built mapping all regulatory requirements to internal controls, gap analysis completed with current-state assessment, and remediation roadmap published with named owners and deadlines.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Policy Authoring
@@ -269,6 +271,7 @@ How should you assess third-party vendor risk?
 3. Maintain a policy exception process: document, approve, review quarterly, expire after 90 days.
 4. Version policies, maintain a review cadence (annual minimum), and require employee acknowledgment.
 5. Store policies in a single accessible location with search and linking between related documents.
+  Complete when: Policy hierarchy established (policy/standard/procedure), all policies written with testable, auditable language, exception process documented with 90-day expiration, and employee acknowledgment workflow configured.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Evidence Collection
@@ -277,6 +280,7 @@ How should you assess third-party vendor risk?
 3. For manual evidence: document screenshots with visible timestamps, system identifiers, and clear descriptions.
 4. Organize evidence by control ID in a centralized repository (GRC tool, SharePoint, or structured cloud storage).
 5. Implement continuous compliance monitoring: drift detection alerts when a previously compliant control falls out of compliance.
+  Complete when: Evidence matrix mapping every control to evidence type and collection frequency, >80% of evidence automated via GRC integrations, evidence repository organized by control ID, and drift detection alerting configured.
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~25 min): Audit Execution and Ongoing Compliance
@@ -285,6 +289,7 @@ How should you assess third-party vendor risk?
 3. For findings: acknowledge, categorize by severity, define a corrective action plan (CAP) with deadlines, and implement.
 4. After certification: maintain the compliance posture continuously, not just before audits.
 5. Schedule quarterly internal reviews, annual external surveillance audits (ISO), and continuous monitoring.
+  Complete when: Auditor kickoff completed, evidence responses within 48-hour SLA, findings categorized with corrective action plans, certification achieved or surveillance audit passed, and continuous monitoring cadence established with quarterly internal reviews.
 
 ### Cross-skills Integration
 
@@ -495,6 +500,15 @@ If a command or approach fails, follow this escalation path before giving up:
 | "Our controls are documented in Confluence — that's enough for auditors" | Auditors require evidence that controls OPERATED, not just that they were designed. A policy saying "access reviews happen quarterly" is worthless without dated logs showing who performed the review and what was remediated. |
 | "We'll self-assess — external auditors are too expensive" | Self-assessment is acceptable only for SOC 2 Type I (design snapshot). Type II (operating effectiveness over 6-12 months) requires an independent CPA firm. Investors and enterprise customers increasingly reject self-assessments as insufficient assurance. |
 | "Compliance slows down engineering, we need velocity" | Embedding compliance into the SDLC via pre-commit hooks, policy-as-code, and automated evidence collection is faster than retrofitting. GDPR DSAR response costs $1,500-$7,000/request manually vs $50-$200 automated. Compliance automation is an engineering efficiency investment. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Selecting SOC 2 Type I (point-in-time design assessment) when enterprise customers require Type II (operating effectiveness over 6-12 months) — customers reject the report, sales cycle restarts, and the 6-month observation window starts from zero. | $100K-$500K in delayed enterprise deals and duplicate audit costs | Determine customer compliance requirements during scoping. If any enterprise customer or prospect requires Type II, start there — you can't accelerate a Type II observation period. |
+| Treating compliance as an annual audit event rather than continuous evidence collection — 11 months of evidence gaps mean frantic evidence gathering in month 12, late evidence submissions, and qualified audit opinions. | $50K-$200K in audit overage fees and remediation sprints | Implement continuous controls monitoring with automated evidence collection. Every control should produce dated, timestamped evidence on its operating cadence (daily/weekly/monthly). Audit readiness is every day, not audit month. |
+| Overlooking data residency requirements in your cloud architecture — storing EU customer data in US regions without SCCs or adequate safeguards triggers GDPR Article 44-49 violations, and each EU member state DPA can independently fine you. | €250K-€20M in GDPR cross-border transfer penalties across multiple EU DPAs | Map data flows by residency requirement during cloud architecture design. Use cloud provider region constraints, data residency controls (AWS Control Tower, Azure Policy), and maintain current SCCs/BCRs for any cross-border transfers. |
 
 ## Verification
 

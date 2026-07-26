@@ -337,6 +337,7 @@ Debugging flaky tests and improving test stability
    | API | — | Supertest/Pact | pytest + schemas | testify |
    | Performance | — | k6 / autocannon | k6 | k6 / vegeta |
 3. **Coverage targets**: 80% line coverage minimum, 90% for critical paths (auth, payments, data integrity). Enforce via CI quality gate.
+  Complete when: Test pyramid distribution defined, tools selected per stack layer, and coverage targets set in CI quality gate.
 
 ### Phase 2 (~30 min): Unit Testing
 1. **Structure**: AAA pattern — Arrange, Act, Assert. One assertion per test (behavioral, not implementation detail). Descriptive names: `it('returns 401 when token is expired')`.
@@ -344,6 +345,7 @@ Debugging flaky tests and improving test stability
 3. **Edge cases**: Null/undefined, empty inputs, boundary values (0, -1, MAX_SAFE_INTEGER), invalid types, concurrent calls, error states.
 4. **Test data**: Use factories (Fishery, factory_boy, custom builders) for realistic test data. Avoid magic strings/numbers without semantic meaning.
 5. **Snapshots**: Use sparingly. Only for stable outputs (serialized data, error messages). Never snapshot large component trees — use specific assertions instead.
+  Complete when: Unit tests written with AAA pattern, module-boundary mocking, edge cases covered, and deterministic test data.
 
 ### Phase 3 (~20 min): Integration Testing
 1. **Database integration**: Test against real PostgreSQL/MongoDB instance (testcontainers, Docker Compose, or dedicated test DB). Each test runs in a transaction that rolls back.
@@ -352,6 +354,7 @@ Debugging flaky tests and improving test stability
 4. **External servic
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+  Complete when: Database, API, and auth integration tests passing against real dependencies with transaction rollback.
 
 
 ## Best Practices
@@ -484,12 +487,12 @@ graph LR
 - **Writing end-to-end tests for every user flow — the ice-cream cone anti-pattern.** The team writes 300 Playwright tests covering every UI flow but only 50 unit tests and 20 integration tests. Each e2e test takes 45 seconds to run, so the full suite takes 4 hours. Developers stop running e2e tests locally and rely entirely on CI. When a test fails, it takes 30-60 minutes to triage because the failure could be in the UI, API, database, network, or test flakiness — no layer isolation. **Total cost: $50,000-$150,000 per year in slow CI feedback loops, triage time, and flaky test maintenance.** Fix: Follow the testing trophy/pyramid: heavy unit tests (fast, isolated), moderate integration tests (API contracts, DB queries), light e2e tests (critical user journeys only — sign up, purchase, cancel); profile test execution time and move slow tests down the pyramid when possible.
 - **Test data that's realistic but not repeatable.** Tests generate users with `faker.name.firstName()` and timestamps with `Date.now()`. Every test run produces different data, so a test that fails on "Jane Smith created at 2026-07-23T14:32:01Z" can never be reproduced. When a CI flake happens at 3 AM, the on-call engineer can't debug it because the data doesn't exist anymore. **Total cost: $30,000-$100,000 per year in unreproducible test failures, extended incident response, and team trust erosion in the test suite.** Fix: Use deterministic test data with fixed seeds; design tests to be idempotent (same inputs → same outputs); for time-dependent tests, use a time-freezing library (`sinon.useFakeTimers`, `vi.setSystemTime`); capture and log the random seed so any failed run is reproducible.
 - **Performance testing only before major releases.** The team runs a k6 load test in staging two days before the quarterly release, discovers the new search endpoint has p99 latency of 8 seconds under 200 RPS (SLO is 500ms), and enters a 72-hour fire drill. The release ships 4 days late, the optimization is rushed and introduces a pagination bug, and the hotfix two days later frustrates customers. **Total cost: $40,000-$200,000 in delayed releases, rushed optimizations that create new bugs, and degraded customer experience.** Fix: Integrate performance tests into CI with every PR; fail the build if p95 latency increases >20%; run daily soak tests in staging with production-like data volumes; maintain a performance baseline stored in the repo that gets updated only on deliberate improvements.
-- **`page.waitForSelector()` default timeout** is 30 seconds. If your test has 20 `waitForSelector` calls and the app is slow, the test takes 10+ minutes with no clear indication of which selector timed out. Always set explicit timeouts per-wait and log which selector is pending.
-- **Playwright's `--headed` mode** in CI reports differently than headless. Fonts render differently (no GPU), `prefers-reduced-motion` defaults differ, and `requestAnimationFrame` timing varies. Flaky visual regression tests that pass locally often fail in CI because of these differences.
-- **`expect(locator).toHaveText()`** uses `textContent` which includes hidden text (`display: none`, `visibility: hidden`). If a hidden error message happens to contain the expected string, the assertion passes even though users can't see it.
-- **`page.evaluate()` strings** run in browser context — they can't access Node.js variables. `const name = 'test'; page.evaluate('document.querySelector(".user").textContent = name')` fails because `name` is undefined in browser context. Pass variables as arguments: `page.evaluate((name) => {...}, name)`.
-- **Test isolation**: `test.describe` with `serial` mode means test 2 depends on test 1's state. If test 1 fails, test 2-20 all fail with cascading errors. Use `test.describe.parallel` with fresh state per test unless you explicitly need ordering.
-- **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01.
+- **`page.waitForSelector()` default timeout** is 30 seconds. If your test has 20 `waitForSelector` calls and the app is slow, the test takes 10+ minutes with no clear indication of which selector timed out. Always set explicit timeouts per-wait and log which selector is pending. **Total cost: $15,000-$50,000 per year in CI pipeline delays and debugging time from ambiguous selector timeouts.**
+- **Playwright's `--headed` mode** in CI reports differently than headless. Fonts render differently (no GPU), `prefers-reduced-motion` defaults differ, and `requestAnimationFrame` timing varies. Flaky visual regression tests that pass locally often fail in CI because of these differences. **Total cost: $10,000-$40,000 per year in debugging false-positive CI failures from headed vs headless rendering discrepancies.**
+- **`expect(locator).toHaveText()`** uses `textContent` which includes hidden text (`display: none`, `visibility: hidden`). If a hidden error message happens to contain the expected string, the assertion passes even though users can't see it. **Total cost: $20,000-$80,000 per year in false-positive test passes that mask real UI bugs.**
+- **`page.evaluate()` strings** run in browser context — they can't access Node.js variables. `const name = 'test'; page.evaluate('document.querySelector(".user").textContent = name')` fails because `name` is undefined in browser context. Pass variables as arguments: `page.evaluate((name) => {...}, name)`. **Total cost: $5,000-$20,000 per year in debugging time from silent failures in page.evaluate calls.**
+- **Test isolation**: `test.describe` with `serial` mode means test 2 depends on test 1's state. If test 1 fails, test 2-20 all fail with cascading errors. Use `test.describe.parallel` with fresh state per test unless you explicitly need ordering. **Total cost: $15,000-$60,000 per year in CI triage time from cascading test failures caused by shared state.**
+- **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01. **Total cost: $10,000-$30,000 per year in engineers chasing false-positive visual regression failures.**
 
 ## Anti-Patterns
 

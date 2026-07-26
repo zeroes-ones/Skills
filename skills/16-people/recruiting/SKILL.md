@@ -272,6 +272,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. **Scorecard** — Define 4-6 attributes weighted by importance. Each attribute has 3 behavioral indicators (what "great" looks like). Example: "System Design (25%): Designs for 10x scale, clear trade-off articulation, appropriate tech selection."
 5. **Verify:** Share JD with 2 team members in the target role. Ask: "Would you apply to this?" If either says no, rewrite.
 
+  Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
+
 ### Phase 2 (~45 min): Interview Loop Design
 <!-- STANDARD: 3min -->
 
@@ -285,6 +287,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > **War Story:** A Series B startup's eng loop had 7 rounds over 3 weeks with different interviewers each week. Offer acceptance was 45%. Root cause: candidates accepted else
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
 
 
 ## Error Recovery
@@ -516,6 +520,26 @@ Before launching any recruiting search or process change, verify ALL of:
 | "Ghosted a final-round candidate — Glassdoor rating dropped from 4.2 to 3.4 in 3 months" | No candidate communication SLA. Manual process with no automation. No one owned the rejection communication. | Automate status notifications at every stage. Set 48-hour SLA for post-interview feedback, 72-hour for personalized rejection to final-round. Monitor Glassdoor and respond to every review within 48 hours. | One bad candidate experience costs $50K-$200K/year in degraded pipeline quality. Timely, respectful rejections create 4x reapplication and referral rates. |
 | "Job been open 120 days — HM keeps rejecting candidates who meet 8/10 requirements" | JD is a wishlist, not a must-have list. HM hasn't been calibrated on what's trainable vs. essential. No intake meeting set proper expectations. | Hold intake meeting before posting: define ≤5 must-haves (will not hire without), separate trainable skills (3-month ramp), set decision timeline. Track HM rejection reasons — if >50% are "not enough years in X," the JD is the problem. | Every unfilled day for a revenue role costs $500-$1,000. A 90-day delay = $45K-$90K in missed pipeline. Fix the JD, not the pipeline. |
 | "Spent $300K on agencies this year — could have hired 2 full-time recruiters for that" | No internal recruiting capability. Defaulted to agencies for every role. Never calculated agency spend vs. internal hire ROI. | Once you exceed 5-8 hires/year, hire an internal recruiter. Agency fees = 20-30% of first-year salary. 10 agency placements at $150K = $300K-$450K. One senior recruiter + sourcer = ~$180K. | Build internal capability before you need it. Agency spend is visible; internal recruiting cost is an investment with compounding returns. |
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Job description uses biased language reducing qualified diverse applicants by 30%+ | $20K-$50K in extended time-to-fill and missed diverse talent | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| Compensation bands set without current market data leading to below-market offers | $50K-$150K in lost candidates and retention risk | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
 

@@ -138,6 +138,7 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (200 lines):** [references/core-workflow.md](references/core-workflow.md)
+  Complete when: Authentication hardening verified — JWT algorithm pinning enforced, rate limits on /login configured, tokens stored in httpOnly Secure SameSite cookies, no tokens in browser storage.
 
 ## Decision Trees
 

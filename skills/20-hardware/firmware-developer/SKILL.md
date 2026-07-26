@@ -254,6 +254,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. **Verify:** Two builds from same source produce identical `.bin` and `.elf`. Any difference = timestamp/random seed/uninitialized data embedded.
 5. **Recover:** Non-reproducible → check for `__DATE__`, `__TIME__`, `__FILE__` macros. Replace with git SHA + build ID. Check linker map ordering.
 
+  Complete when: Toolchain is pinned with SHA256 hash in Docker image; CMakeLists.txt with strict warnings (-Wall -Wextra -Werror) is configured; linker script with verified partition sizes from datasheet is complete; reproducible build (identical .bin and .elf from same source) is confirmed.
+
 ### Phase 2 (~8 hours): BSP & Device Driver Development
 1. **Do:** BSP: `bsp/board_name/` with `board.h` (pins, peripherals, clock), `board.c` (clock init, pinmux, power sequencing), `board_config.h` (feature flags, calibration from EEPROM).
 2. **Do:** Driver pattern: `init()` → `configure()` → `start()` → `stop()` → `deinit()`. Every driver supports graceful shutdown. Every driver accepts `const void *config` — no hardcoded pins.
@@ -261,11 +263,15 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. **Verify:** Each driver self-test: SPI loopback 10K packets at max clock, I2C stress with bus resets, UART 1M baud 0% dropped over 1M chars.
 5. **Recover:** Intermittent failures → capture bus with logic analyzer. 80% of "driver bugs" are signal integrity: missing I2C pull-ups, no SPI MISO termination, UART baud mismatch from HSI oscillator.
 
+  Complete when: BSP with board.h, board.c, and board_config.h is complete per target board; driver pattern (init/configure/start/stop/deinit) is implemented for all peripherals with config-driven pin assignment; DMA double-buffering with aligned non-cacheable memory is configured; each driver self-test passes (SPI loopback 10K packets, I2C stress with bus resets, UART 1M baud 0% dropped).
+
 ### Phase 3 (~6 hours): Boot Flow Implementation
 1. **Do:** Boot sequence: (1) ROM validates boot pin, jumps to flash → (2) First-stage inits critical clocks + external RAM → (3) Second-stage validates app image signature → (4) App inits RTOS, mounts FS, starts tasks.
 2. **Do:** Secure boot: public key hash in OTP or secure element. SHA-256 of app image, Ed25519 signature verify. Fail → attempt previous image boot.
 3. **Do:** Boot reason detection: read reset cause register (RCC_CSR STM32, RESETREAS nRF) at boot. Log: power-on, pin reset, watchdog, brown-out, software reset, CPU lockup. Single most valuable field-debugging data point.
 4. **Verify:** Every boot reason path tested with programmable PSU + fault injection. Image validation rejects: unsigned, wrong key, corrupted header, truncat
+
+  Complete when: Boot sequence (ROM → first-stage → second-stage → app) is documented with clock and RAM init steps; secure boot with Ed25519 signature verification is implemented; boot reason detection from reset cause register is logged at every boot; every boot reason path is tested with programmable PSU + fault injection; image validation rejects unsigned, wrong-key, corrupted, and truncated images.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -462,6 +468,15 @@ graph LR
 - **I2C bus lockup** — a slave device holds SDA low mid-transaction. The master sees bus busy and waits forever. Most I2C peripherals have no timeout. Implement bus reset: clock SCL 9 times to force the slave to release, then send STOP. Check bus state before every transaction.
 - **Brown-out detection** — flash erase/program during a voltage sag corrupts the flash. The MCU runs fine at 1.8V but flash programming requires 2.7V. BOD must be enabled at 2.85V BEFORE any flash write/erase cycle. A crash during OTA update that hits this window = unrecoverable brick.
 - **Interrupt latency stacking** — a UART RX ISR (priority 2) fires while inside a SPI DMA ISR (priority 1). Then the systick ISR (priority 3) fires. Now 3 ISRs are stacked, each adding latency. A motor control loop (priority 0) misses its deadline by 47µs and the motor jitters. ISR priorities must reflect real-time deadlines, not peripheral importance.
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Bootloader bricking device on interrupted OTA update — erase old image before verifying new one, power loss in that window | $150K–$500K in returns, rework & replacements for a single bad OTA push | Dual-bank flash with boot count tracking; atomic "swap on next boot" flag; auto-rollback after 3 failed boots; golden recovery image accessible via hardware pin; staged rollout (1% → 10% → 100%) |
+| Race condition between ISR and main loop on shared variable without `volatile`/atomic | $75K–$300K in intermittent field failures that never reproduce on the bench | Declare shared variables `volatile`; use `atomic_fetch_add` or `LDREX`/`STREX` for RMW; critical sections with `__disable_irq()` / `__enable_irq()`; lock-free ring buffers for ISR→main communication |
+| Watchdog timer configured but kicked in timer ISR instead of main loop — main loop dead but ISR keeps watchdog happy | $200K–$2M in safety incidents, regulatory penalties & product liability | Multi-level supervision: dedicated watchdog task monitors all system tasks via heartbeat counters; kick hardware watchdog exclusively from watchdog task; test by deliberately hanging each task |
+| Flash wear-leveling bugs destroying MCU flash after months of logging — same sector erased 100K+ times | $50K–$250K in field failures, production scrap & recall logistics | Use LittleFS/SPIFFS with built-in wear leveling; calculate erase cycles over product lifetime with 3× safety margin; track per-sector erase counts; log warnings at 80% of rated endurance |
 
 ## Verification
 

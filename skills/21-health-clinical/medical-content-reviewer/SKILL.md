@@ -296,20 +296,44 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 
 **What good looks like:** Content with 100% of clinical claims cited to primary sources. A review document showing every claim classified (✅/⚠️/❌/⏳) with source citations. No unverified treatment claims. Audit trail complete.
 
+Complete when:
+- All clinical claims classified (✅/⚠️/❌/⏳) with primary source citations and audit trail
+- No unverified treatment claims remain in published content
+- Review document complete with claim-by-claim classification, source, and action taken
+
+
 ### Phase 2 (~25 min): Misinformation Detection Rules
 **Steps:** 1) Define harm levels: Level 1 (dangerous — immediate removal, possible AE report), Level 2 (misleading — flag with corrective context), Level 3 (unsubstantiated — add "not enough research" note), Level 4 (personal experience — no action beyond threading disclaimer) 2) Build keyword and pattern rules: "cure" + "hemophilia" = Level 2 (no known cure). "Stop taking" + medication name = Level 1. "Natural treatment" + condition = Level 2. 3) Add context-aware rules: "My doctor switched me to X" = personal experience (Level 4) vs "Everyone should try X instead of Y" = medical advice (Level 2) 4) Set up escalation: level 1 → immediate removal + clinical review + AE assessment. Level 2 → 24-hour clinical review. Level 3-4 → flag but no removal. 5) Review and iterate on rules monthly — misinformation tactics evolve faster than your ruleset
 
 **What good looks like:** Detection rule library with 20+ rules at multiple harm levels. Auto-triage catches 80% of Level 1 content before a human sees it. Human reviewers handle levels 2-4. Monthly rule update cadence.
+
+Complete when:
+- Misinformation detection rule library with 20+ rules across all four harm levels deployed
+- Auto-triage catching ≥80% of Level 1 content before human review
+- Monthly rule review cadence established with version-controlled rule updates
+
 
 ### Phase 3 (~15 min): Disclaimer and Liability Language
 **Steps:** 1) Primary disclaimer: "This content is for informational purposes only and is not medical advice. Always consult your healthcare provider about your specific condition and treatment." — REQUIRED on every education page 2) Community content disclaimer: "Posts in this community are from people with hemophilia and their caregivers. They reflect personal experiences, not medical advice. Always talk to your doctor before changing your treatment." — REQUIRED at the top of every community thread 3) AI-generated content disclaimer (if applicable): "This content was generated with the assistance of AI and has been reviewed by a clinician for accuracy." — REQUIRED for any AI-assisted health content 4) Adverse event reporting notice: "If you experience a serious side effect or device malfunction, report it to your doctor and to the FDA at MedWatch: 1-800-FDA-1088." — ADD to any page discussing treatment side effects
 
 **What good looks like:** Disclaimers on every health content page, community thread, and AI-generated content. Legal reviewed and approved. Consistent placement and wording across the app.
 
+Complete when:
+- Primary disclaimer on every health education page, community thread, and AI-generated content
+- Legal review completed and signed off on all disclaimer language
+- Consistency audit passed: identical wording and placement across all disclaimers
+
+
 ### Phase 4 (~15 min): Adverse Event Signal Detection
 **Steps:** 1) Define AE triggers: mention of hospitalization, ER visit, serious side effect, device failure, death, or permanent injury related to a treatment 2) When an AE signal is detected in community content, collect: what happened, what product/device was involved, when it happened, was it reported to the manufacturer or FDA? 3) Determine reportability: serious and unexpected AEs may be reportable to FDA within 15 days (if you are a manufacturer or have reporting obligations under your pharma partnership) 4) If reportable: document all available information, send to the appropriate party (FDA MedWatch, manufacturer, your legal team). Do NOT delete the post until the reporting obligation is fulfilled. 5) Non-reportable: document in your AE log for trend analysis. Multiple similar reports may indicate a safety signal.
 
 **What good looks like:** AE detection workflow documented and understood by content moderation team. AE log maintained. Reportable AEs submitted within regulatory timelines. Privacy maintained throughout (no patient identity shared unless required by regulation).
+
+Complete when:
+- AE detection triggers defined with clinical criteria for severity assessment
+- Detection workflow documented and understood by content moderation team
+- AE log established with trend analysis capability and regulatory timeline compliance
+
 
 ## Cross-Skill Integration
 
@@ -365,11 +389,13 @@ graph LR
 
 ## Gotchas
 
-- **"Statistically significant (p < 0.05)" without effect size** — a study with 500,000 participants finds that Drug X reduces systolic BP by 0.3 mmHg (p = 0.04). Statistically significant, but clinically meaningless (minimum clinically important difference for BP is 2-5 mmHg). Review must report BOTH p-value AND effect size with clinical relevance threshold. **Total cost: $500,000-$5,000,000 per review cycle** in regulatory risk — approving content that overstates clinical significance can trigger FDA untitled letters, Corrective Action Plans, and product liability exposure for misleading promotion.
-- **Absolute vs relative risk** in marketing — "Drug X reduces heart attack risk by 50%!" sounds impressive. If the baseline risk is 2% over 10 years, 50% relative reduction = 1% absolute reduction. Number Needed to Treat (NNT) = 100. 100 people must take the drug for 10 years to prevent 1 heart attack. Always present absolute risk AND NNT. **Total cost: $1,000,000-$10,000,000 per enforcement action** — FDA OPDP warning letters for misleading risk presentations trigger mandatory corrective advertising at $250,000-$500,000 per campaign, plus 3-5 years of enhanced regulatory scrutiny.
-- **Conflict of interest hidden in acknowledgments** — the paper says "funded by PharmaCo" at the end, but the lead author is also on PharmaCo's advisory board (disclosed in a separate conflicts page you didn't load). Cross-reference clinicaltrials.gov for sponsor information and check author disclosures on ALL co-authors, not just first/last. **Total cost: $200,000-$2,000,000 per content piece** — citing a conflicted study as unbiased evidence taints the entire content library, forcing retractions, eroding medical credibility with HCPs, and potentially violating PhRMA Code and FDA fair balance requirements.
-- **Preprint (medRxiv/bioRxiv) cited as evidence** — preprints are NOT peer-reviewed. A high-profile preprint was retracted 6 months later after peer review found fabricated data. The content that cited the preprint is now evidence-free. Cite published, peer-reviewed sources. If preprint is the only source, flag it as "awaiting peer review." **Total cost: $100,000-$500,000 per retraction cascade** — each preprint retraction forces downstream content review across all pieces that cited it, costing $5,000-$15,000 per piece in medical-legal-regulatory re-review and republication.
-- **Off-label promotion disguised as education** — a "disease state education" piece mentions only symptoms treatable by your product and implies your drug without naming it. FDA and DOJ treat this as off-label promotion with False Claims Act exposure. **Total cost: $500,000-$3,000,000,000 per enforcement action** — DOJ off-label settlements range from $50M (single drug) to $3B (systemic practice), plus Corporate Integrity Agreements lasting 5 years.
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| "Statistically significant (p < 0.05)" without effect size — study with 500K participants finds 0.3 mmHg BP reduction (p=0.04). Statistically significant but clinically meaningless (MCID is 2-5 mmHg). Content overstates clinical significance. | $500K-$5M per review cycle in regulatory risk — misleading promotion triggers FDA untitled letters, Corrective Action Plans, and product liability exposure | Report BOTH p-value AND effect size with clinical relevance threshold; require MCID (minimum clinically important difference) for all clinical outcome claims |
+| Absolute vs relative risk in marketing — "Drug X reduces heart attack risk by 50%!" Baseline is 2% over 10 years, so 50% relative = 1% absolute reduction. NNT = 100. 100 people must take drug for 10 years to prevent 1 heart attack. | $1M-$10M per enforcement action — FDA OPDP warning letters trigger mandatory corrective advertising at $250K-$500K per campaign plus 3-5 years enhanced regulatory scrutiny | Always present absolute risk reduction AND Number Needed to Treat (NNT) alongside relative risk; train marketing on the absolute vs relative distinction |
+| Conflict of interest hidden in acknowledgments — paper says "funded by PharmaCo" but lead author is also on PharmaCo's advisory board (disclosed on separate page not loaded). Citing conflicted study as unbiased evidence taints content library. | $200K-$2M per content piece — retractions, loss of HCP credibility, potential PhRMA Code and FDA fair balance violations | Cross-reference ClinicalTrials.gov for sponsor information; check disclosures on ALL co-authors; require conflict-of-interest table for every cited study |
+| Preprint (medRxiv/bioRxiv) cited as evidence — preprint retracted 6 months later when peer review found fabricated data. Content citing it becomes evidence-free. | $100K-$500K per retraction cascade — each retraction forces downstream content review at $5K-$15K per piece in medical-legal-regulatory re-review | Only cite published, peer-reviewed sources. If preprint is the only source, flag prominently as "awaiting peer review" and update within 30 days of journal publication |
+| Off-label promotion disguised as education — "disease state education" piece mentions only symptoms treatable by your product without naming it. FDA and DOJ treat as off-label promotion with False Claims Act exposure. | $500K-$3B per enforcement action — DOJ settlements range from $50M (single drug) to $3B (systemic practice), plus 5-year Corporate Integrity Agreements | Establish promotional review committee reviewing ALL external communications; create claims matrix mapping every marketing claim to exact clearance language |
 
 ## Verification
 

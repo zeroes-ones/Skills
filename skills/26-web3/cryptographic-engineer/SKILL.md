@@ -229,6 +229,7 @@ PQC migration triggered: assess current crypto inventory
 3. Determine operational constraints: latency, throughput, number of parties, hardware availability
 4. Select candidate primitives via Decision Trees
 **Completion criteria:** Requirements document with threat model, security parameter selection, and primitive shortlist signed off by security-engineer.
+Complete when: Threat model document approved with adversary capabilities and security properties defined. Operational constraints (latency, throughput, party count) documented. Primitive shortlist with selection rationale produced.
 
 ### Phase 2: Primitive Selection & Protocol Design (est. 4-8 hours)
 1. Run through full Decision Trees for the selected domain
@@ -236,6 +237,7 @@ PQC migration triggered: assess current crypto inventory
 3. Design protocol flow: messages exchanged, serialization format, timeout handling
 4. Document security assumptions: computational vs information-theoretic, honest vs dishonest majority, trusted setup requirements
 **Completion criteria:** Protocol specification document with security proof references, parameter selection rationale, and alternative analysis.
+Complete when: Protocol specification document with complete message flow diagrams, serialization format, and timeout handling. Security assumptions documented (computational vs information-theoretic, honest vs dishonest majority). Alternative approaches evaluated with trade-off analysis.
 
 ### Phase 3: Implementation (est. 8-40 hours depending on complexity)
 1. Select implementation language and library (MP-SPDZ, Concrete, SEAL, etc.)
@@ -243,6 +245,7 @@ PQC migration triggered: assess current crypto inventory
 3. Write test vectors and integration tests
 4. Implement error handling: identifiable aborts, timeout recovery, state reconciliation
 **Completion criteria:** Working implementation passing all test vectors. All error paths produce clear diagnostic messages.
+Complete when: Core protocol implementation passing all test vectors with 100% coverage of defined message flows. Integration tests exercising end-to-end protocol with multiple parties. Error handling verified with identifiable aborts, timeout recovery, and state reconciliation producing diagnostic messages.
 
 ### Phase 4: Security Verification (est. 8-20 hours)
 1. Verify constant-time execution: no data-dependent branching, uniform memory access
@@ -250,6 +253,7 @@ PQC migration triggered: assess current crypto inventory
 3. Side-channel analysis: timing, power, cache-timing attack surface
 4. Fuzz test inputs: malformed messages, boundary values, replay attacks
 **Completion criteria:** Formal verification log, side-channel analysis report, fuzz test results with 100K+ test cases.
+Complete when: Constant-time execution verified at instruction level with no secret-dependent branching or memory access. Formal verification completed (ProVerif/Tamarin/EasyCrypt) with protocol security properties proven. Side-channel analysis report covering timing, power, and cache-timing surfaces. Fuzz testing completed with 100K+ test cases and zero unhandled malformed inputs.
 
 ### Phase 5: Deployment & Ceremony (est. 4-16 hours)
 1. Generate key material via HSM or secure multi-party ceremony
@@ -257,6 +261,7 @@ PQC migration triggered: assess current crypto inventory
 3. Deploy with secure configuration: TEE attestation verification, audit logging
 4. Verify production integration: end-to-end test on testnet/staging
 **Completion criteria:** Deployed system with audit trail. Ceremony log with participant attestations. Monitoring dashboards for cryptographic operations.
+Complete when: Key material generated via HSM or secure multi-party ceremony with entropy validated per NIST SP 800-90B. TEE attestation verification configured with full PCK chain validation. End-to-end test passing on testnet/staging. Monitoring dashboards live for cryptographic operations with alert thresholds configured.
 
 ### Phase 6: Ongoing Monitoring & Migration (ongoing)
 1. Monitor for cryptanalytic advances affecting selected primitives
@@ -264,8 +269,17 @@ PQC migration triggered: assess current crypto inventory
 3. Plan periodic key rotation and protocol upgrades
 4. Execute cryptographic agility migration when needed
 **Completion criteria:** Monitoring runbook, upgrade schedule, incident response plan for cryptanalytic breakthroughs.
+Complete when: Cryptographic inventory maintained with algorithm-to-usage mapping and sunset dates. Upgrade schedule defined with key rotation and protocol upgrade cadence. Incident response plan documented for cryptanalytic breakthroughs with escalation contacts and migration procedures.
 
 <!-- STANDARD: 3min -->
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Non-constant-time implementations leak secret keys through timing side channels — a single secret-dependent branch or memory access enables key recovery via statistical timing analysis | Complete key compromise in hours to days of measurement | All cryptographic operations on secret data must be constant-time: no secret-dependent branches, no secret-dependent memory access patterns. Verify at the instruction level with ctgrind, dudect, or dataflow analysis. Check assembly output — compiler optimizations can reintroduce branches. |
+| Key material logged in error messages, debug output, or config files — a single log line containing a private key exposes it to every system with log access | Catastrophic — key compromise across all systems sharing the log infrastructure | Keys must live exclusively in HSM or KMS with full audit trail. Configure logging frameworks to redact cryptographic material. Run automated scans for hex/base64 patterns matching key lengths in all log output. Never store keys in environment variables or config files. |
+| Using deprecated primitives (SHA-1, MD5, RSA-1024) or protocol downgrade attacks in hybrid schemes — active adversaries force fallback to breakable classical cryptography | $100K-$10M in breach costs; regulatory penalties for non-compliance | Maintain a cryptographic inventory mapping every algorithm to its deployment. Set sunset dates for deprecated primitives. In hybrid PQC schemes, fail closed — if the post-quantum component fails, reject the connection entirely rather than downgrading to classical-only. |
+
 ## Best Practices
 
 1. **Always use AEAD for symmetric encryption.** ChaCha20-Poly1305 or AES-256-GCM with random 96-bit nonces. Never use ECB mode, CBC without HMAC, or raw RSA encryption. AEAD bundles confidentiality and integrity in a single operation — unauthenticated encryption is malleable.

@@ -275,17 +275,27 @@ How do you decompose a spec into implementable increments?
 ### Phase 1 (~15 min): Discovery & Scoping
 Extract the core problem, target persona, and success criteria from the raw input. Use the Five Whys to drill past solution proposals to root needs. Document explicit non-goals — what the feature deliberately excludes. Identify assumptions and unknowns that need validation before writing code. Output a one-page **Scope Brief** that captures: Problem Statement, Target Users, Success Metrics (leading and lagging), Scope Boundaries (in/out), and Open Questions with owners.
 
+  Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+
 ### Phase 2 (~30 min): Domain Modeling
 Identify entities, their attributes, relationships, and cardinalities. Favor composition over deep inheritance. Define state machines for entities with lifecycle transitions. Annotate each entity with: required vs. optional fields, validation rules, uniqueness constraints, and indexing strategy. Produce an **Entity Relationship Diagram** (textual or visual) and a **Data Dictionary** with one row per field. For each relationship, specify ownership direction and cascade behavior.
+
+  Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
 
 ### Phase 3 (~20 min): API Design
 For every operation identified in the scope brief, define: HTTP method, URL path, request body schema (JSON/Protobuf), query parameters, response body schema, and error codes for every failure mode. Group endpoints by resource. Define pagination, sorting, and filtering conventions uniformly. Specify authentication and authorization per endpoint. Document idempotency guarantees. Output an **OpenAPI 3.1 spec** snippet or equivalent **API Contract** document.
 
+  Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
+
 ### Phase 4 (~15 min): Screen & Interaction Inventory
 List every screen, modal, drawer, or stateful view the feature requires. For each screen: name the route, list data dependencies (which API calls fire on mount), define loading, empty, error, and edge-case states, and enumerate all user actions with their system responses. Produce a **Screen Inventory** table and wireframe descriptions. Include accessibility requirements per screen (heading hierarchy, focus management, ARIA landmarks).
 
+  Complete when: API contract defined with endpoints, request/response schemas, error codes, and authentication requirements documented.
+
 ### Phase 5 (~25 min): Work Item Breakdown
 Slice the spec into vertically deliverable user stories. Each story must be independently shippable and demonstrable. Write stories in the `As a [role], I want [action], so that [value]` format with concrete acceptance criteria. Sequence stories by dependency and value-to-effort ratio. Tag each story with a t-shirt size estimate for early capacity planning. Output a **Story Map** ordered by priority.
+
+  Complete when: Strategy documented, success criteria defined, stakeholders aligned, and next-phase dependencies identified.
 
 ## Best Practices
 
@@ -438,6 +448,26 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **"Blueprint" that's 40 pages of prose** — the engineering team doesn't read it. They skim the data model diagram and the API contract, then start coding. A spec that isn't consumed isn't a spec. Structure for SKIM → DIVE: 1-page executive summary (decisions), entity-relationship diagram (structure), OpenAPI spec (contract). Details in appendices.
 - **"Build a dashboard with these 15 metrics"** — the spec describes WHAT to display, not WHERE the data comes from. Engineering discovers that 7 of the 15 metrics require data from a system that doesn't have an API. Spec must include DATA PROVENANCE: "Metric X comes from the billing system via `GET /invoices`, field `total`."
 - **Success criteria that can't be verified until launch** — "Users will love the new workflow" — you won't know until it ships. Success criteria must include pre-launch proxies: "In usability testing, 8/10 users complete the workflow in < 3 minutes without assistance." Verifiable before code freeze.
+
+
+## Gotchas
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
+
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| PRD written without engineering input, requiring major rework during implementation | $20K-$100K in wasted sprint cycles | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| Feature shipped without success metrics defined, making impact unmeasurable | $50K-$200K in unvalidated engineering investment | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill criteria |
+| Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
 
