@@ -1,25 +1,17 @@
 ---
 name: privacy-engineer
 description: >
-  Use when implementing BAAs with sub-processors, automating DSAR workflows, building
-  consent management infrastructure, designing data deletion pipelines, or conducting
-  privacy-by-design reviews for health platforms. Handles BAA implementation with
-  sub-processors (BAA checklist, sub-processor inventory, annual review, breach
-  notification requirements), data minimization architecture (collection minimization,
-  retention policies, purpose limitation enforcement, data flow mapping and data lineage),
-  DSAR automation (intake portal, identity verification, data discovery across systems,
-  response generation, 30-day SLA tracking), consent management infrastructure (granular
-  consent for treatment types, research, and marketing, consent withdrawal propagation,
-  age verification, parental consent), audit logging (access logs for who viewed what
-  PHI, change logs, purpose-of-access recording, tamper-proof storage, retention),
-  patient data deletion workflows (hard delete vs soft delete, cascade deletion across
-  systems, backup handling, third-party deletion propagation), privacy-by-design review
-  process (PIA, DPIA, pre-launch privacy review checklist), de-identification (HIPAA
-  Safe Harbor method, Expert Determination, re-identification risk assessment,
-  k-anonymity and l-diversity), and cookie and tracking consent (GDPR cookie consent,
-  CCPA opt-out, health data-specific tracking restrictions). Do NOT use for legal
-  privacy policy drafting, general compliance auditing, or security infrastructure
-  hardening.
+  Use when implementing BAAs with sub-processors, automating DSAR workflows, building consent
+  management infrastructure, designing data deletion pipelines, or conducting privacy-by-design
+  reviews for health platforms. Handles BAA implementation (checklist, sub-processor inventory,
+  breach notification), data minimization (collection minimization, retention policies, purpose
+  limitation, data flow mapping), DSAR automation (intake portal, identity verification, data
+  discovery, response generation, 30-day SLA), consent management (granular consent, withdrawal
+  propagation, age verification), audit logging (access logs, change logs, purpose-of-access,
+  tamper-proof storage), patient data deletion (hard vs soft delete, cascade, backup handling),
+  privacy-by-design review (PIA, DPIA), de-identification (HIPAA Safe Harbor, Expert Determination,
+  k-anonymity, l-diversity), and cookie/tracking consent. Do NOT use for legal privacy policy
+  drafting, general compliance auditing, or security infrastructure hardening.
 license: MIT
 author: Sandeep Kumar Penchala
 type: security

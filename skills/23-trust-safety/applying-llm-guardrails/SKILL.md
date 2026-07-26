@@ -1,6 +1,16 @@
 ---
 name: applying-llm-guardrails
-description: Use when implementing runtime safety classifiers for LLM applications, configuring LlamaGuard/Prompt Guard/NeMo Guardrails for production deployment, hardening LLM inputs against jailbreaks and indirect prompt injection, validating LLM outputs for toxicity/PII/hallucination before user delivery, or designing multi-layer guardrail architectures that survive adversarial attack. Handles the 4-layer defense model (Input → Prompt → Runtime → Output), LlamaGuard 3 implementation (14 hazard categories, binary classification, policy customization), Prompt Guard deployment (jailbreak detection, indirect injection via third-party content), NeMo Guardrails configuration (Colang dialogue policies, input rails, output rails, dialog rails, fact-checking rails), Guardrails AI structured output validation (JSON schema enforcement, PII detection with Presidio, toxicity scoring), guard model collapse phenomenon (benign fine-tuning destroys safety — FW-SSR regularization, geometry-based monitoring), multi-layered defense patterns (why single-layer guardrails are always bypassable, defense-in-depth architecture), and production guardrail metrics (false positive rate < 0.1%, latency budget < 50ms per layer, audit logging for every block/allow decision). Do NOT use for AI safety policy (use ai-safety-engineer), model training or fine-tuning (use llm-engineer), general application security (use security-reviewer), or content moderation policy design (use content-policy-manager).
+description: >
+  Use when implementing runtime safety classifiers for LLM applications, configuring
+  LlamaGuard/Prompt Guard/NeMo Guardrails for production, hardening LLM inputs against jailbreaks
+  and indirect prompt injection, deploying PII/PHI redaction in LLM pipelines, or measuring
+  guardrail effectiveness with precision/recall metrics. Handles guardrail architecture (pre-prompt,
+  runtime, post-generation, defense-in-depth), LlamaGuard deployment (taxonomy, few-shot, streaming
+  vs batch), jailbreak defense (prompt normalization, attack signatures, suffix detection, persona
+  overrides, obfuscation), PII/PHI redaction (Presidio, Comprehend PII, regex, context-aware), and
+  observability (precision/recall, content drift, A/B guardrail, violation taxonomy,
+  cost-per-guardrail). Do NOT use for model safety training (ai-engineer, ml-engineer), content
+  policy (content-policy-manager), or security red-teaming (offensive-security).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

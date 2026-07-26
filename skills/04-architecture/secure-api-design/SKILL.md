@@ -1,34 +1,17 @@
 ---
 name: secure-api-design
-description: Use when designing or reviewing the security of a REST, GraphQL, or gRPC
-  API; when implementing OAuth2 token validation, API key management, or mTLS for
-  service-to-service authentication; when hardening API endpoints against OWASP API
-  Security Top 10 vulnerabilities (broken auth, excessive data exposure, mass assignment,
-  injection); when implementing rate limiting, throttling, and DoS protection at the
-  API gateway layer; when securing API clients (SPAs, mobile apps, native clients)
-  with proper token storage, BFF patterns, and CSP headers; when designing multi-tenant
-  API authorization (RBAC/ABAC/ReBAC at the resource level); or when responding to
-  an API security incident (credential stuffing, token leakage, API abuse). Handles
-  REST/GraphQL/gRPC authentication patterns (JWT validation, JWKS rotation, opaque
-  token introspection, API key hashing and scanning, mTLS, HMAC request signing),
-  authorization enforcement at the API layer (OPA/Rego policy-as-code, resource-level
-  permissions with OpenFGA/Cedar, middleware-based RBAC/ABAC for multi-tenant APIs),
-  input validation hardening (JSON Schema allowlist validation, GraphQL query cost/depth
-  limiting, protobuf validator chains, mass assignment protection with explicit field
-  allowlists), injection defense (parameterized queries with ORM escape hatch auditing,
-  NoSQL injection detection, SSTI prevention in Go/Node/Python template engines),
-  rate limiting architecture (distributed token bucket with Redis, endpoint-tier throttling,
-  GraphQL cost analysis, gRPC flow control), CSRF/CORS hardening (SameSite=Strict/Lax,
-  double-submit cookie, Origin header validation, preflight configuration), client-side
-  token security (httpOnly cookies over localStorage, BFF pattern implementation,
-  token refresh in secure contexts, CSP+SRI for API-driven apps), API error handling
-  security (standardized error format, no stack traces/DB errors/internal IPs, secure
-  defaults for unhandled exceptions), and API security observability (structured audit
-  logging with who/what/when/from/result, credential stuffing detection via rate anomaly,
-  API honeytokens for intrusion detection). Do NOT use for IAM architecture design
-  (route to iam-architect), cloud API gateway configuration (route to cloud-security),
-  general API design without security focus (route to api-designer), or OAuth2 provider
-  implementation (route to backend-developer with security-reviewer).
+description: >
+  Use when designing or reviewing the security of a REST, GraphQL, or gRPC API; when implementing
+  OAuth2 token validation, API key management, or mTLS; when hardening APIs against OWASP API
+  Security Top 10; when implementing API rate limiting and abuse prevention; when implementing API
+  gateway security policies; or when securing webhooks and async APIs. Handles OAuth2/OIDC security
+  (grant types, PKCE, refresh rotation, JWT hardening), API key lifecycle (scoping, rotation, HMAC
+  signing, revocation), OWASP API Security Top 10 (broken auth, excessive data exposure, rate
+  limiting, mass assignment, injection, misconfiguration, unsafe consumption), rate limiting and DoS
+  defense (token bucket, GraphQL complexity limits, webhook signatures), API gateway policy (WAF,
+  schema validation, JWT verification), and API security testing (ZAP, Semgrep, contract tests). Do
+  NOT use for API design patterns (api-designer), general appsec (appsec-engineer), or IAM
+  architecture (iam-architect).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

@@ -1,40 +1,17 @@
 ---
 name: supply-chain-security-engineer
 description: >
-  Use when designing a software supply chain security program; when implementing SLSA framework
-  attestation Levels 1-4 across build pipelines; when generating and signing SBOMs (SPDX/CycloneDX)
-  for OWASP Top 10:2025 A03 compliance; when configuring build provenance with Sigstore, cosign,
-  or in-toto; when triaging dependency vulnerabilities including typosquatting, dependency confusion,
-  and slopsquatting attacks; when hardening CI/CD pipelines against inject-poison and credential
-  exfiltration; when conducting vendor risk assessments and third-party component governance; or
-  when designing artifact signing and verification policies for container images, packages, and
-  release binaries. Handles SLSA framework implementation (Build L0-L3, Source protections, Hermetic
-  builds, two-person review, provenance attestation), SBOM lifecycle management (SPDX 3.0 and
-  CycloneDX 1.6 generation, VEX integration for vulnerability exploitability exchange, automated
-  SBOM diffing for update risk assessment, NTIA minimum elements compliance), build provenance
-  and integrity (Sigstore cosign for keyless signing via OIDC, Fulcio certificate transparency,
-  Rekor transparency log verification, in-toto supply chain layout specification, GitHub Actions
-  OIDC-based workload identity federation), dependency security (typosquatting detection via
-  levenshtein distance analysis on package names, dependency confusion/namespace substitution
-  defense through registry scoping and npm/yarn/pip scope pinning, slopsquatting detection in
-  AI/ML model registries and dataset pipelines, dep-revving counterfeit detection), CI/CD pipeline
-  hardening (branch protection rules, CODEOWNERS enforcement, signed commits requirement, OIDC
-  federated credentials instead of long-lived tokens, pipeline-as-code review gates, runner
-  ephemerality and isolation, secret scanning via gitleaks/detect-secrets pre-commit hooks),
-  artifact signing and verification (container image signing with cosign, npm package provenance
-  via --provenance flag, Python wheel signing, SLSA provenance predicate generation, binary
-  authorization via Binary Authorization for Borg/Kubernetes), vendor risk assessment (third-party
-  software bill of materials collection, vendor security posture evaluation against NIST SSDF
-  practices, contractual attestation requirements for supplier SLSA levels, continuous monitoring
-  of vendor vulnerability disclosures), open source governance (license compliance via FOSSA/
-  ORT, dependency freshness scoring, community health metrics for critical dependencies, fork
-  sustainment risk assessment), and regulatory compliance mapping (EU Cyber Resilience Act software
-  supply chain requirements, US Executive Order 14028 SBOM mandate, CISA Secure Software
-  Development Attestation Form). Do NOT use for general application security (route to
-  security-engineer), code-level vulnerability triage (route to security-reviewer), CI/CD pipeline
-  design without security context (route to ci-cd-builder or devops-engineer), container image
-  vulnerability management (route to vulnerability-management), or open source license compliance
-  without security implications (route to legal-advisor).
+  Use when designing a supply chain security program, implementing SLSA Levels 1-4, generating and
+  signing SBOMs (SPDX/CycloneDX), configuring build provenance with Sigstore/cosign/in-toto,
+  triaging dependency vulns (typosquatting, confusion), hardening CI/CD pipelines, conducting vendor
+  risk assessments, or designing artifact signing policies. Handles SLSA framework (hermetic builds,
+  provenance), SBOM lifecycle (SPDX/CycloneDX, VEX, diffing), build provenance (Sigstore cosign,
+  Fulcio/Rekor, in-toto, GitHub OIDC), dependency security (typosquatting, confusion,
+  slopsquatting), CI/CD hardening (branch protection, signed commits, OIDC, secret scanning),
+  artifact signing (cosign, npm provenance, SLSA provenance), vendor risk (third-party SBOM, NIST
+  SSDF), and regulatory mapping (EU CRA, EO 14028, CISA). Do NOT use for general appsec
+  (security-engineer), code review (security-reviewer), non-security CI/CD (ci-cd-builder),
+  container vulns (vulnerability-management), or license compliance (legal-advisor).
 license: MIT
 allowed-tools: Read Grep Glob
 tags:

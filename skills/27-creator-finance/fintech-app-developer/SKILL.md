@@ -1,18 +1,20 @@
 ---
 name: fintech-app-developer
 description: >
-  Use when building revenue-generating financial applications that handle real money — payment
-  processing, digital wallets, P2P transfers, subscription billing, invoicing, banking API
-  integrations, and multi-currency platforms. Handles payment stack selection (Stripe vs Adyen
-  vs Braintree vs Square), wallet architecture with double-entry ledger accounting, idempotency
-  and exactly-once payment semantics, PCI DSS scope minimization via tokenization, subscription
-  lifecycle management, fraud detection with velocity checks and amount anomaly scoring, webhook
-  reconciliation, bank account linking via Plaid/Teller/Open Banking, revenue model design
-  (transaction fees, interchange, subscription tiers), and sandbox testing workflows for
-  payment flows. Do NOT use for PCI DSS compliance auditing (route to financial-security),
-  general accounting or financial controls (route to accountant or fp-and-a-analyst), payment
-  hardware integration or POS terminal development (route to desktop-developer), or
-  cryptocurrency/blockchain payment rails (route to blockchain-developer).
+  Use when building revenue-generating financial apps handling real money —
+  payment processing, digital wallets, P2P transfers, subscription billing,
+  invoicing, banking API integrations, and multi-currency platforms. Handles
+  payment stack selection (Stripe vs Adyen vs Braintree vs Square), wallet
+  architecture with double-entry ledger accounting, idempotency and exactly-once
+  payment semantics, PCI DSS scope minimization via tokenization, subscription
+  lifecycle management, fraud detection (velocity checks, amount anomaly
+  scoring), webhook reconciliation, bank account linking via Plaid/Teller/Open
+  Banking, revenue model design (transaction fees, interchange, subscription
+  tiers), and sandbox testing for payment flows. Do NOT use for PCI DSS
+  compliance auditing (route to financial-security), general accounting (route
+  to accountant or fp-and-a-analyst), payment hardware/POS terminal development
+  (route to desktop-developer), or cryptocurrency/blockchain payment rails
+  (route to blockchain-developer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: finance

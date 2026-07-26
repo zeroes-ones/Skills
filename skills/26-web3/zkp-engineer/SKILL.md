@@ -1,6 +1,17 @@
 ---
 name: zkp-engineer
-description: "Use when designing zero-knowledge proof circuits, selecting ZKP proof systems (Groth16/STARKs/Halo2/Plonky3), writing Circom 2/Noir/Halo2 circuit code, auditing circuits for under-constraint vulnerabilities, implementing recursive proving with Nova/SuperNova folding schemes, or architecting ZKP-based privacy solutions (private transactions, zk-rollups, zk-identity, zkML, zk-email). Handles circuit design languages (Circom 2 R1CS constraints, Noir PLONK backend, Halo2 lookup tables and custom gates, ZoKrates), proof system selection (Groth16 trusted setup with Powers of Tau, STARKs transparent FRI-based, Halo2 recursive without trusted setup, Plonky3 small-field plonkish arithmetization), constraint security hardening (under-constraint detection, missing input validation prevention, range check enforcement, Boolean constraint verification, signal privacy in witness computation), recursive proving (Nova folding for IVC, SuperNova for NIVC, Protostar for non-uniform computation), and ZKP integration patterns (Solidity verifier deployment, on-chain verification gas costs, off-chain proving). Do NOT use for general cryptography (use cryptographic-engineer), smart contract development (use smart-contract-auditor), blockchain architecture (use system-architect), or ML model training (use ml-ai-engineer)."
+description: >
+  Use when designing zero-knowledge proof circuits, selecting ZKP proof systems
+  (Groth16/STARKs/Halo2/Plonky3), writing Circom 2/Noir/Halo2 circuit code, auditing circuits for
+  under-constraint vulnerabilities, implementing on-chain verifiers, or designing zk-identity and
+  privacy-preserving applications. Handles proving system selection (Groth16: minimal proof, trusted
+  setup; Plonk: universal setup; STARKs: transparent; Halo2: recursive; Plonky3: fast recursion),
+  circuit development (Circom 2, Noir DSL, Halo2/PSE, witness generation, constraint counting),
+  circuit security (under-constraint detection, soundness bugs, completeness verification), on-chain
+  verification (Groth16 verifier gas optimization, STARK verifier, recursive proof aggregation, Nova
+  folding), and zk applications (zk-identity, private voting, zk-KYC, private transactions,
+  ZK-rollup circuits). Do NOT use for low-level cryptography (cryptographic-engineer), smart
+  contract dev (blockchain-developer), or general security (security-reviewer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

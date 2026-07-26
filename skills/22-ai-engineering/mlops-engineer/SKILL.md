@@ -1,19 +1,20 @@
 ---
 name: mlops-engineer
 description: >
-  Use when deploying ML models to production, setting up model monitoring with drift
-  detection, building retraining pipelines, implementing feature stores, or configuring
-  CI/CD for ML. Handles model deployment patterns (real-time inference with Triton/vLLM/Ray
-  Serve, batch inference, edge deployment), monitoring and observability (prediction
-  drift via PSI/KS test, feature drift, data quality monitoring, model performance
-  degradation), retraining pipelines (trigger strategies, A/B testing for model updates),
-  feature stores (Feast, Tecton, offline/online serving, point-in-time correctness),
-  experiment tracking (MLflow, W&B, model registry, lineage tracking), CI/CD for ML
-  (model validation gates, canary deployments, shadow mode, rollback strategies), GPU
-  optimization and autoscaling (cold start mitigation), data versioning (DVC, lakeFS,
-  reproducible training pipelines), and cost optimization (spot instances, model
-  compilation, token caching). Do NOT use for LLM application engineering, model research
-  and training, or general DevOps infrastructure.
+  Use when deploying ML models to production, setting up model monitoring with
+  drift detection, building retraining pipelines, implementing feature stores,
+  or configuring CI/CD for ML. Handles model deployment patterns (real-time
+  inference with Triton/vLLM/Ray Serve, batch inference, edge deployment),
+  monitoring and observability (prediction drift via PSI/KS test, feature drift,
+  data quality, performance degradation), retraining pipelines (trigger
+  strategies, A/B testing), feature stores (Feast, Tecton, offline/online
+  serving, point-in-time correctness), experiment tracking (MLflow, W&B, model
+  registry, lineage), CI/CD for ML (model validation gates, canary deployments,
+  shadow mode, rollback), GPU optimization and autoscaling (cold start
+  mitigation), data versioning (DVC, lakeFS, reproducible training), and cost
+  optimization (spot instances, model compilation, token caching). Do NOT use
+  for LLM application engineering, model research and training, or general
+  DevOps infrastructure.
 license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering

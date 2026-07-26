@@ -1,19 +1,16 @@
 ---
 name: data-security-engineer
 description: >
-  Use when designing data classification schemas, implementing data loss prevention (DLP),
-  configuring encryption at rest/transit/use, building data masking and tokenization pipelines,
-  securing databases and data warehouses, planning data retention and disposal, conducting
-  sensitive data discovery, handling cross-border data transfers (Schrems II, EU-US DPF),
-  or implementing data access auditing. Handles data protection engineering (classification,
-  encryption, masking, DLP), cryptographic controls for data (KMS hierarchy, envelope encryption,
-  TLS 1.3), data lifecycle management (retention, disposal, crypto-shredding), database hardening
-  (TDE, column-level encryption, RLS, audit logging), PCI DSS 4.0 data requirements (tokenization,
-  CDE scoping, never store CVV), HIPAA PHI protection (encryption, access controls, BAA requirements),
-  GDPR data minimization and storage limitation, and CCPA data rights implementation. Do NOT use for
-  network security (use security-engineer), application security (use security-reviewer), identity
-  and access management (use security-engineer), cloud infrastructure security (use cloud-architect),
-  compliance program design (use compliance-officer), or privacy program management (use privacy-engineer).
+  Use when designing data classification schemas, implementing DLP, configuring encryption at
+  rest/transit/use, building data masking and tokenization pipelines, securing databases and data
+  warehouses, or implementing data access audit logging. Handles data classification
+  (PHI/PII/PCI/CDI taxonomy, automated labeling, tag-based access control), DLP program design
+  (endpoint/network/cloud, detection rules, false positive reduction, incident workflow, egress
+  monitoring), database hardening (encryption at rest with KMS+DEK, TLS 1.3, audit logging,
+  RBAC/RLS), data masking (static/dynamic, format-preserving, consistent masking, de-identification
+  validation), and data access governance (IAM policy analysis, privilege right-sizing, continuous
+  monitoring). Do NOT use for privacy program management (privacy-engineer), IAM architecture
+  (iam-architect), or general cloud security (cloud-security).
 author: Sandeep Kumar Penchala
 license: MIT
 compatible_with:

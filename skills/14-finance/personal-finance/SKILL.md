@@ -2,20 +2,18 @@
 name: personal-finance
 description: >
   Use when managing personal finances, building a budget, planning for retirement,
-  optimizing taxes, managing debt, building an emergency fund, choosing investments,
-  evaluating insurance coverage, estate planning, improving credit score, setting
-  financial goals (FIRE, home purchase, college savings), analyzing net worth, or
-  making any personal financial decision. Handles budgeting (50/30/20, zero-based,
-  envelope), debt strategies (avalanche vs snowball), investment portfolio construction
-  (Bogleheads 3-fund, asset allocation, index investing), retirement planning (401k,
-  IRA, Roth, SEP, withdrawal strategies), tax optimization (tax-loss harvesting,
-  account placement, deduction strategies), insurance evaluation (term vs whole life,
-  disability, umbrella), credit optimization (utilization ratio, mix, inquiries),
-  estate planning basics (wills, trusts, beneficiaries), FIRE calculations (4% rule,
-  Coast FIRE, Barista FIRE), and net worth tracking. Do NOT use for corporate FP&A
-  (route to fp-and-a-analyst), quantitative trading (route to quantitative-analyst),
-  corporate treasury (route to treasury-manager), business accounting (route to
-  accountant), or algorithmic trading (route to algorithmic-trader).
+  optimizing taxes, managing debt, building an emergency fund, choosing
+  investments, evaluating insurance, estate planning, improving credit score,
+  setting financial goals (FIRE, home purchase, college savings), or analyzing net
+  worth. Handles budgeting (50/30/20, zero-based, envelope), debt strategies
+  (avalanche vs snowball), investment portfolio (Bogleheads 3-fund, asset
+  allocation, index investing), retirement planning (401k, IRA, Roth, SEP),
+  tax optimization (tax-loss harvesting, account placement), insurance evaluation
+  (term vs whole life, disability, umbrella), credit optimization, estate
+  planning, FIRE calculations, and net worth tracking. Do NOT use for corporate
+  FP&A (route to fp-and-a-analyst), quantitative trading (route to
+  quantitative-analyst), treasury (route to treasury-manager), business accounting
+  (route to accountant), or algorithmic trading (route to algorithmic-trader).
 license: MIT
 author: Sandeep Kumar Penchala
 type: finance

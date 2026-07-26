@@ -1,49 +1,17 @@
 ---
 name: privacy-engineering
 description: >
-  Use when implementing privacy-by-design in new systems or retrofitting privacy
-  into existing architectures; when conducting a Data Protection Impact Assessment
-  (DPIA) for GDPR Article 35 compliance; when implementing data minimization,
-  pseudonymization, or anonymization for personal data processing; when designing
-  consent management flows compliant with GDPR, CCPA, and ePrivacy Directive; when
-  building technical implementations of right-to-access, right-to-deletion (RTBF),
-  and data portability under GDPR/CCPA; when evaluating cross-border data transfer
-  mechanisms (SCCs, BCRs, DPF adequacy) post-Schrems II; when exploring
-  privacy-preserving technologies (differential privacy with epsilon-budget
-  accounting, homomorphic encryption, SMPC, federated learning); when establishing
-  automated data retention and deletion policies with audit trails; or when
-  responding to a personal data breach requiring 72-hour GDPR notification.
-  Handles privacy-by-design integration (7 foundational principles mapped to
-  system architecture: data minimization at collection, purpose limitation
-  enforcement in code, storage limitation via automated TTL, transparency through
-  data inventory), DPIA methodology (trigger assessment — large-scale/special
-  category/systematic monitoring → processing description → necessity/proportionality
-  test → risk identification → mitigation design → DPO consultation → sign-off
-  workflow), differential privacy implementation (epsilon selection by sensitivity,
-  Laplace vs Gaussian mechanism choice, privacy budget accounting across queries,
-  composition theorem application, local vs global DP trade-off), consent management
-  architecture (GDPR freely given/specific/informed/unambiguous/withdrawable
-  requirements, CCPA opt-out technical implementation, cookie consent without dark
-  patterns, consent proof chain for audit), right-to-access and deletion engineering
-  (data inventory graph enabling subject access requests, deletion cascade across
-  microservices with ordering constraints, soft-delete window → hard-delete, backup
-  deletion and immutability exceptions, 30-day SLA tracking with auto-escalation),
-  cross-border transfer compliance (SCC module selection by transfer scenario, TIA
-  methodology post-Schrems II, DPF certification requirements, adequacy decision
-  applicability, supplementary measures: encryption at rest in transit,
-  pseudonymization, split processing), privacy-preserving technology evaluation
-  (homomorphic encryption readiness assessment, federated learning architecture for
-  on-device privacy, ZKP suitability for identity verification, private set
-  intersection for contact discovery), data retention automation (category-based
-  retention schedule → TTL policies in code → automated deletion with audit trail,
-  backup exception documentation, log retention justification), and personal data
-  breach response (72-hour DPA notification clock, Article 33/34 required content,
-  data subject notification decision tree based on risk of harm, root cause analysis
-  with privacy-specific impact categorization). Do NOT use for GDPR legal
-  interpretation (route to gdpr-privacy or legal-advisor), security control
-  implementation (route to security-engineer), encryption algorithm selection
-  (route to cryptography-engineer), or consent banner UX design (route to
-  ui-ux-designer).
+  Use when implementing privacy-by-design; when conducting a DPIA for GDPR; when implementing data
+  minimization, pseudonymization, or anonymization; when designing consent management for GDPR,
+  CCPA, and ePrivacy; when building data subject rights (access, deletion, portability); when
+  evaluating cross-border transfer mechanisms (SCCs, BCRs, DPF); when exploring privacy-preserving
+  tech (differential privacy, homomorphic encryption, SMPC, federated learning); when establishing
+  automated data retention; or when responding to a personal data breach. Handles privacy-by-design,
+  DPIA methodology, differential privacy, consent management, data subject rights, cross-border
+  transfers, privacy-preserving tech (homomorphic encryption, federated learning, ZKP), data
+  retention, and breach response (72-hour DPA notification, Art 33/34). Do NOT use for GDPR legal
+  interpretation (gdpr-privacy, legal-advisor), security controls (security-engineer), encryption
+  (cryptography-engineer), or consent UX (ui-ux-designer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: trust-safety

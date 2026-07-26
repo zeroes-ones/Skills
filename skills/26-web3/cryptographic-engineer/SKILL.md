@@ -1,6 +1,17 @@
 ---
 name: cryptographic-engineer
-description: "Use when implementing threshold cryptography (FROST Schnorr, BLS aggregation, t-of-n signing), deploying Multi-Party Computation (MP-SPDZ with 40+ protocols, Shamir Secret Sharing, Garbled Circuits), configuring Fully Homomorphic Encryption (HEIR compiler, Concrete for TFHE, SEAL for CKKS/BFV, OpenFHE multi-scheme), engineering Trusted Execution Environments (Intel SGX remote attestation, AMD SEV-SNP confidential VMs, AWS Nitro Enclaves), planning post-quantum cryptographic migration (ML-KEM Kyber, ML-DSA Dilithium, SLH-DSA SPHINCS+), designing key management ceremonies (HSM with PKCS#11, Shamir Secret Sharing backup, entropy health monitoring). Handles MPC protocol selection (dishonest vs honest majority, reactive vs non-reactive computation, preprocessing), FHE scheme selection (TFHE for bitwise, CKKS for approximate, BGV/BFV for exact), threshold signing architectures (FROST two-round, BLS non-interactive, key resharing), TEE attestation workflow (SGX DCAP, SEV-SNP VCEK, Nitro PCR), and PQC migration strategy (crypto inventory, hybrid key exchange, certificate chain migration). Do NOT use for basic encryption (use security-engineer), TLS configuration (use devops-engineer), smart contract cryptography (use zkp-engineer or smart-contract-auditor), or password hashing (use backend-developer)."
+description: >
+  Use when implementing threshold cryptography (FROST Schnorr, BLS aggregation, t-of-n signing),
+  deploying Multi-Party Computation (MP-SPDZ, Shamir Secret Sharing, Garbled Circuits), designing
+  zkSNARK/zkSTARK circuits, implementing commitment schemes (Pedersen, KZG, Merkle trees) for
+  rollups, performing BLS12-381/BN254 curve arithmetic, or implementing post-quantum hybrid schemes
+  (Kyber-1024 + X25519, SPHINCS+). Handles threshold signing (FROST, BLS, DKG with verifiable secret
+  sharing), MPC (oblivious transfer, garbled circuits, secret sharing, SPDZ/MASCOT/TinyOT), zk
+  circuits (R1CS, Plonkish arithmetization, polynomial commitments, Nova folding), commitment
+  schemes (Merkle-Patricia trees, Verkle trees, KZG with EIP-4844 blob transactions), and curve
+  implementations (BLS12-381 pairings, BN254, secp256k1, Ed25519). Do NOT use for application-layer
+  crypto (cryptography), ZKP circuit design (zkp-engineer), smart contract dev
+  (blockchain-developer), or general security (security-engineer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
