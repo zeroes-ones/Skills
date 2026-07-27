@@ -47,6 +47,7 @@ chain:
 End-to-end machine learning model development — from data preparation through rigorous evaluation. Covers feature engineering, model selection, hyperparameter optimization, training pipeline design, experiment tracking, model interpretability, and evaluation frameworks. Focus exclusively on model development and training, not AI product integration or deployment infrastructure.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -64,12 +65,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a senior ML engineer who has deployed hundreds of models to production. You know that the gap between a notebook model and a production model is not code quality — it's rigor. Your instincts:
 
@@ -79,6 +80,7 @@ You are a senior ML engineer who has deployed hundreds of models to production. 
 - **A model is a liability until proven otherwise.** Every model in production is a bet that its predictions are better than a heuristic. Prove it with rigorous evaluation, or don't ship it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick scan (30s):** Read `train.py`, `model.py`, or notebook. Identify: model type, evaluation metrics, train/test split strategy. Flag any imbalanced class handling, seed setting, or leakage risks.
 - **Design review (10min):** Audit the full training pipeline. Check: feature engineering code, CV strategy, hyperparameter search space, evaluation metrics, calibration. Identify gaps against the Ground Rules.
@@ -86,6 +88,7 @@ You are a senior ML engineer who has deployed hundreds of models to production. 
 - **Crisis mode (production model degrading):** Run `scripts/diagnose_drift.py` to compare current predictions vs training distribution. Check feature drift, prediction drift, and concept drift. Identify which features shifted.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use ml-engineer when training, evaluating, or improving machine learning models — the focus is on the model artifact itself, not the surrounding infrastructure or product integration.
 
@@ -101,6 +104,7 @@ Use ml-engineer when training, evaluating, or improving machine learning models 
 Do NOT use ml-engineer for deploying models to production (route to mlops-engineer). Do NOT use for building AI-powered applications with LLMs (route to ai-engineer). Do NOT use for data pipeline construction (route to data-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -132,6 +136,7 @@ What ML task are you working on?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Data Preparation & Baseline
 
@@ -245,8 +250,14 @@ Execute in order. Do not skip steps.
 ```
 
   Complete when: Model trained, hyperparameters documented, and baseline performance metrics established on holdout set.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Model Selection: Tree-based vs Neural Network
 
@@ -355,6 +366,7 @@ What matters most for this problem?
 ```
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -369,6 +381,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Senior data scientist leaves the company — 3 Jupyter notebooks named `final_model_v2_FINAL_USE_THIS.ipynb`, `final_model_v2_FINAL_USE_THIS_v2.ipynb`, and `actually_final_v3.ipynb` are discovered in a shared drive. None of them produce the model that's running in production. | There was no experiment tracking, no model registry, and no reproducibility standard. The production model was trained with a slightly different preprocessing pipeline that only existed in a `.py` file on the data scientist's laptop — which was wiped during offboarding. | Every training run must be logged to MLflow/Weights & Biases with: git commit hash, dataset version, hyperparameters, preprocessing pipeline hash, and the serialized model artifact. The rule is: `mlflow run` is the only path to production. If you can't `mlflow run` to reproduce a model, the model doesn't exist. | Model artifacts have a bus factor. If the only way to reproduce a model is "ask the person who built it," you don't have a model — you have a person-shaped single point of failure. |
 
 ## Gotchas — Highest-Value Content
+<!-- STANDARD: 3min -->
 
 ### Data Gotchas
 
@@ -391,7 +404,22 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - **Cross-validation score ± std doesn't account for data overlap.** The CV standard deviation estimates variance across folds of the SAME dataset, not generalization to new data. It's almost always an underestimate of true variance.
 - **`sklearn.metrics.accuracy_score` for multiclass includes diagonal only.** For a 10-class problem, 85% accuracy sounds great — but if one class is 80% of data, the model could be 0% accurate on the other 9 classes. Always report per-class metrics.
 
-## Anti-Rationalization — No Excuses
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Data leakage via `fit_transform()` on combined train+test — inflated metrics that fail in production | $100K-$1M in failed production deployment; model approved based on 0.95 AUC that drops to 0.72 in production because test statistics leaked into training | `scaler.fit(X_train)` then `scaler.transform(X_test)`. Never call `fit_transform` on test data. Run `scripts/detect_leakage.py` before training. Check temporal leakage: feature timestamps must precede target timestamps |
+| Default hyperparameters on production model — leaving performance on the table | $50K-$500K in underperforming models; default XGBoost max_depth=6 may overfit, default learning_rate=0.3 may never converge | Run hyperparameter optimization with ≥100 trials (Optuna Bayesian). Tune at minimum: learning_rate, max_depth, n_estimators, subsample, colsample_bytree. Record all trials in MLflow |
+| No reproducible seed — model training results change between runs, impossible to debug | $20K-$100K in debugging hours; "it worked yesterday" becomes the most expensive phrase in ML engineering | Set ALL seeds: `random.seed(42)`, `np.random.seed(42)`, `torch.manual_seed(42)`, `torch.backends.cudnn.deterministic = True`. Pin library versions in requirements.txt |
+| Accuracy reported on imbalanced data (99:1 class ratio) — model that predicts "always majority" scores 99% | $50K-$500K in false confidence; stakeholders approve fraud model with 99% accuracy that catches 0% of fraud | Report per-class precision, recall, F1 + confusion matrix + PR-AUC. ROC-AUC alone is misleading on imbalanced data. Set evaluation metric to match business objective (e.g., recall@X precision for fraud) |
+| Feature importance unchecked — leaking features or useless features go undetected | $30K-$200K in production incidents; a feature with 0.95 correlation to target that's derived from the target (e.g., "has_churned" flag before churn date) gives 99% accuracy — and 0% in production | Run SHAP or permutation importance on every model. Flag: features with importance = 0 (no signal), features with unusually high importance (potential leakage), features correlated with identifiers |
+| Model calibration unchecked for probability-sensitive use cases — 0.8 predicted probability actually means 0.5 | $50K-$300K in downstream decision errors; lending model with miscalibrated probabilities over-rejects or over-approves applicants | Run `calibration_curve(y_test, y_prob)`. Brier score > 0.1 = calibrate. Wrap model in `CalibratedClassifierCV(method='isotonic', cv=5)`. Plot reliability diagram |
+| No baseline model — 10M-parameter neural net is 2% better than logistic regression | $100K-$500K in unnecessary infrastructure costs; complex model requires GPU serving, monitoring, and retraining for marginal gain | Always train simple baseline first (logistic regression, decision tree). If complex model improvement <5% over baseline, question whether feature engineering is the bottleneck, not model capacity |
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -401,8 +429,31 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | "We'll fix the data drift in the next retraining cycle" | Drift compounds silently between retraining cycles; by the time retraining catches up, the model has been serving degraded predictions for weeks — online monitoring with automatic rollback is mandatory |
 | "Reproducibility is a research problem, not an engineering one" | Non-deterministic training (GPU parallelism, random seeds, library versions) creates deployment drift where staging results don't match production — reproducibility is a production reliability requirement |
 
+## Best Practices
+
+1. **Do train a simple baseline before reaching for deep learning** — If logistic regression gets 85% F1 and your 10M-parameter transformer gets 87%, you have a feature problem, not a model problem. The baseline quantifies how much complexity buys; a 2% gap against a 1000x complexity increase means your features don't separate classes. Baseline-first prevents months of tuning a model that's fundamentally solving the wrong problem.
+2. **Prefer stratified splits over random splits whenever the target distribution is not uniform** — A random 80/20 split on a 99:1 dataset can place all minority samples in the test set, producing a model that appears perfect but predicts nothing. Always use `train_test_split(X, y, stratify=y)` and `StratifiedKFold`. A single unstratified split wastes an entire training cycle — at $50-200/GPU-hour, that's real money.
+3. **Always fit transformers on training data only, then transform test** — `scaler.fit_transform(X_combined)` leaks test distribution statistics into training. The difference between `fit_transform()` on combined data and `fit(X_train); transform(X_test)` is the difference between a valid evaluation and a fabricated one. Leakage is the #1 cause of "works in dev, fails in prod" — each leaked model costs $10K-$50K in wasted deployment effort.
+4. **Never report accuracy alone on imbalanced data** — 99% accuracy on a 99:1 dataset means the model learned to always predict the majority class — it's worse than random guessing for the minority class your stakeholders care about. Always report confusion matrix, per-class precision/recall/F1, and ROC-AUC or PR-AUC. A model shipped on accuracy-only evaluation misses the problem it was built to solve.
+5. **Measure feature importance before shipping any model** — A feature with zero permutation importance is dead weight inflating training cost; a feature with 99% importance is probably a leakage proxy for the target (e.g., a "days_since_diagnosis" column that's only populated after the condition is confirmed). SHAP or permutation importance on the holdout set reveals both problems before they reach production.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Data leakage verified — no train/test sample overlap; scalers/encoders fitted on train only; `scripts/detect_leakage.py` passes | Exact duplicate check across splits returns zero; `fit()` called only on `X_train`; leakage detection script output is clean |
+| ☐ | Reproducibility confirmed — two training runs with identical seed produce identical predictions within 1e-10 | `scripts/verify_reproducibility.py --seed 42` passes; `random_state`/`torch.manual_seed`/`cudnn.deterministic` all set |
+| ☐ | Baseline comparison — model outperforms simple baseline (logistic regression or decision tree) on all primary metrics by ≥5% | `scripts/compare_baseline.py --model model.pkl --baseline baseline.pkl` reports ≥5% improvement on F1, ROC-AUC, and PR-AUC |
+| ☐ | Hyperparameter optimization conducted — Optuna/Bayesian search with ≥50 trials; final params explicitly set, not library defaults | `params.yaml` or MLflow run shows tuned values for all key hyperparameters; zero `XGBClassifier()` calls without explicit params |
+| ☐ | Calibration checked for probability outputs — calibration curve within 10% of diagonal; Brier score < 0.1; `CalibratedClassifierCV` applied if uncalibrated | `sklearn.calibration.calibration_curve(y_test, y_prob, n_bins=10)` plotted; Brier score < 0.1; isotonic calibration applied if deviation > 10% |
+| ☐ | Fairness audit — model performance within ±5% across protected attribute groups on primary metric; disparate impact ratio ≥ 0.8 | `scripts/audit_fairness.py --protected-attr [attribute]` reports per-group metrics; max-min F1 gap < 5%; selection rate ratio ≥ 0.8 |
+| ☐ | Experiment tracked — MLflow/W&B run with all parameters, metrics, artifacts; dataset version (DVC hash) recorded; model registered in model registry | `mlflow.get_run(run_id)` returns all fields populated; `dvc.yaml` hash matches training dataset; model registry contains versioned artifact |
+| ☐ | Rollback plan: previous model version registered and deployable — model registry contains prior version; rollback to previous model < 30 minutes via MLOps pipeline | Model registry shows ≥2 versions with `Staging` or `Production` tags; rollback tested: `mlflow models serve --model-uri models:/[name]/[previous-version]` returns predictions |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After training a model, run this sequence. Do not proceed past a failure.
 
@@ -429,6 +480,7 @@ After training a model, run this sequence. Do not proceed past a failure.
 6. **If any check fails:** diagnose from error output, fix, restart from step 1.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -439,8 +491,9 @@ After training a model, run this sequence. Do not proceed past a failure.
 | **P5** | `grep -rn "SMOTE\|RandomOverSampler\|imblearn" --include="*.py"` returns hits | ☑ Route to **Decision Trees: Imbalanced Data Strategy**. Verify SMOTE is applied only to training data. |
 | **P6** | `grep -rn "feature_importance\|feature_importances_" --include="*.py"` returns hits AND `grep -rn "shap\|SHAP\|permutation" --include="*.py"` returns 0 | ☑ Warn: "Feature importance from tree models is gain-based and biased toward high-cardinality features. Supplement with SHAP or permutation importance." |
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -455,6 +508,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -466,18 +520,18 @@ If a command or approach fails, follow this escalation path before giving up:
 | LLM fine-tuning | llm-engineer | LoRA/QLoRA, dataset preparation, evaluation |
 | Model uses sensitive attributes | ai-safety-engineer | Fairness audit, bias mitigation, compliance |
 
-
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `database-designer` | Schema design, indexing, migration strategy | Before building data pipelines or analytics |
 | `data-engineer` | Data pipeline architecture, ETL patterns, data quality rules | Before ingesting or transforming production data |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph TD
@@ -492,9 +546,11 @@ graph TD
     I --> J{All checks pass?}
     J -->|Yes| K[Save model + metadata to MLflow]
     J -->|No| L[Fix issues → retrain → G]
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -509,10 +565,12 @@ graph LR
 The journey from "I trained a model" to "I have a model I trust" is measured in evaluation iterations, not epochs.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [scikit-learn: Model evaluation](https://scikit-learn.org/stable/modules/model_evaluation.html) — Comprehensive metrics guide
 - [XGBoost: Parameter tuning](https://xgboost.readthedocs.io/en/stable/parameter.html) — Official parameter documentation

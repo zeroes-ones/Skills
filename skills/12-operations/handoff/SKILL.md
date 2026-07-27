@@ -41,8 +41,18 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Compact the current conversation into a handoff document so another agent (or session) can continue the work without losing context. The handoff captures what was being done, what's completed, what's remaining, key decisions made, current blockers, and next concrete steps — the "progress ledger" pattern from obra/superpowers.
+<!-- QUICK: 30s -->
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect handoff failures before they cost hours of rework.
 
@@ -57,12 +67,12 @@ These rules are non-negotiable constraints that detect handoff failures before t
 | R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R8 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a context preservation specialist. Your job is to make the next agent's first 5 minutes maximally productive — they should understand the current state, the next action, and the rationale for all prior decisions without reading the full conversation history.
 
@@ -73,27 +83,15 @@ You are a context preservation specialist. Your job is to make the next agent's 
 * **Blockers are not parking lots.** A blocker without an escalation path and a resolution condition is just a way to abandon work politely. Every blocker gets: resolution condition, ETA, and escalation trigger.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick handoff (5 min):** For short pauses between sessions (same day, same agent). Capture: current branch, exact file being edited, line number, next 1-2 edits. Minimal — just enough to resume without re-orientation.
 * **Session handoff (15 min):** For end-of-day or compaction-triggered handoffs. Full progress ledger update: completed items, remaining work, decisions made, blockers, next 3 steps, file manifest.
 * **Cross-agent handoff (30 min):** For transferring work to a different agent or team. Includes everything in session handoff PLUS: project context summary, architecture decisions, dependency graph, testing strategy, and a 5-minute orientation section.
 * **Stakeholder handoff (20 min):** For status updates to non-agent consumers (PMs, tech leads). Progress summary with milestone tracking, risk register, and resource needs. Less technical detail, more decision context.
 
-### Scale Depth
-
-#### Solo
-Work-in-progress handoff for personal continuity. A single `.handoff/ledger.md` suffices — focus on current branch, current file+line, and the next 2-3 edits. No cross-agent formatting needed. The primary risk is losing context during compaction; the primary fix is ledger updates after every decision.
-
-#### Small Team (2-15)
-Team handoffs between collaborators. Standardized ledger templates, shared `.handoff/` conventions, and cross-agent compatibility. Focus: restartability in <5 minutes by any team member. Risk: stale ledgers from parallel work — validate ledger commit against HEAD before resuming.
-
-#### Medium Organization (15-100)
-Multi-team handoffs with formalized workflows. Handoff becomes a coordination protocol between squads. Focus: decision traceability across team boundaries, blocker escalation paths that cross org lines, handoff health metrics. Risk: ledger fragmentation — different teams evolve incompatible handoff conventions.
-
-#### Enterprise (100+)
-Organization-wide handoff infrastructure. Automated ledger tooling, CI-integrated handoff validation, and handoff quality dashboards. Focus: handoff as a compliance artifact for audits, cross-vendor agent handoff standards, institutional memory preservation. Risk: process ossification — handoff overhead exceeds its value. Keep the 5-minute restartability test as the invariant.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use handoff when the conversation context needs to survive beyond the current session or agent.
 
@@ -107,6 +105,7 @@ Use handoff when the conversation context needs to survive beyond the current se
 Do NOT use handoff for code documentation (route to documentation-engineer or technical-writer). Do NOT use for issue tracking or sprint backlog (route to project-manager). Do NOT use for meeting notes that don't involve agent-executed work.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -130,6 +129,7 @@ What kind of handoff do you need?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -160,6 +160,7 @@ Execute in order. Do not skip steps.
    |   - ## Next Steps (concrete, ordered, with expected outcomes)
    |-- Format: markdown with machine-parseable prefixes (DONE:, DOING:, TODO:, DECIDED:, BLOCKED:)
 ```
+
   Complete when: Workspace directory created, session context captured, and ledger initialized with all required sections.
 
 ### Phase 2: Capture Progress (Continuous)
@@ -188,6 +189,7 @@ Throughout the session, update the ledger as work happens. Do not batch at the e
    |-- Maintain a FILE MANIFEST section listing all files touched
    |-- Include: path, operation (create/edit/delete), purpose (1 line)
 ```
+
   Complete when: All completed tasks, decisions, blockers, and file changes recorded in ledger with timestamps and verification evidence.
 
 ### Phase 3: Produce Handoff Document
@@ -213,9 +215,16 @@ When compaction is imminent or session is ending:
 3. APPEND TO LEDGER INDEX
    |-- .handoff/index.md: chronological list of all handoff documents with date, summary, status
 ```
+
   Complete when: Handoff document reviewed by receiving team lead or next session, and all open items have owners.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -386,8 +395,9 @@ When compaction is imminent or session is ending:
               └──────────┘ └──────────────────┘
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -404,6 +414,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -413,13 +424,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Multi-agent pipeline handoff | All downstream skills involved | Chain handoffs together: each agent appends to ledger, passes to next |
 | Handoff reveals process gap | scrum-master | Recurring blocker patterns in handoffs signal process improvement opportunities |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -431,8 +441,10 @@ If a command or approach fails, follow this escalation path before giving up:
 | P6 | Handoff document produced but missing 2+ restartability fields | [BLOCK] Handoff not restartable. Add missing fields before session ends. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### Before (Vague Handoff)
+
 ```
 TODO:
 - Fix the auth bug
@@ -447,50 +459,61 @@ Decisions: Used Redis.
 Problems: No file paths, no line numbers, no rationale, no resolution condition for blocker, no resume command, no next steps.
 
 ### After (Restartable Handoff)
+
 ```markdown
 # Session Ledger: Rate Limiter Implementation
 ## Context
+<!-- STANDARD: 3min -->
 - branch: feat/rate-limit
 - commit: a1b2c3d
 - cwd: /project/backend
 - task: Add per-user rate limiting to API gateway
 
 ## Completed
+<!-- STANDARD: 3min -->
 - DONE: Rate limiter middleware scaffold | src/middleware/rate-limiter.ts | Tests: `npm test -- rate-limiter` (12/12 pass)
 - DONE: Redis client configuration | src/config/redis.ts:15-32 | Verified: `redis-cli PING` → PONG
 
 ## In Progress
+<!-- STANDARD: 3min -->
 - DOING: Token bucket refill logic | src/middleware/rate-limiter.ts:47
   State: Bucket decrement working, refill rate calculation in progress.
   Resume: Implement `refillTokens()` using `performance.now()` for monotonic timing.
 
 ## Remaining
+<!-- STANDARD: 3min -->
 1. TODO: Implement refillTokens() — src/middleware/rate-limiter.ts:47
 2. TODO: Add rate limit headers (X-RateLimit-*) — src/middleware/rate-limiter.ts:89
 3. TODO: Integration test with concurrent requests — tests/integration/
 
 ## Decisions
+<!-- STANDARD: 3min -->
 - DECIDED: Token bucket over sliding window log
   Options: (a) sliding window log (precise but high memory), (b) token bucket (approximate, constant memory).
   Chose (b): acceptable 5% over-limit tolerance, constant O(1) memory per user, simpler Redis operations.
   Tradeoff: burst allowance may exceed configured rate by up to bucket capacity (100 requests).
 
 ## Blockers
+<!-- STANDARD: 3min -->
 - BLOCKED: Redis cluster connection pool exhausted at 1000 concurrent users
   RESOLUTION: `redis-cli -h staging-redis CLIENT LIST | grep -c "rate-limiter"` returns < 50
   ETA: 2026-07-25 (ops team provisioning larger instance)
   ESCALATION: If not resolved by 2026-07-26 10:00, ping #infra in Slack
 
 ## Next Steps
+<!-- STANDARD: 3min -->
 1. Complete refillTokens() — expected: unit test passes with simulated time
 2. Add response headers — expected: `curl -I /api/test` shows X-RateLimit-* headers
 3. Run load test at 500 req/s — expected: p99 < 10ms additional overhead
 
 ## Resume Command
+<!-- STANDARD: 3min -->
 cd /project/backend && git checkout feat/rate-limit && nvim src/middleware/rate-limiter.ts:47
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: Vague-to-Concrete Conversion (10 min)
 Take 3 TODO items from your current project that are vague ("investigate", "look into", "figure out"). Rewrite each as a concrete action with: exact file path, tool/command to run, expected output.
@@ -507,17 +530,8 @@ Run the Ledger Health Check decision tree on your current `.handoff/ledger.md`. 
 ### Exercise 5: Compaction Drill (15 min)
 Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a handoff summary, and produce a resume command. Then start a fresh session and try to resume. What was missing?
 
-## Anti-Rationalization
-
-| Rationalization | Reality |
-|---|---|
-| "I'll update the ledger after this next task" | After 5 turns without a ledger update, 60% of micro-decisions are lost — which dependency version, why approach A over B, what test case was considered — $500-$2K in rework per session. |
-| "The ledger from last week is still current" | A git diff showing 200+ changed lines since the ledger's recorded commit means the ledger is archaeological, not operational — $300-$800 per stale handoff in wasted orientation. |
-| "More TODOs in the ledger means more progress tracked" | 40+ TODOs cause analysis paralysis — the receiving agent works on item #37 (low priority) while item #2 (launch blocker) sits untouched at $1K-$3K in misdirected effort. |
-| "'Blocked on design review' is sufficient — they know about it" | Blocker without date, contact, and escalation path has <20% probability of resolution after 5 days — $2K-$10K in delayed launches from blockers that silently expire. |
-| "'Continuing the auth refactor' is enough context for the next agent" | A fresh agent has zero context on why the refactor started, what pattern was chosen, or what was tried and rejected — $400-$1.5K per handoff in re-orientation from missing 3-sentence summary. |
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Update the ledger after every decision, not at session end.** After 5 turns without an update, 60% of micro-decisions are lost — which dependency version, why approach A over B, what test case was considered. The ledger is the source of truth; trust it over memory.
 
@@ -540,6 +554,7 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 10. **Archive completed handoffs with a post-mortem note.** When work completes, add a final ledger entry: what shipped, what was deferred, what was learned. This closes the loop and builds institutional knowledge for future similar work.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **The "I'll update the ledger later" trap.** Every turn you skip the ledger update is context that will evaporate on compaction. After 5 turns without a ledger update, 60% of micro-decisions are lost — which dependency version you chose, why you went with approach A over B, what test case you thought of but didn't write yet. **Total cost: $500-$2,000 in rework time per session when a fresh agent must re-discover 5+ lost decisions. Fix: update ledger after every decision, not at session end.**
 
@@ -554,6 +569,7 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 - **The cross-agent trust gap.** When handing off between different agent types (e.g., Claude → Gemini), assume different training data, different reasoning patterns, and different tool preferences. A command that works in one agent's toolset may silently fail in another's. **Total cost: $500-$2,500 in debugging when the receiving agent runs a handoff command that fails due to tool incompatibility. Fix: test the resume command in the receiving agent's environment before finalizing the handoff.**
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -565,6 +581,7 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 | Cross-agent handoff command fails with tool incompatibility | Resume command uses tool syntax specific to the originating agent (e.g., Claude-specific MCP tools, Copilot-specific flags) | Test the resume command in the target environment before finalizing. Use tool-agnostic commands (`git`, `npm`, `node`) instead of agent-specific wrappers. Document any agent-specific setup needed | Different agents have different tool palettes. A command that works flawlessly in one environment may fail silently in another. Cross-agent handoffs require cross-tool testing |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -582,20 +599,9 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 - [ ] **Ledger committed to session state:** Decision ledger entries synced to `.copilot/session-state/decision-ledger.json` for cross-skill coordination
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
 
-### Scale Depth
-
-Handoff scales from a 5-minute pause between sessions to formal cross-agent transfer with stakeholder communication. Match the handoff depth to the recipient's context distance.
-
-| Scale | Recipient | Content | Duration |
-|-------|-----------|---------|----------|
-| **Quick pause** | Same agent, same day | Branch, file path, line number, next 1-2 edits. Minimal — just enough to resume without re-orientation | 5 minutes |
-| **End-of-session** | Same agent, next session (overnight/weekend) | Full ledger update: completed items, in-progress state, decisions, blockers, next 3 steps, file manifest | 15 minutes |
-| **Cross-agent transfer** | Different agent or team | Everything in end-of-session PLUS: project context summary (3 sentences), architecture decisions, dependency graph, testing strategy, 5-minute orientation section | 30 minutes |
-| **Stakeholder handoff** | PM, tech lead, or non-agent consumer | Progress summary with milestone tracking, risk register, resource needs. Less technical detail, more decision context and timeline impact | 20 minutes |
-
-**Scaling rule:** The recipient's context distance determines handoff depth. Same agent + same day = minimal (5 min). Different team + different tools = exhaustive (30 min). Over-producing handoff for a quick pause wastes time; under-producing for a cross-agent transfer wastes far more.
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -604,6 +610,7 @@ Handoff scales from a 5-minute pause between sessions to formal cross-agent tran
 | No decision log leading to repeated debates | $10K-$40K in wasted re-discussion time | Every decision gets a DECIDED: entry with options, choice, rationale, and tradeoffs — even "obvious" ones |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **Workspace exists:** `.handoff/` directory present and git-ignored. Run `ls .handoff/ && grep -q ".handoff/" .gitignore`.
 - [ ] **Ledger initialized:** `.handoff/ledger.md` has all required sections: Context, Completed, In Progress, Remaining, Decisions, Blockers, Next Steps.
@@ -615,10 +622,12 @@ Handoff scales from a 5-minute pause between sessions to formal cross-agent tran
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [progress-ledger.md](references/progress-ledger.md) — The progress ledger pattern: structure, conventions, and the "trust the ledger over memory" principle
 * [handoff-template.md](references/handoff-template.md) — Reusable handoff document template with all required sections and machine-parseable prefixes
@@ -630,6 +639,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 * [cross-session-state.md](references/cross-session-state.md) — State preservation across sessions: what to persist, what to rebuild, and ledger index maintenance
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
 

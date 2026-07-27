@@ -48,6 +48,7 @@ Covers the full release lifecycle from branch strategy through production verifi
 retrospective.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -83,9 +84,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -103,12 +106,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of release manager don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -129,6 +132,7 @@ Masters of release manager don't just build — they build **the right thing, at
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -143,21 +147,8 @@ Masters of release manager don't just build — they build **the right thing, at
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 engineer, 1 service)
-Deploy directly from `main` with feature flags. Weekly manual releases. Go/no-go = "does staging look OK?" Rollback = `git revert` and redeploy. Focus: ship working software safely, learn deployment fundamentals, set up automated CI that blocks on test failures. Conventional Commits with auto-changelog from day one.
-
-#### Small (2-10 engineers, 3-8 services)
-Weekly release train with release branch. Automated canary deploys (5% → 25% → 100%) with metric comparison. Go/no-go checklist in a shared doc. Feature flags via LaunchDarkly or Unleash. Rollback playbook tested monthly. Focus: release calendar predictability, cross-team dependency coordination, release notes automation. DORA metrics tracking (deploy frequency, change failure rate, MTTR).
-
-#### Medium (10-50 engineers, 8-25 services)
-Release train with multiple service coordination. Blue-green deployments for stateless services, canary for stateful. Automated go/no-go with metric thresholds gating stage transitions. Feature flag lifecycle management with automated cleanup. Rollback rehearsals quarterly. Focus: deployment strategy catalog per service, error budget integration into go/no-go, stakeholder communication templates, release retrospectives driving process improvement.
-
-#### Enterprise (50+ engineers, 25+ services, multi-region)
-Multi-region staged rollouts with region canary before global. Progressive delivery with automated analysis (Kayenta, Argo Rollouts). Change management integrated with ITSM (ServiceNow, Jira Service Management). Federated release coordination across business units with shared deployment calendars. Focus: compliance audit trails for every release decision, zero-downtime database migrations at petabyte scale, release governance framework. "This is how we ship — every team follows this release process, every release leaves an audit trail, every rollback is rehearsed."
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Your team is shipping too infrequently (or too chaotically) and you need to establish a release cadence
 - You need to decide on a release strategy — continuous deployment, daily, weekly train, or sprint-based
@@ -169,6 +160,7 @@ Multi-region staged rollouts with region canary before global. Progressive deliv
 - You need a rollback playbook — how to detect a bad deploy, who to notify, and how to revert safely
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Release Cadence Selection
@@ -287,6 +279,7 @@ Critical bug found in production:
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Release Planning
@@ -352,9 +345,13 @@ Critical bug found in production:
 4. **Archive release artifacts**: release branch, build artifacts, test results, go/no-go decision record.
    - Output: Release archive for audit and future reference.
   Complete when: T+72h monitoring report shows no regression, release notes are published, retrospective is scheduled within 1 week, and release artifacts are archived.
-
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -363,8 +360,8 @@ Critical bug found in production:
 | Release notes auto-generated from commits without human curation — breaking changes buried in a 200-line changelog; customers upgrade and their integrations break because they didn't see the one critical line | $20K-$100K in customer support incidents and churn | Auto-generate the draft from conventional commits, then have a human write the summary, call out breaking changes in bold at the top, and add upgrade instructions; keep a Changelog format with human-readable impact descriptions |
 | Skipping the go/no-go meeting because "everything looks fine" — the one failing integration test was marked as "known flaky" 3 months ago but today it's a real regression | $30K-$150K in production incident from uncaught regression | Never skip the go/no-go meeting; every CONDITIONAL failure must be discussed, not rubber-stamped; track flaky test resolution — a test that's been flaky for 3 months is a test that's been ignored for 3 months |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -379,8 +376,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Release is deployed to 5% canary — all metrics green. Deploy to 100% and P95 latency goes from 200ms to 8 seconds. Rollback triggered but 95% of users already had a bad experience | The canary was deployed to 5% of PODS, but the load balancer was configured with round-robin routing. All 5% of pods went to a single node that had 8× the CPU headroom of the average node. The canary looked healthy because the metrics were inflated by an over-provisioned host | Split canary traffic by USER (session cookie hash) not by pod count. Run the canary on randomly-selected nodes that match the fleet's resource distribution. Extend the canary bake time: 5% for 30 min → 25% for 1 hour → 50% for 2 hours → 100%. Monitor P95 latency PER CANARY GROUP, not fleet-wide | Traffic splitting by pod count ignores host-level resource variance. A canary on an underloaded node looks perfect; the same code on a saturated node is a disaster. Split by user and randomize host placement. |
 | Release notes automation generates a changelog entry that says "feat: updated dependencies" — the actual change deleted a payment provider and broke billing for 3,000 merchants | The release notes generator parsed Conventional Commits. The breaking-change commit had the footer `BREAKING CHANGE: removed Stripe integration` but the PR was squash-merged. Squash-merge discards individual commit bodies — only the PR title survived. The changelog showed the PR title: "chore: updated payment dependencies" | Generate release notes from PR TITLES AND DESCRIPTIONS, not individual commits. Require `!` after the type for breaking changes: `feat!: remove Stripe integration`. Add a changelog validation CI step that blocks release if any commit has `BREAKING CHANGE:` in the footer but the PR doesn't have `!` in the title | Squash-merge destroys commit-level metadata. If you rely on Conventional Commits for changelogs, switching to squash-merge means your changelog is generated from PR titles only. The PR title becomes your only source of truth — make it count. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Choose deployment strategy by risk profile, not by habit.** Canary (5% → 25% → 50% → 100% with automated metric gates) for high-risk changes. Blue-green (instant cutover, instant rollback) for stateless services. Rolling deploy for low-risk patches. Recreate for stateful services that cannot run two versions simultaneously. Document the strategy per service in a deployment catalog.
 
@@ -402,8 +399,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Release retrospective within 1 week: 3 questions, 5 action items max.** What went well? What went wrong? What do we change for next release? Produce ≤5 concrete action items with owners and dates. Track action item completion rate — if <80% of retro action items close before the next release, the retro process is broken.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -418,6 +415,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -434,6 +432,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | Version strategy, release schedule, approval workflow | No coordinated release — chaos deployments |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -446,11 +445,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Rollback plan is "we'll figure it out if we need to" — no tested rollback pipeline | Propose rollback automation: one-click rollback pipeline tested monthly; target < 5 minutes from decision to previous healthy state; rollback smoke tests verify health after reversal | A rollback plan that hasn't been tested doesn't exist; untested rollbacks fail when you need them most — during an incident |
 | Release notes are the git log — 300 commits of "fix", "wip", "test" with no human summary | Propose release notes automation: conventional commits + release-drafter + human-written summary; organize by type (features, fixes, breaking changes); add known issues and upgrade instructions | Release notes are for humans; the git log is for computers; a human must summarize what changed for the user in plain language |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[REL1]** Release calendar published for the next quarter: release dates, code freeze deadlines, QA windows, deploy windows, freeze periods
 - [ ] **[REL2]** Go/no-go criteria documented with specific, measurable thresholds — CRITICAL gates (any NO = NO-GO) and CONDITIONAL gates (NO = documented risk acceptance)
@@ -468,12 +469,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[REL14]** Release metrics dashboard tracking: change failure rate, mean time to recovery (MTTR), deployment frequency, lead time for changes (DORA metrics)
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every release is predictable, reversible, and communicated to stakeholders before deployment begins. Release notes are auto-generated from commit history and are accurate and complete.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -490,7 +493,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -501,6 +505,7 @@ graph LR
 | "Feature flag cleanup is housekeeping — we'll do it during the next quiet sprint." | Flag at 100% for 6 months. The old code path rots silently. Emergency toggle back to 0% hits broken code that was "safe" to refactor away. 2-hour outage because nobody maintained both paths. $50K-$250K per stale-flag kill-switch failure. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Release "go/no-go" decisions** based on test pass rate alone — tests pass because they test known scenarios. Unknown scenarios (the thing that will break) have no tests. A green test suite means "nothing we predicted broke" not "nothing broke." Go/no-go needs production canary data, not just test results. **Total cost: $50,000-$500,000 in incident response, lost revenue, and engineering firefighting per bad release.**
 - **Canary deployment duration** — if you canary for 10 minutes and your P99 latency is 500ms with 100 RPS, that's 60K requests. A 0.01% error rate bug appears once per ~17 minutes on average. Your canary will miss it. Duration must be long enough to see the target error rate at least 5 times. **Total cost: $10,000-$100,000 in rollback effort, customer-impacting errors, and reputational damage per missed canary bug.**
@@ -512,6 +517,7 @@ graph LR
 - **Missing release notes for a breaking change** — your team releases an API update that changes a field from `total_amount` (integer, cents) to `amount` (decimal, dollars). The changelog entry says "Updated payment response format." The mobile team doesn't read it because "it's just formatting." The iOS app, which uses an optimistic cache, divides the integer by 100 (converting cents to dollars) and displays $49.99 as $0.49 — then allows checkout at the wrong price. 800 orders are placed with incorrect totals before the bug is detected. Customer support spends 3 weeks manually reconciling orders, issuing refunds, and placating angry customers on social media. **Total cost: $30K-$150K in customer support labor, refund processing fees, brand damage, and emergency hotfix deployment from inadequate release notes on breaking changes.** Fix: Every release note must include a "Breaking Changes" section with migration instructions and affected client versions; require explicit approval from client team leads for any breaking change before release merge; automate API compatibility testing in CI that compares the release candidate's API schema against the previous version and flags any field removal, rename, or type change.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Release checklist: all items checked, each has owner, each verifiable (not "verify performance is good" → "p99 < 200ms under 1K RPS")
 - [ ] Canary deployment: canary metrics collected for at least 10x the expected mean-time-to-failure at target error rate
@@ -521,10 +527,12 @@ graph LR
 - [ ] Stakeholder sign-off: QA, Security, Product — all have explicitly approved (not "no one said no")
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -533,5 +541,4 @@ Detailed reference material loaded on demand:
 - **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

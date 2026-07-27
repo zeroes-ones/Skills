@@ -21,8 +21,10 @@ chain:
 # Source-Driven Development
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -51,6 +53,7 @@ SOURCE AUTHORITY HIERARCHY
 ---
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---|---|---|
@@ -70,6 +73,7 @@ SOURCE AUTHORITY HIERARCHY
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 ### Cognitive Biases That Destroy Documentation Hygiene
 
@@ -89,28 +93,10 @@ SOURCE AUTHORITY HIERARCHY
 ---
 
 ## Operating at Different Levels
-
-### Scale Depth
-
-| Depth | Time | Scope | Artifacts |
-|-------|------|-------|-----------|
-| **Quick Scan** | ~30s | Verify version, method signature, deprecation status for a known library | One-line citation |
-| **Standard Engagement** | ~5-10min | Full DETECT→FETCH→IMPLEMENT→CITE cycle for unfamiliar API | Cited code with version |
-| **Deep Dive** | ~30min+ | Major version migration, security-critical path, performance-sensitive integration | Full audit trail: release notes, source code verification, gap analysis |
-| **Enterprise Audit** | Multi-session | Framework governance across org: dependency inventory, version consistency audit, citation coverage report, migration planning | Dependency provenance report, framework upgrade runbook |
-
-### Quick Scan (~30s)
-For well-known libraries the team uses daily. Verify: (a) version matches docs, (b) method signature hasn't changed, (c) no deprecation warnings in current version. Add a one-line citation.
-
-### Standard Engagement (~5-10min)
-For new library integration or unfamiliar APIs. Full DETECT→FETCH→IMPLEMENT→CITE cycle. Fetch docs, read the relevant section, verify the exact signature, cite with version.
-
-### Deep Dive (~30min+)
-For major version migrations, security-critical code paths, or performance-sensitive integrations. Full cycle plus: read release notes from all intermediate versions, check open issues for known bugs in the API you're using, verify against source code for any ambiguity.
-
----
+<!-- STANDARD: 3min -->
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 **Trigger conditions:**
 - Integrating a new library, framework, or API into production code
@@ -131,6 +117,7 @@ For major version migrations, security-critical code paths, or performance-sensi
 ---
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ```
 REQUEST ROUTING DECISION TREE
@@ -181,6 +168,7 @@ REQUEST ROUTING DECISION TREE
 ---
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- COMPRESSED: Full 137 lines extracted to references/core-workflow.md -->
@@ -194,6 +182,7 @@ DETECT────────────────────────�
 > 📎 **Full content (137 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Citations are source code comments, not directory artifacts.** Every framework API call gets an inline citation: `// [Source: React Docs, v18.3, https://react.dev/reference/useDeferredValue]`. Citations live with the code they verify — not in a separate audit report that nobody reads after merge.
 
@@ -219,6 +208,7 @@ DETECT────────────────────────�
 ### Source Authority Classification
 
 ```
+
 Phase 1: Identify source type
   ├─ Is it docs.{framework}.com or {framework}.dev?          → Level 1
   ├─ Is it a blog.{framework}.com or GitHub Releases page?   → Level 2
@@ -232,11 +222,13 @@ Phase 2: Escalate if source is insufficient
   ├─ Docs contradict observed behavior → file issue; use source code
   ├─ Release notes are missing → escalate to git log between tags
   └─ MDN browser compat data differs from caniuse → prefer caniuse (more granular)
+
 ```
 
 ### Documentation Freshness Check
 
 ```
+
 Phase 1: Verify doc version alignment
   ├─ Extract installed version: npm list | grep, pip show, go list -m
   ├─ Check docs URL for version prefix (e.g., /v5/docs/ vs /v4/docs/)
@@ -248,11 +240,13 @@ Phase 2: Remediate stale docs
   ├─ Docs are newer → check if API is backward-compatible in changelog
   ├─ Docs are older → warn; fetch newer docs or use source code
   └─ Cannot determine doc version → escalate to Level 5; pin to git tag
+
 ```
 
 ### Claim Verification Strategy
 
 ```
+
 Phase 1: Classify the claim
   ├─ API signature claim ("method X takes params Y, Z") → check official API reference
   ├─ Behavioral claim ("middleware runs in order A, B, C") → check guides + source
@@ -266,11 +260,13 @@ Phase 2: Verify or flag
   ├─ Found only in Level 0 source → flag ⚠️ UNVERIFIED with RISK: HIGH
   ├─ Not found anywhere → flag ⚠️ UNVERIFIED with RISK: CRITICAL
   └─ Found contradictory information → escalate; document both sources
+
 ```
 
 ### Citation Format Selection
 
 ```
+
 Phase 1: Determine the citation scope
   ├─ Single method call → inline citation above the call
   ├─ Multiple calls to same API → block citation at import site
@@ -288,11 +284,13 @@ Phase 2: Select format
   └─ Config-level citation:
       // [Source: {Framework} Config Reference, URL: {url}, Version: {v}]
       const config = { ... };
+
 ```
 
 ### Framework Version Pinning
 
 ```
+
 Phase 1: Detect version drift risk
   ├─ package.json uses ^ or ~ ranges → risk of silent minor/patch drift
   ├─ requirements.txt has no == pins → risk of pip install variance
@@ -305,11 +303,13 @@ Phase 2: Pin and verify
   ├─ Add CI check: npm list --depth=0 vs documented versions
   ├─ Add Dependabot config to alert on major only (let minor auto-merge with tests)
   └─ Require migration guide citation in every major version bump PR
+
 ```
 
 ### When to Escalate to Primary Sources
 
 ```
+
 Phase 1: Detect documentation insufficiency
   ├─ Official docs are silent on the behavior you need
   ├─ Official docs describe behavior that doesn't match observation
@@ -323,16 +323,19 @@ Phase 2: Escalation path
   ├─ Cite the source code with [Source: Source Code, File: ..., Commit: ..., Version: ...]
   ├─ Add ⚠️ DOC-GAP annotation describing the discrepancy
   └─ If still unresolved → file a documentation issue on the framework repo
+
 ```
 
 ---
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### Spec-First vs Code-First: When to Write the Spec
 
 ```
+
 Starting a new feature
   │
   ├─ Is this feature touching multiple bounded contexts or services?
@@ -346,11 +349,13 @@ Starting a new feature
   │
   └─ Is this feature for an external API consumed by third parties?
        └─ YES → Spec-first. Breaking changes to external APIs require versioning and migration plans
+
 ```
 
 ### Spec Evolution: When to Version vs Backward-Compatibly Extend
 
 ```
+
 API change requested
   │
   ├─ Adding a new optional field?
@@ -367,11 +372,13 @@ API change requested
   │
   └─ Changing auth requirements (e.g., adding required scope)?
        └─ MAJOR. This denies access to previously authorized clients. Coordinate with all consumers before shipping
+
 ```
 
 ### Spec-Code Sync Failures: Decision Protocol
 
 ```
+
 Spec and code disagree
   │
   ├─ Is the spec more recent than the code?
@@ -387,11 +394,14 @@ Spec and code disagree
   │
   └─ Neither is recent — discrepancy has existed for months?
        └─ Audit both against actual runtime behavior. What does the system ACTUALLY do? That's the de facto spec. Document it formally, then decide what to change.
+
 ```
 
 ---
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -407,6 +417,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -418,6 +429,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Security vulnerability in transitive dep undetected for 6 months | Team used docs from framework v4 security guide, but v5 changed the CSP configuration API entirely. The old config silently became a no-op | Subscribe to framework security advisories. Run `npm audit` in CI with `--audit-level=high`. Re-verify security config after every major version bump | Security documentation for the wrong version is worse than no documentation — it creates a false sense of safety |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 This skill operates at the intersection of development and quality assurance. Invoke complementary skills when:
 
@@ -441,6 +453,7 @@ This skill operates at the intersection of development and quality assurance. In
 | `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger Condition | Automatic Action |
 |---|---|
@@ -455,14 +468,18 @@ This skill operates at the intersection of development and quality assurance. In
 ---
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### Before: Uncited Development
 
 ```python
-# app/services/payment.py
+
+ #app/services/payment.py
 import stripe
 
 stripe.api_key = config.STRIPE_SECRET_KEY
@@ -486,12 +503,14 @@ def create_checkout_session(order):
 
 # Issues: No version pin, no citation, using kwargs that might be deprecated,
 # no source for price_data structure, no idea if this is Stripe API v2023-08 or v2024-04
+
 ```
 
 ### After: Source-Driven Development
 
 ```python
-# app/services/payment.py
+
+ // app/services/payment.py
 # [Source: Stripe Python SDK Docs, URL: https://docs.stripe.com/api/checkout/sessions/create, Version: v7.0.0 (API v2024-04-10)]
 import stripe  # pinned: stripe==7.0.0 in requirements.txt
 
@@ -529,20 +548,24 @@ def create_checkout_session(order):
         cancel_url="https://example.com/cancel",
     )
     return session.id
+
 ```
 
 ### Before: Uncited React Hook
 
 ```tsx
+
 // No version, no source, assumed useEffect behavior
 useEffect(() => {
   fetchUser(userId);
 }, []);
+
 ```
 
 ### After: Source-Driven React
 
 ```tsx
+
 // [Source: React Docs, Section: useEffect, URL: https://react.dev/reference/react/useEffect, Version: v18.3.1]
 useEffect(() => {
   // [Source: React Docs, Section: Fetching data with Effects, URL: https://react.dev/learn/synchronizing-with-effects#fetching-data, Version: v18.3.1]
@@ -550,11 +573,13 @@ useEffect(() => {
   fetchUser(userId).then(user => { if (!ignore) setUser(user); });
   return () => { ignore = true; };
 }, [userId]); // [Source: React Docs, Section: Specifying reactive dependencies, Version: v18.3.1]
+
 ```
 
 ---
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: Citation Audit (10 min)
 Take a production file with 5+ framework imports. For each import, find the official doc section that matches the version in your lockfile. Add citations. Flag any method calls you can't verify.
@@ -574,6 +599,7 @@ For a new library integration, create a `docs/sources/{library}.md` file mapping
 ---
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Trusting Search Engine Results for Documentation
 **What it looks like:** Developer Googles "Next.js generateStaticParams," clicks the top result, and implements based on whatever version Google indexed — without checking the version selector on the docs page.
@@ -613,6 +639,7 @@ For a new library integration, create a `docs/sources/{library}.md` file mapping
 ---
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any framework-dependent code reaches production:
@@ -634,6 +661,8 @@ Before any framework-dependent code reaches production:
 - [ ] Spec files (OpenAPI, GraphQL schema, protobuf) pass validation in CI against their specification version
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -641,28 +670,29 @@ Before any framework-dependent code reaches production:
 | LLM hallucinates framework APIs — generated code uses `widget.frobnicate()` which never existed | $10K-$50K in chasing phantom bugs | Every LLM-generated framework call must pass Level 1 doc verification before merge; never trust generated API surface without source confirmation |
 | Cherry-picked docs justify wrong decisions — developer quotes "X is good" while ignoring "but Y is better for your case" | $20K-$60K in architectural debt | Require full-context citation including caveats and alternatives; the citation must establish the case matches, not just quote the favorable part |
 
-## Verification Checklist
+## Verification
+<!-- STANDARD: 3min -->
 
-Before merging any code that touches a framework or library:
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when every third-party import has a citation comment with the exact version number verified against the lockfile | Verify via `grep -r "import\|require" --include="*.ts\|*.js\|*.py\|*.go"` that no import lacks a `// Source:` or version comment |
+| ☐ | Complete when the installed version (from lockfile) matches the version referenced in all citations — no stale or hallucinated version numbers | Verify via diff between `package.json`/`requirements.txt`/`Cargo.toml` pinned versions and citation comments; flag every mismatch |
+| ☐ | Complete when every framework method call signature matches the official documentation for the pinned version — no APIs from different major versions mixed | Verify by checking each method's parameters, return type, and deprecation status against the version-specific official docs |
+| ☐ | Complete when every configuration option is traceable to a specific section of the package's official documentation, not copied from blog posts or Stack Overflow | Verify each config key has a doc URL reference; any config without a traceable source is flagged `⚠️ UNVERIFIED` |
+| ☐ | Complete when no deprecated methods, options, or patterns are used (verified against the changelog and migration guide for the installed version) | Verify via changelog review for each dependency; grep codebase for any deprecated API surface from the changelog |
+| ☐ | Complete when all solutions derived from Stack Overflow, blog posts, or community forums are cross-referenced against official documentation with the specific doc section cited | Verify no `stackoverflow.com` URL appears in code comments without an accompanying official doc reference resolving the same claim |
+| ☐ | Complete when any behavior that cannot be verified against official documentation is flagged with `⚠️ UNVERIFIED [risk: low/medium/high]` and a note explaining what's uncertain | Verify every unverifiable behavior has an `⚠️ UNVERIFIED` tag with risk level; zero unverified claims without tags |
+| ☐ | Complete when the migration guide has been consulted for every major-version dependency bump, with breaking changes documented and addressed before the version bump is committed | Verify migration guide link is cited in the version bump commit; every documented breaking change has a corresponding code fix |
+| ☐ | Complete when the package lockfile pins exact versions (no `^` or `~` in production dependencies) to ensure reproducibility across all environments | Verify lockfile uses exact versions; `grep -E '"\^|"~' package.json` for production deps returns zero matches |
+| ☐ | Complete when CI pipeline includes a step that warns on version mismatches between the lockfile and citation comments, failing the build on any discrepancy | Verify CI config has a version-audit step; intentionally mismatch a citation to confirm CI catches it |
 
-- [ ] Every third-party import has a citation comment with version
-- [ ] The installed version (from lockfile) matches the version in all citations
-- [ ] Every method call's signature matches the official docs for that version
-- [ ] Every configuration option is documented in the official config schema
-- [ ] No deprecated methods or options are used (verified against changelog)
-- [ ] All Stack Overflow or blog-post-derived solutions are cross-referenced against official docs
-- [ ] Any unverifiable behavior is flagged with `⚠️ UNVERIFIED` with risk level
-- [ ] The migration guide has been consulted for any major version bumps
-- [ ] The package lockfile pins exact versions (no `^` or `~` in production dependencies)
-- [ ] CI pipeline includes a step that warns on version mismatches between lockfile and citations
+## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 ---
 
-## Verification Guardrails
-
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-
 ## References
+<!-- STANDARD: 3min -->
 
 - [Source Hierarchy Guide](../references/source-hierarchy-guide.md) — Detailed source authority hierarchy with trust levels and escalation paths
 - [Documentation Fetching Patterns](../references/doc-fetching-patterns.md) — Patterns for programmatic documentation retrieval (curl, gh CLI, web_fetch)

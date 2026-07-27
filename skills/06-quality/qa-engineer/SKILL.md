@@ -61,6 +61,7 @@ chain:
 Design and implement comprehensive test strategies following the test pyramid model. This skill covers the full testing lifecycle: unit testing with Vitest/Jest/pytest, integration testing with real databases and services, end-to-end testing with Playwright and Cypress, API contract testing, performance and load testing with k6, test data management, coverage enforcement, and CI integration for continuous quality.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- TWO-TIER ROUTING: Auto-Route table (machine) → Intent Route tree (human fallback) -->
 
@@ -79,7 +80,7 @@ Design and implement comprehensive test strategies following the test pyramid mo
 What are you trying to do?
 ├── Design a test strategy for a new project → Start at "Decision Trees > Test Pyramid Distribution"
 │   ├── Greenfield project → Jump to "Core Workflow > Phase 1" (Test Strategy Design)
-│   └── Existing project with gaps → Go to "Scale Depth" to match team size
+│   └── Existing project with gaps → Go to "Operating at Different Levels" to match team size
 ├── Write test cases (unit/integration/e2e) → Go to "Sub-Skills > unit-testing / integration-testing / e2e-playwright"
 ├── Set up test automation in CI → Go to "Sub-Skills > ci-quality-gates" and "Core Workflow > Phase 4"
 ├── Manual testing session → Jump to "Core Workflow > Phase 3" (Manual Testing), then "Best Practices > Manual Testing Anti-Patterns"
@@ -94,9 +95,11 @@ What are you trying to do?
 └── Not sure where to start? → "Core Workflow > Phase 0" (Triage) — describe what you're testing
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -107,6 +110,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "E2E tests everywhere — that's the most thorough approach." | 300 Playwright tests, 4-hour suite. Developers stop running locally and rely entirely on CI. Ice-cream cone anti-pattern: heavy at the top, empty in the middle. Follow the pyramid: heavy unit tests, moderate integration tests, light E2E for critical user journeys only. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect QA mistakes before they are given. Violation means STOP and refuse to proceed.
 
@@ -122,12 +126,12 @@ These rules are non-negotiable constraints that detect QA mistakes before they a
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 QA is not about finding bugs — it's about **building confidence that the system behaves correctly under all conditions that matter, and providing fast feedback when it doesn't**. The best QA engineers prevent bugs through better design and process, not just detect them after they're written.
 
@@ -157,6 +161,7 @@ QA is not about finding bugs — it's about **building confidence that the syste
 - **Performance testing is underinvested.** Most teams test correctness but not speed. A correct system that takes 10 seconds to respond is broken. Set performance budgets and test them in CI.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 QA engineering scales from test execution to org-wide quality strategy and culture.
 
@@ -203,6 +208,7 @@ QA engineering scales from test execution to org-wide quality strategy and cultu
 - QA certification program: test design, automation, performance, and accessibility tracks
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a test strategy for a new or existing project
@@ -216,6 +222,7 @@ QA engineering scales from test execution to org-wide quality strategy and cultu
 Debugging flaky tests and improving test stability
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Test Type Selection
@@ -244,6 +251,7 @@ Debugging flaky tests and improving test stability
       └────────┘ └──────────┘ └──────────┘ │Jest)     │
                                            └──────────┘
 ```
+
 **When to choose E2E:** Covers signup → purchase → fulfillment. Revenue-impacting. Used by > 80% of users. Run on every merge to main.
 **When to choose Unit test:** Pure logic, data transformation, validation rules. No I/O. Must run in < 5ms. Covers all edge cases and error paths.
 
@@ -273,6 +281,7 @@ Debugging flaky tests and improving test stability
     │ Soak test  │ │ (p95 < 500ms)│
     └────────────┘ └──────────────┘
 ```
+
 **When to run full suite:** Major version release, infrastructure migration, expected traffic surge (Black Friday, launch event).
 **When smoke test suffices:** Routine deploy. No infrastructure changes. Response time trend is stable over past 7 days.
 
@@ -295,6 +304,7 @@ Debugging flaky tests and improving test stability
         │ merge on < 90%.  │    └──────────────────────┘
         └──────────────────┘
 ```
+
 **When 90%+ is required:** Auth, billing, data export, permission systems. Any code where a bug = money lost or data breached.
 **When 80% is acceptable:** Internal tools, admin dashboards, non-critical UI components. Cost of 100% coverage exceeds risk of bug.
 
@@ -317,10 +327,12 @@ Debugging flaky tests and improving test stability
         │ fix ticket (P1). │  │ shared state leak?   │
         └──────────────────┘  └──────────────────────┘
 ```
+
 **When to quarantine immediately:** CI reliability dropping below 90%. Flaky test blocking > 3 PRs in a week. Root cause unknown and fix estimate > 1 day.
 **When to fix in place:** Root cause obvious (missing await, unseeded random). Fix takes < 30 minutes. Test provides unique coverage no other test provides.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Test Strategy & Pyramid Design
@@ -356,9 +368,14 @@ Debugging flaky tests and improving test stability
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
   Complete when: Database, API, and auth integration tests passing against real dependencies with transaction rollback.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Follow the test pyramid — not the ice-cream cone.** 60-70% unit tests, 20-25% integration tests, 5-10% E2E tests. Every E2E test you write that could have been an integration test adds 30-60 seconds to CI and 10x the flakiness risk. Push tests down the pyramid at every opportunity: "Can this E2E scenario be verified with an API integration test instead?"
 2. **Quarantine flaky tests immediately at the 3-in-10 threshold.** A test that fails 3+ times in its last 10 CI runs gets moved to a `@flaky` suite with a P1 fix ticket. Flaky tests erode team trust faster than missing tests — when CI is red 30% of the time on flaky failures, developers learn to ignore CI entirely. Track flaky test rate as a quality metric: target <2% of suite.
@@ -372,6 +389,7 @@ Debugging flaky tests and improving test stability
 10. **The QA role shifts left — quality gates belong in development, not after.** Every developer writes tests before merge. Every PR includes test evidence. Every CI pipeline blocks merge on test failures. QA engineers design the strategy, tooling, and frameworks; developers execute the tests. "QA will catch it" is an anti-pattern that costs 10x more to fix post-merge.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -386,6 +404,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -426,6 +445,7 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 **What good looks like:** Test strategy document covers unit (60%), integration (30%), and E2E (10%). All critical user flows have automated E2E tests that pass on every PR. CI blocks on test failure. Coverage > 80% on business logic. Load test handles 2x peak QPS with p95 < 500ms.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -450,17 +470,19 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 | QA ↔ Release Management | Release readiness report: test pass/fail summary, coverage trend, flaky test rate, known issues, and risk assessment. Go/no-go gate: all critical path tests must pass; any failing critical test blocks release. Rollback test: verify rollback procedure is tested and documented. |
 | QA ↔ Observability | Test results correlated with production metrics: did the test suite predict the production incident? Synthetic monitoring tests run in production at regular intervals (heartbeat checks for critical user journeys). Error budget integration: test gaps linked to SLO breaches inform test priority. |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > A comprehensive test strategy catches 95% of regressions before production, with fast unit and integration tests in CI and targeted E2E tests covering critical user journeys.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 QA mastery comes from developing an instinct for where bugs hide. This instinct is built through deliberate exposure to failures — studying real bugs and the conditions that created them.
 
@@ -483,6 +505,7 @@ graph LR
 **The One Highest-Leverage Activity**: Every time a bug reaches production, write the test that would have caught it BEFORE fixing the bug. The test should fail (proving it catches the bug), then pass after your fix. This one habit eliminates entire bug classes over time.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **Manual regression testing without automation.** The QA team spends the last 3 days of every 2-week sprint manually clicking through 150 test cases across 4 browsers. At $50/hour loaded cost, that's $18,000 per person per year spent on repetitive, scriptable verification. Meanwhile, the same team has zero time for exploratory testing, edge case discovery, or accessibility testing — the work that actually requires human judgment. The scripts exist in a TestRail doc, not in Playwright or Cypress. **Total cost: $100,000-$300,000 per year in QA labor that automated regression scripts would replace, freeing humans for high-value testing.** Fix: Automate every regression test case that has run more than 3 times; use Playwright or Cypress with CI integration; run the full suite on every PR; reserve manual QA time exclusively for exploratory testing, usability heuristics, and new feature validation.
 - **Testing only the happy path.** Test cases cover: valid input → success response, logged-in user → access granted, payment succeeds → order created. Zero tests for: expired JWT token, database connection failure mid-request, concurrent modification race conditions, Unicode in form inputs, 10MB file upload, or rapid double-submit. Production is full of these edge cases, and every untested one is a future incident with an unknown blast radius. **Total cost: $50,000-$200,000 per year in production incidents from untested edge cases, emergency hotfixes, and degraded customer trust.** Fix: Mandate that every user story includes negative test cases; use property-based testing (fast-check, hypothesis) to discover edge cases automatically; maintain a shared edge case catalog (empty, boundary, concurrent, timeout, encoding); run chaos engineering experiments in staging.
@@ -497,6 +520,7 @@ graph LR
 - **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01. **Total cost: $10,000-$30,000 per year in engineers chasing false-positive visual regression failures.**
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |----------------|-------------------|
@@ -509,6 +533,7 @@ graph LR
 | `page.waitForSelector()` with default 30s timeout — 20 waits × 30s = 10+ minute test with no indication of which selector failed | Set explicit per-wait timeouts. Log pending selectors. Use `waitForSelector(state: 'visible')` with a 5s timeout and clear error messages. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `npm test` — unit tests pass, coverage meets threshold (≥ 80%)
 - [ ] Run `npm run test:integration` — integration tests pass against real dependencies (DB, cache, queue)
@@ -517,10 +542,12 @@ graph LR
 - [ ] Performance test: `k6 run load-test.js` — p99 latency within SLO at expected peak RPS
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[QA1]** Test pyramid distribution verified: 60-70% unit, 20-25% integration, 5-10% E2E — no ice-cream cone anti-pattern
 - [ ] **[QA2]** Unit tests pass on every commit (< 5s suite), coverage ≥ 80% lines, ≥ 90% for critical paths (auth, payments, data integrity)
@@ -538,6 +565,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[QA14]** Daily load/soak tests in staging with production-like data volumes — regression alert if p99 latency degrades >50%
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -553,6 +581,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Critical security vulnerability found in production dependency — was in `npm audit` for 6 months, flagged as "low severity" | `npm audit` runs in CI but only blocks on HIGH/CRITICAL. The "low" vulnerability was a prototype pollution that, combined with another bug, enabled RCE. Triage dismissed it because the severity label said "low" | Review every `npm audit` finding, not just HIGH/CRITICAL. Contextual triage: a "low" XSS in a dependency used to render user content is effectively CRITICAL. Dependency upgrade cadence: patch weekly, minor monthly, major quarterly. Zero unaddressed findings policy | CVSS scores measure exploitability in isolation, not in context. A "low severity" vulnerability in your auth library is your highest priority. Audit every finding — severity labels are a starting point for triage, not a reason to ignore. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -563,5 +592,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

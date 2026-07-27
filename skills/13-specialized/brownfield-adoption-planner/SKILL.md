@@ -42,8 +42,10 @@ chain:
 # Brownfield Adoption Planner
 
 > **Portability target:** Works in Claude Code, Copilot CLI, Cursor, Codex, and Gemini CLI. No agent-specific features required.
+<!-- QUICK: 30s -->
 
 ## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 * Admit uncertainty. If you cannot identify all integration points in the legacy codebase, state which paths remain unverified.
 * Flag assumptions. If you assume a certain service boundary without reading the code, mark it as assumed.
@@ -53,6 +55,7 @@ chain:
 * [VERIFIED] before any migration: Legacy tests pass. New tests cover the extraction boundary. Backward compatibility contract is signed off.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 * Introducing agent skills into an existing project with more than ten thousand lines of code
 * Migrating from no automation to full skill coverage without disrupting delivery
@@ -63,17 +66,8 @@ chain:
 
 > If you catch yourself rationalizing, stop. The rationalizations below are traps.
 
-## Anti-Rationalization Table
-
-| Rationalization | Reality |
-|---|---|
-| We cannot add skills to a brownfield project — it is too fragile | Skills like code-reviewer and qa-engineer are read-only and cannot break anything |
-| We will adopt skills after we modernize | Skill adoption and modernization are parallel tracks, not sequential ones |
-| Skills require a greenfield codebase | The highest ROI for skills is in complex brownfield codebases where context is scarce |
-| We can skip the test phase — our codebase is too old to test | Code without tests is exactly where safety-net skills deliver the most value |
-| A big-bang adoption plan is faster | Phased adoption with gates at each phase catches problems when they are cheap |
-
-## Ground Rules
+## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Rule | Mechanical Trigger | Violation Response |
 |---|------|-------------------|-------------------|
@@ -84,6 +78,7 @@ chain:
 | 5 | Phase rollback is a documented one-line command | Phase N gate fails and no documented rollback step | Block phase. Document rollback first |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 This is a map, not a recipe. Start at the top and follow the matching branch.
 
@@ -113,6 +108,7 @@ INCOMING: Team wants to adopt agent skills in an existing project
 ~~~
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 1. **Safety before speed.** A brownfield project has years of hard-won stability. Disrupting that with aggressive automation erodes trust and endangers the business. Phase 0 installs guardrails, not bulldozers.
 2. **Read-only first, mutation later.** The people who built this system have battle scars you do not know about. Read-only skills surface their knowledge; mutation skills apply yours.
@@ -120,6 +116,7 @@ INCOMING: Team wants to adopt agent skills in an existing project
 4. **Every phase is independently valuable.** The team should see benefit after Phase 0 finishes, even if they stop there. No phase should feel like a prerequisite tax.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 ### Level 1: Quick (Basic Assessment)
 - Run the adoption readiness checklist
@@ -152,6 +149,7 @@ INCOMING: Team wants to adopt agent skills in an existing project
 - **Complete when:** First extracted service running independently with full skill coverage
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 0: Safety Net (Week 0-1)
 
@@ -214,6 +212,7 @@ INCOMING: Team wants to adopt agent skills in an existing project
 **Complete when:** CI/CD improved, dashboards live, dependencies audited, refactor plan approved.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Decision Tree 1: Phase Sequencing
 
@@ -256,7 +255,24 @@ Phase 2 complete
     +-- NO  -> Continue Phase 3 for debt pay-down
 ~~~
 
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Phase 0 read-only artifacts delivered: architecture map, dependency graph, risk hotspots, and code health report all present | All artifacts exist in `adoption_artifacts/` directory; tech lead has reviewed and signed off on findings |
+| ☐ | Characterization tests cover top-5 most-changed files with ≥80% line coverage | Run coverage report on test suite; verify `coverage.json` shows ≥80% line coverage on the identified high-churn files |
+| ☐ | Safety skills deployed before any mutation skill: linter, security scanner, and code-reviewer active and configured | Verify Phase 1 skill configuration precedes Phase 2 configuration; mutation skills blocked at gate until safety skills pass |
+| ☐ | Team sign-off documented per phase: acceptance confirmation (email, Slack thread, or PR approval) for each completed phase gate | Acceptance trail exists for current phase and all prior phases; no phase advanced without documented sign-off |
+| ☐ | Feature flag or kill switch present for every skill-introduced code change: every mutation has a disable path | Audit recent skill-authored changes: every diff has corresponding feature flag toggle or documented revert path |
+| ☐ | Phase rollback tested: one-line rollback command reverts to pre-phase state with zero manual intervention | Execute documented rollback command in staging environment; verify system returns to prior operational state without errors or data loss |
+| ☐ | CI/CD pipeline stability maintained: pipeline reliability (success rate) and duration (P95) within 10% of pre-adoption baseline | Compare pipeline metrics before and after each phase adoption; alert if metrics regress beyond 10% threshold |
+| ☐ | Rollback plan is documented and tested | Per-phase rollback runbook exists in adoption artifacts; tested in non-production environment within last 30 days; rollback time <15 minutes |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 | Complete When | Evidence |
 |---|---|
@@ -272,6 +288,7 @@ Phase 2 complete
 | Complete when adoption milestones document updated | milestones.md with dates and metrics |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Phase 0 is non-negotiable.** Read-only skills must prove value before any mutation skills are introduced.
 2. **One codebase at a time.** Do not roll out across multiple codebases simultaneously until one is at Phase 3.
@@ -285,6 +302,7 @@ Phase 2 complete
 10. **Celebrate phase completions.** Each phase is a milestone. Recognize the team.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | Pattern | Correction |
 |---|---|
@@ -296,6 +314,8 @@ Phase 2 complete
 | Ignoring team resistance | Resistance is a signal. Adjust the plan, not the message |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 1. **Testing the untestable:** Twenty-year-old codebase with zero tests. Cost: $20,000 to $80,000 if you skip characterization tests and refactor blind. **Fix:** Characterization tests capture current behavior before any refactoring.
 2. **Silent integration breaks:** Changing an internal API consumed by five teams. Cost: $15,000 to $50,000 in cascading incidents. **Fix:** Run dependency-governance before any API change.
@@ -304,6 +324,7 @@ Phase 2 complete
 5. **Regulatory breach:** Skill-generated code violates PCI or HIPAA. Cost: $100,000 to $2,000,000 in fines plus remediation. **Fix:** Add compliance-officer to Phase 0 if regulated. Never skip compliance gates.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream (call before planning)
 
@@ -328,6 +349,7 @@ Phase 2 complete
 | teach | Team training after each phase |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -338,6 +360,7 @@ Phase 2 complete
 | Phase 0 artifacts receiving no reviews | Escalate. Find champion | Unused output means adoption is stalled |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 **Correct:**
 
@@ -361,6 +384,7 @@ Team is upset. Rollback took two days because we didn't plan it."
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Risk assessment drill:** Assess a codebase you know well using the adoption readiness checklist. Identify three risk points.
 2. **Characterization test exercise:** Pick a function without tests. Write three characterization tests that capture observed behavior.
@@ -369,6 +393,8 @@ Team is upset. Rollback took two days because we didn't plan it."
 5. **Stakeholder map:** List everyone who could block skill adoption. Plan a one-on-one with each.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 1. **Phase gate failed, team wants to proceed anyway:** Escalate to engineering manager. Gates are not optional. Cost of skipping: erosion of the entire adoption framework.
 2. **Skill-generated code caused a production incident:** Rollback the phase. Post-mortem with security-reviewer present. The skill is not to blame — the phase gate was insufficient. Strengthen the gate. Cost: one to three days.
@@ -377,6 +403,8 @@ Team is upset. Rollback took two days because we didn't plan it."
 5. **Legacy dependency blocks Phase 3:** Dependency cannot be upgraded. Escalate to system-architect for containment strategy. Phase 3 may be deferred for that module. Cost: ongoing but contained.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 - [ ] Phase 0: Read-only skills installed and producing artifacts
 - [ ] Phase 0: Team sign-off received
@@ -390,6 +418,7 @@ Team is upset. Rollback took two days because we didn't plan it."
 - [ ] Adoption metrics dashboard live
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [PROJECT-BOOTSTRAP.md](../../../PROJECT-BOOTSTRAP.md) — Greenfield adoption path
 - [code-reviewer](../../../personas/code-reviewer.md) — Read-only review persona

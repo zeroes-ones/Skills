@@ -23,8 +23,10 @@ chain:
 # Gameplay Programmer — Real-Time Interactive Game Logic
 
 Build production gameplay systems — spanning Unity (C#), Unreal Engine (C++/Blueprints), and custom engines — with deep expertise across the full game development lifecycle. Covers game loop architecture, entity-component-system (ECS) patterns, physics integration, input handling, camera systems, AI behavior trees, multiplayer state synchronization, animation state machines, procedural generation, and performance optimization to stable 60/120fps.
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 | # | Condition | Action |
@@ -57,6 +59,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -69,12 +72,12 @@ Do not read the entire skill. Follow the route above.
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Competent gameplay programmers make features that work on their dev machine. Masters make features that hold 60fps on a 5-year-old console, never desync in multiplayer, and survive 100K entities without frame drops. The shift: stop coding for the demo video and start coding for the player who paid $70 and expects zero bugs.
 
@@ -86,6 +89,7 @@ Competent gameplay programmers make features that work on their dev machine. Mas
 | **Object-pool denial** | Using `Instantiate()`/`Destroy()` for bullets, particles, and enemies because "the profiler shows it's fine now." 100 simultaneous explosions = 100 GC allocations = 200ms frame hitch when the GC runs. | Object-pool every frequently-spawned GameObject. Bullets, particles, audio sources, UI elements. One pool per prefab, pre-warm to peak capacity. |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Gameplay Programmer Output |
 |-------|--------------------------|
@@ -107,6 +111,7 @@ Competent gameplay programmers make features that work on their dev machine. Mas
 **Transition Triggers:** When 3+ gameplay systems interact → system boundary docs with interface contracts. When multiplayer is announced → dedicated netcode engineer, not an afterthought. When entity count exceeds 500 per scene → ECS migration. When team exceeds 10 → per-system owners and weekly gameplay integration tests.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Building player controllers: first-person, third-person, top-down, vehicle, flight
 - Implementing combat systems: hit detection, damage calculation, status effects, buffs/debuffs, elemental systems
@@ -118,8 +123,10 @@ Competent gameplay programmers make features that work on their dev machine. Mas
 - Implementing procedural generation: level generation, loot tables, enemy placement, terrain
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### ECS vs GameObject Architecture
+
 ```
 START: Entity count in your scene?
 |
@@ -140,6 +147,7 @@ START: Entity count in your scene?
 ```
 
 ### Multiplayer Sync Model
+
 ```
 START: Competitive or cooperative?
 |
@@ -158,6 +166,7 @@ START: Competitive or cooperative?
 ```
 
 ### Physics & Frame Rate Strategy
+
 ```
 START: What needs physics?
 |
@@ -176,6 +185,7 @@ START: What needs physics?
 ```
 
 ### AI Architecture
+
 ```
 START: AI complexity level?
 |
@@ -195,6 +205,7 @@ START: AI complexity level?
 ```
 
 ### Performance Budget Allocation
+
 ```
 60fps = 16.6ms total frame budget. Allocate:
 ├── Rendering (GPU): 8-10ms (60% of budget)
@@ -208,6 +219,7 @@ Rule: gameplay code must NEVER exceed 3ms at 60fps. If it does, profile and slic
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 ### Phase 1 (~20 min): Project Setup & Game Loop Architecture
 1. **Engine selection**: Unity (C#, best for mobile/indie/2D/3D), Unreal (C++/Blueprints, best for AAA/3D/FPS/photoreal), Godot (GDScript/C#, best for 2D/small team/open source)
@@ -243,9 +255,11 @@ Rule: gameplay code must NEVER exceed 3ms at 60fps. If it does, profile and slic
 - **Save architecture**: GameState → serialized to JSON/binary → compressed → written to disk. Always write to temp file, rename atomically — prevents corruption on crash mid-save.
 - **What to save**: Player position (checkpoint), inventory, quest progress, world state (opened doors, killed enemies, collected items). NEVER save: visual effects, transient audio, temporary decals.
   Complete when: Save writes atomically (temp file → rename), loads with version header validation, and survives a crash mid-save with zero corruption. Load from save restores all game state.
-
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Input → Command → Controller architecture decouples input from action** — Unity Input System or Unreal Enhanced Input maps raw input to semantic commands (`Jump`, `Shoot`, `Interact`). Controllers consume commands, never raw key codes. This enables rebindable controls and multiplayer replay from input logs.
 2. **Behavior trees over finite state machines for AI with 10+ states** — Behavior trees compose reusable sub-trees (patrol, investigate, attack, flee). For Unity, use `BehaviorDesigner` or built-in `BehaviorTree` in Unity Muse; for Unreal, native `UBehaviorTree` with `UBTDecorator` and `UBTTaskNode`. State machines become unmaintainable spaghetti beyond ~15 states.
@@ -259,6 +273,7 @@ Rule: gameplay code must NEVER exceed 3ms at 60fps. If it does, profile and slic
 10. **Network prediction error under 50ms at 100ms simulated latency** — Measure reconciliation error: `|clientPredictedPosition - serverAuthoritativePosition|`. Must converge within 3 physics ticks. If error exceeds threshold, increase update rate or reduce extrapolation duration. Players feel lag at >50ms reconciliation error, rage-quit at >100ms.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -273,6 +288,8 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -283,6 +300,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Saving directly to the save file instead of atomic write-then-rename — crash mid-save corrupts the file, user loses 40+ hours of progress | $30K-$100K in support burden and review-bombing from save corruption | Write to temp file → fsync → rename over target. Include `saveVersion` header for migration. SHA256 checksum detects corruption on load. Atomic saves prevent the most rage-inducing bug in gaming. |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Run these checks before declaring work complete. ALL must pass.
 
@@ -297,8 +315,8 @@ Run these checks before declaring work complete. ALL must pass.
 | V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
 | V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
 
-
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -311,7 +329,8 @@ Run these checks before declaring work complete. ALL must pass.
 | `qa-engineer` | Playable build, performance baseline (frame rate, memory), multiplayer test configuration | QA can't test without playable gameplay |
 | `performance-engineer` | Profiler captures, CPU/GPU frame breakdowns, object allocation traces | Performance work is blind without gameplay profiling data |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -322,6 +341,7 @@ Run these checks before declaring work complete. ALL must pass.
 | "The AI behavior tree works in the test level — ship it." | Test levels have clean navmeshes, no dynamic obstacles, 3 enemies. Production levels have 20 enemies, destructible cover, dynamic navmesh obstacles, and 16ms frame budget. AI that takes 2ms in test takes 14ms in production — leaves 2ms for everything else. Profile on production levels, not test levels. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **FixedUpdate at wrong timestep — game plays in slow-mo or hyperspeed on different hardware.** Unity's `Time.fixedDeltaTime` defaults to 0.02 (50Hz). If your `FixedUpdate()` relies on this without multiplying forces by `Time.fixedDeltaTime`, physics behaves differently at 50Hz vs 30Hz vs 100Hz. A character that jumps correctly at 50Hz may barely leave the ground at 30Hz (mobile thermal throttling). **$20K-$80K in post-launch patches, negative reviews citing "floaty controls," and lost featuring on app stores for inconsistent physics behavior.** Test physics at fixedDeltaTime = 0.033 (30Hz), 0.02 (50Hz), 0.013 (75Hz).
 
@@ -338,20 +358,24 @@ Run these checks before declaring work complete. ALL must pass.
 - **Multiplayer: `NetworkTransform` smooths position with default interpolation — players visually overshoot corners.** Default network interpolation smooths from old state to new state over 100ms. When a player stops moving, the interpolation continues for 100ms — the character model slides past the stopping point and snaps back. Players perceive this as "lag" even at 20ms ping. **$15K-$50K in multiplayer beta feedback: 'netcode is broken,' 'rubber-banding,' 'unplayable.'** Solution: Use `NetworkTransform` with rigidbody-based interpolation mode. Tune `Interpolate` to 0.1-0.2 for snappy response. Implement client prediction for player-owned objects — the local player should never see interpolation lag.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The game runs at a locked 60fps (16.6ms) on minimum-spec hardware with 500 active entities, zero per-frame allocations after scene load, and no GC spikes. Player input feels instantaneous (<100ms from button press to visual response). Multiplayer is authoritative — the server validates every gameplay action, clients predict locally with <50ms reconciliation error. AI enemies navigate dynamic environments without getting stuck, and their behavior scales from 3 to 100 entities without algorithmic complexity explosion. Save/load is atomic — corrupted saves don't exist because writes are never in-place. The profiler shows gameplay CPU at <3ms, leaving 13ms for rendering, physics, and future features.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **60fps from scratch**: Build a bullet hell with 1,000 bullets on screen at 60fps on a mid-range device. Must use object pooling, DOTS/ECS, and zero per-frame allocations. Profile and document every allocation found and removed.
 2. **Authoritative server from day 1**: Implement a simple competitive game (Pong or a racing game) with authoritative server, client prediction, and reconciliation. Measure reconciliation error. Must feel responsive at 100ms simulated latency.
 3. **AI crowd**: Implement 100 AI agents navigating a dynamic city with obstacles appearing mid-game. Must maintain 60fps. Use ECS, flow fields, or hierarchical pathfinding. Agents must never get stuck.
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -367,6 +391,7 @@ When gameplay code goes wrong, it goes wrong in predictable ways. Here are the m
 | Physics objects jitter or vibrate on slopes — character slides down a 1° incline, camera shakes uncontrollably | `Rigidbody` position is being set directly in `Update()` instead of through forces. The physics engine applies gravity → moves the body down slope → your code teleports it back up → physics pushes it down again. 60Hz tug-of-war creates visible vibration | Use `Rigidbody.AddForce()` or `Rigidbody.MovePosition()` instead of `transform.position =`. Set `Rigidbody.interpolation = Interpolate` for smooth visual output. For character controllers, use `CharacterController.Move()` or configure `PhysicsMaterial` with appropriate static/dynamic friction | Directly setting transform.position on a Rigidbody is fighting the physics engine. Every frame, you teleport the object to where you think it should be, and the physics engine instantly corrects you. Use forces, not teleportation |
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** Player controller: input decoupled from action; works at 30/60/120/144fps with consistent feel
 - [ ] **[S2]** Zero per-frame allocations after scene load (confirmed with Unity Profiler Deep Profile)
@@ -380,6 +405,7 @@ When gameplay code goes wrong, it goes wrong in predictable ways. Here are the m
 - [ ] **[S10]** IL2CPP stripping: `link.xml` configured. All reflection-used types preserved. Tested on device build, not just Editor.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Rationale |
 |---|---|---|
@@ -391,6 +417,7 @@ When gameplay code goes wrong, it goes wrong in predictable ways. Here are the m
 | Save file version mismatch after update | Run migration path; never silently fail. Alert player if save cannot be migrated | Corrupted saves cause players to abandon games — a single corrupted 60-hour save file generates more negative reviews than any other bug |
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [references/ai-behavior-systems.md](references/ai-behavior-systems.md) — Behavior trees, utility AI, GOAP, navmesh, crowd simulation
 - [references/animation-state-machines.md](references/animation-state-machines.md) — Blend trees, IK, root motion, animation events, procedural animation

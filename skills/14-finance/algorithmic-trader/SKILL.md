@@ -47,7 +47,8 @@ and live market execution. Covers entry/exit/trim strategy design for unusual-op
 (UOA) signals, multi-engine backtesting, walk-forward optimization, position sizing across
 regimes, broker API integration, order execution algorithms, and portfolio-level risk monitoring.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -58,6 +59,7 @@ regimes, broker API integration, order execution algorithms, and portfolio-level
 | "I'll deploy now and add idempotency keys, correlation checks, and circuit breakers next sprint." | Your broker API retries a submission during a network hiccup and fills the order twice. Your bracket order gets rejected silently — the entry fills but the stop-loss never activates. You now hold an unprotected position you didn't know about until the margin call. **Production without idempotency is a liquidation event with a countdown you can't see.** |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -89,9 +91,11 @@ What are you trying to do?
 └── Not sure? → Describe the trade or problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -109,12 +113,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of algorithmic trader don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -135,6 +139,7 @@ Masters of algorithmic trader don't just build — they build **the right thing,
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -150,6 +155,7 @@ Masters of algorithmic trader don't just build — they build **the right thing,
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing entry, exit, and trim strategies for unusual options activity (UOA) signals
@@ -163,6 +169,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Hardening a strategy for production: circuit breakers, duplicate order prevention, broker reconnect logic
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -295,6 +302,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use Iceberg:** Wide spreads (>5% of mid), illiquid options, or when you do not want to reveal full size. Displays only 10-20% of the order; refills the displayed quantity as it gets filled.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -348,9 +356,15 @@ Translate a validated signal into a concrete share/contract count. Position sizi
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
-
+  Complete when: Backtest results validated against live trading data with < 5% slippage deviation.
+  Complete when: Risk limits defined (max position size, VaR, drawdown) and enforced via pre-trade checks.
+  Complete when: Data pipeline latency measured and within SLA (market data < 100ms stale).
+  Complete when: Model documentation includes assumptions, limitations, and failure modes.
+  Complete when: Compliance review completed — strategy does not violate market manipulation rules.
+  Complete when: Performance attribution report identifies alpha sources (factor, sector, timing).
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -367,6 +381,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- real chains with upstream and downstream skills -->
 
@@ -418,13 +433,12 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | Data architecture, integration patterns, reliability requirements | Before building financial systems — errors cost real money |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- when to proactively notify stakeholders -->
 
@@ -439,11 +453,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Strategy win rate drops below 40% on 30-day rolling window | quantitative-analyst + algorithmic-trader | Strategy decay or market regime change; reduce position sizes by 50% until backtest confirms parameters are still valid in current regime |
 | VIX spikes >30 while holding net-long Vega positions | algorithmic-trader + observability-engineer | Volatility regime change — Vega exposure may dominate Delta P&L; review all position Greeks, hedge ratios, and correlation assumptions immediately |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 A production algorithmic trading system that executes this skill correctly has these observable characteristics:
 
@@ -462,6 +477,7 @@ A production algorithmic trading system that executes this skill correctly has t
 - **No single sector or factor can destroy the account.** The correlation matrix runs daily before market open. If any sector exceeds 30% of NAV, the smallest position in that sector is reduced or closed. Diversification is enforced by code, not discipline — discipline fails under stress; code does not.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -479,6 +495,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Overfitting to historical data** — your strategy backtests with 93% win rate and Sharpe 4.2 across 20 years, but you tuned 18 parameters on the entire dataset with no out-of-sample validation. In live trading, the strategy loses 12% in the first quarter because every parameter was curve-fit to noise, not signal. A proper walk-forward optimization with expanding windows and a 2-year out-of-sample holdout would have revealed the true out-of-sample Sharpe of 0.3 before you risked capital. **Total cost: $50K-$500K in live trading losses before the strategy is shut down.** Split data into in-sample (training), validation (parameter tuning), and out-of-sample (final test) periods before deploying a single dollar of live capital.
 - **Backtest with look-ahead bias** — your strategy uses P/E ratio data that was published 3 months after quarter-end (reporting lag). In backtest, you use it at quarter-end because that's when the data IS. In production, you can't trade on data that doesn't exist yet. Your "55% Sharpe ratio" drops to 0.3 when you fix the look-ahead.
@@ -491,6 +508,7 @@ graph LR
 - **Using leverage without understanding path dependency and volatility decay in leveraged ETFs or margin accounts.** You backtest a 2x leveraged S&P 500 strategy from 2010-2020 and see returns of 26% annualized vs 13% for the unlevered index — incredible! You put $250K into a 2x leveraged ETF. Over the next year, the S&P 500 has a choppy year: +5%, -3%, +4%, -2%, +3%, -6%, +5%, -4%, +3%, -1%, +6%, -2% — netting +7.5% for the year. Your 2x fund returns -2% after volatility decay because daily rebalancing compounds losses faster than gains: a 3% down day requires a 3.09% up day to break even, but 2x leverage makes it a 6% down (needing 6.38% up) while only delivering 6% on the rebound. **Total cost: $50K-$250K in decay-driven losses from holding leveraged products in choppy markets, with the gap between expected and actual returns widening exponentially in high-volatility environments.** Never hold daily-reset leveraged ETFs for more than a few days unless the underlying is in a strong, low-volatility trend. For multi-month leveraged exposure, use portfolio margin, futures, or options where you control when to reset leverage. Model volatility decay explicitly: expected leveraged return ≈ L × μ − (L² × σ²)/2, where L is leverage, μ is drift, and σ is volatility. A 2x levered product in a 20% vol environment loses 4% annually to decay before fees.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -506,6 +524,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | 2× leveraged ETF bought at $250K returns -2% while underlying returns +7.5% over choppy year | Volatility decay from daily rebalancing: a 3% down day requires a 3.09% up day to break even, but 2× leverage makes it 6% down (needing 6.38% up) while only delivering 6% on the rebound. | Never hold daily-reset leveraged ETFs beyond a few days unless underlying is in strong, low-volatility trend. Model decay explicitly: expected leveraged return ≈ L × μ − (L² × σ²)/2. For multi-month exposure, use portfolio margin, futures, or options. | Leverage amplifies both returns AND volatility decay. A 2× levered product in 20% vol loses 4% annually to decay before fees — the math works against you in choppy markets. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Separate training, validation, and test data by time.** Never tune parameters on the full dataset. Use expanding-walk-forward windows: train on 2000-2018, validate on 2019-2020, test on 2021-2023. Out-of-sample Sharpe is the only Sharpe that counts.
 
@@ -528,6 +547,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Never deploy on a Friday.** Deployments on Monday-Tuesday give you a full trading week to catch issues. Friday deployments mean problems surface over the weekend when markets are closed and you can't exit positions. The first live deployment always happens Monday at market open with the trader physically present.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] Idempotency: all order submissions include client-generated `order_id` or `nonce` — verified with broker API test suite
@@ -544,16 +564,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Deployment window: deployment schedule gated to Monday-Tuesday only — no Friday or pre-holiday deployments
 - [ ] Disaster recovery: documented procedure for broker API outage, exchange halt, and data feed disconnection — runbook tested quarterly
 
-### Scale Depth
-
-| Scale | Position Sizing | Risk Controls | Infrastructure |
-|-------|----------------|---------------|----------------|
-| **$10K-$100K AUM** | Fixed-fractional (1-2% risk per trade), single broker (Alpaca) | Max drawdown limit, single-symbol circuit breaker | Single machine, cron-based scheduling, CSV logging |
-| **$100K-$1M AUM** | Kelly fractional (quarter-Kelly), multi-broker (IB + Alpaca) | Two-level circuit breakers, correlation monitoring, VaR limits | Docker Compose on cloud VM, Redis for state, PostgreSQL for trade log |
-| **$1M-$10M AUM** | Risk-parity across strategies, dynamic position sizing by regime | Three-level circuit breakers, real-time VaR/CVaR, cross-asset stress testing, PWG monitoring | Kubernetes, Kafka event bus, TimescaleDB, Prometheus + Grafana, PagerDuty |
-| **$10M+ AUM** | Full portfolio optimization (Black-Litterman), execution algos (TWAP/VWAP/Implementation Shortfall), multi-venue smart order routing | Real-time risk dashboard, pre-trade compliance checks, post-trade TCA (Transaction Cost Analysis), regulatory reporting (CAT, MiFID II) | Colocated infrastructure, FIX engine, multi-DC redundancy, SOC 2 compliant, dedicated SRE rotation |
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Prevention |
 |---------|-----------|-----|------------|
@@ -564,8 +576,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Sharpe 4.2 in backtest, 0.3 out-of-sample | Overfitting: 18 parameters tuned on full dataset | Run Deflated Sharpe Ratio (DSR) test; apply Holm-Bonferroni correction for number of parameter combinations tested; report Probability of Backtest Overfitting (PBO) | Split data: train (60%), validate (20%), test (20%); only test set performance counts |
 | Strategy draws down 35% in 4 weeks after 2 years stable | Regime change: mean-reversion strategy in trending/crisis market | Check regime classifier output for the drawdown period; verify circuit breakers fired at Level 2 (strategy-level) threshold | Regime detection running BEFORE signal generation; auto-reduce exposure when detected regime doesn't match strategy design |
 
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -574,7 +586,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
 | Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
 | Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -585,6 +596,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Backtest: no look-ahead bias — all signals use data that was available at the time of the trade
 - [ ] Survivorship-free universe: backtest universe includes delisted and acquired securities
@@ -593,10 +605,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Walk-forward: strategy parameters re-optimized on rolling windows — performance stable across periods
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -607,4 +621,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)

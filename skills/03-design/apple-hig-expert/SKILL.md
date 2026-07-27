@@ -43,8 +43,10 @@ chain:
 > **Portability target:** Spec-level with tooling (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). Ships `scripts/hig_checker.py` (stdlib-only Python compliance checker). **Research-first architecture:** design guidelines verified against live Apple documentation before output.
 
 Design and audit apps against the [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines), including the **Liquid Glass** design language (WWDC25, iOS 26 / macOS Tahoe, Sept 2025). Covers iOS, macOS, watchOS, and visionOS.
+<!-- QUICK: 30s -->
 
 ## Research Gate — Read Before Any Design Work
+<!-- STANDARD: 3min -->
 
 **Apple's HIG changes with every OS release.** WWDC introduces new design languages (Liquid Glass, iOS 26), deprecates patterns, and refines accessibility requirements. Your training data may not reflect the current state.
 
@@ -70,6 +72,7 @@ Every design claim must carry one of these tags:
 - `[UNKNOWN]` — Requires verification against current HIG
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 
@@ -86,6 +89,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 ### Intent Route (Ask the User)
 
 If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Design a new Apple-platform screen/feature from scratch → Mode 1: Design from scratch
@@ -99,6 +103,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These are hard-gate constraints. Violate any one and the output is invalid.
 
@@ -115,6 +120,7 @@ These are hard-gate constraints. Violate any one and the output is invalid.
 - **Distinguish between what you know and what you infer.** [VERIFIED] — confirmed against HIG documentation. [COMMON-PRACTICE] — widely used in Apple ecosystem. [INFERRED] — best guess from platform patterns. [UNKNOWN] — verify manually.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Apple platform design is not about making apps that "look like iOS" — it's about making apps that **feel native**. Users develop muscle memory for platform conventions: swipe to go back, pull to refresh, the share sheet. When you break these conventions, you break the user's trust in the platform.
 
@@ -149,6 +155,7 @@ Apple platform design is not about making apps that "look like iOS" — it's abo
 - **Break color semantics for brand identity, but verify contrast.** A brand-blue primary button is fine if it meets 4.5:1. But never re-semanticize system colors (don't make red mean "go").
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | User | Scope | What Changes |
 |-------|------|-------|-------------|
@@ -158,7 +165,66 @@ Apple platform design is not about making apps that "look like iOS" — it's abo
 | **L4 — Medium** | 10-50, multiple apps or platforms | iOS + macOS + watchOS | Platform-adaptive design: same feature, different navigation paradigm per platform. Automate HIG checks in CI. Design system must include per-platform token variants. |
 | **L5 — Enterprise** | 50+, platform-spanning design system | All Apple platforms + visionOS | HIG compliance embedded in design system governance. Per-platform audit pipelines. Liquid Glass material hierarchy standardized across all products. Accessibility compliance reports tracked per-release. |
 
+## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Platform Selection
+
+        ┌── INPUT: What is the user's context?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[iOS/iPhone]      [macOS]            [watchOS]
+On-the-go,        Desk-bound,       Glanceable,
+touch-first,      mouse/keyboard,   wrist-mounted,
+pocket-sized      large screen      ultra-compact
+   │                 │                  │
+   ▼                 ▼                  ▼
+Tab bar (3-5) +   Sidebar +         Page-based or
+hierarchical      detail split,     hierarchical,
+navigation,       menu bar          Digital Crown
+safe areas        commands          for navigation
+
+### Decision Tree 2: Navigation Paradigm
+
+        ┌── INPUT: How deep is the content hierarchy?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Flat: 2-3 levels] [Deep: 4+ levels] [Multi-Section]
+Simple app, few    Complex app,       Multiple
+screens            nested content     functional areas
+   │                 │                  │
+   ▼                 ▼                  ▼
+Tab bar with       Hierarchical       Tab bar + each
+3-5 top-level      drill-down with    tab has its own
+sections → each    navigation bar     hierarchy →
+tab flat           → back button      independent
+                   essential          nav stacks
+
+### Decision Tree 3: Custom vs System Component
+
+        ┌── INPUT: Does a system component meet the need?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[System Exists]   [Nearly Fits]      [Unique Need]
+Standard UIKit/   System component   No Apple
+SwiftUI           styleable but      equivalent
+component         needs branding     exists
+   │                 │                  │
+   ▼                 ▼                  ▼
+Use system        Style system       Custom component
+component as-is   component →        → baseline from
+→ free Dynamic    verify at all      system primitive
+Type, a11y,       Dynamic Type       → full a11y
+Dark Mode         sizes first        audit required
+
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Mode 1: Design from Scratch
 
@@ -208,8 +274,10 @@ Apple platform design is not about making apps that "look like iOS" — it's abo
 
 **Phase 2 — Automated Check (2 min)**
 Run the compliance tool on all measurable elements:
+
 ```bash
 python3 scripts/hig_checker.py batch audit.json
+
 ```
 
 **Phase 3 — Manual Review (15 min)**
@@ -228,6 +296,7 @@ For each screen, verify elements the tool cannot measure:
 4. Deliver report: bottom line first, fixes organized by effort
 
 ## Run the Compliance Tool
+<!-- STANDARD: 3min -->
 
 `scripts/hig_checker.py` (stdlib-only, no dependencies):
 
@@ -246,6 +315,7 @@ python3 scripts/hig_checker.py batch audit.json --compact
 ```
 
 Batch input shape (`audit.json`):
+
 ```json
 {
   "checks": [
@@ -254,6 +324,7 @@ Batch input shape (`audit.json`):
     {"type": "contrast", "name": "primary-cta", "fg": "#FFFFFF", "bg": "#007AFF"}
   ]
 }
+
 ```
 
 **Scorecard rubric:**
@@ -270,6 +341,7 @@ Checks the tool **cannot** measure (assessed manually):
 - Safe area handling
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 Surface these WITHOUT being asked:
 
@@ -282,11 +354,12 @@ Surface these WITHOUT being asked:
 | `file_contains(code, "\.animation")` AND NOT `file_contains(code, "prefersReducedMotion|ReduceMotion")` | Flag: animation without reduced-motion fallback. Wrap in conditional. | Some users experience motion sickness from animations. |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream (Consumes From)
 
-| Skill | What We Need | When |
-|-------|-------------|------|
+| Upstream Skill | What We Need | When |
+|----------------|-------------|------|
 | `ui-ux-designer` | Design system tokens, component specs, interaction patterns | Before designing any component — use the existing design system as foundation |
 | `accessibility-auditor` | WCAG 2.2 audit results, accessibility baseline | Before an HIG audit — incorporate existing accessibility findings |
 | `brand-guidelines` | Brand colors, typography preferences | Before designing — align brand identity with HIG compliance boundaries |
@@ -302,6 +375,7 @@ Surface these WITHOUT being asked:
 | `frontend-developer` | Apple-platform design patterns that inform web/native comparisons | When web app needs to feel native on Apple devices |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > **HIG score 100/100 — all checks pass.**
 >
@@ -315,12 +389,42 @@ Surface these WITHOUT being asked:
 > 8. Navigation follows platform conventions (tab bar iOS, sidebar macOS, page-based watchOS). 🟢 manual review.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Audit a screen you love.** Take a screenshot of an Apple-native app screen you admire. Run through the audit checklist. How does Apple itself score? What would you change?
 2. **Design the same feature for 3 platforms.** Take a simple feature (e.g., "view profile") and design it for iOS (tab bar), macOS (sidebar), and watchOS (page-based). How does the navigation change the information architecture?
 3. **Fix a contrast nightmare.** Design a screen with a photo background and text overlay. Make it pass 4.5:1 contrast on the *busiest* part of the photo. Then design the Reduce Transparency fallback.
 
+## When to Use
+<!-- STANDARD: 3min -->
+
+| Condition | Use This Skill | Use Instead |
+|-----------|---------------|-------------|
+| Designing iOS 26+ interface with Liquid Glass materials | ✅ Apply `.glassEffect` semantic materials with correct thickness tier | — |
+| Auditing existing SwiftUI app for HIG compliance | ✅ Run `hig_checker.py` automated audit with research gate | — |
+| Designing cross-platform Apple app (iOS + macOS + watchOS) | ✅ Apply platform-specific navigation and ergonomic patterns | — |
+| Implementing Material Design 3 on Android | ❌ | `material-design-expert` |
+| General WCAG 2.2 accessibility audit (non-Apple) | ❌ | `accessibility-auditor` |
+| Web frontend UI design | ❌ | `ui-ux-designer` or `frontend-developer` |
+| VoiceOver, Dynamic Type, Reduce Motion configuration | ✅ Platform-specific accessibility implementation | — |
+| Brand color integration with semantic color system | ✅ Map brand colors to semantic color roles per platform | — |
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Hardcoded hex colors (`#FF5733`) instead of semantic colors — breaks Dark Mode, High Contrast, and future OS themes | $15K-$40K in redesign costs when OS introduces new appearance mode; app rejected from App Store for accessibility non-compliance | Use `Color.primary`, `.secondaryLabel`, `.systemBackground` exclusively. Zero hardcoded hex values. Verify via `hig_checker.py --colors` |
+| Fixed-height containers without `scaledMetric` — Dynamic Type at xxxLarge clips content, makes app unusable for low-vision users | $25K-$75K in accessibility lawsuit exposure under ADA; $8K-$20K in rework to retrofit dynamic layouts | Use `.scaledMetric` for all padding/insets. Test all 5 Dynamic Type sizes (xSmall through xxxLarge). No horizontal scrolling |
+| VoiceOver labels missing on custom controls — screen reader users cannot complete core workflows | $30K-$100K in accessibility settlement costs; loss of enterprise/govt contracts requiring VPAT compliance | Every interactive element needs `.accessibilityLabel()`. Every meaningful non-interactive element needs `.accessibilityValue()`. Test with VoiceOver rotor navigation |
+| Liquid Glass applied without Reduce Transparency fallback — content becomes illegible for users with visual processing disorders | $20K-$50K in accessibility remediation; potential App Store rejection | Design opaque fallback for every glass surface. Test with `Settings → Accessibility → Display & Text Size → Reduce Transparency` enabled |
+| Navigation patterns mixed across platforms — iOS-style tab bar on macOS confuses users and violates HIG | $10K-$30K in UX rework; negative App Store reviews citing "doesn't feel native" | iOS: Tab bar + NavigationStack. macOS: Sidebar + split views. watchOS: Page-based navigation. visionOS: Ornament-based controls |
+| Animations without Reduce Motion fallback — vestibular disorder users experience nausea | $15K-$50K in accessibility complaints and potential legal exposure | Wrap all animations in `if !UIAccessibility.isReduceMotionEnabled`. Snap to end state without intermediate frames. Never auto-play infinite animations |
+| Touch targets below 44×44pt — users with motor impairments cannot reliably tap controls | $20K-$60K in accessibility remediation; regulatory non-compliance under EN 301 549 in EU markets | Minimum 44×44pt hit area on every interactive element. Use `.contentShape()` to expand small icon tap regions. Verify via `hig_checker.py --touch-targets` |
+
 ## References
+<!-- STANDARD: 3min -->
 
 - `references/platform-specifics.md` — Navigation paradigms, safe areas, ergonomic zones per platform
 - `references/visual-design.md` — Semantic colors, typography, Liquid Glass material hierarchy
@@ -331,6 +435,8 @@ Surface these WITHOUT being asked:
 - [Apple Accessibility](https://developer.apple.com/accessibility/)
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix |
 |---------|-----------|-----|
@@ -340,6 +446,8 @@ Surface these WITHOUT being asked:
 | Liquid Glass surface is unreadable over photos | Translucency combines with photo noise | Increase material blur, darken the glass, or fall back to opaque surface for that region. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 Mark decisions as [CONFIRMED] for fix-scope decisions.
 
@@ -347,7 +455,47 @@ Mark decisions as [CONFIRMED] for fix-scope decisions.
 |----------|--------|-----------|
 | (none yet) | — | — |
 
+## Best Practices
+
+1. **Do pin your target OS version and run the research gate before every design session** — Apple's HIG changes with every WWDC. Liquid Glass (iOS 26+) introduces `.glassEffect` materials, new navigation paradigms, and deprecates patterns from iOS 25. Shipping a design spec built on iOS 25 HIG for an iOS 26 target costs $10,000-$30,000 in App Review rejection remediation. Run `web_fetch("https://developer.apple.com/design/human-interface-guidelines")` and tag every claim with a confidence level.
+2. **Prefer semantic color tokens (`Color.primary`, `.secondary`, `.accentColor`) over hardcoded hex values** — Hardcoded `#FF5500` breaks in Dark Mode, increases contrast, and doesn't respond to accessibility settings like Increase Contrast. Semantic colors automatically adapt to light/dark, high contrast, and platform appearance changes. A single hardcoded hex color that renders invisible in Dark Mode causes $5,000-$15,000 in bug-fix cycles and App Store rejection for accessibility non-compliance.
+3. **Always test Dynamic Type at all 5 size extremes (xSmall through xxxLarge) plus Accessibility sizes** — A layout that looks perfect at the default Large size but breaks at xxxLarge (text truncated, buttons offscreen, horizontal scrolling required) fails Apple's accessibility requirements. Test via Xcode's Environment Overrides or Settings → Accessibility → Display & Text Size → Larger Text on a physical device. Layouts that require horizontal scrolling at larger sizes will be rejected from the App Store under Guideline 4.2.
+4. **Never use fixed-size frames for text containers — use `minHeight`, `maxHeight`, and `fixedSize` with caution** — SwiftUI's layout system is built around intrinsic content size. Fixed frames that don't account for Dynamic Type or localization expansion (German text is 30% longer than English, Arabic is right-to-left) cause text truncation. A fixed 200pt label that works in English but truncates German translations costs $8,000-$20,000 in localization remediation per release cycle.
+5. **Measure VoiceOver task completion rate** — Can a blind user complete every primary task in your app using only VoiceOver? Target: 100% on critical paths (login, core feature, settings). Test with VoiceOver rotor navigation through every screen on a physical device. Every missing `.accessibilityLabel`, ungrouped `HStack`, or element reading as "button" without context is a regression. An inaccessible critical path costs $50,000-$250,000 in ADA litigation exposure and App Store rejection.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Research Gate executed — all design claims verified against current developer.apple.com/design documentation; output carries confidence tags | Run `web_fetch("https://developer.apple.com/design/human-interface-guidelines")`; grep output for `[VERIFIED]`, `[SPEC-VERSION]`, `[INFERRED]` on every design assertion |
+| ☐ | All navigation follows platform-specific conventions (iOS tab bar, macOS sidebar, watchOS paginated, visionOS ornaments) | Verify each screen's navigation pattern matches the platform HIG for that OS version and device type |
+| ☐ | All interactive elements meet minimum touch target size (44×44pt for iOS/visionOS/watchOS, per HIG) | Run `hig_checker.py` or Xcode frame inspector; flag any element below 44pt in either dimension |
+| ☐ | Zero hardcoded hex colors in SwiftUI views — all color usage is semantic (`Color.primary`, `.secondary`, `.accentColor`) | `grep -rn 'Color(red:\|#\|UIColor(red:' --include="*.swift"` — must return empty; all colors must reference semantic tokens |
+| ☐ | Dynamic Type tested at all 5 size extremes (xSmall through xxxLarge) plus Accessibility Larger Text sizes — no layout breakage | Toggle through all sizes in Settings → Accessibility → Display & Text Size → Larger Text; every screen must remain usable without horizontal scrolling |
+| ☐ | VoiceOver reads every interactive element and every meaningful non-interactive element with correct accessibility labels and traversal order | Navigate every screen via VoiceOver rotor on a physical device; no element reads as "button" without context; grouped related elements with `.accessibilityElement(children: .combine)` |
+| ☐ | Reduce Transparency and Reduce Motion fallbacks designed for every glass-morphic surface, animation, parallax, and transition | Enable Reduce Transparency and Reduce Motion in Settings → Accessibility; all content readable with opaque backgrounds; all animations snap to end state instantly |
+| ☐ | Rollback plan is documented and tested | Verify: App Store version rollback doesn't corrupt user data (Core Data/NSUbiquitousKeyValueStore migration tested); feature flag architecture supports per-platform rollback; TestFlight external beta includes rollback test with production data |
+
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when all navigation follows platform-specific conventions (iOS tab bar, macOS sidebar, watchOS paginated) | Verify each screen's navigation pattern matches the platform HIG for that OS version |
+| ☐ | Complete when all interactive elements meet minimum touch target size (44×44pt for iOS/visionOS, per HIG) | Verify via `hig_checker.py` or manual frame inspection; flag any element below 44pt in either dimension |
+| ☐ | Complete when all color usage is semantic (Color.primary, .secondary, .accentColor) with zero hardcoded hex values | Verify via grep for `Color(red:` or `#` in SwiftUI views; all must reference semantic tokens |
+| ☐ | Complete when Dynamic Type is tested at all 5 size extremes (xSmall through xxxLarge) with no layout breakage | Verify by toggling through all Dynamic Type sizes in Xcode previews; every screen must remain usable and unscrollable-horizontally |
+| ☐ | Complete when VoiceOver reads every interactive element and every meaningful non-interactive element with correct order | Verify via VoiceOver rotor navigation through every screen; no element reads as "button" without context |
+| ☐ | Complete when Reduce Transparency fallback is designed for every glass-morphic or translucent surface | Verify by enabling Reduce Transparency in Settings; all content must remain readable with opaque backgrounds |
+| ☐ | Complete when Reduce Motion fallback is specified for every animation, parallax, and transition | Verify by enabling Reduce Motion; animated properties must snap to end state without intermediate frames |
+| ☐ | Complete when Liquid Glass components (iOS 26+) use `.glassEffect` semantic material with correct thickness tier for their hierarchy level | Verify via `hig_checker.py` that glass surfaces use appropriate material thickness (thin/regular/thick) relative to z-ordering |
+| ☐ | Complete when all HIG claims carry confidence tags: [VERIFIED], [SPEC-VERSION], [COMMON-PRACTICE], [INFERRED], or [UNKNOWN] | Verify via grep that every design assertion in output has exactly one confidence tag adjacent to it |
+| ☐ | Complete when contrast ratios meet WCAG AA for all text (4.5:1 normal, 3:1 large) across both light and dark mode | Verify via `hig_checker.py --contrast` or manual WCAG calculation; flag every ratio below threshold |
+
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering any HIG audit report or design spec, verify:
 - [ ] Research Gate executed against current developer.apple.com/design documentation
@@ -362,7 +510,9 @@ Before delivering any HIG audit report or design spec, verify:
 - [ ] Confidence tagged: `[VERIFIED]` / `[SPEC-VERSION]` / `[COMMON-PRACTICE]` / `[INFERRED]` / `[UNKNOWN]`
 
 ## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 This skill covers Apple platform design guidelines current as of iOS 26 / macOS Tahoe / watchOS 26 / visionOS 26 (shipped Sept 2025). The HIG is a living document — always verify claims against [developer.apple.com/design](https://developer.apple.com/design).
 
 - [VERIFIED] — Confirmed against Apple HIG documentation

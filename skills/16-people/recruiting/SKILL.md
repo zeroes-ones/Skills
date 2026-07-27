@@ -58,6 +58,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What recruiting activity are you working on?
 ├── Role Definition & Planning
@@ -98,7 +99,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **REFUSE to ghost or delay communication with any candidate past 48 hours post-interview.** Every candidate gets a decision within 48 hours. Ghosting burns employer brand — one bad experience reaches hundreds of potential candidates via Blind and Glassdoor. | Trigger: `file_contains("*", "still waiting\|no update\|ghost\|let them wait\|no rush\|they'll understand")` on any candidate communication status. | STOP. Respond: "Candidate communication delay detected. Rule: every candidate gets a decision within 48 hours of their last interview — yes or no. If yes: HM calls immediately. If no: recruiter calls within 48 hours with specific, actionable feedback. A 'no' delivered with respect preserves your brand; silence destroys it. Proceed with communication now." |
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -161,6 +161,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- QUICK: 30s — where to find this candidate type -->
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Which sourcing channel?  │
                      └────────────┬─────────────────┘
@@ -185,6 +186,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                         │ Indeed,       │ └────────────────┘
                                         │ Handshake)    │
                                         └───────────────┘
+
 ```
 **When outbound sourcing is mandatory:** Staff+ engineers, executives, niche roles (e.g., Rust kernel engineer, quant researcher). Inbound alone won't fill these — you must map the market and reach out directly.
 **When inbound works:** Junior/mid-level roles with clear JD, strong employer brand, and compensation in market range. Expect 200-500 inbound applicants for a mid-level engineering role in a known company.
@@ -192,6 +194,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ### Interview Loop Design: Deep vs Broad
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Interview loop design?   │
                      └────────────┬─────────────────┘
@@ -220,6 +223,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        │presentation.  │ └───────────────┘
                                        │~6 hours total │
                                        └───────────────┘
+
 ```
 **When deep loop:** Individual contributor roles where one skill dominates. Fewer rounds, higher signal per round. Each interviewer owns one dimension.
 **When broad loop:** Cross-functional roles (EM, PM, TPM, exec). More rounds covering distinct dimensions. Panel debrief required to synthesize signals.
@@ -227,6 +231,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ### Offer Approval Authority
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Offer above band?        │
                      └────────────┬─────────────────┘
@@ -252,6 +257,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        │this candidate │ └───────────────┘
                                        │at this price  │
                                        └───────────────┘
+
 ```
 **Within band (<2% above median):** Auto-approved. Speed matters — every day of approval delay increases drop-off risk by 3-5%.
 **Slightly above band (2-10%):** HM + Head of People approve. Document: competing offers, specialized skill scarcity, time-to-fill cost if role remains open.
@@ -289,7 +295,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
-
+  Complete when: Job description reviewed by legal for compliance with equal opportunity requirements.
+  Complete when: Interview panel confirmed with calibrated rubrics and bias training completed.
+  Complete when: Compensation band benchmarked against market data with equity range approved.
+  Complete when: Candidate feedback collected within 48 hours of each interview round.
+  Complete when: Pipeline diversity metrics tracked and reviewed monthly against hiring goals.
+  Complete when: Onboarding plan documented with 30/60/90-day milestones and buddy assignment.
 
 ## Error Recovery
 
@@ -325,35 +336,43 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Chain 1: Strategic hire request → Signed offer**
 ```
+
 ceo-strategist (headcount approval + role criticality)
   → recruiting (JD writing + sourcing + interview loop)
     → hr-manager (comp band validation)
       → legal-advisor (offer letter review + equity docs)
         → recruiting (closing call + signed offer)
           → people-ops (onboarding handoff)
+
 ```
 
 **Chain 2: Pipeline health review → Process optimization**
 ```
+
 recruiting (pipeline_health.py → stuck candidates + conversion rates)
   → hr-manager (workforce plan reconciliation)
     → ceo-strategist (reprioritize headcount if critical roles blocked)
+
 ```
 
 **Chain 3: Diversity sourcing audit → Pipeline improvement**
 ```
+
 recruiting (demographic funnel report by stage)
   → hr-manager (DEI target assessment)
     → people-ops (employer brand content refresh)
       → recruiting (updated sourcing strategy + new channels)
+
 ```
 
 **Chain 4: Offer negotiation deadlock → Resolution**
 ```
+
 recruiting (competing offer analysis + candidate priorities)
   → hr-manager (comp exception review + internal equity impact)
     → ceo-strategist (above-band approval if required)
       → recruiting (revised offer within 24 hours)
+
 ```
 
 ### Escalation Path
@@ -366,11 +385,9 @@ recruiting (competing offer analysis + candidate priorities)
 | Candidate reports discriminatory interview behavior | HR Manager + Legal Advisor | Legal and brand risk; immediate investigation required |
 | Hiring manager consistently overrides panel feedback | HR Manager | Process integrity; panel trust erodes without enforcement |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `hr-manager` | Organizational policies, compliance requirements, company culture | Before making people decisions or designing processes |
-
 
 ## Proactive Triggers
 
@@ -387,7 +404,6 @@ recruiting (competing offer analysis + candidate priorities)
 | Diversity pipeline falls below 30% of candidates at top-of-funnel for 2+ consecutive quarters | HR Manager + DEI lead + Head of People | Pipeline diversity is the leading indicator of hiring diversity. If the top of funnel is not diverse, the hires will not be either — fix sourcing channels, not interview quotas |
 | Hiring manager starts overriding panel feedback or pushing unqualified referrals through | HR Manager + Department head | Process integrity is eroding. When one manager bypasses the panel, trust in the entire hiring process collapses. Other managers follow, panelists disengage, and quality-of-hire drops across the org |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -398,6 +414,7 @@ A hiring manager can open the ATS and see: pipeline health (candidates per stage
 ## Deliberate Practice
 
 ```mermaid
+
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
 
@@ -412,7 +429,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -475,53 +492,6 @@ Before launching any recruiting search or process change, verify ALL of:
 13. Background check compliance: FCRA-compliant disclosure and authorization forms in use, adverse action process documented and automated, turnaround time SLA with vendor <5 business days
 14. Diversity pipeline audit: top-of-funnel demographics benchmarked against market availability data, drop-off analyzed at each stage, sourcing channel mix adjusted quarterly based on diversity yield data
 
-## Scale Depth
-
-### Seed/Pre-Seed (1-25 employees, 0-5 hires/year)
-- **Sourcing**: Founder + employee referrals only. No dedicated ATS — Google Sheets + Gmail. LinkedIn personal outreach.
-- **Process**: 2-3 round interviews (founder → team → offer). No structured scorecards. Culture-fit emphasis.
-- **Compensation**: Market-informed but informal. Equity-heavy packages. No compensation bands.
-- **Tools**: LinkedIn (personal), Google Workspace. No Greenhouse/Lever needed.
-- **Skip**: Agency relationships, employer branding, candidate NPS, diversity pipeline analytics, calibration meetings.
-
-### Series A-B (25-100 employees, 5-20 hires/year)
-- **Add**: Greenhouse or Lever ATS. Dedicated recruiter (#1 hire). Structured scorecards. Referral program with bonuses.
-- **Sourcing**: LinkedIn Recruiter, job boards, 1-2 agency relationships for specialized roles. Employee referral program active.
-- **Process**: 3-5 round loops with written scorecards. Written-first debriefs. 48-hour SLA for candidate communication.
-- **Pipeline**: Basic metrics (time-to-fill, source effectiveness). Offer approval matrix defined.
-- **Skip**: Full employer brand program, interviewer calibration analytics, diversity yield analysis by channel.
-
-### Series C-D (100-500 employees, 20-100 hires/year)
-- **Add**: Recruiting team (3-5). Greenhouse/Lever advanced. Sourcer dedicated to passive candidates. Interviewer calibration program.
-- **Sourcing**: Multi-channel with attribution. Agency spend tracked and optimized. University/early-career pipeline. Conference recruiting.
-- **Process**: 4-6 round loops. Technical assessments standardized. Candidate experience program with NPS tracking. Diversity pipeline analytics.
-- **Employer Brand**: Employee-generated content program. Glassdoor management. Careers blog. Conference sponsorship.
-- **Skip**: Global mobility recruiting, executive search firm relationships, AI-driven candidate matching.
-
-### Enterprise (500+ employees, 100+ hires/year)
-- **Recruiting**: 10+ team. Recruiting operations function. University, experienced, and executive recruiting pods. Global recruiting coverage.
-- **Sourcing**: AI-driven candidate matching. Global sourcing with multi-language capabilities. Dedicated executive search team (or retained firm relationship).
-- **Process**: Specialized loops by function (engineering, sales, G&A). Panel interviews for leadership. Assessment validation studies.
-- **Analytics**: Full-funnel analytics with predictive modeling. Time-to-productivity tracking. Quality-of-hire measurement (1-year performance vs. interview ratings).
-- **Compliance**: Multi-country compliance. Work authorization tracking. OFCCP audit readiness.
-
-### Transition Triggers
-- Seed → Series A: First dedicated recruiter. >5 hires/year — internal capability cheaper than agencies.
-- Series A → Series B: First recruiting team lead. >20 hires/year — ATS and structured process become non-negotiable.
-- Series B → Series C: Dedicated sourcer. Passive candidate pipeline needed. >50 hires/year — interviewer calibration becomes ROI-positive.
-- Series C → Enterprise: Global hiring. >100 hires/year — recruiting operations and analytics function needed.
-
-## Error Decoder
-
-| Error Message / Situation | Root Cause | Fix | Lesson |
-|--------------------------|------------|-----|--------|
-| "Candidate accepted our offer but quit after 4 months — 'wasn't what I signed up for'" | Job description was a wishlist, interview process tested different skills than the role requires, hiring manager oversold the role. | Re-write JD with ≤5 must-haves. Design interview around the actual work. Hold hiring managers accountable for realistic role previews — document what was promised in the offer stage. | A bad hire at $150K costs $45K-$150K in direct costs. The disconnect is always between what was sold and what was delivered. |
-| "Pipeline is 90% male for an engineering role — we can't find diverse candidates" | Sourcing channels are homogeneous. Job description has biased language. No diversity-focused sourcing strategy. | Audit JD with Gender Decoder/Textio. Add sourcing channels: Women Who Code, Black Tech Pipeline, Out in Tech, AfroTech. Track top-of-funnel demographics by channel — adjust mix quarterly. | "Pipeline problem" is usually a "sourcing channel problem." 5 new channels with diverse audiences produce a different pipeline than the same 3 channels you've always used. |
-| "Ghosted a final-round candidate — Glassdoor rating dropped from 4.2 to 3.4 in 3 months" | No candidate communication SLA. Manual process with no automation. No one owned the rejection communication. | Automate status notifications at every stage. Set 48-hour SLA for post-interview feedback, 72-hour for personalized rejection to final-round. Monitor Glassdoor and respond to every review within 48 hours. | One bad candidate experience costs $50K-$200K/year in degraded pipeline quality. Timely, respectful rejections create 4x reapplication and referral rates. |
-| "Job been open 120 days — HM keeps rejecting candidates who meet 8/10 requirements" | JD is a wishlist, not a must-have list. HM hasn't been calibrated on what's trainable vs. essential. No intake meeting set proper expectations. | Hold intake meeting before posting: define ≤5 must-haves (will not hire without), separate trainable skills (3-month ramp), set decision timeline. Track HM rejection reasons — if >50% are "not enough years in X," the JD is the problem. | Every unfilled day for a revenue role costs $500-$1,000. A 90-day delay = $45K-$90K in missed pipeline. Fix the JD, not the pipeline. |
-| "Spent $300K on agencies this year — could have hired 2 full-time recruiters for that" | No internal recruiting capability. Defaulted to agencies for every role. Never calculated agency spend vs. internal hire ROI. | Once you exceed 5-8 hires/year, hire an internal recruiter. Agency fees = 20-30% of first-year salary. 10 agency placements at $150K = $300K-$450K. One senior recruiter + sourcer = ~$180K. | Build internal capability before you need it. Agency spend is visible; internal recruiting cost is an investment with compounding returns. |
-
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -531,7 +501,6 @@ Before launching any recruiting search or process change, verify ALL of:
 | Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
 | Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -564,6 +533,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Seed → Series A → Series C → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)

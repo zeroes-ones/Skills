@@ -41,6 +41,7 @@ chain:
 Design and implement end-to-end internationalization (i18n) and localization (l10n) systems. This skill covers message extraction, translation pipeline architecture, locale-aware formatting, RTL layout, pseudo-localization testing, and continuous localization integrated into CI/CD. Every decision balances developer ergonomics, translator workflow, and end-user experience across languages and cultures.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -78,9 +79,11 @@ What are you trying to do?
 └── Don't know where to start? → Describe your app, target languages, and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect localization mistakes before they are given. Violation means STOP and refuse to proceed.
 
@@ -96,12 +99,12 @@ These rules are non-negotiable constraints that detect localization mistakes bef
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of localization engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -122,31 +125,10 @@ Masters of localization engineer don't just build — they build **the right thi
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
-
-### Scale Depth
-
-| Depth | Time | Scope | Artifacts |
-|-------|------|-------|-----------|
-| **L1 — Single Component** | ~15min | Implement one well-defined i18n piece following established patterns | Localized component with tests |
-| **L2 — Full Feature Pipeline** | ~1-2hr | Design and build complete i18n pipeline: extraction, TM setup, TMS integration, QA gates | CI-integrated localization pipeline |
-| **L3 — Multi-Platform Strategy** | Multi-session | Define i18n architecture across web, mobile, and API: format standardization, locale data distribution, cross-platform consistency | Platform-agnostic localization architecture |
-| **L4 — Enterprise Globalization** | Multi-sprint | Org-wide i18n standards, shared TM infrastructure, locale budget modeling, build-vs-buy TMS decisions | Globalization platform with ROI tracking |
-| **L5 — Industry Leadership** | Ongoing | Novel localization paradigms, framework-level i18n contributions, published reference architectures | Industry-adopted patterns and open-source tools |
-
-| Level | Scope | You... |
-|-------|-------|--------|
-| **L1** | Single component/module | Implement a well-defined piece following established patterns |
-| **L2** | Feature or service | Design and build a complete feature; make tech choices within team conventions |
-| **L3** | System or product area | Define architecture for a product area; set team tech standards; mentor L1-L2 |
-| **L4** | Multiple systems / platform | Define org-wide architecture patterns; make build-vs-buy decisions; influence industry practice |
-| **L5** | Industry / ecosystem | Create new architectural patterns adopted across the industry; redefine what's possible |
-
-**Default level for this skill:** L2
-**Usage:** Invoke this skill with your target level, e.g., "as an L3 localization engineer, design..."
-
-For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+<!-- STANDARD: 3min -->
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You are adding i18n support to a new web or mobile application from day one
 - You need to extract hardcoded strings from an existing codebase for translation
@@ -158,11 +140,113 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You need to build a continuous localization pipeline that pushes source strings and pulls translations automatically
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
+
+### Decision Tree 1: Continuous Localization Strategy
+
+        ┌── INPUT: Team size & release cadence
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+<5 devs,   >10 devs,
+weekly      daily
+releases?   deploys?
+   │         │
+   ▼         ▼
+MANUAL      CI-NATIVE
+TRIGGER     (automated)
+   │         │
+   ▼         ▼
+Push source Push source
+strings to  strings on
+TMS after   every merge
+sprint      to main
+review      via CI
+   │         │
+   ▼         ▼
+Translators  TMS opens
+work async,  PR when
+TMS opens    translations
+PR when      ready; CI
+ready        validates
+             ICU syntax
+   │         │
+   ▼         ▼
+BEST FOR:   BEST FOR:
+startups,    enterprise
+small apps   with dedicated
+             i18n team
+
+### Decision Tree 2: Translation QA Method
+
+        ┌── INPUT: Quality bar & budget
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Budget     Mission-
+< $500/mo  critical
+per locale? UI (legal,
+   │       medical,
+   │       payments)?
+   │          │
+   ▼     ┌────┴────┐
+AUTO-    │         │
+MATED    ▼         ▼
+ONLY     HUMAN      HYBRID
+   │     REVIEW     (auto +
+   │        │       human)
+   ▼        │          │
+Pseudo-     ▼          ▼
+localization NATIVE    Auto lint
+in CI + ICU REVIEWER    for ICU
+validation +  reviews   errors,
+linters       every     truncation,
+              string    missing keys
+   │           │          │
+   ▼           ▼          ▼
+Catches      Catches    Native
+~70% of      cultural   review for
+issues       nuance,    flagged
+             idioms,    strings
+             context    only
+
+### Decision Tree 3: Locale Rollout Priority
+
+        ┌── INPUT: Market expansion plan
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Data-       Strategic
+driven?     business
+   │        goal?
+   │           │
+   ▼      ┌────┴────┐
+ANALYZE   │         │
+traffic   ▼         ▼
+by region Competing Legal/
+   │      in a       compliance
+   ▼      specific   requirement?
+PRIORITIZE market?      │
+by:          │     ┌────┴────┐
+1. Largest   ▼     │         │
+   non-EN    LOCAL- ▼         ▼
+   traffic   IZE THAT EU GDPR?  Govt
+2. Highest   MARKET    │       mandate?
+   conversion FIRST     ▼       │
+   rate              EU/EEA    ▼
+3. Support            languages LOCAL
+   ticket              first    REGULATION
+   volume             (DE, FR,  (must
+                      ES, IT)   comply)
 
 ### 1. i18n Library Selection
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
 ```
 NEW PROJECT — How should we structure i18n from day one?
 ├── Single-language MVP (<3 months to launch)?
@@ -231,6 +315,7 @@ LOCALE DETECTION — How should we decide which language to show?
 **What good looks like:** The app renders correctly in all 10+ target locales including RTL languages (Arabic, Hebrew) without a single text truncation or layout break. String extraction covers 100% of user-facing text — verified by automated scan that compares source strings to translation files. Date, number, currency, and pluralization formatting matches every locale's expectations (d/m/y vs m/d/y, 1.000 vs 1,000). Translation files are complete, reviewed, and shipped in the same deploy as the code — no lag, no missing strings.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -247,8 +332,10 @@ LOCALE DETECTION — How should we decide which language to show?
 
 2. **Define message format**: Use **ICU MessageFormat** for anything beyond simple key-value.
    ```
+
    // AVOID: "You have {count} new messages" — breaks in Polish (plural rules differ)
    // USE: "{count, plural, =0 {No messages} one {1 message} few {# messages} many {# messages} other {# messages}}"
+
    ```
    ICU supports: plurals, select (gender), selectordinal, number/date/time formatting.
    - **Output**: Message format standard documented. Developers trained. Linter rules enforced.
@@ -276,6 +363,7 @@ LOCALE DETECTION — How should we decide which language to show?
 
 2. **Set up continuous localization in CI/CD**:
    ```yaml
+
    # GitHub Actions sketch — push source strings on merge, pull translations nightly
    on:
      push:
@@ -291,8 +379,15 @@ LOCALE DETECTION — How should we decide which language to show?
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: TMS is selected and integrated, and the continuous localization CI/CD pipeline is operational — source strings flow from repo to TMS on merge, and translated strings are pulled back as locale files on schedule/webhook trigger.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
+  Complete when: Feature flagged behind config — can be enabled/disabled without deployment.
+  Complete when: Error tracking configured — all unhandled exceptions routed to on-call.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start i18n on day one, even for single-language apps.** Wrap every user-facing string in `t()` or `<Trans>` before the first feature ships. Retrofitting i18n onto a 500-string codebase costs 2-4 engineer-weeks; building it in from day one costs zero extra time per string. Use `eslint-plugin-i18next` in CI to enforce.
 
@@ -314,8 +409,8 @@ LOCALE DETECTION — How should we decide which language to show?
 
 10. **Continuous localization pipeline: push on merge, pull on schedule.** Source strings pushed to TMS on merge to main. Translated strings pulled back as locale JSON files on a cron schedule or webhook trigger. Automated PRs from TMS when translations are ready. Never let the translation pipeline be a manual step that someone forgets before release.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -331,6 +426,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -342,6 +438,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Plural forms render incorrectly for zero count in English | ICU `{count, plural, one {# item} other {# items}}` — `zero` is not for English. CLDR defines `zero` only for Arabic, Latvian. English uses `other` for 0 → shows "0 items" not "No items" | Add explicit `=0 {No items}` match. ICU exact matches (`=0`, `=1`) take precedence over CLDR category matches (`one`, `other`). Test plural forms for 0, 1, 2, 5, 21 for every language | ICU plural rules are language-specific. `zero` is a CLDR category (used by Arabic), not a universal catch-all. Always add explicit `=0` case for human-readable zero states |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -367,6 +464,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Legal requirement for a language not yet supported | Legal Advisor, Product Manager | Compliance gap; prioritize or document risk acceptance |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -379,11 +477,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Visual diff detects RTL layout regression on new page | Reject merge; notify Frontend Developer and UI/UX Designer; fix before release | RTL layout breaks compound — one missed page creates a pattern that cascades across the app |
 | Locale file grows beyond 10K keys with no code-splitting | Refactor to lazy-load translations per route; measure bundle size impact per locale | Bundling all locales into the main bundle bloats initial load — users download 40 languages and use 1 |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every user-facing string is externalized, translated, and renders correctly in every supported locale — pseudolocalization catches regressions in CI before translators ever see them.
 
@@ -402,6 +501,7 @@ Common chains:
 - **Mobile app globalization**: mobile-developer → localization-engineer → release-manager — Mobile builds platform-specific UI, localization adds multi-language support, release manager coordinates app store localization metadata
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -467,6 +567,7 @@ graph LR
 **Recommendation:** Buy a TMS if you have >2 target languages AND use professional translators. The break-even point is roughly 3 languages with 1,000+ source strings — at that scale, the engineering time saved in a single release cycle covers the annual subscription. If you're a solo developer with 1-2 languages, start in-house and migrate to a TMS when you hire your first translator or add your third language. Crowdin's free OSS tier is an excellent bridge — zero cost until you outgrow it.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Retrofitting i18n After the App Is Built
 **What it looks like:** Shipping an English-only app, then deciding to "add localization later." Every label, button, error message, and toast is hardcoded. Engineers must grep the entire codebase, wrap every string in `t()`, extract to resource files, and re-test every screen.
@@ -503,7 +604,8 @@ graph LR
 **Why it fails:** One developer testing locally finds only their bugs. Pseudo-loc in CI catches integration bugs: a global header component that truncates in German, a sidebar that overlaps the main content in French, a modal that breaks when the close button label expands.
 **Do this instead:** Run pseudo-localized build (`en-XA` with 30% expansion + diacritics) on every PR in CI. Visual regression tests compare screenshots of English vs pseudo-localized. Fail the build on layout breakage. Pseudo-loc is necessary but not sufficient — combine with real locale testing.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -514,6 +616,7 @@ graph LR
 | "Plurals work the same as English — just add 's'" | Arabic has 6 plural forms, Russian has 3, Japanese has none — hardcoding English plural logic means grammatically broken UI in 80% of target languages from day one |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -522,6 +625,7 @@ graph LR
 | ICU zero-plural in English — `{count, plural, one {...} other {...}}` shows "0 items" not "No items" | $5K-$15K in linguistic QA | Always add explicit `=0 {No items}` case; ICU `zero` is a CLDR category for Arabic/Latvian, not English |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run pseudo-localization build: `npm run build -- --pseudo-locale=en-XA` — no layout breaks, no truncated strings
 - [ ] Run i18n coverage: `i18next-scanner` or `lingui extract` — zero missing keys
@@ -530,6 +634,7 @@ graph LR
 - [ ] Spot-check 3 languages in staging: login, main flow, error screen — no English fallback strings visible
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any localized application reaches production:
@@ -551,10 +656,12 @@ Before any localized application reaches production:
 - [ ] Locale-specific plural rules tested for 0, 1, 2, 5, 21 for every supported language — explicit `=0` case for human-readable zero states
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -565,5 +672,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

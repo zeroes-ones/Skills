@@ -116,7 +116,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -164,20 +163,6 @@ Director effectiveness is measured by organizational health, not personal output
 
 **Usage**: Say "as a Director managing 40 engineers, help me design the org for..." Default: **L2 (Director)** — managing managers, department strategy.
 
-### Scale Depth — Organizational Context
-
-#### Small Department (15-30 engineers, 2-3 EMs)
-Focus: EM development, hiring process, basic org design. Run weekly EM 1:1s, monthly team health checks. Budget: single cost center, headcount + tools + infra. Strategy: align with VP's priorities, translate to team OKRs. Career ladders: define L3-L6, calibrate quarterly. Key risk: Director still doing senior IC work because it's "faster" — delegate or lose scalability.
-
-#### Medium Department (30-80 engineers, 3-5 EMs)
-Focus: multi-team strategy, cross-team coordination, EM peer group facilitation. Run weekly EM staff meeting, monthly architecture review board. Budget: multiple cost centers, capacity planning across teams, vendor negotiations. Strategy: own department-level strategy memo, connect to company OKRs. Career ladders: L3-L7 defined, promotion committees, leveling calibration across teams. Key risk: Conway's Law violations — team boundaries not matching system boundaries.
-
-#### Large Department (80-200 engineers, 5-8 EMs + Directors)
-Focus: organizational scaling, succession planning at director level, multi-site operations. Run: monthly director staff, quarterly offsites, annual org health survey. Budget: departmental P&L, headcount modeling with attrition forecasting, make-vs-buy decisions for major capabilities. Strategy: contribute to company strategy, own 18-month technical roadmap, board-level updates. Key risk: org silos — teams optimizing locally at expense of global outcomes.
-
-#### Enterprise (200-500+ engineers, directors of directors)
-Focus: organizational design at scale, engineering culture as a product, industry influence. Run: quarterly leadership offsites, annual reorg planning, executive succession. Budget: multi-department P&L, M&A technical diligence, platform vs product investment allocation. Strategy: multi-year technical vision, build-vs-buy-vs-partner at portfolio scale, board presentations. Key risk: "strategy by spreadsheet" — losing connection to engineering reality.
-
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -190,6 +175,91 @@ Focus: organizational design at scale, engineering culture as a product, industr
 - **Vendor and platform decisions at org scale** — you need to evaluate a build-vs-buy decision that affects multiple teams, or a major platform tool replacement that requires cross-team coordination.
 
 ## Decision Trees
+
+### Decision Tree 1: Org Structure Pattern Selection
+
+        ┌── INPUT: Designing team topology for 20-50 engineers
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+Product-aligned teams          Platform/infrastructure
+(feature delivery speed         work (shared services,
+  is top priority)               reliability, tooling)
+   │                             │
+   ▼                             ▼
+┌── High autonomy per        ┌── Each team owns
+│   team needed?             │   distinct subsystem?
+└──┬──────────────────┐      └──┬──────────────────┐
+   │ YES       │ NO          │ YES        │ NO
+   ▼           ▼              ▼            ▼
+Squad model   Matrix model  Component    Center of
+(Spotify-     (functional    teams         excellence
+style):       leads +        (each owns    + embedded
+cross-        product         a service     specialists
+functional    managers         or module)
+teams with    coordinate
+end-to-end    across
+ownership     teams
+
+### Decision Tree 2: Capacity vs Capability Investment
+
+        ┌── INPUT: Quarterly budget/headcount allocation
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Delivery commitments         Strategic capability
+at risk?                     gap identified?
+   │                         │
+   ▼                         ▼
+YES → Hire for capacity   ┌── Gap can be filled
+      (same skills,       │   by upskilling
+      more throughput)    │   existing team?
+      + consider          └──┬──────────────────┘
+      contractor surge       │ YES        │ NO
+      for time-bound         ▼            ▼
+      needs              Invest in       Hire new
+                         training +      skill set
+   ┌── Both needed?      pair with       (backend → ML,
+   │                     senior hire     web → mobile)
+   ▼                     OR external
+YES → Split allocation:  mentor
+      60% capacity,
+      40% capability
+      build. Do NOT
+      sacrifice one
+      entirely for
+      the other.
+
+### Decision Tree 3: EM Span of Control Diagnostic
+
+        ┌── INPUT: Engineering manager struggling or team growing
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+EM has > 8 direct           EM has < 4 direct
+reports                     reports
+   │                         │
+   ▼                         ▼
+┌── 1:1s shortened or     ┌── Is the EM also
+│   skipped?               │   tech-leading?
+└──┬──────────────────┐    └──┬──────────────┘
+   │ YES       │ NO        │ YES        │ NO
+   ▼           ▼            ▼            ▼
+SPLIT team.   ┌── Team     Reduce tech   Add another
+Overloaded    │   has two  lead scope    team or
+EM will       │   distinct or hire       expand scope
+lose people.  │   domains? dedicated     to grow the
+              └──┬──────┐  tech lead     EM (target
+                 │ YES  │NO              5-7 reports)
+                 ▼      ▼
+            SPLIT by   Hire tech
+            domain     lead to
+                       reduce EM
+                       load before
+                       splitting
 
 **(QUICK)**
 
@@ -279,6 +349,7 @@ year, what must it be?"
 
 **Step 2: Translate to Engineering OKRs**
 Cascade method:
+
 ```
 Company OKR: Launch in EU by Q3
   → KR: EU data residency (Infra team, Q2)
@@ -356,8 +427,13 @@ rate instead of story points.
 **Outputs:** Quarterly strategy memo, stakeholder map, triad operating rhythm.
 
   Complete when: Quarterly strategy memo shared with exec team with feedback incorporated, stakeholder map updated with current perception ratings, and triad operating rhythm documented with next quarter's joint milestones.
+  Complete when: Team OKRs aligned with company goals and reviewed by skip-level manager.
+  Complete when: Career development plans documented for all direct reports with quarterly check-ins.
+  Complete when: Engineering metrics dashboard published with DORA metrics and team health indicators.
+  Complete when: Budget approved with headcount plan, tooling costs, and training allocation.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 **(STANDARD)**
 
@@ -444,12 +520,10 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | **recruiting** | Hiring pipeline, offer strategy, employer brand | Pipeline metrics, comp benchmarks, process quality |
 | **fp-and-a-analyst** | Budget modeling, headcount planning, vendor TCO | Financial models, scenario analysis, budget tracking |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `cto-advisor` | Technology strategy, architecture governance, build-vs-buy analysis | Before making engineering leadership decisions |
 | `ceo-strategist` | Company vision, OKRs, organizational design, budget constraints | Before organizational or strategic changes |
-
 
 ## Proactive Triggers
 
@@ -464,8 +538,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Quarterly planning reveals 2+ teams blocked on the same dependency (platform, infra, another org) | Elevate the dependency to your VP; propose dedicated enabling team or platform investment; don't let teams "work around" a systemic blocker | Cross-team dependencies that persist across quarters are org design failures, not execution failures — they need structural fixes |
 | Postmortem action items from last 3 incidents >60% incomplete | Declare postmortem action bankruptcy; consolidate incomplete items; assign one owner per item with due dates; track in the same system as product work | Unfinished postmortem actions are worse than no postmortems — they teach teams that reliability doesn't actually matter |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -511,7 +585,7 @@ graph LR
 - **Headcount planning** based on current roadmap projects — a 15% attrition rate means 15 of 100 engineers leave per year. If you hire exactly to roadmap needs, attrition puts you 15 engineers behind. Plan headcount for roadmap + attrition buffer + unexpected priorities (which always arrive). **Total cost: $500K-$2M per year in emergency contractor costs, project delays, and missed revenue targets from chronic understaffing.**
 - **Tech debt "big rewrite"** approved by leadership — the rewrite takes 18 months, during which the old system gets zero investment. Customers leave because nothing improves. The rewrite launches, is missing 40% of edge cases the old system handled, and customers don't come back. Incremental strangler-fig migration always beats big rewrite. **Total cost: $2M-$20M in wasted engineering investment, customer churn, and lost market position during the 18-month feature freeze.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -522,6 +596,7 @@ graph LR
 | "Our engineering culture is strong — it doesn't need explicit investment" | Culture degrades by default under growth pressure — new hires dilute norms, remote work erodes rituals, and urgency crowds out values. Without deliberate investment in onboarding, rituals, and storytelling, culture drifts to "whatever ships fastest" within 2 hiring cycles. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -568,7 +643,6 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 
 ## Error Decoder
 

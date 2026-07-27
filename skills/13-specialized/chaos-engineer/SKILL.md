@@ -46,6 +46,7 @@ Common chains:
 - **Chain**: devops-engineer → chaos-engineer → incident-responder — DevOps provisions the testing environment; chaos engineer injects faults; incident responder validates detection and response playbooks.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -78,9 +79,11 @@ What are you trying to do?
 └── Not sure? → Describe the system and I'll design a starting experiment for staging
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -99,12 +102,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R9** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R10** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of chaos engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -125,6 +128,7 @@ Masters of chaos engineer don't just build — they build **the right thing, at 
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -140,6 +144,7 @@ Masters of chaos engineer don't just build — they build **the right thing, at 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Establishing a Chaos Engineering practice from scratch — tooling, methodology, cultural buy-in.
@@ -152,6 +157,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Preparing for AWS/Azure/GCP regional failures — testing multi-region failover.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What to Chaos First
@@ -178,6 +184,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                               │ kill test    │  │ patterns FIRST│
                               └──────────────┘  └──────────────┘
 ```
+
 **Pick services with incident history** — test the failures you've already experienced before hypothetical ones.
 **If no resilience patterns exist** — chaos engineering without circuit breakers just proves you're fragile. Build resilience first.
 
@@ -201,6 +208,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ CPU stress   │  │ Packet loss  │  │ → GameDay event│
     └──────────────┘  └──────────────┘  └────────────────┘
 ```
+
 **Infrastructure tests** verify auto-scaling and self-healing. Start here — they're the safest.
 **Dependency tests** verify circuit breakers, retries, and timeouts. Run after infra tests pass.
 **System-wide tests** verify multi-AZ/region failover. Run as GameDays with full team participation.
@@ -236,6 +244,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
      │to prod│ │thresholds   ││
      └───────┘ └─────────────┘│
 ```
+
 **No observability = no experiment.** If you can't detect the fault, you can't learn from it.
 **Fix dashboards and alerts before anything else** — running chaos without observability is just breaking things.
 
@@ -264,6 +273,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                │ first    │ │ neck. Fix it.│
                └──────────┘ └──────────────┘
 ```
+
 **Staging GameDay first** — never your first experiment in production.
 **Multi-AZ/region failover is the highest-value production experiment** — test what protects you from real outages.
 
@@ -289,12 +299,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                └──────────┘ │(free)│ │(paid)   ││(AWS)  │
                             └──────┘ └─────────┘└───────┘
 ```
+
 **K8s-only + free → Chaos Mesh or LitmusChaos.**
 **Multi-platform → Gremlin.**
 **AWS-only → AWS FIS** (IAM integration, pay-per-action).
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -309,6 +320,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Chaos experiment on staging shows the circuit breaker trips correctly — production deployment with the same circuit breaker config doesn't trip, and a cascading failure takes down 7 services | Staging has 2 replicas of each service, production has 50. The circuit breaker threshold was `maxFailures: 5` — on staging, 2 pods fail → circuit opens. On production, 5 out of 50 pods fail → circuit stays closed because the failure rate is 10%, below the default 50% threshold. | Circuit breaker thresholds must be proportional, not absolute. Use `errorPercentThreshold: 30` (percentage-based), not `maxFailures: 5` (count-based). Validate that your staging environment reproduces production scale — or at minimum, that your thresholds are expressed as percentages, not absolute counts. | Staging validates correctness. Production validates scale. A circuit breaker that works at 2 replicas but not at 50 replicas is a staging test passing and a production incident waiting to happen. |
 
 ## Error Recovery **(DEEP)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -323,6 +335,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Chaos engineering is inherently cross-team — you break things that other teams built and own. Without coordination, chaos experiments are indistinguishable from attacks or accidents.
@@ -370,13 +383,12 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Blast radius control mechanism itself fails (experiment cannot be aborted) | **CTO Advisor** + DevOps Lead | Safety mechanism failure; halt all experiments until fixed |
 | Production chaos experiment proposed for first time | **CTO Advisor** + VP Engineering | Organizational risk decision; executive approval required |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
 
@@ -391,6 +403,7 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Steady state hypothesis invalidated by infrastructure change | Service Owners, DevOps | Baseline metrics shifted; hypothesis rewrite and experiment revalidation required |
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -427,9 +440,12 @@ Chaos engineering is inherently cross-team — you break things that other teams
 **Steps:** 1) Document: what worked, what broke, what surprised us. 2) Create action items with owner + severity + due date. 3) Update experiment catalog status (designed → tested-staging → tested-prod → automated). 4) Share findings with service owners and leadership.
 **Output:** After-action report, tracked action items, updated experiment catalog.
   Complete when: After-action report published, all action items assigned with owner/severity/due date, experiment catalog updated to production-tested status, and findings shared with service owners and leadership.
-
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start in staging, graduate to production.** Never run a first-time chaos experiment in production. Validate in staging at full blast radius first, then pre-production, then production at 1% blast radius with a human abort switch. Skipping environments turns a resilience test into the outage you're trying to prevent. Cost: $50K-$500K per unprepared production experiment.
 2. **Blast radius is defined by the dependency graph, not instance count.** Terminating 1 of 100 instances sounds safe (1%), but if that instance holds the sole Kafka partition leader, the impact is 100% outage for all producers and consumers. Map downstream dependencies before injecting failure into any service. Run dependency-discovery game days before production experiments.
@@ -443,13 +459,16 @@ Chaos engineering is inherently cross-team — you break things that other teams
 10. **Every experiment result creates an action item with owner and deadline.** A chaos experiment that finds a resilience gap but generates no remediation ticket is wasted effort. File tickets with severity, assign an owner, and set a due date within 24 hours of the experiment. Track remediation completion rate as a team metric.
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 The system fails gracefully. Chaos experiments run in production without customer impact. Every team knows their blast radius and practices recovery regularly. When real incidents happen, they're boring — because the team has already practiced the response.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -467,6 +486,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Your first chaos experiment should never run in production.** Running `chaos-mesh pod-kill` against production without prior staging verification is how a $50K/month SaaS product becomes a $0/month product for 4-8 hours. A DNS timeout injection that's intended to test 2% of traffic accidentally affects 100% because of an incorrect label selector — congrats, you just caused the outage you were trying to prevent. **Total cost: $50K-$500K per unprepared production experiment.** Start in staging → then pre-production → then production with 1% blast radius and a human abort switch. Never skip environments.
 - **A chaos experiment without blast radius containment is a cascading failure generator.** Killing pods in service A without understanding its downstream dependencies can trigger a chain reaction: A fails → B's circuit breaker trips → C's queue overflows → entire platform degrades. What starts as a controlled experiment becomes a $100K-$1M incident. **Total cost: $100K-$1M in cascading infrastructure failure.** Define blast radius by dependency graph, not instance count — and run dependency-discovery game days before injecting failure into any service with downstream consumers.
@@ -479,6 +499,7 @@ graph LR
 - **Chaos experiments that only target stateless services while ignoring databases, message queues, and caches.** A team runs pod-kill and network-latency experiments on their 12 microservices every sprint and achieves 99.9% resilience scores — but never touches the PostgreSQL primary, the Kafka cluster, or the Redis cache. When a real production incident causes a Kafka partition leader election storm during peak traffic, the event-driven architecture crumbles: message backlogs spike to 2M undelivered events, consumer lag exceeds 30 minutes, and order-processing pipelines grind to a halt. The chaos dashboard is green while the business is on fire. **Total cost: $75K-$500K in business-impacting data-plane failures that chaos experiments never anticipated.** Design chaos experiments explicitly for stateful infrastructure: database primary failover, Kafka partition rebalancing, Redis sentinel promotion, and queue-backpressure scenarios. Stateful chaos requires stateful readiness — test connection-pool draining, leader-election timeouts, and write-quorum degradation separately from stateless pod cycling.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -487,7 +508,8 @@ graph LR
 | Game day without a tested rollback plan — chaos experiment auto-terminates after duration, but pods are stuck in Terminating state awaiting an unreachable leader election. The 30-minute exercise becomes a multi-hour outage. | $25K-$250K in extended outage duration when automatic remediation fails and manual intervention requires debugging under pressure. | Every game day must include a rollback runbook tested at least once. Test rollback under degraded conditions (pods stuck in Terminating, leader election failures). Communication plan for escalating if automatic remediation fails within 5 minutes. |
 | Not measuring steady state before injection — p99 latency and error rates are not baselined. Team walks away believing the system is resilient when it was already degraded before the experiment began. | $10K-$50K in false confidence before a real failure exposes cracks — potentially 10x that in incident cost when the "proven resilient" system collapses under real load. | Collect 5+ minutes of steady-state metrics for every SLO before injection. If baseline isn't healthy, abort — you can't test resilience on a degraded system. |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -498,6 +520,7 @@ graph LR
 | "Chaos experiments are too dangerous for production" | Not running chaos experiments is more dangerous. You're practicing incident response for the first time during a real outage at 3 AM with no runbook, no muscle memory, and executive stakeholders on the bridge. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Chaos experiment manifest validates: `chaos-mesh validate experiment.yaml` or equivalent — no syntax errors
 - [ ] Blast radius: experiment targets ≤ 10% of instances (or documented justification for higher %)
@@ -507,10 +530,12 @@ graph LR
 - [ ] Game day report: findings documented, severity assessed, remediation tickets filed within 24 hours
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** Observability verified before experiment: latency, error rate, and throughput dashboards show the target service clearly. Alerts configured and tested. Fault detection within 2 minutes confirmed.
 - [ ] **[S2]** Steady-state hypothesis defined with numeric thresholds: specific metric targets (e.g., p99 < 500ms, error rate < 0.1%) for the experiment duration. Baseline collected for 5+ minutes and confirmed healthy.
@@ -526,6 +551,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[S12]** Experiment catalog maintained: each experiment tracked through lifecycle (designed → tested-staging → tested-prod → automated). Resilience score per service updated after each experiment.
 
 ## References
+<!-- STANDARD: 3min -->
 - **Blast Radius (Military-Grade Controls)**: See [blast-radius-military-grade-controls.md](references/blast-radius-military-grade-controls.md)
 - **CI/CD Integration for Chaos**: See [ci-cd-integration-for-chaos.md](references/ci-cd-integration-for-chaos.md)
 - **Experiment Types (Expanded Catalog)**: See [experiment-types-expanded-catalog.md](references/experiment-types-expanded-catalog.md)

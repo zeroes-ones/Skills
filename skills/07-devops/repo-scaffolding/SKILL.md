@@ -49,8 +49,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Creating and maintaining consistent repository structures across an organization. Golden repos, template inheritance, CI/CD template sharing, and the scaffolding toolchain. Every new repo should be production-ready in under 5 minutes.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous scaffolding practices before they are recommended. Violation means STOP and refuse to proceed.
 
@@ -71,6 +73,7 @@ These rules are non-negotiable constraints that detect dangerous scaffolding pra
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a developer productivity specialist who understands that repo scaffolding is an organizational leverage point — getting it right multiplies every engineer's velocity; getting it wrong multiplies every engineer's frustration.
 
@@ -81,33 +84,15 @@ You are a developer productivity specialist who understands that repo scaffoldin
 * **A bad template is worse than no template.** A template with broken CI, outdated dependencies, or incorrect configurations trains engineers that "the template does not work, just fix it locally." Every local fix is a drift event. Every drift event is future toil.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick scan (30s):** Check if template repos exist. Count distinct CI configurations across repos. Check if new repos in last 3 months started with templates or were copied. Flag: >3 distinct CI configs, no template repo, new repos taking >30min to configure.
 * **Template audit (10min):** Review template content: is CI included? Are linter configs present? SECURITY.md and CODEOWNERS? Check template age — when was it last updated? Are dependencies current? Check for drift: compare 5 random downstream repos against their template.
 * **Scaffolding design (full session):** Design template inheritance hierarchy. Select template engine. Specify template content for each level. Design downstream sync strategy. Implement template CI/CD (yes, templates need CI too). Create documentation and onboarding guide.
 * **Migration mode (converting copied repos to template-derived):** Audit existing repos for divergence. Identify common patterns worth templatizing. Create template. Migrate repos one at a time via automated PRs. Track drift reduction over time.
 
-### Scale Depth
-
-#### Solo
-A single developer with 1-5 repos. Start with a GitHub template repo containing `.github/`, a basic CI workflow, `.gitignore`, and a README template. No template engine needed — GitHub's native template feature is sufficient. Test manually: scaffold a new repo from the template, verify CI passes. No drift tracking needed at this scale.
-
-#### Small
-A small team (3-10 engineers) with 5-20 repos. Use GitHub template repos with a base + per-language variant. CI reusable workflows with `@v1` versioning. Pre-commit hooks in the template with auto-install. Monthly manual drift check: compare repos against their templates. No custom CLI needed — `gh repo create --template` is sufficient.
-
-**Transition trigger:** Engineers start copy-pasting from existing repos instead of using templates, or a security fix needs to be applied to 10+ repos manually — it's time for template inheritance and automated sync.
-
-#### Medium
-An organization with 10-50 engineers across 20-100 repos. Template inheritance hierarchy: base → language → service-type. Cookiecutter or Copier for interactive scaffolding. Automated drift detection with dashboard. Automated sync PRs for low-risk changes monthly. Monorepo and polyrepo support from the same template system. CI reusable workflows with semantic versioning and deprecation policy.
-
-**Transition trigger:** Multiple business units with different compliance requirements, or 100+ repos — centralized template governance becomes necessary to prevent fork-and-forget proliferation.
-
-#### Enterprise
-100+ repos, multiple business units, regulatory compliance requirements. Centralized template governance team. Custom scaffolding CLI with org-specific integrations (ticketing, monitoring, service catalog). Real-time drift dashboard with automated remediation. Policy-as-code: templates enforce SOC 2, HIPAA, FedRAMP controls automatically. Self-service developer portal for repo creation. Template metrics: time-to-green-CI, template adoption rate, drift percentage per BU. Quarterly template review with engineering leadership.
-
-**Transition trigger:** Regulatory compliance audit horizon — templates become the mechanism for enforcing and proving compliance controls across all repos. Templates must generate audit evidence automatically.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use repo-scaffolding when establishing or improving how new repositories are created — the focus is on consistency, speed, and governance.
 
@@ -125,10 +110,12 @@ Use repo-scaffolding when establishing or improving how new repositories are cre
 Do NOT use repo-scaffolding for monorepo workspace configuration (route to monorepo-manager). Do NOT use for CI/CD pipeline design (route to ci-cd-builder). Do NOT use for developer platform design (route to platform-engineer). Do NOT use for code generation within an existing project (route to appropriate developer skill). Do NOT use for polyrepo strategy decisions (route to polyrepo-strategy).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -143,6 +130,7 @@ Do NOT use repo-scaffolding for monorepo workspace configuration (route to monor
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What repo scaffolding task are you working on?
@@ -158,11 +146,13 @@ What repo scaffolding task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 106 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Design the Template System
+<!-- STANDARD: 3min -->
 
 Execute in order. Do not skip steps.
 
@@ -171,10 +161,102 @@ Execute in order. Do not skip steps.
 > 📎 **Full content (106 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Template Scope Decision
+
+        ┌── INPUT: What should your golden template include?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+Mandatory files              Team-choice    Never template
+(generated, enforced)        defaults       (anti-pattern)
+   │                         │              │
+   ▼                         ▼              ▼
+CI/CD workflows              ESLint config  Business logic
+CODEOWNERS                   Prettier rules (.go, .ts, .py
+SECURITY.md                  Dockerfile     service code)
+.gitignore                   directory      │
+renovate.json                structure      ▼
+README skeleton              │              Templates are
+│ must pass                  ▼              infrastructure,
+│ template-sync              Document as    not shared
+▼                            "suggested"    libraries
+Generate via                 not enforced
+projen/cookiecutter          │
+not "suggested in            ▼
+README"                     Teams can
+   │                        override but
+   ▼                        template-sync
+Teams can add               will flag drift
+but NOT remove
+generated files
+
+### Decision Tree 2: Downstream Sync Strategy
+
+        ┌── INPUT: Template updated — how to propagate to downstream repos?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+<10 repos, low              10-50 repos,   >50 repos,
+change frequency             weekly         daily changes
+   │                         changes        │
+   ▼                         │              ▼
+Manual PR per repo           ▼              Automated PR
+Post in team Slack           Automated PR   propagation via
+"Template updated —          via GitHub     scheduled workflow
+please sync"                 Actions        │
+   │                         │              ▼
+   ▼                         ▼              .github/workflows/
+ACCEPTABLE for               template-sync  template-sync.yml
+small orgs                   workflow diffs runs nightly
+but debt                     │              │
+accumulates                  ▼              ▼
+quickly if                   Opens PR per   Target >90% repos
+>10 repos                    downstream     matching template
+                             repo on        within 30 days
+                             template       of template change
+                             change
+
+### Decision Tree 3: Scaffold Prerequisites Validation
+
+        ┌── INPUT: Scaffolding a new repo — what must exist first?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+GitHub/Platform              Secrets &      External
+resources                    credentials    dependencies
+   │                         │              │
+   ▼                         ▼              ▼
+Repository created           Use OIDC       DNS records?
+gh repo create               not long-lived Monitoring
+   │                         secrets        dashboards?
+   ▼                         │              │
+Branch protection            ▼              ▼
+rules applied                aws-actions/   Pre-scaffold
+   │                         configure-aws  check validates
+   ▼                         -credentials   ALL prerequisites
+Environments created         @v4 with        │
+(production, staging)        role-to-assume ┌──┴──┐
+   │                         │              │     │
+   ▼                         ▼              ▼     ▼
+pre-scaffold-check:          90-day expiry  YES   NO
+validate existence           check on       │     │
+before scaffolding           secrets that   ▼     ▼
+declares success             must persist  Proceed Fail with
+                                           │     clear error
+                                           ▼     listing what's
+                                           Scaffold missing + how
+                                           complete to create it
 
 #
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -182,8 +264,8 @@ Execute in order. Do not skip steps.
 | Scaffolding assumes prerequisites exist — the golden template's `deploy.yml` references a GitHub Environment named `production` that 12 teams never created; deployments fail with "Environment not found" | $10K-$50K in blocked deploys and onboarding friction | Add a `pre-scaffold-check` step that validates all prerequisites (Environments, secrets, IAM roles, DNS); the scaffold CLI must either create missing resources or fail with a clear error listing what's missing |
 | Long-lived secrets created at scaffold time — `DEPLOY_KEY` was set 8 months ago and rotated 3 months ago; deployments fail silently because the error is swallowed by `|| true` | $15K-$60K in silent deploy failures and security risk from unrotated secrets | Use short-lived OIDC tokens instead of long-lived secrets; for secrets that must persist, add a `secret-expiry-check` CI job that fails when secrets are older than 90 days; never use `|| true` on critical path operations |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -198,8 +280,10 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Repo was scaffolded 8 months ago with `DEPLOY_KEY` secret — the key was rotated 3 months ago. Deployments have been failing silently because the deploy step uses the old key but the error is swallowed by `|| true`. | The secret was set at scaffold time and never rotated. The deploy script had `|| true` on the deploy step to handle "expected" transient failures, but this also swallowed the permanent authentication failure. | Use short-lived OIDC tokens instead of long-lived secrets: `aws-actions/configure-aws-credentials@v4` with `role-to-assume` and no static credentials. For secrets that must be long-lived, add a `secret-expiry-check` CI job that fails when secrets are older than 90 days. And never use `|| true` on critical path operations. | Secrets created at scaffold time have a birthday — and they will outlive every rotation policy you write. OIDC eliminates the secret management problem entirely by making credentials ephemeral. |
 
 ## Decision Tree 1: Template Engine Selection
+<!-- STANDARD: 3min -->
 
 ```
+
 Should we use GitHub template repos? (simplest option)
 |
 |-- YES -> GitHub template repos (free, integrated, zero tooling)
@@ -241,8 +325,10 @@ Should we use GitHub template repos? (simplest option)
 #
 
 ## Decision Tree 2: What Goes in the Template?
+<!-- STANDARD: 3min -->
 
 ```
+
 For a NEW repo created from this template, what must be present on first commit?
 |
 |-- NON-NEGOTIABLE (every template, every language, every team):
@@ -284,8 +370,10 @@ For a NEW repo created from this template, what must be present on first commit?
 #
 
 ## Decision Tree 3: Template Inheritance
+<!-- STANDARD: 3min -->
 
 ```
+
 What level of template inheritance does your org need?
 |
 |-- LEVEL 0: Single Flat Template (1 template = 1 repo type)
@@ -332,8 +420,10 @@ What level of template inheritance does your org need?
 #
 
 ## Decision Tree 4: Downstream Sync Strategy
+<!-- STANDARD: 3min -->
 
 ```
+
 Template has been updated. How do downstream repos get the changes?
 |
 |-- How many downstream repos? <=10 -> MANUAL (simple, low overhead)
@@ -368,8 +458,10 @@ Template has been updated. How do downstream repos get the changes?
 #
 
 ## Decision Tree 5: Monorepo Package Scaffolding
+<!-- STANDARD: 3min -->
 
 ```
+
 Should we use monorepo-level scaffolding tools or repo-level templates?
 |
 |-- We use Nx -> nx generate
@@ -399,8 +491,10 @@ Should we use monorepo-level scaffolding tools or repo-level templates?
 #
 
 ## Decision Tree 6: CI/CD Template Sharing
+<!-- STANDARD: 3min -->
 
 ```
+
 How should CI/CD configurations be shared across repos?
 |
 |-- We use GitHub Actions -> Reusable workflows (.github/workflows/ in a shared repo)
@@ -435,6 +529,7 @@ How should CI/CD configurations be shared across repos?
 |   |-- Monitor them (how many repos using each version? any breaking for anyone?)
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -449,6 +544,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start with a GitHub template repo before building custom tooling.** A GitHub template repo with `.github/`, CI workflows, linter configs, and SECURITY.md provides 80% of scaffolding value at 5% of the effort. Iterate from there. Custom CLIs and cookiecutter templates add complexity that rarely justifies the ROI before you have 15+ repos.
 
@@ -471,10 +567,12 @@ If a command or approach fails, follow this escalation path before giving up:
 10. **Run automated drift detection monthly.** Compare each downstream repo against its template. Report: files added/removed/modified relative to template. A drift dashboard makes invisible divergence visible. Flag repos with >20% drift for manual review. Automated sync PRs for low-risk changes (linting rules, CODEOWNERS updates).
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 #
 
 ## Consumes From
+<!-- STANDARD: 3min -->
 * **monorepo-manager** — When scaffolding packages inside a monorepo, monorepo-manager provides the workspace configuration and project graph context. Repo scaffolding provides the template content and generator configuration for each package type.
 * **ci-cd-builder** — CI/CD templates designed here need ci-cd-builder for pipeline implementation details. Reusable workflows, orbs, and CI templates are designed by ci-cd-builder and consumed as "what goes in the template" by repo-scaffolding.
 * **polyrepo-strategy** — The decision to use polyrepo (many independent repos) vs monorepo directly impacts scaffolding architecture. Polyrepo needs repo-level templates; monorepo needs package-level scaffolding. The decision is made by polyrepo-strategy; the implementation is repo-scaffolding.
@@ -484,6 +582,7 @@ If a command or approach fails, follow this escalation path before giving up:
 #
 
 ## Feeds Into
+<!-- STANDARD: 3min -->
 * **ci-cd-builder** — Template CI workflows must be valid, working CI configurations. Repo-scaffolding specifies WHAT goes in the template; ci-cd-builder ensures the CI configs actually work.
 * **monorepo-manager** — Package scaffolding generators (nx generate, turbo gen, plop.js) are configured here but consumed by monorepo-manager for workspace integration.
 * **platform-engineer** — The scaffolding experience is a golden path in the IDP. The scaffolding CLI becomes a platform capability.
@@ -492,6 +591,7 @@ If a command or approach fails, follow this escalation path before giving up:
 #
 
 ## Coordination Protocols
+<!-- STANDARD: 3min -->
 * **Template CI validation:** ci-cd-builder reviews template CI workflows for correctness before deployment.
 * **Security gate:** security-engineer must approve security-critical template files (CI security jobs, SECURITY.md).
 * **Monorepo alignment:** monorepo-manager ensures scaffolding generators produce valid workspace members.
@@ -503,6 +603,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 * **New repo created ->** Check: Was it created from a template? If not, flag: "This repo was not created from a template. Drift risk. Time to first green CI: {time}."
 * **CI config change in downstream repo ->** Check: Does the change weaken org-level requirements? If yes, flag: "This CI change removes/weakens an org-level requirement. Justify or revert."
@@ -513,16 +614,20 @@ If a command or approach fails, follow this escalation path before giving up:
 * **Developer onboarding (new hire first week) ->** Proactively: Have new hire create a test repo from template. Measure time-to-CI. If >5 minutes, template needs work.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -534,13 +639,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -556,6 +664,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -565,6 +674,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[RS-01]** GitHub template repo(s) exist for each supported language/framework stack; template contains `.github/`, CI workflows, linter configs, SECURITY.md, CODEOWNERS, and `.gitignore`
 - [ ] **[RS-02]** Template CI is tested weekly: automated scaffold → push → verify green build; alert fires if any template produces a red build
@@ -582,6 +692,7 @@ Before beginning a new phase, verify:
 - [ ] **[RS-14]** New language/framework stack gated on template availability: no repo for a new stack without a corresponding template; template created alongside first project
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 * **Time-to-green-CI < 5 minutes:** A developer creates a repo from template, clones locally, runs setup command, pushes — CI is green in <5 minutes. This is the primary metric.
 * **One org, one CI pattern:** Every repo's CI workflow follows the same structure. An engineer moving between repos knows exactly where to find CI config, how to add a job, how to debug.
@@ -592,10 +703,12 @@ Before beginning a new phase, verify:
 * **Scaffolding is self-service:** Developers create repos without filing tickets. The template handles CI, security, and governance automatically.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 #
 
 ## Exercise 1: Design a Base Template (45 min)
+<!-- STANDARD: 3min -->
 * Take 5 existing repos from your org. Extract the intersection of their CI configs, linter rules, and governance files.
 * Design a base template that every repo must have. Justify each file: why is this non-negotiable?
 * Create the template locally. Scaffold a test repo. Does CI pass? Time it.
@@ -604,6 +717,7 @@ Before beginning a new phase, verify:
 #
 
 ## Exercise 2: Map Your Org's Template Hierarchy (30 min)
+<!-- STANDARD: 3min -->
 * List all languages and frameworks in your org.
 * Map them to a template inheritance hierarchy (Level 0-3).
 * Identify: which level is right for your org size?
@@ -613,6 +727,7 @@ Before beginning a new phase, verify:
 #
 
 ## Exercise 3: Drift Audit (60 min)
+<!-- STANDARD: 3min -->
 * Select 10 downstream repos. For each, compute a diff against the template they were created from.
 * Classify each difference: intentional, unintentional, unknown.
 * Write a 1-page summary: what is the drift profile of your org? Where are the risks?
@@ -622,6 +737,7 @@ Before beginning a new phase, verify:
 #
 
 ## Exercise 4: Implement Downstream Sync (90 min)
+<!-- STANDARD: 3min -->
 * Pick an existing template. Make a change to it (add a lint rule, update CI step).
 * Implement an automated sync: script that opens PRs to all downstream repos.
 * For each PR: does CI pass? Does the change break anything?
@@ -631,12 +747,14 @@ Before beginning a new phase, verify:
 #
 
 ## Exercise 5: Template Engine Comparison (45 min)
+<!-- STANDARD: 3min -->
 * Evaluate 3 template engines for your primary language (e.g., cookiecutter vs copier vs custom CLI).
 * Write a decision document: pros, cons, recommended choice, migration path.
 * Prototype: create the same template in your top 2 choices. Which was faster? Which produced better results?
 * Grade: Concrete recommendation with evidence = pass. "It depends" without evidence = redo.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -647,6 +765,7 @@ Before beginning a new phase, verify:
 | "The scaffolding tool is already picked — we don't need to compare alternatives." | Wrong template engine choice (cookiecutter vs copier vs custom CLI) locks in limitations for years. Migrating 30+ templates later costs $15K-$30K in one-time conversion. A 45-minute comparison session saves this. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Template drift as technical debt accumulator
 **What it looks like:** Template updated quarterly, downstream repos drift 4-6 months behind. No automated sync mechanism. Each drifted repo needs manual reconciliation at 15 minutes per drifted file.
@@ -689,22 +808,28 @@ Before beginning a new phase, verify:
 **Do this instead:** Even a 2-person team benefits from one consistent repo template. Start with GitHub template repo (5 minutes to set up). Scale as the org grows. The smallest investment — a standard `.gitignore` and CI file — pays back in the first week.
 
 ## Verification
-<!-- Full 46 lines extracted to references/verification.md -->
+<!-- STANDARD: 3min -->
 
-#
-
-## Verify Template Quality
-# Check if template repo exists and is marked as template
-gh repo view org/template-repo --json isTemplate,name,description
-# Scaffold a test repo from template
-...
-> 📎 **[references/verification.md](references/verification.md)** — 46 lines of detailed guidance
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Template repo is created and marked as GitHub template | `gh repo view org/template-repo --json isTemplate` returns `true` |
+| ☐ | Complete when Scaffold CLI generates a working repo in under 60 seconds | Time `repo-scaffold create --template go-service --name test-service` |
+| ☐ | Complete when All CI/CD workflows in scaffolded repo pass on first push | Check GitHub Actions: all workflow runs green with zero failures |
+| ☐ | Complete when Pre-scaffold check validates all prerequisites before creation | Run `repo-scaffold check --template go-service` — no "Environment not found" errors |
+| ☐ | Complete when Template sync workflow opens automated PR when upstream template changes | Merge a change to template, verify PR opens in downstream repos within 24h |
+| ☐ | Complete when Scaffolded repo contains CODEOWNERS, SECURITY.md, CONTRIBUTING.md, and LICENSE | `ls -la scaffolded-repo/{CODEOWNERS,SECURITY.md,CONTRIBUTING.md,LICENSE}` — all present |
+| ☐ | Complete when No long-lived secrets at scaffold time — OIDC or rotation tracking enabled | `grep -r "DEPLOY_KEY\|STATIC_SECRET" scaffolded-repo/.github/` returns zero matches |
+| ☐ | Complete when Downstream repos match template within 30 days of template update | `repo-scaffold drift-check --max-age 30d` reports >90% compliance |
+| ☐ | Complete when Scaffold test passes on all target OS/shell combinations | Run scaffold on macOS, Linux, and Windows; all produce identical directory trees |
+| ☐ | Complete when No manual steps remain in the repo creation process | Walk through onboarding doc — every step is automated by CLI or CI |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [Golden Repo Pattern](references/golden-repo-pattern.md) — The canonical template-per-language pattern, including structure decisions, content standards, and governance model for the single-source-of-truth approach.
 * [Template Engines](references/template-engines.md) — Comparison matrix of cookiecutter, Copier, degit, Yeoman, GitHub templates, and custom CLIs with selection criteria, migration paths, and real-world adoption examples.

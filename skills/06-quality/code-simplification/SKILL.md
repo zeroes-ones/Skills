@@ -48,8 +48,10 @@ chain:
 Reduce code complexity while preserving exact behavior — the hardest discipline in software engineering. This skill applies five principles: **Preserve Behavior Exactly** (every simplification must pass existing tests unchanged), **Follow Project Conventions** (don't impose new patterns mid-refactor), **Prefer Clarity Over Cleverness** (the best code reads like prose, not a puzzle), **Maintain Balance** (not everything needs golfing — some verbosity is intentional), and **Scope to What Changed** (simplify only the diff surface; don't cascade into unrelated modules).
 
 Chesterton's Fence is your first principle: **understand why code exists before removing it.** Every line that looks useless may be a load-bearing wall for an edge case discovered through production fire. The Rule of 500 states that any file exceeding 500 lines needs explicit justification or a decomposition plan — no exceptions.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect simplification mistakes before they ship. Violation means STOP and refuse to proceed.
 
@@ -65,12 +67,12 @@ These rules are non-negotiable constraints that detect simplification mistakes b
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Simplification is not about making code shorter — it is about making code **understandable faster.** A master simplifier knows that the person reading code tomorrow (who might be you at 3 AM during an incident) is the customer. Every keystroke saved today that costs 30 seconds of confusion tomorrow is a net loss.
 
@@ -100,6 +102,7 @@ Simplification is not about making code shorter — it is about making code **un
 - **Deletion is a skill.** Most engineers are afraid to delete code. Practice: find a 500-line file and see if you can reduce it to 300 lines without losing behavior. You will discover that 40% of most codebases is dead or redundant.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick scan (30s):** Run complexity lint on changed files. Flag any function with cyclomatic complexity > 10, any file > 500 lines, and any file where comment-to-code ratio exceeds 30% (overtly commented code is often compensating for bad structure). Identify the top 3 complexity hotspots.
 - **Standard engagement (10min):** Apply simplification to one function or module. Compute baseline complexity, identify the primary anti-pattern (deep nesting, god function, shotgun surgery), apply the language-specific refactoring pattern, verify tests pass unchanged, confirm complexity score decreased.
@@ -107,6 +110,7 @@ Simplification is not about making code shorter — it is about making code **un
 - **Legacy code rescue (multi-session):** For files with 0% test coverage and unknown behavior: (1) characterize with characterization tests, (2) identify seams, (3) simplify one seam at a time, (4) never mix simplification with feature work.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use code-simplification when working with existing code that is harder to understand than it needs to be — the focus is on reducing cognitive load, not adding features.
 
@@ -124,6 +128,7 @@ Use code-simplification when working with existing code that is harder to unders
 Do NOT use code-simplification for greenfield development (route to backend-developer or frontend-developer). Do NOT use for performance optimization that changes behavior (route to performance-engineer). Do NOT use for security hardening (route to security-reviewer). Do NOT use for API contract changes (route to api-designer). Do NOT use for adding features while refactoring — separate PRs.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -156,6 +161,7 @@ What are you trying to simplify?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 ### Phase 0: Measure Baseline
 
@@ -163,9 +169,9 @@ Before touching a single line, compute your baseline. You cannot claim you simpl
 
 ```
 npx complexity-report src/target.ts --format json > baseline.json
-# or
+ #or
 radon cc src/target.py -j > baseline.json
-# or
+ #or
 gocyclo src/target.go > baseline.txt
 ```
 
@@ -211,6 +217,7 @@ ASCII diagram:
 │         └── FAIL ──► REVERT      │
 └──────────────────────────────────┘
 ```
+
   Complete when: Unused exports and unreachable code identified, verified with git blame and coverage, deleted, and tests passing.
 
 ### Phase 2: Structural Simplification
@@ -220,6 +227,7 @@ Now attack the living code. Priority order:
 **2a. Flatten nesting (guard clauses)**
 
 Before:
+
 ```typescript
 function getDiscount(user: User): number {
   if (user) {
@@ -236,9 +244,11 @@ function getDiscount(user: User): number {
     return 0;
   }
 }
+
 ```
 
 After:
+
 ```typescript
 function getDiscount(user: User): number {
   if (!user || !user.isActive) return 0;
@@ -249,6 +259,7 @@ function getDiscount(user: User): number {
 **2b. Simplify conditionals (lookup table)**
 
 Before:
+
 ```typescript
 function getStatusColor(status: string): string {
   if (status === 'active') return 'green';
@@ -258,9 +269,11 @@ function getStatusColor(status: string): string {
   else if (status === 'warning') return 'orange';
   return 'black';
 }
+
 ```
 
 After:
+
 ```typescript
 const STATUS_COLORS: Record<string, string> = {
   active: 'green', pending: 'yellow', error: 'red',
@@ -272,11 +285,14 @@ const getStatusColor = (status: string) => STATUS_COLORS[status] ?? 'black';
 **2c. Extract to named variable (no new functions!)**
 
 Before:
+
 ```python
 total = sum(order.price * order.quantity * (1 - 0.1 if customer.is_member else 1) * (1 + TAX_RATES[order.state]) for order in orders if order.status != 'cancelled')
+
 ```
 
 After:
+
 ```python
 def order_net_price(order, customer):
     discount = 0.1 if customer.is_member else 0.0
@@ -286,6 +302,7 @@ def order_net_price(order, customer):
 active_orders = [o for o in orders if o.status != 'cancelled']
 total = sum(order_net_price(o, customer) for o in active_orders)
 ```
+
   Complete when: Guard clauses applied, conditionals simplified to lookup tables, and complex expressions extracted to named helpers.
 
 ### Phase 3: Rename & Clarify
@@ -297,8 +314,13 @@ Naming is the highest-leverage simplification. A good name eliminates the need f
 - **Remove redundant comments:** If the code says `// iterate over users` above `for user in users:`, delete the comment
 - **Add one critical comment:** One comment explaining WHY (not what) if the logic is genuinely non-obvious
   Complete when: Misleading variables renamed, magic numbers replaced with named constants, and redundant comments removed.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Decision Tree 1: Cyclomatic Complexity Reduction
 
@@ -402,8 +424,8 @@ Phase 2: Unify Strategy
 └── Async code → Use Promise.catch or try/catch consistently (pick one pattern per file)
 ```
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Measure cyclomatic complexity before and after every simplification.** Run `radon cc -a [file]` (Python), `eslint --rule 'complexity: [error, 10]'` (JS/TS), or `gocyclo` (Go) to get baseline scores. Target: every modified function should show decreased CC. If CC increased, your "simplification" added complexity — revert. Complexity below 5 is excellent, 6-10 is acceptable with clear naming, 11+ must be decomposed.
 
@@ -425,8 +447,8 @@ Phase 2: Unify Strategy
 
 10. **Simplify incrementally — one seam at a time, commit after each.** Identify the smallest independent unit (single function, < 20 lines). Write characterization tests if none exist. Simplify that unit. Run all tests. Commit. Repeat. The alternative — simplifying 500 lines in one pass — creates a diff that no reviewer can meaningfully assess and a bug surface that no test suite can fully cover. Small commits are reversible, reviewable, and safe.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -441,6 +463,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Skill to Invoke |
 |---|---|
@@ -452,13 +475,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Simplification touches performance-critical path | `performance-engineer` — benchmark before and after |
 | Simplification is part of broader tech debt initiative | `staff-engineer` or `engineering-manager` — align with roadmap |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `code-reviewer` | Code quality assessment, security patterns, testing gaps | Before finalizing implementation or shipping to production |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These conditions automatically activate code-simplification scrutiny even when not explicitly invoked:
 
@@ -468,11 +490,13 @@ These conditions automatically activate code-simplification scrutiny even when n
 - **Trigger: git blame shows a line was last touched > 2 years ago AND you're modifying it.** Auto-activate Chesterton's Fence check.
 - **Trigger: `npm ls` or `pip freeze` shows a dependency used by exactly one file.** Flag: "Single-use dependency — consider inlining or removing."
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before merging a simplification PR, verify every item:
 
@@ -491,10 +515,11 @@ Before merging a simplification PR, verify every item:
 - [ ] **No behavioral changes.** Same outputs for same inputs. Same exceptions thrown under same conditions. Same side effects in same order. This is refactoring, not reimplementation.
 - [ ] **Code review confirms readability improvement.** At least one other engineer has read the diff and agrees it's simpler. If the reviewer says "I don't understand this new version," simplify further or revert.
 
-
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 **Before — Complex nested conditional (CC=12):**
+
 ```typescript
 function calculateShipping(order: Order, user: User, warehouse: Warehouse): number {
   let cost = 0;
@@ -523,9 +548,11 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
   }
   return cost;
 }
+
 ```
 
 **After — Guard clauses + lookup (CC=3):**
+
 ```typescript
 const SHIPPING_RATES = {
   premium:  { nearby: 0, far: 0, freeThreshold: 100,  base: 0 },
@@ -545,6 +572,7 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **The 500 → 300 Challenge:** Find a 500+ line file in your codebase. Measure its complexity. Spend exactly 30 minutes simplifying it. Goal: reduce lines by 40% without breaking any tests. Record baseline and final complexity scores.
 2. **Guard Clause Conversion:** Find 5 functions with 3+ nesting levels. Convert each to guard clause pattern (early returns). Count how many indentation levels you eliminated. The first one will feel awkward. By the fifth, it will be instinctive.
@@ -552,7 +580,8 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 4. **Conditional Table Refactor:** Find a function with 5+ if-else branches on the same variable. Convert to a lookup table or object literal. Measure: does the refactored version have higher or lower cognitive complexity? (It should always be lower.)
 5. **Naming Audit:** Take a 200-line module. For every variable and function name, ask: "Would a new team member understand this without reading the implementation?" Rename anything that fails this test. Run tests. Observe: how many comments became redundant?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -563,6 +592,7 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 | "The team won't understand this functional refactor — better to keep the imperative style." | Converting a `for` loop to `reduce` without team buy-in guarantees a revert next sprint. Code simplification must be a team sport — unilaterally changing the paradigm wastes effort and creates friction. Cost: **$500-$2K** in wasted effort + team churn per rejected refactor. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Deleting error-handling code because "it never happens."** Production logs show the "impossible" null pointer happens 10,000 times per day at scale. Every `catch` block, null guard, and defensive check exists because someone got paged at 3 AM. **Total cost: $15,000-$50,000 per incident in engineering hours + revenue loss.**
 - **Golfing code so aggressively it becomes unreadable.** A 3-line ternary chain with nested destructuring and a spread operator is NOT simpler than a 10-line function with named intermediates. The reader loses 5 minutes decoding the trick every time they encounter it. **Total cost: $2,500-$10,000/year in cumulative engineer confusion across a 10-person team.**
@@ -573,6 +603,8 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 - **Removing a "useless" log statement that was the only monitoring signal.** That `console.log('payment processed')` looked redundant — except it was the only line grep'd by the on-call dashboard. Removing it blinds the ops team to payment failures for 6 hours. **Total cost: $20,000-$100,000 in missed revenue during monitoring blackout.**
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -582,6 +614,7 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 | Introducing functional patterns (reduce, compose) without team consensus | $5K-$20K in rework from reverted changes that teammates couldn't understand | Keep simplification idiomatic to the language and team's skill level; pair refactors with team knowledge sharing |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] All existing tests pass with zero changes to test files
 - [ ] Cyclomatic complexity decreased for every modified function (measure before and after)
@@ -594,25 +627,11 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 - [ ] Code review confirms readability improvement (ask a colleague to read the diff)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-### Scale Depth
-
-#### Solo Developer
-Simplify as you go — no formal process. If a function is hard to read while you're debugging, clean it up before fixing the bug. Run existing tests manually. No complexity metrics. Trust your judgment on what's "simpler." Commit small, revertable changes.
-
-#### Small Team (2-10)
-Lint-enforced complexity thresholds (CC ≤ 10) in CI advisory mode. Rule of 500 tracked as informational metric (no block). Dead code removal encouraged during any file touch. Chesterton's Fence applied to code > 1 year old. PR review includes "could this be simpler?" as a standard question. Monthly complexity trend review.
-
-#### Medium Team (10-50)
-CC ≤ 10 enforced as blocking gate on new/modified code. Rule of 500 blocks new files > 500 lines without decomposition plan. Guard clause and early return patterns codified in style guide. Cognitive complexity tracked per module with quarterly reduction targets. Dead code removal tracked as engineering metric. Simplification time budgeted in each sprint (10-15%).
-
-#### Enterprise (50+)
-Complexity budgets per service with quarterly reviews. Automated simplification suggestions from AI-assisted refactoring tools validated by human review. Technical debt quantified in $ (developer-hours lost to complexity). Complexity scorecard at VP level: avg CC, % files over 500 lines, dead code %. Cross-team simplification guild shares patterns and tools. Onboarding includes "simplify-first" culture training.
-
-**Transition Triggers:** Scale up when: (a) junior engineers regularly struggle to understand existing code → Small, (b) average bug-fix time exceeds 4 hours → Medium, (c) technical debt visibly slows feature velocity (2+ sprints delayed by complexity) → Enterprise, (d) codebase exceeds 500K lines → Enterprise.
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -628,6 +647,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `// TODO: fix this later` — committed in 2019, still in production. The "later" never came | TODO comments have zero accountability. No ticket, no owner, no due date. They survive refactors, team changes, and company acquisitions because they're invisible in the backlog | Convert every TODO to a ticket: `// TODO(PROJ-1234): Fix race condition in cache invalidation`. CI check: scan for TODOs without ticket references, fail build. Sprint review: stale TODOs (>90 days) auto-escalate to tech debt backlog | A TODO without a ticket is a note to a future person who doesn't exist. The ticket creates accountability. The CI check prevents new ones. The sprint review makes existing ones visible. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [Core Workflow](../references/core-workflow.md) — Detailed step-by-step with more code examples
 - [Anti-Patterns](../references/anti-patterns.md) — Common simplification failures by language
@@ -636,4 +656,3 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [Checklist](../references/checklist.md) — Pre-merge verification checklist
 - [Error Decoder](../references/error-decoder.md) — Common simplification error messages and fixes
 - [Footguns](../references/footguns.md) — Simplifications that frequently backfire
-- [Scale Depth](../references/scale-depth.md) — Simplifying at scale: monorepo, microservices, legacy

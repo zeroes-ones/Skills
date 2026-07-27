@@ -64,6 +64,7 @@ chain:
 Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -102,7 +103,8 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -113,6 +115,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "Out of scope is obvious — writing it down is bureaucracy" | Unwritten scope boundaries are invisible fences. When the stakeholder asks for "one small addition" during sprint 6, you have no agreed contract to point to. Out of Scope is not bureaucracy — it's the only thing standing between your roadmap and scope creep. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -129,12 +132,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Product management is not about writing specs — it's about **making decisions under uncertainty with incomplete information and competing incentives**. The output is not a PRD; the output is a shipped outcome that moved a metric.
 
@@ -170,6 +173,7 @@ Product management is not about writing specs — it's about **making decisions 
 - **Ship without full consensus when speed matters more than alignment.** In crisis or time-sensitive opportunities, ship first, align after. Document the decision and rationale.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 PM skill manifests in the scope and complexity of the problems you own — from individual features to product lines to company strategy.
 
@@ -184,6 +188,7 @@ PM skill manifests in the scope and complexity of the problems you own — from 
 **Usage**: Say "as an L3 PM, write the PRD for..." or "as an L4 PM, prioritize across these product lines." Default: **L2** (feature-area ownership).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A new feature or product area needs a formal Product Requirements Document
@@ -194,6 +199,93 @@ PM skill manifests in the scope and complexity of the problems you own — from 
 - A feature is stalled because requirements are ambiguous or contradictory
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Build vs Buy vs Partner
+
+        ┌── INPUT: New capability needed for roadmap
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+Is this core differentiator    Is this table-stakes
+or competitive advantage?      or commodity?
+   │                             │
+   ▼                             ▼
+YES → BUILD internally       ┌── Does a mature
+      Invest engineering     │   vendor solution
+      time for ownership     │   exist?
+                             └──┬──────────────────┘
+                                │ YES        │ NO
+                                ▼            ▼
+                           ┌── Integration   PARTNER
+                           │   cost < build  or contract
+                           │   cost?         development
+                           └──┬──────────┘
+                              │ YES   │ NO
+                              ▼       ▼
+                            BUY     BUILD
+                            (SaaS)  (if
+                                    strategic
+                                    enough)
+
+### Decision Tree 2: Stakeholder Update Format Selection
+
+        ┌── INPUT: Stakeholder needs status update
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Executive / Board          Engineering / Design
+   │                         │
+   ▼                         ▼
+┌── Strategic decision    ┌── Blocked on
+│   needed?               │   dependencies?
+└──┬──────────────────┐   └──┬──────────────┘
+   │ YES       │ NO        │ YES        │ NO
+   ▼           ▼            ▼            ▼
+Decision     Weekly      Unblock        Async
+memo +       exec        meeting        Slack +
+options      summary     (15 min)       sprint
++ reco       3 bullets                  board
+                                       update
+   ┌── Customer-facing
+   │   launch imminent?
+   ▼
+YES → Go-to-market
+      readiness
+      checklist +
+      launch comms
+      plan
+NO  → Standard weekly
+      product digest
+
+### Decision Tree 3: User Story Splitting Decision
+
+        ┌── INPUT: Story is too large for one sprint
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Can split by                Can split by
+workflow step?              data variation?
+   │                         │
+   ▼                         ▼
+YES → Slice by user      YES → Slice by
+      journey: login →        entity type:
+      dashboard → action      handle each
+                              variant
+   ┌── Can split by
+   │   acceptance criteria
+   │   complexity?
+   ▼
+YES → Happy path first,
+      edge cases and
+      error states in
+      follow-up stories
+NO  → Re-evaluate:
+      is this actually
+      an epic?
 
 **(QUICK)**
 
@@ -225,6 +317,7 @@ Strategic vs tactical feature?
 - Already-solved problem (e.g., "add forgot password")? → Reuse existing pattern. Minimal spec.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -253,8 +346,12 @@ Build a Now/Next/Later roadmap — avoid date-based roadmaps beyond the current 
 Attend standups to unblock the team on requirements ambiguity. Triage incoming bugs and feature requests against the current roadmap. Run sprint demos and validate that acceptance criteria are met — not just functionally, but experientially. Collect launch metrics and compare against the success criteria in the PRD. Schedule a post-launch retro to capture product learnings within 2 weeks of GA.
 
   Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+  Complete when: PRD reviewed by engineering lead and feasibility confirmed within sprint capacity.
+  Complete when: Success metrics defined with baseline measurement and target thresholds.
+  Complete when: User testing completed with at least 5 participants — findings documented.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **PRD as a decision document, not a specification.** The PRD captures WHY and WHAT — the problem, success criteria, and user stories. Engineering owns HOW. If your PRD specifies database schemas, it is overreaching.
 
@@ -277,6 +374,7 @@ Attend standups to unblock the team on requirements ambiguity. Triage incoming b
 10. **The highest-leverage PM activity is watching users.** One hour of silent user observation reveals more than 50 survey responses. Schedule a user observation session before writing any PRD. The pattern you notice in minute 47 is the one that changes the roadmap.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -288,6 +386,8 @@ Attend standups to unblock the team on requirements ambiguity. Triage incoming b
 | Customer says "I would definitely use this" in interview but never adopts | Social desirability bias. People say yes to avoid conflict. 80% of "would use" responses in interviews result in zero adoption. | Ask "When was the last time you had this problem?" and "How do you solve it today?" The presence of existing workarounds and the recency of the problem predict adoption better than stated intent. | Stated intent and revealed behavior correlate at ~0.3. Observe what users DO, not what they SAY. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -304,6 +404,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Product management is a multiplier role — you don't build, design, or sell, but your coordination (or lack thereof) determines whether those functions produce value or waste.
@@ -347,6 +448,7 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -364,17 +466,20 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 | Product-manager → fullstack-developer: feature breakdown into technical tasks | Walk through the PRD with engineering before sprint planning. Identify: API contract dependencies (contract-first or implementation-first?), database migration requirements, frontend component inventory, state management needs. Break features into tasks the fullstack developer can estimate independently | Fullstack developers need the complete picture — frontend, backend, and database. A PRD that only describes UI behavior without API contracts or data models forces developers to guess at integration points. The PM doesn't need to write the API spec, but they must flag when one is needed |
 | No coordination with `cto-advisor` for technical feasibility — feature requires architecture change nobody approved | Before committing to a feature with architectural implications, run a technical feasibility review with `cto-advisor` and `system-architect`. Document in an ADR. Business commitments without engineering validation are not commitments — they're wishes dressed as promises | Architecture decisions made under sprint pressure are the most expensive kind. A feature that requires a new service or data pipeline must be validated at the architecture level before it enters the backlog. CTO review is not a bottleneck — it's insurance against 2-quarter rewrites |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Your PRD fits under 10 pages and the executive summary tells a VP everything they need in three sentences.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Product management is learned in the arena — through shipped products, failed experiments, and retrospectives. The improvement loop is the lean startup loop applied to yourself.
 
@@ -401,6 +506,7 @@ After every launch: what did you predict would happen? What actually happened? W
 **Watch a user use your product in silence.** Don't guide. Don't explain. Just watch. One hour of silent observation reveals more than 50 survey responses. Do this before writing any PRD.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **70% of features go unused or rarely used — that's $100K-$1M in wasted engineering per product.** Standish Group data consistently shows ~70% of features in a typical software product are rarely or never used. If your annual engineering budget is $2M, that's $1.4M/year building things nobody wants. **Total cost: $100K-$1M wasted per product annually.** Before building any feature, require evidence: 5+ customer interviews confirming the problem, usage data from a prototype or competitor feature, or a validated experiment result.
 - **HIPPO-driven development costs $50K-$500K per misguided initiative.** When the Highest Paid Person's Opinion ("we need AI features" / "our competitor has dark mode") drives the roadmap without user validation, you build what the boss wants — not what users need. A 3-month engineering sprint triggered by an executive whim costs $50K-$200K. Multiple HIPPO-driven features per year = $500K+ in shelfware. **Total cost: $50K-$500K per HIPPO-driven initiative.** Require the same validation bar for executive ideas as any other feature request: user evidence or experiment data.
@@ -413,8 +519,9 @@ After every launch: what did you predict would happen? What actually happened? W
 - **Roadmap as a Gantt chart** set 12 months out — the first unexpected customer escalation, competitor launch, or platform dependency change invalidates everything after month 2. Roadmaps should set outcomes and themes with rolling 6-week certainty windows, not fixed timelines.
 - **"Technical debt" as a catch-all** for "we need to refactor." Actual tech debt (trade-offs made knowingly) can be quantified with interest payments (e.g., "deployments take 3x longer due to X"). Vague "clean up the codebase" initiatives without interest-rate calculations never get prioritized.
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -423,7 +530,6 @@ After every launch: what did you predict would happen? What actually happened? W
 | Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
 | User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -434,6 +540,7 @@ After every launch: what did you predict would happen? What actually happened? W
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] PRD review: stakeholders from Engineering, Design, QA, and Support have reviewed and approved
 - [ ] User stories: each story has acceptance criteria written in Given/When/Then format
@@ -443,10 +550,12 @@ After every launch: what did you predict would happen? What actually happened? W
 - [ ] Success metrics: North Star metric identified, baseline measured, target set with timeline
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -464,6 +573,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[PM12]** Every feature request (including executive requests) passes the same validation bar: user evidence or experiment data before greenlight
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -473,5 +583,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

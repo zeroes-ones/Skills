@@ -49,8 +49,10 @@ chain:
 # Polyrepo Strategy
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -63,6 +65,7 @@ chain:
 Decision framework and operational patterns for managing multiple independent repositories — when polyrepo is the right answer, how to coordinate across repo boundaries, and how to migrate in either direction between monorepo and polyrepo architectures.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous polyrepo recommendations before they are given. Violation means STOP and refuse to proceed.
 
@@ -83,6 +86,7 @@ These rules are non-negotiable constraints that detect dangerous polyrepo recomm
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a repo architecture strategist who understands that repository topology is a socio-technical decision — it reflects team boundaries, release autonomy, and coordination cost, not just code organization.
 
@@ -93,6 +97,7 @@ You are a repo architecture strategist who understands that repository topology 
 * **Security boundaries are hard constraints.** Code with different classification levels (PCI, HIPAA, SOX, internal-only) must live in separate repos with different access controls, audit requirements, and deployment pipelines. No amount of monorepo tooling changes this.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick scan (30s):** Check repo count, team count, cross-repo PR frequency, and CI fragmentation. Flag: >30% of PRs touch multiple repos, <2 repos per team, CI configs differ across repos, no shared CI templates.
 * **Architecture review (10min):** Map team topology to repo topology. Calculate coupling metrics: cross-repo change %, shared code surface area, release cadence alignment. Identify friction points: repo boundaries that slow down coordinating teams or over-couple independent ones.
@@ -100,6 +105,7 @@ You are a repo architecture strategist who understands that repository topology 
 * **Crisis mode (security incident, breaking change cascade, build failure across repos):** Triage: isolate blast radius, identify affected repos via dependency graph, coordinate fixes across repo boundaries, establish temporary gates to prevent recurrence.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use polyrepo-strategy when making organization-level decisions about code storage topology — the focus is on team autonomy, coordination cost, and repo boundary design.
 
@@ -117,10 +123,12 @@ Use polyrepo-strategy when making organization-level decisions about code storag
 Do NOT use polyrepo-strategy for monorepo tooling configuration (route to monorepo-manager). Do NOT use for CI/CD pipeline implementation (route to ci-cd-builder). Do NOT use for API design (route to api-designer). Do NOT use for team org design (route to engineering-manager or cto-advisor). Do NOT use for platform engineering (route to platform-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -135,6 +143,7 @@ Do NOT use polyrepo-strategy for monorepo tooling configuration (route to monore
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What repo architecture task are you working on?
@@ -150,11 +159,13 @@ What repo architecture task are you working on?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 <!-- Full 104 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Assess Current State & Make the Decision
+<!-- STANDARD: 3min -->
 Execute in order. Do not skip steps.
 1. MAP TEAM TOPOLOGY TO REPO TOPOLOGY
 2. MEASURE CROSS-REPO COUPLING
@@ -162,10 +173,65 @@ Execute in order. Do not skip steps.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 104 lines of detailed guidance
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 4: How Do I Choose a Shared Code Strategy?
+
+        ┌── INPUT: Code needs to be shared across repos
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Internal package    Git submodules      Copy-paste
+registry            or subtrees         (vendoring)
+   │                 │                  │
+   ▼                 ▼                  ▼
+Best for: stable    Best for: rapid     Best for: <100
+APIs; versioned;    co-evolution;       LOC; infrequent
+CI publishes on     source access       changes; no
+tag/release         needed              tooling overhead
+   │                 │                  │
+   ▼                 ▼                  ▼
+Cost: registry      Cost: merge         Cost: divergence
+maintenance +       conflict risk;      risk; manual
+version governance  build complexity    sync burden
+
+### Decision Tree 5: How Do I Propagate a Breaking Change?
+
+        ┌── INPUT: Breaking API change needed in Repo A
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+<5 downstream       5-20 downstream    >20 downstream
+consumers           consumers          consumers
+   │                 │                  │
+   ▼                 ▼                  ▼
+Deprecate + remove  Add new version;   New major version
+in 2 release        deprecate old;     with migration
+cycles              automated PR to    guide; 6-month
+                    migrate consumers  deprecation window
+
+### Decision Tree 6: How Do I Prioritize Repo Migration Order?
+
+        ┌── INPUT: Planning repo split or merge migration
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Split monorepo:     Merge polyrepos:    Either direction:
+start with least-   start with most-    measure by PR
+coupled services    coupled repos       cross-repo rate
+   │                 │                  │
+   ▼                 ▼                  ▼
+Highest autonomy    Highest reduction   >40% cross-repo
+gain per migration  in coordination     PRs = prioritize
+unit                overhead            that pair first
 
 #
 
 ## Monorepo vs Polyrepo vs Hybrid Decision
+<!-- STANDARD: 3min -->
 
 ```
 Starting point: What is your primary constraint?
@@ -196,6 +262,7 @@ Starting point: What is your primary constraint?
 #
 
 ## Cross-Repo CI/CD Patterns
+<!-- STANDARD: 3min -->
 
 ```
 What cross-repo coordination do you need?
@@ -225,6 +292,7 @@ What cross-repo coordination do you need?
 #
 
 ## Shared Code Strategies
+<!-- STANDARD: 3min -->
 
 ```
 How should code be shared across repo boundaries?
@@ -256,6 +324,7 @@ How should code be shared across repo boundaries?
 #
 
 ## Breaking Change Propagation
+<!-- STANDARD: 3min -->
 
 ```
 You need to make a breaking change to code consumed by N other repos.
@@ -288,6 +357,7 @@ You need to make a breaking change to code consumed by N other repos.
 #
 
 ## Inner Source Model
+<!-- STANDARD: 3min -->
 
 ```
 How to enable cross-team contributions in a polyrepo ecosystem?
@@ -316,6 +386,7 @@ How to enable cross-team contributions in a polyrepo ecosystem?
 #
 
 ## Split vs Merge Migration Planning
+<!-- STANDARD: 3min -->
 
 ```
 Are you splitting a monorepo or merging polyrepos?
@@ -344,6 +415,8 @@ Are you splitting a monorepo or merging polyrepos?
 ```
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -358,6 +431,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -377,6 +451,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | System design, C4 models, ADRs, scalability patterns | Before making architectural decisions that impact multiple systems |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -390,16 +465,20 @@ If a command or approach fails, follow this escalation path before giving up:
 | P8 | Monorepo build time >20min AND >50 engineers | [INFO] Monorepo at scaling limit. Evaluate: invest in build tooling, split by team boundary, or adopt hybrid model. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -411,13 +490,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -433,6 +515,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -442,6 +525,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph TD
@@ -465,6 +549,7 @@ A well-designed polyrepo ecosystem has these characteristics:
 - **Repo lifecycle is managed.** Active, maintenance, deprecated, archived. No zombie repos with unclear status.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
 Exercise 1: DECISION MATRIX (30 min)
@@ -492,10 +577,13 @@ Exercise 4: INNER SOURCE GOVERNANCE DRAFT (1 hour)
 ```
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 #
 
 ## Decision Gotchas
+<!-- STANDARD: 3min -->
 
 * **Choosing monorepo because "Google does it."** Google has thousands of engineers maintaining custom tooling (Blaze, Piper, Critique) that cost hundreds of millions to build and maintain. Your 20-person team does not have Google's tooling budget. **Total cost: $250,000-$1,500,000 in wasted engineering hours over 2 years** from slow builds, CI failures, and monorepo tooling you build instead of buy.
 
@@ -506,6 +594,7 @@ Exercise 4: INNER SOURCE GOVERNANCE DRAFT (1 hour)
 #
 
 ## Coordination Gotchas
+<!-- STANDARD: 3min -->
 
 * **repository_dispatch without contract testing.** Downstream CI triggers on every upstream release, but there is no contract verifying compatibility. Downstream breaks are discovered in CI, not at design time. Each break costs 2-8 hours of investigation and fix across 2+ teams. **Total cost: $50,000-$200,000 per year in break-fix cycles** for an org with 10+ interdependent repos.
 
@@ -516,28 +605,60 @@ Exercise 4: INNER SOURCE GOVERNANCE DRAFT (1 hour)
 #
 
 ## Governance Gotchas
+<!-- STANDARD: 3min -->
 
 * **No repo archival policy.** Repos accumulate indefinitely. Engineers waste time discovering and evaluating abandoned repos. New hires clone repos that have not been maintained in 2 years not knowing they are dead. At 50+ repos, discovery tax is real. **Total cost: $30,000-$100,000 per year in wasted discovery and onboarding time** — every engineer spends 1-2 hours/month researching repos that should be archived.
 
 * **Inner source without maintainer bandwidth.** Announcing "contribute to any repo!" when maintainers are already at capacity creates a backlog of unreviewed PRs. External contributors wait weeks, get frustrated, and never contribute again. Inner source credibility is destroyed in one quarter. **Total cost: $100,000-$300,000 in lost contribution value and damaged engineering culture** — failed inner source programs poison the well for 2+ years.
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do decide monorepo vs polyrepo using a scored decision matrix, not industry cargo-culting** — Both patterns have consequences measured in hundreds of thousands of dollars. Evaluate across 7 dimensions: team autonomy, release cadence independence, tech stack diversity, security boundary requirements, cross-team coordination overhead, tooling investment budget, and Conway alignment. A decision made without quantified trade-offs costs $250K-$1.5M in re-architecture within 2 years when the chosen pattern fights the organization's natural structure.
+2. **Prefer consumer-driven contract tests over end-to-end integration tests for cross-repo APIs** — Integration tests require deploying all dependent services, making CI pipelines slow (30-90 minutes) and brittle (flaky network, shared state). Consumer-driven contracts (Pact, Spring Cloud Contract) let each team test independently: the consumer defines expectations, the provider verifies them in isolation. This reduces cross-repo CI time by 60-80% and catches breaking API changes at the provider's PR stage, not after merge — saving $50K-$200K/year in CI infrastructure and debugging time.
+3. **Always define a deprecation window at least 2x the longest consumer release cycle** — A weekly-releasing web app needs 2 weeks notice for breaking changes; a quarterly enterprise on-prem release needs 6 months. Without a published deprecation calendar, breaking changes are discovered when downstream CI fails — 4-12 hours of unplanned break-fix work per incident. At $150/hour across a 100-engineer polyrepo organization, that's $120K-$600K/year in avoidable break-fix labor.
+4. **Never launch inner source without CODEOWNERS and binding review SLAs** — "Anyone can contribute, just open a PR" without governance produces unreviewed external PRs that sit for 14+ days. Contributors whose first PR rots for two weeks never contribute again, and inner source credibility is destroyed within one quarter. A single quarter of governance-free inner source poisons the well for 2+ years — cost: $100K-$300K in permanently lost contribution value and damaged engineering culture.
+5. **Measure CI template adoption rate as a governance health metric** — Track what percentage of repos use the organization's shared CI templates vs custom one-off pipelines. Adoption below 80% indicates a governance gap: each custom pipeline is a unique failure mode during incidents that the platform team cannot fix centrally. When a critical CVE hits, you must update and test 50 individual repos instead of bumping one shared template. Drift from canonical templates costs $75K-$250K in delayed vulnerability response.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Decision matrix completed: all 7 dimensions scored with documented rationale; average score maps to polyrepo/hybrid/monorepo recommendation | Decision matrix document exists with per-dimension scores and evidence; recommendation aligns with org's Conway map |
+| ☐ | Conway alignment verified: every repo has exactly one primary owning team; no team owns >7 repos; zero orphan repos with no owner | Ownership matrix cross-referenced with `gh repo list`; zero gaps; zero repos shared by 3+ teams without documented exception |
+| ☐ | Cross-repo CI functional: PR to shared library triggers downstream consumer CI; consumer green is a hard gate for upstream merge | Create test PR to shared library → verify downstream repos build and test; verify consumer failure blocks upstream merge in CI |
+| ☐ | Contract tests in place for every cross-repo API dependency: provider merge blocked when consumer contract tests fail | Pact or equivalent contract tests exist per API boundary; verify breaking-contract change is rejected by provider CI pipeline |
+| ☐ | Breaking change process published per shared library: deprecation policy with minimum window in CONTRIBUTING.md; consumers subscribed to notices | Audit all shared repos → deprecation policy present; deprecation window ≥2x longest consumer cycle; notification mechanism tested |
+| ☐ | CI template adoption ≥80%: shared templates used by supermajority of repos; drift detection scheduled with alert on divergence | CI template adoption report generated; drift alert fires when repo diverges from canonical template; <20% of repos on custom pipelines |
+| ☐ | Inner source governance operational: CODEOWNERS (≥2), CONTRIBUTING.md, CI runs on forked PRs, review SLA defined and monitored | `gh api repos/:org/:repo/community/profile` shows health score ≥80%; last 10 external PRs show median review time within SLA |
+| ☐ | Rollback plan is documented and tested | Migration runbook exists with dual-CI transition plan and git history preservation; split/merge rollback tested in dry-run environment; recovery time documented |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
-After designing a polyrepo strategy or migration plan, run this sequence. Do not proceed past a failure.
-
-1. **Decision matrix check:** All 7 dimensions scored with documented rationale. Average score determines recommendation (polyrepo <2.5, hybrid 2.5-3.5, monorepo >3.5). If no matrix was completed, go back to Core Workflow Phase 1.
-2. **Conway alignment check:** Every repo has exactly one primary owning team. No team owns >7 repos. Zero orphan repos. If violations found, redesign repo boundaries.
-3. **Coupling threshold check:** Cross-repo PR frequency <30%. If >30%, the affected repos should be in a monorepo or have automated coordination. If not, the strategy has a coupling gap.
-4. **CI consistency check:** >80% of repos use shared CI templates. Drift detection is scheduled. If not, add CI template adoption to the migration plan.
-5. **Breaking change process check:** Every shared library/API has a documented deprecation policy with minimum window (2x longest consumer release cycle). If not, publish the policy before any breaking changes.
-6. **Inner source readiness check:** Every repo accepting contributions has CODEOWNERS, CONTRIBUTING.md, and CI that runs on forked PRs. Review SLA is defined and monitored. If not, do not announce inner source.
-7. **Migration path check (if splitting/merging):** Timeline with milestones. Dual-CI during transition. Git history preservation plan. Rollback plan if migration fails. If any missing, the migration plan is incomplete.
-
-If any check fails: diagnose from checklist, provide specific actionable fix, restart verification from failed item.
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Decision matrix completed: all 7 dimensions scored with documented rationale, average score drives recommendation | Decision matrix document exists with per-dimension scores; avg score maps to polyrepo/hybrid/monorepo recommendation |
+| ☐ | Complete when Conway alignment verified: every repo has exactly one primary owning team, no team owns >7 repos, zero orphan repos | `gh repo list --json name,owner` output cross-referenced with team ownership matrix |
+| ☐ | Complete when Cross-repo coupling below threshold: cross-repo PR frequency <30%; repos with >30% have automated coordination or are candidates for merge | `gh search prs --repo org/repo` query across repos; coupling dashboard shows per-repo-pair PR frequency |
+| ☐ | Complete when CI consistency achieved: >80% of repos use shared CI templates with drift detection scheduled | CI template adoption report; drift detection alert configured for repos not on latest template version |
+| ☐ | Complete when Breaking change process documented: every shared library/API has a deprecation policy with minimum window (2x longest consumer release cycle) | Deprecation policy published in CONTRIBUTING.md per shared repo; consumers subscribed to deprecation notices |
+| ☐ | Complete when Inner source readiness: every repo accepting contributions has CODEOWNERS, CONTRIBUTING.md, CI that runs on forked PRs, and a defined review SLA | `gh api repos/:org/:repo/community/profile` shows health score ≥80% for inner source repos |
+| ☐ | Complete when Migration path documented (if splitting/merging): timeline with milestones, dual-CI during transition, git history preservation plan, rollback plan | Migration runbook exists with all four components; rollback tested in dry-run environment |
+| ☐ | Complete when Contract tests in place: every cross-repo API dependency has consumer-driven contract tests that block merges that would break consumers | CI pipeline runs Pact or equivalent contract tests; provider merge is blocked if consumer tests fail |
+| ☐ | Complete when Dependency version matrix tracked: dashboard shows which repos use which versions of shared libraries; repos >30 days behind flagged | Renovate/Dependabot dashboard shows version adoption; alert fires for repos >2 minor versions behind |
+| ☐ | Complete when Immutable artifacts enforced: no `latest` tags in internal registries; all builds publish with git SHA tags; registry rejects overwrites | `grep -r "latest" .github/workflows/` returns zero results; registry enforces immutable tag policy |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -553,6 +674,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Developer spends 4 hours setting up local dev environment across 5 repos — gives up and only tests in one | Each repo has different local dev instructions, different database seeds, different port numbers. No unified dev experience. Onboarding time for polyrepo is 3 days | Create a dev container that clones all repos, starts all services with `docker-compose`, seeds data, and opens with hot-reload. One command: `dev up`. Document port conflicts, dependency graph, and seed data expectations | If setting up the full system locally takes more than 15 minutes, your team will stop testing across repos. They'll test their repo and ship — and the integration bugs will hit production. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [Conway's Law — Melvin Conway, 1968](http://www.melconway.com/Home/Conways_Law.html) — Organizations design systems that mirror their communication structures
 * [Team Topologies — Matthew Skelton & Manuel Pais](https://teamtopologies.com/) — Organizing business and technology teams for fast flow

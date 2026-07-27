@@ -53,8 +53,10 @@ chain:
 Systematic debugging is the highest-ROI skill in software engineering. A structured debugger fixes bugs in minutes that an unstructured debugger chases for days. This skill encodes the methodology used by senior engineers and SREs at top-tier companies: start with reproduction (you cannot fix what you cannot see), then localize with binary search (halve the problem space at each step), reduce to a minimal case (the smaller the repro, the faster the fix), fix the root cause (never patch symptoms), guard with a regression test (every bug gets a test), and verify in production-like conditions (staging is not production).
 
 The golden rule of debugging: **the bug is never where you think it is.** If you knew where the bug was, you would have already fixed it. The methodology exists to overcome your assumptions.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect debugging mistakes before they waste hours. Violation means STOP and reassess.
 
@@ -75,12 +77,14 @@ These rules are non-negotiable constraints that detect debugging mistakes before
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Debugging is not a talent -- it is a discipline. The best debuggers are not the smartest engineers; they are the most systematic. They treat every bug as a scientific investigation: form a hypothesis, design an experiment to test it, analyze the results, and iterate.
 
 #
 
 ## Mental Models
+<!-- STANDARD: 3min -->
 
 | Model | Description |
 |---|---|
@@ -92,6 +96,7 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 #
 
 ## Cognitive Biases That Sabotage Debugging
+<!-- STANDARD: 3min -->
 
 | Bias | How It Shows Up | Defense |
 |---|---|---|
@@ -104,6 +109,7 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 #
 
 ## What Masters Know That Others Don't
+<!-- STANDARD: 3min -->
 
 - **The first question is always: 'When did this start working correctly?'** Find the last known-good state. A bug that started today vs a bug that has existed for 6 months requires completely different investigation strategies.
 - **Reproduction is 80% of the fix.** Once you can reliably reproduce a bug on demand, the fix is usually obvious. Invest aggressively in reproduction. Time spent reproducing is never wasted.
@@ -111,6 +117,7 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 - **The rubber duck is real.** Explaining the bug to someone else (or a rubber duck) forces you to articulate assumptions you didn't know you were making. At least 30% of debugging breakthroughs happen during the explanation, before the listener responds.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick scan (30s):** Read the error message and stack trace. Identify: (1) the exact error type (NullPointerException, TypeError, TimeoutError), (2) the file and line number, (3) the operation that failed (DB query, API call, computation). Check if this is a known issue in your error tracking system (Sentry, Datadog, Bugsnag). If it is a duplicate, link it and move on.
 - **Standard engagement (10min):** Full reproduction → narrow to module → identify root cause → write regression test → apply fix → verify. This is the standard debugging loop for 90% of bugs.
@@ -147,6 +154,7 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 - Debugging certification: L1 (local) → L2 (distributed) → L3 (incident command) training tracks
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use debugging-and-error-recovery when existing code is not behaving as expected and you need to find and fix the root cause -- systematically, not through trial and error.
 
@@ -164,10 +172,12 @@ Use debugging-and-error-recovery when existing code is not behaving as expected 
 Do NOT use debugging-and-error-recovery for writing new features (route to backend-developer or frontend-developer). Do NOT use for performance profiling (route to performance-engineer). Do NOT use for security vulnerability analysis (route to security-reviewer). Do NOT use for incident command and communication (route to incident-responder). Do NOT use for writing tests for new code (route to tdd-guide).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -182,6 +192,7 @@ Do NOT use debugging-and-error-recovery for writing new features (route to backe
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What kind of bug are you dealing with?
@@ -200,19 +211,21 @@ What kind of bug are you dealing with?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- Full 168 lines extracted to references/core-workflow-1.md -->
 
 #
 
 ## Phase 0: Clarify the Bug
+<!-- STANDARD: 3min -->
 Before touching any code, complete this template:
 BUG TRIAGE TEMPLATE
 ===================
 ...
 > 📎 **[references/core-workflow-1.md](references/core-workflow-1.md)** — 168 lines of detailed guidance
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Reproduce before you investigate.** Every debugging session starts with reproduction. If you cannot reproduce the bug, you cannot confirm the fix. Capture exact inputs, environment state, and steps. A non-reproducible bug is not a debugging task — it's an observability gap. Instrument the code and wait for the next occurrence.
 2. **Binary search narrows the search space exponentially.** Whether it's git bisect on commits, delta debugging on inputs, or commenting out half the code — each step eliminates 50% of possibilities. A 1024-commit range resolves to the exact commit in 10 bisect steps. A 500-line function resolves to the buggy line in 9 halvings. Never linearly scan when you can binary search.
@@ -226,9 +239,71 @@ BUG TRIAGE TEMPLATE
 10. **Close the loop: if the bug was non-reproducible, add instrumentation before closing.** A bug closed as "cannot reproduce" without added logging, metrics, or a Sentry alert will recur with zero additional data. Add structured logging at every decision point in the suspect code path. Set an alert for the error signature. The next occurrence should auto-create a ticket with a full trace — not another "cannot reproduce."
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Bug Localization Strategy
+
+        ┌── INPUT: Can you reproduce the bug?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Always]          [Sometimes]         [Never]
+Reliable repro     Intermittent       Heisenbug
+   │                 │                  │
+   ▼                 ▼                  ▼
+git bisect →     Add logging at     Binary search
+narrow commits   decision points    the codebase:
+                    │               comment out
+               ┌────┴────┐          half → test
+               ▼         ▼          → repeat
+          Race cond?  Data-dep?
+               │         │
+               ▼         ▼
+          Deterministic  Fuzz inputs
+          ordering       property-based
+
+### Decision Tree 2: Root Cause Analysis Depth
+
+        ┌── INPUT: What is the bug's severity?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Critical/P0]    [High/P1]          [Medium/P2]
+User-facing      Degraded           Cosmetic or
+outage or data   functionality      edge case
+loss
+   │                 │                  │
+   ▼                 ▼                  ▼
+5 Whys +          3 Whys +          1 Why +
+timeline          correlation       symptom check
+analysis →        analysis →        → fix if <1h,
+postmortem        regression test   backlog otherwise
+
+### Decision Tree 3: Fix Validation Path
+
+        ┌── INPUT: How was the bug discovered?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Customer Report] [Monitoring]      [Code Review]
+External impact    Internal alert    Proactive find
+   │                 │                  │
+   ▼                 ▼                  ▼
+1. Reproduce with  1. Correlate      1. Minimal fix
+   customer data     with metrics    2. New test
+2. Minimal fix     2. Test in staging 3. Verify no
+3. Regression test 3. Canary deploy     similar patterns
+4. Verify in prod  4. Monitor for 24h  4. Document
+5. Close loop with                      in team wiki
+   customer
+
 #
 
 ## Decision Tree 1: Non-Reproducible Bug Strategy
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: Increase Observability
@@ -249,6 +324,7 @@ Phase 2: Hypothesis Testing
 #
 
 ## Decision Tree 2: Critical Incident Triage (Stop-the-Line)
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: MITIGATE (first 5 minutes — restore service)
@@ -268,6 +344,7 @@ Phase 2: INVESTIGATE (after service is restored)
 #
 
 ## Decision Tree 3: Safe Fallback Patterns
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: Choose Fallback Strategy
@@ -287,6 +364,7 @@ Phase 2: Implement Safely
 #
 
 ## Decision Tree 4: Binary Search Debugging (Delta Debugging)
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: Define the Search Space
@@ -307,6 +385,7 @@ Phase 2: Execute Binary Search
 #
 
 ## Decision Tree 5: Distributed System Debugging
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: Trace the Request
@@ -329,6 +408,7 @@ Phase 2: Isolate the Failing Service
 #
 
 ## Decision Tree 6: Memory Leak and Resource Exhaustion
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: Identify the Leak
@@ -348,6 +428,7 @@ Phase 2: Fix the Leak
 #
 
 ## Decision Tree 7: Rubber Duck Debugging Protocol
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: Prepare the Explanation
@@ -366,6 +447,7 @@ Phase 2: Explain to the Duck (or colleague)
 ```
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -380,6 +462,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Skill to Invoke |
 |---|---|
@@ -397,6 +480,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `code-reviewer` | Code quality assessment, security patterns, testing gaps | Before finalizing implementation or shipping to production |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These conditions automatically activate debugging scrutiny:
 
@@ -407,16 +491,20 @@ These conditions automatically activate debugging scrutiny:
 - **Trigger: a developer says "that's weird" or "I don't understand why this is happening."** Auto-trigger rubber duck protocol — the confusion itself is diagnostic data.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -428,13 +516,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -450,6 +541,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -459,9 +551,12 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 **Before — Ad-hoc debugging:**
+
 ```
+
 Developer: "The login is broken."
 Dev: *reads code for 30 minutes*
 Dev: "Maybe it's the session? Let me add a console.log..."
@@ -471,10 +566,13 @@ Dev: "Why is user undefined? Let me add more logs..."
 Dev: *2 hours later, finds the bug by accident while logging something else*
 Dev: *fixes the null reference, deploys*
 Dev: *no regression test written*
+
 ```
 
 **After — Systematic debugging:**
+
 ```
+
 Dev: "Login returns 500. Stack trace: TypeError at auth.ts:42. Let me reproduce."
 Dev: *writes failing test reproducing the exact error in <5 minutes*
 Dev: "Test fails. Now git bisect to find when it broke."
@@ -483,9 +581,11 @@ Dev: "Commit abc123 changed the session serialization. That's the root cause."
 Dev: *fixes the serialization, test passes. Adds 2 more edge case tests.*
 Dev: "Fix is 3 lines. Regression tests cover: null session, expired session, valid session."
 Total time: 25 minutes. Regression protection: permanent.
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Git Bisect Drill:** Find a bug that was fixed in your codebase 1-3 months ago. Without looking at the fix, reproduce the bug and use git bisect to find the breaking commit. Time yourself. Goal: find the commit in under 10 minutes.
 2. **Minimal Reproduction Challenge:** Take a complex bug report (long form, many steps). Reduce it to a reproduction in under 20 lines of code. Remove every dependency, every API call, every UI element that is not essential. The minimal repro should run in a single file.
@@ -493,7 +593,8 @@ Total time: 25 minutes. Regression protection: permanent.
 4. **Rubber Duck Recording:** Next time you are stuck on a bug, record yourself (audio only) explaining the bug to an imaginary colleague. Listen to the recording. Identify the moment where you said "should" or "I assume" — that is your unverified assumption. Test it.
 5. **Crash Dump Analysis:** Download a core dump or heap dump from a production crash. Use the appropriate tool (lldb, gdb, Chrome DevTools Memory, Eclipse MAT) to identify: (1) the crashing thread, (2) the exact line, (3) the state of relevant variables. Production debugging without a debugger is an essential skill.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -504,6 +605,8 @@ Total time: 25 minutes. Regression protection: permanent.
 | "I can't reproduce it — closing the bug as 'cannot reproduce.'" | A non-reproducible bug is not fixed — it is waiting. Without instrumentation at the suspect site, it will recur with zero additional data. Cost: **$5K-$25K** for each recurrence that could have been caught with structured logging or a Sentry alert. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 - **Adding try/catch without understanding the error.** A try/catch that swallows the exception (empty catch block) converts a visible error into silent data corruption. The error still occurs, but now nobody knows. **Total cost: $15,000-$75,000 in silent data corruption discovered weeks later.**
 - **Reverting the wrong commit during an incident.** In the panic of a SEV1, reverting a commit without verifying it is the cause can make things worse (reintroduce an old bug) without fixing the current one. **Total cost: $50,000-$200,000 in extended outage + compounding failures.**
@@ -514,6 +617,7 @@ Total time: 25 minutes. Regression protection: permanent.
 - **Running a diagnostic query on a production database during peak traffic.** A `SELECT * FROM large_table` without `LIMIT` or on an unindexed column can cause a table scan that locks rows and blocks writes, turning a debugging session into a production outage. **Total cost: $30,000-$150,000 in downtime from a self-inflicted incident.**
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |----------------|-------------------|
@@ -525,23 +629,39 @@ Total time: 25 minutes. Regression protection: permanent.
 | Fixing the symptom (null check) without finding root cause (why was it null?) — the same null appears elsewhere tomorrow | 5 Whys from symptom to system-level root cause. If the answer is "the developer made a mistake," ask why the mistake wasn't caught — missing test, missing lint rule, missing code review? |
 | Mixing refactoring into a bug fix PR — reviewer can't distinguish fix from refactoring, regression risk multiplies | Ship the minimal fix first. Verify in production. Refactor in a separate PR. A 5-line fix with a 200-line refactor is a 200-line regression risk, not a 5-line fix. |
 
-## Verification
+## Production Checklist
 
-- [ ] Bug reproduction test written and FAILS before the fix
-- [ ] Root cause identified using 5 Whys (not a symptom fix)
-- [ ] Fix is minimal — changes only what is necessary (no refactoring mixed in)
-- [ ] All existing tests pass — no regressions introduced
-- [ ] Regression test covers: (a) the exact failure, (b) at least one edge case variant
-- [ ] Fix tested in production-like environment (data, config, load)
-- [ ] Rollback plan documented and tested (can revert without side effects)
-- [ ] If production bug: postmortem scheduled with timeline and action items
-- [ ] If non-reproducible: monitoring/instrumentation added to catch next occurrence
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Bug reproduction confirmed — exact steps, inputs, and environment state captured; reproduction test FAILS before the fix is applied | Reproduction test committed before fix; `git log` shows test commit with FAIL assertion before fix commit; re-run test on clean checkout to confirm |
+| ☐ | Root cause identified via 5 Whys — traced past symptom to system/process level (not "developer made a mistake") | 5 Whys chain documented in the issue tracker; deepest why identifies a process, tool, or automation gap — not individual human error |
+| ☐ | Fix is minimal — `git diff` shows only lines directly related to resolving the root cause; no refactoring, reformatting, or unrelated changes mixed in | `git diff main...fix-branch --stat` — file count and line count should match scope of the bug; reviewer confirms no scope creep |
+| ☐ | Regression test covers the exact failure chain PLUS at least one edge-case variant — FAILS before fix, PASSES after fix | Regression test committed in same PR as fix; edge-case variant exercises a boundary condition of the original failure (null, empty, max, boundary value) |
+| ☐ | All existing tests pass — no regressions introduced; dependent module test suites run if changed code is imported elsewhere | Full test suite passes (`npm test` / `pytest` / `go test ./...` ); grep import graph: `grep -r "import.*changedModule" --include="*.test.*"` and run those suites too |
+| ☐ | Fix tested in production-like environment — matching data shapes, config values, concurrency patterns, and network latency | Deploy to staging or canary at 1% traffic; monitor error rate, latency, and business metric for ≥ 15 minutes; compare to pre-fix baseline |
+| ☐ | Rollback plan documented and tested — can revert the fix without side effects if it causes downstream issues | Test rollback in staging: revert commit, verify system returns to pre-fix state (same errors return, same behavior restored); document revert command in issue |
+| ☐ | If production bug: blameless postmortem scheduled with timeline, 5 Whys, and dated action items with individual owners | Postmortem doc created with all four components; calendar invite sent within 48 hours of incident resolution; action items tracked in issue tracker with sprint assignment |
+
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Bug reproduction test written and FAILS before the fix — exact steps, inputs, and environment state captured | Reproduction test committed before fix; `git log` shows test commit before fix commit |
+| ☐ | Complete when Root cause identified using 5 Whys — traced past symptom to system/process level (not "developer made a mistake") | 5 Whys chain documented in issue; deepest why identifies a process/tool gap, not individual error |
+| ☐ | Complete when Fix is minimal — changes only what is necessary to resolve the root cause; no refactoring, reformatting, or unrelated changes mixed in | `git diff` shows only lines directly related to the fix; reviewer confirms no scope creep |
+| ☐ | Complete when All existing tests pass — no regressions introduced; dependent module suites run if changed code is imported elsewhere | Full test suite passes; dependent module suites (identified via import graph) also pass |
+| ☐ | Complete when Regression test covers the exact failure chain AND at least one edge case variant — FAILS before fix, PASSES after | Regression test committed; edge case variant exercises boundary condition of the original failure |
+| ☐ | Complete when Fix tested in production-like environment: matching data shapes, config values, concurrency patterns, and network latency | Staging or canary deployment confirms fix under production-like load and data |
+| ☐ | Complete when Rollback plan documented and tested — can revert the fix without side effects if it causes downstream issues | Rollback tested in staging: revert commit, verify system returns to pre-fix state |
+| ☐ | Complete when If production bug: blameless postmortem scheduled with timeline, 5 Whys, and dated action items with owners | Postmortem doc created with all four components; calendar invite sent within 48 hours of incident |
+| ☐ | Complete when If non-reproducible: instrumentation added (structured logging, metrics, alert) to catch next occurrence with full trace | Instrumentation deployed to production; alert configured with appropriate threshold; test trigger verified |
+| ☐ | Complete when Test suite gap identified and documented: why didn't existing tests catch this? Gap scheduled for closure | Gap documented in issue tracker; remediation task has owner and sprint assignment |
 
 ## Verification Guardrails
-
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-
-## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[DB1]** Bug reproduction confirmed: exact steps, inputs, environment state captured — bug manifests before any fix is applied
 - [ ] **[DB2]** Root cause identified via 5 Whys — traced past symptom to system/process level (not "developer made a mistake")
@@ -559,6 +679,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[DB14]** If distributed system bug: distributed tracing correlation verified; fix validated across all affected service boundaries
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -574,6 +695,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | "Fixed in commit abc1234" — 3 weeks later, same bug reported again. The fix was a workaround, not a root cause fix | Developer fixed the symptom (null check on the crashing line) but didn't trace back to why the value was null. The null came from a race condition 3 callers up — still present | Post-fix checklist: (1) Can I reproduce the original bug without the fix? (2) After applying fix, does the root cause still exist? (3) Is there a test that would have caught this? If answer to (3) is no, write the test. Document root cause in commit message body, not just title | Fixing the crash site without fixing the root cause is palliative care for software. The symptom returns. Always trace the null/undefined/error back to its origin — the crash is the messenger, not the problem. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [Core Workflow](../references/core-workflow.md) — Detailed 6-phase workflow with extended code examples
 - [Anti-Patterns](../references/anti-patterns.md) — Common debugging mistakes that waste hours
@@ -582,4 +704,3 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [Checklist](../references/checklist.md) — Pre-close bug verification checklist
 - [Error Decoder](../references/error-decoder.md) — Common error messages decoded with root cause mappings
 - [Footguns](../references/footguns.md) — Debugging techniques that frequently backfire
-- [Scale Depth](../references/scale-depth.md) — Debugging at scale: distributed systems, high traffic, large datasets

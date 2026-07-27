@@ -67,7 +67,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -128,9 +127,99 @@ What are you trying to do?
 └── Not sure? → Describe the content type, platform, and harm you're trying to prevent — I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Decision Trees
+
+### Decision Tree 1: Policy Creation vs Amendment Decision
+
+        ┌── INPUT: New content risk or gap identified
+        │
+   ┌────┴────────────────────────────┐
+   │                                 │
+   ▼                                 ▼
+Entirely new harm                Existing policy
+category emerges                 has coverage gap
+(new tech, new abuse              │
+ vector)                          ▼
+   │                         ┌── Is this a
+   ▼                         │   clarification or
+CREATE new policy            │   a substantive
++ taxonomy + tiering          │   change?
++ enforcement rules          └──┬────────────────┘
++ clinical review if            │
+  health-related          ┌─────┴──────┐
+                          │            │
+                          ▼            ▼
+                     Clarification  Substantive
+                     → AMEND         │
+                     existing       ▼
+                     policy +    AMEND policy
+                     update FAQ   + new examples
+                                  + updated
+                                  enforcement
+                                  guidance
+                                  + stakeholder
+                                  review cycle
+
+### Decision Tree 2: Strike Escalation Pathway
+
+        ┌── INPUT: User receives policy violation strike
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Strike 1                  Strike 2
+(same category)           (same category,
+   │                      within 90 days)
+   ▼                         │
+Warning + content            ▼
+removal + education       Temporary
+resource link             suspension
+   │                      (7 days) +
+   │                      mandatory
+   │                      policy
+   ┌── Appeal filed?      acknowledgment
+   │                         │
+   ▼                         ▼
+YES → Review by          Strike 3
+      human moderator    (same category,
+      within 48 hours    within 180 days)
+NO  → Strike stands          │
+                             ▼
+                        Permanent
+                        suspension +
+                        appeal window
+                        (30 days)
+
+### Decision Tree 3: Regulatory Disclosure Obligation
+
+        ┌── INPUT: Transparency reporting cycle begins
+        │
+   ┌────┴────────────────────────────┐
+   │                                 │
+   ▼                                 ▼
+DSA Article 15                    DSA Article 24
+(Statement of Reasons)            (Transparency Reports)
+   │                                 │
+   ▼                                 ▼
+Per-content-action:              Aggregate reporting:
+notify affected user              • content removals
++ legal basis                     • government requests
++ facts & circumstances           • automated decisions
++ redress options                 • error rates
+   │                              • appeal outcomes
+   ▼                                 │
+   ┌── EU user?                      ▼
+   │                            ┌── UK OSA applicable?
+   ▼                            │
+YES → Must provide              ▼
+      in clear language     YES → Additional
+      within 28 days             illegal content
+NO  → Follow local               risk assessments
+      jurisdiction               + user empowerment
+                                 metrics
 
 <!-- STANDARD: 3min -->
 
@@ -281,9 +370,15 @@ Tier 4 — Low-Quality (no removal, quality signal)
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
-
+  Complete when: Content moderation accuracy validated — false positive rate < 1% on test set.
+  Complete when: Appeals process documented with SLA for human review (< 24 hours).
+  Complete when: Safety classifier evaluated on adversarial examples — no bypasses found.
+  Complete when: User reporting flow tested end-to-end with confirmation and status tracking.
+  Complete when: Moderation latency measured — 95th percentile < 500ms for automated decisions.
+  Complete when: Policy update communication plan created with rollout timeline and stakeholder review.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 <!-- STANDARD: 3min -->
 
@@ -357,8 +452,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Crisis event triggers emergency content rules without pre-documented escalation pathways | After crisis resolution: document what worked, what didn't, and codify emergency bypass rules within 1 week; pre-documented escalation prevents decision paralysis in the next crisis | If you're inventing crisis response during a crisis, you've already failed — pre-documentation is the difference between decisive action and paralysis |
 | Enforcement severity tiers haven't been recalibrated against real-world harm outcomes in 6+ months | Convene calibration review with trust-safety-engineer, medical-content-reviewer, and legal-advisor; test tier definitions against recent harm cases | Severity tiers drift from reality over time — what was "high severity" 6 months ago may be moderate today based on actual harm data |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -426,7 +521,7 @@ graph LR
 - **Policy enforcement that doesn't scale to new languages** — you launch in 5 languages with human moderation. When you expand to 50 languages, you discover that policy concepts like "harassment" and "hate speech" have no direct translation in some languages and entirely different cultural thresholds in others. Hiring native-speaking moderators for 50 languages at $40K-$80K per FTE creates an unsustainable cost curve. Invest in locale-specific policy research BEFORE market launch. **Total cost: $2M-$10M in localization rework, market exit costs, and moderator hiring for under-researched locales.**
 - **Automated enforcement without a human appeals pipeline** — a creator with 2M followers is auto-banned for a policy violation. They post on Twitter "Platform X banned me with no explanation," and 200K followers threaten to leave. Without a human-accessible appeal process that resolves within hours for high-reach accounts, you lose your most valuable creators. **Total cost: $500K-$3M per incident in creator churn, follower exodus, and negative press from high-profile enforcement errors.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -436,8 +531,8 @@ graph LR
 | "This edge case is too rare to document" | The edge case you skip is the one that goes viral; undocumented edge cases become precedent-setting disasters |
 | "Automated moderation catches 90%, that's good enough" | The 10% humans must review includes the highest-stakes content; without clear escalation paths, borderline cases sit in queue indefinitely |
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -446,7 +541,6 @@ graph LR
 | Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
 | Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
 | Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -495,30 +589,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | 13 | Transparency report published quarterly — removal counts by category/locale, appeal rates, policy change log | HIGH | Verify last transparency report published within 90 days; audit data completeness |
 | 14 | Policy reviewed within last 6 months — external references (laws, guidelines, authorities) verified current | HIGH | Check last policy review date; verify all external references still valid and current |
 
-## Scale Depth
-
-<!-- STANDARD: 2min -->
-
-#### Solo Moderator / Early-Stage Platform
-- **Minimum:** Published community guidelines with 4-tier severity taxonomy. Manual review for all flagged content. Basic appeal email address. Survivor speech protection rule.
-- **Cost:** ~$0-500/month (moderator time + basic tooling).
-- **Risk:** No automation, single-language coverage, no clinical review, inconsistent enforcement at scale.
-
-#### Small Team (2-10 moderators)
-- **Add:** Keyword filters in shadow mode. Moderation queue with triage. Escalation pathways (clinical, legal, public health). Inter-rater reliability testing. Basic transparency reporting.
-- **Cost:** ~$2000-10000/month (moderation tooling + part-time clinical reviewer).
-- **Coverage:** Consistent enforcement, regulatory baseline (Section 230 documentation), appeal pipeline.
-
-#### Medium Org (10-50 moderators)
-- **Add:** ML-assisted classification with human review gate. Multi-locale policy adaptation. Automated pharmacovigilance routing. Full transparency reporting. Medical expert review board. EU DSA compliance (statement of reasons, appeal mechanism).
-- **Cost:** ~$20000-100000/month (ML infrastructure + multi-locale team + clinical reviewers).
-- **Coverage:** Multi-language enforcement, regulatory compliance across jurisdictions, expert-governed policy.
-
-#### Enterprise (50+ moderators)
-- **Add:** Real-time harm detection with < 5min crisis response. AI-assisted policy consistency checking. Automated locale-specific policy generation from principles. Global escalation network (24/7 clinical + legal + public health). Proactive threat intelligence on emerging misinformation narratives. Dedicated policy research team per region.
-- **Cost:** ~$100000-500000+/month (global moderation workforce + AI infrastructure + expert networks).
-- **Coverage:** > 100 languages, real-time crisis response, industry-leading transparency, regulatory leadership.
-
 ## Error Decoder
 
 <!-- QUICK: 30s -->
@@ -541,5 +611,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

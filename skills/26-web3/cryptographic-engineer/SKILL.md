@@ -44,6 +44,13 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
 <!-- QUICK: 30s -->
+## Anti-Hallucination
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Route the Request
 
 ```
@@ -103,19 +110,23 @@ The cryptographic engineer's job is not to implement algorithms from scratch —
 
 ### Mental Models
 
-| Model | Description |
-|---|---|
-| **The adversary controls everything except the key** | Assume the attacker knows your algorithm, your ciphertext, your timing, and your power consumption. Security comes from key entropy and protocol design, not obscurity. |
-| **Every abstraction leaks** | TEEs leak via side channels. MPC leaks via metadata. FHE leaks via computation depth. The question is not "does it leak?" but "is the leakage acceptable given the threat model?" |
-| **Crypto agility is insurance, not overhead** | Algorithm migration that takes 3 years to deploy is a liability. Every system should switch primitives in weeks, not years. |
-| **Proofs are necessary but insufficient** | A protocol proven secure in the UC model can still be broken by a padding oracle in its implementation. Formal verification complements, but does not replace, implementation review. |
+| Model | Description | Mechanical Trigger (detect before executing) | Violation Response |
+|---|---|---|
+| **The adversary controls everything except the key** | Assume the attacker knows your algorithm, your ciphertext, your timing, and your power consumption. Security comes from key entropy and protocol design, not obscurity. | | |
 
-### What Masters Know
+| **Every abstraction leaks** | TEEs leak via side channels. MPC leaks via metadata. FHE leaks via computation depth. The question is not "does it leak?" but "is the leakage acceptable given the threat model?" | | |
 
-- **The best cryptographic engineer says "use libsodium" 90% of the time.** Custom cryptography is the last resort, not the first tool. Mastery is knowing which battle-tested library to reach for.
-- **Side channels are the real attack surface.** Academic breaks are rare. Timing attacks, cache attacks, and power analysis are practical and under-exploited. Constant-time code is a discipline, not a feature flag.
-- **Key ceremonies fail on the human factor, not the math.** The most secure threshold scheme means nothing if participants store shares in email drafts. Ceremony design is UX design for trust.
+| **Crypto agility is insurance, not overhead** | Algorithm migration that takes 3 years to deploy is a liability. Every system should switch primitives in weeks, not years. | | |
 
+| **Proofs are necessary but insufficient** | A protocol proven secure in the UC model can still be broken by a padding oracle in its implementation. Formal verification complements, but does not replace, implementation review. | | |
+
+### What Masters Know | |
+
+- **The best cryptographic engineer says "use libsodium" 90% of the time.** Custom cryptography is the last resort, not the first tool. Mastery is knowing which battle-tested library to reach for. | |
+
+- **Side channels are the real attack surface.** Academic breaks are rare. Timing attacks, cache attacks, and power analysis are practical and under-exploited. Constant-time code is a discipline, not a feature flag. | |
+
+- **Key ceremonies fail on the human factor, not the math.** The most secure threshold scheme means nothing if participants store shares in email drafts. Ceremony design is UX design for trust. | |
 
 ## When to Use
 
@@ -270,15 +281,21 @@ Complete when: Key material generated via HSM or secure multi-party ceremony wit
 4. Execute cryptographic agility migration when needed
 **Completion criteria:** Monitoring runbook, upgrade schedule, incident response plan for cryptanalytic breakthroughs.
 Complete when: Cryptographic inventory maintained with algorithm-to-usage mapping and sunset dates. Upgrade schedule defined with key rotation and protocol upgrade cadence. Incident response plan documented for cryptanalytic breakthroughs with escalation contacts and migration procedures.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
 
 <!-- STANDARD: 3min -->
 ## Gotchas
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
-| Non-constant-time implementations leak secret keys through timing side channels — a single secret-dependent branch or memory access enables key recovery via statistical timing analysis | Complete key compromise in hours to days of measurement | All cryptographic operations on secret data must be constant-time: no secret-dependent branches, no secret-dependent memory access patterns. Verify at the instruction level with ctgrind, dudect, or dataflow analysis. Check assembly output — compiler optimizations can reintroduce branches. |
-| Key material logged in error messages, debug output, or config files — a single log line containing a private key exposes it to every system with log access | Catastrophic — key compromise across all systems sharing the log infrastructure | Keys must live exclusively in HSM or KMS with full audit trail. Configure logging frameworks to redact cryptographic material. Run automated scans for hex/base64 patterns matching key lengths in all log output. Never store keys in environment variables or config files. |
+| Non-constant-time implementations leak secret keys through timing side channels — a single secret-dependent branch or memory access enables key recovery via statistical timing analysis | $500K-$5M in complete key compromise; an attacker with 10,000 timing samples can recover a 2048-bit RSA key in hours. Every system sharing that key is compromised simultaneously | All cryptographic operations on secret data must be constant-time: no secret-dependent branches, no secret-dependent memory access patterns. Verify at the instruction level with ctgrind, dudect, or dataflow analysis. Check assembly output — compiler optimizations can reintroduce branches. |
+| Key material logged in error messages, debug output, or config files — a single log line containing a private key exposes it to every system with log access | $200K-$2M in key compromise across all systems sharing the log infrastructure; log aggregators (Splunk, Datadog, ELK) replicate the exposure to every engineer with log access | Keys must live exclusively in HSM or KMS with full audit trail. Configure logging frameworks to redact cryptographic material. Run automated scans for hex/base64 patterns matching key lengths in all log output. Never store keys in environment variables or config files. |
 | Using deprecated primitives (SHA-1, MD5, RSA-1024) or protocol downgrade attacks in hybrid schemes — active adversaries force fallback to breakable classical cryptography | $100K-$10M in breach costs; regulatory penalties for non-compliance | Maintain a cryptographic inventory mapping every algorithm to its deployment. Set sunset dates for deprecated primitives. In hybrid PQC schemes, fail closed — if the post-quantum component fails, reject the connection entirely rather than downgrading to classical-only. |
+| Deploying MPC with honest-majority assumptions in a dishonest setting — a single malicious party reconstructs all secrets | $1M-$50M in catastrophic secret exposure; MPC protocol designed for 3-of-4 honest parties deployed where 2-of-4 are compromised = total secret reconstruction | Verify the adversary model matches deployment reality. Document the assumed threat model (honest majority vs dishonest majority, semi-honest vs malicious, static vs adaptive) and verify against deployment topology. Use malicious-secure MPC (SPDZ, MASCOT) when any party could be compromised |
+| FHE bootstrapping budget exhausted mid-computation — ciphertext decrypts to random noise with zero error indication | $50K-$500K in silent data corruption; a financial model computing portfolio risk decrypts to random noise that looks like valid numbers. No error, no warning, wrong outputs | Calculate bootstrapping budget precisely for each circuit level. Add noise budget monitoring: alert before budget drops below 20%. Implement automatic circuit reorganization when budget insufficient. Always over-provision by 30% safety margin |
+| Deploying zero-knowledge proofs without verifying the trusted setup ceremony — toxic waste exposure compromises all proofs | $500K-$10M in voided proofs; if the MPC ceremony for zk-SNARK setup had a single honest participant, it's secure — if it had zero, all proofs are forgeable. High-profile projects have been compromised by rigged ceremonies | Use transparent setups (STARKs, Bulletproofs) where possible. If SNARKs required: verify ceremony participation (minimum 100+ participants), validate all transcripts, use perpetual powers-of-tau. Document: who participated? when? what was the verification process? |
+| Hard-coding cryptographic parameters that become breakable — "AES-128 is fine for now" becomes "AES-128 is breakable by quantum computers in 2035" while still deployed | $200K-$5M in emergency migration; crypto agility takes 12-24 months in large systems. Parameters hard-coded at every layer require coordinated migration across all consumers | Crypto agility from day 1: algorithm identifiers in config, not code. Support cipher suite negotiation. Maintain cryptographic inventory with migration timeline per algorithm. Test migration: swap one algorithm for another in staging without code changes |
 
 ## Best Practices
 
@@ -361,28 +378,6 @@ Cryptographic engineering scales from library integration to novel protocol desi
 
 **Usage**: Say "at L2, implement TLS 1.3 with these parameters..." or calibrate by security requirements. Default: **L2** (protocol implementation).
 
-### Scale Depth
-
-#### Solo (0-10 users)
-Use libsodium for all cryptographic operations. Standard algorithms only (AES-GCM, ECDH, Ed25519). Keys from environment-specific KMS (AWS KMS, GCP KMS). No custom protocol design. Regular dependency scanning for CVE monitoring.
-
-#### Small Team (10-100 users)
-Implement standard protocols from RFCs/NIST specs. Add HSM for signing keys. Run Wycheproof test vectors against all libraries. Constant-time verification for critical comparison operations. PQC migration plan drafted with algorithm inventory.
-
-#### Medium Team (100-10K users)
-Design custom protocols with formal security models. Deploy TEE infrastructure with full attestation chain validation. Threshold signing with proactive share refresh. FHE for privacy-preserving computation with bootstrapping budget monitoring. Formal verification with ProVerif/Tamarin. NIST SP 800-90B entropy validation for key ceremonies.
-
-#### Enterprise (10K+ users)
-MPC deployment with dishonest-majority protocols. Multi-cloud HSM federation with quorum-based access. Continuous side-channel analysis (timing, power, EM). Cryptographic agility layer with automated algorithm rotation. PQC hybrid deployment across entire infrastructure. Crypto incident response team with zero-day response SLA.
-
-#### Transition Triggers
-- Data classified as PII/PHI → HSM for encryption keys, AEAD required
-- Multi-party computation needed → MPC protocol with formal security model
-- Regulatory requirement (FIPS 140-3) → FIPS-validated modules, formal certification process
-- PQC deadline announced → hybrid deployment begins, crypto inventory audit
-- Cryptanalytic breakthrough on deployed algorithm → crypto agility layer activates, algorithm rotation within 30 days
-- First key ceremony → NIST SP 800-90B entropy validation, multi-participant ceremony
-
 ## Production Readiness Checklist **(STANDARD)**
 
 | # | Item | Ref |
@@ -435,6 +430,7 @@ This skill maintains a **decision ledger** to prevent context drift across sessi
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior decisions. Summarize the 3 most recent in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -446,7 +442,9 @@ This skill maintains a **decision ledger** to prevent context drift across sessi
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": false
    }
+
    ```
+
 3. **Before completing work:** Verify all major decisions are recorded. A "major decision" is anything that, if changed, would require key rotation or protocol renegotiation.
 4. **On context recovery:** Read the last 5 entries before proposing changes.
 
@@ -514,6 +512,21 @@ The output of a cryptographic engineering engagement is:
 All cryptographic operations use AEAD or stronger. Keys are managed via KMS/HSM with audit trail. PQC migration plan is documented and funded. Every implementation has a security proof or references a published proof.
 
 <!-- STANDARD: 3min -->
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | All cryptographic operations use AEAD or stronger — no CBC, ECB, or unauthenticated modes in any production path | `grep -rn "CBC\|ECB\|CTR-without-MAC"` returns zero hits in production code; every encrypt operation paired with authentication |
+| ☐ | Keys managed via KMS/HSM with immutable audit trail — no keys in source, configs, env vars, or CI logs | `grep -rn "PRIVATE KEY\|secret_key\|password ="` returns zero hits outside KMS client libraries; HSM audit logs enabled with tamper detection |
+| ☐ | Constant-time verification passes on all comparison operations | `dudect` or equivalent TVLA on critical paths; zero secret-dependent branches or array indices; timing variance < 1% across all inputs |
+| ☐ | NIST CAVP or Wycheproof test vectors pass for all implemented algorithms | Test suite includes `test_vectors = load_wycheproof("aes_gcm_test.json")`; every primitive has documented test vector source and expected pass count |
+| ☐ | PQC migration plan documented — crypto inventory complete, hybrid deployment selected, hard migration date with failure triggers | Crypto inventory enumerates every algorithm, key size, and protocol; hybrid scheme (e.g., Kyber-1024 + X25519) deployed in parallel before classical-only deprecation |
+| ☐ | Side-channel assessment completed — timing, cache-timing, and (for TEE) EM/power analysis with remediation | Assessment report documents attack surface, measured leakage, and mitigations; constant-time and constant-memory-access verified for all secret-dependent code |
+| ☐ | Key ceremony documentation complete — participant attestations verified, entropy validated (SP 800-90B), backup shares tested with recovery drill | Signed attestations from every ceremony participant; entropy source validation report; recovery drill log showing successful key reconstruction from threshold shares |
+| ☐ | Rollback plan: cryptographic agility layer tested — algorithm rotation demonstrated within 30 days; downgrade prevention active | `rotate_algorithm("RSA-2048", "ML-DSA-87")` completes end-to-end; protocol negotiation rejects downgrade to weaker algorithms in integration test |
+
 ## Verification Guardrails
 
 - [ ] All cryptographic operations use AEAD or stronger (no CBC, no ECB, no unauthenticated modes)
@@ -524,7 +537,6 @@ All cryptographic operations use AEAD or stronger. Keys are managed via KMS/HSM 
 - [ ] Side-channel assessment completed: timing, cache-timing, and (for TEE) electromagnetic analysis
 - [ ] Key ceremony documentation: participant attestations, entropy validation, backup share verification
 - [ ] Every cryptographic decision recorded in the State Log with rationale and alternatives considered
-
 
 <!-- STANDARD: 3min -->
 ## References

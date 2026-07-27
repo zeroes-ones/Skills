@@ -38,6 +38,7 @@ chain:
 Agile delivery leadership system for guiding Scrum teams from forming through high-performance. Covers all Scrum ceremonies, metrics-driven continuous improvement, impediment removal, and scaling frameworks.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -72,6 +73,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -88,12 +90,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 The Scrum Master is not a meeting scheduler or a note-taker — it's a **team coach who improves the system the team operates in, not just the team's adherence to Scrum rules**. The output is not a completed sprint; the output is a team that improves its own process without you.
 
@@ -123,6 +125,7 @@ The Scrum Master is not a meeting scheduler or a note-taker — it's a **team co
 - **The best retros produce one change, not ten.** A sprint retro that identifies 10 improvement areas and acts on none is worse than a retro that identifies 1 and actually fixes it. Focus creates momentum.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Scrum Master skill scales from facilitating a single team to coaching multiple teams and transforming organizational agility.
 
@@ -136,21 +139,8 @@ Scrum Master skill scales from facilitating a single team to coaching multiple t
 
 **Usage**: Say "as a Senior SM coaching 3 teams, help me diagnose this delivery bottleneck." Default: **L2 (Practitioner)** — 1-2 teams, independent coaching.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 SM, 1 team)
-Single scrum team with 3-9 members. Fixed 2-week sprint cadence. All ceremonies facilitated by SM. Focus: establishing sprint rhythm, basic DoD, retrospective habit, team chartering. Metrics: velocity (3-sprint rolling), sprint goal achievement rate, retro action completion. Tools: Jira, Linear, or Azure DevOps basic boards.
-
-#### Small (1-2 SMs, 2-4 teams)
-Multiple teams with cross-team coordination via Scrum of Scrums. Shared Definition of Done across teams. Focus: cross-team impediment removal, velocity stability, PO coaching on backlog health, CFD analysis for systemic bottlenecks. Metrics: cycle time p85, escaped defects, WIP age. Tools: Jira Advanced Roadmaps, Linear multi-team views, Miro for cross-team retros.
-
-#### Medium (3-5 SMs, 5-15 teams)
-Agile coaching practice with standardized metrics and ceremony templates. Scaling framework (LeSS, Nexus, or SAFe Essentials) adopted. Focus: community of practice for SMs, organizational impediment removal, agile metrics program, leadership coaching. Metrics: program predictability, flow efficiency, employee engagement scores. Tools: Jira Align, AgilityHealth, ActionableAgile.
-
-#### Enterprise (5+ SMs, 15+ teams, multi-site)
-Enterprise agile transformation with dedicated agile center of excellence. Multiple scaling frameworks for different product lines. Focus: organizational design for agility, agile budgeting (beyond project-based funding), agile HR practices, executive agile literacy. Metrics: time-to-market, innovation rate, employee NPS, customer satisfaction. Tools: Jira Align, SAFe Program Board, AgilityHealth Radar, LeanIX for value stream mapping.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Establishing or resetting Scrum practices for a new or underperforming team
@@ -165,10 +155,76 @@ Enterprise agile transformation with dedicated agile center of excellence. Multi
 - **Use `/technical-program-manager` instead** when: A program spans multiple scrum teams, has cross-team dependencies, and requires a consolidated timeline and risk register. TPM coordinates across teams; scrum-master serves one team.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
+
+### Decision Tree 1: Impediment Resolution Path
+
+        ┌── INPUT: A blocker has been
+        │   raised by the team
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+External blocker            Internal blocker
+(outside team control)?     (team can resolve)?
+   │                         │
+   ▼                         ▼
+Can the SM resolve          ┌────┴────────────┐
+within 4 hours?             │                 │
+   │                         ▼                 ▼
+   ▼                    Skill gap or       Process or
+YES → SM takes          knowledge?         tool issue?
+ownership;                  │                 │
+NO → escalate to            ▼                 ▼
+engineering mgr         Pair with SME     Facilitate team
+within 24 hours         or arrange        retro to design
+                        training spike    improvement
+                                          experiment
+
+### Decision Tree 2: Retrospective Format Selection
+
+        ┌── INPUT: What is the team's
+        │   current state?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Team is new or              Recurring pattern
+conflict present?           or low engagement?
+   │                         │
+   ▼                         ▼
+Safety Check-in or          4Ls (Liked/Lacked/
+Start-Stop-Continue;        Learned/Longed for)
+focus on building           or Sailboat; focus
+psychological safety        on actionable
+before deep critique        experiments
+
+### Decision Tree 3: Sprint Health Intervention
+
+        ┌── INPUT: Sprint is at mid-point;
+        │   what do key signals show?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Sprint goal at risk?        Velocity dropping
+   │                         2+ sprints?
+   │                         │
+   ▼                         ▼
+Negotiate scope with        ┌────┴────────────┐
+PO: protect the goal;       │                 │
+drop lowest-priority        ▼                 ▼
+PBIs; document trade-off   WIP too high?     External churn?
+                               │                 │
+                               ▼                 ▼
+                          Enforce WIP        Protect team;
+                          limits; swarm      buffer sprint
+                          on finishing,      from interrupts;
+                          not starting       escalate to TPM
 
 ### Scrum vs Kanban vs Scrumban
 
@@ -177,6 +233,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
                      │ START: Which agile framework?  │... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -209,9 +266,14 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 3. **Scaling** — Nexus (3-9 teams), LeSS (up to 8 teams, single backlog), SAFe (if organizational mandate). Goal: minimize cross-team dependencies.
 
   Complete when: Velocity tracking with 3-sprint rolling average is operational; cumulative flow diagram is generated; impediment log with resolution time tracking is maintained; scaling framework selection is documented with rationale and cross-team dependency map.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Sprint goal over sprint backlog.** The sprint goal is the team's single coherent objective for the sprint — if the team discovers they can't deliver all PBIs, they negotiate scope with the PO while protecting the goal. A sprint without a goal is a collection of unrelated tasks; with a goal, the team has a shared purpose that guides trade-offs. Write the goal in one sentence that answers "why are we sprinting?" **Tool:** Jira sprint goal field, Linear cycles with description, Azure DevOps sprint goal.
 
@@ -233,8 +295,8 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 
 10. **Know when Scrum is overkill and offer alternatives.** A solo developer, a 2-person team, a pure ops/support team, or a 2-week MVP sprint doesn't need full Scrum ceremony overhead. Offer Kanban with WIP limits + weekly retro + async standup instead. The SM's job is to improve the team, not to enforce Scrum compliance. Pushing Scrum on a team that doesn't need it makes you a process cop, not a coach. **Tool:** Linear Kanban boards, Jira Kanban with WIP limits, Trello with Butler automation.
 
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -245,8 +307,8 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 | Team "completes" stories but they don't meet Definition of Done | DoD is vague: "code reviewed, tested." No specific criteria means completed stories accumulate undone work that spills into future sprints. | Write DoD as a checklist: automated tests pass, peer-reviewed by 2 engineers, deployed to staging, PO accepted, documentation updated, no known defects. The team cannot claim "done" until every item is checked. | A vague DoD produces an invisible backlog of undone work. A specific DoD protects quality and predictability. |
 | Sprint review has zero stakeholders outside the team | Stakeholders see sprint review as "optional" because they don't know what value they'll get from attending. | Send a review invitation with the sprint goal, what was delivered, and a specific question for stakeholders. Make it 30 minutes max with a live demo. | Stakeholders attend reviews when they see value, not obligation. Sell the review, don't just invite to it. |
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**, follow this escalation path before giving up:
 
@@ -261,6 +323,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 The Scrum Master is a servant-leader who enables the team, removes impediments, and facilitates agile ceremonies. Coordination is about protecting the team while keeping stakeholders informed.
@@ -321,13 +384,12 @@ The Scrum Master is a servant-leader who enables the team, removes impediments, 
 | Organizational impediment (procurement, policy, budget) | `cto-advisor` or `vp-engineering` | Authority beyond team level; systemic blocker |
 | Agile transformation resistance from leadership | `agile-coach` (external) + `cto-advisor` | Cultural change requires executive sponsorship |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- trigger-action table for autonomous SM workflow -->
 
@@ -355,11 +417,12 @@ The Scrum-Master-to-Engineering-Manager partnership is the team's operating syst
 | **Sprint commitment calibration** | Capacity calculation factoring in PTO, on-call, and historical interrupt rate | Headcount changes, upcoming training, re-org impact — factors the SM can't observe from sprint data |
 | **Continuous improvement tracking** | Retro action item completion rate, process experiment results, agile maturity assessment | Career growth alignment: is the team's process maturity enabling or constraining individual development? |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -379,17 +442,19 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[SM14]** Scaling framework selected only if needed (≥ 3 teams on same product) — Scrum of Scrums, LeSS, or Nexus preferred over SAFe unless organizational mandate
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When scrum mastery is at its peak, sprint goals are clear and the team delivers a working increment every sprint, retrospectives produce actionable improvements that are implemented in the next sprint
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Scrum mastery is built through pattern recognition across many teams. The best scrum masters have seen dysfunction in enough forms to recognize it early and address it before it becomes a crisis.
 
 ```mermaid
+
 graph LR
     A[Observe a team pattern: delivery is slowing, conflict is brewing] --> B[Diagnose: what's the root cause? Team dynamics? Process? External blockers?]
     B --> C[Intervene with a specific experiment or coaching conversation]
@@ -407,7 +472,8 @@ graph LR
 
 **The One Highest-Leverage Activity**: After every retro, track whether the team's #1 action item was actually completed before the next retro. Completion rate is your effectiveness metric. If it's below 80%, you're facilitating discussions, not facilitating change.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -418,6 +484,7 @@ graph LR
 | "We committed to 8 stories — we must deliver all 8" | Treating sprint forecast as a contract incentivizes cutting quality and skipping testing — $200K-$750K/year in technical debt remediation and production incidents from artificial deadlines. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Velocity as a productivity metric** — if velocity goes from 30 to 40 points/sprint, management celebrates. But the team just inflated estimates by 33%. Velocity measures estimation consistency, not output. Comparing velocity across teams is comparing apples to fictional oranges. **Total cost: $150,000-$500,000 per year** in wasted engineering time from inflated estimates and misdirected optimization efforts.
 - **Sprint commitment** treated as a contract — "we committed to 8 stories" becomes "we must deliver 8 stories." This incentivizes the team to cut quality, skip testing, or inflate estimates to ensure they "make the commitment." The sprint backlog is a forecast, not a commitment. **Total cost: $200,000-$750,000 per year** in technical debt remediation and production incidents from cutting quality to meet artificial deadlines.
@@ -426,6 +493,7 @@ graph LR
 - **Skipping sprint reviews for "internal" work** — the team delivers features without stakeholder feedback for 3+ sprints. When stakeholders finally see the product, it solves the wrong problem. Rework costs 10-20x more than early feedback. **Total cost: $250,000-$1,000,000 per release** in scrapped features and re-implementation effort.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -434,6 +502,7 @@ graph LR
 | WIP limit violations that go unchecked | $40K-$160K in context switching overhead | Monitor WIP limits daily — no team member should have >3 items in progress simultaneously |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Sprint goal: team can articulate the sprint goal and why it matters — verified in standup
 - [ ] Velocity: stable (20-30%% variance sprint-to-sprint is normal; trending up or down > 30%% is investigated)
@@ -443,10 +512,12 @@ graph LR
 - [ ] Impediments: time from blocker raised to resolved tracked — median < 4 hours
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -459,7 +530,6 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

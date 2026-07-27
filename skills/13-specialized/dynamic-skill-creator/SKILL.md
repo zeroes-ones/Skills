@@ -45,7 +45,34 @@ chain:
 
 The meta-skill that generates 10/10* production-quality skills. This skill encodes the complete methodology used to build all 185+ skills in this repository. Follow it to produce skills indistinguishable from hand-crafted ones — every section domain-specific, every gotcha dollar-quantified from real incidents, every decision tree encoding years of practitioner wisdom.
 
-## Anti-Rationalization — No Excuses
+## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| Generated skill has generic gotchas copied from other skills — "hardcoded credentials in source code" appears in unrelated domains | Failure to research domain-specific postmortems, CVEs, and incident reports during skill generation | Re-run research phase targeting domain-specific incident databases. For each gotcha, require a real-world citation (CVE, postmortem link, incident report). Gotchas are the highest-token-cost section — generic ones waste 80% of the section's value |
+| Decision tree has overlapping branches — same outcome from two different paths | Branches not MECE (Mutually Exclusive, Collectively Exhaustive). Ambiguous decision criteria | Draw the tree on paper first. For each node, verify: (1) every possible input falls into exactly one branch, (2) no input can match two branches simultaneously. Use mutually exclusive conditions |
+| Generated skill is 10x too short — 200 lines vs 600+ line standard | Only the decision tree was generated; all other sections skipped. Model stopped after the first major section | Re-run with explicit section checklist. Order: Decision Tree first (highest value), then Gotchas, then Core Workflow, then remaining sections. Verify: word count > 5000, all 15 standard sections present |
+| Cross-Skill Coordination table references skills that don't exist | Upstream/downstream skill names fabricated from training data without verification | Check `skills/` directory to verify each referenced skill exists at the path listed. Use only skill names from the actual repository inventory |
+| Dollar-quantified gotcha costs are obviously wrong — $1M for a typo fix | Costs hallucinated without real incident data. Model fills in plausible-sounding but fictional numbers | Cross-reference each cost with: (1) public breach reports, (2) cloud provider outage postmortems, (3) SRE incident writeups. If no real incident found, mark cost as `[ESTIMATE]` and note the assumption |
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Generating a skill from memory without domain research — the "I know this domain" fallacy | $20K-$50K in wasted iterations; skill passes lint but produces wrong advice because gotchas are generic and decision trees miss domain-specific branches | Research phase is non-negotiable: spend 30+ minutes reading postmortems, CVEs, incident reports, and stack overflow threads for gotcha material before writing a single section. Memory is not research |
+| Copying trigger patterns from other skills — "use when building... or designing... or implementing..." matches everything | $10K-$30K in routing failures; trigger phrase too generic causes false activation on unrelated tasks across the entire skill fleet | Use the `grep` uniqueness test: if your trigger phrase appears in >3 other skills' SKILL.md decision trees, it's too generic. Craft triggers with domain-specific nouns: "openapi 3.1" not "api design" |
+| Decision tree with >7 options at a single node — cognitive overload for the routing agent | $5K-$15K in misrouting failures; agents presented with >7 options degrade to random selection or default fallback | Follow the 3-Option Rule: every decision tree node should offer 3 options, maximum 5. If you have more, create a parent node that splits the options into categories first |
+| Missing the "I don't know" branch in every decision tree — agent forced to pick wrong option when uncertain | $15K-$40K in hallucinated advice; agent forced into a branch that doesn't fit the query produces confident but wrong output | Every decision tree branch must end with: either a concrete action path OR an explicit "route to general-purpose agent with context" fallback. No dead ends |
+| Token budget not calibrated — skill is 800 lines but model has 200K context vs 32K | $10K-$25K in truncated execution; skill exceeds model's effective context window, losing the last 40% of sections during inference | Write skill for the 32K-token agent constraint. Budget: YAML frontmatter ~500 tokens, Description ~100, Decision Tree ~3000, Core Workflow ~2000, Gotchas ~2000, remaining sections ~2000. Total: ~10K tokens |
+| Skill contains vendor-specific frontmatter fields that break on non-Claude platforms | $30K-$80K in portability debt; skill silently fails or degrades on Copilot, Gemini, Cursor because it uses Claude-specific YAML keys | Portability test: run `grep -r "model:" skills/your-skill/SKILL.md` — if found, remove. No `claude:` fields, no `model:` overrides, no `temperature:` in SKILL.md frontmatter. All vendor config lives in consumer-agent-specific files |
+| Generated skill has no script/ or references/ directory — all prose, no executable verification | $15K-$30K in unverifiable advice; skill makes claims (e.g., "run roi-gate.sh") but the script doesn't exist in the skill directory | For every script referenced in the skill body, create it in `skills/skill-name/scripts/`. For every external reference, create it in `skills/skill-name/references/`. Lint check: `ls skills/skill-name/scripts/` must not be empty |
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -59,6 +86,7 @@ The meta-skill that generates 10/10* production-quality skills. This skill encod
 | "Token budget doesn't matter — I'll let the compiler minify later." | A 2,500-line skill consumes 40%+ of the agent's context window before it processes a single user instruction. The agent skips sections, misses ground rules, and produces incomplete output because it ran out of room. Rich content ≠ verbose content. Every line must earn its token cost. Target 400-700 lines for standard skills, 600-1000 for security/critical. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules govern skill CREATION, not general software development. Violation means STOP — the generated skill is incomplete.
 
@@ -83,20 +111,19 @@ These rules govern skill CREATION, not general software development. Violation m
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are not just writing a SKILL.md — you are encoding years of domain expertise into tokens that reliably produce expert behavior in an AI agent. The agent will follow your instructions literally, pattern-match against your decision trees, and internalize your ground rules as non-negotiable constraints. Every sentence you write shapes thousands of future agent decisions.
 
-
-
 ## The Mental Model Shift
+<!-- STANDARD: 3min -->
 * **The agent is your apprentice, not your peer.** It has encyclopedic general knowledge but zero domain-specific judgment. Your job is to provide the judgment framework — the "when NOT to do X" that general knowledge lacks. The most valuable sentence in any skill is "Do NOT use [approach] when [condition]."
 * **Research reveals what expertise conceals.** You know your domain so well that you've forgotten what's hard about it. Research CVEs, post-mortems, and Stack Overflow questions to rediscover the pain points. The gotchas that make you say "oh right, that got me too in 2018" are the ones that matter.
 * **Structure is the message.** Agents pattern-match against structure before they process content. A well-structured decision tree communicates more in 30 lines than 300 lines of prose explanation. Tables beat paragraphs. ASCII trees beat tables. Ground rules as mechanical triggers beat prose admonitions.
 * **The bootstrap test is the ultimate quality gate.** Ask: "If I fed this skill to a fresh agent with no other skills loaded, could that agent generate a 10/10* skill for any domain?" If the answer is no, you have gaps. This is why the Phase 0 discovery questions, the domain mapping table, the quality rubric, and the gotcha research guide must be complete.
 
-
-
 ## Cognitive Biases That Corrupt Skill Creation
+<!-- STANDARD: 3min -->
 | Bias | How It Manifests | Antidote |
 |-------|------------------|----------|
 | **Curse of knowledge** | Skipping fundamental gotchas because "everyone knows that" — writing for experts, not for the agent who has no context | Research what beginners ask on Stack Overflow. The most-upvoted questions are what your skill needs to cover. |
@@ -105,15 +132,15 @@ You are not just writing a SKILL.md — you are encoding years of domain experti
 | **Template fixation** | Filling sections mechanically without adapting to the domain — "Section 5 says 'Gotchas' so I'll list 10 random warnings" | Every section must serve the domain. A Kubernetes skill's gotchas are about misconfigurations and RBAC; a healthcare skill's are about PHI exposure and audit trails. |
 | **Novelty seeking** | Inventing new section formats, table structures, or heading conventions because "this domain is different" | Default to repository standard. The format is battle-tested. If your domain genuinely needs a new section, justify it against at least 3 existing 10/10* skills that don't have it. |
 
-
-
 ## What Skill Creators Know That Others Don't
+<!-- STANDARD: 3min -->
 - **Gotchas sourced from real incidents are 10x more persuasive than generic warnings.** "Misconfigured S3 bucket exposes customer data" is forgettable. "Capital One's 2019 breach: $190M in fines + $80M remediation because a single S3 bucket had `AuthenticatedUsers: READ` — the exact misconfiguration this gotcha prevents" is unforgettable.
 - **The anti-rationalization table is the hardest and most important section.** It takes 30+ minutes to write well because you must identify the lies developers tell themselves AND understand the psychology behind those lies. "We're too small to be a target" = optimism bias + normalcy bias. "The framework handles security" = diffusion of responsibility + authority bias toward framework authors.
 - **Chain connections determine discoverability, not just correctness.** A brilliant skill with empty `chain_feeds_into` is invisible to the chain router. When agents navigate the skill graph, orphaned skills don't appear in any routing path. Every skill needs at least 2 upstream and 2 downstream connections.
 - **The quality rubric must be self-referential.** The rubric in this skill is what you use to grade generated skills. It must be specific enough that two independent evaluators would assign the same grade to the same skill. "8/10 (Good)" is worthless. "8/10: Domain-specific ground rules with some examples, but 3 ground rules lack violation stories" is actionable.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - User says "I need a skill for [domain]" or "create a skill for [task]" — full skill generation from scratch
 - User says "boost this skill from 6/10 to 10/10*" — targeted enhancement of an existing skill
@@ -127,12 +154,12 @@ You are not just writing a SKILL.md — you are encoding years of domain experti
 Do NOT use dynamic-skill-creator for: writing code documentation (route to technical-writer), creating README files (route to documentation-engineer), writing API docs (route to api-designer), or editing individual sections of existing skills (route to writing-great-skills). Do NOT use for generating non-skill content like blog posts, tutorials, or marketing copy.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- TWO-TIER ROUTING: Auto-Route table (machine) → Intent Route tree (human fallback) -->
 
-
-
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 Evaluate these conditions in order. First match wins — jump immediately.
 
 | # | Condition | Action |
@@ -145,9 +172,8 @@ Evaluate these conditions in order. First match wins — jump immediately.
 | A6 | `file_contains(user_message, "minimal\|quick\|fast\|MVS")` AND `file_contains(user_message, "skill")` | Minimal Viable Skill path. Jump to **Decision Trees** — MVS vs Full Skill. |
 | A7 | `file_contains(user_message, "recreate\|regenerate\|rebuild\|dynamic-skill-creator")` AND `file_contains(user_message, "itself\|self")` | Bootstrap test. Jump to **Core Workflow** — Phase 10 (Self-Recreation Test). |
 
-
-
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 If no auto-route matched, use this intent tree:
 
 ```
@@ -164,50 +190,163 @@ What are you trying to do?
 ├── Fix a skill that failed validation → Go to "Error Recovery" → "Generated skill fails validation"
 └── Recreate this skill (bootstrap test) → Start at "Core Workflow > Phase 10 (Self-Recreation Test)"
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
-┌──────────────────────────────────┐
+### Decision Tree 1: Skill Generation vs. Boost vs. Audit
 
-> 📎 Full content extracted to [references/decision-trees.md](references/decision-trees.md) — 127 lines of detailed guidance, patterns, and code examples.
+```
+        ┌── INPUT: What does the user want?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+"generate/create"  "boost/improve/upgrade"
+   │                 │
+   ▼                 ▼
+Phase 0: Discovery  Skill Boost Strategy
+   │                 │
+   ├─ Domain known?  ├─ Audit current score
+   │  ├─ YES → Map   │  ├─ < 5/10 → Full regen
+   │  └─ NO → Ask    │  ├─ 5-7/10 → Targeted boost
+   │                 │  └─ 8+/10 → Polish only
+   ▼                 ▼
+Full Generation    Upgrade Protocol
+```
+
+### Decision Tree 2: Skill Complexity Tier Selection
+
+```
+        ┌── INPUT: Domain scope and risk level
+        │
+   ┌────┴────────────────┐
+   │                     │
+   ▼                     ▼
+Simple tool/pattern   Security/finance/healthcare
+   │                     │
+   ▼                     ▼
+TRIVIAL (200-400 lines) CRITICAL assessment
+   │                     │
+   │                ┌────┴────┐
+   │                │         │
+   │                ▼         ▼
+   │           Production   Life-safety
+   │           security      or compliance
+   │                │         │
+   │                ▼         ▼
+   │           STANDARD    CRITICAL
+   │          (400-700)   (600-1000)
+   ▼
+Minimal sections:     Full sections:
+description,          description, ground rules,
+core workflow,         anti-hallucination,
+gotchas, references    verification, error decoder,
+                       decision trees, scale depth
+```
+
+### Decision Tree 3: Skill Boundary Check — New Skill or Extend Existing?
+
+```
+        ┌── INPUT: Proposed skill domain
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Overlaps > 50% with        Unique domain with
+existing skill?             < 30% overlap?
+   │                         │
+   ▼                         ▼
+EXTEND existing skill       CREATE new skill
+   │                         │
+   ├─ Add workflow phase     ├─ Check chain connections
+   ├─ Add decision tree      ├─ upstream: who calls this?
+   ├─ Add gotchas            └─ downstream: who does this feed?
+   └─ Update cross-skill
+      coordination
+```
+
+### Decision Tree 4: Token Budget and Content Density
+
+```
+        ┌── INPUT: Skill line count and complexity
+        │
+   ┌────┴────────────────┐
+   │                     │
+   ▼                     ▼
+Line count < 400       Line count > 700 (standard)
+                        or > 1000 (critical)
+   │                     │
+   ▼                     ▼
+Room to expand:        PRUNE aggressively:
+add examples,           │
+anti-patterns,          ├─ Move references to references/
+scale depth             ├─ Remove redundant examples
+                        ├─ Use progressive disclosure (Tier 1/2/3)
+                        └─ Verify: does each sentence change behavior?
+```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 This is the complete skill generation protocol — Phase 0 through Phase 10. Each phase builds on the ...
 
 > 📎 See [references/core-workflow.md](references/core-workflow.md) for complete guidance (323 lines).
 ## The Skill Quality Rubric
+<!-- STANDARD: 3min -->
 
 This is how to grade ANY skill. Use it to audit existing skills and self-assess ...
 
 > 📎 Full content extracted to [references/the-skill-quality-rubric.md](references/the-skill-quality-rubric.md) — 16 lines of detailed guidance, patterns, and code examples.
 
 ## Domain Mapping Table
+<!-- STANDARD: 3min -->
 
 Map user requests to skill categories and template references:
 
 > 📎 Full content extracted to [references/domain-mapping-table.md](references/domain-mapping-table.md) — 20 lines of detailed guidance, patterns, and code examples.
 
 ## Gotchas — Skill Creation Footguns
+<!-- STANDARD: 3min -->
 
 These are the specific, expensive mistakes made when CREATING skills — not gener...
 
 > 📎 Full content extracted to [references/gotchas---skill-creation-footguns.md](references/gotchas---skill-creation-footguns.md) — 23 lines of detailed guidance, patterns, and code examples.
 
 ## Error Recovery — Skill Creation Failures
+<!-- STANDARD: 3min -->
 
 - **Generated skill fails `validate-skills.sh`:** Run `bash scripts/validate-ski...
 
 > 📎 Full content extracted to [references/error-recovery---skill-creation-failures.md](references/error-recovery---skill-creation-failures.md) — 15 lines of detailed guidance, patterns, and code examples.
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Generated skill passes all 10 ground rules (R1-R10) | `grep -c "TODO\|TBD\|\[Coming soon\]" generated-skill.md` returns 0 |
+| ☐ | Complete when Skill contains 6+ dollar-quantified gotchas ($X,XXX+) | `grep -c '\$[0-9]' generated-skill.md` returns 10+ for standard, 15+ for security |
+| ☐ | Complete when Anti-rationalization table has 6+ rows in 4-column format | `grep -c "Temptation\|Feels Right\|Devastating Reality\|Prevention" generated-skill.md` returns 24+ |
+| ☐ | Complete when Decision trees use ASCII art with YES/NO branching | Verify `├──`, `└──`, `│` characters appear in at least 3 decision trees |
+| ☐ | Complete when Chain connections declared (consumes_from AND feeds_into non-empty) | `grep "chain_consumes_from\|chain_feeds_into" generated-skill.md` shows populated arrays |
+| ☐ | Complete when Skill passes the self-recreation (bootstrap) test | Could this skill generate itself at 10/10* quality following its own workflow? |
+| ☐ | Complete when Token budget within limits (standard < 700 lines, critical < 1000) | `wc -l generated-skill.md` is within budget |
+| ☐ | Complete when Phase 0 discovery questions answered before content generation | 5+ of 8 discovery questions addressed in skill preamble |
+| ☐ | Complete when Error recovery paths exercised for top 3 failure modes | Simulate each failure → verify recovery path produces actionable output |
+| ☐ | Complete when Skill validates against repository conventions (format, section ordering) | Diff against existing 10/10* skill — no structural deviations |
+
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Run these checks on every generated skill before declaring it complete. ALL must...
 
 > 📎 Full content extracted to [references/verification-guardrails.md](references/verification-guardrails.md) — 21 lines of detailed guidance, patterns, and code examples.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -227,9 +366,8 @@ Run these checks on every generated skill before declaring it complete. ALL must
 | `cross-agent-skills-packaging` | Normalized, chain-connected skill files ready for cross-agent deployment and manifest generation | Packaging pipeline can't process skills that lack standard structure — cross-agent compatibility breaks |
 | (any specialized skill) | Complete, validated skill file for the target domain — ready for agent consumption and chain routing | Teams lack domain-specific guidance — agents default to training-data patterns which may be wrong for the domain |
 
-
-
 ## Communication Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Notify | Why |
 |---|---|---|
@@ -239,9 +377,8 @@ Run these checks on every generated skill before declaring it complete. ALL must
 | Generated skill references a template skill that has been deprecated | Code Reviewer, Qa Engineer | Deprecated templates may encode outdated patterns — ensure generated skill uses current best practices |
 | Multiple generated skills for the same domain detected | Product Strategist | Duplicate skills create routing ambiguity — consolidate or differentiate with clear boundary descriptions |
 
-
-
 ## Escalation Path
+<!-- STANDARD: 3min -->
 
 ```
 Skill fails validation? → Run verbose checks → Fix in order (frontmatter → sections → chain) → Re-validate
@@ -252,6 +389,7 @@ Domain mapping table missing entry for common domain? → Add entry → Verify t
 ```
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Scale | Team | What Changes | What to Skip | Transition Trigger |
 |-------|------|-------------|-------------|-------------------|
@@ -260,9 +398,8 @@ Domain mapping table missing entry for common domain? → Add entry → Verify t
 | **Medium** | 10-50 | Full skill + behavioral eval scenarios + reference files. 9-10 ground rules, 10+ gotchas, 7-8 anti-rationalization entries. 700-900 lines. Research time: 4-6 hours. Complete chain YAML, reference file creation, eval scenario design. | Skip drift monitoring automation. Skip cross-agent manifest generation (do manual packaging). Skip comprehensive domain research archive (keep gotcha sources in comments). | When the skill is part of a CI/CD pipeline — needs automated validation and behavioral evals |
 | **Enterprise** | 50+ | Full skill + references + evals + chain orchestration + drift monitoring tests + cross-agent packaging + domain research archive. 10 ground rules, 15+ gotchas, 8+ anti-rationalization entries. 900-1200 lines. Research time: 8-12 hours. All reference files created, eval pipeline integrated, chain YAML validated, monitoring dashboards configured. | Nothing — at enterprise scale, all depth is justified. Even drift monitoring pays for itself in preventing quality decay across hundreds of agent invocations. | When the skill is mission-critical — incorrect output has regulatory, financial, or safety consequences |
 
-
-
 ## Cross-Skills Integration
+<!-- STANDARD: 3min -->
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -278,6 +415,7 @@ Common chains:
 - **Domain expansion**: product-strategist → dynamic-skill-creator → (new domain skill) — Product strategist identifies new domain, skill creator generates skill, new skill integrates into chain graph
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 Surface these without being asked during skill generation:
 
@@ -292,6 +430,7 @@ Surface these without being asked during skill generation:
 | Generated skill passes all validation but the user reports "the agent still gives bad advice" | Run the behavioral eval: design 3 test scenarios for the generated skill's ground rules. Test whether the agent actually follows the rules or defaults to training-data patterns. The gap is usually: ground rules are correctly written but the agent's training data overrides them for common patterns. 🟠 | Validation measures structure, not behavioral compliance. A perfectly formatted skill can still produce wrong output if ground rules aren't specific enough to override training defaults |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -307,6 +446,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Skill created for "healthcare-compliance" domain → passes all validation. Deployed. User reports: "There's already a healthcare-compliance skill — now there are two, and the agent randomly picks one." The duplicate was created 3 months ago by a different team, stored in a different directory, and wasn't in the manifest the creator checked | No duplicate detection before skill creation. The `skills-manifest.json` the creator referenced was stale. The existing skill used a different naming convention (`healthcare-compliance` vs `healthcare_compliance`) so exact-name matching didn't catch it. Both skills are valid and both are in the agent's skill directory — non-deterministic routing | Before creating a skill, search: (1) `grep -r "name:" skills/` for similar names, (2) compare descriptions with cosine similarity against all existing skills, (3) check skills-manifest.json for functional overlap. If a similar skill exists: extend it as a sub-skill instead of creating a duplicate. Implement manifest-level duplicate detection: reject skills with >80% description similarity to an existing skill | Duplicate skills create non-deterministic agent behavior — the user gets different quality depending on which skill loads. The cost of creating a duplicate is not the creation time — it's every future user's degraded experience when the wrong skill fires. Duplicate detection is an essential gate in the skill creation pipeline |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Research before you write.** 60% of skill-building time should be domain re...
 
@@ -324,16 +464,18 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | **Generate a skill in under 2 hours (MVS mode)** | Speed, prioritization, template fluency | MVS passes validation on all present sections; includes at least 3 gotchas with dollar figures, 4 ground rules, 2 decision trees, and complete frontmatter | 2 hours |
 | **Create a skill that references 3+ related skills correctly** | Chain architecture, cross-skill coordination | consumes_from and feeds_into entries are symmetric; communication triggers reference the correct skill names; escalation path is consistent with existing chain graph | 1-2 hours |
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-
-
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -345,13 +487,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-
-
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -364,9 +507,8 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-
-
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -376,28 +518,33 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** Skill name is kebab-case, unique across the repository, and descr...
 
 > 📎 Full content extracted to [references/production-checklist.md](references/production-checklist.md) — 22 lines of detailed guidance, patterns, and code examples.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The generated skill is indistinguishable from a hand-crafted 10/10* skill. Every section is domain-specific — ground rules cite real CVEs, gotchas reference actual post-mortems with specific dollar costs, decision trees encode years of practitioner experience in choosing the right approach. The anti-rationalization table reflects deep psychological understanding of developer cognitive biases — the "Why It Feels Right" column makes domain experts uncomfortable because it's exactly what they've told themselves. Chain connections are complete and symmetric, validation passes 6/6, and the skill integrates seamlessly into the 188+ skill ecosystem. A domain expert reading the skill would say "yes, this captures exactly what goes wrong and how to prevent it." The ultimate confirmation: the skill's own workflow is concrete enough that a fresh agent could follow it to recreate the skill itself — the bootstrap invariant holds, guaranteeing quality across every future generation.
 
 ## Minimal Viable Skill (MVS) Template
+<!-- STANDARD: 3min -->
 
 When speed is critical and domain depth can be added later, produce this compact...
 
 > 📎 Full content extracted to [references/minimal-viable-skill-mvs-template.md](references/minimal-viable-skill-mvs-template.md) — 25 lines of detailed guidance, patterns, and code examples.
 
 ## Cross-Agent Packaging
+<!-- STANDARD: 3min -->
 
 Generated skills must work across all major AI agent platforms. Add this section...
 
 > 📎 Full content extracted to [references/cross-agent-packaging.md](references/cross-agent-packaging.md) — 17 lines of detailed guidance, patterns, and code examples.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -407,14 +554,12 @@ Detailed reference material loaded on demand:
 - **Deliberate Practice**: See [deliberate-practice.md](references/deliberate-practice.md)
 - **Error Recovery**: See [error-recovery.md](references/error-recovery.md)
 - **Gotchas**: See [gotchas.md](references/gotchas.md)
-- **Scale Depth: Operating at Different Levels**: See [scale-depth.md](references/scale-depth.md)
 - **State Log**: See [state-log.md](references/state-log.md)
 - **Verification Guardrails**: See [verification-guardrails.md](references/verification-guardrails.md)
 - **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
 
-
-
 ## External Resources
+<!-- STANDARD: 3min -->
 
 - **Skill Template — Annotated**: Full annotated template with section-by-section guidance for every mandatory section. Shows exactly what each section must contain with inline examples. Study existing 10/10* skills: `skills/05-development/mobile-developer/SKILL.md`, `skills/05-development/backend-developer/SKILL.md`.
 - **Quality Rubric — Detailed**: 10-dimension quality scoring guide with specific examples of 6/10, 8/10, and 10/10* for each dimension. See `SKILL-QUALITY-STANDARDS.md` in repository root.
@@ -423,7 +568,6 @@ Detailed reference material loaded on demand:
 - **Chain Architecture Guide**: How to connect new skills to the 821+ edge graph: finding natural upstream/downstream relationships, creating chain YAML entries, verifying symmetry, and handling new domain introduction. See `scripts/skill-router.py` for live chain verification.
 - **Writing Great Skills**: See `skills/00-framework/writing-great-skills/SKILL.md` — The foundational meta-skill for skill authoring. Covers vocabulary, failure modes, pruning, and progressive disclosure architecture.
 - **Skill Quality Standards**: See `SKILL-QUALITY-STANDARDS.md` — Repository-wide quality standards document. Defines the 10/10 quality bar, the 30-second test, the footgun test, the handoff test, and the checklist test.
-- **Scale Depth Framework**: See `SCALE-DEPTH-FRAMEWORK.md` — Universal framework for Solo→Small→Medium→Enterprise depth levels used across all skills.
 - **Coordination Matrix**: See `COORDINATION-MATRIX.md` — Auto-generated matrix of all chain connections across 188+ skills, organized by project phase.
 - **Validation Scripts**: `scripts/validate-skills.sh`, `scripts/skill-router.py`, `scripts/behavioral-evals.py` — Automated governance checks, routing verification, and behavioral testing.
 - **Template Skills (10/10* reference)**: `skills/05-development/mobile-developer/SKILL.md`, `skills/05-development/backend-developer/SKILL.md`, `skills/06-quality/code-reviewer/SKILL.md`, `skills/06-quality/security-reviewer/SKILL.md` — Battle-tested skill structures.

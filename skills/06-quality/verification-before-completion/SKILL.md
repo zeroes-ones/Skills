@@ -35,6 +35,7 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 Before marking any bug fix, feature, or task as complete, explicitly verify the fix works. Run the reproduction case, check the assertion, verify no regression. The fix isn't done until you've proven it works.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- TWO-TIER ROUTING: Auto-Route table (machine) → Intent Route tree (human fallback) -->
 
@@ -74,6 +75,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable. They detect the most common verification failures before they become production incidents.
 
@@ -88,12 +90,12 @@ These rules are non-negotiable. They detect the most common verification failure
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Verification masters think differently about "done." They know that the human brain is wired to declare victory prematurely — cognitive closure is rewarding. The master's job is to resist that urge long enough to prove the work is actually correct.
 
@@ -137,6 +139,7 @@ The brain generates excuses to avoid verification. Learn to recognize them. Ever
 - **Third-party dependency fix**: Verify the dependency upgrade resolves the issue. Add a regression test that would catch a regression if the dependency reintroduces the bug. Trust but verify.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Verification scales with the blast radius of the change. A CSS fix verifies differently than a database migration.
 
@@ -179,6 +182,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 - Compliance verification: SOC2, PCI, HIPAA evidence collected automatically from verification pipeline
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Completing a bug fix and about to mark the issue as resolved
@@ -200,6 +204,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 - **Performance benchmarking** — route to `performance-engineer`
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1: Reproduce (~5 min)
@@ -275,9 +280,12 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 
 **Output**: Closing comment with verification evidence.
   Complete when: Before/after evidence compiled into issue/PR with test results and verification summary.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **The self-verification checklist runs before you declare "done."** Before transitioning any task, run through: (a) Does the reproduction case pass? (b) Does the test suite pass? (c) Is evidence attached? (d) Did I check for regressions? If any answer is "no," you're not done — you're rationalizing. The checklist is not a suggestion; it's the gate between "works on my machine" and "verified."
 2. **Output validation: match the exact expected behavior, not approximate.** "The output looks right" is not verification. Compare the actual output against the expected output from the bug report or spec — character by character, pixel by pixel, field by field. An off-by-one, a missing field, or a slightly different error message means the fix is incomplete, even if it "looks about right."
@@ -291,6 +299,7 @@ Verification scales with the blast radius of the change. A CSS fix verifies diff
 10. **Verification scales with blast radius.** A CSS color change verifies with a screenshot. A shared utility change verifies with the full project test suite. A database migration verifies with integration tests + rollback test + staging smoke test. Match your verification effort to the risk: ask "what's the worst thing that happens if this is wrong?" and verify against that scenario.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -381,8 +390,8 @@ Ready to mark this task as "done"?
 └── Any gate failed → Return to the failed phase. Do not mark done.
 ```
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -397,6 +406,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 Verification doesn't happen in isolation. It integrates with the broader quality and delivery pipeline.
 
@@ -408,13 +418,12 @@ Verification doesn't happen in isolation. It integrates with the broader quality
 | **release-manager** | Feeds verification gates into release readiness | Before release: "Release Manager, verification for [ticket IDs] is complete. Evidence attached. All gates passed. Ready for release." |
 | **incident-responder** | Feeds post-incident verification | After incident: "Incident Responder, hotfix verified: reproduction case resolved, no regressions. Post-incident verification ticket filed for [date]." |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `code-reviewer` | Code quality assessment, security patterns, testing gaps | Before finalizing implementation or shipping to production |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger Pattern | Automatic Response |
 |---|---|
@@ -425,11 +434,13 @@ Verification doesn't happen in isolation. It integrates with the broader quality
 | "Works for me" response on a bug report | Challenge: "Could not reproduce" is not the same as "fixed." Request the reporter's environment details. |
 | Merge to main without associated test run | Check if the merge commit has a passing CI run. If CI was skipped, flag for post-merge verification. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### Before (Premature "Done")
 
@@ -455,14 +466,18 @@ Closing comment:
 
   BEFORE (reproduced):
   ```
+
   Steps: Add item to cart → Proceed to checkout → Click "Place Order"
   Result: TypeError: Cannot read property 'price' of undefined at checkout.ts:142
+
   ```
 
   AFTER (verified fixed):
   ```
+
   Steps: Add item to cart → Proceed to checkout → Click "Place Order"
   Result: Order confirmed. Order ID: #89241
+
   ```
 
   **Regression suite**: 247 tests passing, 0 failing. Full suite run: [CI link]
@@ -472,6 +487,7 @@ Closing comment:
 **Strengths**: Exact reproduction steps documented. Before and after evidence. Regression suite results attached. Auditable by anyone — today or six months from now.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: The False-Positive Reproduction
 Find a closed bug in your project. Re-run the reproduction steps from the issue. Does the bug still occur? If yes, the "fix" was never verified — it was a false close. Document your findings.
@@ -488,7 +504,8 @@ Pick a shared utility in your codebase. Change one line. Run `grep -r "import.*f
 ### Exercise 5: The 24-Hour Verification Challenge
 For one week, require verification evidence (BEFORE + AFTER + TEST SUITE) on every closed issue. At week's end, count: how many issues were reopened because verification caught an incomplete fix? This number is your return on the verification investment.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -499,6 +516,8 @@ For one week, require verification evidence (BEFORE + AFTER + TEST SUITE) on eve
 | "This sprint is ending — just move the tickets to Done, we'll verify next sprint." | 15 issues moved to "Done" because the sprint ended, not because verification happened. Two sprints later, 8 are reopened with "Actually, this still doesn't work." Cost: **$40K** in wasted sprint capacity and a team that learns "done" means nothing. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 - **The "obviously correct" change that introduces a regression**: A developer adds a null check to `getUser()`. The null check is correct, but it changes the return type from `User` to `User | null`. Every caller that didn't handle null now has a latent bug. **Total cost: $50,000-$200,000** in debugging, hotfix, and customer compensation for a payment-processing outage caused by an unhandled null in the checkout flow.
 
@@ -515,6 +534,7 @@ For one week, require verification evidence (BEFORE + AFTER + TEST SUITE) on eve
 - **Verification in the wrong environment**: A fix is verified in the developer's local environment (Node 20, fresh database). In production (Node 18, 2TB database with specific data), the fix fails because of a runtime API difference. **Total cost: $100,000-$500,000** in production incident response, rollback, and post-mortem process.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |----------------|-------------------|
@@ -527,6 +547,7 @@ For one week, require verification evidence (BEFORE + AFTER + TEST SUITE) on eve
 | "It works on my machine" as verification — ignoring environment differences in Node version, database size, config values, and traffic patterns | Verify in staging with production-like data and config. The developer's machine is the least representative environment in the pipeline. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 Run these checks to verify this skill file itself:
 
@@ -555,13 +576,16 @@ grep -c '\$[0-9]' SKILL.md
 
 # Check reference links
 grep -oh 'references/[^)]*\.md' SKILL.md | sort -u
+
 ```
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[VC1]** Phase 1 (Reproduce) complete: bug reproduced using the reporter's EXACT steps — evidence of failure captured BEFORE fix
 - [ ] **[VC2]** Phase 2 (Apply Fix) complete: fix is minimal — changes only what's necessary, no refactoring or unrelated changes mixed in
@@ -579,6 +603,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[VC14]** Status transition gate passed: all 5 phases + anti-rationalization + evidence sufficiency — task transitions to DONE only after all gates pass
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -594,6 +619,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | "Edge case verified" — but the edge case was `user = null`. Actual edge case that broke production: `user` is a valid object but `user.preferences` is `undefined` | Verification tested the top-level null case but not the nested property access case. The null check `if (!user)` passed. The crash was `user.preferences.theme.toLowerCase()` where `user.preferences` existed but was `undefined` | Edge case checklist: null/undefined at every level, not just the top. Test: empty object `{}`, object with missing nested property, array with 0 elements, array with max elements, string with special characters, number at INT_MAX. Don't stop at the first null check | Null checking the root object is table stakes. The bugs live two levels deep in partially populated objects. Your edge case checklist should walk the entire property tree — every `?.` in your code is a question you need to ask and verify. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 1. [Reproduction Verification Guide](references/reproduction-verification.md) — How to run and document the exact reproduction case from a bug report.
 2. [Assertion Checklist](references/assertion-checklist.md) — Criteria for strong vs. weak assertions; ensures tests actually verify correct behavior.

@@ -78,9 +78,10 @@ What are you trying to do?
 └── Not sure? → Describe your workload and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---:|
@@ -107,7 +108,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and WARN about `.env` files copied into Docker images** — baked-in `.env` files leak secrets to anyone who pulls the image. | Trigger: `file_contains("Dockerfile", "COPY.*\.env")` OR `file_contains("Dockerfile", "ENV.*=")` with DB credentials / API keys | WARN: "`.env` or credential-bearing ENV directives detected in [Dockerfile]. Use Docker secrets, Kubernetes Secrets (with etcd encryption), or External Secrets Operator. Add `.env*` to `.dockerignore`. Build-time env vars persist in image layers forever." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -156,33 +156,6 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 
 **Usage**: Say "as an L3 Kubernetes engineer, design the deployment architecture for..." Default: **L2** (service-level containerization, independent execution).
 
-### Scale Depth
-
-### Solo (1 person, 0-100 users)
-- **What changes**: Docker = `docker-compose up` on a single VM. One Dockerfile (multi-stage). No orchestration. No registry (build on deploy target). Restart policy: `unless-stopped`. Volumes for persistence.
-- **What to skip**: Kubernetes, Docker Swarm, container registry, image scanning, resource limits, network policies, Helm charts, GitOps.
-- **Coordination**: You write the Dockerfile + compose file. Done. **Cost**: $10-50/month (single VM).
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: Docker Compose for dev/staging. Container registry (Docker Hub, ECR, GHCR). CI builds and pushes images. Multi-stage builds optimized. Non-root users. Health checks. docker-compose for production on 1-2 VMs or ECS Fargate. Image scanning in CI.
-- **What to skip**: Kubernetes, service mesh, GitOps, PodDisruptionBudget, network policies beyond basic.
-- **Coordination**: Dockerfiles reviewed in PR. Image tags follow semver. CI manages build + push. **Cost**: $100-500/month.
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Kubernetes (EKS/GKE/AKS, managed). Helm charts for deployments. GitOps (Argo CD). Resource requests + limits. Liveness/readiness probes. PodDisruptionBudget. NetworkPolicy (deny all, allow explicit). cert-manager + external-dns. Container scanning in CI (block CRITICAL/HIGH). Multi-environment clusters.
-- **What to skip**: Self-managed Kubernetes, service mesh (unless mTLS required), multi-cluster, custom operators.
-- **Coordination**: K8s platform owner (1-2 people). Weekly K8s review. Helm chart PR review. **Cost**: $2,000-8,000/month (managed K8s + registry + scanning).
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: Multi-cluster Kubernetes. Service mesh (Istio/Linkerd). Platform team managing K8s. Custom operators. PodSecurityStandards enforced. OPA/Gatekeeper for policy. HPA + cluster autoscaler. External Secrets Operator + Vault. Chaos engineering. Multi-region clusters. Kubecost for cost monitoring.
-- **What's full production**: K8s platform as a product. Self-service namespaces. Policy as code. Automated cluster lifecycle. K8s upgrade automation.
-- **Coordination**: K8s platform team weekly. Cluster upgrade planning monthly. Security policy review quarterly. Capacity planning quarterly. **Cost**: $20,000-100,000+/month.
-
-### Transition Triggers
-- **Solo → Small**: Second developer joins. Need consistent environments across dev/prod.
-- **Small → Medium**: 5+ services. Need auto-scaling and self-healing. docker-compose can't keep up.
-- **Medium → Enterprise**: 10+ clusters or multi-region. 50+ services. Dedicated platform team justified.
-
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -223,6 +196,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
                     │         │ │ ground)      │
                     └─────────┘ └─────────────┘
 ```
+
 **When to choose docker-compose:** <5 services, <5 engineers, <1K DAU, budget <$500/month, no auto-scaling needed. **When to choose ECS/Cloud Run:** 2-20 services, no K8s expertise, managed containers, $200-500/month. **When to choose K8s:** >5 services, >5 engineers, auto-scaling/self-healing required, budget >$1K/month, GitOps desired.
 
 ### Managed K8s vs Self-Managed
@@ -246,6 +220,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
                     │ hrs/week ops│   │ — 2-8 hrs/week   │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose Managed (EKS/GKE/AKS):** <50 nodes, <2 dedicated K8s experts, want control plane managed, budget for $73-150/month per cluster. **When to choose Self-Managed:** >50 nodes, in-house K8s expertise (2+ FTEs), cost savings on control plane justify 20-40 hrs/week ops overhead.
 
 ### Ingress Controller Selection
@@ -268,6 +243,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
                     │  flexible)  │   │ GCE Ingress     │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose NGINX Ingress:** Cross-cloud, need custom Lua/OpenResty, advanced rate limiting, canary by header, >10 routing rules. **When to choose Cloud-Native LB:** Single cloud, simple host/path routing, want cloud WAF integration (AWS WAF), managed TLS termination.
 
 ### Service Mesh Decision
@@ -292,6 +268,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
                     │  per hop)   │   └────────────────┘
                     └─────────────┘
 ```
+
 **When to deploy Service Mesh:** mTLS required, >10 services, need traffic splitting (canary), need L7 observability per service, team can absorb 0.5-2ms added latency. **When to skip:** <10 services, no mTLS requirement, NetworkPolicy sufficient, latency budget <5ms — mesh adds unnecessary complexity.
 
 ### Container Image Security Posture
@@ -317,6 +294,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
                     │ (Cosign)    │
                     └─────────────┘
 ```
+
 **When to use Distroless+Signing:** PII/PCI/HIPAA workloads, production, CVE surface must be minimized, SLSA L2+ required. **When Alpine/Slim is enough:** Internal tools, no regulated data, simpler Dockerfile maintenance, acceptable CVE risk profile.
 
 ## Core Workflow **(STANDARD)**
@@ -361,6 +339,10 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 4. Use request timeouts, circuit breakers, and retries at the sidecar level to implement resilience patterns.
 5. Ingress: use cert-manager with Let's Encrypt for automatic TLS; external-dns for automatic Route53/Cloud DNS record creation.
   Complete when: mTLS is enforced mesh-wide, canary traffic split is configured with progressive shift, and ingress resolves with valid TLS certificate.
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
+  Complete when: Infrastructure drift detection enabled — Terraform plan shows zero unmanaged changes.
 
 ### Cross-skills Integration
 
@@ -374,8 +356,8 @@ Common chains:
 - **Chain**: backend-developer → docker-kubernetes → ci-cd-builder — App is containerized; CI/CD pipeline automates image builds and deployments
 - **Chain**: devops-engineer → docker-kubernetes → platform-engineer — Infrastructure is provisioned; containers are deployed; platform provides self-service container orchestration
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -383,7 +365,6 @@ Common chains:
 | Using `:latest` tags for production deployments — a new push to `:latest` silently replaces running images with untested code | $10K-$100K per incident in rollback time and degraded customer experience | Pin images by SHA256 digest in deployment manifests; CI should auto-replace tags with digests; block `:latest` via admission webhook |
 | Hardcoding secrets in ConfigMaps or env vars — exposed in `kubectl describe`, logs, and crash dumps; leads to credential leaks | $20K-$200K in security incident response, credential rotation, and potential compliance fines | Use External Secrets Operator or CSI Secret Store driver; mount secrets as files at runtime; enable etcd encryption at rest |
 | Skipping resource limits — a pod with a memory leak consumes all node memory, OOM-kills neighboring pods, and cascades across the cluster | $5K-$50K in cascading outage costs from unrelated services going down | Set `resources.requests` and `resources.limits` on every container; use LimitRange defaults in namespaces; monitor OOMKill events with alerting |
-
 
 ## Error Decoder — War Stories from the Trenches
 
@@ -400,7 +381,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Ingress returns 502 for requests with payloads >64KB — works fine for small requests | The NGINX Ingress Controller has `proxy-body-size: 64k` as a ConfigMap default. The upstream service accepts 10MB. Large requests are terminated at the ingress before reaching the backend. The application logs show no errors because the request never arrives | Set `nginx.ingress.kubernetes.io/proxy-body-size: "10m"` as an annotation on the specific Ingress resource. Add a global ConfigMap value of `client-max-body-size: "10m"`. Add a Prometheus alert on `nginx_ingress_controller_requests{status="413"}` | Ingress acts as an invisible request filter. 413 errors at the ingress are invisible to application monitoring. Every Ingress needs explicit body-size configuration — the NGINX default is deliberately tiny. |
 | Service mesh (Istio) sidecar injection causes every pod startup to fail with `connection refused` from the app to `localhost:15001` | The application starts before the Envoy sidecar is ready. The app tries to connect to its database at `localhost:5432`, but iptables rules redirect all traffic through Envoy — which isn't listening yet. The app's init logic times out and exits | Add `holdApplicationUntilProxyStarts: true` in the Istio mesh config. Set `traffic.sidecar.istio.io/excludeOutboundPorts: "5432"` if the database is outside the mesh. Add a startup probe that checks application health AFTER the proxy health endpoint responds | Sidecar lifecycle ordering is a race condition. The app starts in parallel with the proxy. If the app reaches for the network first, it loses. Always configure hold-until-proxy-ready or exclude critical startup connections from the mesh. |
 
-
 ## Best Practices
 
 1. **Minimal base images reduce attack surface.** Use distroless for Go/Rust, `slim` for interpreted languages, `scratch` for static binaries. Smaller images = fewer CVEs, faster pulls, less disk IO. A `node:22` image has 600+ packages; `node:22-slim` has 60.
@@ -413,7 +393,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 8. **NetworkPolicy deny-all with explicit allows.** Default-deny ingress/egress. Only allow specific namespaces/labels. Without network policies, a compromised frontend pod can reach the database directly — your service mesh isn't a firewall.
 9. **Use operators for stateful workloads, never raw StatefulSets alone.** PostgreSQL, Kafka, Redis in K8s need operators (Zalando, Strimzi, Redis Operator) for backup, failover, upgrades. A StatefulSet without an operator is just a pod with a sticky identity — no managed lifecycle.
 10. **Image scanning in CI, not as a dashboard.** Trivy/Grype blocks builds on CRITICAL/HIGH CVEs with a fix available. Scan deployed images weekly and auto-create Jira tickets for newly discovered CVEs. A scan dashboard nobody reads is security theater.
-
 
 ## Error Recovery **(STANDARD)**
 
@@ -460,8 +439,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - **NodePort/port 80 exposed to public internet without TLS** → Ingress/load balancer exposing plain HTTP. Use cert-manager to auto-provision Let's Encrypt certificates. Add `ingress.kubernetes.io/force-ssl-redirect: "true"` annotation. 🟠
 - **docker-compose secrets in git repo** → `.env` file committed with database passwords, API keys. Add `.env` to `.gitignore`. Use `docker-compose secrets` or environment variable injection from CI/CD. Rotate exposed credentials immediately. 🔴
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
@@ -548,5 +527,4 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Managed K8s vs Self-Managed: Cost Comparison**: See [k8s-cost-comparison.md](references/k8s-cost-comparison.md)
 - **When Kubernetes is Overkill**: See [k8s-overkill.md](references/k8s-overkill.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

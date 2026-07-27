@@ -39,15 +39,18 @@ chain:
 # Incremental Implementation
 
 > **Portability target:** Works in Claude Code, Copilot CLI, Cursor, Codex, and Gemini CLI. No agent-specific features required.
+<!-- QUICK: 30s -->
 
 ## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 * Admit uncertainty. If you cannot determine the correct vertical slice boundary, ask — do not guess.
 * Flag your knowledge cutoff. If this project uses a feature flag system you have not seen, state your assumptions.
 * Never guess security. If a slice touches auth, payments, or PII, recommend routing to security-reviewer.
 * [VERIFIED] before any production guidance: Verify flag infrastructure exists. Verify CI/CD passes. Verify backward compatibility.
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Rule | Mechanical Trigger | Violation Response |
 |---|------|-------------------|-------------------|
@@ -58,6 +61,7 @@ chain:
 | 5 | Commit messages name the slice | Commit message lacks feat or fix with slice-name pattern | Reject until amended |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 This is a map, not a recipe. Start at the top and follow the matching branch.
 
@@ -97,6 +101,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
         +-- NO  -> Start building
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 * Building a feature that requires more than one PR to complete
 * Migrating from big-bang releases to continuous delivery
@@ -107,17 +112,8 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 
 > If you catch yourself rationalizing, stop. The rationalizations below are traps.
 
-## Anti-Rationalization Table
-
-| Rationalization | Reality |
-|---|---|
-| It is faster to build the whole thing at once | Partial slices reveal integration problems on day 1, not month 3 |
-| Feature flags add complexity we do not need | Feature flags are the cheapest insurance policy against bad deploys |
-| I will make it atomic later once it works | Non-atomic commits are irreversible technical debt |
-| We can skip the slice if it is trivial | Forty percent of trivial slices hide a dependency trap |
-| Safe defaults are for production, not dev | Without practice in dev, safe defaults will be forgotten in production |
-
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 1. **Slices, not layers.** Build a thin piece of every layer, not a complete backend before frontend. This is the most important mental shift from waterfall to incremental.
 2. **Flags are surgical instruments.** Each has a lifecycle: zero percent to ten percent to fifty percent to one hundred percent to flag removal. Track lifecycle in a dashboard.
@@ -125,6 +121,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 4. **Atomic commits make blame useful.** When git bisect lands on your commit, it should tell a complete story: one slice, one flag, one test.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 ### Level 1: Quick (Single Slice)
 - Decompose into VS-0 through VS-3 using the template below
@@ -158,6 +155,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 - **Complete when:** First monolith slice extracted and running in production
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Decompose into Vertical Slices
 
@@ -190,6 +188,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 **Complete when:** All slices merged, dashboard at one hundred percent, cleanup scheduled, zero incidents.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Decision Tree 1: Slice vs. Monolith
 
@@ -223,7 +222,23 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
         +-- YES and date has passed -> REMOVE flag and all gating logic
         +-- NO  -> Set cleanup_after to today plus seven days. Retry then.
 
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Every vertical slice has its own feature flag with `default: false` and `kill_switch: true` in flags.yaml | `grep -c "default: false" flags.yaml` must equal the number of active feature flags; search for any `default: true` — none should exist for new work |
+| ☐ | VS-0 (scaffold + flag + no-op route) is merged and deployed at 0% rollout before any subsequent slice work begins | Verify VS-0 PR is merged, flag visible in dashboard at 0%, CI/CD pipeline passing for that commit |
+| ☐ | All tests pass with flag both ON and OFF — test suite run twice with both configurations | `FLAG_feature_x_vs1=true npm test && FLAG_feature_x_vs1=false npm test` — both must exit 0 |
+| ☐ | Rollback requires zero code deploys — every flag can be flipped OFF via config change alone (≤ 30 seconds) | Verify kill switch toggle exists in dashboard; flip OFF in staging, confirm old behavior restored within 30 seconds, no 500s during transition |
+| ☐ | Backward compatibility verified — old API endpoints still respond 200, no destructive schema changes (ADD COLUMN only, no DROP/ALTER) | `git diff main -- migrations/` — only `ALTER TABLE ... ADD COLUMN` allowed; run old client integration tests against new server |
+| ☐ | No commit exceeds 200 lines and every commit message names the slice (`feat domain-vsN`) | `git log --oneline -10` — each commit under 200 lines; no `WIP` or `fix stuff` messages |
+| ☐ | Feature flag dashboard entry exists with owner, auto_off_metric, and cleanup_after date | Open dashboard URL; verify flag appears with assigned owner (CODEOWNERS), metric threshold configured, cleanup date set ≤ 14 days from 100% rollout |
+| ☐ | Rollback plan is documented and tested | Verify runbook lists flag flip order; test rollback in staging: flip VS-2 OFF, confirm VS-1 and VS-0 still function, no cascading flag dependency failures |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 | Complete When | Evidence |
 |---|---|
@@ -239,6 +254,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 | Complete when rollback plan documented | Document listing which flags to flip, in what order |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Slice by user value, not by layer.** User can create a draft post is a slice. Build the Post table is not.
 2. **Flags named feature_domain_vsN.** Consistent naming enables instant searching.
@@ -252,6 +268,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 10. **If a slice breaks, only that slice is rolled back.** The fundamental advantage of incremental delivery.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | Pattern | Correction |
 |---|---|
@@ -263,6 +280,8 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 | Kill switches requiring code deploy | Configuration toggle, not code change |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 1. **Flag explosion:** Forty-seven active flags means no cleanup. Cost: $5,000 to $15,000 in test matrix explosion. **Fix:** Flag removal sprint every two weeks.
 2. **VS-0 skipping:** Skipping the hello-world slice. Cost: $2,000 to $8,000 — discover infrastructure bugs on VS-3. **Fix:** Never skip VS-0.
@@ -271,6 +290,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 5. **Flag dependency chains:** X depends on Y; Y removed, X breaks. Cost: $3,000 to $10,000 cascading failure. **Fix:** Document dependencies in flags.yaml.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream (call before implementing)
 
@@ -292,6 +312,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 | code-simplification | Flag cleanup after feature is stable |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -302,6 +323,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 | WIP in commit message | Reject, rewrite with feat domain-vsN | WIP commits break bisect |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 **Correct:**
 
@@ -318,6 +340,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
     WIP — do not merge yet
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Slice this feature:** Users can upload avatar images. Decompose into VS-0 through VS-3.
 2. **Flag removal drill:** Find oldest active flag over thirty days at one hundred percent. Remove in a PR.
@@ -326,6 +349,8 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 5. **Slice sizing:** Take last feature PR over two hundred lines. Re-slice into at most one hundred line slices.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 1. **Flag accidentally ON for all users:** Flip OFF in config — no deploy needed. Investigate. Never delete the flag.
 2. **VS-2 merged before VS-1:** Revert VS-2. Merge VS-1 first. Cost: about thirty minutes.
@@ -334,6 +359,8 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 5. **Flag infrastructure unavailable:** All flags fail CLOSED. Confirm default OFF. Fix infrastructure. Zero user impact.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 - [ ] VS-0 decomposed and estimated
 - [ ] Feature flag created with default: false
@@ -347,6 +374,7 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 - [ ] Flag cleanup scheduled
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [feature-flag-architect](../feature-flag-architect/SKILL.md) — Flag infrastructure design
 - [shipping-and-launch](../../07-devops/shipping-and-launch/SKILL.md) — Staged rollout patterns

@@ -33,14 +33,18 @@ chain:
     - platform-engineer
 ---
 # Multi-Agent Orchestration
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 Route multi-agent design through the topology patterns in Section 3 and decision trees in Section 11. If < 3 agents, use Section 11 for simple delegation. If ≥ 3 agents, use full topology + typed state from Sections 3-4.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 Never let agents share mutable state without a typed schema. Never delegate without explicit success/failure contracts. Never run agents without observability instrumentation. Never exceed 3 delegation hops — use flat topologies. State corruption in multi-agent systems costs $100K+ per incident.
 
 ## Anti-Hallucination
+<!-- STANDARD: 3min -->
 - **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
 - **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
 - **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
@@ -54,24 +58,123 @@ Never let agents share mutable state without a typed schema. Never delegate with
 | **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 You design agent systems assuming every handoff will fail. You enforce typed contracts, idempotent delegation, and cost-aware topology selection. You treat agent output as stochastic — never deterministic.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 - **2-3 agents:** Simple supervisor or sequential topology
 - **5-10 agents:** Hierarchical with typed state and LangGraph
 - **10-50+ agents:** Swarm with CrewAI/AutoGen, cost-optimized routing
 - **Cross-team:** Federation with agent-handoff-protocol handoff contracts
 
 ## When to Use
+<!-- STANDARD: 3min -->
 Use when designing multi-agent systems with 3+ collaborating agents, debugging agent state corruption, optimizing multi-agent costs, or scaling from prototype to production agent swarms.
 
 ## Decision Trees
-See Section 11 (Decision Trees) for structured topology selection, state management, delegation mode, and cost optimization decisions.
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Agent Topology Selection
+
+```
+        ┌── INPUT: Number of agents and task structure
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Sequential pipeline?        Parallel independent tasks?
+   │                         │
+   ▼                         ▼
+HIERARCHICAL                 SWARM / PEER-TO-PEER
+(Supervisor + Workers)       (Self-organizing)
+   │                         │
+   ├─ Use when: clear         ├─ Use when: tasks are
+   │  dependency chain        │  independent, agents
+   ├─ 3+ agents               │  are homogeneous
+   ├─ LangGraph: StateGraph   ├─ Odd number of peers
+   │  with conditional edges  │  (3, 5, 7) — avoid 2
+   └─ Risk: supervisor         └─ Risk: deadlock on
+      bottleneck                 consensus failure
+```
+
+### Decision Tree 2: State Management Strategy
+
+```
+        ┌── INPUT: State complexity and sharing needs
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Simple key-value state      Complex typed state
+(few fields, one writer)    (many fields, multi-writer)
+   │                         │
+   ▼                         ▼
+Message-bus dict             TypedDict + Pydantic
+(AutoGen default)            (LangGraph default)
+   │                         │
+   │                    ┌────┴────┐
+   │                    │         │
+   │                    ▼         ▼
+   │               Single owner  Shared mutable
+   │               per field?    state needed?
+   │                    │         │
+   │                    ▼         ▼
+   │               Field ownership Immutable snapshots
+   │               + write guard   + merge-after-complete
+```
+
+### Decision Tree 3: Delegation Mode Selection
+
+```
+        ┌── INPUT: Agent interaction pattern
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+One-way handoff             Bidirectional dialogue
+(fire-and-forget)           (negotiation, Q&A)
+   │                         │
+   ▼                         ▼
+Direct delegation           Conversation loop
+   │                         │
+   ├─ Use when: task is      ├─ Use when: agents must
+   │  self-contained         │  reach consensus
+   ├─ Set max_depth = 3      ├─ Set max_turns = 20
+   ├─ Reject cyclic          ├─ Implement convergence
+   │  delegation chains      │  detector
+   └─ Structured output      └─ Tiebreaker: supervisor
+      required                  or human escalation
+```
+
+### Decision Tree 4: Cost Optimization Strategy
+
+```
+        ┌── INPUT: Agent token consumption pattern
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Cost per task > $5?         Agent utilization < 50%?
+   │                         │
+   ▼                         ▼
+AUDIT delegation chains     RIGHT-SIZE agent model
+   │                         │
+   ├─ Check for infinite     ├─ Simple tasks → fast model
+   │  loops (cycle detection)├─ Complex reasoning →
+   ├─ Verify context         │  high-capability model
+   │  pass-through protocol  ├─ Idle agents → spin down
+   └─ Reduce max_turns       └─ Track tokens-per-task
+                              as primary KPI
+```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 Topology selection → typed state schema → agent delegation contracts → state synchronization → observability → cost optimization → failure mode testing.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -86,6 +189,8 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -94,7 +199,49 @@ If a command or approach fails, follow this escalation path before giving up:
 | Parallel agents operate on the same file without coordination — Agents A, B, and C each read `config.yaml`, each modify it differently, each write it back. Only the last write survives. The changes from A and B are silently lost. | $20K-$50K in lost work and corrupted state when concurrent file modifications are lost without detection. In the worst case, the corruption isn't discovered until a deployment fails hours later. | Implement file-level locking: before an agent writes to a file, it acquires a lock (flock, advisory lock, or explicit coordinator check). If lock is held by another agent, wait or escalate. Prefer sequential phases that operate on non-overlapping files. Run `git diff --stat` after all agents complete to verify no unexpected collisions. |
 | Agent failure is silent — Agent C encounters a tool error and returns empty output. The orchestrator interprets empty output as "nothing to do" and proceeds. Three hours later, the orchestrator "completes" successfully while Agent C's assigned task (security scanning, data validation) was never performed. | $30K-$100K in undetected failures when a critical agent silently drops out. If the security scan agent fails silently, code ships un-scanned. If the data validation agent fails silently, corrupt data propagates. | Require explicit output from every agent: each agent must return a structured result with status (success/failure/partial) and artifact list. Orchestrator validates that every expected agent produced a result. Empty output = failure, not success. Implement a heartbeat check: if an agent hasn't produced output in 5 minutes, poll its status. |
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do select topology based on agent interdependence, not agent count** — A 3-agent system with circular dependencies needs a supervisor; a 10-agent system with fully independent tasks runs efficiently in peer-to-peer. Topology mismatch costs 30-50% more tokens from redundant communication and unnecessary resolution loops. Map the dependency graph (who needs whose output) first, then select topology by minimizing the total communication edges. Topology is architecture, not configuration.
+2. **Prefer typed shared state over unstructured message-passing for agent coordination** — Message-passing without a schema degrades into ad-hoc JSON that agents parse inconsistently. A typed state (Pydantic model, LangGraph TypedDict, Protocol Buffer) is self-documenting, machine-verifiable, and catches field-level ownership conflicts at startup rather than at runtime. A runtime state corruption incident from schema mismatch costs 4-12 engineer-hours to debug and fix — validation at startup costs zero.
+3. **Always enforce a maximum delegation depth with cycle detection** — Unbounded delegation chains create circular reasoning loops where Agent A delegates to Agent B who delegates back to Agent A. A 3-hop limit with cycle detection (reject delegation to any agent already in the active chain) prevents infinite loops that burn $50-$500 in API tokens before anyone notices. Each additional delegation hop compounds hallucination probability by 15-20% as context fragments.
+4. **Never use even-numbered peer groups for consensus decisions** — Two peers deadlock on disagreement with no resolution path. Four peers split 2-2 with gridlock. Always use odd-numbered groups (3, 5, 7) with a predefined tiebreaker: supervisor override or majority vote with timeout escalation. A deadlocked 4-agent peer group burns tokens indefinitely with zero progress — at $0.05-$0.15 per agent-turn, that's $12-$36/hour of wasted API spend.
+5. **Measure token-per-completed-task as the North Star efficiency metric** — Track total tokens consumed (all agents, all delegation hops, all conflict resolution) divided by completed tasks. If token-per-task grows >20% week-over-week without a topology or task-complexity change, you have a silent delegation leak or context bloat. Target: <5,000 tokens per simple single-domain task, <20,000 per complex cross-domain multi-agent task. Alert on 3 consecutive weeks of growth.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Topology documented: agent roles, communication edges, data flow direction, and failure mode per edge mapped in architecture artifact | Architecture diagram shows all agents with labeled edges; failure mode for each edge documented (timeout, rejection, corruption) |
+| ☐ | Typed state schema enforced at startup: every state field has declared `owner` agent and `readers` list; Pydantic/LangGraph validation runs before first task | Run schema validation → zero fields claimed as owner by multiple agents; type mismatches caught at schema load, not at runtime |
+| ☐ | Max delegation depth configured (default: 3) with cycle detection that rejects any agent already present in active delegation chain | Simulate 4-hop delegation attempt → verify rejection at hop 4 with clear error; simulate cycle (A→B→A) → verify rejected with cycle-detected error |
+| ☐ | Convergence detector active: if last 3 agent turns produce no new information, escalation fires instead of continuing loop | Simulate stuck agent producing repetitive output → verify escalation fires after 3 non-productive turns; escalation includes full context |
+| ☐ | Cost tracking dashboard operational: per-agent token consumption, latency P50/P95, and success rate measured; alert on anomalies | Dashboard shows per-agent metrics with 5-minute granularity; alert fires if any agent consumes >50% of total budget without measurable progress |
+| ☐ | Failure modes tested: hallucination cascade, infinite delegation loop, and supervisor bottleneck all produce clean escalation with audit trail, not silent failure | Simulate all 3 failure modes in staging environment → verify each produces structured escalation log with root cause and recommended remediation |
+| ☐ | File-level concurrency safety: no two agents write to the same file simultaneously; locking or sequential phasing prevents write collisions | `git diff --stat` after multi-agent production run shows zero unexpected file collisions; file-locking audit log shows no contention timeouts |
+| ☐ | Rollback plan is documented and tested | Checkpoint-based rollback tested: restore state to checkpoint N-1 after injecting simulated corruption; replay from clean state with zero data loss; recovery time documented |
+
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Topology documented with agent roles, communication edges, and failure modes | Architecture diagram shows all agents, data flow, and escalation paths |
+| ☐ | Complete when Typed state schema defined with field ownership per agent | Pydantic/LangGraph state model: each field has `owner` and `readers` list |
+| ☐ | Complete when Max delegation depth set (default: 3) with cycle detection | Delegation chain tracker rejects if target agent is already in chain |
+| ☐ | Complete when Max turn count enforced (default: 20) with convergence detector | Last 3 turns produce new information; otherwise escalate |
+| ☐ | Complete when Context pass-through protocol implemented for every delegation | Each delegation includes: problem, tried, logs, file paths, hypothesis |
+| ☐ | Complete when File-level locking or sequential phases prevent concurrent write collisions | `git diff --stat` after multi-agent run shows zero unexpected collisions |
+| ☐ | Complete when Structured output required from every agent (status + artifacts) | Empty output treated as failure; heartbeat check polls idle agents every 5 min |
+| ☐ | Complete when Cost tracking: tokens-per-task measured and optimized per agent | Dashboard shows cost breakdown; idle agents spun down |
+| ☐ | Complete when Failure mode testing: hallucination cascade, infinite loop, supervisor bottleneck simulated | All 3 failure modes produce clean escalation, not silent failure |
+| ☐ | Complete when Odd-numbered peer groups (3, 5, 7) with tiebreaker defined | Even-numbered P2P topologies rejected; consensus timeout + supervisor override configured |
+
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Run these checks before declaring work complete. ALL must pass.
 
@@ -110,6 +257,7 @@ Run these checks before declaring work complete. ALL must pass.
 | V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 - **agent-handoff-protocol:** State serialization and handoff contracts
 - **context-compaction-strategies:** Token budget management across agents
 - **agent-eval-pipeline:** Multi-agent behavioral evaluation
@@ -120,11 +268,13 @@ Run these checks before declaring work complete. ALL must pass.
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 - "add another agent" → Ask: What topology? What state contract?
 - "agents disagree" → Surface: Conflict resolution pattern (Section 7)
 - "agent costs rising" → Audit: Delegation loops, hallucination cascades
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -140,18 +290,24 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Conflict resolution with majority vote: 5 agents vote on architecture decision. Result: 2 for option A, 2 for option B, 1 abstains ("insufficient context"). Pipeline hangs waiting for a majority that will never come. Timeout kills the pipeline with no decision and no fallback | Voting requires a majority threshold but the pipeline didn't define what happens when no majority is reached. 5 agents with 3 options is a common deadlock scenario. No tiebreaker, no timeout escalation, no "supervisor override" fallback | Define a decision ladder: (1) Unanimous → decide. (2) 2/3 supermajority → decide. (3) Simple majority with tiebreaker → supervisor agent decides. (4) No majority after timeout → escalate to human. Set a per-decision timeout: 3 debate rounds or 10 minutes. The pipeline must never hang — it must always produce a decision or an escalation | Voting systems need tiebreakers. The failure mode of majority voting with even numbers is not "bad decision" — it's "no decision." Every voting mechanism must define the fallback when the vote fails: supervisor override, human escalation, or default-to-safest-option. A hung pipeline is worse than a suboptimal decision |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 All agents share typed state via LangGraph/Pydantic. Every delegation has idempotency and timeout. Full OpenTelemetry traces across agent boundaries. Cost per task is measured and optimized. Zero silent state corruption.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 Design a 5-agent hierarchical topology for a code review pipeline. Implement typed shared state in LangGraph with Pydantic schemas. Simulate 3 failure modes (hallucination cascade, infinite loop, supervisor bottleneck). Build a cost dashboard tracking tokens-per-task across agents.
 
 ## References
+<!-- STANDARD: 3min -->
 See the References section at the end of this skill and references/ directory for deep-dive reference files on LangGraph, CrewAI, AutoGen, and swarm patterns.
 
 ## 1. Problem Statement
+<!-- STANDARD: 3min -->
 
 Multi-agent systems fail silently without deliberate orchestration. When 3+ agents collaborate, you encounter: state corruption across handoffs ($100K+ in inconsistent decisions), hallucination cascades where downstream agents amplify upstream errors ($500K+ wrong architecture), infinite delegation loops ($50K+ wasted compute), and supervisor bottlenecks that cap throughput ($200K+ degraded SLAs).
 
@@ -160,6 +316,7 @@ This skill provides the architecture, protocols, and failure mode prevention to 
 **Portability target:** All patterns work with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 
 ## 2. Quick Reference Card
+<!-- STANDARD: 3min -->
 
 | Concern | LangGraph | CrewAI | AutoGen |
 |---------|-----------|--------|---------|
@@ -171,6 +328,7 @@ This skill provides the architecture, protocols, and failure mode prevention to 
 | Trace/audit | LangSmith/LangFuse | CrewAI telemetry | AutoGen runtime log |
 
 ## 3. Five Agent Topology Patterns
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 166 lines extracted to references/3-five-agent-topology-patterns.md -->
 
 ### 3.1 Supervisor (Central Controller)
@@ -182,28 +340,33 @@ This skill provides the architecture, protocols, and failure mode prevention to 
 > 📎 **Full content (166 lines):** [references/3-five-agent-topology-patterns.md](references/3-five-agent-topology-patterns.md)
 
 ## 4. Typed Shared State Architecture
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 57 lines extracted to references/4-typed-shared-state-architecture.md -->
 
 ### 4.1 LangGraph TypedDict (Checkpoint-Based)
 
 ```python
+
 from typing import TypedDict, Annotated, Sequence
 from langgraph.checkpoint.memory import MemorySaver
 ...
 > 📎 **Full content (57 lines):** [references/4-typed-shared-state-architecture.md](references/4-typed-shared-state-architecture.md)
 
 ## 5. Agent Delegation Protocol
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 81 lines extracted to references/5-agent-delegation-protocol.md -->
 
 ### 5.1 Task Decomposition
 
 ```
+
 Input Task
     │
 ...
 > 📎 **Full content (81 lines):** [references/5-agent-delegation-protocol.md](references/5-agent-delegation-protocol.md)
 
 ## 6. State Synchronization Strategies
+<!-- STANDARD: 3min -->
 
 | Strategy | Mechanism | Consistency | Latency | When |
 |----------|-----------|-------------|---------|------|
@@ -214,6 +377,7 @@ Input Task
 **Synchronization protocol:**
 
 ```python
+
 def sync_after_handoff(from_agent: str, to_agent: str, state: AgentState):
     state["handoff_hash"] = sha256(json.dumps(state).encode()).hexdigest()[:16]
     state["delegation_depth"] += 1
@@ -221,13 +385,16 @@ def sync_after_handoff(from_agent: str, to_agent: str, state: AgentState):
         raise DelegationDepthExceeded(state["delegation_depth"])
     checkpointer.put(state["handoff_hash"], deepcopy(state))
     return state
+
 ```
 
 ## 7. Conflict Resolution Patterns
+<!-- STANDARD: 3min -->
 
 ### 7.1 Resolution Ladder
 
 ```
+
 DISAGREEMENT DETECTED
     │
     ├── Step 1: Simple Majority Vote ──▶ Resolved? ──▶ Continue
@@ -245,6 +412,7 @@ DISAGREEMENT DETECTED
     └── Step 4: Human-in-the-Loop
             │
             └── Escalate with full context + options
+
 ```
 
 ### 7.2 Resolution Strategies
@@ -258,6 +426,7 @@ DISAGREEMENT DETECTED
 | Human escalation | Any | High | Lowest |
 
 ```python
+
 def resolve(agents: list, threshold: float = 0.5) -> str:
     votes = Counter(a.propose() for a in agents)
     total = len(agents)
@@ -265,9 +434,11 @@ def resolve(agents: list, threshold: float = 0.5) -> str:
         if count / total >= threshold:
             return option
     return escalate_to_human(votes)
+
 ```
 
 ## 8. Observability & Instrumentation
+<!-- STANDARD: 3min -->
 
 ### 8.1 What to Measure
 
@@ -283,6 +454,7 @@ def resolve(agents: list, threshold: float = 0.5) -> str:
 ### 8.2 Decision Audit Trail
 
 ```python
+
 from langfuse import Langfuse
 
 trace = Langfuse().trace(name=f"multi-agent:{task_id}")
@@ -296,9 +468,11 @@ for handoff in handoff_chain:
         }
     )
     span.end()
+
 ```
 
 ## 9. Failure Modes & Prevention
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 69 lines extracted to references/9-failure-modes-prevention.md -->
 
 ### 9.1 Hallucination Cascade
@@ -310,10 +484,12 @@ for handoff in handoff_chain:
 > 📎 **Full content (69 lines):** [references/9-failure-modes-prevention.md](references/9-failure-modes-prevention.md)
 
 ## 10. Cost Optimization
+<!-- STANDARD: 3min -->
 
 ### 10.1 Parallel vs Sequential Decision
 
 ```
+
 All tasks ready?
     │
     ├── Independent tasks ──▶ Execute in parallel
@@ -321,11 +497,13 @@ All tasks ready?
     │
     └── Dependent tasks ──▶ Sequential with completion gates
         └── Cost: sum(individual) + context-passing overhead
+
 ```
 
 ### 10.2 Idle Agent Eviction
 
 ```python
+
 import time
 
 class AgentPool:
@@ -340,6 +518,7 @@ class AgentPool:
             if now - last > self.idle_timeout:
                 self.agents.pop(agent_id, None)
                 self.last_active.pop(agent_id, None)
+
 ```
 
 ### 10.3 Context Reuse
@@ -347,10 +526,12 @@ class AgentPool:
 Reuse agent context when same agent handles sequential related tasks — avoids re-loading system prompts and domain context ($0.002-$0.01 saved per handoff).
 
 ## 11. Decision Trees
+<!-- STANDARD: 3min -->
 
 ### 11.1 Decision Tree: Topology Selection
 
 ```
+
 Task characteristics?
     │
     ├── Single domain, clear owner ──▶ SUPERVISOR
@@ -362,11 +543,13 @@ Task characteristics?
     ├── High-stakes, adversarial validation ──▶ DEBATE
     │
     └── Massively parallel, emergent roles ──▶ SWARM
+
 ```
 
 ### 11.2 Decision Tree: State Persistence
 
 ```
+
 Consistency requirement?
     │
     ├── Strong (seq. pipeline) ──▶ Checkpoint (LangGraph MemorySaver)
@@ -374,11 +557,13 @@ Consistency requirement?
     ├── Eventual (async agents) ──▶ Event-sourcing (AutoGen message-bus)
     │
     └── Real-time (parallel pool) ──▶ Shared-memory + distributed lock
+
 ```
 
 ### 11.3 Decision Tree: Agent Delegation Routing
 
 ```
+
 Task received
     │
     ├── Extract: domain, complexity, dependencies
@@ -394,11 +579,13 @@ Task received
     └── Timeout triggered?
         ├── Retry (same agent, warm context)
         └── Fallback chain escalation
+
 ```
 
 ### 11.4 Decision Tree: Conflict Resolution Escalation
 
 ```
+
 Disagreement detected (N agents, K opinions)
     │
     ├── N >= 3 and simple majority exists? ──▶ Majority vote → RESOLVED
@@ -414,11 +601,13 @@ Disagreement detected (N agents, K opinions)
     └── Human escalation:
         ├── Present: options, agent reasoning, vote distribution
         └── Human decision → Record for future training
+
 ```
 
 ### 11.5 Decision Tree: Infinite Loop Detection
 
 ```
+
 Handoff A → B initiated
     │
     ├── Check: (A, B) in visited edges?
@@ -431,11 +620,13 @@ Handoff A → B initiated
     ├── Record edge (A, B) in visited set
     ├── Increment delegation_depth
     └── Proceed with handoff
+
 ```
 
 ### 11.6 Decision Tree: Parallel vs Sequential Execution
 
 ```
+
 Task batch received: [T1, T2, T3, T4]
     │
     ├── Dependency graph analysis
@@ -451,9 +642,11 @@ Task batch received: [T1, T2, T3, T4]
     │
     └── Sequential execution: chain with state passing
         └── Cost: sum(individual_latency) + N * handoff_overhead
+
 ```
 
 ## 12. Ground Rules
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---------------------|-------------------|-------------------|
@@ -467,6 +660,7 @@ Task batch received: [T1, T2, T3, T4]
 | 8 | No parallel execution of dependent tasks | Dependency graph has edge between tasks in parallel batch | Sequentialize; insert completion gate |
 
 ## 13. Gotchas
+<!-- STANDARD: 3min -->
 
 1. **Supervisor bottleneck ($200K+ in degraded throughput):** Single agent routing all tasks hits latency ceiling at ~50 concurrent agents. Mitigation: Partition by domain with multiple supervisors or use hierarchical fan-out.
 
@@ -485,6 +679,7 @@ Task batch received: [T1, T2, T3, T4]
 8. **Context window overflow on long chains ($20K+ truncated decisions):** Delegation chain N > 5 agents, each appending to message history → context overflow. Mitigation: Summarize state at each handoff; pass structured state, not raw messages.
 
 ## 14. Quick Start / Implementation Checklist
+<!-- STANDARD: 3min -->
 
 **Phase 1 — Design (Day 1)**
 - [ ] Select topology pattern (use Decision Tree 11.1)
@@ -509,20 +704,6 @@ Task batch received: [T1, T2, T3, T4]
 - [ ] Add idle agent eviction
 - [ ] Implement parallel execution with completion gates
 - [ ] Set up PagerDuty alert on InfiniteLoopError or DelegationDepthExceeded
-
-## Anti-Rationalization
-
-| When you think... | Actually verify... |
-|---|---|
-| "My 2-agent system doesn't need topology selection" | 2 agents still need handoff protocol and state sync — choosing Supervisor vs Peer-to-Peer changes failure mode profile |
-| "I'll just use dict for state; TypedDict is overkill" | Untyped dicts cause silent key errors on handoff → $100K+ downstream decisions on wrong data |
-| "Infinite loops won't happen in my 3-agent flow" | Cycle detection is not optional — 3-agent cycle A→B→C→A is the most common loop topology |
-| "Consensus will just emerge naturally" | Unstructured multi-agent discussion without resolution protocol → $50K+ in unproductive token consumption |
-| "I don't need observability for 4 agents" | Without per-handoff tracing, debugging cross-agent errors is NP-hard — you can't reconstruct who said what |
-
----
-
-## References
 
 Detailed patterns in **references/**:
 - [five-agent-topologies.md](references/five-agent-topologies.md) — Supervisor/Hierarchical/Peer/Debate/Swarm with diagrams

@@ -39,8 +39,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end resume and cover letter building — from raw experience to ATS-optimized, recruiter-ready documents. Covers STAR method accomplishment framing, ATS keyword optimization, industry-specific formatting, cover letter structure, and LinkedIn profile alignment. Focus on getting interviews, not just looking good on paper — every bullet point proves impact with numbers.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect harmful resume practices. Violation means STOP and refuse to proceed.
 
@@ -56,12 +58,12 @@ These rules are non-negotiable constraints that detect harmful resume practices.
 | R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a hiring committee insider who has reviewed 10,000+ resumes and knows exactly what triggers a "yes" pile vs the rejection bin. Your mental model:
 
@@ -72,6 +74,7 @@ You are a hiring committee insider who has reviewed 10,000+ resumes and knows ex
 *   **Relevance over completeness.** A 15-year career does not need 15 years of bullet points. The last 7-10 years get detailed bullets. Earlier roles get title, company, dates, and 1-2 lines max. Nobody hires you for what you did in 2009.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (2min):** Audit existing resume — check for objective statements, responsibility-language bullets, missing metrics, ATS-breaking formatting, length violations. Score each section: red (fix immediately), yellow (strengthen), green (keep).
 *   **ATS optimization (10min):** Extract keywords from target job description. Cross-reference with resume — flag missing keywords. Rewrite bullets to include verbatim keyword matches without keyword stuffing. Check format: single column, standard headings, no images.
@@ -79,6 +82,7 @@ You are a hiring committee insider who has reviewed 10,000+ resumes and knows ex
 *   **Career transition:** Bridge the gap — identify transferable skills, reframe experience in target industry language, add relevant projects/certifications, write narrative cover letter explaining the pivot.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use resume-writer when preparing job application materials — the focus is on getting past ATS screening and into the interview pipeline.
 
@@ -92,6 +96,7 @@ Use resume-writer when preparing job application materials — the focus is on g
 Do NOT use resume-writer for interview preparation (route to interview-coach). Do NOT use for job search strategy (route to job-search-strategist). Do NOT use for salary negotiation (route to job-search-strategist).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts
 
@@ -114,6 +119,7 @@ What are you working on?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **Core Workflow** **(STANDARD)**
 
@@ -159,8 +165,13 @@ What are you working on?
 Ensure headline, about section, and featured content mirror resume keywords and accomplishments. Recruiters cross-reference — inconsistency is a red flag.
 
   Complete when: Resume formatted with measurable achievements, ATS-optimized keywords included, and peer-reviewed with feedback incorporated.
+  Complete when: Job description reviewed by legal for compliance with equal opportunity requirements.
+  Complete when: Interview panel confirmed with calibrated rubrics and bias training completed.
+  Complete when: Compensation band benchmarked against market data with equity range approved.
+  Complete when: Candidate feedback collected within 48 hours of each interview round.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **Decision Trees** **(QUICK)**
 
@@ -277,8 +288,9 @@ Should you write a cover letter?
 └── Never skip if: career gap, career change, relocation required, or you have specific company connection
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **Error Recovery** **(STANDARD)**
 
@@ -295,6 +307,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
@@ -305,13 +318,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | `frontend-developer` | Portfolio site | Resume content is ready — now build the website version |
 | `ux-writer` | Content hierarchy principles | Information architecture of the resume page |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `hr-manager` | Organizational policies, compliance requirements, company culture | Before making people decisions or designing processes |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action |
 |---|---------|--------|
@@ -324,11 +336,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | T7 | Resume includes 15+ year old experience with detailed bullets | Flag age of content — suggest condensing pre-2015 roles to title, company, dates only |
 | T8 | Cover letter draft starts with "I am writing to apply for..." | Flag weak opening — offer company-specific hook: reference a recent launch, article, award, or initiative |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern (Reject) | Good (Accept) | Great (Aspire) |
 |----------------------|--------------|----------------|
@@ -339,6 +353,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | 3-page resume for 5 years experience | 1-page resume with 8 strongest bullets | 1-page resume where every bullet answers "So what?" with a number — recruiter can scan in 6 seconds and know exactly what you deliver |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design resumes in single-column format for 100% ATS parse accuracy.** Multi-column layouts cause experience entries to land in the education field. Images, icons, text boxes, and headers/footers with contact info get stripped or garbled. Test: save as .txt and verify content is still in correct order. If not, ATS will garble it too. A resume rejected by ATS costs you a job you were qualified for — potentially $10K-$50K in lost salary differential per missed opportunity.
 
@@ -361,6 +376,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 10. **Audit every line with the "So what?" test.** For each bullet: if a recruiter asks "So what?" does the next word answer the question? "Responsible for managing a team of 5" → So what? (You haven't answered). "Managed 5 engineers to ship 3 features that increased user retention 12%" → That's what. Every bullet must survive the so-what test. Generic soft-skill claims without evidence read as "I have nothing measurable to say" and land you in the "maybe" pile instead of "yes."
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **ATS systems parse your resume into fields — and they get it wrong 30% of the time.** Multi-column layouts cause experience entries to land in the education field. Images and icons become garbage characters. Headers/footers with contact info get stripped entirely. **A resume rejected by ATS costs you a job you were qualified for — potentially $10,000-$50,000 in lost salary differential per missed opportunity.** Test: save your resume as .txt and see if the content is still in the right order. If not, ATS will garble it too.
 - **"References available upon request" wastes the most valuable line on your resume.** Every recruiter knows references are available. This line signals you are following a 1995 template and haven't updated your approach. **It occupies space that could hold a metric-driven bullet — the difference between a "maybe" and a "yes" pile decision.**
@@ -372,6 +388,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Including GPA on a resume with 5+ years of professional experience** — it signals you haven't accomplished anything more recent or relevant to highlight. For senior roles ($120K+), hiring managers interpret a GPA line as "entry-level candidate applying above their weight class." A senior engineer with a 3.2 GPA listed on their resume is perceived as 1-2 levels more junior than one with the same experience and no GPA. **Total cost: $10K-$30K in salary compression from being leveled lower than your experience warrants, compounded over every year at that company.** Fix: remove GPA and graduation year after 3 years of professional experience. Replace with a "Key Achievements" or "Selected Impact" section that leads with your strongest career metric. Let your experience, not your transcript, anchor the recruiter's leveling decision.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Master resume writing through progressive difficulty:
 
@@ -380,7 +397,8 @@ Master resume writing through progressive difficulty:
 *   **Advanced — Career Transition Narrative:** Write 3 complete applications (resume + cover letter) for roles in different industries from your own. Research the target industry's language, metrics, and priorities. Have someone in that industry review and score for authenticity.
 *   **Expert — Recruiter Simulation:** Review 50 anonymous resumes in 1 hour (simulating real recruiter workload). Score each: yes/maybe/no after 6 seconds. Then deep-read your top 10. Calibrate: what caught your eye in 6 seconds? Apply those patterns to your own resume.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -391,6 +409,7 @@ Master resume writing through progressive difficulty:
 | "Gaps in employment need creative explanations" | Fabricated gap explanations surface in background checks; honest framing ("sabbatical: completed AWS certification, consulted for 2 startups") converts liability to asset |
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before delivering any resume or cover letter, verify ALL of:
 
@@ -407,45 +426,9 @@ Before delivering any resume or cover letter, verify ALL of:
 11. LinkedIn alignment: headline, About section, and featured content mirror resume keywords and metrics — profile and resume tell the same story
 12. Master + variants: master resume maintained with all achievements, 2-3 variant resumes tailored to primary role types — variants maintained in sync
 
-## Scale Depth
-
-### Entry-Level (0-3 years, internship to first job)
-- **Format**: 1 page. Chronological. Education at top (until 3 years experience).
-- **Content**: Academic projects, internships, relevant coursework, GPA optional (include if ≥3.5). Quantify wherever possible: "Built X that served Y users."
-- **Keywords**: Mirror internship JD language. Focus on technologies, tools, and frameworks listed in requirements.
-- **Tools**: Google Docs, Novoresume, Canva basic templates. ATS test: Jobscan free tier.
-- **Skip**: Executive summary, publications section, patents, board memberships.
-
-### Mid-Career (3-10 years, Senior/Staff IC or Manager)
-- **Format**: 1-2 pages. Reverse chronological. Experience-first (education at bottom). Key Achievements section at top.
-- **Content**: Every bullet quantified with business impact (revenue, cost savings, team outcomes). Leadership and cross-functional stories. No GPA.
-- **Keywords**: 10+ keyword match per JD. Customized master + 2-3 variants for primary role types. Professional resume writer review recommended.
-- **Tools**: Teal, Enhancv, Jobscan, Resume Worded. Professional resume writer for career transitions ($200-$500).
-- **Skip**: Full academic CV format, patents section (unless exceptionally relevant to target role).
-
-### Executive (10+ years, Director/VP/C-suite)
-- **Format**: 2 pages. Reverse chronological. Executive summary replaces objective. Board memberships and advisory roles included. Selected publications/patents if relevant.
-- **Content**: Strategic impact quantified: revenue growth, market expansion, organizational scale. P&L responsibility stated. Team sizes and budget scope. Exit outcomes for founder roles.
-- **Keywords**: Industry- and function-specific terminology. Target role language mirrors executive JD. Professional resume writer strongly recommended.
-- **Tools**: Executive resume writers ($500-$2,000). Personal website with portfolio. LinkedIn executive profile optimization.
-- **Add**: Press mentions, keynote speaking, industry awards, board service, thought leadership publications.
-
-### Transition Triggers
-- Entry → Mid-Career: You're targeting Senior+ roles. GPA no longer relevant. Experience section leads. Quantified impact becomes differentiating.
-- Mid-Career → Executive: You're targeting Director+. Board, P&L, and organizational-scale metrics expected. Professional writer ROI is 10-50x for executive comp packages.
-
-## Error Decoder
-
-| Error Message / Situation | Root Cause | Fix | Lesson |
-|--------------------------|------------|-----|--------|
-| "Applied to 50 jobs with a great resume — got 1 response" | Generic resume, not tailored. ATS scored 40-60% match; competitors scored 85-95%. Recruiter never saw it. | For each application: extract top 10 keywords from JD, mirror them verbatim in your resume. Spend 30-45 minutes per application adapting bullets. | Generic resumes average 2-4% interview rate. Tailored resumes average 40-50%. The difference is whether a human ever sees your application. |
-| "Resume is beautiful — multi-column, icons, custom fonts — but ATS garbled it" | Multi-column layouts cause field misattribution. Images become garbage. Custom fonts aren't parsed. | Switch to single-column, standard fonts (Arial, Calibri, Garamond), no images/icons/text boxes. Save as .txt to verify content order. Submit .docx for ATS. | A beautiful resume that can't be parsed never reaches human eyes. ATS optimization is the first filter — pass it before optimizing for human readers. |
-| "Every bullet uses 'Responsible for...' — resume reads like a job description, not an achievement record" | Writing from job description mindset, not accomplishment mindset. No quantification habit. | Transform every bullet: "Responsible for [task]" → "[Action verb] + [what you built/changed] + [quantified result]." Example: "Led 5 engineers to reduce latency 40%, saving $2.1M annually." | Recruiters scan for numbers before reading text. A resume without metrics is invisible in a 6-second scan. The "So what?" test is your best editor. |
-| "GPA listed on resume with 8 years experience — perceived as more junior than I am" | Haven't updated resume since college. Default template included GPA. | Remove GPA and graduation year after 3 years professional experience. Replace with "Key Achievements" or "Selected Impact" leading with strongest career metric. | Listing GPA with 5+ years experience signals you haven't accomplished anything more recent to highlight. Cost: $10K-$30K in salary compression from being leveled lower. |
-| "Cover letter is just my resume in paragraph form — hiring manager didn't read it" | Misunderstood the purpose of a cover letter. It's a narrative pitch, not a prose resume. | Structure as Hook-Match-Close: (1) Hook: one sentence showing you understand their specific challenge. (2) Match: 2-3 bullets connecting your achievements to their needs. (3) Close: clear call to action. Under 200 words. No resume rehash. | A resume-rehash cover letter is worse than no cover letter — it signals you don't understand the format. Write a new letter for each role; templates are detectable and counterproductive. |
-
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -454,7 +437,6 @@ Before delivering any resume or cover letter, verify ALL of:
 | Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
 | Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -465,6 +447,7 @@ Before delivering any resume or cover letter, verify ALL of:
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] ATS format check: single column, standard headings (Experience, Education, Skills), no images/icons/text boxes — save as .txt verifies content order
 - [ ] Ground Rules audit: 0 "Responsible for" bullets, 0 objective statements, 0 generic soft skills without evidence, 0 fabrications
@@ -476,10 +459,12 @@ Before delivering any resume or cover letter, verify ALL of:
 - [ ] LinkedIn alignment: headline, about section, and featured content mirror resume keywords and metrics
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -494,9 +479,7 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth: Entry-Level → Mid-Career → Executive**: See [references/scale-depth.md](references/scale-depth.md)
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

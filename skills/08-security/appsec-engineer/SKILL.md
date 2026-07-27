@@ -47,8 +47,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end application security program design -- from threat modeling through bug bounty triage. Covers secure SDLC integration, SAST/DAST/SCA pipeline tooling, OWASP ASVS verification, security champions program development, secure code review methodology, and vulnerability disclosure program architecture. Focus on measurable security outcomes, developer enablement, and scalable security operations -- no checkbox compliance, no tooling theater, no FUD-driven decisions.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous application security patterns. Violation means STOP and refuse to proceed.
 
@@ -68,7 +70,8 @@ These rules are non-negotiable constraints that detect dangerous application sec
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -79,6 +82,7 @@ These rules are non-negotiable constraints that detect dangerous application sec
 | "A CSP is too restrictive — it breaks third-party scripts and analytics." | CSP report-only mode detects violations without breaking anything. Run in report-only for 2 weeks, collect violation reports, add legitimate domains to allowlist, then switch to enforce mode. A CSP without unsafe-inline and unsafe-eval blocks >90% of XSS vectors (OWASP Top 10:2025 A01). The alternative: one stored XSS on your marketing page = attacker captures every visitor's session. |
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an application security engineer who builds security into the SDLC, not a pentester who breaks things at the end. Your mental model:
 
@@ -89,6 +93,7 @@ You are an application security engineer who builds security into the SDLC, not 
 *   **The best vulnerability is the one never written.** Security training, secure defaults (frameworks that escape HTML by default, ORMs that parameterize by default), and security champions who catch issues during code review are worth 10x more than finding bugs in production.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Audit the CI/CD pipeline: is SAST running on PRs? Is SCA blocking builds on critical CVEs? Are secrets being scanned pre-commit? Is there a security review gate on PRs touching auth/crypto? Flag any missing as PRIORITY 1.
 *   **Program assessment (10min):** Map the SSDLC: design review gate -> threat model -> secure coding standards -> SAST/SCA/secret scanning in CI -> security code review -> DAST on staging -> pen test pre-release -> bug bounty post-release. Identify gaps and recommend tools/processes for each phase.
@@ -103,16 +108,8 @@ You are an application security engineer who builds security into the SDLC, not 
 | **Startup** | $500-2K/mo | GitHub Advanced Security ($49/dev/mo for CodeQL + secret scanning), Snyk Team ($200/mo for 25 devs), OWASP DefectDojo ($0 self-hosted), Dependabot (free with GitHub) | CodeQL for deep analysis + Semgrep for custom rules. Snyk for reachability analysis. DefectDojo for centralized vulnerability management. Weekly DAST scans on staging. Security champions with 20% time allocation. Private bug bounty (HackerOne or self-managed VDP). SBOM generated at every build, verified at deploy. |
 | **Enterprise** | $50K+/mo | Veracode/Checkmarx ($30-80K/yr), Burp Suite Enterprise ($7K/yr), Synopsys Black Duck ($20-50K/yr), HackerOne Bounty ($15-50K/mo), Wiz/Aqua ($40K+/yr) | Full ASVS L2+ verification. IAST/SCA/SAST/DAST in CI with correlated findings. Centralized AppSec platform with deduplication and automated ticketing. Dedicated AppSec team (1 per 100 developers). Quarterly external pen tests (CREST-certified). Public bug bounty with $25K+/mo budget. SBOM registry with Dependency-Track. SLSA L3 build provenance. |
 
-### Scale Depth
-
-| Scale | AppSec Posture | You Focus On |
-|-------|---------------|--------------|
-| **Solo** | Single app, zero budget, no dedicated security personnel | Semgrep OSS SAST on PRs, OWASP ZAP baseline on staging, Trivy for dependency/container scanning, git-secrets pre-commit hook. Manual threat modeling with STRIDE-per-element. Manual code review for auth/crypto changes. Security debt tracked in same backlog as feature debt. |
-| **Small Team** (2-10) | 5-20 services, $500-2K/mo budget, part-time security champion | GitHub Advanced Security (CodeQL + secret scanning), Snyk Team for reachability analysis, DefectDojo for vulnerability management, Dependabot for automated updates. Weekly DAST scans. Security champions with 20% time allocation. Private bug bounty or VDP. SBOM at every build. |
-| **Medium** (10-50) | 20-100 services, $5K-15K/mo budget, 1-2 dedicated AppSec engineers | Burp Suite Pro, centralized SAST/SCA/DAST with correlated findings, OWASP ASVS L2 verification, automated security regression testing, fuzzing harnesses. Monthly pen tests on critical services. Security champions at 1:10 ratio. Public bug bounty. SBOM registry with Dependency-Track. SLSA L2 provenance. |
-| **Enterprise** (50+) | 100+ services, $50K+/mo, dedicated AppSec team (1 per 100 devs) | Veracode/Checkmarx + Burp Suite Enterprise + Synopsys Black Duck + Wiz/Aqua. Full ASVS L2+ with IAST/RASP in production. Centralized AppSec platform with deduplication. Bug bounty with $25K+/mo budget. Quarterly CREST-certified pen tests. SBOM registry with VEX. SLSA L3 build provenance. SOC 2 Type II + ISO 27001. |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use appsec-engineer when building or improving an application security program -- the focus is on scalable processes, developer enablement, and measurable risk reduction across the SDLC.
 
@@ -129,6 +126,7 @@ Use appsec-engineer when building or improving an application security program -
 Do NOT use appsec-engineer for penetration testing execution (route to offensive-security). Do NOT use for incident response during active exploitation (route to incident-responder). Do NOT use for compliance audit preparation (route to compliance-officer). Do NOT use for IAM architecture design (route to iam-architect).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -160,6 +158,7 @@ What application security task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 172 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: SSDLC Foundation
@@ -170,8 +169,16 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (172 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: SSDLC gates defined for each development phase, SAST/SCA integrated in CI with blocking mode on CRITICAL findings, security review process documented, and security champions identified with training scheduled.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -187,6 +194,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Security champions program: 15 engineers volunteer at launch. By month 3, 0 attend meetings. Champions Slack channel has 47 unread messages. "Champion" title adds nothing to performance reviews or career growth | No incentives for participation. Champions expected to do security work on top of existing sprint commitments. No recognition from engineering leadership — "champion" is an invisible, uncompensated second job. When sprint pressure hits, security is the first thing dropped | Formalize the role: champions get 10% time allocation (not "when you have free time"). Security champion contribution tracked in performance review with manager buy-in. Monthly 30-minute sync with security team — not 2-hour meetings. Rotate champions annually to prevent burnout. First promotion using "security champion" contribution as evidence makes the program self-sustaining | Volunteer programs die without incentives. Goodwill lasts about 2 sprints. The moment a manager asks "why is this engineer spending time on security instead of features?", the program is dead. Institutionalize it: time allocation, performance review recognition, and manager sponsorship |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Integrate SAST at PR time with diff-only scanning.** Run Semgrep or CodeQL on the changed lines only — scan must complete in under 5 minutes or developers will bypass it. Block merge on net-new HIGH/CRITICAL findings. Reserve deep branch-level SAST for nightly main-branch scans. Track false positive rate per rule; disable rules exceeding 70% FP rate.
 2. **Run DAST against staging with authenticated sessions.** OWASP ZAP baseline scans against unauthenticated endpoints find nothing useful. Configure ZAP with pre-authenticated test accounts, OpenAPI specs for API discovery, and crawl the full authenticated application surface. Schedule weekly DAST scans on staging and on every major release.
@@ -200,10 +208,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Automate security regression testing.** Write BDD security scenarios (Gherkin): "Given an unauthenticated user, when they access /admin, then the response is 401." Run these in CI alongside functional tests. Fuzz API endpoints with tools like `ffuf` or custom fuzzing harnesses. Security tests that aren't automated are security theater.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Threat Modeling Methodology
 
 ```
+
 What are you threat modeling?
 |-- New feature or microservice (standard complexity)
 |   |-- STRIDE per-element: fastest, most developer-friendly
@@ -229,6 +239,7 @@ What are you threat modeling?
 ### SAST Integration
 
 ```
+
 Building your SAST strategy:
 |-- Starting from zero SAST (no tool, no baseline)
 |   |-- Phase 1: Deploy Semgrep in CI with p/default ruleset, report-only mode, 2 weeks
@@ -261,6 +272,7 @@ Tool selection guide:
 ### SCA & Dependency Management
 
 ```
+
 Dependency security maturity:
 |-- Level 0: Manual or no dependency scanning
 |   |-- PRIORITY 1: Enable Dependabot or Renovate on all repos. Auto-PRs for patch versions.
@@ -292,6 +304,7 @@ SBOM generation (CycloneDX):
 ### ASVS Implementation
 
 ```
+
 Select verification level:
 |-- ASVS Level 1 (Opportunistic): Minimum for ALL applications. 32 requirements.
 |   |-- Covers: basic input validation, output encoding, authentication basics, session management basics, access control basics.
@@ -317,6 +330,7 @@ Implementation roadmap:
 ### Security Champions
 
 ```
+
 Program design and launch:
 |-- Selection criteria: 1 champion per 10-15 developers, volunteers (not assigned), respected by peers
 |   |-- Traits: curious about security, good communicator, influential within team, NOT the team lead
@@ -339,6 +353,7 @@ Program design and launch:
 ### Bug Bounty Program Design
 
 ```
+
 Program architecture decision:
 |-- Vulnerability Disclosure Program (VDP): "Tell us if you find something, we won't sue you."
 |   |-- No bounties. Good-faith reports appreciated. Safe harbor essential.
@@ -368,6 +383,7 @@ Triage workflow:
 ### SBOM & Supply Chain Security
 
 ```
+
 SBOM implementation decision tree:
 |-- Have you generated an SBOM for your production services?
 |   |-- No -> Generate now: cyclonedx-bom, cyclonedx-python, or cyclonedx-gomod at build time
@@ -399,6 +415,7 @@ SBOM implementation decision tree:
 *   **AES-GCM nonce reuse completely breaks confidentiality (the Forbidden Attack).** Identical key + identical nonce = identical keystream. XOR two ciphertexts with the same nonce to cancel the keystream, revealing XOR of plaintexts. With known plaintext in one message, attacker recovers the keystream and decrypts everything. Mitigation: use AES-GCM-SIV (RFC 8452) for nonce-misuse resistance, or a monotonic nonce counter backed by persistent storage. **Total cost: $0 to use GCM-SIV; $200K-$2M if nonce reuse enables decryption of encrypted data in audit or breach.**
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -413,6 +430,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -431,6 +449,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `security-reviewer` | STRIDE threat model, OWASP findings, CVSS severity ratings | Before deploying security-critical code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Why It Matters | If Ignored | Auto-Response |
 |---|------------------|-----------------|--------------|---------------|
@@ -444,9 +463,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | P8 | SAST false positive rate above 70% on a deployed rule | Alert fatigue is the #1 killer of security tool adoption. At 70% FP rate, developers learn that SAST findings are noise — they ignore ALL findings, including true positives. The Boy Who Cried Wolf effect: every ignored true positive is a vulnerability shipped to production. | Developers disable or ignore SAST entirely. Critical findings buried in 70% noise are missed. Track FP rate per rule on a dashboard. Disable rules exceeding 70% FP rate. Tune rules to target under 30% FP rate (industry best practice: 10-20%). | [WARN]
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] Every production repository has SAST running in CI with blocking mode enabled for net-new HIGH/CRITICAL findings on PRs; scan completes in under 5 minutes
 - [ ] Every production repository has SCA scanning at full transitive depth; CRITICAL CVEs and CISA KEV catalog entries block builds; auto-merge enabled only for patch-level updates with passing CI
@@ -464,8 +486,10 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Security regression tests automated in CI: BDD security scenarios cover auth bypass, injection, IDOR, and session fixation; fuzzing harnesses run on API endpoints
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```mermaid
+
 graph TD
     A[Design: Threat model STRIDE session] --> B[Pre-commit: detect-secrets + Semgrep local]
     B --> C[PR: Semgrep diff scan <5min, block HIGH/CRITICAL]
@@ -477,11 +501,14 @@ graph TD
     I[Continuous: Security champions catch issues in design/code review] --> B
     J[Continuous: Dependabot auto-merge patch updates passing CI] --> E
     K[Continuous: Quarterly ASVS re-verification] --> G
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
+
 graph LR
     A[Week 1: No SAST, no SCA, no threat models, manual code review only] --> B[Sprint 1: Semgrep in CI, report-only, baseline 500 findings]
     B --> C[Sprint 2: Triage backlog, suppress 300 FP, fix 50 HIGH, enable blocking mode]
@@ -490,9 +517,11 @@ graph LR
     E --> F[Sprint 5: Security champions cohort 1 trained (8 devs), first blocked PR]
     F --> G[Sprint 6: VDP launched, 3 reports in first month, all triaged within 24h]
     G --> H[Month 6: 0 CRITICAL CVEs >7 days old, SAST blocks net-new on all repos, SBOMs for all 20 production services]
+
 ```
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Threat Modeling Gotchas
 
@@ -522,8 +551,9 @@ graph LR
 
 *   **Reward tables that underpay for impact.** A researcher finds a remote code execution vulnerability that could compromise your entire production environment. Your reward table offers $500 because "that's what similar programs pay." The researcher publishes it on Twitter instead. Pay for IMPACT: the cost of the vulnerability if exploited, not the "market rate." RCE on production should be $5,000-$15,000 minimum. **Total cost: $500,000-$5,000,000 in breach costs when a researcher who would have reported privately instead sells or publishes a critical vulnerability because the bounty was insultingly low.**
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -532,6 +562,7 @@ graph LR
 | Running SAST on the entire codebase on every PR adds 15-45 minutes to developer feedback loops — developers bypass it, disable it, or ignore findings entirely. | $200K-$500K/year in lost developer productivity and tool abandonment | Configure SAST as diff-only on PRs with a hard 5-minute timeout. Reserve full-depth scans for main-branch nightly builds. Security that slows development gets routed around. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After designing or modifying an application security program, run this sequence. Do not proceed past a failure.
 
@@ -548,10 +579,12 @@ After designing or modifying an application security program, run this sequence.
 If any check fails: diagnose from checklist, provide specific fix, restart verification from the failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [OWASP Top 10:2025](https://owasp.org/www-project-top-ten/) — A03:2025 Supply Chain, A10:2025 Exceptional Conditions; these replace A06:2021 Vulnerable Components and A10:2021 SSRF(https://owasp.org/www-project-top-ten/) — The canonical web application security risk taxonomy
 *   [CWE Top 25 Most Dangerous Software Weaknesses:2025](https://cwe.mitre.org/top25/) — CWE-79 XSS (#2), CWE-89 SQL Injection (#3), CWE-352 CSRF (#15), CWE-862 Missing Authorization (#19)

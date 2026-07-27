@@ -52,6 +52,7 @@ Common chains:
 - **Chain**: backend-developer → documentation-engineer → platform-engineer — Developer provides API specs; docs engineer builds the documentation infrastructure; platform engineer hosts and scales it.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -84,9 +85,11 @@ What are you trying to do?
 └── Not sure? → Describe your docs setup and audience, I'll recommend tooling and structure
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -104,12 +107,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of documentation engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -130,6 +133,7 @@ Masters of documentation engineer don't just build — they build **the right th
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -144,22 +148,8 @@ Masters of documentation engineer don't just build — they build **the right th
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1-person docs, early-stage project)
-Single SSG site (Docusaurus/VitePress). Focus: quickstart guide, API reference from OpenAPI, search setup, broken link checking. Docs in same repo as code. Content: tutorials + reference. No versioning yet — single version. No i18n. Tools: Docusaurus, Algolia DocSearch (free tier), lychee for links, Vale for prose.
-
-#### Small (1-2 technical writers, Series A, 5-20 services)
-Docs-as-code established. CI/CD pipeline with quality gates. Multi-service IA with Diátaxis categorization. Focus: content review workflow, CODEOWNERS, freshness automation, feedback widget. Content: tutorials, how-tos, API reference, concept docs. Versioning for current + 1 previous major version. Tools: Docusaurus/VitePress + GitHub Actions, Algolia, Crowdin (if i18n needed).
-
-#### Medium (2-5 technical writers, growth-stage, 20-100 services)
-Developer portal with unified IA across services. Multi-repo docs with shared content strategy. Dedicated docs platform. Focus: docs metrics dashboard, search satisfaction optimization, contributor program, multi-version policy, style guide enforcement. Content: all four Diátaxis quadrants, onboarding paths, certification docs. Tools: custom developer portal, Docusaurus multi-instance, Redocly for API, Algolia Enterprise, Crowdin/GitLocalize.
-
-#### Enterprise (5+ technical writers, public company, 100+ services)
-Developer portal as product — dedicated PM, engineering, and design. Focus: docs as competitive advantage, global i18n with translation memory, docs analytics integrated with product analytics (attribute docs-to-conversion), AI-assisted search and chatbot, automated API client SDK generation from OpenAPI. Content: comprehensive docs ecosystem — quickstart, SDKs, tutorials, API reference, concept architecture, runbooks, ADRs, incident postmortems, onboarding certification. Tools: custom platform, ServiceNow/ Salesforce integration, enterprise search, analytics pipeline.
-
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Selecting a static site generator for docs (Docusaurus vs Nextra vs Mintlify vs GitBook vs VitePress vs Hugo vs ReadTheDocs)
@@ -174,6 +164,7 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
 - Establishing documentation metrics: coverage, freshness, quality, usage, contribution
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -210,6 +201,7 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
                                                 │(SaaS)  │ │Press  │
                                                 └────────┘ └───────┘
 ```
+
 **Docusaurus** for most teams — best balance of features, plugins, versioning, and community.
 **Nextra** for Next.js-first teams wanting MDX and custom React components.
 **Mintlify** for teams wanting zero-infrastructure SaaS with beautiful defaults at $600+/mo.
@@ -265,6 +257,7 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
                                 └───────┘│pages       │
                                          └────────────┘
 ```
+
 **Pagefind for <1000 pages** — zero infrastructure, build-time index, works offline.
 **Algolia DocSearch for OSS** — free, relevance-tuned, faceted search.
 **Algolia paid for enterprise** — >1000 pages, need search analytics, faceted by version.
@@ -295,6 +288,7 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
   │ ity scores │    │ ness checks   │    │               │
   └────────────┘    └───────────────┘    └───────────────┘
 ```
+
 **Hard to read → Vale + cspell + readability scoring.**
 **Wrong/outdated → auto-generate from specs + freshness automation.**
 **Hard to navigate → Diátaxis IA restructure + search relevance tuning.**
@@ -322,12 +316,13 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
     │            │    │ rest.        │    │              │
     └────────────┘    └──────────────┘    └──────────────┘
 ```
+
 **<10% non-English → don't invest in i18n.**
 **10-30% → translate most-visited pages only, English fallback.**
 **>30% → full i18n pipeline with Crowdin/GitLocalize and RTL support.**
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**, follow this escalation path before giving up:
 
@@ -342,6 +337,7 @@ Developer portal as product — dedicated PM, engineering, and design. Focus: do
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Documentation engineering bridges engineering, product, support, and DevRel. The docs platform serves everyone — coordination prevents it from serving no one well.
@@ -402,13 +398,12 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 | Docs site UI design, component library, search UX | `frontend-developer` |
 | CI/CD pipeline, hosting infrastructure, preview environments | `devops-engineer` |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
 
@@ -423,6 +418,7 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 | Build times exceed 5 minutes causing CI pipeline delays for writers | DevOps, All Writers | Author productivity impact; build optimization or caching improvements needed |
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -461,9 +457,12 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 **Steps:** 1) Set up freshness checks (flag pages >6 months stale) 2) Configure feedback widget on every page 3) Set up docs metrics dashboard (coverage, freshness, quality, usage) 4) Assign CODEOWNERS for docs paths
 **Output:** Self-maintaining docs system with automated quality monitoring
   Complete when: Freshness checks flagging pages >6 months stale, feedback widget on every page, docs metrics dashboard operational (coverage/freshness/quality/usage), and CODEOWNERS assigned for all docs paths.
-
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -478,8 +477,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | i18n pipeline: Spanish docs build fails because `es/docs/api/authentication.md` references an image at `../../static/img/auth-flow.png` — the relative path breaks when the file is in the `es/` subdirectory | The English doc referenced the image with a relative path that worked from `docs/api/`. The Spanish translation preserved the same relative path, but the file is at `i18n/es/docusaurus-plugin-content-docs/current/api/` — two more directory levels deep. The relative path `../../static/img/` now points to `i18n/es/static/img/` which doesn't exist | Use absolute paths from the docs root for all internal links: `/img/auth-flow.png` references `static/img/auth-flow.png` regardless of the file's location in the directory tree. Add a CI check: `find i18n/ -name '*.md' -exec grep -H '\.\./' {} \;` — relative paths in translated files must be flagged. Use Docusaurus `useBaseUrl` utility for dynamic base path resolution | Relative paths don't survive directory restructuring. An i18n pipeline that copies files into a nested directory structure breaks every relative link. Use root-relative paths (`/img/...`) or static-site-generator helpers (`useBaseUrl`) that resolve correctly regardless of the file's location. |
 | Documentation site load time goes from 1.2s to 8.7s after "adding more examples" — each example includes a 2MB GIF that nobody optimized | A developer added 15 animated GIFs showing UI workflows. Each GIF was 2MB-5MB, recorded at full resolution (1920×1080, 60fps). The docs page now loads 45MB of GIFs before becoming interactive. Lighthouse performance score dropped from 92 to 23. Mobile users on 3G wait 45+ seconds | Convert GIFs to MP4/WebM with `ffmpeg -i demo.gif -vf "fps=15,scale=1280:-1" -c:v libx264 -crf 28 demo.mp4` — 95% size reduction. Use `<video autoPlay loop muted playsInline>` instead of `<img>`. Add a CI check: `find static/ -name '*.gif' -size +500k` — any GIF over 500KB fails the build. Add `loading="lazy"` to all images below the fold | GIFs are the worst format for documentation demos. A 60fps full-resolution GIF is 50× larger than the equivalent MP4. Documentation is consumed on mobile during incidents — a 45MB page is inaccessible when you need it most. Convert to video, compress aggressively, and enforce size limits in CI. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design information architecture before writing a single page.** Use the Diátaxis framework: tutorials (learning-oriented), how-to guides (task-oriented), reference (information-oriented), explanation (understanding-oriented). Without IA, docs become a junk drawer — 200 pages with no navigational logic. Navigation tree should max out at 4 levels deep; beyond that, no one finds anything. Validate IA with card sorting: give 10 users 30 content items and see how they group them. **Tool:** Docusaurus sidebar configuration, VitePress sidebar, or Notion databases for content inventory with IA tagging.
 
@@ -501,8 +500,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Establish a content review workflow with the same rigor as code review.** Every docs PR gets: (1) technical accuracy review by subject matter expert, (2) editorial review for clarity/grammar/style guide compliance, (3) IA review for correct placement in navigation. CODEOWNERS map docs paths to owning teams. No docs PR merges without at least one approval. This sounds heavy but prevents the "docs junk drawer" — 200 pages that nobody owns and nobody trusts. **Tool:** GitHub CODEOWNERS, Vale in CI, PR template with docs checklist, staging deploy preview per PR.
 
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -513,11 +512,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Screenshot shows old UI — users follow instructions that reference buttons that no longer exist | Static screenshots rot silently. UI team ships redesign, nobody updates docs screenshots. No automated detection. | Automated visual diffing on docs screenshots (Percy/Chromatic). Add "screenshot last updated" metadata. Prefer text descriptions over screenshots for stable UI. | Screenshots are technical debt. Either automate their validation or minimize their use. |
 | "Docs-as-code with versioned branches" — fix to v1 docs doesn't propagate to v2 | Each major version is a branch. Common content duplicated N times. Fix applied to one branch, others diverge. | Shared content repository for cross-version docs. Backport workflow with cherry-pick tracking in commit messages. Version-specific content only in versioned directories. | Branch-per-version creates maintenance hell. Shared content with version overlays scales better. |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -537,12 +537,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[DE14]** Screenshot management: visual diffing (Percy/Chromatic) OR minimize screenshots in favor of text descriptions — "screenshot last updated" metadata where used
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When documentation engineering is fully realized, the docs site builds, tests, and deploys through the same CI/CD pipeline as the product, broken links are caught before merge not after publish, style
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -560,6 +562,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Outdated docs worse than no docs.** When docs show deprecated API endpoints, removed configuration options, or workflows that no longer work, users follow the wrong instructions and file support tickets. Support engineers then spend time diagnosing "bugs" that are actually docs issues, and users lose trust in all documentation. **Total cost: $50K-$200K/year in unnecessary support tickets, developer time debugging non-bugs, and user churn from failed onboarding. Organizations with stale docs see 3-5x more support tickets for "how do I..." questions.** Fix: automate doc freshness checks — CI pipeline that validates code samples actually compile/run against the latest API. Add "last reviewed" dates to every page. Rotate docs ownership: each engineering team owns docs for their API surface area.
 - **Docs written by developers only.** Developer-written docs assume readers know internal concepts, acronyms, and system architecture that first-time users don't. Docs skip the "why" and jump straight to "how" — showing API parameters without explaining what problem the endpoint solves. **Total cost: $30K-$100K in wasted onboarding time, abandoned proof-of-concepts, and lost sales from prospects who couldn't evaluate the product. Developer-only docs have 40-60% higher bounce rates on first-time visits.** Fix: pair every docs page with a technical writer review, or at minimum test each page with a new hire who's never seen the system. Write docs that answer "what problem does this solve?" before "what are the parameters?".
@@ -575,8 +578,8 @@ graph LR
 - **Screenshots in docs** rot silently — the UI changes, but the screenshot shows the old button with the old label. Users follow instructions that reference UI elements that no longer exist. Automated visual diffing (Percy/Chromatic applied to docs screenshots) catches UI-drift before users do.
 - **Search in static docs** (`algolia`, `lunr.js`) indexes rendered HTML, not source Markdown. Code blocks inside ` ``` ` fences are indexed as searchable text. Users searching for variable names get results from code samples, not documentation. Configure search to exclude `code` blocks unless explicitly annotated.
 
-
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -587,6 +590,7 @@ graph LR
 | "We'll add examples when someone asks for them" | Reactive documentation means every missing example was already a frustrated user who didn't ask — they just left; for every support ticket filed, 10-100 users silently churned |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -596,6 +600,7 @@ graph LR
 | Changelog and migration guides written after the release ships — the release goes out, breaking changes aren't documented, and consumers discover them at upgrade time. Support tickets spike for 2 weeks after every release. | $25K-$75K per release cycle in support costs from preventable upgrade issues, plus $50K-$200K in delayed adoption from consumers who fear upgrading after seeing the chaos. | Changelog and migration guide are part of the release checklist — they must be complete BEFORE the release tag is cut. Write migration guide sections as you implement breaking changes, not after. Run `cliff` or `changesets` to auto-generate changelogs from conventional commits. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Build docs: `npm run docs:build` or equivalent — zero warnings, zero broken links
 - [ ] Link checker: `muffet` or `lychee` against built docs — zero 404s
@@ -605,10 +610,12 @@ graph LR
 - [ ] Accessibility: `pa11y` or `axe` on docs site — WCAG 2.2 AA pass
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 - **API Documentation**: See [api-documentation.md](references/api-documentation.md)
 - **Analytics**: See [analytics.md](references/analytics.md)
 - **Content Quality Automation**: See [content-quality-automation.md](references/content-quality-automation.md)

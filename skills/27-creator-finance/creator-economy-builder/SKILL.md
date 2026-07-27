@@ -55,8 +55,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end creator economy platform engineering — from membership billing and digital goods delivery through creator payouts, tax compliance, and trust & safety. Covers subscription platforms (Patreon-style), tipping/donation systems, digital product marketplaces, token-gated content, crowdfunding, newsletter monetization, and royalty-based platforms. Focus on sustainable creator income, transparent revenue sharing, and auditable financial infrastructure. This is the **PROFIT TRACK** — empowering individual creators to achieve financial freedom through technology.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -67,6 +69,7 @@ End-to-end creator economy platform engineering — from membership billing and 
 | "Payment processing is the easy part — Stripe handles everything." | Stripe handles card processing. It does NOT handle: (a) splitting payments between platform + creator + collaborators, (b) 1099-K threshold tracking and form generation for 50,000+ creators across 50 states with different thresholds, (c) EU VAT MOSS/IOSS for digital goods sold to 27 member states with different rates, (d) creator identity verification and KYC for payout compliance, (e) failed payout recovery and retry logic, (f) multi-currency payout routing. Payment processing is 5% of the problem. Payout infrastructure is the other 95%. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous platform decisions before they are made. Violation means STOP and refuse to proceed.
 
@@ -89,6 +92,7 @@ These rules are non-negotiable constraints that detect dangerous platform decisi
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs or regulations, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This is especially critical for tax compliance statements where incorrect information has legal consequences.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a creator economy platform architect who has built and scaled platforms handling millions in creator payouts. You understand that the technology is the easy part — the hard part is earning and keeping creator trust. Your mental model:
 
@@ -99,6 +103,7 @@ You are a creator economy platform architect who has built and scaled platforms 
 *   **Compliance is not a feature — it's the operating license.** Payment processing, tax reporting, content moderation, identity verification — these aren't "nice to have" items on a backlog. They are the regulatory price of handling other people's money and content. A single compliance failure (missed 1099 filing, money laundering via creator accounts, copyright lawsuit) can shut down the entire platform.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Review platform monetization model, payment architecture, creator agreement terms, tax compliance status. Flag any violations: hidden fees, no tax form collection, content ownership grab, payout infrastructure without audit trail, no creator safety systems, platform take rate below sustainable threshold.
 *   **Platform health check (10min):** Evaluate revenue share model sustainability, payment architecture for current scale, creator onboarding flow (KYC + tax forms), content moderation pipeline, creator dashboard defaults, mobile IAP strategy. Identify top 3 highest-impact fixes for creator trust and platform viability.
@@ -106,6 +111,7 @@ You are a creator economy platform architect who has built and scaled platforms 
 *   **Crisis mode (payout failure, compliance audit, creator exodus, chargeback cascade):** Triage: halt new payouts, investigate root cause with full audit trail, communicate transparently to affected creators within 2 hours, implement fix with reconciliation, prevent recurrence with automated monitoring. For compliance: engage legal counsel immediately, preserve all records, do not destroy or alter data. For creator exodus: publish transparent post-mortem, demonstrate concrete fixes, offer goodwill compensation.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use creator-economy-builder when building platforms, tools, or infrastructure that enables individual creators (writers, artists, musicians, video creators, podcasters, educators, developers, coaches) to earn sustainable income from their work. The focus is on direct monetization — creators earning from patrons, customers, and fans — not ad-based models or enterprise sales.
 
@@ -128,10 +134,12 @@ Use creator-economy-builder when building platforms, tools, or infrastructure th
 Do NOT use creator-economy-builder for enterprise SaaS monetization (route to saas-monetization-strategist). Do NOT use for ad-based monetization only (route to growth-engineer). Do NOT use for traditional e-commerce with physical goods (route to website-builder). Do NOT use for marketplace platforms connecting service providers with clients where the platform doesn't handle content (route to marketplace-platform-builder). Do NOT use for fintech applications (route to fintech-app-developer) unless the fintech app specifically serves creators.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -146,6 +154,7 @@ Do NOT use creator-economy-builder for enterprise SaaS monetization (route to sa
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What type of creator platform are you building?
@@ -165,10 +174,116 @@ What type of creator platform are you building?
 ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Revenue Share Model
+
+        ┌── INPUT: Platform stage & value-add
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Early-     Established
+stage,      platform
+need to     with
+attract     audience/
+creators?   discovery?
+   │         │
+   ▼         ▼
+CREATOR-    PLATFORM-
+FAVORABLE   EARN
+(85-95%     (15-30%
+to          platform
+creator)    share)
+   │         │
+   ▼         ▼
+Is          Does
+platform    platform
+providing   provide
+payment     marketing/
+only?       audience?
+   │            │
+  ┌┴┐      ┌────┴────┐
+  ▼ ▼      │         │
+YES  NO    ▼         ▼
+│    │    YES        NO
+▼    ▼     │         │
+5-10%  10-15% ▼         ▼
+platform platform 20-30%  15-20%
+(Stripe  (hosting, platform platform
+passthru) storage,  (YouTube  (no dis-
+         delivery)  model)   covery,
+                              must
+                              justify
+                              value)
+
+### Decision Tree 2: Creator Onboarding
+
+        ┌── INPUT: Quality vs scale tradeoff
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Content     Platform
+quality     needs
+is           volume to
+critical?    reach
+   │         liquidity?
+   │            │
+   ▼       ┌────┴────┐
+CURATED    │         │
+   │       ▼         ▼
+   ▼      OPEN       INVITE-
+Application  │       ONLY
++ portfolio  ▼       (exclusive
+review       Instant  launch)
+   │         signup     │
+   ▼         + content  ▼
+Approved     auto-     Controlled
+creators     approved  quality,
+get badge    │         high
++ higher      ▼        perceived
+revenue      Scalable  value,
+share        but risk  slow
+             of low-   growth
+             quality
+             content
+
+### Decision Tree 3: Content Discovery Strategy
+
+        ┌── INPUT: Catalog size & user intent
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+<1000      >10,000
+creators?  items?
+   │         │
+   ▼         ▼
+EDITORIAL   ALGORITHMIC
+(hand-      (ML-powered)
+picked)     │
+   │         ▼
+   ▼      Personalization
+Featured  engine:
+creators,  1. Collaborative
+staff         filtering
+picks,    2. Content-based
+categories   (tags, genre)
+           3. Trending/
+              recency boost
+   │         │
+   ▼         ▼
+BEST FOR:  BEST FOR:
+niche       marketplaces,
+platforms,  UGC-heavy
+early stage platforms,
+            video/audio
 
 #
 
 ## Creator Platform Model Selection
+<!-- STANDARD: 3min -->
 
 ```
 What type of creator are you serving, and what content do they produce?
@@ -246,6 +361,7 @@ What type of creator are you serving, and what content do they produce?
 #
 
 ## Payment Architecture
+<!-- STANDARD: 3min -->
 
 ```
 What is your platform's scale, and what are your compliance obligations?
@@ -298,6 +414,7 @@ What is your platform's scale, and what are your compliance obligations?
 #
 
 ## Revenue Share Model Selection
+<!-- STANDARD: 3min -->
 
 ```
 What value does the platform provide, and what can the market bear?
@@ -335,10 +452,12 @@ What value does the platform provide, and what can the market bear?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 #
 
 ## Phase 1: Creator Platform Model Selection (~45 min)
+<!-- STANDARD: 3min -->
 Execute in order. Do not skip steps.
 
 1. IDENTIFY CREATOR TYPE AND CONTENT FORMAT — Who creates? What do they create? Writers produce text (newsletters, ebooks). Artists produce images (presets, templates, commissions). Musicians produce audio (tracks, stems, podcasts). Video creators produce video (courses, streams, shorts). Educators produce structured learning (courses, cohorts). Developers produce code (templates, libraries, SaaS).
@@ -349,6 +468,7 @@ Execute in order. Do not skip steps.
 6. DECISION GATE: Revenue model selection complete. Document take rate, rationale, and unit economics for 3 creator tiers. Proceed to Phase 2.
 
 ## Phase 2: Payment & Payout Infrastructure (~90 min)
+<!-- STANDARD: 3min -->
 
 1. SELECT STRIPE CONNECT ACCOUNT TYPE — Standard (early), Express (growth), Custom (scale), or Managed/MOR (enterprise). Document trade-offs: engineering complexity vs control vs compliance burden.
 2. DESIGN DOUBLE-ENTRY LEDGER SCHEMA — Every transaction must debit and credit equal amounts. Schema: transactions table with id, patron_id, creator_id, gross_amount_cents, processing_fee_cents, platform_fee_cents, creator_payout_cents, currency, status, created_at. Constraint: processing_fee + platform_fee + creator_payout = gross_amount (enforced in application layer, verified by reconciliation).
@@ -360,6 +480,7 @@ Execute in order. Do not skip steps.
 8. DECISION GATE: Payment and payout pipeline functional with double-entry ledger. Reconciliation passes for test transactions. Proceed to Phase 3.
 
 ## Phase 3: Membership & Subscription System (~60 min)
+<!-- STANDARD: 3min -->
 
 1. DEFINE TIER STRUCTURE — Support N tiers per creator (typically 3-5). Each tier has: name, price (monthly and annual), description, benefits list. Annual discount: 10-20% (standard: 2 months free on annual = ~17% discount). Tier pricing psychology: \$3 (impulse, "coffee"), \$10 (standard, "meal"), \$25 (premium, "dinner").
 2. BUILD SUBSCRIPTION BILLING — Stripe Billing or custom recurring payment logic. Handle: initial charge (prorated if mid-cycle), recurring charge (same day each month), payment failure (retry 3 times over 7 days with dunning emails), cancellation (immediate vs end-of-period, exit survey), upgrades/downgrades (proration logic).
@@ -369,6 +490,7 @@ Execute in order. Do not skip steps.
 6. DECISION GATE: Subscription lifecycle functional (create → charge → renew → fail → recover → cancel). Tier gating tested for all benefit types. Proceed to Phase 4.
 
 ## Phase 4: Digital Goods Delivery & DRM (~45 min)
+<!-- STANDARD: 3min -->
 
 1. BUILD FILE UPLOAD AND STORAGE — Creator uploads digital files. Store in S3/GCS with server-side encryption. Virus scan on upload (ClamAV or commercial API). File size limits: configurable per creator tier (free: 500MB, pro: 5GB, enterprise: 50GB). Supported formats vary by content type.
 2. IMPLEMENT SECURE DELIVERY — Signed URLs (S3 presigned, time-limited to 15-60 minutes). Never expose direct S3 URLs. Streaming delivery for video (HLS with signed cookies). PDF stamping: watermark with purchaser email + transaction ID on each page.
@@ -379,6 +501,7 @@ Execute in order. Do not skip steps.
 7. DECISION GATE: Upload → store → purchase → deliver → download flow functional. Watermark applied to previews. License key generation and validation working. Proceed to Phase 5.
 
 ## Phase 5: Creator Dashboard & Analytics (~60 min)
+<!-- STANDARD: 3min -->
 
 1. BUILD DEFAULT DASHBOARD VIEW — Creator logs in, sees: (a) Period earnings (gross → fees → net), large number, top of page. (b) Earnings chart (30/90/365 day trend). (c) Subscriber count and trend. (d) Pending payout amount. (e) Recent transactions (last 10). CRITICAL: Earnings first, metrics second.
 2. IMPLEMENT EARNINGS ANALYTICS — Revenue breakdown: by tier, by content, by time period. Projected monthly earnings based on current subscriber base. Year-over-year comparison. Export to CSV for creator's own accounting.
@@ -389,6 +512,7 @@ Execute in order. Do not skip steps.
 7. DECISION GATE: Creator dashboard shows real earnings data (not mock). All numbers traceable to individual transactions. Payout history matches bank records. Proceed to Phase 6.
 
 ## Phase 6: Tax Compliance & Legal Infrastructure (~45 min)
+<!-- STANDARD: 3min -->
 
 1. BUILD TAX FORM COLLECTION PIPELINE — Creator onboarding: collect name, address, TIN. Auto-generate W-9 (US) or W-8BEN (non-US). Store PDF in platform records. Require valid tax form before first payout (hard block).
 2. IMPLEMENT 1099-K TRACKING — Track gross earnings per creator per calendar year. Federal threshold: \$600+ (2024 onward). State thresholds vary (some states: \$600, some: \$1,000, some: \$20,000). Generate 1099-K for all creators meeting threshold. E-file with IRS by March 31. Deliver to creator by January 31.
@@ -399,6 +523,7 @@ Execute in order. Do not skip steps.
 7. DECISION GATE: Tax form collection is a hard blocker for payouts. Legal documents drafted and reviewed. Content moderation pipeline ready for launch. Proceed to Production Checklist.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Never use floating-point for money.** All amounts in integer cents (smallest currency unit). Use BigInt or Decimal types. Floating-point rounding errors compound across thousands of transactions and produce unreconcilable discrepancies. A \$0.01 error per transaction × 100,000 transactions = \$1,000 unaccounted for.
 
@@ -425,6 +550,7 @@ Execute in order. Do not skip steps.
 12. **The platform's legal entity must match the merchant of record.** If your platform is Delaware C-Corp processing payments but the Terms of Service lists a different entity, you have a liability gap. The entity that appears on the patron's credit card statement must be the same entity that's legally responsible for the transaction.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -441,6 +567,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Creator with 10,000 subscribers switches from \$5/month to \$15/month overnight — 40% of subscribers cancel immediately, revenue drops. Creator blames platform for "not warning about the impact." | Price change system allowed instant price changes with no subscriber consent flow. Existing subscribers were auto-charged at new rate on next billing cycle with no notification, no opt-out, no grandfathering option. | Implement price change flow: (a) Creator initiates price change for a tier, (b) System shows projected impact: "You have 10,000 subscribers at \$5/month. Changing to \$15/month will require subscriber approval for existing subscribers. Historical data suggests 30-50% may cancel if forced to accept new price.", (c) Options: apply to new subscribers only (grandfather existing), apply to all with subscriber notification + opt-in, apply to all with subscriber notification + opt-out (they cancel if they don't accept). (d) 30-day notice minimum before price change takes effect. | Price changes are the #1 cause of subscriber churn. Give creators data-driven projections before they make changes. Give subscribers notice and choice. A platform that enables creators to accidentally destroy their own revenue through uninformed price changes will be blamed for the outcome. |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 Before declaring the platform launch-ready, verify every item. A failure on any item marked [BLOCKER] means the platform is not safe to process real money.
 
@@ -464,6 +591,7 @@ Before declaring the platform launch-ready, verify every item. A failure on any 
 | [CREATOR16] | Annual subscription renewal: patron on \$100/year plan. Renewal date arrives. System charges \$100 (not monthly rate). Patron receives receipt showing annual rate. Subscription extended by 12 months. Test with prorated upgrades mid-cycle. | HIGH |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -490,6 +618,7 @@ Before declaring the platform launch-ready, verify every item. A failure on any 
 | `security-reviewer` | Security audit of payout pipeline, content gating, authentication | Before launch — money-handling code must be reviewed by security specialist |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -503,6 +632,7 @@ Before declaring the platform launch-ready, verify every item. A failure on any 
 | P8 | Platform allows creator signup without identity verification AND creator can receive payouts | 🟠 [WARN] Anonymous payouts are a compliance risk. Without identity verification, your platform can be used for money laundering, sanctions evasion, or fraud. At minimum, implement Stripe Identity or equivalent for creators earning above \$600/year. Know Your Customer (KYC) is not optional when you handle payouts. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | # | Anti-Pattern | Why It Fails | What to Do Instead |
 |---|-------------|-------------|-------------------|
@@ -515,6 +645,7 @@ Before declaring the platform launch-ready, verify every item. A failure on any 
 | AP7 | **"Analytics is a phase 2 feature — let's ship payments first."** | Creators who can't see their earnings data lose trust within weeks. They keep their own spreadsheets. When their spreadsheet doesn't match your platform (because they miscounted a refund or fee), they assume you're stealing. Without analytics, creators cannot optimize their business — they churn from the platform because they're not growing, not because the platform is bad. | Ship with a minimum viable analytics: period earnings (gross → fees → net), subscriber count trend, transaction history export. This is 40 engineering hours, not 400. The full analytics suite (churn cohorts, content performance, demographics) can come later — but basic earnings visibility is launch-critical. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 Patron discovers creator → Patron subscribes at \$10/month tier →
@@ -535,6 +666,8 @@ Patron discovers creator → Patron subscribes at \$10/month tier →
 The platform that handles \$1 the same way it handles \$1,000,000 — with auditable precision, transparent fees, and reliable payouts — earns the right to handle the \$1,000,000. Creator trust compounds like interest; every accurate payout is a deposit.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -544,7 +677,24 @@ The platform that handles \$1 the same way it handles \$1,000,000 — with audit
 | Subscription billing treating all months as 30 days — charging annual subscribers on the 30th of every month means February charges fail on the 30th, and 31-day months create creeping billing date drift | $2K-$10K/month in failed payments from billing-date bugs — a subscriber billed on Jan 31 gets their next charge attempted on Feb 31 (which doesn't exist), fails silently, enters dunning, and churns as "involuntary" when they never wanted to cancel | Use the payment provider's subscription engine (Stripe Billing, Recurly) — they handle month-boundary anchoring correctly. If building custom logic, use the "same day next month" with end-of-month anchoring: a Jan 31 subscription bills on Feb 28 (or 29 in leap years), then Mar 31, Apr 30, etc. Test with `date +%d` = 29/30/31 in your test environment. |
 | Creator dashboard showing stale or cached balances — creator sees $1,000, withdraws, but actual balance was $950 because a refund hadn't settled yet, resulting in a negative balance | $500-$5K per incident in overdraft coverage and platform-funded corrections — plus the creator's trust evaporates when they see "Balance: -$50" after they already spent the money | Never cache wallet balances in the presentation layer. Every balance display must be a real-time ledger query or a materialized view refreshed on every transaction. Show "available" (total - reserved - pending_refunds) separately from "total." Implement withdrawal velocity limits: max 1 withdrawal per 24 hours, max 90% of available balance per withdrawal. |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Ledger integrity: SUM(gross) = SUM(processing_fee) + SUM(platform_fee) + SUM(creator_payout) for all transactions | Reconciliation query returns zero discrepancies > $0.00; all amounts stored as integer cents |
+| ☐ | Complete when Payout pipeline: real payout of test amount arrives in creator bank account within SLA | Verify: correct amount, correct descriptor, ledger updated, creator notification sent |
+| ☐ | Complete when Tax form audit: test 1099-K matches raw transaction data (gross, count, year, TIN, legal name) | Generate 1099-K for known history; verify all fields; validate against IRS e-file schema |
+| ☐ | Complete when Content gating: tier-3 content inaccessible with no auth, wrong tier, expired sub, or different creator's sub | Penetration test all 4 bypass attempts → all fail; valid tier-3 subscription → succeeds |
+| ☐ | Complete when Fee transparency: patron and creator views both show gross, processing fee, platform fee, and net | Numbers match between views; fee percentage clearly displayed on both sides |
+| ☐ | Complete when Subscription lifecycle: create → charge → renew → payment fail → dunning → retry → cancel → notify | Verify each state transition; all notifications fire; final cancellation updates access and ledger |
+| ☐ | Complete when Mobile IAP reconciliation: Apple/Google settlement report matches platform transaction log | Every settlement transaction exists in ledger with matching post-commission amounts |
+| ☐ | Complete when Refund flow: refund reverses ledger entries, revokes access/licenses, notifies creator with reason | Test $25 digital goods refund: patron refunded, license revoked, download access removed, creator notified |
+| ☐ | Complete when Creator onboarding: KYC completes in < 15 minutes; Stripe Connect account created and verified | Test with new creator: identity verification, bank account linking, tax form (W-9/W-8BEN) collected |
+| ☐ | Complete when Platform fee calculation: revenue share correctly applied across all transaction types (one-time, subscription, tip) | Test each transaction type with known amounts; verify platform_fee = gross × rate to 4 decimal places |
+
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
@@ -562,6 +712,7 @@ After building a creator economy platform, run this sequence. Do not proceed pas
 If any check fails: diagnose from checklist, provide specific actionable fix, restart verification from failed item.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best creator economy builders understand both platform economics and creator psychology. Deliberate practice means launching real monetization features, measuring creator earnings and retention, and iterating based on payout data.
 
@@ -573,6 +724,8 @@ The best creator economy builders understand both platform economics and creator
 | **Expert** | Design a multi-sided creator platform processing $1M+/year in payouts. Implement complex rev share (platform + creator + affiliate), 1099-K automation, and international payout infrastructure. Publish a case study on creator retention economics | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift. Every major architectural choice (payment processor, rev share model, content gating strategy) must be recorded so subsequent agents can recover context.
 
@@ -581,6 +734,8 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -594,6 +749,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 **Hard failure boundary:** If 3 approaches fail, STOP. Log what was tried and report the blocking issue.
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [Stripe Connect Documentation](https://stripe.com/docs/connect) — Platform payment infrastructure: Standard, Express, Custom accounts
 *   [Stripe Connect Onboarding](https://stripe.com/docs/connect/onboarding) — Creator KYC and identity verification flows

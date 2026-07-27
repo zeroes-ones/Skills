@@ -83,7 +83,8 @@ chain:
 # Backend Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -96,6 +97,7 @@ chain:
 Build production-grade backend services with polyglot expertise across Python (FastAPI), Node.js (Express/Fastify), and Go. This is the internal playbook for FAANG-level backend engineering — every section contains concrete, actionable implementation patterns, not generic advice. Covers the full lifecycle: language selection with tradeoff matrices, API design with framework-specific patterns, authentication and authorization (JWT, OAuth 2.0, RBAC), database integration with ORMs and raw SQL, multi-level caching architecture, asynchronous task processing with idempotency guarantees, structured logging with OpenTelemetry tracing, resilience patterns (circuit breakers, retries, graceful degradation), and comprehensive testing.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -122,15 +124,17 @@ What are you trying to do?
 ├── Implement authentication (JWT, OAuth) or RBAC → Go to "Decision Trees" — then Phase 2
 ├── Optimize database queries or set up caching → Jump to "Decision Trees" — Caching Strategy
 ├── Handle errors, retries, and resilience patterns → Jump to "Best Practices" — idempotency & resilience
-├── Set up a project from scratch → Jump to "Scale Depth" — pick your team size, follow the stack
+├── Set up a project from scratch → Jump to "Operating at Different Levels" — pick your team size, follow the stack
 ├── Need system architecture decisions → Invoke system-architect skill instead
 ├── Need security review of backend → Invoke security-reviewer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -148,12 +152,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff. See `scripts/references/source-of-truth-anchoring.md` for the full anti-hallucination pattern." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -178,6 +182,7 @@ Competent developers make things work. Masters make things **unbreakable under l
 - **Use raw SQL when the ORM creates N+1 queries.** ORMs optimize for developer convenience, not query efficiency. When you see 500 queries in your logs for a single endpoint, drop to raw SQL. The ORM is a tool, not a religion.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 The same backend task produces fundamentally different output depending on the practitioner's level. Invoke this skill with your target level (or the level you want to grow toward) to calibrate depth and scope.
 
@@ -224,6 +229,7 @@ The same backend task produces fundamentally different output depending on the p
 - On-call rotation with runbooks, incident command, and blameless postmortems
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You are building a new REST API or GraphQL service and need to choose the right language and framework
 - You need to implement authentication (JWT, OAuth 2.0) and role-based access control (RBAC)
@@ -235,8 +241,112 @@ The same backend task produces fundamentally different output depending on the p
 - You need to add resilience patterns — circuit breakers, retries with backoff, graceful degradation
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Decision Tree 1: Database Selection
+
+        ┌── INPUT: Data model & query patterns
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Data has   Schema is
+rigid      flexible or
+schema,    evolving?
+ACID       │
+needed?    ┌────┴────┐
+   │        │         │
+   ▼        ▼         ▼
+RELATIONAL Document  Graph
+(PostgreSQL, model?    (nodes +
+MySQL)      │         edges)?
+   │    ┌────┴────┐    │
+   ▼    │         │    ▼
+Complex ▼         ▼  Neo4j or
+JOINs, MongoDB   Need  Dgraph
+report- (JSON-    full- │
+ing?    native)   text?  ▼
+   │       │       │    Social
+   ▼       ▼       ▼    graphs,
+Use VIEWS CouchDB Elastic- recommend-
+or        or       search  ations,
+material- Firestore (hybrid: recommen-
+ized      (real-   search   dation
+views     time     +        engines
+          sync)    analytics)
+
+### Decision Tree 2: API Auth Strategy
+
+        ┌── INPUT: Client type & security needs
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+SPA or     Mobile
+mobile     app
+native?    (trusted
+   │       client)?
+   │          │
+   ▼     ┌────┴────┐
+JWT       │         │
+(short-   ▼         ▼
+lived     B2C app?  B2B/enterprise
+access       │      or third-party?
++ refresh    │         │
+token)       ▼         ▼
+   │      OAuth 2.0  OAuth 2.0
+   ▼      + PKCE      + client
+Store      (Auth0,    credentials
+access     Firebase   grant OR
+token      Auth)      mTLS
+in memory              │
+only,                   ▼
+refresh in             JWT with
+secure                 scope
+cookie                 claims
+                       (RBAC)
+
+### Decision Tree 3: Deployment Architecture
+
+        ┌── INPUT: Scale & operational maturity
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+<1000      >1000
+RPS,       RPS or
+<3         >5
+services?  services?
+   │         │
+   ▼         ▼
+SERVERLESS  CONTAINERS
+   │         │
+   ▼         ▼
+AWS Lambda  Kubernetes
+or Cloud    (EKS, GKE,
+Run +       AKS) or
+managed     Nomad
+DB (RDS)    │
+   │         ▼
+   ▼      Need
+Zero-     service
+ops for   mesh
+startups, (Istio,
+hackathons Linkerd)?
+            │
+       ┌────┴────┐
+       │         │
+       ▼         ▼
+      YES        NO
+       │         │
+       ▼         ▼
+     Service    Docker
+     mesh +     Compose
+     sidecar    or ECS
+     (mTLS,     Fargate
+     retries)
+
 ### Language & Framework Selection
 
 ```
@@ -272,6 +382,7 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): API Design
@@ -319,8 +430,12 @@ Complete when: Health and readiness endpoints return correct status codes. Grace
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 Complete when: WebSocket/SSE/polling protocol selected with documented rationale. Real-time connection lifecycle managed (auth, reconnect, heartbeat). Backpressure strategy implemented for high-throughput streams.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design APIs contract-first with OpenAPI 3.1.** Share the spec with frontend/mobile teams before writing a single route handler. Use `openapi-generator` or `fastapi-codegen` to generate typed server stubs and client SDKs. The spec IS the source of truth — code that diverges from it creates integration bugs.
 
@@ -342,11 +457,12 @@ Complete when: WebSocket/SSE/polling protocol selected with documented rationale
 
 10. **Graceful shutdown is not optional.** Handle SIGTERM: stop accepting new requests, drain in-flight requests (with a configurable deadline, e.g., 25s for a 30s Kubernetes `terminationGracePeriodSeconds`), close DB connections and message queue consumers. Liveness probes (`/health`) should return 200 until the process exits; readiness probes (`/health/ready`) should return 503 during draining so the load balancer stops routing new traffic.
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before any production deployment, verify ALL of:
 
@@ -366,6 +482,7 @@ Before any production deployment, verify ALL of:
 14. Runbook exists for top 3 failure modes with step-by-step recovery and escalation contacts
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every endpoint is contract-first, validated at the boundary, and fully documented. Authentication is airtight — JWTs validated, RBAC enforced, secrets never leaked.
 
@@ -384,6 +501,7 @@ Common chains:
 - **Schema to service**: database-designer → backend-developer → qa-engineer — Schema defines data model, backend builds the service layer, QA validates behavior
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what to do -->
 
@@ -403,8 +521,8 @@ Common chains:
 ### The One Thing
 **Write a production service from scratch with zero frameworks every 6 months.** No FastAPI. No Express. Just the standard library and a database driver. You'll learn what your frameworks actually do, what abstractions are worth the cost, and where the real complexity lives. Framework fluency ≠ backend mastery.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -419,6 +537,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -456,6 +575,7 @@ Cross-team dependency blocking? → System Architect → Project Manager
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Response |
 |---------|----------|
@@ -469,6 +589,7 @@ Cross-team dependency blocking? → System Architect → Project Manager
 | "Fan-out broadcast storm — one incoming event triggers cascading broadcasts that amplify" | Rate-limit broadcasts per room/channel (e.g., max 10/sec). Use a debounce pattern: if the same event type fires within 100ms, coalesce into one broadcast. Attach a `broadcastId` UUID to each message and deduplicate at the receiving end. Never broadcast raw upstream events without sanitizing/aggregating first. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### 1. No Database Connection Pooling
 **What it looks like:** Every request opens a new database connection instead of reusing from a pool. Under 500 concurrent requests, the database connection limit (typically 100) is exhausted. New requests queue, time out, and cascade into 503 errors. Instead of fixing the pool, teams scale up the database tier.
@@ -520,6 +641,7 @@ Cross-team dependency blocking? → System Architect → Project Manager
 **Fix:** Add columns as nullable first. Deploy code that writes to both old and new. Deploy code that reads from new only. Drop old column in a follow-up migration. Never rename/drop a column in the same migration that adds its replacement.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -535,6 +657,7 @@ When backend services go wrong, they go wrong in predictable ways. Here are the 
 | Rate limiter blocks legitimate traffic from corporate proxies — entire offices can't access the API | Rate limiting by IP address when thousands of users share a single NAT gateway IP (office building, university, mobile carrier CG-NAT). The shared IP exceeds the limit while individual users are well under it | Rate limit by authenticated user ID as primary key, with IP as secondary fallback for unauthenticated endpoints. Add `X-Forwarded-For` trust for proxy headers. Use token bucket algorithm with per-key granularity | IP-based rate limiting is broken architecture for any service with authenticated users. Corporate NAT gateways, mobile carriers, and VPNs make IP addresses meaningless as user identifiers |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -543,6 +666,7 @@ When backend services go wrong, they go wrong in predictable ways. Here are the 
 | Timezone bugs — all timestamps offset by hours in production, billing dates and audit trails wrong | $50K-$200K in data corruption and compliance | Store ALL timestamps as UTC, set `TZ=UTC` at application level, use `date.toISOString()` / `DateTime.utcnow()`, parse incoming timestamps with explicit timezone |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `npm test` / `pytest` / `go test ./...` — all tests pass, no regressions
 - [ ] Run linter: `eslint .` / `ruff check .` / `golangci-lint run` — zero new issues
@@ -551,10 +675,12 @@ When backend services go wrong, they go wrong in predictable ways. Here are the 
 - [ ] Verify all new endpoints have integration tests covering success, auth failure, validation error, and not-found cases
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -565,5 +691,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

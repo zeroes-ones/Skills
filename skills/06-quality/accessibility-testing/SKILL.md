@@ -96,7 +96,6 @@ These rules are non-negotiable constraints that detect accessibility testing mis
 | **R10** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R11** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -253,6 +252,10 @@ Define violation thresholds per severity level. Critical (WCAG 2.2 A violations)
 ### Phase 4: Production Monitoring (~1 hour setup)
 Configure periodic (daily) accessibility scans of key production pages using pa11y-ci scheduled job or a hosted service (Deque Axe Monitor, Siteimprove, Tenon). Monitor: accessibility score trend, new violation count, and pages with score drops. Alert on: score dropping > 5 points in 24 hours, any new critical/serious violation on a key page, and pages missing from scan coverage. Dashboard: score per route over time, violation breakdown by WCAG criteria, time-to-fix (how long from detection to resolution).
   Complete when: Daily production scans configured; alerts set for score drops and new violations; dashboard tracking violations by WCAG criteria.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 
 ## Best Practices
 
@@ -275,7 +278,6 @@ Configure periodic (daily) accessibility scans of key production pages using pa1
 9. **Shift accessibility testing left — lint at IDE, test at component, gate at CI.** Layer 1: ESLint (`eslint-plugin-jsx-a11y`) catches label, alt text, and role violations as the developer types. Layer 2: `jest-axe` / `vitest-axe` runs on every component in unit tests. Layer 3: `@axe-core/playwright` or `cypress-axe` runs in E2E tests after every navigation. Layer 4: `pa11y-ci` + Lighthouse CI on staging deploy. Catch violations at the cheapest layer — the IDE is essentially free, production is the most expensive.
 
 10. **Monitor accessibility in production, not just pre-release.** Run daily accessibility scans on key pages with `pa11y-ci`. Track score trends over time and alert on drops > 5 points in 24 hours. A new banner component, a marketing landing page, or a third-party script can introduce violations that CI never saw because CI tests the app shell, not the production composition. Production monitoring is the fourth layer of defense — and the only one that sees what users actually experience.
-
 
 ## Error Recovery **(STANDARD)**
 
@@ -349,7 +351,6 @@ Accessibility score < 70 on critical user flow? → Product Manager → CTO Advi
 | A11y ↔ Design | Design tokens include contrast-verified color pairings. Component specs include accessibility requirements (focus order, ARIA roles, keyboard interactions). Design review includes accessibility checklist before handoff. |
 | A11y ↔ Legal/Compliance | VPAT (Voluntary Product Accessibility Template) updated per release. WCAG conformance level (A/AA/AAA) documented per feature. ADA/Section 508 compliance evidence collected from CI audit trail. Legal notified of any pattern of accessibility regressions. |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -372,7 +373,6 @@ Before shipping accessibility testing infrastructure or declaring a product WCAG
 - [ ] **Production monitoring configured with daily accessibility scans.** Score trend dashboard. Alert on >5 point drop in 24 hours. Alert on any new critical/serious violation on key pages.
 - [ ] **Accessibility statement published with a monitored feedback mechanism.** Feedback mechanism tested with a screen reader. User-reported issues triaged within 48 hours. P1 blockers within 24 hours.
 - [ ] **VPAT (Voluntary Product Accessibility Template) updated for current release.** WCAG conformance level (A/AA/AAA) documented per feature. ADA/Section 508 compliance evidence collected from CI audit trail.
-
 
 ## What Good Looks Like
 
@@ -446,7 +446,7 @@ Before shipping accessibility testing infrastructure or declaring a product WCAG
 - **Buying an accessibility overlay solution (AccessiBe, AudioEye, etc.) and declaring the site "accessible."** Overlays inject JavaScript that attempts to fix accessibility issues at runtime. They cannot fix: semantic HTML structure, keyboard focus management, form labeling, or custom component accessibility — which together represent 70%+ of real accessibility barriers. They introduce performance overhead, conflict with actual assistive technology, and create a false sense of compliance. Over 500 accessibility professionals have signed the Overlay Fact Sheet stating these tools cannot make sites compliant. Yet companies continue buying them because the sales pitch ("one line of code," "$49/month") is compelling. **Total cost: $2K-$10K/year in overlay subscription + $15K-$50K+ in legal exposure because overlay-protected sites are still being sued (and losing).** Fix: Invest overlay budget into developer a11y training, automated testing infrastructure (axe-core, pa11y, Lighthouse CI), and manual testing. An overlay is a legal liability, not a solution.
 - **Relying on accessibility audits as a one-time activity rather than continuous monitoring.** An accessibility audit produces a clean report on Tuesday. On Wednesday, a developer ships a modal without focus trapping. Thursday, marketing adds a new landing page with contrast issues. By next week, 15% of the audit findings have regressed. By next quarter, the site is back to pre-audit accessibility levels — but the VP of Engineering reports "we passed an accessibility audit" to the board. **Total cost: $25K-$50K per audit that becomes obsolete within weeks + ongoing legal exposure as regressions accumulate.** Fix: Audit identifies baseline. CI/CD pipeline prevents regression. Automated scans run on every PR and every production deploy. Dashboard tracks accessibility score over time with alerts for drops. Re-audit manually annually, but the automated pipeline maintains quality between audits.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -480,22 +480,6 @@ Before shipping accessibility testing infrastructure or declaring a product WCAG
 ## Verification Guardrails
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-### Scale Depth
-
-#### Solo Developer
-Run axe-core and Lighthouse locally before each deploy. `eslint-plugin-jsx-a11y` in IDE. Keyboard-test top 3 flows manually before release. No CI gating. Screen reader testing optional but encouraged for public-facing apps.
-
-#### Small Team (2-10)
-Jest-axe in component tests. axe-core in E2E tests. Lighthouse CI with advisory score budget. Zero new critical violations blocks PR. Manual keyboard audit on every release. Screen reader walkthrough on top 3 flows quarterly.
-
-#### Medium Team (10-50)
-Full CI/CD a11y pipeline with violation baselines. Zero new critical/serious blocks merge. pa11y-ci on staging. Production monitoring with daily scans. Manual screen reader testing on top 5 flows (rotate 2 per release). Per-route accessibility dashboard. Accessibility debt ratio < 5% enforced.
-
-#### Enterprise (50+)
-All medium-team gates + quarterly external audit. VPAT verification for all vendors. Procurement accessibility requirements (VPAT required). Board-level scorecard reviewed quarterly. Legal monitors ADA Title II, EN 301 549. Screen reader testing with actual assistive technology users. Compliance evidence pipeline for auditor-ready reports.
-
-**Transition Triggers:** Scale up when: (a) serving public users → Small, (b) first ADA demand letter → Medium immediately, (c) revenue > $10M or 100K+ users → Enterprise, (d) government/healthcare/education customers → Enterprise regardless of size.
-
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**
@@ -521,4 +505,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

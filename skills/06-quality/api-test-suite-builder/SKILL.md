@@ -85,7 +85,6 @@ These rules are non-negotiable constraints that detect API test suite mistakes b
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -188,6 +187,7 @@ What's the goal?
 Scan the codebase to extract all API endpoints with their HTTP methods, paths, and auth requirements.
 
 **Next.js App Router:**
+
 ```bash
 find ./app/api -name "route.ts" | while read f; do
   route=$(echo $f | sed 's|./app||' | sed 's|/route.ts||')
@@ -198,19 +198,24 @@ done
 ```
 
 **Express:**
+
 ```bash
 grep -rn "router\.\(get\|post\|put\|delete\|patch\)\|app\.\(get\|post\|put\|delete\|patch\)" src/ --include="*.ts" | grep -oE "(get|post|put|delete|patch)\(['\"][^'\"]*['\"]"
 ```
 
 **FastAPI:**
+
 ```bash
 grep -rn "@\(app\|router\)\.\(get\|post\|put\|delete\|patch\)" . --include="*.py" | grep -oE "@(app|router)\.(get|post|put|delete|patch)\(['\"][^'\"]*['\"]"
+
 ```
 
 **Django REST:**
+
 ```bash
 grep -rn "router\.register\|DefaultRouter\|SimpleRouter" . --include="*.py"
 ```
+
   Complete when: All API endpoints extracted with HTTP methods, paths, and auth requirements.
 
 ### Phase 2: Read Route Handlers (10 min)
@@ -356,7 +361,9 @@ describe('POST /api/v1/users', () => {
     expect(res.status).toBe(409);
   });
 });
+
 ```
+
   Complete when: Test files generated per route group with auth matrix, input validation, happy path, and edge case coverage.
 
 ### Phase 4: Validate and Integrate (5 min)
@@ -366,7 +373,10 @@ describe('POST /api/v1/users', () => {
 - Add to CI pipeline: `npm test` gate in GitHub Actions
 - Generate coverage baseline for future comparison
   Complete when: Tests pass, CI pipeline configured, and coverage baseline generated.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 
 ## Best Practices
 
@@ -389,7 +399,6 @@ describe('POST /api/v1/users', () => {
 9. **Test error responses with the same rigor as happy paths.** For every endpoint, verify: 400 (invalid input shape), 401 (missing/expired token), 403 (insufficient permissions), 404 (resource not found), 409 (conflict), and 422 (validation failure). Error responses should include machine-readable error codes and human-readable messages — validate both. Production traffic is ~40% error paths; testing only 200 OK means you're testing less than half the system.
 
 10. **Keep the test suite fast — target < 5 minutes in CI.** Slow test suites get skipped. Profile test execution with `--verbose` to find the slowest tests. Move network-dependent tests to a nightly suite. Use in-memory databases (SQLite) for unit-level API tests. A test suite that takes 20 minutes will be run only at the last minute before deploy — and that's exactly when you can't afford to discover failures.
-
 
 ## Error Recovery **(STANDARD)**
 
@@ -436,8 +445,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - **Outdated test vs route** → Route handler changed (new params, different auth) but tests weren't updated. Flag drift. 🔴
 - **Sensitive field leaked in response** → Test asserts success but doesn't verify password_hash, secret, or internal fields are absent. Flag. 🔴
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
@@ -458,7 +467,6 @@ Before shipping API tests to production or as a CI gate, verify every item:
 - [ ] **Test suite runtime < 5 minutes in CI.** Profiled with `--verbose`. Slow tests (>2s each) flagged for optimization or moved to nightly suite. Network-dependent tests mocked in CI.
 - [ ] **Pagination tests exist for every list endpoint.** Verify: default page size, custom page size, first page, last page, out-of-bounds page, and empty results. Pagination bugs are the #1 source of silent data loss in list APIs.
 - [ ] **Security-sensitive fields verified absent from responses.** Assert that `password_hash`, `secret`, `internal_id`, and `admin_notes` are never present in API responses — not just that the response is 200 OK.
-
 
 ## What Good Looks Like
 
@@ -483,7 +491,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -506,6 +514,7 @@ graph LR
 - **Assertions that ignore response time and performance regression.** Tests assert only on HTTP status codes and response body structure — never on latency. A database index is accidentally dropped, a query degrades from 50ms to 3 seconds, an N+1 query pattern creeps into a list endpoint — and every API test still passes bright green. By the time customers report slowness through support channels, the regression has been in production for weeks and the root cause is buried under multiple subsequent deploys. **Total cost: $10,000-$30,000 per year in undetected performance regressions, user churn from slow API responses, and emergency performance firefighting that could have been caught at merge time.** Fix: Add response time assertions to critical-path API tests (e.g., `expect(response.duration).toBeLessThan(500)` for user-facing endpoints); establish per-endpoint performance baselines from production metrics and alert on statistical deviation in CI; run a dedicated performance-focused subset of the test suite on consistent CI hardware; pipe API test response timing data into the observability dashboard for trend analysis over releases.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -525,22 +534,6 @@ graph LR
 ## Verification Guardrails
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-### Scale Depth
-
-#### Solo Developer
-Run axe-core in CI with zero-config defaults. Use `eslint-plugin-jsx-a11y` recommended ruleset. Test on one screen reader + browser combo (VoiceOver + Safari). No CI gating on a11y — informational only. Manual keyboard test before release. Lighthouse a11y score tracked as advisory metric.
-
-#### Small Team (2-10)
-Jest-axe on every component. axe-core in Playwright/Cypress E2E tests after every navigation. Lighthouse CI with minimum score 90 (advisory). Zero new critical violations blocks PR. Keyboard navigation automated via Playwright. Manual screen reader walkthrough on top 3 flows per release. eslint-plugin-jsx-a11y at pre-commit.
-
-#### Medium Team (10-50)
-Full CI/CD gates with stored violation baselines. Zero new critical/serious violations blocks merge. pa11y-ci on staging deploy with sitemap coverage. Lighthouse CI budget: score ≥ 95 + drops > 5 block. Production monitoring with daily scans and score trend alerts. Manual screen reader testing on top 5 flows (rotate 2 per release). Per-route accessibility dashboard. Accessibility debt ratio tracked monthly. VPAT updated per release.
-
-#### Enterprise (50+)
-All medium-team gates + quarterly external accessibility audit. VPAT accuracy verified for all third-party components. Procurement requires VPAT + independent verification. Board-level accessibility scorecard reviewed quarterly. Legal proactively monitors ADA Title II, Section 508, EN 301 549 updates. Dedicated accessibility engineer or rotating accessibility champion. Screen reader testing with actual assistive technology users (Fable, Access Works). Compliance evidence pipeline: CI audit trails → automated VPAT generation → auditor-ready reports.
-
-**Transition Triggers:** Scale up when: (a) your app is served to the public (not just internal users) — move from Solo to Small, (b) first ADA demand letter or legal inquiry — jump to Medium immediately, (c) revenue crosses $10M or user base exceeds 100K — move to Enterprise, (d) you ship to government, healthcare, or education — Enterprise required regardless of size.
-
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**
@@ -566,4 +559,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

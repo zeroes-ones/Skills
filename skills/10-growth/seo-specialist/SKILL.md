@@ -42,6 +42,7 @@ localization), JavaScript SEO (SSR/SSG, dynamic rendering), link building strate
 and algorithm update response.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -83,6 +84,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -100,7 +102,23 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-### Anti-Hallucination Ground Rules
+## Core Workflow
+<!-- STANDARD: 3min -->
+
+**Phase 1: Technical SEO Audit & Baseline (20% of effort)**
+Crawl the entire site with Screaming Frog (or Sitebulb) exporting all pages, status codes, titles, meta descriptions, H1s, and canonicals. Export Google Search Console data: coverage report (indexed vs excluded pages), performance report (queries, clicks, impressions, CTR, avg position — 16 months), Core Web Vitals report (CrUX field data). Run Lighthouse on top 20 pages by traffic. Output: audit spreadsheet with every page scored on: indexability, canonical correctness, title/H1 uniqueness, meta description presence, schema markup, mobile usability, and page speed (LCP/FID/CLS). Red flags: >0 pages with `noindex`, >0 4xx errors on indexed pages, duplicate titles >10% of pages, CLS >0.25 on >50% of pages.
+
+**Phase 2: Content & Keyword Strategy (30% of effort)**
+Map keyword universe: seed terms → competitor gap analysis (SEMrush/Ahrefs Domain vs Domain) → topic clusters. For each target page: identify primary keyword + secondary keywords, target search intent (informational/commercial/transactional/navigational), and target SERP features (featured snippet, PAA, video carousel, local pack). Audit existing content: which pages rank positions 4-15 (highest ROI — on page 2, close to page 1)? Output: content calendar with pages to create, pages to improve (positions 4-15 first), and pages to consolidate (thin content, <300 words, zero traffic in 12 months). The 80/20 rule: improving pages on page 2 yields 5x faster results than creating new content from scratch.
+
+**Phase 3: Technical Implementation (30% of effort)**
+Fix all audit findings in priority order: (1) indexability blockers — noindex tags, robots.txt disallow, canonical errors, (2) site speed — image optimization (WebP/AVIF, lazy loading, srcset), font optimization (subset, swap, preload), JS/CSS minification + code splitting, (3) structured data — JSON-LD schema for all eligible types (Article, Product, FAQ, HowTo, BreadcrumbList, Organization, LocalBusiness), (4) internal linking — orphan pages fixed, pillar→cluster linking, related content modules, (5) XML sitemaps — clean sitemap submitted to GSC with only 200-status, indexed pages. Validate every fix: re-crawl after deployment, verify 0 regressions in Lighthouse and GSC coverage.
+
+**Phase 4: Monitoring & Iteration (20% of effort)**
+Set up ongoing monitoring: (1) Rank tracking — daily for top 50 keywords, weekly for top 500, (2) GSC anomaly detection — alert on >10% traffic drop in 48 hours, (3) Crawl monitoring — weekly crawl comparing indexation, status codes, title changes vs baseline, (4) Competitor monitoring — track top 5 competitors for SERP feature changes, new content, and backlink velocity. Iterate: every 90 days, run full audit. Every core update, wait 14 days for rollout completion, then analyze winners/losers by page type (not by individual page — look for patterns). The SEO cycle is: audit → fix → measure → learn → repeat. There is no "done."
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 - **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
 - **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
 - **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
@@ -108,6 +126,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 
 ##
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master seo specialists understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -128,6 +147,7 @@ Master seo specialists understand that strategy is not about predicting the futu
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -143,6 +163,7 @@ Master seo specialists understand that strategy is not about predicting the futu
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Launching a new domain or executing a site migration — pre-launch SEO audit and post-launch verification
@@ -157,11 +178,131 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Setting up SEO monitoring: GSC API dashboards, rank tracking, algorithm update alerts
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
-> See [references/decision-trees.md](references/decision-trees.md) for the full SEO decision trees covering technical SEO audits, content optimization flows, keyword research frameworks, and crawl budget diagnostics.
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
-## Core Workflow
+### Decision Tree 1: Crawl Issue Diagnosis
+
+        ┌── INPUT: Are pages not appearing in search results?
+        │
+   ┌────┴──────────────────┐
+   │                       │
+   ▼                       ▼
+URL is indexed          URL is NOT indexed
+but ranks poorly            │
+   │                 ┌──────┴──────────┐
+   ▼                 │                 │
+Content/ranking      ▼                 ▼
+issue. Focus on   Crawled but not   Not crawled at all
+E-E-A-T, keyword  indexed               │
+optimization,         │           ┌─────┴──────────┐
+backlinks             ▼           │                │
+                Blocked by       ▼                ▼
+                meta robots,   robots.txt       Orphan page
+                canonical      disallowed or    (no internal
+                mismatch, or   noindex tag      links point
+                duplicate      present          to it)
+                content
+                     │
+                     ▼
+                Fix tags first.
+                Then check Search
+                Console URL Inspection
+
+### Decision Tree 2: Structured Data Strategy
+
+        ┌── INPUT: What type of content does the page have?
+        │
+   ┌────┴──────────────────────────────┐
+   │                                   │
+   ▼                                   ▼
+Article, blog, news              Product or service page
+   │                                   │
+   ▼                                   ▼
+Article + BreadcrumbList         ┌─────┴──────────────┐
+schema. If news, add             │                    │
+NewsArticle +                    ▼                    ▼
+datePublished/dateModified   E-commerce           SaaS/Local business
+                                 │                    │
+                                 ▼                    ▼
+                            Product + Offer +    Organization +
+                            AggregateOffer +     LocalBusiness +
+                            Review schema.       FAQPage for
+                            Include price,       pricing/common
+                            availability,        questions.
+                            shippingDetails
+
+### Decision Tree 3: JavaScript SEO Approach
+
+        ┌── INPUT: Is content rendered client-side (CSR)?
+        │
+   ┌────┴──────────────────────┐
+   │                           │
+   ▼                           ▼
+Server-rendered (SSR/SSG)  Client-rendered (CSR/SPA)
+   │                           │
+   ▼                           ▼
+No JS SEO concern.         ┌── Is the content critical for SEO?
+Ensure fast TTFB,          │
+proper status codes        ┌───┴───────────┐
+                           │               │
+                           ▼               ▼
+                          YES             NO
+                           │               │
+                           ▼               ▼
+                    Can you migrate      Dynamic rendering
+                    to SSR/SSG?          (prerender.io or
+                         │              Rendertron) for
+                    ┌────┴────┐         bots only
+                    │         │
+                    ▼         ▼
+                   YES       NO
+                    │         │
+                    ▼         ▼
+              Migrate to   Implement
+              Next.js/     dynamic
+              Nuxt/Astro   rendering +
+                           ensure JS
+                           bundles are
+                           crawlable
+
+### Decision Tree 4: International SEO (hreflang)
+
+        ┌── INPUT: Does the site target multiple countries or languages?
+        │
+   ┌────┴──────────────────────────┐
+   │                               │
+   ▼                               ▼
+Single language,              Multiple languages
+single country                or countries
+   │                               │
+   ▼                               ▼
+No hreflang needed.          ┌── Same content, different
+Set html lang attribute.     │   language only?
+                             ┌───┴───────────┐
+                             │               │
+                             ▼               ▼
+                            YES             NO (different
+                             │              content per
+                             ▼              country)
+                      hreflang with    hreflang with
+                      language only:   language + country:
+                      <link rel=       <link rel=
+                      "alternate"      "alternate"
+                      hreflang="es">   hreflang="en-GB">
+                             │               │
+                             └───────┬───────┘
+                                     │
+                                     ▼
+                              Always include:
+                              x-default for
+                              language/country
+                              selector page.
+                              Self-referencing
+                              canonical on every
+                              page.
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -169,6 +310,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ### Phase 1 (~15 min): Technical SEO Audit & Crawl Optimization
 
 1. **Crawl Budget Management** — Define what percentage of crawl budget reaches valuable pages:
+
    ```
    Crawl Budget Formula:
    Crawl Rate Limit (Googlebot requests/sec from Search Console) ×
@@ -194,6 +336,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **What good looks like:** Lighthouse SEO score ≥ 90. Core Web Vitals pass on 75th percentile of real users. XML sitemap submitted and indexed. robots.txt allows all public content, blocks all private. Every page has unique title, meta description, and canonical URL.
 
 2. **XML Sitemaps — Production Patterns**:
+
    ```xml
    <!-- Sitemap index for sites > 50K URLs — split by content type -->
    <?xml version="1.0" encoding="UTF-8"?>
@@ -202,6 +345,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
      <sitemap><loc>https://example.com/sitemap-articles.xml</loc><lastmod>2026-07-15</lastmod></sitemap>
      <sitemap><loc>https://example.com/sitemap-categories.xml</loc><lastmod>2026-07-15</lastmod></sitemap>
    </sitemapindex>
+
    ```
 
    **Sitemap Rules**:
@@ -213,7 +357,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    - Compress with gzip: `sitemap.xml.gz` — submit compressed URL to GSC
 
 3. **robots.txt Precision**:
+
    ```
+
    # Pattern: allow crawling, block only problematic paths
    User-agent: *
    Allow: /
@@ -231,12 +377,21 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
    User-agent: GPTBot
    Disallow: /
+
    ```
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 Complete when: Lighthouse SEO score ≥ 90 with Core Web Vitals passing 75th percentile. XML sitemap submitted and indexed with only canonical URLs. robots.txt configured to allow public content and block private/utility paths. Crawl budget analysis shows ≥ 80% of crawl capacity reaching valuable pages.
+Complete when: Keyword strategy documented with primary and secondary keyword mapping per URL, search volume and difficulty data sourced, and content gap analysis identifying 20+ underserved high-intent queries.
+Complete when: Technical SEO audit completed covering crawlability (status codes, redirects, canonical tags), indexability (noindex tags, robots meta), site architecture (URL structure, internal linking), and page experience (Core Web Vitals, mobile-friendliness, HTTPS).
+Complete when: Backlink profile audited with toxic link identification and disavow file prepared if needed, competitor backlink gap analysis completed, and link-building outreach plan with 50+ target domains identified.
+Complete when: Content optimization recommendations delivered for top 20 money pages: title tag improvements, meta description rewrites, header structure optimization, internal link opportunities, and featured snippet targeting.
+Complete when: SEO reporting dashboard configured with organic traffic trends, keyword rankings by position bucket, click-through rate by position, page-level performance (traffic, conversions, bounce rate), and indexing status monitored weekly.
+Complete when: Google Search Console integrated and monitored: coverage errors resolved, manual actions cleared, performance data reviewed weekly, and URL Inspection API used for priority page indexing requests.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -252,6 +407,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 SEO touches content, engineering, marketing, and design. Rankings degrade when any of these operate in isolation.
@@ -313,13 +469,12 @@ SEO touches content, engineering, marketing, and design. Rankings degrade when a
 - **`growth-engineer`** — When A/B tests need SEO safety review, canonical rules, or noindex coordination
 - **`marketing-manager`** — When paid and organic search strategies need alignment or campaign landing page SEO
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Target audience, growth model (PLG vs SLG), product positioning | Before designing growth experiments or content strategy |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- trigger-action table for autonomous SEO workflow -->
 
@@ -348,11 +503,12 @@ The SEO-Specialist-to-Frontend-Developer partnership is where search visibility 
 | **Sitemap generation** | Sitemap specification: which URLs to include/exclude, priority and changefreq values, pagination strategy for large sitemaps, sitemap index structure | Sitemap generation approach: build-time static generation, server-side dynamic generation, or CI/CD pipeline; compression and submission automation to GSC |
 | **Internal linking & URL structure** | Crawl depth analysis showing pages >3 clicks from homepage, recommended internal link additions, URL structure guidelines (trailing slash policy, lowercase, hyphens vs underscores) | Navigation component architecture, breadcrumb component, URL routing patterns, redirect implementation strategy (server-side vs client-side) |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Organic traffic compounds predictably because every new page targets a validated keyword gap in a mapped topic cluster, and pillar pages earn backlinks without outreach because they are the definitive
 
@@ -367,7 +523,9 @@ graph LR
     D[growth-engineer] --> B
     B --> E[analytics-engineer]
 ```
+
 Run skills in the order shown:
+
 ```bash
 # Chain A: content-strategist → seo-specialist → frontend-developer
 # Chain B: growth-engineer → seo-specialist → analytics-engineer
@@ -375,6 +533,7 @@ Run skills in the order shown:
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -391,17 +550,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|---|---|
-| "SEO is just keywords — stuff them and rank" | Thin content without E-E-A-T triggers helpful content updates that erase 40-90% of traffic overnight — $10K-$500K/month in lost revenue during 3-12 month recovery. |
-| "We'll buy 500 backlinks for $2K — fast ranking boost" | Purchased backlinks trigger spam detection — recovery costs $10K-$100K in consultant fees plus 3-12 months of lost rankings and revenue. |
-| "Page speed is an engineering problem — not SEO's concern" | Every 100ms delay costs $2.5K/month per $100K revenue — $25K-$210K/year in recoverable revenue from deferred speed optimization. |
-| "Googlebot can render JavaScript — it's fine" | JS-rendered content indexes 2-4 weeks after HTML — you lose ranking windows for every content change and fall behind faster competitors. |
-| "More pages targeting the same keyword means more coverage" | Keyword cannibalization splits ranking signals across pages — $5K-$20K/month per cannibalized cluster in lost traffic that one authoritative page would capture. |
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -410,6 +560,7 @@ graph LR
 | Chasing algorithm updates with reactive tactics instead of building topical authority and user-first content | $80K-$250K/year in wasted SEO retainer fees and content churn — hiring an agency to "recover from the March core update" while the real problem is thin content, poor UX, and no demonstrated expertise. Each reactive pivot costs $15K-$40K in agency fees and rewritten content, while competitors who invested in E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) steadily gain share. | Invest 80% of SEO budget in durable fundamentals: topical authority maps, expert-authored content with author bios, original research/data that earns natural backlinks, and technical site health. Spend 20% on monitoring and adapting to updates. The sites that win core updates are the ones that didn't need to change anything when the update shipped. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Fix technical SEO fundamentals before investing in content.** Crawl budget waste, broken internal links, missing canonical tags, slow server response times, and poor mobile usability undermine every piece of content you publish. Run a full technical audit (Screaming Frog, Sitebulb, or Google Search Console) and fix crawlability, indexability, and performance issues first. Content built on a broken foundation gets 30-50% less organic traffic.
@@ -433,6 +584,7 @@ graph LR
 10. **Run SEO as a continuous process, not a project.** SEO is not "we did an audit and fixed everything." Algorithm updates (3,000+/year), competitor content (published daily), and changing user behavior mean SEO requires ongoing investment. Establish a monthly audit cadence: technical health check, content performance review, backlink profile monitoring, and competitor movement tracking.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - **A Google algorithm update can erase 40-90% of your organic traffic overnight.** Core updates, helpful content updates, and spam updates hit sites with thin content, aggressive monetization, or poor UX disproportionately. An ecommerce site doing $200K/month from organic traffic can drop to $20K-$120K/month after one update — and recovery takes 3-12 months. **Total cost: $10K-$500K/month in lost revenue during ranking recovery.** Diversify traffic sources (email, paid, social) so no single channel exceeds 50% of revenue, and maintain content quality above Google's E-E-A-T bar continuously — not just after a penalty.
@@ -451,6 +603,7 @@ graph LR
 - **What:** Building backlinks at any cost — buying links, PBNs, comment spam, article directories. **Why:** Google's Penguin algorithm and manual actions team actively detect and penalize link schemes. A manual action can remove your entire domain from search results for 3-12 months. Recovery requires disavowing every toxic link (months of work) and filing a reconsideration request that may or may not be approved. **Instead:** Earn links through linkable assets: original research (data studies, surveys, industry benchmarks), free tools, definitive guides, and expert contributions to reputable publications. One earned link from a .edu or major publication is worth 10,000 spam links and carries zero penalty risk.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any SEO deliverable leaves this skill, verify:
@@ -471,6 +624,7 @@ Before any SEO deliverable leaves this skill, verify:
 - [ ] Local SEO (if applicable): Google Business Profile optimized, NAP consistency verified, local citations built
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run Lighthouse: Performance ≥ 90, SEO = 100, Best Practices ≥ 90
 - [ ] Crawl test: `screamingfrog` or `sitebulb` crawl — zero broken links, zero orphan pages, canonical tags correct
@@ -481,8 +635,9 @@ Before any SEO deliverable leaves this skill, verify:
 - [ ] Hreflang: for each locale pair, reciprocal tags exist and point to correct URLs
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ### Solo/Small Site (< 100 pages, < 10K monthly visits)
 - Technical: Google Search Console + free tools (Lighthouse, PageSpeed Insights). Fix critical errors only
@@ -517,6 +672,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - Deliverable: Real-time SEO dashboard + monthly executive summary + quarterly board presentation + annual strategy + M&A SEO playbook
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -529,6 +685,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Core Web Vitals "passed" in lab tests but failing in field data (CrUX) | Lab tests (Lighthouse, PageSpeed Insights "lab data") run on powerful dev machines with fast connections. Field data (Chrome User Experience Report) represents real users on slow mobile connections with CPU-constrained devices. | Optimize for the 75th percentile of real users, not your MacBook Pro. Use CrUX data in Search Console and PageSpeed Insights "field data" tab. Test on emulated Moto G4 with 3G throttling. Fix LCP by optimizing server response time, render-blocking resources, and image loading. | Your users don't have your laptop. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -539,6 +696,5 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

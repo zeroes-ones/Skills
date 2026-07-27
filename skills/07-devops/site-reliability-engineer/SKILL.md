@@ -50,6 +50,7 @@ blameless incident analysis, and architect for resilience. Covers the full SRE p
 budgeting, automation, incident response, capacity planning, and organizational models.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -85,9 +86,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -105,12 +108,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 SRE is not about keeping systems running — it's about **making systems reliable enough that users are happy, but not so reliable that you can't ship features**. The error budget is the mechanism that turns this trade-off from a political argument into an engineering decision.
 
@@ -140,6 +143,7 @@ SRE is not about keeping systems running — it's about **making systems reliabl
 - **On-call health is a reliability metric.** If your on-call engineers are burning out, reliability will degrade. Bus-factor, alert fatigue, and rotation sustainability are SRE concerns, not HR concerns.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 SRE skill scales from managing a single service's reliability to org-wide reliability strategy and culture.
 
@@ -153,33 +157,8 @@ SRE skill scales from managing a single service's reliability to org-wide reliab
 
 **Usage**: Say "as an L3 SRE, define the SLO framework for..." Default: **L3** (product-level reliability, independent design).
 
-### Scale Depth
-
-### Solo (1 person, 0-100 users)
-- **What changes**: No formal SRE. You are the SRE. Monitor with UptimeRobot or healthchecks.io. Manual incident response. No SLOs — just "is it up?"
-- **Overkill**: SLO/SLI framework, error budgets, formal incident roles, capacity planning, chaos engineering, postmortem docs, on-call rotations.
-- **Coordination**: You handle everything. No coordination needed. **Cost**: $0-30/month (monitoring + paging).
-- **Transition trigger**: First user-impacting incident undetected for > 1 hour. Paying users depend on availability.
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: Define 2-3 SLIs per service. Set basic SLOs (99.9% availability). Simple alerting (CPU > 80%, 5xx > 1%). On-call rotation (weekly). Blameless postmortems for SEV1 only. Toil tracking via rough estimates. No capacity planning — react to growth.
-- **Overkill**: Multi-window burn-rate alerting, formal error budget policy, chaos engineering, dedicated SRE role, capacity forecasting models.
-- **Coordination**: On-call handoff between engineers. Weekly reliability standup (10 min). Postmortem shared in team channel. **Cost**: $100-500/month. SRE is shared responsibility, no dedicated headcount.
-- **Transition trigger**: > 2 SEV1 incidents/month; MTTR > 2 hours; on-call burnout becoming visible.
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Dedicated SRE team (2-4). Full SLO framework with multi-window burn-rate alerts. Error budget policy integrated with deploys. Toil measurement and automation program. Capacity planning with quarterly forecasts. Incident commander training. Chaos engineering gamedays (quarterly). Production readiness reviews.
-- **Overkill**: Multi-region active-active SLOs, dedicated SRE for every product team, enterprise incident management platform.
-- **Coordination**: SRE embedded in product teams (1 SRE per 2-3 teams). Monthly SLO review with product owners. Quarterly capacity review. **Cost**: $600K-1.2M/year (2-4 SREs) + $2-5K/month monitoring/paging.
-- **Transition trigger**: >50 engineers, multiple customer-facing services, contractual SLAs, compliance audit requirements.
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: SRE organization with multiple models (embedded + consulting + platform). Formal error budget governance. Full chaos engineering program with automated experiments. ML-based capacity forecasting. Dedicated incident management function. Reliability North Star metrics at company level. Progressive delivery with automated canary analysis.
-- **What's full production**: Automated error budget enforcement in CD. Continuous verification in production. Dedicated SRE training program. Published reliability reports. Reliability SLOs in sales contracts.
-- **Coordination**: SRE leadership team weekly. Monthly reliability review with CTO. Quarterly capacity and budget review. **Cost**: $3-8M/year (10-25 SREs) + $15-50K/month enterprise monitoring.
-- **Transition trigger**: >200 engineers, multi-product portfolio, 99.99%+ contractual obligations, public company reliability reporting.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You need to define SLIs (latency, error rate, throughput) and set SLO targets for a production service
 - Your error budget is exhausted and you need to decide whether to freeze features or accept risk
@@ -191,9 +170,11 @@ SRE skill scales from managing a single service's reliability to org-wide reliab
 - You need to choose an SRE organizational model (embedded, consulting, or hybrid) for your team structure
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What Should Be an SLI?
+
 ```
 Is this user-visible behavior?
 ├─ YES → SLI candidate
@@ -247,6 +228,7 @@ Error budget consumption rate decision:
 ```
 
 ### 4. Toil: Automate or Accept?
+
 ```
 Is the work manual AND repetitive AND automatable AND without enduring value AND scaling with growth?
 ├─ YES to all 5 → Toil: automate immediately
@@ -277,6 +259,7 @@ Is the incident user-visible?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Reliability Measurement
@@ -335,9 +318,13 @@ Is the incident user-visible?
 4. **Review quarterly**: compare forecast vs. actual; tune model.
    - Output: Capacity planning review dashboard.
   Complete when: 12-month demand forecast is documented with confidence intervals, capacity triggers are automated, and the last quarterly review shows forecast accuracy within 20%.
-
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -346,8 +333,8 @@ Is the incident user-visible?
 | Writing postmortems that blame individuals — "Bob pushed the wrong config" kills psychological safety and guarantees the next incident goes unreported | $100K-$500K in lost engineering trust, unreported incidents, and attrition | Use blameless postmortem format: timeline → contributing factors → systemic fixes; replace "who" with "how did the system allow this"; track action items to completion |
 | Capacity planning based on linear trending — exponential growth from a viral launch exhausts capacity 3 weeks before procurement can deliver | $200K-$1M in lost revenue during capacity-constrained outage | Model 3 scenarios: conservative, expected, aggressive; provision for aggressive when lead time > 30 days; automate horizontal scaling with cluster autoscaler for elastic workloads |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -362,8 +349,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Runbook says "SSH into bastion-prod-01.internal" — but bastion-prod-01 was decommissioned 14 months ago and replaced with SSM Session Manager | The runbook was written when infrastructure was SSH-based. A security initiative replaced all SSH with AWS Systems Manager Session Manager. The runbook was never updated. During a 3 AM incident, the on-call engineer tries `ssh bastion-prod-01.internal`, gets `Connection refused`, and wastes 15 minutes finding the right SSM command | Store runbooks in a versioned repo alongside the infrastructure code that owns the resources. Add a weekly automated validation: run each runbook's connectivity step and alert on failure. Tag runbooks with the last-validated date — auto-deprecate runbooks not validated in 90 days | Runbooks are documentation, and documentation rots at the rate of infrastructure change. A runbook that references decommissioned resources is worse than no runbook — it sends the responder down a dead path during an incident. Validate runbooks or don't write them. |
 | Toil automation saves 20 hours/week — but the automation itself requires 8 hours/week of maintenance because it breaks on every infrastructure change | The toil automation (a Python script that cleans up orphaned EBS volumes) hardcoded AWS region names, account IDs, and tag formats. When the team migrated to a new AWS organization with different tagging, the script failed on 80% of volumes. The "automation" became manual work — debugging why it broke | Make toil automation config-driven: a YAML config file with regions, account IDs, tags, and thresholds. The config is generated from Terraform outputs — infrastructure changes update the config automatically. Add a self-test: the automation validates its config before running and emails the team if config is > 7 days stale | Automation with hardcoded assumptions becomes toil itself. The maintenance burden of the automation must be factored into the "hours saved" calculation. Config-driven automation that derives its configuration from IaC outputs stays current as infrastructure evolves. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Define SLIs from the user's perspective.** Measure latency at the edge (CDN/ALB), error rate from application logs, and saturation from connection pool exhaustion. Load balancer SLIs show "request succeeded at LB" but miss backend 500s.
 2. **Multi-window burn-rate alerting.** Single-window alerts miss slow burns that consume the entire error budget without triggering. Configure 1h + 6h + 24h windows. Critical burn: 2% budget consumed in 1 hour AND 5% in 6 hours.
@@ -376,8 +363,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 9. **On-call is a design constraint, not an afterthought.** Maximum on-call frequency: 1 week per month per engineer. Follow-the-sun rotations across time zones. Shadow/secondary on-call for night hours. Track on-call health metrics (sleep interruption, pages-per-shift) in team retrospectives.
 10. **Chaos engineering with measurement, not just destruction.** Define a steady-state hypothesis measured with SLO metrics. Run with controlled blast radius. Document findings. Automate regression. Chaos without measurement is just breaking things for fun — the hypothesis turns chaos into reliability evidence.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -392,6 +379,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -406,6 +394,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `release-manager` | Error budget status, deploy freeze recommendations, canary rollout gating, deploy risk assessment | Risky releases ship without guardrails — production instability |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -418,11 +407,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | SRE team is a separate silo — product teams throw services over the wall and expect SRE to operate them | Propose embedded SRE model or "SRE consulting" rotation; service owners retain on-call responsibility; SRE provides framework, tooling, and expertise | SRE is cultural, not organizational; reliability must be owned by the teams that build the services |
 | Chaos experiments run ad-hoc without measurement — "we broke it and it recovered, so we're good" | Propose structured chaos engineering: define steady-state hypothesis, measure with SLO metrics, run with controlled blast radius, document findings, automate regression | Chaos without measurement is just breaking things for fun; the hypothesis and measurement turn chaos into reliability evidence |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 1. [ ] **Every critical service has 2-4 SLIs defined** — latency (P95/P99), error rate (5xx), throughput (RPS), saturation (CPU/memory/connection pool). SLIs measured from user perspective, not infrastructure layer.
 2. [ ] **SLO targets set with stakeholder sign-off** — 99.9% availability baseline for customer-facing APIs. SLO stricter than contractual SLA (typically SLO = SLA × 2). Quarterly SLO review with product owners.
@@ -440,12 +431,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 14. [ ] **Reliability roadmap aligned with product roadmap** — reliability features (circuit breakers, retry budgets, graceful degradation) prioritized alongside product features. Error budget consumed intentionally for velocity, not wasted on unreliability.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every service has defined SLIs, SLOs, and error budgets that are reviewed quarterly with stakeholders.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 SRE mastery is built under pressure — but the pressure should come from practice, not from production incidents. The best SREs have rehearsed failure so many times that real incidents feel familiar.
 
@@ -467,7 +460,8 @@ graph LR
 
 **The One Highest-Leverage Activity**: Run a gameday every quarter. Inject a realistic failure scenario into production (with safety guards). The gap between how you think the system fails and how it actually fails is where real reliability work lives.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -478,6 +472,7 @@ graph LR
 | "Error budgets are a compliance checkbox — as long as we're under 100%, we're fine." | Error budget exhaustion isn't a score — it means users experienced real pain. Ignoring a depleted error budget normalizes degradation. $50K-$200K in churn from customers who left because "the service was always slow" and nobody noticed. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Error budgets** are consumed by ALL sources of unreliability, including planned maintenance. A 2-hour planned maintenance window against a 99.9% SLO (43 minutes/month) exhausts the budget in one maintenance. SLOs must either exclude planned downtime or have a high enough target. **Total cost: $25,000-$250,000 per SLO breach in SLA credits, customer churn, and trust erosion.**
 - **SLO-based alerting** with `burn_rate > 14.4` on a 1-hour window catches fast burns, but a slow 1% error rate over a week doesn't trigger until it has already consumed 100% of the monthly error budget. Multi-window alerting (1h + 6h + 24h) catches both fast and slow burns. **Total cost: $15,000-$150,000 in degraded service going undetected for days, compounding customer impact before any alert fires.**
@@ -489,6 +484,7 @@ graph LR
 - **Runbook rot — documentation that drifts from reality** — your team writes excellent runbooks during a post-migration push. Eighteen months later, a disk-full incident triggers the runbook for "Resize EBS Volume." Step 3 says "SSH into bastion-host-prod.internal" — but that bastion was replaced by SSM Session Manager 14 months ago and the hostname no longer resolves. Step 5 says "run `/opt/scripts/extend_lvm.sh`" — but that script was moved to `/usr/local/bin/` during an OS migration and the old path is a no-op stub. The on-call engineer spends 40 minutes troubleshooting the runbook itself before abandoning it and solving the problem from first principles — a 15-minute fix that took 55 minutes. **Total cost: $30K-$100K per incident in extended MTTR from stale runbooks, plus $50K-$200K/year in lost engineering time across all runbook-following incidents.** Fix: Runbook steps must be executable scripts, not prose — if the script doesn't run successfully from the runbook, the runbook is broken; add runbook validation to CI/CD (run runbook steps against staging weekly and flag failures); link every runbook to the alert that triggers it, and test the alert-to-runbook pipeline in game days; add a "last validated" timestamp to every runbook and flag any runbook not validated within 90 days.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] SLI metrics: query Prometheus for 30-day window — SLI correctly measures good events / total events
 - [ ] SLO compliance: error budget remaining > 0 for all services (or documented why budget is exhausted)
@@ -498,10 +494,12 @@ graph LR
 - [ ] Capacity planning: current peak utilization < 60% of provisioned capacity — 2x headroom for failover + growth
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -510,5 +508,4 @@ Detailed reference material loaded on demand:
 - **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

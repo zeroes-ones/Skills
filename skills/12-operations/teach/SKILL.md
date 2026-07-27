@@ -43,8 +43,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Teach the user a new skill or concept over multiple sessions, using the current directory as a stateful teaching workspace. Assess current knowledge, create a learning path, teach one concept per session with practice exercises, track progress across sessions, and adapt based on demonstrated understanding.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules prevent teaching anti-patterns that waste the learner's time and degrade retention.
 
@@ -59,12 +61,12 @@ These rules prevent teaching anti-patterns that waste the learner's time and deg
 | R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R8 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a cognitive learning engineer. Your job is not to dump information — it's to design experiences that produce durable understanding.
 
@@ -75,27 +77,15 @@ You are a cognitive learning engineer. Your job is not to dump information — i
 * **"I understand" is a social signal, not a learning signal.** Learners say they understand to be polite, to avoid appearing slow, or because they THINK they understand (illusion of competence). Only teach-back reveals actual understanding.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Micro-lesson (15 min):** Teach one narrowly scoped concept (a single function, pattern, or command). Pre-assess with 1 question, explain in 5 minutes, practice for 7 minutes, teach-back for 3 minutes.
 * **Standard session (45 min):** Full teaching cycle: review previous, introduce concept, guided practice, independent practice, teach-back, preview next. Updates progress tracker and schedules spaced repetition.
 * **Deep dive (90 min):** For complex concepts that need multiple examples and scaffolded practice. Same structure as standard session but with 3 increasingly difficult practice exercises.
 * **Multi-session curriculum (5-20 sessions):** Full learning path with pre-assessment, structured curriculum, progress tracking, spaced repetition scheduling, and capstone project. Coordinates with handoff for session continuity.
 
-### Scale Depth
-
-#### Solo
-Self-directed learning for one person. A single `.teach/` workspace, self-administered pre-assessment, and honest teach-back self-evaluation. Focus: discipline in sticking to one concept per session, scheduling and honoring spaced repetition reviews, and resisting the temptation to skip practice. The learner is also the teacher — the primary risk is self-assessment deception.
-
-#### Small Team (2-15)
-Team knowledge transfer with dedicated teaching sessions. Peer teach-back, pair practice, and shared progress tracking. Focus: distributing expertise systematically (not just "sit with the expert"), building team-wide foundational knowledge that later sessions depend on, and identifying prerequisite gaps across team members. Risk: varying pace — one team member's gap analysis can stall the group.
-
-#### Medium Organization (15-100)
-Structured learning programs across multiple teams. Curriculum design with dependency-aware concept sequencing, cohort-based delivery with standardized assessments, and teaching effectiveness metrics. Focus: scaling expertise without diluting quality, maintaining instructor consistency across cohorts, and measuring knowledge retention at 30/90/180 days. Risk: curriculum ossification — the learning path outlasts the technology it teaches.
-
-#### Enterprise (100+)
-Organization-wide learning infrastructure. LMS integration, certification-aligned curricula, automated spaced repetition scheduling, and learning analytics dashboards. Focus: learning as a strategic capability — reducing time-to-competency for new hires, preserving institutional knowledge during turnover, and measuring the ROI of training investment. Risk: compliance theater — completion rates replace demonstrated mastery. Keep teach-back as the invariant.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use teach when the goal is durable skill acquisition over multiple sessions — not quick answers.
 
@@ -110,6 +100,7 @@ Use teach when the goal is durable skill acquisition over multiple sessions — 
 Do NOT use teach for one-time Q&A about a specific error or syntax question (route to the appropriate domain skill). Do NOT use for pair programming on a real task. Do NOT use for code review feedback (route to code-reviewer). Do NOT use for reading documentation together.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts
 
@@ -132,6 +123,7 @@ What are you trying to learn?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -162,6 +154,7 @@ Execute before any teaching begins.
    |-- Identify prerequisite gaps: gaps that block learning other concepts
    |-- Record in .teach/gap-analysis.md
 ```
+
   Complete when: Learning goal defined, current knowledge assessed via demonstrations, gaps identified and recorded in gap analysis document.
 
 ### Phase 2: Build Learning Path
@@ -190,6 +183,7 @@ Transform gaps into a sequenced curriculum.
    |-- Complex concept: 1-2 sessions (45-90 min each)
    |-- Total: [N] sessions, estimated [X] calendar days (with spacing)
 ```
+
   Complete when: Concepts sequenced by dependency with session designs, practice exercises, and pace estimates for each concept in learning path.
 
 ### Phase 3: Teach Session
@@ -229,9 +223,16 @@ One concept per execution of this phase. Re-enter for each session.
    |-- Update .teach/progress.md: session complete, mastery rating, next review dates
    |-- Schedule spaced repetition entries for this concept
 ```
+
   Complete when: Learner demonstrates understanding via teach-back, progress recorded in teach workspace, and spaced repetition entries scheduled.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -411,8 +412,9 @@ One concept per execution of this phase. Re-enter for each session.
                                                └──────────┘
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -429,6 +431,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -438,13 +441,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Teaching for certification | project-manager | Align curriculum with certification domains and timeline |
 | Teaching as knowledge transfer from departing team member | handoff | Capture expert knowledge as curriculum before it walks out the door |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -455,13 +457,16 @@ If a command or approach fails, follow this escalation path before giving up:
 | P5 | Pre-assessment score was high but teach-back reveals surface understanding | [ALERT] Illusion of competence detected. Switch from explanation to practice-heavy sessions. |
 | P6 | Learner asks to skip practice "because it makes sense" | [BLOCK] Practice is the learning, not the assessment. Minimum 1 exercise per concept. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### Before (Information Dump)
+
 ```
 Teacher: "Async/await is syntactic sugar over promises. Promises have three
          states: pending, fulfilled, rejected. You create a promise with
@@ -476,6 +481,7 @@ Problems: 5+ concepts in one explanation, no practice, "I think I get it" accept
 ```
 
 ### After (Teach Session)
+
 ```
 SESSION 1: Promises (one concept)
 
@@ -504,6 +510,7 @@ RECORD: .teach/progress.md → Promises: MASTERED (5/5).
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: Pre-Assessment Question Design (15 min)
 Choose a topic you know well. Write 5 pre-assessment questions at different levels (beginner to expert). For each, write what a correct answer reveals and what a wrong answer reveals about the learner's gaps.
@@ -520,7 +527,8 @@ Teach a concept to a colleague. Record their teach-back. Rate it using the Teach
 ### Exercise 5: Curriculum Compression (15 min)
 Take a 10-session curriculum. For each session, ask: "Could the learner figure this out from the previous concept + documentation?" If yes, replace the session with a curated reference + check-in question. How many sessions remain?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -531,6 +539,7 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 | "They'll pick up the jargon from context" | Three unfamiliar terms in one explanation creates cognitive overload — the learner stops listening and starts managing anxiety at $1K-$5K in learner drop-off from exclusionary language. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Pre-assess before teaching.** Always run a 5-8 question diagnostic before session 1. Mix beginner, intermediate, and advanced questions — ask for demonstrations, not self-ratings ("Write a function that..." not "Rate your Python 1-10"). Teaching at the wrong level wastes the session: too easy = boredom, too hard = frustration.
 
@@ -553,6 +562,7 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 10. **End every session with a concrete next step and preview.** Tell the learner exactly what to practice before the next session — a specific exercise, not "review the material." Preview the next session's topic in 1-2 sentences to activate prior knowledge schemas. The gap between sessions is where consolidation happens — structure it intentionally.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **The "cram session" illusion.** Covering 3 concepts in one session FEELS productive — the learner nods along, the explanations are clear, everyone feels good. But 24 hours later, retention is <15% across all 3 concepts. A team that crammed a 2-day React workshop with 12 concepts found that 2 weeks later, developers could only demonstrate competence in 2 of the 12. **Total cost: $5,000-$15,000 per workshop in training investment with <20% ROI. Fix: one concept per session, spaced over time. Twelve 45-minute sessions over 6 weeks > one 2-day workshop.**
 
@@ -567,6 +577,7 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 - **The jargon cascade.** Explaining "closures" using "lexical scope," "execution context," and "variable environment" teaches the learner that they don't belong here. Three unfamiliar terms in one explanation creates cognitive overload — the learner stops listening and starts managing their anxiety about not understanding. **Total cost: $1,000-$5,000 in learner drop-off when jargon-heavy explanations create an exclusionary learning environment. Fix: maintain a known-vocabulary list in `.teach/vocabulary.md`. Never use more than 1 new term per explanation, always define it first.**
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -577,6 +588,7 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 | Curriculum pacing feels wrong — either too fast or too slow | The original learning path was designed before the learner's actual pace and gaps were known. After 5+ sessions, the mismatch between planned curriculum and demonstrated mastery becomes significant | Run the Curriculum Adaptation decision tree: (a) Check prerequisite gaps — is the learner missing a foundational concept? (b) Check pace — compare planned vs actual sessions per concept. (c) Ask the learner: "What's working? What's not?" Update `.teach/learning-path.md` | A curriculum is a hypothesis, not a contract. It predicts what the learner needs to learn in what order. After 5 sessions, the data (teach-back scores, exercise completion, session duration) should override the original plan |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -594,20 +606,9 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 - [ ] **Session state preserved:** Each session ends with: (a) concept taught, (b) teach-back score, (c) exercises completed, (d) next session preview, (e) practice assignment for the gap period
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass
 
-### Scale Depth
-
-Teaching scales from a single 15-minute micro-lesson to a multi-month curriculum with progress tracking and spaced repetition. Match approach to the learner's time commitment and goal complexity.
-
-| Scale | Scope | Structure | Duration |
-|-------|-------|-----------|----------|
-| **Micro-lesson** | One narrow concept (a single function, pattern, or command) | Pre-assess (1 question) → Explain (5 min) → Practice (7 min) → Teach-back (3 min) | 15 minutes |
-| **Standard session** | One concept with guided and independent practice | Review previous → Introduce concept → Guided practice → Independent practice → Teach-back → Preview next | 45 minutes |
-| **Multi-session sprint** | 3-5 related concepts over a week | Sessions daily with pre-assessment on day 1 and capstone on day 5. Spaced repetition reviews built into each session start | 5 sessions, 1 week |
-| **Full curriculum** | 10-20 concepts over 6-12 weeks | Pre-assessment → Learning path → Weekly sessions → Spaced repetition → Mid-curriculum adaptation → Capstone project | 10-20 sessions, 2-3 months |
-
-**Scaling rule:** Longer curricula require more adaptation. A 20-session path designed on day 1 will be wrong by session 10 because the learner has changed. Reassess pacing, prerequisites, and goals every 5 sessions. The curriculum is a hypothesis, not a contract.
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -616,6 +617,7 @@ Teaching scales from a single 15-minute micro-lesson to a multi-month curriculum
 | Not verifying understanding via teach-back | $40K-$160K in surface-level comprehension | Every session ends with a teach-back: learner explains in their own words — repeat if accuracy < 90% |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **Workspace exists:** `.teach/` directory present with all required files. Run `ls .teach/pre-assessment.md .teach/learning-path.md .teach/progress.md`.
 - [ ] **Pre-assessment complete:** At least 5 questions asked and answered covering multiple skill levels.
@@ -627,10 +629,12 @@ Teaching scales from a single 15-minute micro-lesson to a multi-month curriculum
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [pre-assessment.md](references/pre-assessment.md) — Pre-assessment question design, knowledge elicitation techniques, and gap analysis framework
 * [learning-paths.md](references/learning-paths.md) — Curriculum design: concept sequencing, session templates, and path adaptation

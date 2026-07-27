@@ -46,6 +46,7 @@ Meta-research skill for discovering, evaluating, and recommending the best tools
 #
 
 ## Cross-skills Integration
+<!-- STANDARD: 3min -->
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -62,12 +63,14 @@ Common chains:
 - **Chain**: frontend-developer → explore-tools → frontend-developer — Dev identifies a need (state management, UI library); explore-tools evaluates options; dev integrates the winner.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 Evaluate these conditions in order. First match wins — jump immediately.
 
 | # | Condition | Action |
@@ -85,6 +88,7 @@ Evaluate these conditions in order. First match wins — jump immediately.
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 If no auto-route matched, use this intent tree:
 
 ```
@@ -113,6 +117,7 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -139,6 +144,7 @@ These rules are negative constraints — they define what you MUST NOT do, with 
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of tool evaluation don't just compare features — they evaluate **total cost of ownership, maintenance risk, community trajectory, and escape hatches**. They think in trade-offs, not absolutes.
 
@@ -154,6 +160,7 @@ Masters of tool evaluation don't just compare features — they evaluate **total
 #
 
 ## What Masters Know That Others Don't
+<!-- STANDARD: 3min -->
 - The **failure modes** of every tool in their stack — what breaks at scale, what's hard to debug, what gets expensive
 - When **not** to use their favorite tool (every tool has a misuse zone — know where it is)
 - That **cost curves are nonlinear** — a tool that costs $0 at 1K users can cost $5,000/month at 100K users
@@ -163,6 +170,7 @@ Masters of tool evaluation don't just compare features — they evaluate **total
 #
 
 ## When to Break Your Own Rules
+<!-- STANDARD: 3min -->
 - **Move fast on reversible decisions.** Which logging library? Easy to change. Which database? Hard. Know the difference.
 - **Skip exhaustive evaluation for commoditized categories.** HTTP clients, testing libraries, linting — pick the popular, maintained one and move on.
 - **Go deep for architectural decisions.** Database, framework, cloud provider, auth — these are 5+ year commitments. Invest the evaluation time.
@@ -179,41 +187,156 @@ Masters of tool evaluation don't just compare features — they evaluate **total
 - Don't use for evaluating architecture patterns (invoke system-architect) or team processes (invoke project-manager)
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
-Detailed reference material
+### Decision Tree 1: Tool Discovery Strategy
 
-> 📎 Full content extracted to [references/decision-trees.md](references/decision-trees.md) — 284 lines of detailed guidance, patterns, and code examples.
+```
+        ┌── INPUT: "I need a tool for X"
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Specific domain known       Vague request
+(e.g., "ORM for Node.js")   (e.g., "better logging")
+   │                         │
+   ▼                         ▼
+Phase 2: Direct comparison   Phase 1: Domain scoping
+   │                         │
+   ├─ Search registry (npm,   ├─ Clarify: language? scale?
+   │  PyPI, crates.io)        │  constraints? budget?
+   ├─ Filter by maintenance   ├─ Narrow to 2-3 specific
+   │  (commits < 6mo)         │  tool categories
+   ├─ Check CVE history       └─ Then → Phase 2
+   └─ Compare: bundle size,
+      license, pricing
+```
+
+### Decision Tree 2: Adoption Risk Assessment
+
+```
+        ┌── INPUT: Candidate tool for adoption
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+RISK SCORE < 30             RISK SCORE 30-60
+(LOW RISK)                  (MODERATE RISK)
+   │                         │
+   ▼                         ▼
+Recommend with               Recommend with caveats:
+standard caveats             │
+   │                         ├─ Mitigation plan required
+   │                         ├─ Set migration trigger
+   │                         └─ Quarterly reassessment
+                             │
+                        ┌────┴────┐
+                        │         │
+                        ▼         ▼
+                   RISK SCORE > 60 (HIGH RISK)
+                        │
+                        ▼
+                   REJECT — Do not adopt
+                   Present 2+ safer alternatives
+```
+
+### Decision Tree 3: Tool Replacement vs. Migration
+
+```
+        ┌── INPUT: "Replace/upgrade/migrate from [Tool A]"
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+In-place replacement        Full migration
+(drop-in API compat)        (breaking changes)
+   │                         │
+   ▼                         ▼
+Phase 3: Quick swap          Phase 4: Migration planning
+   │                         │
+   ├─ Verify API parity      ├─ Strangler Fig pattern
+   ├─ Run test suite         ├─ Dual-write period
+   ├─ Benchmark comparison   ├─ Gradual cutover
+   └─ Deploy with rollback   └─ Deprecation timeline
+```
+
+### Decision Tree 4: License Compatibility Check
+
+```
+        ┌── INPUT: Tool license type
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+MIT / Apache 2.0 / ISC     GPL / AGPL / BUSL / SSPL
+   │                         │
+   ▼                         ▼
+SAFE for all use            CONTEXT MATTERS:
+   │                         │
+   │                    ┌────┴────┐
+   │                    │         │
+   │                    ▼         ▼
+   │               Open-source  Commercial/
+   │               project?     proprietary?
+   │                    │         │
+   │                    ▼         ▼
+   │               Compatible    REJECT or legal
+   │               (same license) review required
+   │
+   ▼
+Proceed to next check
+```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **Input:** User's request for tool discovery (natural language query)
 
 > 📎 See [references/core-workflow.md](references/core-workflow.md) for complete guidance (142 lines).
 ## Adoption Risk Assessment Framework
+<!-- STANDARD: 3min -->
 
 Score each tool on this risk matrix before recommending adoption:
 
 > 📎 Full content extracted to [references/adoption-risk-assessment-framework.md](references/adoption-risk-assessment-framework.md) — 43 lines of detailed guidance, patterns, and code examples.
 
 ## Cost Optimization Matrix
+<!-- STANDARD: 3min -->
 
 For ANY tool category, provide a cost ladder from $0 to enterprise. Below are re...
 
 > 📎 Full content extracted to [references/cost-optimization-matrix.md](references/cost-optimization-matrix.md) — 75 lines of detailed guidance, patterns, and code examples.
 
 ## Tool Discovery Sources
+<!-- STANDARD: 3min -->
 
 Detailed reference material
 
 > 📎 Full content extracted to [references/tool-discovery-sources.md](references/tool-discovery-sources.md) — 72 lines of detailed guidance, patterns, and code examples.
 
 ## Gotchas — Dollar-Quantified Footguns
+<!-- STANDARD: 3min -->
 
 | # | Gotcha | Footgun Detail | Dollar Impact | Prevention |
 
 > 📎 Full content extracted to [references/gotchas---dollar-quantified-footguns.md](references/gotchas---dollar-quantified-footguns.md) — 16 lines of detailed guidance, patterns, and code examples.
 
-## Anti-Rationalization — No Excuses
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Popularity as proxy for quality — adopting a package with millions of downloads that's unmaintained | $50K-$200K in migration costs when abandoned package blocks security patches; `moment.js` at 47K stars when deprecated, `left-pad` broke the internet when unpublished | Run Adoption Risk Assessment on every candidate: check last commit date, open issues/PRs, CVE history, bus factor (number of maintainers). Popularity is a data point, not a verdict |
+| Free tier limits not checked before adoption — production breaks during viral traffic spike | $30K-$150K in emergency migration costs during peak traffic; Vercel Hobby prohibits commercial use, MongoDB Atlas free limits at 512MB, Auth0 free at 7K MAU | Read pricing page before adopting. Know exact limit numbers. Set billing alerts at 50% of free tier. Test what happens at limit (throttling? hard cutoff? auto-upgrade?). Budget for paid tier |
+| "Ship now, optimize later" with wrong tool choice — Firebase for SQL-heavy app, monolithic CMS for microservices | $200K-$1M in rewrite costs; the tool you choose defines your ceiling. Firebase → no SQL queries. Monolithic CMS → no microservices without full rewrite | Choose composable over monolithic. Prefer standard protocols (REST, GraphQL, gRPC) over proprietary APIs. Ask: "What does this tool prevent at 10x scale?" before adopting |
+| License compatibility ignored — GPL dependency contaminates proprietary codebase | $50K-$500K in legal remediation; GPL copyleft requires derivative works to also be GPL. MIT/Apache 2.0 are safe. AGPL triggers for SaaS. SSPL/Business Source License have restrictions | Check SPDX license identifier for every dependency. Use `license-checker` or `fossa-cli`. Legal review for any non-permissive license. Prefer MIT, Apache 2.0, BSD, ISC |
+| Bundle size unexamined — `lodash` (70KB) imported for a single function, `moment.js` (230KB) for date formatting | $10K-$50K in degraded Core Web Vitals; 70KB per unused dependency × 5 dependencies = 350KB wasted, pushing LCP past 2.5s threshold and hurting SEO | Check bundle size via `bundlephobia.com` or `webpack-bundle-analyzer`. Use tree-shakeable imports. Replace heavy libraries: `date-fns` (2KB per function) for `moment.js`, native APIs for `lodash` utilities |
+| Supply chain attack via compromised maintainer — `event-stream` had 2M weekly downloads when malicious code was injected | $100K-$2M in breach costs; compromised package exfiltrated Bitcoin wallet credentials for 3 months before detection | Lock dependencies with lockfiles + integrity hashes. Use `npm audit` / `pip-audit` / ` cargo audit`. Pin specific versions, not ranges. Monitor for suspicious maintainer changes. Use Socket.dev for supply chain analysis |
+| Over-engineering for the current scale — Kubernetes cluster for a 2-person startup's static site | $20K-$80K/year in unnecessary infrastructure costs; $200/month K8s cluster vs $5/month static hosting for same outcome | Match infrastructure to current scale + 12-month projection. Start with simplest option. Migrate when current tool's limits are actually hit. 80% of projects never need to scale beyond the first tier |
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 <!-- Every rationalization here has destroyed real projects. These are not hypothetical. -->
 
@@ -229,24 +352,45 @@ Detailed reference material
 | **"The benchmarks look great"** | Objective data feels trustworthy. Numbers don't lie. The benchmark shows 10x faster performance than alternatives. | Benchmarks are crafted to make the benchmarked tool look good. They test the happy path on the author's machine with ideal conditions. Production is nothing like a benchmark: cold starts, GC pauses, network latency, concurrent load, cache misses. Fastify's benchmark shows it's 2x faster than Express — but in production, 95% of request time is database + network, so the framework speed difference is <5% of total latency. | Read benchmarks critically: (1) Was the benchmark run by the tool's author? (bias) (2) Does it test realistic production workloads? (query + serialize + network, not just hello world) (3) Is the difference meaningful in YOUR context? A 10x improvement on a 1ms operation saves 0.9ms — less than the variance from GC. Focus on the bottleneck, not the microbenchmark. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **Symptom:** `node-gyp rebuild` errors, missing Python/make/gcc, `nan` deprecati...
 
 > 📎 Full content extracted to [references/error-recovery.md](references/error-recovery.md) — 78 lines of detailed guidance, patterns, and code examples.
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when At least 3 alternatives evaluated for every tool recommendation | Output contains comparison table with 3+ candidates, not a single recommendation |
+| ☐ | Complete when Last commit date checked for all recommended tools | `git log --since='6 months ago'` on each tool repo returns commits |
+| ☐ | Complete when CVE database checked for HIGH/CRITICAL vulnerabilities | Each recommended tool has zero unresolved HIGH or CRITICAL CVEs |
+| ☐ | Complete when Bundle size verified for all frontend library recommendations | bundlephobia.com result included for each npm package |
+| ☐ | Complete when License compatibility confirmed for project context | MIT/Apache 2.0/ISC verified; GPL/AGPL/BUSL flagged with alternatives |
+| ☐ | Complete when Pricing documented: free tier limits, paid starts at, hidden costs, 1yr/3yr TCO | Cost breakdown present for every recommended tool |
+| ☐ | Complete when Verification disclaimer included with registry link and training cutoff date | "⚠️ Verification required: Check [tool] at [URL]. Last verified: [date]" |
+| ☐ | Complete when Adoption risk score calculated (maintenance, security, community, license, lock-in) | Risk matrix with 5-dimension scores for each candidate |
+| ☐ | Complete when Cost-first alternatives offered for MVP/early-stage projects | Free/OSS alternative presented before paid tool for pre-revenue contexts |
+| ☐ | Complete when Comfort bias check performed — 2 alternatives evaluated before defaulting to familiar tool | Recommendation includes explicit "Why not [familiar tool]" analysis |
+
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 | # | Guardrail | Check |
 
 > 📎 Full content extracted to [references/verification-guardrails.md](references/verification-guardrails.md) — 40 lines of detailed guidance, patterns, and code examples.
 
 ## Stay-Current Strategy
+<!-- STANDARD: 3min -->
 
 - **GitHub Stars:** Check your starred repos for new releases. GitHub's "release...
 
 > 📎 Full content extracted to [references/stay-current-strategy.md](references/stay-current-strategy.md) — 41 lines of detailed guidance, patterns, and code examples.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 How tool selection criteria evolve as your organization and system grow.
 
@@ -268,6 +412,7 @@ How tool selection criteria evolve as your organization and system grow.
 #
 
 ## Key Insight: The Tool-Cost Inversion Point
+<!-- STANDARD: 3min -->
 
 At small scale, free/OSS tools are cheap and engineering time is abundant. At enterprise scale, engineering time is expensive ($150-300/hr fully loaded) and tool costs are a rounding error. The inflection point is around 20-50 engineers.
 
@@ -276,18 +421,18 @@ At small scale, free/OSS tools are cheap and engineering time is abundant. At en
 **Enterprise Rule:** Compliance, security, and reliability dominate. The cost of a breach ($4M+ average) or compliance failure ($20M GDPR fine) dwarfs any tool cost. Pay for enterprise-grade tools with SLAs, audits, and dedicated support.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 - **Gate 1 — Requirements Defined:** Tool discovery requires clear problem definition, budget constr...
 
 > 📎 See [references/cross-skill-coordination.md](references/cross-skill-coordination.md) for complete guidance (55 lines).
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These are signals that should trigger the explore-tools specialist to investigate — no one needs to tag you; you should be watching for these.
 
@@ -301,12 +446,14 @@ These are signals that should trigger the explore-tools specialist to investigat
 > 📎 Full content extracted to [references/proactive-triggers.md](references/proactive-triggers.md) — detailed trigger scenarios, escalation paths, and response playbooks.
 
 ## Sub-Skills Table
+<!-- STANDARD: 3min -->
 
 | Sub-Skill | When to Use | Input | Output |
 
 > 📎 Full content extracted to [references/sub-skills-table.md](references/sub-skills-table.md) — 16 lines of detailed guidance, patterns, and code examples.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -322,24 +469,28 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Performance benchmarks from the tool vendor show "5x faster than competitor." Real-world benchmark on actual workload: 40% of claimed speed. The vendor benchmark used a trivial use case that doesn't match your production data patterns | Vendor benchmarks are marketing, not engineering. They're designed to showcase the tool's strengths on idealized data, not its behavior on your actual workload. No independent benchmarking on your data before recommendation | Always run your own benchmark: use a representative subset of your production data and workload patterns. Test edge cases: large files, high concurrency, unusual data formats. Run the benchmark for at least 30 minutes to capture steady-state performance, not just startup speed. Present results with methodology so stakeholders can reproduce. "5x faster" from a vendor slide deck is not evidence | Vendor benchmarks are designed to make the vendor look good. Your workload is different from their benchmark workload in ways that matter. The only performance number that counts is the one you measured yourself on your own data. "Trust but verify" becomes "verify, then maybe trust" |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Evidence over popularity.** Never recommend a tool because "everyone uses i...
 
 > 📎 Full content extracted to [references/best-practices.md](references/best-practices.md) — 21 lines of detailed guidance, patterns, and code examples.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 | # | Checklist Item | Verification Method |
 
 > 📎 Full content extracted to [references/production-checklist.md](references/production-checklist.md) — 21 lines of detailed guidance, patterns, and code examples.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When tool evaluation is embedded in the development lifecycle, every significant dependency choice is backed by evidence, cost analysis, and an exit strategy. Developers don't default to familiar tools — they evaluate alternatives and choose deliberately. Quarterly audits catch abandoned dependencies before they become emergencies. Cost ladders make budget conversations data-driven instead of vendor-pitch-driven.
 
 #
 
 ## Signs of Excellence
+<!-- STANDARD: 3min -->
 
 - **Every ADR cites at least 3 evaluated alternatives** with specific trade-offs, not just "we chose X because everyone uses it."
 - **Dependency manifests pass automated health checks** on every CI run: `npm audit` returns zero HIGH/CRITICAL, `license-checker` returns only approved licenses, Socket.dev scan passes.
@@ -353,6 +504,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 #
 
 ## Signs of Dysfunction
+<!-- STANDARD: 3min -->
 
 - Tool choices are made by "what I know" or "what's popular" without evaluation. | **Fix:** Force evaluation of 2 alternatives before any adoption decision.
 - Dependency versions are 2+ major releases behind without a documented reason. | **Fix:** Run `npm outdated` or `pip list --outdated` and triage each outdated package.
@@ -362,6 +514,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - "We can't migrate because we're too deeply integrated." | **Fix:** This is the exit cost you failed to plan for. For all future tool choices, document the migration path BEFORE adopting.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -378,6 +531,8 @@ graph LR
 **The One Highest-Leverage Activity:** Once per quarter, take a tool your team adopted more than 12 months ago and run a "re-adoption" evaluation. Would you choose it today? If not, what changed? This catches "zombie tools" — tools that were right at adoption time but are now outclassed by newer alternatives.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | # | Decision | Rationale | Alternatives Considered | Timestamp |
 |---|----------|-----------|------------------------|-----------|
@@ -389,6 +544,7 @@ graph LR
 - If revisiting a decision, add a NEW row (do not edit the old one)
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -398,7 +554,6 @@ Detailed reference material loaded on demand:
 - **Deliberate Practice**: See [deliberate-practice.md](references/deliberate-practice.md)
 - **Error Recovery**: See [error-recovery.md](references/error-recovery.md)
 - **Gotchas**: See [gotchas.md](references/gotchas.md)
-- **Scale Depth: Operating at Different Levels**: See [scale-depth.md](references/scale-depth.md)
 - **State Log**: See [state-log.md](references/state-log.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Verification Guardrails**: See [verification-guardrails.md](references/verification-guardrails.md)
@@ -407,18 +562,22 @@ Detailed reference material loaded on demand:
 #
 
 ## Core Methodology
+<!-- STANDARD: 3min -->
 
 #
 
 ## Ecosystem-Specific Guides
+<!-- STANDARD: 3min -->
 
 #
 
 ## Tool Category Deep Dives
+<!-- STANDARD: 3min -->
 
 #
 
 ## External Resources
+<!-- STANDARD: 3min -->
 - **npm trends**: npmtrends.com — compare npm package popularity over time
 - **bundlephobia**: bundlephobia.com — find the cost of adding an npm package to your bundle
 - **libraries.io**: libraries.io — dependency health across 30+ package managers

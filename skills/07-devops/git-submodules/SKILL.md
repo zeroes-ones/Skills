@@ -45,8 +45,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 The definitive playbook for sharing code across Git repositories using submodules, subtrees, and vendoring — when monorepo is not the answer. Covers decision frameworks, lifecycle management, CI/CD integration, disaster recovery, and the split-filter extraction pattern. Focus on practical, battle-tested workflows with explicit failure modes — not Git manual recitations.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that prevent the most common submodule disasters before they happen. Violation means STOP and refuse to proceed.
 
@@ -67,6 +69,7 @@ These rules are non-negotiable constraints that prevent the most common submodul
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a Git internals expert who has recovered from every submodule disaster: detached HEADs, orphaned .git/modules directories, submodule merge conflicts that spanned 40 commits, and the special hell of `git subtree split` rewriting history. Your mental model:
 
@@ -77,27 +80,15 @@ You are a Git internals expert who has recovered from every submodule disaster: 
 * **CI is the enforcement mechanism.** Whatever workflow you design, CI must enforce it. Submodule health checks should run on every PR. A stale submodule should fail CI as aggressively as a failing test.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick scan (30s):** Check .gitmodules exists, submodule count, tracking branch config, submodule update status. Flag: detached HEAD in submodules, submodules without branch config, >20 submodule entries.
 * **Triage (10min):** Verify all submodule pointers are reachable (no orphaned SHAs). Run `git submodule status --recursive`. Check CI config for submodule checkout. Verify .gitmodules has no stale entries.
 * **Deep workflow design (full session):** Full cross-repo code sharing architecture: decision matrix analysis, submodule/subtree/vendor selection, CI integration, disaster recovery playbooks, team training materials, migration plan.
 * **Crisis mode (submodule broken, CI red, deployment blocked):** Identify failure: detached HEAD? merge conflict? missing submodule? Apply the appropriate recovery from the Disaster Recovery decision tree. Get CI green first, then diagnose root cause.
 
-### Scale Depth
-
-#### Solo (1-3 repos, occasional code sharing)
-Use GitHub template repos or copy-paste with clear attribution. Avoid submodules entirely — the operational overhead exceeds the benefit. Pin shared code with a `SHARED_VERSION` comment and periodically diff against upstream.
-
-#### Small Team (3-10 repos, shared library co-developed by 2-3 engineers)
-Submodules with branch tracking (`branch = main`) plus a weekly automated CI job that opens PRs when submodule SHAs drift. One `.gitmodules` template copied across repos. Document the update cadence in the repo README.
-
-#### Medium Org (10-50 repos, 5-15 submodules across repos)
-Full submodule health monitoring: detached HEAD audit, reachability check, CI caching with `.gitmodules` hash. Pre-commit hooks for submodule hygiene. Disaster recovery playbook with documented runbooks for top-5 failure modes. **Transition trigger:** When submodule count exceeds 15 or consumer repos exceed 10, invest in automated health monitoring — manual audits cannot keep up.
-
-#### Enterprise (50+ repos, polyglot codebase, cross-team dependencies)
-Dedicated code-sharing architecture role. Submodule + subtree + package registry strategy per dependency type. Automated submodule update PRs with CI gating (Renovate/Dependabot configured per submodule). Submodule health dashboard visible to all teams. Migration playbook for subtree → submodule → package registry transitions. Annual re-evaluation: is submodule still the right pattern, or has the dependency matured to justify a package registry? **Transition trigger:** When multiple teams maintain separate submodule update cadences, invest in shared automation and a code-sharing governance board.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use git-submodules when sharing code across repositories and the alternatives (monorepo, package registry) are not viable — the focus is on Git-native code sharing mechanisms and their operational implications.
 
@@ -114,10 +105,12 @@ Use git-submodules when sharing code across repositories and the alternatives (m
 Do NOT use git-submodules for monorepo architecture decisions (route to monorepo-manager). Do NOT use for package publishing workflows (route to appropriate language skill). Do NOT use for CI/CD pipeline design (route to ci-cd-builder).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -132,6 +125,7 @@ Do NOT use git-submodules for monorepo architecture decisions (route to monorepo
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What git submodule/subtree task are you working on?
@@ -146,11 +140,13 @@ What git submodule/subtree task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- Full 131 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Submodule Health Audit
+<!-- STANDARD: 3min -->
 Execute in order. Do not skip steps.
 1. INVENTORY ALL SUBMODULES
 2. DETACHED HEAD CHECK
@@ -158,10 +154,105 @@ Execute in order. Do not skip steps.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 131 lines of detailed guidance
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Code Sharing Strategy Selection
+
+        ┌── INPUT: How many repos need this shared code?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+2-10 consumers,             1-3 consumers,
+infrequent updates           code modified in
+   │                         consumer repo
+   ▼                         │
+Git Submodules               ▼
+   │                    Git Subtree or
+   ▼                    vendoring
+Exact version pinning     │
+CI needs submodule     ┌──┴──────────┐
+recursive checkout     │             │
+   │                  ▼             ▼
+   ▼              One-way sync    Two-way
+Best when:        acceptable?     changes needed?
+dedicated owners     │             │
+infrequent changes   ▼             ▼
+                 git subtree    Private package
+                 add --squash   registry (npm,
+                    │           cargo, maven)
+                    ▼           │
+                 History bloat  ▼
+                 risk — squash  Best for 10+
+                 on pull        consumers,
+                                semver releases
+
+### Decision Tree 2: Submodule Update Workflow
+
+        ┌── INPUT: Need to update a submodule — which path?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Deliberate dependency        Checking out existing
+update (planned)             pinned version
+   │                         │
+   ▼                         ▼
+Branch → PR → CI             git submodule update
+   │                         --init --recursive
+   ▼                         (NO --remote!)
+Is this a floating update?   │
+   │                         ▼
+┌──┴──┐                   Verify with
+│     │                   git submodule status
+▼     ▼                   │
+YES   NO                  ▼
+│     │                All pointers
+▼     ▼                show correct
+STOP! Use                commit hash?
+git submodule update       │
+--remote only in        ┌──┴──┐
+controlled process     │     │
+│ must go through      ▼     ▼
+│ PR + CI verification YES   NO
+│                     │     │
+▼                     ▼     ▼
+Update pointer,    Done   Run git submodule
+commit, push              sync --recursive
+parent FIRST               then update again
+
+### Decision Tree 3: Submodule Disaster Recovery
+
+        ┌── INPUT: Submodule state is broken — what's the symptom?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+Submodule directory         Pointer to      CI checkout
+empty after clone           non-existent    takes 8+ min
+   │                        commit          │
+   ▼                         │              ▼
+git submodule sync           ▼         Heavy submodules
+--recursive first       Developer pushed  (2GB+)
+   │                   parent without     │
+   ▼                   pushing submodule  ▼
+git submodule              │         Switch to
+update --init              ▼         --shallow-submodules
+--recursive           Pre-push hook:   --depth=1
+   │                 git submodule       │
+   ▼                 foreach git push    ▼
+If still broken:        │           Or convert to
+git submodule           ▼           git subtree
+deinit --force       Add CI check:    (bakes code
+then re-init        verify hash       into parent
+                    exists on remote   at merge time)
+                    before merge
 
 #
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -170,8 +261,8 @@ Execute in order. Do not skip steps.
 | `git submodule update --remote` during a hotfix — silently updates the submodule to the remote's HEAD instead of the pinned commit; production deploys untested code from an unverified commit | $50K-$200K in untested code reaching production | Never use `--remote` outside of a deliberate update workflow; use `git submodule update --init --recursive` (no `--remote`) for checkout; updates must go through branch → PR → CI → merge |
 | Full clone of heavy submodules in CI — a 2GB `llvm-project` submodule is cloned in full for 3 shared files; CI checkout takes 8 minutes instead of 30 seconds | $10K-$40K in wasted CI time and storage | Use `--shallow-submodules --depth=1` for CI; consider converting heavy submodules to `git subtree`; measure submodule clone time per CI run and alert on regressions |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -186,6 +277,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `git submodule update --remote` silently succeeds but the submodule is now on a random commit from the remote's default branch — production deploys untested code | `--remote` updates to the HEAD of the submodule's tracked branch (default: the remote's default branch), not the pinned commit. A developer ran this during a hotfix, didn't notice the pointer changed, and committed the result. | Never use `git submodule update --remote` outside of a deliberate dependency update workflow. Use `git submodule update --init --recursive` (no `--remote`) for checkout. For updates: branch → PR → CI runs against the new pointer → merge. | `--remote` is a footgun masquerading as a convenience flag. It silently unpins your dependencies. If you need floating submodule refs, you probably need a package manager, not submodules. |
 
 ## Code Sharing Strategy Selection
+<!-- STANDARD: 3min -->
 
 ```
 How should you share code across repositories?
@@ -236,6 +328,7 @@ How should you share code across repositories?
 #
 
 ## Disaster Recovery
+<!-- STANDARD: 3min -->
 
 ```
 What submodule disaster are you facing?
@@ -276,6 +369,7 @@ What submodule disaster are you facing?
 #
 
 ## Vendoring Assessment
+<!-- STANDARD: 3min -->
 
 ```
 Should you vendor this dependency?
@@ -307,6 +401,7 @@ Should you vendor this dependency?
 #
 
 ## Submodule Health Monitoring
+<!-- STANDARD: 3min -->
 
 ```
 How to prevent submodule problems before they cause outages:
@@ -343,6 +438,7 @@ How to prevent submodule problems before they cause outages:
 #
 
 ## Submodule Migration Patterns
+<!-- STANDARD: 3min -->
 
 ```
 How to migrate BETWEEN submodule-based and other code-sharing strategies:
@@ -382,6 +478,7 @@ How to migrate BETWEEN submodule-based and other code-sharing strategies:
 |   |-- Caveat: this is almost always wrong. Package registries are the mature solution.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Configure `branch = main` in `.gitmodules` for tracking submodules.** Without explicit branch configuration, `git submodule update` pins to a specific SHA and lands you in detached HEAD — the #1 source of submodule confusion. Add `git submodule set-branch --branch main <path>` during setup.
 
@@ -404,6 +501,7 @@ How to migrate BETWEEN submodule-based and other code-sharing strategies:
 10. **Document the submodule update cadence.** For branch-tracking submodules: weekly automated PR (Renovate/Dependabot supports submodules). For tag-pinned submodules: manual update per release cycle. Undocumented cadence leads to 6-month drift and painful catch-up merges.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -418,6 +516,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -435,6 +534,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -446,17 +546,21 @@ If a command or approach fails, follow this escalation path before giving up:
 | P6 | Submodule path listed in .gitmodules but directory does not exist | [ALERT] Orphaned submodule entry. Run git submodule deinit <path> or restore the submodule. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
    ```json
+
    {
      "timestamp": "ISO-8601",
      "skill": "git-submodules",
@@ -467,13 +571,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -489,6 +596,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -498,6 +606,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[GS1]** `.gitmodules` has `branch` configured for all tracking submodules — no submodule is on detached HEAD without documented justification
 - [ ] **[GS2]** CI checkout configured with `submodules: recursive` (GitHub Actions) or `GIT_SUBMODULE_STRATEGY: recursive` (GitLab) — every submodule initializes correctly on clean clone
@@ -515,8 +624,10 @@ Before beginning a new phase, verify:
 - [ ] **[GS14]** Code sharing strategy decision documented (submodule vs subtree vs package registry) with rationale — re-evaluated annually
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 Healthy submodule setup (5-15 submodules, CI integrated):
 
 Submodule status:
@@ -540,11 +651,14 @@ Disaster readiness:
   - All submodule SHAs are reachable (verified monthly)
   - Team knows the recovery commands for detached HEAD, merge conflicts, deletion
   - CI catches submodule issues before merge, not after deploy
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
+
 Phase 1: Simple submodule
   Create two repos, add one as submodule of the other
   Commit, push, clone fresh — verify submodule initializes correctly
@@ -574,9 +688,11 @@ Phase 6: Subtree bidirectional
   Set up subtree add/pull/push between two repos
   Make changes in both, resolve conflicts
   Goal: Experience the pain firsthand — internalize when NOT to use subtree
+
 ```
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -587,6 +703,7 @@ Phase 6: Subtree bidirectional
 | "We'll automate submodule updates in CI — manual coordination is just temporary." | Temporary becomes permanent. Without CI-enforced submodule sync, 20+ repos diverge within weeks. $15K-$40K/year in CI time from serial `--recursive` clones plus $10K-$30K in integration failures from stale submodule pins. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Accepting Detached HEAD as Normal
 **What it looks like:** Teams see "detached HEAD" after `git submodule update` and either panic or ignore it. They make changes in detached HEAD state, then lose work when switching branches.
@@ -624,24 +741,26 @@ Phase 6: Subtree bidirectional
 **Do this instead:** Full removal sequence: `git submodule deinit -f <path> && rm -rf .git/modules/<path> && git rm -f <path>`, then edit `.gitmodules` to remove entry, commit, THEN `git submodule add <url> <path>`.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-After setting up or modifying submodule/subtree configuration, run this sequence. Do not proceed past a failure.
-
-1. **Submodule initialization:** `git submodule update --init --recursive` completes without errors. All submodule directories contain expected files.
-2. **Detached HEAD audit:** `git submodule foreach 'git status | head -1'` shows branch names (not "detached") for all tracking submodules, or pinned SHAs with documented justification.
-3. **Reachability check:** `git submodule foreach 'git cat-file -t HEAD'` returns "commit" for every submodule. No "fatal: git cat-file: could not get object info" errors.
-4. **CI checkout verification:** CI config contains submodule checkout directive. Run a clean CI build — submodules initialize correctly.
-5. **Subtree verification:** If using subtree: `git log --follow -- path/to/dep` shows correct history. Subtree files are identical to source of truth.
-6. **Vendoring audit:** If vendoring: VENDOR_VERSION file exists, update script runs successfully, diff against upstream produces expected output.
-7. **Disaster recovery readiness:** Team can execute the top 3 recovery procedures (detached HEAD, merge conflict, missing submodule) without reference.
-
-If any check fails: diagnose from verification item, provide specific actionable fix, restart verification from failed item.
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Submodule initialization succeeds: `git submodule update --init --recursive` completes without errors; all submodule directories contain expected files | `git submodule update --init --recursive && git submodule status` shows no errors |
+| ☐ | Complete when Detached HEAD audit clean: `git submodule foreach 'git status \ | head -1'` shows branch names for all tracking submodules, or pinned SHAs have documented justification | `git submodule foreach 'git status \| head -1'` — zero unexpected "HEAD detached" entries |
+| ☐ | Complete when Reachability verified: `git submodule foreach 'git cat-file -t HEAD'` returns "commit" for every submodule with no "object info" errors | `git submodule foreach 'git cat-file -t HEAD' 2>&1 \| grep -c fatal` returns 0 |
+| ☐ | Complete when CI configuration includes submodule checkout directive; clean CI build initializes submodules correctly | CI build log shows submodule initialization step; no "submodule not initialized" errors |
+| ☐ | Complete when Subtree integrity: if using subtree, `git log --follow -- path/to/dep` shows correct history; subtree files match source of truth | `diff -r path/to/dep/ source-of-truth/` returns no differences |
+| ☐ | Complete when Vendoring audit: VENDOR_VERSION file exists; update script runs successfully; diff against upstream produces expected output | `cat VENDOR_VERSION && ./scripts/vendor-update.sh && diff -r vendor/ upstream/` |
+| ☐ | Complete when Disaster recovery readiness: team members can execute top 3 recovery procedures (detached HEAD, merge conflict, missing submodule) without reference | Recovery runbook tested: each procedure documented and verified in the last 30 days |
+| ☐ | Complete when Branch tracking configured: `git config -f .gitmodules --get-regexp branch` shows branch entries for actively developed submodules | `git submodule foreach 'git config --get branch.\$(git rev-parse --abbrev-ref HEAD).remote'` returns remotes for tracking branches |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [Git Submodules Documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules) — Official Git documentation for submodules
 * [Git Subtree Documentation](https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt) — Official git-subtree documentation

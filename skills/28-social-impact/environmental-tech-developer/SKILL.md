@@ -55,13 +55,50 @@ chain:
 
 End-to-end environmental technology development — from carbon footprint calculators to satellite-powered conservation platforms. This skill covers the full stack of building technology for planetary health: sensor networks monitoring air and water quality, citizen science apps engaging millions in data collection, renewable energy dashboards optimizing grid performance, waste management systems routing collection fleets, and geospatial platforms tracking deforestation in near real-time. Every recommendation integrates environmental data standards, scientific rigor, accessibility for global audiences, and measurable impact metrics. The goal is not just writing code — it is building tools that measurably reduce emissions, protect ecosystems, and accelerate the transition to a sustainable future.
 
+## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| Carbon calculator returns 0 or NaN for valid inputs — "flight from LHR to JFK returns 0.00 kg CO2" | Emission factor lookup failed — airport codes not in database, or API key for emission factor service expired | Verify emission factor API key and rate limits. Add fallback: distance-based estimation using great-circle formula × avg emission factor when API unavailable. Log all zero/NAN results with input trace for debugging. Validate: test with known routes monthly |
+| Satellite imagery ingestion pipeline stalls after 48 hours — no new tiles processed | Sentinel/Landsat API changed auth requirements or tile format. Pipeline error silently swallowed by try/catch with no alerting | Add dead-letter queue for failed imagery processing. Monitor: alert if 0 tiles processed in 6 hours during scheduled ingestion window. Version-pin API clients. Store raw downloaded imagery before processing — enables replay without re-download |
+| IoT sensor network reports impossible values — "water temperature: 900°C" from river monitoring station | Sensor hardware failure or calibration drift. Edge device uploads corrupt data that passes basic range checks because range was set too wide | Implement statistical outlier detection (3-sigma rule per sensor type). Flag >6σ readings for manual review. Require sensor calibration certificates updated quarterly. Use median-of-three readings from redundant sensors at each station |
+| Deforestation alert system misses 40% of actual deforestation events — ground-truth data shows clearing undetected | ML model trained on regional data applied globally. Tropical forest patterns differ from boreal — one model doesn't fit all biomes | Train biome-specific models. Validate against ground-truth data quarterly. Require precision + recall > 85% before deploying to new region. Use human-in-the-loop for low-confidence detections |
+| Citizen science app has 90% drop-off after first use — millions spent on app, no data collected | UI designed for scientists, not citizens. Requires taxonomic knowledge, GPS coordinates in decimal degrees, and 12-field data entry form | Design with citizens, not for them. Simplify: photo-based identification (AI-assisted), auto-geotag from phone GPS, gamification (streaks, badges, leaderboards). Target: 30-second observation submission. Field-test with non-scientists before launch |
+| Environmental compliance dashboard shows "compliant" when site is actually violating permit limits | Data pipeline averages readings over hour/day — peak violations smoothed out. Permit limits apply to instantaneous readings, not averages | Store raw readings at native sensor frequency (typically 1-15 minute intervals). Alert on any single reading exceeding permit threshold. Report both instantaneous compliance (any exceedance = violation) and time-weighted compliance separately |
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Building environmental models without peer-reviewed science backing — "our algorithm says this forest is sustainable" with no methodology paper | $500K-$5M in legal liability + reputational destruction; greenwashing accusations destroy NGO partnerships and grant funding. Models without peer review are marketing, not science | Publish methodology as open-access preprint before deploying. Cite emission factors with source + year (e.g., "EPA eGRID2022, subregion RFCW"). Every model output must reference its data source and uncertainty bounds. Partner with academic institution for validation |
+| Hardcoding emission factors — app reports 2015 grid intensity for 2025 calculations | $50K-$200K in misreported carbon accounting; grid decarbonizes ~2-5%/year. Using 2015 factors for 2025 overstates emissions by 20-50% in regions with rapid renewable adoption | Use annually updated emission factor databases (eGRID, IEA, Climate TRACE). Refresh factors on January 15 each year. Store factors with effective_date and expiry_date. Alert if `CURRENT_DATE - emission_factor_date > 365 days` |
+| Assuming perfect connectivity — environmental sensors deployed in remote areas with intermittent satellite/cellular | $100K-$500K in "dark data" — sensors deployed but no data received for months. Field teams dispatched to reboot devices that just needed better store-and-forward logic | Design for offline-first: edge devices buffer data locally (SD card, 30-day ring buffer). Sync when connectivity available. Use LoRaWAN for <50km range, satellite (Iridium/Swarm) for truly remote. Test with 48-hour connectivity blackout scenarios |
+| Ignoring accessibility for global environmental audiences — app works on iPhone 15 but not on the $50 Android phones used by farmers in developing countries | $200K-$1M in failed adoption; environmental data collection depends on the people living in the ecosystems. If they can't use the app, data is biased toward wealthy regions | Target: works on Android 8+, 2GB RAM, 480p screen, offline-capable. Progressive Web App with <500KB initial load. Test on real low-end devices. Support offline data collection with background sync. Translate into local languages, not just English |
+| Measuring vanity metrics (app downloads, page views) instead of environmental outcomes (tons CO2 reduced, hectares conserved) | $500K-$5M in grant funding lost; funders increasingly demand MRV (Monitoring, Reporting, Verification) of actual impact. Downloads don't prove emissions reduced | Design measurement from day 1: what is the counterfactual? How do you prove your tool caused the change? Use established protocols: GHG Protocol for emissions, VERRA/ICVCM for carbon credits, IUCN Green List for conservation outcomes. Budget 10% of project for M&V |
+| Releasing open-source environmental data without privacy review — sensor locations reveal indigenous community territories or endangered species locations | $50K-$500K in harm to vulnerable communities + legal liability under GDPR/informed consent. Poachers use public species location data | Fuzz GPS coordinates: ±1km for community locations, ±10km for endangered species. Implement data tiering: public (anonymized, fuzzed), research partner (precise, NDA-required), internal only (raw). Review with community representatives before publishing |
+| Building on proprietary environmental data formats — data trapped in vendor-specific format, can't share with research community | $100K-$500K in data lock-in; environmental science depends on open data sharing. Proprietary formats prevent integration with global datasets (GBIF, WDPA, Climate TRACE) | Use open standards: GeoJSON/GeoParquet for spatial, CF-NetCDF for climate model output, Darwin Core for biodiversity, SensorML for IoT. Export to standard formats is a launch-blocking requirement. Test: can you export all data to CSV + GeoJSON in <5 minutes? |
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
@@ -81,6 +118,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 If no auto-route matched, use this intent tree:
 
@@ -111,6 +149,7 @@ Discovery Questions (when the environmental domain is unclear):
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect environmental tech mistakes before they happen. Violation means STOP and refuse to proceed.
 
@@ -135,16 +174,19 @@ These rules are non-negotiable constraints that detect environmental tech mistak
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official documentation or peer-reviewed source, [COMMON-PRACTICE] — widely used in environmental tech but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. Environmental claims carry legal and reputational risk — precision matters.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 #
 
 ## The Mental Model Shift
+<!-- STANDARD: 3min -->
 
 Competent developers build environmental apps that show a carbon number and call it done. Masters build tools that **integrate real-time satellite data, validate sensor readings against scientific ground truth, operate offline in the Amazon rainforest, communicate impact in 15 languages, and produce metrics auditable enough to withstand peer review.** The shift: your app is not just software — it is a scientific instrument. Every number displayed to a user must be traceable to a data source, a methodology, and a confidence interval. When your app tells someone their carbon footprint is 8.3 tons, that number becomes their reality — it shapes their decisions, their guilt, their behavior change. Getting it wrong does real harm: it erodes trust in environmental action and can direct resources away from effective solutions.
 
 #
 
 ## Cognitive Biases That Kill Environmental Apps
+<!-- STANDARD: 3min -->
 
 | Bias | How It Manifests | Antidote |
 |-------|------------------|----------|
@@ -159,6 +201,7 @@ Competent developers build environmental apps that show a carbon number and call
 #
 
 ## What Environmental Tech Masters Know That Others Don't
+<!-- STANDARD: 3min -->
 
 - **The difference between activity data and emission factors — and which is more important.** Activity data (miles driven, kWh consumed, kg waste generated) is what your users provide. Emission factors (kg CO2 per mile, per kWh, per kg waste) is what converts activity to impact. Most developers obsess over emission factor precision while ignoring activity data quality. Garbage activity data × perfect emission factors = garbage results. Invest your effort in helping users provide accurate activity data (automated tracking, receipt scanning, smart meter integration) before worrying about whether the emission factor is 0.404 or 0.412 kg CO2/kWh.
 - **Environmental data has a shelf life — and different types expire at different rates.** Real-time sensor data (AQI, water quality): stale after 1 hour. Satellite imagery: stale after the revisit period (Landsat: 16 days, Sentinel-2: 5 days). Emission factors: updated annually by agencies. Climate projections: valid for their modeled scenario but superseded by newer IPCC assessments. Your architecture must handle these different expiration cadences — automatically refreshing, clearly labeling staleness, and degrading gracefully when fresh data is unavailable.
@@ -170,6 +213,7 @@ Competent developers build environmental apps that show a carbon number and call
 #
 
 ## When to Break Your Own Rules
+<!-- STANDARD: 3min -->
 
 - **Use a heavy framework when real-time environmental data processing demands it.** If your app ingests 10,000 sensor readings per second and needs sub-second latency for pollution alerts, a serverless-only architecture won't cut it. Use Apache Kafka for streaming, TimescaleDB for time-series, and WebSockets for real-time dashboards. Don't prematurely optimize for green hosting at the expense of functionality that saves lives.
 - **Skip on-device ML when accuracy is safety-critical.** If your air quality app tells asthmatics it's safe to go outside, that classification must be accurate. On-device models (TensorFlow Lite) are great for offline use but may sacrifice accuracy. For safety-critical environmental data, prefer server-side inference with offline fallback that clearly indicates reduced confidence.
@@ -190,10 +234,72 @@ Competent developers build environmental apps that show a carbon number and call
 - Don't use for enterprise ESG reporting platforms (route to compliance-officer), general IoT without environmental context (route to embedded-engineer), or pure data visualization without environmental domain (route to data-visualization-engineer)
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Sensor & IoT Data Pipeline Architecture
+
+        ┌── INPUT: What's the data ingestion frequency?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[Batch] [Near real-time]   [Real-time
+(daily)  (every 5-15min)]   streaming]
+   │    │                    │
+   ▼    ▼                    ▼
+CSV/JSON  MQTT +            Kafka/Redis
+upload    InfluxDB/         + TimescaleDB
+→ cron    TimescaleDB       → stream
+jobs +    → edge gateway    processing
+PostgreSQL  aggregation     → alerting on
+or S3     before cloud      threshold
+           ingest           breaches
+
+### Decision Tree 2: Impact Measurement & Reporting
+
+        ┌── INPUT: Who is the audience for your impact data?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[End    [Grant              [Scientific
+users]   funders/donors]     community]
+   │    │                    │
+   ▼    ▼                    ▼
+Personal   Verifiable claims  Open data +
+dashboards: with methodology: reproducible
+CO2 saved,  follow GHG        methods:
+trees       Protocol or       publish dataset
+planted,    GRI standards     DOI, document
+water saved → avoid greenwash → peer-reviewed
+→ gamify    → third-party     methodology
+            audit if >$100K
+
+### Decision Tree 3: Citizen Science Data Quality
+
+        ┌── INPUT: How critical is data accuracy for your use case?
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+[High:     [Moderate:
+policy,    educational,
+research]  awareness]
+   │         │
+   ▼         ▼
+Layered     Auto-validation:
+validation: 1. Photo proof
+1. Training   required
+   module    2. GPS + time
+2. Expert     stamp check
+   review    3. Outlier flag
+3. Consensus  → accept >90%
+   (3+ users)  confidence
 
 #
 
 ## Carbon Accounting Path
+<!-- STANDARD: 3min -->
 
 ```
 User wants carbon footprint tracking:
@@ -214,6 +320,7 @@ User wants carbon footprint tracking:
 #
 
 ## Environmental Data Source Selection
+<!-- STANDARD: 3min -->
 
 ```
 What type of environmental data do you need?
@@ -246,6 +353,7 @@ What type of environmental data do you need?
 #
 
 ## Geospatial Stack Selection
+<!-- STANDARD: 3min -->
 
 ```
 What's your geospatial use case?
@@ -268,6 +376,7 @@ What's your geospatial use case?
 #
 
 ## IoT Sensor Architecture for Environment
+<!-- STANDARD: 3min -->
 
 ```
 Building an environmental sensor network:
@@ -298,8 +407,8 @@ Building an environmental sensor network:
     └── Alert → Notify when: sensor offline > 24 hours, battery < 20%, readings outside physical possible range (PM2.5 > 1000, temperature > 70°C), sudden step change (sensor failure vs. real event — correlate with nearby sensors).
 ```
 
-
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 Every environmental tech project follows this phased approach. The phases are sequential but iterative — each phase may reveal decisions that require revisiting earlier phases. Before writing a single line of code, answer five questions. The answers determine technology choices, data architecture, and user experience design.
 
@@ -343,6 +452,7 @@ Product scanning: barcode → product database (Open Food Facts, OpenBeautyFacts
 Build the impact dashboard before building the app. Define metrics upfront, instrument everything, measure from day one. Metrics: carbon reduced/sequestered (tons CO2e), waste diverted (kg), energy saved (kWh), water saved (liters), trees planted/survived (count, survival rate), land protected (hectares), species monitored (count, trend), volunteers engaged (people, hours), data contributions (observations, sensor readings). Methodology: every metric needs a calculation methodology (how do you go from "user logged a meatless meal" to "0.8 kg CO2e saved"?), baseline (compared to what?), counterfactual (would this have happened anyway?). Attribution: be honest about what your app contributed vs. what would have happened.
 
 ## Cost Matrix — Environmental Tech Budgeting
+<!-- STANDARD: 3min -->
 
 | Component | $0 (Bootstrapped) | $50-200/mo (Startup/Grant) | $500-2,000/mo (Funded/Enterprise) |
 |-----------|-------------------|---------------------------|----------------------------------|
@@ -360,6 +470,7 @@ Build the impact dashboard before building the app. Define metrics upfront, inst
 ⚠️ All pricing as of 2026. Environmental data APIs and cloud provider pricing change — verify current rates before committing.
 
 ## Gotchas — Dollar-Quantified Environmental Tech Footguns
+<!-- STANDARD: 3min -->
 
 - **"We'll use a $15 PM2.5 sensor and call it good" → $250K in credibility damage.** Low-cost sensors drift 30-50% over 6 months without calibration. When your app reports "Air quality: Good (AQI 32)" based on a drifted sensor when actual AQI is 125 (Unhealthy for Sensitive Groups), users lose trust permanently. One viral tweet by a respiratory health organization showing your data is wrong can destroy your app. Budget for calibration: co-locate with reference monitors, recalibrate quarterly, display uncertainty.
 - **"Offsets handled — we buy from a provider" → $0 environmental impact, potential greenwashing lawsuit.** The voluntary carbon market has a quality problem: 2023 investigations found 90%+ of rainforest offsets from major certifiers were "worthless" — no additional emissions reductions. If your app claims to offset user emissions through unvetted providers, you're exposed to greenwashing regulations (EU Green Claims Directive, FTC Green Guides). Solution: integrate only Gold Standard or Verra VCS verified projects with public registry IDs. Even better: prioritize reduction over offsetting in your UX.
@@ -369,20 +480,8 @@ Build the impact dashboard before building the app. Define metrics upfront, inst
 - **"We'll add multilingual support later" → Permanent exclusion of 75% of potential users, $15K-$50K in retrofit costs within 6 months.** Environmental problems are global. Climate vulnerability is highest in the Global South — exactly where English proficiency is lowest. "Later" never comes because retrofitting i18n into an existing codebase costs 3× more. Internationalize from the first scaffold: use a framework with i18n built in (react-i18next, vue-i18n, Rails i18n), mark every user-facing string as translatable, budget for professional translation of at minimum 5 languages covering your target regions.
 - **"The grid emission factor database is updated annually — we can cache it" → Users act on last year's data in a rapidly changing grid, $5K-$20K in carbon accounting errors per year.** Grid decarbonization is happening fast. The UK grid went from 450 gCO2/kWh (2014) to 170 gCO2/kWh (2024). Using 2024 factors in 2026 overstates emissions by potentially 30%+ in rapidly greening grids. For an app with 100K users tracking daily, that's thousands of tons of misattributed carbon. Use Electricity Maps real-time API for current-hour carbon intensity. For annual accounting, use the latest available factors and clearly label their vintage.
 
-## Anti-Rationalization Table — No Excuses
-
-| The Temptation | Why It Feels Right | The Devastating Reality | Prevention |
-|---------------|-------------------|------------------------|------------|
-| **"A rough carbon estimate is fine — users won't know the difference"** | Emission factors vary by ±30% anyway. Users want a number, any number. Building a precise model takes months. | Users trust your number. They make real decisions based on it — offset purchases, behavior changes, policy advocacy. When a journalist or competitor audits your methodology and finds it's based on a simplistic spend-based model with no uncertainty shown, you've created a greenwashing scandal. "Rough" is fine — as long as you say it's rough. "Rough" presented as "precise" is fraud. | Show methodology, uncertainty ranges, and data vintage for every number. Label precision level: "Ballpark (±40%)," "Estimate (±20%)," "Calculated (±10%)." Users appreciate honesty — they resent being misled. |
-| **"We don't need scientific validation — we're a tech company, not researchers"** | Move fast, ship features, iterate based on user feedback. Scientific validation is slow and academic. The market rewards speed. | Your app makes environmental claims. Those claims are either true or false. Without validation, you don't know which. A study by an environmental NGO showing your carbon calculator overestimates savings by 50% is existential. You will be held to scientific standards whether you like it or not — by journalists, regulators, and competitors. | Partner with a university environmental science department or research institute for methodology review. Their letterhead on your methodology page is worth 100× the cost. Publish your methodology openly — transparency is your best defense against criticism. |
-| **"On-device storage is enough — we'll add cloud sync later"** | Faster to build. Fewer backend costs. Users have phones, data stays local. MVP first, infrastructure later. | Users lose their phone, upgrade, or uninstall. All their environmental data — months of carbon tracking, species observations, sensor readings — is gone. The environmental data they contributed to your citizen science platform? Also gone. Data loss in environmental apps is particularly devastating because the observations are time-and-place specific — they can never be recreated. | Cloud sync from day one. Use CRDT-based sync (Automerge, Yjs) for offline-first conflict resolution. Even a simple JSON export + manual backup is better than nothing. Environmental observations are irreplaceable — treat them as such. |
-| **"Recycling rules? We'll just use a national database"** | National recycling guidelines exist. Local variations are noise. "Mostly recyclable" is good enough. | Recycling is hyperlocal. What's recyclable in San Francisco (compostable plastics, all rigid plastics) is garbage in rural Texas (bottles #1 and #2 only). Your app telling someone to put a non-recyclable item in the recycling bin contaminates the entire batch — causing the whole load to go to landfill. "Mostly right" recycling advice is actively harmful — it increases contamination rates. | Geolocate the user to municipality level. Build a rules engine: material × form (bottle, film, rigid) × municipality → recyclable (yes/no/check-local). Partner with local waste management authorities for rule verification. When uncertain, say "Check with your local waste management" — don't guess. |
-| **"We'll hardcode the emission factors — they only change annually"** | Fewer API calls. Faster performance. Offline-capable. Emission factors are published once a year — just update the app annually. | Grid factors are updated annually but your app update cadence isn't. Users running v1.2 from 2025 in 2027 are using 2024 emission factors. Every day they use stale data, they're making decisions based on wrong information. Hardcoded environmental data is a time bomb — it starts accurate and silently degrades. | Store emission factors in a database/remote config, not in code. Add a `valid_until` field. Implement forced refresh: if current date > factor valid_until, show "Data needs update" warning. Track factor version in every calculation so results are auditable. |
-| **"Gamification is easy — points and leaderboards"** | Works for every other app category. Users love competition. More engagement = more environmental data collected. | Environmental gamification that rewards quantity creates perverse incentives. "Most trees planted" → users plant invasive species. "Most observations" → users spam low-quality data. "Most offsets" → users buy cheap, unverified offsets. The game mechanics reward the behavior you measure, not the behavior you want. If you measure trees planted, you get trees planted — regardless of survival rate, species appropriateness, or ecological impact. | Reward verified outcomes, not activities. "Trees surviving after 1 year" not "trees planted." "Research-grade observations" not "total observations." "Verified carbon reductions (registry ID required)" not "offsets purchased." Design game mechanics that can't be gamed — or at least make gaming harder than doing the right thing. |
-| **"The free tier includes everything we need"** | Environmental apps have tight budgets (nonprofits, grants, bootstrapped). Every dollar saved can go to actual environmental work. | Free tiers disappear. Heroku free tier: gone (2022). Mapbox changed free tier pricing. Google Maps API became prohibitively expensive. The moment your free tier is revoked or restricted, you face a choice: emergency migration (downtime, lost data, rushed architecture decisions) or paying the new rate (possibly 10-100× what you budgeted). | Budget for paid tiers from day one — even if you start on free. Know the cost of the paid tier you'll graduate to. Have a migration plan for every third-party dependency. Prefer open-source alternatives (MapLibre instead of Mapbox, OpenLayers instead of Google Maps) — they can't revoke your access. |
-| **"Environmental data is public domain — we can use anything"** | Government data (EPA, NOAA, NASA, Copernicus) is openly available. It's taxpayer-funded. Scraping is fair use. | While data may be public domain, APIs and services have terms. Rate limiting, attribution requirements, commercial use restrictions, and acceptable use policies exist. Government APIs go down during shutdowns (US government shutdowns affect NOAA, EPA, NASA data access). Satellite data processing requires significant infrastructure — downloads can be 100GB+. | Always read and document the license and terms for every data source. Cache aggressively to reduce API calls. Build in failover — if NOAA is down, fall back to OpenWeatherMap. If the primary satellite source is unavailable, use the secondary. Maintain a data provenance file: source, license, attribution text, last accessed date. |
-
 ## Error Recovery — Explicit Step-by-Step
+<!-- STANDARD: 3min -->
 
 **Symptoms:** Sensor data stops arriving. Dashboard shows "Last reading: 2 hours ago." No error logs, no crash — just silence.
 
@@ -408,7 +507,24 @@ Build the impact dashboard before building the app. Define metrics upfront, inst
 
 **Fix:** CORS: configure tile server CORS headers. Projection mismatch: reproject with ST_Transform (PostGIS) or ogr2ogr (GDAL). Empty viewport: zoom to data bounds on load (`map.fitBounds(geoJsonLayer.getBounds())`). 403: check API key and referrer restrictions on Mapbox/Google Maps.
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Data sourcing: every environmental metric has documented source, methodology, vintage, and uncertainty range | Random sample 10 metrics → each has provenance link to methodology page |
+| ☐ | Complete when Privacy architecture: location, energy, travel, consumption data processed with privacy-first design | On-device processing where possible; aggregation before upload; deletion mechanism tested |
+| ☐ | Complete when Offline functionality: core features work in airplane mode; data syncs on reconnect without loss | Test: log 10 carbon entries offline → enable network → all 10 appear in cloud dashboard |
+| ☐ | Complete when Scientific methodology: carbon accounting, sensor calibration, ML training data, classification approach documented publicly | Methodology page exists, linked from every data display; peer-reviewed where applicable |
+| ☐ | Complete when Accessibility baseline: screen reader, keyboard nav, 320px width, offline, dark mode, high contrast all functional | Test with VoiceOver/TalkBack; minimum English + one additional language |
+| ☐ | Complete when Green hosting: infrastructure on provider with public renewable energy commitment; app carbon footprint reported | Verify hosting provider's renewable energy percentage; calculate and publish app's own footprint |
+| ☐ | Complete when Carbon accounting accuracy: spend-based vs. activity-based vs. hybrid methodology chosen and documented | Explain why chosen method; document ±error range; cross-validate against alternative method |
+| ☐ | Complete when Sensor/device integration: IoT data pipeline handles device disconnection, data gaps, and calibration drift | Simulate 24h sensor outage → data gap flagged, not silently interpolated; calibration check scheduled |
+| ☐ | Complete when API rate limits: environmental data APIs (weather, satellite, grid emissions) have fallback when rate-limited | Test hitting API limit → cached data served with staleness indicator; alert on > 1h staleness |
+| ☐ | Complete when User impact reporting: dashboard shows user's environmental impact with actionable recommendations | Verify: total footprint displayed, trend over time, comparison to baseline, 3+ specific actions to reduce |
+
 ## Verification Guardrails — Binary Environmental Tech Checklist
+<!-- STANDARD: 3min -->
 
 Before ANY production deployment, every checkbox must be `[x]`. These are PASS/FAIL — no "mostly," no "we'll fix it next sprint."
 
@@ -426,6 +542,7 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 - [ ] **V12. License compliance verified.** All data sources have documented licenses. Attribution displayed where required. Commercial use restrictions respected. No scraped data without permission.
 
 ## Sub-Skills — When to Use Specialized References
+<!-- STANDARD: 3min -->
 
 | Sub-Skill | When to Use | See Reference |
 |-----------|-------------|---------------|
@@ -439,6 +556,7 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | **Impact Measurement & Methodology** | Carbon accounting methodology, environmental KPI frameworks, counterfactual analysis, attribution modeling  |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |----------------|-----------------|-----------------|
@@ -462,6 +580,7 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 #
 
 ## Communication Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
@@ -491,6 +610,7 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | User wants recycling/waste management features | Jump to Decision Trees → Waste Tech considerations, then Anti-Rationalization — Recycling Rules | Recycling is hyperlocal — generic advice is harmful |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Environmental Tech Output Characteristics | Stack Evolution |
 |-------|------------------------------------------|-----------------|
@@ -500,6 +620,7 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | **Enterprise / Government Scale (20+ people, $2,000-10,000+/mo)** | National/international environmental monitoring system: nationwide sensor network (10,000+ sensors), real-time satellite-based deforestation alerts, species monitoring at continental scale, carbon accounting platform for thousands of businesses. High-availability, multi-region deployment. SOC 2/ISO 27001 compliance. Academic partnerships for methodology validation. Policy advocacy features. | Multi-cloud (AWS + GCP for satellite data colocation). Apache Kafka + Flink for stream processing. Data lake (S3/GCS) with query engines (Athena/Trino). Custom STAC catalog for satellite data. GPU clusters for ML (satellite classification, species detection). GraphQL federation for API. Dedicated i18n team with professional translators. 24/7 on-call with environmental incident escalation path. Dedicated data quality team. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Source everything — no unattributed environmental data.** Every emission factor, sensor reading, satellite pixel, and species observation must carry provenance: where it came from, when it was collected, how accurate it is. Build a data lineage view into your admin dashboard. When (not if) someone questions your numbers, you need the receipts.
 
@@ -518,16 +639,20 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 8. **Green your own stack.** Calculate and publish your infrastructure carbon footprint. Use providers with renewable energy commitments. Optimize data transfer (CDN caching, minimize payload sizes, compress images). Right-size your instances — idle servers emit carbon. Your environmental app's infrastructure IS part of its environmental statement. Lead by example.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, data source decision, and methodology selection must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -539,13 +664,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice — emission factor database selection, sensor hardware choice, methodology version, data license decisions.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -561,6 +689,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -586,6 +715,7 @@ Before beginning a new phase, verify:
 | **Build a multi-language environmental app from scratch** | i18n architecture, accessibility, offline support | App functions in English + 2 additional languages. All user-facing strings internationalized. RTL language support verified. Offline mode tested. Low-bandwidth mode (< 100KB initial load). | 8-16 hours |
 
 ## Error Decoder — War Stories from the Environmental Tech Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -602,6 +732,7 @@ When environmental tech goes wrong, the failures are often invisible until someo
 | Food waste tracking app calculates "You've saved 50 kg CO2 this month!" User shares on social media. Friend asks: "How do you know?" App developer: "We assume each logged meal saves 2 kg CO2." The assumption was pulled from a single blog post citing a non-peer-reviewed report from 2019. | The "savings" calculation has no scientific basis. It's a marketing number dressed as an environmental metric. When (not if) this is challenged, there's no defense — the entire impact claim collapses. | Every environmental savings claim needs a cited methodology: "Based on [Source, Year]: average food waste meal = 2.5 kg CO2e (includes production, transport, and landfill methane). ±30% based on meal composition. See methodology." If you can't cite a methodology, don't make the claim. Build the methodology page BEFORE building the "share your impact" feature. Environmental claims are public statements — they must be defensible. | Impact numbers shared on social media are permanent and public. A viral tweet with an unsupported environmental claim is a future news story: "Environmental App Exaggerates Carbon Savings by 5×, Investigation Finds." The damage to environmental tech credibility is collective — one app's inflated claims make users skeptical of all environmental apps. |
 
 ## Production Checklist — Pre-Launch Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **P1. Data provenance complete.** Every environmental metric displayed in the UI has a visible source, collection date, methodology version, and uncertainty range. No orphan numbers. The "How we calculate this" link works and is current.
 - [ ] **P2. Offline mode functional.** Airplane mode test passes: core features (data collection, species ID, carbon logging, sensor check) work. Sync works when connectivity returns. No data loss. Clear offline indicator in UI.
@@ -620,10 +751,12 @@ When environmental tech goes wrong, the failures are often invisible until someo
 - [ ] **P15. Browser/device matrix tested.** Tested on: $150 Android phone (Android 10, Chrome 80), iPhone SE (latest iOS), mid-range laptop (4GB RAM, Windows 10), iPad (tablet UX tested). All pass core workflow. Offline mode tested on all.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > A farmer in rural Kenya opens the biodiversity monitoring app on a $80 Android Go phone. It loads in under 3 seconds on 2G, displays in Swahili, and lets her record a bird observation with a photo, GPS, and species suggestion — all without internet. When she returns to town and connects to WiFi, her observations sync and enter the community validation queue. Two other users confirm the species identification, elevating it to "research-grade." The data is exported in Darwin Core format and contributes to a peer-reviewed study on climate-driven range shifts. The app's carbon footprint for processing her observation is 0.02g CO2 — tracked and reported on a public dashboard. Every number in the app shows its source: "Species suggestion: 89% confidence (model v2.4, trained on East African birds, Feb 2026)." The environmental impact dashboard shows: 47,000 research-grade observations, 12 peer-reviewed publications supported, 230 community monitors trained. This is what a 10/10 environmental tech build looks like.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -633,7 +766,6 @@ Detailed reference material loaded on demand:
 - **Deliberate Practice**: See [deliberate-practice.md]
 - **Error Recovery**: See [error-recovery.md]
 - **Gotchas**: See [gotchas.md]
-- **Scale Depth: Operating at Different Levels**: See [scale-depth.md]
 - **State Log**: See [state-log.md]
 - **Sub-Skills**: See [sub-skills.md]
 - **Verification Guardrails**: See [verification-guardrails.md]
@@ -650,6 +782,7 @@ Detailed reference material loaded on demand:
 #
 
 ## External Resources
+<!-- STANDARD: 3min -->
 
 - **Carbon Accounting Standards & Tools**: GHG Protocol (ghgprotocol.org), EPA GHG Emission Factors Hub, UK DEFRA Conversion Factors, EXIOBASE (exiobase.eu) for MRIO spend-based carbon, openLCA (openlca.org), Brightway LCA framework (brightway.dev), ecoinvent database (ecoinvent.org — commercial). Carbon offset registries: Gold Standard (goldstandard.org), Verra VCS (verra.org), Climate Action Reserve, American Carbon Registry.
 - **Climate & Weather Data**: OpenWeatherMap API (openweathermap.org/api — free tier), NASA POWER (power.larc.nasa.gov — solar, meteorological, free), Copernicus Climate Data Store (cds.climate.copernicus.eu — ERA5, free registration), Tomorrow.io (tomorrow.io — hyperlocal weather, free tier), IPCC WGI Interactive Atlas (interactive-atlas.ipcc.ch), NOAA NCEI (ncei.noaa.gov).

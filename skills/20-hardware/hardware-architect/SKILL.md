@@ -38,6 +38,7 @@ chain:
 Hardware architecture and electronic system-level design — from SoC selection through PCB stackup to compliance testing. Covers the critical architectural decisions that determine a product's cost, performance, power consumption, and time-to-market.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -59,6 +60,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- negative constraints, mechanically triggered -->
 
@@ -74,12 +76,12 @@ If no auto-route matched, use this intent tree:
 | **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of hardware architect don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -100,6 +102,7 @@ Masters of hardware architect don't just build — they build **the right thing,
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -115,6 +118,7 @@ Masters of hardware architect don't just build — they build **the right thing,
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -129,8 +133,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 **Use `/embedded-engineer` instead when:** You're implementing firmware on a chosen MCU — writing device drivers, configuring peripherals, optimizing for power. Hardware-architect picks the platform; embedded-engineer builds on it.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -147,6 +151,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -162,6 +167,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Production yield drops from 98% to 72% after changing to a "pin-compatible" alternate IC due to supply shortage | The alternate op-amp was "pin-compatible" (same package, same pinout) but had different input bias current (10nA vs 1nA in the original). At the 500KΩ input impedance of the sensor front-end, the bias current created a 5mV offset that pushed 30% of units outside the calibration range. | Never accept "pin-compatible" at face value. Create a parameter comparison checklist: input bias current, offset voltage, GBW, slew rate, noise density, PSRR. For analog parts, simulate the alternate in the actual circuit, not just the datasheet. Qualify alternates on a pilot production run before full switchover. | "Pin-compatible" means the pinout matches, not that the circuit works. Analog IC substitutions need full requalification — parasitic parameters that were negligible at 1nA become showstoppers at 10nA. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design the PCB stackup before placing the first component.** Define layer count, copper weight, dielectric thickness, and impedance targets before schematic completion. A 4-layer board with solid ground and power planes is the minimum for any design with >10MHz signals. Specify controlled impedance for differential pairs (USB, Ethernet, PCIe, DDR) with ±10% tolerance. The stackup drives trace geometry, which drives layout — not the other way around.
 
@@ -184,6 +190,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Invest in reliability engineering before field deployment.** HALT (Highly Accelerated Life Testing): stress prototypes with rapid thermal cycling (-40°C to +125°C), 6-axis vibration, and voltage margining until failures occur. Fix root causes, not symptoms. Accelerated life testing: operate at elevated temperature and voltage to compress 5 years of aging into weeks. Calculate MTBF with actual component failure rates (MIL-HDBK-217 or Telcordia), not datasheet marketing numbers. A product with a 2% annual failure rate on 100K units generates 2,000 returns per year — each costing $75-$150 in logistics alone.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -195,6 +202,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Single-source component goes EOL at month 4 of 24-month production | No lifecycle analysis was performed at design-in. The component was already NRND (Not Recommended for New Design) when the schematic was captured. The manufacturer issued a PCN with a 6-month last-time-buy window, but no one was subscribed to alerts | Every BOM component at design-in must: check lifecycle status (active/NRND/EOL), verify projected availability (5+ years), identify second-source alternatives (pin-compatible, different manufacturer), subscribe to manufacturer PCN alerts. Quarterly BOM health review flags any component within 12 months of projected EOL | A single $2 component that goes EOL triggers a $150K-$500K redesign cycle (engineering + respin + tooling + lost production). Component lifecycle management is not procurement's job — it's the design engineer's responsibility at component selection time |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — who to talk to, when, what to share -->
 
@@ -238,14 +246,13 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | Hardware-software boundaries, communication protocols, constraints | Before designing embedded or firmware systems |
 | `embedded-engineer` | Microcontroller selection, RTOS, peripheral interfaces | Before writing firmware or hardware-specific code |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -259,10 +266,77 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 | >2 field returns show same component failure (same batch, same failure mode) | Suspect component quality issue or design margin problem; halt production if failure rate suggests systemic defect; initiate root cause analysis with supplier | Pattern of identical failures is never coincidence — every day of continued production compounds the liability |
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Power Architecture Design
+
+        ┌── INPUT: What are the power
+        │   rail requirements?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Single rail, low            Multiple rails with
+current (<500mA),           tight regulation
+low noise needed?           or high efficiency?
+   │                         │
+   ▼                         ▼
+LDO regulator –          ┌────┴────────────┐
+low noise, simple,        │                 │
+low efficiency OK         ▼                 ▼
+for this load         Buck converter    PMIC with multi-
+                      for high effi-    rail sequencing
+                      ciency (>85%);    + buck + LDO
+                      watch switching   integrated; I2C
+                      noise on analog   configurable
+                      rails
+
+### Decision Tree 2: Signal Integrity Strategy
+
+        ┌── INPUT: Are there high-speed
+        │   signals on this board?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Edge rate < 1ns OR         All signals below
+frequency > 50MHz?         50MHz, slow edges?
+   │                         │
+   ▼                         ▼
+Impedance control           Standard layout
+required: controlled        rules sufficient;
+Z0 (50Ω single-ended,       no SI simulation
+100Ω differential) +        needed unless
+length matching for         EMC issues found
+parallel buses (DDR,        in testing
+LVDS, PCIe, USB 3)
+
+### Decision Tree 3: EMC Compliance Path
+
+        ┌── INPUT: Product approaching
+        │   regulatory submission?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+First prototype,            Pre-certification
+early in design?            testing upcoming?
+   │                         │
+   ▼                         ▼
+Pre-compliance scan         ┌────┴────────────┐
+in-house or near-field      │                 │
+probe: identify hot         ▼                 ▼
+spots early; iterate    Passed pre-scan?   Failed pre-scan?
+before formal lab           │                 │
+                            ▼                 ▼
+                       Book formal lab;   Root cause:
+                       prepare test       add shielding,
+                       setup and mode     ferrites, or
+                       documentation      re-route; re-scan
 
 ### Processor Architecture Selection
 
@@ -337,6 +411,7 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 **SRAM:** Fastest, lowest power, most expensive ($10-50+/MB). For cache, < 1MB scratchpad. **SDRAM:** Good balance for MCU applications with > 64KB needs. **DDR:** For application processors. LPDDR for battery-powered. **NOR Flash:** For XIP (eXecute In Place). No boot RAM needed. 1-256MB. **NAND Flash:** For storage. TLC/QLC for density, SLC for reliability. eMMC handles bad block management and wear leveling for you.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -378,9 +453,11 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 **What good looks like:** Compliance plan with required certifications per target market, test house booked, pre-compliance schedule budgeted, and timeline mapped backward from launch date.
 
   Complete when: Compliance plan with required certifications per target market is documented; test house is booked with confirmed dates; pre-compliance schedule is budgeted (FCC/CE: $3-5K pre, $15-30K full); timeline is mapped backward from launch date with 50% buffer for first product.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
 
 ## Cross-Skill Integration
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -393,11 +470,12 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 | **After** | `documentation-engineer` | Hardware architecture document, memory map, power tree → forms the hardware section of the product documentation |
 | **After** | `qa-engineer` | Test requirements (thermal testing, EMC pre-compliance, HALT) → test plan input |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 A well-designed hardware architecture is invisible when it's right — the product works reliably across temperature, meets power targets on the first spin, and passes EMC with margin. Specifically:
 - **The first prototype boots and communicates.** No power rail sequencing bugs, no clock configuration that needs a bodge wire, no "turns out this pin doesn't support that function." The SoC selection was right.
@@ -407,6 +485,7 @@ A well-designed hardware architecture is invisible when it's right — the produ
 - **The hardware architecture document is the single source of truth.** A new engineer can read it and understand every decision: why this SoC, why this memory topology, why this regulator topology, why this stackup. The alternatives section explains what was rejected and why.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -423,7 +502,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -434,6 +514,7 @@ graph LR
 | "We'll fix it in the next hardware revision" | Hardware revisions take 3-6 months and $50K-$200K in engineering + tooling + certification. Meanwhile, every unit shipped with the known issue generates warranty claims, support tickets, and customer churn. A $5 PCB respin becomes $50K when factoring in compliance recertification (FCC, CE, UL). If the issue causes field failures, add recall logistics. Fix it in THIS revision. **Total cost: $50K-$500K per deferred fix — "next revision" fixes cost 10-100x more than fixing it now, plus accumulated warranty and support costs on already-shipped units.** |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Decoupling capacitor distance** — a 100nF cap 5mm from the IC pin filters noise at ~100MHz. At 10mm, it filters ~50MHz due to trace inductance. At 20mm, it's useless because the parasitic inductance forms a tank circuit at a different frequency. Place caps as close as physically possible — every millimeter matters.
 - **I2C pull-up resistor sizing** — 10KΩ works on a bench with one slave and 10cm traces. At 400kHz with 4 slaves and 50cm traces, the bus capacitance is ~200pF and RC rise time = 2.2µs, longer than the 1.25µs bit period. Dropping to 2.2KΩ gets you 480ns rise time but increases power consumption. Calculate, don't guess.
@@ -445,6 +526,7 @@ graph LR
 - **Ground bounce in high-speed parallel buses** — 32 data lines switch from 0 to 1 simultaneously. The return current through the shared ground plane inductance (a few nH) creates a ground bounce of 0.8V. A receiver on the same ground reference sees 0.8V instead of 0V — and interprets a valid logic '0' as a logic '1'. The failure is intermittent: it only happens when all 32 bits switch together, which is 1% of data patterns. Passes bench testing, fails 1% of field operations. **Total cost: $75K-$300K in engineering debug time (3 engineers × 6 weeks hunting an intermittent signal integrity issue) and 2 months of delayed production ramp — $500K in revenue delay.** Fix: add ground return vias adjacent to every signal via (1:1 ratio for high-speed buses). Simulate simultaneous switching noise (SSN) in pre-layout SI simulation. Use series termination resistors to slow edge rates. On prototype, use a high-bandwidth oscilloscope with differential probes to measure ground bounce during worst-case switching patterns.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -454,6 +536,7 @@ graph LR
 | Thermal design ignores enclosure/sealing — junction temperature overshoots by 20°C+ at max ambient | $100K–$500K in field failures & thermal-related recalls after first summer deployment | Simulate junction temps at max ambient in sealed enclosure with actual airflow; measure θJA on production-representative board (not datasheet value); ≥15°C Tj margin; HALT testing with thermal cycling to operational extremes |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Schematic review: DRC (Design Rule Check) passes — zero violations
 - [ ] Power budget: sum of all component max currents × voltage < power supply rating × 0.8 (20% margin)
@@ -463,10 +546,12 @@ graph LR
 - [ ] BOM review: all components have second-source alternative OR documented single-source risk with mitigation
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -484,6 +569,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[HW12]** Reliability testing: HALT performed on prototypes with thermal cycling (-40°C to +125°C), 6-axis vibration, and voltage margining, failures root-caused and fixed, MTBF calculated with MIL-HDBK-217 or Telcordia, accelerated life test in progress — no field-deployment blockers
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -493,4 +579,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

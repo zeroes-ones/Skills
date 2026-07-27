@@ -96,7 +96,6 @@ These rules apply to *every* response this skill produces.
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -198,6 +197,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                          │ either alone."│
                                          └───────────────┘
 ```
+
 **Motion activation requirements:**
 - **Reactive Co-Sell:** Partner directory in CRM, "warm introduction" playbook, simple referral tracking, partner page on website.
 - **Proactive Co-Sell:** Joint value prop documented, account mapping exercise completed monthly, shared pipeline in CRM, joint demos available, co-branded assets.
@@ -228,6 +228,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                           │ 48 hours.      │   │ expires.       │
                           └────────────────┘   └────────────────┘
 ```
+
 **Registration rules that work:**
 1. Partner registers deal in portal with: company name, contact name, opportunity description, estimated deal size.
 2. You review within 24 hours. Accept if: deal is net-new to your pipeline, partner is actively engaged, company isn't already in your CRM with an active opportunity from direct sales.
@@ -265,6 +266,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                       │ prospect     │
                       └──────────────┘
 ```
+
 **Resolution principles:**
 - Speed over perfection: resolve within 72 hours of escalation.
 - Transparency: both parties see the decision rationale in writing.
@@ -340,7 +342,11 @@ Certification is the gate to tier benefits and deal registration. Design three c
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Error Recovery
 **(STANDARD)**
@@ -408,11 +414,9 @@ Partner portal/data system outage >24 hours → Engineering + VP Partnerships. P
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product positioning, competitive analysis, value proposition | Before engaging prospects or designing partnerships |
-
 
 ## Proactive Triggers
 
@@ -428,7 +432,6 @@ Partner portal/data system outage >24 hours → Engineering + VP Partnerships. P
 | Partner certification completion rate drops below 30% | BizDev Manager, Sales Engineer | Certification is either too hard, too long, or not valued. Audit the program: time-to-complete, pass rate, value proposition. Fix or partners won't be sell-ready |
 | MDF ROI drops below target (program spend >30% of attributed partner revenue) | Marketing Manager, BizDev Manager | MDF program is burning budget without pipeline return; tighten approval criteria, require stronger lead-capture mechanisms, audit past allocations |
 | Competitor partner program announces significantly better economics (higher margin, MDF, or rev share) | BizDev Manager, Business Strategist, VP Sales | Partner defection risk; benchmark your program against competitor within 1 week. Prepare retention offers for top 20% of partners by revenue |
-
 
 ## State Log
 
@@ -456,7 +459,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -526,53 +529,6 @@ Before any partnerships deliverable leaves this skill, verify:
 - [ ] Partner portal or hub exists with deal registration, pipeline tracking, MDF management, and enablement resources
 - [ ] Partner health score defined and tracked: pipeline generation, revenue attainment, certification status, customer satisfaction, engagement level
 
-## Scale Depth
-
-### Solo/First Partner Hire (0-1 partner managers, 0-10 partners)
-- Partners: Founder-led. 2-3 technology partners (integrations) + 2-3 referral partners
-- Evaluation: Manual — founder evaluates fit based on ICP alignment and personal relationship
-- Enablement: Self-service docs + 1:1 onboarding. No formal certification yet
-- Program: No formal tiers. Case-by-case rev share agreements
-- Metrics: Partner-sourced pipeline (manual tracking in CRM), partner-attached revenue
-- Deliverable: Partner tracker spreadsheet + monthly partner pipeline review with founder
-
-### Small (1-3 partner managers, 10-50 partners)
-- Partners: 5-10 technology partners, 5-10 referral partners, 2-3 reseller partners
-- Evaluation: Scorecard-based evaluation across 5 dimensions. Monthly pipeline review per partner
-- Enablement: Self-paced certification + monthly office hours. Basic partner portal with deal registration
-- Program: Formal partner tiers (Registered, Select, Premier). Standard rev share agreements. Basic MDF program
-- Metrics: Partner-sourced/influenced pipeline, partner revenue, partner activation rate (signed → producing revenue), certification completion rate
-- Deliverable: Monthly partner dashboard + quarterly business reviews with top 10 partners + partner program guide
-
-### Medium (3-10 partner managers, 50-200 partners)
-- Partners: Technology, referral, reseller, and 2-3 strategic partners. Regional partner coverage
-- Evaluation: Partner health scoring (pipeline, revenue, certification, engagement). Monthly QBRs with Premier+
-- Enablement: LMS-based certification tracks, hands-on labs, partner community (Slack/Discord), partner advisory board
-- Program: Multi-tier program with differentiated benefits. MDF program with ROI tracking. Partner awards program
-- Metrics: Partner revenue by type/source/tier, partner NPS, time-to-first-deal, partner attrition rate, enablement effectiveness (certified vs. non-certified conversion)
-- Deliverable: Quarterly partner business review + annual partner summit + partner program evolution roadmap
-
-### Enterprise (10+ partner managers, 200+ partners)
-- Partners: Global partner ecosystem: technology, reseller, referral, strategic, OEM, MSP, GSI. Regional partner teams
-- Evaluation: Predictive partner scoring (ML-based). Automated health monitoring. Strategic partner joint business planning (annual + quarterly)
-- Enablement: University-style partner academy. Multi-language certification. Partner innovation lab. Dedicated solution architects for top partners
-- Program: Global partner program with regional customization. Marketplace presence (AWS, Azure, GCP, Salesforce). Partner M&A integration
-- Metrics: Partner ecosystem contribution to total revenue, partner lifetime value, partner net revenue retention, ecosystem multiplier effect, partner-driven product roadmap influence
-- Deliverable: Annual partner ecosystem strategy + quarterly executive business review + partner conference + partner advisory board + ecosystem health dashboard
-
-## Error Decoder
-**(STANDARD)**
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| 30 signed partners, $0 in partner revenue after 12 months | Partnerships treated as "sign and move on." No activation plan, no enablement, no pipeline review. Partners were never operationalized. | Audit every signed partner: do they have certification? Deal registration access? A named partner manager? Joint pipeline? Sunset partners with no activity after 6 months. Assign a dedicated partner manager to the top 5 by potential. | A signed agreement is a promise, not a result. |
-| Partner-sourced 40% of pipeline but 60% of those deals churned in year 1 | Rev share incentivized deal volume, not deal quality. Partners sent any deal regardless of ICP fit because they got paid the same for good-fit and bad-fit deals. | Restructure comp: base rev share + retention bonus (paid at 12 months if customer active) + expansion bonus (on upsell revenue). Partners now optimize for LTV, not initial deal. | Incentives shape behavior. Pay for the behavior you want. |
-| Top partner left for competitor after 2 years of $2M/year joint revenue | Partner relationship was purely transactional — no exec sponsorship, no joint roadmap planning, no strategic alignment. Competitor offered exec-level partnership; your partner took it. | Establish exec sponsor relationships (CEO-to-CEO, CPO-to-CPO) with top 10% of partners. Conduct annual joint business planning. Share roadmap and co-invest in joint innovation. | Transactional partnerships are competitor-vulnerable. Strategic partnerships are sticky. |
-| Partner enablement portal has 50 pieces of content; 0 partners certified | Enablement was built as a document library — PDFs, recorded webinars, slide decks. No learning path, no hands-on practice, no certification incentive. | Rebuild as a learning experience: (1) structured curriculum with modules, (2) hands-on labs with sandbox environments, (3) certification with badging and LinkedIn sharing, (4) partner tier tied to certification level. | Enablement is product design, not content dumping. |
-| 50 bottom partners consuming 60% of partner team time; top 5 partners complaining about neglect | No partner tiering or resource allocation framework. Partner managers treated all partners equally. Equal treatment = unequal value delivery. | Implement tier-based resourcing: Strategic partners get dedicated manager (3-5:1 ratio), Premier get named manager (8-12:1), Select get pooled support (15-25:1). Registered are self-service. | Equal treatment of unequal partners is a resource allocation failure. |
-| Partner deal registration conflict — 2 partners claim same deal, legal threats exchanged | No rules of engagement, no deal registration system, no conflict resolution process. First-come-first-served created a race to register rather than a race to serve the customer. | Implement deal registration with: (1) clear "influence" criteria (must have introduced or advanced the opportunity), (2) registration expiration (90 days with no activity = released), (3) escalation path (partner manager → partner director → VP), (4) customer-first principle (customer chooses preferred partner in unresolved conflicts). | Without rules of engagement, partners compete with each other instead of competitors. |
-
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -582,7 +538,6 @@ Before any partnerships deliverable leaves this skill, verify:
 | Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
 | Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
 | RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -615,4 +570,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

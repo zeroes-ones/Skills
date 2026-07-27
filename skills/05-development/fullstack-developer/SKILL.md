@@ -39,7 +39,8 @@ chain:
 # Fullstack Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -52,6 +53,7 @@ chain:
 Deliver complete features across the entire stack — from database to UI. This skill covers end-to-end feature development: TypeScript monorepos with shared types, full-stack frameworks (Next.js, Remix, SvelteKit), API integration patterns, database access from server-side code, authentication flows spanning frontend and backend, deployment orchestration, and comprehensive testing across all layers.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -92,9 +94,11 @@ What are you trying to do?
 └── Don't know where to start? → Describe the feature in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect fullstack mistakes before they are given. Violation means STOP and refuse to proceed.
 
@@ -109,12 +113,12 @@ These rules are non-negotiable constraints that detect fullstack mistakes before
 | R7 | **ANCHOR to runtime versions before generating full-stack code.** Never generate Next.js/Remix/SvelteKit/Prisma/Drizzle API calls from training data alone — full-stack frameworks have tightly coupled frontend+backend APIs that both change between major versions. | Trigger: skill receives code-generation task involving full-stack framework APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect framework and ORM versions → anchor all API calls (both frontend and backend) to detected versions → if versions are newer than training cutoff, add // VERIFY: comments on framework-specific calls | STOP. Respond: "Detected: {framework}@{version}, {orm}@{version}. Anchoring all full-stack API calls to these versions. Frontend and backend must use the same version's APIs — version mismatch at the boundary is a common source of bugs. See `scripts/references/source-of-truth-anchoring.md`." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -139,6 +143,7 @@ Competent fullstack developers make the frontend work and the backend work. Mast
 - **Put computation in the client when it's truly presentation-only.** Sorting a 200-row table, formatting dates, local search — the user's device can handle this faster than a round trip. Server-side rendering is not always the answer.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Fullstack spans two disciplines, so level manifests in the sophistication of integration decisions — where to put logic, how to design the boundary, and how to optimize the whole.
 
@@ -185,6 +190,7 @@ Fullstack spans two disciplines, so level manifests in the sophistication of int
 - Chaos engineering: regular cross-stack failure injection (DB failover, API degradation, CDN outage)
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Delivering a feature that spans database, API, and UI layers
@@ -198,6 +204,7 @@ Fullstack spans two disciplines, so level manifests in the sophistication of int
 Debugging issues that cross the frontend-backend boundary
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Monorepo vs Polyrepo
@@ -228,6 +235,7 @@ Debugging issues that cross the frontend-backend boundary
                           │ packages   │  │ coordination │
                           └────────────┘  └──────────────┘
 ```
+
 **When Monorepo:** Shared types/Zod schemas between frontend and backend. Single CI triggering. Atomic cross-cutting changes. Team < 30 engineers.
 **When Polyrepo:** Fully independent services with separate deploy cadences. Teams don't need each other's code. Published API contracts are sufficient.
 
@@ -258,6 +266,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ Apollo     │  └──────────────┘
                             └────────────┘
 ```
+
 **When tRPC:** TypeScript monorepo. Same team owns frontend + backend. No third-party API consumers. Prototype speed matters.
 **When REST:** Public API consumed by third parties. Caching via CDN/HTTP important. Simple CRUD with predictable resource patterns.
 
@@ -287,6 +296,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ (managed)  │  │ or JWT.      │
                             └────────────┘  └──────────────┘
 ```
+
 **When NextAuth:** Next.js app. OAuth providers (Google, GitHub) needed. JWT sessions adequate. Team wants fast setup with configuration over code.
 **When Clerk/WorkOS:** Enterprise SSO (SAML). Multi-tenant with org management. Need pre-built UI components. Don't want to store passwords.
 
@@ -317,15 +327,18 @@ Debugging issues that cross the frontend-backend boundary
                             │ ECS        │  │ container    │
                             └────────────┘  └──────────────┘
 ```
+
 **When Vercel:** Next.js/SvelteKit app. Edge functions useful. Preview deployments needed. Team < 10. Don't want to manage infrastructure.
 **When Docker/ECS:** Background workers, cron jobs, WebSocket servers. Specific networking requirements (VPC, service mesh). Compliance requires specific base images.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Monorepo Setup & Shared Contracts
 1. **Package manager**: pnpm workspaces for efficient disk usage and strict dependency resolution.
 2. **Monorepo structure**:
+
    ```
    /apps
      /web        — Next.js frontend
@@ -336,6 +349,7 @@ Debugging issues that cross the frontend-backend boundary
      /config     — ESLint, TypeScript, Tailwind configs
      /database   — Prisma/Drizzle schema, migrations
    ```
+
 3. **Shared types**: Single source of truth for API contracts. `packages/shared` exports DTOs, Zod validation schemas, TypeScript interfaces. Imported by both frontend and backend.
 4. **Turborepo pipeline**: Define `turbo.json` with dependency-aware tasks: `build`, `lint`, `typecheck`, `test`, `dev`. Caching for unchanged packages.
   Complete when: `pnpm dev` starts all apps without import errors, shared types resolve correctly in both frontend and backend IDEs.
@@ -380,9 +394,11 @@ Debugging issues that cross the frontend-backend boundary
 4. **Observability**: OpenTelemetry for distributed tracing across frontend and backend. Structured logging with correlation IDs propagated through all layers. Frontend RUM (Real User Monitoring) with web-vitals.
 5. **Feature flags**: LaunchDarkly, GrowthBook, or homegrown. Wrap new features; toggle per environment, user segment, or percentage rollout.
   Complete when: Staging deploy succeeds, database migrations run in pipeline, OpenTelemetry traces span from browser to database, and a feature flag gates the new feature.
-
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Share validation schemas as the single source of truth across the stack.** Define Zod/Yup schemas in a shared `packages/shared` monorepo package. Both the API layer and the frontend form import from the same schema file. If tRPC, the procedure input IS the validation. Never duplicate validation logic or regex patterns between client and server — the divergence creates bugs where client says "valid" but server rejects.
 
@@ -404,8 +420,8 @@ Debugging issues that cross the frontend-backend boundary
 
 10. **Treat API response size as a client performance concern.** Next.js `getServerSideProps` serializes ALL returned data into `__NEXT_DATA__` in the HTML. Returning full database rows with 50 columns ships every unused column to the browser. Select only the fields the UI needs. Use `superjson` or sparse field sets (`?fields=id,name`) to keep the HTML payload lean — it affects First Contentful Paint directly.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -420,6 +436,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -455,6 +472,7 @@ Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -466,11 +484,12 @@ Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
 | Feature deployed but production error rate spikes because the frontend deployed before the backend API was ready | Flag: "Deploy order matters: (1) Database migrations (backward-compatible), (2) Backend (new endpoints, old endpoints unchanged), (3) Frontend (can now safely call new endpoints). Never deploy frontend first if it depends on a new API. Use feature flags: backend deploys new endpoint behind a flag, frontend deploys with the flag off, QA verifies end-to-end, then enable the flag" | Deployment ordering bugs are the most embarrassing production incidents — the button is there but clicking it returns 404. Feature flags decouple deployment from release: deploy code at any time, release features when ready. Without them, you're coordinating deployment timing across teams, which is a coordination failure, not a technical solution |
 | No end-to-end test covering the critical user path (signup→create→purchase) — unit tests pass but the full flow is broken | Alert: "Unit tests can't catch: CORS misconfiguration, cookie SameSite issues, redirect chain breakage, CSRF token mismatch, database migration missing column, environment variable typo. One Playwright test covering signup→create→purchase catches all of these simultaneously. If you have zero E2E tests, write this one today" | The most expensive production bugs live in the gaps between layers — the exact gaps that unit tests don't cover. A single E2E test of the critical path catches bugs that would require 50+ unit tests across 5 services to surface. E2E tests are not optional for fullstack development; they are the only tests that verify the system works end-to-end |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before any production deployment, verify ALL of:
 
@@ -491,6 +510,7 @@ Before any production deployment, verify ALL of:
 15. Runbook exists for top 3 cross-stack failure modes (DB unreachable, API down, auth provider outage)
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Types flow end-to-end from database schema through API contracts to UI props — the compiler catches mismatches before they reach production.
 
@@ -509,6 +529,7 @@ Common chains:
 - **Architecture-driven feature**: system-architect → fullstack-developer → devops-engineer — Architecture defines system boundaries, fullstack implements within them, DevOps deploys
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
@@ -529,6 +550,7 @@ Common chains:
 **Ship a complete feature — database schema change through UI — in under 2 hours every month.** Speed reveals bottlenecks in your tooling, your understanding, and your stack. If you can't ship a complete feature in 2 hours, something in your stack is too complex. Find it. Simplify it. Repeat.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### 1. Duplicated Validation Logic
 **What it looks like:** Zod schemas on the frontend, different Yup/Joi schemas on the backend, regex patterns that differ by one character. A field passes client validation, gets rejected by the server with an opaque error. Users see a green checkmark, submit, get "Invalid email," retype the same email three times, and abandon.
@@ -580,6 +602,7 @@ Common chains:
 **Fix:** ESLint rules banning server imports in client code. `server-only` npm package for modules that must never resolve in the browser. `source-map-explorer` audit on production bundles. `NEXT_PUBLIC_` prefix only for intentional public values like app URL.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -595,6 +618,7 @@ When full-stack apps go wrong, they go wrong in predictable ways. Here are the m
 | API version mismatch — frontend deployed with v2 schema, backend still serves v1. Production breaks, staging works | Frontend and backend deployments are not atomic. The CDN caches the new frontend bundle while the backend rollout is still in progress. For 2-3 minutes, users get v2 frontend talking to v1 backend | Version your API in the URL: `/api/v1/users` and `/api/v2/users`. Never deploy breaking changes without a new version. Backend must support N-1 version for the duration of the rollout. Use feature flags to decouple deploy from release | Deployments are not instantaneous. During a rolling deploy, some instances run old code and some run new code. Your API must handle both old and new clients for at least one deploy cycle |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -605,6 +629,7 @@ When full-stack apps go wrong, they go wrong in predictable ways. Here are the m
 | Deploying with `nodeIntegration: true` in Electron or missing CSP headers — XSS turns into RCE on user machines | $50K-$200K in security incident response and reputational damage | Set `contextIsolation: true`, `nodeIntegration: false`. Use Content-Security-Policy headers. Expose only needed APIs via `contextBridge`. Audit with `grep -rn 'nodeIntegration.*true'`. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `npm test` / `pytest` across frontend AND backend — both pass independently
 - [ ] Run `npm run build` for frontend — zero build errors
@@ -614,10 +639,12 @@ When full-stack apps go wrong, they go wrong in predictable ways. Here are the m
 - [ ] Verify CORS configuration: frontend origin exactly matches API's `Access-Control-Allow-Origin`
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -627,5 +654,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

@@ -108,7 +108,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -156,20 +155,6 @@ Staff engineering has distinct archetypes. The level manifests in scope of influ
 
 **Usage**: Say "as a Staff engineer in the Architect archetype, review this cross-team proposal." Default: **L2 (Staff)** — one archetype, cross-team scope.
 
-### Scale Depth — Scope of Influence
-
-#### Team-level Staff (1 team, 5-10 engineers)
-Archetype: Tech Lead. Focus: technical excellence within one team. Lead architecture decisions for team-owned services. Mentor senior engineers toward staff thinking. Run team design reviews. Key artifact: team technical roadmap. Hands-on: 40-50%. Key risk: getting stuck in senior IC work instead of multiplying impact.
-
-#### Multi-team Staff (2-5 teams, 15-40 engineers)
-Archetype: Architect or Solver. Focus: cross-team architecture, RFC process, technical standards across teams. Lead working groups for shared concerns (API design, observability, testing). Mentor tech leads across teams. Key artifact: cross-team RFCs and architecture decision records. Hands-on: 20-30%. Key risk: spreading too thin — trying to influence 10 teams and having impact on none.
-
-#### Department Staff (5-10 teams, 40-100 engineers)
-Archetype: Senior Staff, multiple archetypes. Focus: department-level technical strategy, 18-month technical vision, build-vs-buy decisions for platform capabilities. Lead architecture review board. Set technical hiring bar. Key artifact: department technical strategy document. Hands-on: 10-20%. Key risk: losing hands-on credibility — unable to evaluate technical arguments because too disconnected from code.
-
-#### Organization Staff (100+ engineers, multiple departments)
-Archetype: Principal/Distinguished. Focus: organization-wide technical direction, 3-year technical vision, industry influence (conferences, open-source, standards bodies). Create patterns adopted by the entire org. Advise CTO/VPE on technical investments. Key artifact: published frameworks, adoption across the industry. Hands-on: 5-10%. Key risk: ivory tower — proposing architectures that teams can't implement because unaware of ground-level constraints.
-
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -185,11 +170,99 @@ Archetype: Principal/Distinguished. Focus: organization-wide technical direction
 
 ## Decision Trees
 
+### Decision Tree 1: RFC vs ADR vs Tech Spec Decision
+
+        ┌── INPUT: Technical decision needs documentation
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+Cross-team impact              Single-team impact
++ multiple stakeholders         │
+   │                            ▼
+   ▼                       ┌── Decision is
+RFC: Open for             │   irreversible or
+comment period            │   hard to change?
+(1-2 weeks)               │
++ stakeholder review      └──┬──────────────────┘
++ decision record            │ YES        │ NO
+attached as ADR              ▼            ▼
+                         ADR: Document  Tech Spec:
+   ┌── Architecture       decision +    implementation
+   │   change with        context +     details +
+   │   multiple options   consequences  code pointers
+   │   evaluated?         + rejected
+   ▼                      alternatives
+YES → Include options
+      analysis section
+      in RFC with
+      trade-off table
+NO  → Simple RFC with
+      proposed solution
+      + migration plan
+
+### Decision Tree 2: Mentorship Intervention Level
+
+        ┌── INPUT: Senior engineer seeks guidance
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Career navigation           Technical problem-solving
+(should I go staff           │
+  or management?)            ▼
+   │                    ┌── Blocked on specific
+   ▼                    │   design decision?
+┌── Has they tried     └──┬──────────────┘
+│   both tracks?          │ YES        │ NO
+└──┬──────────────────┐   ▼            ▼
+   │ YES       │ NO       Pair-program  ┌── Systemic
+   ▼           ▼          session +      │   issue across
+Discuss      Suggest      options        │   multiple
+what gave    tech lead    analysis       │   teams?
+energy vs    trial first  together       └──┬──────────┘
+what drained (6 months)                   │ YES  │ NO
++ connect    then re-                     ▼      ▼
+with others  evaluate                Convene    Point to
+on both                              working    relevant
+paths                                group +    prior art
+                                     write      + suggest
+                                     problem    approach
+                                     statement
+
+### Decision Tree 3: Cross-Team Alignment Tactic
+
+        ┌── INPUT: Teams disagree on technical direction
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Disagreement is about       Disagreement is about
+technical approach          ownership/territory
+   │                         │
+   ▼                         ▼
+Write a 1-page RFC         ┌── Clear business
+with options +              │   justification
+trade-off table.            │   for each team's
+Present to both             │   preferred owner?
+teams jointly.              └──┬──────────────┘
+Focus on principles,           │ YES        │ NO
+not personalities.             ▼            ▼
+                           Propose joint  Escalate to
+   ┌── Still deadlocked?   ownership      shared
+   │                       with clear      engineering
+   ▼                       interface       leader with
+YES → Escalate to           contracts      written
+      sponsor/VP with                      summary of
+      recommendation +                    positions +
+      decision deadline                   recommendation
+
 **(QUICK)**
 
 <!-- QUICK: 60s — follow the ASCII tree to your scenario -->
 
 ### Which Problem Do I Tackle?
+
 ```
                     ┌─────────────────────────────────┐
                     │ START: I have bandwidth for one  │
@@ -234,6 +307,7 @@ Archetype: Principal/Distinguished. Focus: organization-wide technical direction
 ```
 
 ### How Do I Drive Alignment?
+
 ```
                     ┌─────────────────────────────────┐
                     │ START: I have a proposal that    │
@@ -339,8 +413,13 @@ Archetype: Principal/Distinguished. Focus: organization-wide technical direction
    what we'd do differently. This becomes organizational learning, not just project memory.
 
   Complete when: Retrospective published and shared with all stakeholders, success metrics measured against RFC targets, and adoption rate meets or exceeds the defined threshold (or escalation triggered with a remediation plan).
+  Complete when: Team OKRs aligned with company goals and reviewed by skip-level manager.
+  Complete when: Career development plans documented for all direct reports with quarterly check-ins.
+  Complete when: Engineering metrics dashboard published with DORA metrics and team health indicators.
+  Complete when: Budget approved with headcount plan, tooling costs, and training allocation.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 **(STANDARD)**
 
@@ -459,19 +538,17 @@ Existential technical risk (data loss, security vulnerability, extended outage p
   └── CTO Advisor + Security Engineer immediately. Incident process if active.
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `cto-advisor` | Technology strategy, architecture governance, build-vs-buy analysis | Before making engineering leadership decisions |
 | `ceo-strategist` | Company vision, OKRs, organizational design, budget constraints | Before organizational or strategic changes |
 
-
 ## Proactive Triggers
 
 [Full trigger details →](references/proactive-triggers.md)
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -526,7 +603,7 @@ graph LR
 - **Sponsorship vs mentorship** — mentoring (giving advice) helps individuals grow. Sponsoring (using your capital to get someone a high-visibility project, promotion support, or conference talk slot) changes careers. Senior→Staff transition requires sponsorship, not just mentorship. **Total cost: $1M-$5M in lost talent from high-performing engineers who leave due to lack of career acceleration and visible sponsorship.**
 - **Staff engineer as organizational free electron with no accountability** — the Staff engineer identifies a problem, starts working on it, but never defines success criteria or a timeline. Six months later, 3 teams have been waiting on the output, and the Staff engineer has moved on to the next interesting problem. Without explicit deliverables and stakeholder check-ins, Staff-level autonomy becomes organizational drift. **Total cost: $300K-$1M in blocked team productivity and abandoned cross-team initiatives when Staff work lacks defined completion criteria.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -537,6 +614,7 @@ graph LR
 | "I can fix this cross-team issue myself faster than coordinating" | Solo cross-team fixes create single points of failure and rob other teams of ownership; the 3 teams that should own the solution never learn it, and the problem recurs the moment you step away. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -574,7 +652,6 @@ Before shipping any staff-level deliverable, verify:
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
-- **Scale Depth: Solo → Small Team → Medium Team → Enterprise**: See [scale-depth-solo-small-team-medium-team-enterprise.md](references/scale-depth-solo-small-team-medium-team-enterprise.md)
 
 ## Error Decoder
 

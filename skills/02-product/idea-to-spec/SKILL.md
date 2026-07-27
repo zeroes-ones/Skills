@@ -41,6 +41,7 @@ chain:
 Systematically decompose a raw product idea into a complete, implementation-ready specification package — PRD, domain model, API surface, screen inventory, and prioritized work items — so that an engineering team can estimate and build without ambiguity.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -114,7 +115,8 @@ Incoming request — what's the dominant signal?
     └── → This skill at L1 depth. Produce a Scope Brief only — problem statement, target users, success metrics, in/out scope. The Scope Brief IS the routing document: once written, it will make obvious whether this needs architecture, research, design, or can proceed to full spec.
 ```
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -125,6 +127,7 @@ Incoming request — what's the dominant signal?
 | "We don't need Out of Scope — we're all aligned on what we're building" | "We're all aligned" lasts exactly until a stakeholder asks for "one more small thing" during sprint 4. Out of Scope is a pre-agreed contract. Without it, alignment is just the temporary absence of disagreement — not the permanent presence of agreement. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -143,12 +146,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R9** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R10** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master idea to specs understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -169,6 +172,7 @@ Master idea to specs understand that strategy is not about predicting the future
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -184,6 +188,7 @@ Master idea to specs understand that strategy is not about predicting the future
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A stakeholder has a one-paragraph idea and needs a formal spec before sprint planning
@@ -193,6 +198,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - An existing system needs a net-new module and someone must bootstrap the design doc
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -268,6 +274,7 @@ How do you decompose a spec into implementable increments?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -296,8 +303,12 @@ List every screen, modal, drawer, or stateful view the feature requires. For eac
 Slice the spec into vertically deliverable user stories. Each story must be independently shippable and demonstrable. Write stories in the `As a [role], I want [action], so that [value]` format with concrete acceptance criteria. Sequence stories by dependency and value-to-effort ratio. Tag each story with a t-shirt size estimate for early capacity planning. Output a **Story Map** ordered by priority.
 
   Complete when: Strategy documented, success criteria defined, stakeholders aligned, and next-phase dependencies identified.
+  Complete when: PRD reviewed by engineering lead and feasibility confirmed within sprint capacity.
+  Complete when: Success metrics defined with baseline measurement and target thresholds.
+  Complete when: User testing completed with at least 5 participants — findings documented.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start with a Scope Brief, not a PRD.** Before writing a full PRD, produce a one-page Scope Brief: Problem Statement, Target Users, Success Metrics, Scope Boundaries, and Open Questions. If stakeholders cannot align on the Scope Brief, they will never align on the PRD. The Scope Brief is the cheapest artifact that can prevent a bad spec.
 
@@ -320,6 +331,7 @@ Slice the spec into vertically deliverable user stories. Each story must be inde
 10. **Post-mortem every spec 3 months after implementation.** Compare what was spec'd vs what shipped. Track: spec accuracy score (0-100%), number of "discovered during implementation" changes, and engineering rework cost from missed edge cases. Your spec accuracy score IS your skill level.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -331,6 +343,8 @@ Slice the spec into vertically deliverable user stories. Each story must be inde
 | Scope Brief aligned, PRD approved, but stakeholder sends "one quick addition" per day during implementation | No change control process. Every "quick addition" adds 1-3 days of engineering + QA. Five unplanned additions per sprint = unbudgeted scope creep. | Gate every addition: "We can add this — what existing item should we deprioritize to make room?" Trade-offs must be explicit and visible. | Scope creep without trade-offs is just a wishlist with deadlines. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -347,6 +361,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Converting an idea into a spec is inherently collaborative — it synthesizes product intent, design thinking, and engineering reality. A spec written in isolation produces three things: rework, frustration, and missed deadlines.
@@ -389,6 +404,7 @@ Cross-team dependency deadlock (two teams block each other)
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -401,11 +417,13 @@ Cross-team dependency deadlock (two teams block each other)
 | Feature spec doesn't reference any user research or data that justifies the feature | Ask: "What user evidence supports this feature? Is there a pain point severity rating, support ticket count, or churn signal?" If none exists, flag to `ux-researcher` for validation sprint before full spec | Features built without evidence become shelfware. A 2-day validation sprint costs far less than a 2-month build of something nobody needs |
 | No entity relationship model when feature touches database schema | Coordinate with `database-designer` to produce ERD, data dictionary, access patterns, and cardinality rules. Add to spec appendix | Schema decisions made by individual engineers without coordination create data inconsistencies that take quarters to untangle. Spec-level data modeling prevents migration cascades |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### BEFORE (Novice) → AFTER (World-Class)
 
@@ -426,6 +444,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 | Level | Practice | Frequency |
 |-------|----------|-----------|
@@ -437,6 +456,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 **The One Highest-Leverage Activity:** Post-mortem every spec 3 months after implementation. Compare what was spec'd vs what shipped. Track: spec accuracy score (0-100%), number of "discovered during implementation" architecture changes, and engineering rework cost from missed edge cases. Your spec accuracy score IS your skill level.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Building without a spec costs 2-3x in rework.** When engineers start coding from a Slack message or a 3-bullet ticket, they guess at edge cases, data models, and error states. Each rework cycle costs 50-200% of the original build — a $50K feature becomes a $100K-$150K feature. A 2-day spec sprint costs ~$4K in PM + engineering time and prevents $50K-$500K in rework. **Total cost: $50K-$500K per underspecified feature.** Never greenlight engineering without at minimum: data model, API contract, and error-state handling defined.
 - **Scope creep without change control bleeds $10K-$100K/month.** Every "quick addition" — "can we also add sorting?", "what about export to CSV?" — adds 1-3 days of engineering + QA per request. Five unplanned additions per sprint = 5-15 extra engineering days per sprint. At a $200K fully-loaded engineer, that's $4K-$12K per sprint in unbudgeted scope. **Total cost: $10K-$100K/month in delayed release and over-budget work.** Gate every addition through a change control: "We can add this — what existing item should we deprioritize to make room?"
@@ -449,8 +469,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **"Build a dashboard with these 15 metrics"** — the spec describes WHAT to display, not WHERE the data comes from. Engineering discovers that 7 of the 15 metrics require data from a system that doesn't have an API. Spec must include DATA PROVENANCE: "Metric X comes from the billing system via `GET /invoices`, field `total`."
 - **Success criteria that can't be verified until launch** — "Users will love the new workflow" — you won't know until it ships. Success criteria must include pre-launch proxies: "In usability testing, 8/10 users complete the workflow in < 3 minutes without assistance." Verifiable before code freeze.
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -459,7 +480,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
 | User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -470,6 +490,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Executive summary: 1 page — decisions, not details (details in appendices)
 - [ ] Data provenance: every data element traced to source system and endpoint
@@ -479,10 +500,12 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Stakeholder sign-off: Engineering, Design, and Product have reviewed and approved
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -500,6 +523,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[ITS12]** Spec accuracy tracked: post-mortem scheduled for 3 months post-launch; spec accuracy score and rework cost measured
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -509,5 +533,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

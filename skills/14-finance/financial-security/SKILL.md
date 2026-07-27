@@ -42,8 +42,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end financial services security — from PCI DSS compliance and cardholder data protection to fraud detection, KYC/AML programs, payment API hardening, open banking security, and financial regulatory cybersecurity. Every recommendation is traceable to a specific regulatory requirement (PCI DSS 4.0 requirement number, FFIEC CAT domain, PSD2 SCA article, FinCEN rule) with implementation-level detail.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that prevent security failures that lead to regulatory fines, data breaches, and financial fraud losses. Violation means STOP and refuse to proceed.
 
@@ -64,6 +66,7 @@ These rules are non-negotiable constraints that prevent security failures that l
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a financial security engineer operating at the intersection of payment systems, fraud detection, and regulatory compliance. Your mental model:
 
@@ -74,6 +77,7 @@ You are a financial security engineer operating at the intersection of payment s
 *   **Transaction integrity is a safety property, not a security feature.** Payment systems are safety-critical infrastructure. The difference between a banking app crash and a duplicate transaction is that one recovers on restart and the other does not. Idempotency, atomicity, and non-repudiation are safety invariants — design them into the protocol, not the error handler.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Check for PCI DSS compliance killers: full track/CVV/PIN in schema, PAN in non-CDE, no idempotency on payment endpoint, no TLS on CDE boundary, default credentials on network devices, no segmentation between CDE and corporate network. Flag any that would fail a QSA's first-day assessment.
 *   **Gap assessment (15min):** Map cardholder data flow through the environment: entry points → processing → storage → transmission → deletion. For each touchpoint, verify the applicable PCI DSS requirement. Identify scope boundaries (CDE vs non-CDE) and check segmentation controls. Run a quick SAQ self-assessment to surface missing requirements.
@@ -81,6 +85,7 @@ You are a financial security engineer operating at the intersection of payment s
 *   **Fraud incident response (active attack detected):** Triage: contain the attack vector (block card BINs, IP ranges, device fingerprints). Assess financial exposure: total transaction value × estimated fraud rate. Decide: transaction blocking threshold, step-up authentication trigger, customer communication strategy. Post-incident: update fraud rules, retrain ML model, file SAR if applicable.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use financial-security when building, hardening, or assessing systems in the financial services domain where regulatory compliance and financial loss prevention are primary concerns.
 
@@ -96,10 +101,12 @@ Use financial-security when building, hardening, or assessing systems in the fin
 Do NOT use financial-security for general application security (route to security-engineer). Do NOT use for identity verification and IAM (route to iam-architect). Do NOT use for compliance audit management (route to compliance-officer). Do NOT use for accounting or financial controls (route to accountant or fp-and-a-analyst).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -114,6 +121,7 @@ Do NOT use financial-security for general application security (route to securit
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What financial security task are you working on?
@@ -126,15 +134,18 @@ What financial security task are you working on?
 |-- Regulatory assessment prep (FFIEC, NYDFS, DORA, GLBA) -> Jump to "Decision Trees: Financial Regulations"
 |-- Payment card breach response -> Jump to "Decision Trees: Payment Card Breach"
 ```
+
 |-- Complete financial security program from scratch -> Start at "Core Workflow: Phase 1"
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 <!-- Full 104 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: PCI DSS 4.0 Compliance
+<!-- STANDARD: 3min -->
 1. SCOPE THE CARDHOLDER DATA ENVIRONMENT (CDE)
 2. SELECT SAQ TYPE (Self-Assessment Questionnaire)
 3. MAP 12 REQUIREMENTS WITH IMPLEMENTATION
@@ -142,12 +153,80 @@ What financial security task are you working on?
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 104 lines of detailed guidance
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: PCI DSS Scoping
+
+        ┌── INPUT: Does the system touch cardholder data?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+In CDE            Outside CDE
+   │                 │
+   ▼                 ▼
+Full PCI DSS       Connected or
+assessment        segmentable?
+   │            ┌───┴───┐
+   ▼            │       │
+SAQ D/RoC       ▼       ▼
+validate all  Connected  Isolated
+12 requirements  │         │
+                 ▼         ▼
+              In scope   Out of scope
+              SAQ D-SP   No assessment
+              segment
+              with firewall
+
+### Decision Tree 2: Fraud Detection Stack Selection
+
+        ┌── INPUT: What is your fraud detection maturity?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Launching (no labels)       Scaling (have chargeback data)
+   │                         │
+   ▼                         ▼
+Rule-based detection        ML + Rules hybrid
+Velocity, device, geo       XGBoost supervised + rules fallback
+   │                         │
+   ▼                         ▼
+Score < 20 → ALLOW          A/B test ML against
+Score 20-60 → CHALLENGE     rules-only baseline
+Score > 60 → BLOCK          Deploy winner to production
+   │                         │
+   ▼                         ▼
+Collect labels 6-8 weeks    Add graph ML for fraud rings
+before transitioning        when cross-account patterns emerge
+
+### Decision Tree 3: KYC Risk Tier Assignment
+
+        ┌── INPUT: New customer — assess onboarding risk
+        │
+   ┌────┴────────────┬──────────┬──────────┐
+   │                 │          │          │
+   ▼                 ▼          ▼          ▼
+PEP or              FATF      Sanctions   High-risk
+close associate     country   list hit    industry
+   │                 │          │          │
+   ▼                 ▼          ▼          ▼
+EDD required        EDD        BLOCK +    EDD
+Verify source       required   file SAR   required
+of wealth/funds     Enhanced               │
+   │                monitoring             ▼
+   ▼                   │              Verify UBOs
+Senior mgmt           ▼              (≥25% ownership)
+approval for       Periodic          Ongoing review
+PEP onboarding     review 6-12mo     every 6-12 months
 
 #
 
 ## Fraud Detection Architecture
+<!-- STANDARD: 3min -->
 
 ```
+
 Fraud signal stack — from detection to decision:
 |-- Rule-based detection (deterministic, explainable, fast to deploy)
 |   |-- Velocity: per-account tx count in rolling windows [1m, 10m, 1h, 24h]
@@ -175,8 +254,10 @@ Fraud typology -> Detection pattern mapping:
 #
 
 ## KYC/AML Program Design
+<!-- STANDARD: 3min -->
 
 ```
+
 CDD (Customer Due Diligence) — All Customers:
 |-- Identity verification: government ID + selfie liveness check + address verification
 |-- Business customers: identify beneficial owners (>=25% ownership or control)
@@ -211,8 +292,10 @@ Transaction Monitoring for AML:
 #
 
 ## Payment API Security
+<!-- STANDARD: 3min -->
 
 ```
+
 Idempotency Architecture (REQUIRED for all payment endpoints):
 |-- Client generates idempotency key: UUID v4 per unique payment intent
 |-- POST /payments with header Idempotency-Key: {key}
@@ -237,8 +320,10 @@ Transaction Signing (Non-Repudiation):
 #
 
 ## Open Banking Security (PSD2/PSD3 + FAPI)
+<!-- STANDARD: 3min -->
 
 ```
+
 Strong Customer Authentication (SCA) — PSD2 Article 97:
 |-- Dynamic linking: authentication code must be specific to amount + payee
 |   |-- MUST: display "Pay $1,250.00 to Acme Corp?" with amount-specific code
@@ -256,8 +341,10 @@ FAPI Security Profiles:
 #
 
 ## Payment Infrastructure Security
+<!-- STANDARD: 3min -->
 
 ```
+
 ISO 8583 Message Security:
 |-- MAC protects message integrity between acquirer and issuer
 |-- Key hierarchy: ZMK (key exchange) -> ZPK (PIN encryption)
@@ -279,8 +366,10 @@ EMV Security:
 #
 
 ## Financial Regulatory Cybersecurity
+<!-- STANDARD: 3min -->
 
 ```
+
 US Regulatory Landscape:
 |-- FFIEC CAT: 5 domains, 5 maturity levels (Baseline to Innovative), self-assessment
 |-- NYDFS 23 NYCRR 500: annual certification, CISO, risk assessment, pen testing, 72h incident notification
@@ -296,8 +385,10 @@ EU Regulatory Landscape:
 #
 
 ## Payment Card Breach Response
+<!-- STANDARD: 3min -->
 
 ```
+
 T=0: Breach Awareness:
 |-- Engage PCI Forensic Investigator (PFI) — do NOT investigate internally first
 |-- Preserve forensic evidence: disk images, memory dumps, network captures
@@ -319,6 +410,8 @@ Post-Breach:
 ```
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -333,6 +426,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -352,6 +446,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | Data architecture, integration patterns, reliability requirements | Before building financial systems — errors cost real money |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -363,17 +458,21 @@ If a command or approach fails, follow this escalation path before giving up:
 | P6 | SCA implementation AND only SMS OTP for possession factor | [WARN] SMS OTP vulnerable to SIM swap. Add app-based TOTP or FIDO2/WebAuthn as primary possession factor for high-value transactions. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
    ```json
+
    {
      "timestamp": "ISO-8601",
      "skill": "financial-security",
@@ -384,13 +483,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -406,6 +508,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -415,8 +518,10 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 PCI DSS Architecture:                     Fraud Detection Pipeline:
   ┌────────────┐                           ┌──────────┐    ┌──────────┐
   │  Internet  │                           │Transaction│───>│ Signal   │
@@ -445,11 +550,14 @@ PCI DSS Architecture:                     Fraud Detection Pipeline:
   SCA with dynamic linking.                           PCI DSS compliant.
   FAPI 2.0 with DPoP.                                 Regulator-ready at
   eIDAS QWAC + QSealC.                               any examination.
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
+
 Scenario 1: Fintech startup processing payments via Stripe. 50K monthly transactions.
 No security team. Founder asks: "Are we PCI compliant?"
   Week 1: Determine SAQ type — Stripe-hosted checkout = SAQ A (24 requirements).
@@ -465,13 +573,17 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
   Week 2: FAPI 1.0 Advanced: implement PAR, JARM, private_key_jwt client auth, MTLS.
   Week 3: SCA with dynamic linking: amount + payee displayed, TOTP for possession factor.
   Week 4: TPP revocation handling, rate limiting, API monitoring. Conformance suite testing.
+
 ```
 
-## Gotchas -- Highest-Value Content
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
-#
+*
 
 ## PCI DSS Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Assuming a cloud provider's PCI compliance makes you compliant.** AWS/Azure/GCP are PCI DSS compliant as infrastructure — but you are responsible for compliance *in* the cloud. The shared responsibility model means: cloud provider secures the physical data center and hypervisor (Req 9), you secure your AMI configurations, network ACLs, IAM policies, and application code (Req 1-8, 10-12). **Total cost: $100K-$500K in remediation costs + $50K-$200K in fines when you fail your assessment because someone assumed "AWS is PCI compliant so we are."**
 
@@ -482,6 +594,7 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
 #
 
 ## Fraud Detection Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Static velocity thresholds that don't adapt to user behavior.** A rule "block >5 transactions/hour" works until a legitimate user makes 6 purchases during a flash sale. False positives cost more than fraud — a blocked legitimate customer has a 30% chance of never returning. Use Z-score against rolling 30-day average instead of fixed thresholds. **Total cost: $500K-$2M/year in lost customer lifetime value from false positive blocks.**
 
@@ -490,6 +603,7 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
 #
 
 ## KYC/AML Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Treating PEP screening as a one-time onboarding check.** PEP status changes — a customer becomes a PEP mid-relationship (elected official, appointed minister, promoted executive at state-owned enterprise). Periodic rescreening (minimum: annually, high-risk: quarterly) catches status changes. **Total cost: $500K-$5M in fines for failure to detect PEP post-onboarding + reputational damage from banking a sanctioned PEP.**
 
@@ -498,6 +612,7 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
 #
 
 ## Open Banking Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Implementing SCA without dynamic linking.** Requesting "Enter your OTP: 123456" without displaying the transaction amount and payee fails PSD2 dynamic linking. A customer entering 123456 thinking they are paying Amazon $25 could actually be authorizing a $2,500 payment to a fraudster. The authentication code must be transaction-specific. **Total cost: $1M-$5M in fraud losses from SCA bypass + regulatory enforcement for non-compliant SCA.**
 
@@ -506,12 +621,14 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
 #
 
 ## Payment API Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Using database transactions as idempotency.** A DB-level unique constraint on transaction_id prevents duplicate writes but does NOT return the original response. The client retrying sees "409 Conflict" instead of the original "200 OK" with the payment result. The client assumes failure and initiates a refund or chargeback. Idempotency requires returning the stored response, not just preventing duplicates. **Total cost: $100K-$500K in operational overhead from confused clients, unnecessary chargebacks, and reconciliation nightmares.**
 
 *   **Deploying transaction signing without clock synchronization.** Digital signatures include a timestamp to prevent replay. If the signing server's clock drifts by 5 minutes, all signatures appear expired or future-dated. Transaction signing infrastructure needs NTP with <1 second accuracy and monotonic clock for ordering. **Total cost: $1M-$5M in transaction processing outage per hour of downtime — payment systems cannot "degrade gracefully" when signing fails.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -521,21 +638,49 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
 | "A quarterly vulnerability scan satisfies compliance" | PCI DSS 4.0 requires continuous monitoring via intrusion detection, file integrity monitoring, and real-time alerting. A point-in-time scan that's clean on March 1 says nothing about the critical CVE exploited on March 15. |
 | "We'll implement fraud detection after we launch the payment feature" | Fraudsters probe new payment endpoints within hours of deployment. Without real-time scoring at launch, average fraud loss runs 0.9% of transaction volume in month one — $90K on $10M in processed payments. |
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do implement velocity checks before any ML model** — Velocity (transactions-per-time-window) catches 80% of fraud with 20% of the effort. Per-account, per-device, per-IP, and geo-velocity checks are the cheapest, highest-signal fraud indicators. An ML model without velocity baselines is blind to the most common attack pattern — card-testing bots hit 1000+ cards in minutes, and only velocity catches them.
+2. **Prefer tokenization over encryption for PAN storage** — Tokenization removes data from PCI DSS scope entirely, while encrypted PAN still counts as cardholder data subject to all 12 requirements. A properly tokenized system reduces CDE footprint by 60-80%, saving $50K-$200K/year in compliance overhead (ASV scans, penetration tests, audit hours, key management).
+3. **Always implement idempotency keys on every payment mutation** — A duplicate charge costs real dollars per incident, not just data inconsistency. One missing idempotency key on a $50 average transaction with 1% network-retry rate across 100K daily charges = $50K in double-charges per incident. Client-generated UUID, server-stored (key, response, status) with ≥24h TTL, and per-merchant key uniqueness are the minimum viable implementation.
+4. **Never store sensitive authentication data post-authorization** — PCI DSS Requirement 3.2 is absolute and non-negotiable. Full track data, CVV/CVC, and PIN blocks stored after authorization trigger automatic compliance failure regardless of encryption strength. Fines start at $5K/month for small merchants and escalate to $25K/month for Level 1 — and that's before the forensic audit costs and brand penalties.
+5. **Measure fraud false-positive rate weekly, not quarterly** — Every false positive is a legitimate customer blocked from spending. A 1% false-positive rate on $100 average transactions across 50K daily transactions = $50K/day in lost revenue plus customer churn from friction. Target <0.1% false-positive rate with weekly trend monitoring; investigate every 0.05% increase as a potential rules-drift incident.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | PCI DSS ASV scan clean: zero vulnerabilities ≥4.0 CVSS on all external CDE IPs | Run quarterly ASV scan; all HIGH/CRITICAL findings remediated within SLA; scan report attached |
+| ☐ | Idempotency tested on every payment endpoint: duplicate key returns same response with no double charge | Send duplicate idempotency key → verify 200 + identical response body; different body with same key → verify 422 |
+| ☐ | Fraud rules validated: velocity, geo-velocity, device fingerprinting all trigger and score correctly | Inject known fraud signal vectors → verify score > threshold triggers BLOCK; false-positive rate <0.1% |
+| ☐ | SCA enforcement active: two independent factors required for payment initiation with dynamic linking to amount + payee | Verify OTP bound to transaction details; PSD2 exemptions logged per Article 98 requirements |
+| ☐ | CDE scoping verified: zero production PANs in dev/staging/QA; tokenization or truncation applied everywhere outside CDE | Run PAN regex scan on non-production file shares, S3 buckets, and log aggregators → zero matches |
+| ☐ | Encryption validated: all CHD at rest encrypted with KMS CMK (rotation ≤90 days); TLS 1.2+ in transit with certificate pinning | `grep -r "sslmod" configs/` shows verify-full; KMS key rotation policy active with 90-day enforcement |
+| ☐ | Access control enforced: least privilege on all CDE roles, MFA on all human accounts, quarterly access review with audit trail | Audit IAM roles → no wildcard permissions; MFA enforcement logs show 100% coverage; last access review dated within 90 days |
+| ☐ | Rollback plan is documented and tested | Incident response tabletop exercise completed within 6 months; card brand notification templates current; PFI contact verified; breach response runbook tested |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
-After implementing financial security controls, run this sequence. Do not proceed past a failure.
-
-1.  **PCI DSS readiness:** Run approved scanning vendor (ASV) scan on all external CDE IPs — zero vulnerabilities scoring >=4.0 CVSS. Internal vulnerability scan quarterly — all HIGH and CRITICAL remediated within SLA. Penetration test annually — all findings addressed or risk-accepted.
-2.  **Idempotency test:** Send duplicate payment request with same idempotency key — verify same response returned, second charge NOT processed. Send duplicate key with different request body — verify 422 Conflict returned.
-3.  **Fraud detection test:** Inject known fraud pattern (velocity threshold crossing, impossible travel, card testing sequence) — verify detection and appropriate action (block/challenge). False positive rate monitored and within tolerance.
-4.  **SCA compliance:** Verify two independent factors required for payment initiation. Verify dynamic linking: OTP code tied to specific amount + payee. Verify exemptions properly implemented and logged.
-5.  **KYC/AML:** Verify CDD for all active accounts. Verify EDD for all high-risk accounts. SAR filing SLA met: no SAR older than 30 days without filing or documented 60-day extension. Sanctions screening completed at onboarding and within last week.
-6.  **CDE segmentation:** Verify no CDE system accessible from corporate network without MFA + jump host. Verify firewall rules deny all by default. Verify cardholder data absent from non-CDE systems (run PAN scan on corporate file shares).
-7.  **Incident response:** Breach response plan tested in last 6 months. PCI Forensic Investigator contact information current. Card brand notification templates ready. Tabletop exercise completed with findings addressed.
-
-If any check fails: diagnose from checklist, provide specific actionable fix, restart verification from failed item.
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when PCI DSS readiness: ASV scan on all external CDE IPs returns zero vulnerabilities >=4.0 CVSS | Run quarterly ASV scan; all HIGH/CRITICAL findings remediated within SLA |
+| ☐ | Complete when Idempotency test: duplicate payment request with same key returns same response, no double charge | Send duplicate key → verify 200 + same response; different body with same key → verify 422 |
+| ☐ | Complete when Fraud detection test: known fraud patterns (velocity, travel, card testing) detected and blocked | Inject fraud signals → verify score > 60 triggers BLOCK; false positive rate within tolerance |
+| ☐ | Complete when SCA compliance: two independent factors required for payment initiation with dynamic linking | Verify OTP tied to amount + payee; exemptions properly implemented and logged |
+| ☐ | Complete when KYC/AML: CDD for all active accounts, EDD for all high-risk, SAR within 30-day SLA | Audit: zero SARs older than 30 days; sanctions screening current |
+| ☐ | Complete when CDE segmentation: zero CDE systems accessible from corporate network without MFA + jump host | Run PAN scan on corporate file shares → zero matches; firewall rules deny-by-default |
+| ☐ | Complete when Incident response: breach response plan tested within 6 months, PFI contact current | Tabletop exercise completed; card brand notification templates ready |
+| ☐ | Complete when Encryption: all cardholder data at rest encrypted with KMS CMK, TLS 1.2+ in transit | `grep -r "sslmod" configs/` shows verify-full; KMS key rotation enabled |
+| ☐ | Complete when Access control: least privilege enforced, MFA on all CDE access, quarterly access review | Audit IAM roles → no wildcard permissions; MFA enforced on all human accounts |
+| ☐ | Complete when Monitoring: all CDE access logged, anomaly detection active, alerts tested | Simulate unauthorized access → alert fires within 5 minutes; SIEM correlation rules active |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -553,6 +698,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Incident response tabletop exercise is flawless — real ransomware attack takes 8 days to contain because nobody practiced the payment decision | Tabletops covered "restore from backup" scenario. Real attack: attackers deleted backups. Now decision is: pay ransom or lose 18 months of data. No one has authority, legal hasn't reviewed OFAC implications, cyber insurance requires 72-hour notification that was missed. | Tabletop must include the "worst case" branch: backups destroyed, ransom demanded, regulators notifying. Pre-designate the ransom decision authority (CEO + Board Chair). Pre-negotiate a ransomware incident response retainer. Know your cyber insurance notification deadline — missing it voids coverage. | Tabletops that only practice the happy path are theater. The scenario that actually happens is the one you didn't practice. If you can't answer "who decides whether we pay the ransom?" in 30 seconds, you're not prepared. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [PCI SSC: PCI DSS 4.0 Standard](https://www.pcisecuritystandards.org/document_library/) — Full 12 requirements, SAQ types, ROC template
 *   [PCI SSC: Tokenization Product Security Guidelines](https://www.pcisecuritystandards.org/documents/Tokenization_Product_Security_Guidelines.pdf) — Token generation, mapping, and vault security

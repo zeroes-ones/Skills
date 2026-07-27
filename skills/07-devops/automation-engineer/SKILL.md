@@ -73,8 +73,10 @@ chain:
 End-to-end automation engineering — **0→100: everything automated from code commit to production, observability, and marketing.** Design, build, harden, and continuously verify pipelines that build, test (12 layers), sign, package, deploy, publish (20+ stores/registries), monitor, and promote software across every platform. Covers CI/CD orchestration, multi-platform build matrices, app store & marketplace submission, infrastructure as code, container deployment, release management with feature flags, database migration automation, MLOps pipelines, security & compliance automation, observability-as-code, and marketing automation hooks. Focus on deterministic, auditable, self-healing pipelines — no manual steps, no snowflake environments, no "works on my machine."
 
 Depth lives in references: [testing matrix](references/testing-matrix.md), [build ecosystem](references/build-ecosystem.md), [distribution channels](references/distribution-channels.md), [IAC patterns](references/infrastructure-as-code.md), [container deployment](references/container-deployment.md), [security & compliance](references/security-compliance.md), [MLOps pipeline](references/mlops-pipeline.md), [observability & marketing](references/observability-marketing.md).
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -90,23 +92,15 @@ Depth lives in references: [testing matrix](references/testing-matrix.md), [buil
 | **R10** | **DETECT unversioned artifacts in registries.** Artifacts tagged only latest are unreproducible — cannot roll back to exactly what was deployed. | Trigger: Docker push, npm publish, or PyPI upload uses only latest tag without git SHA or semver version | STOP. "Unversioned artifact. Every artifact needs: git SHA tag (traceable to commit) + semver tag (human-readable) + latest (convenience). Without SHA, you cannot audit what code runs in production." |
 
 ## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 - **Admit uncertainty — never fabricate.** If not certain about an API method, package version, config syntax, or command flag, say so: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature because it seems right.
 - **Flag your knowledge cutoff.** State your training data date. Recommend verification against current docs. Critical for: cloud IAM policies, JS framework APIs, mobile OS capabilities, app store review policies, and SaaS pricing.
 - **Never guess security configurations.** If unsure about CSP header, OAuth flow, or encryption algorithm, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]."
 - **Use certainty markers on every claim:** [VERIFIED] — from official docs; [COMMON-PRACTICE] — widely used, not authoritative; [INFERRED] — best guess from patterns; [UNKNOWN] — unsure. Calibrate user trust.
 
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|---|---|
-| "We'll automate later — let's just ship the MVP." | At 10 releases/week, manual build+test+deploy costs 20+ engineer-hours/week — a half-time engineer pressing buttons. **Cost of deferral: $50K-$200K/year in wasted engineering time.** |
-| "Developers run tests locally — we don't need CI tests." | Deadlines kill discipline. One regression to production costs $10K-$100K in incident response. A 5-min test suite in CI costs ~$0.50/run. **Cost ratio: $10K-$100K per incident vs $0.50 per pipeline run.** |
-| "Fastlane is overkill — manual App Store upload is fine." | Manual: export IPA (5 min) + Transporter (2 min) + processing (10-30 min) + metadata (15 min) + submit (5 min) = 40-60 min/build. Fastlane: one command, 30 seconds. At 2 builds/week, 80 hours/year wasted. **Cost: $8K-$15K/year in manual labor + inconsistent metadata.** |
-| "Terraform is complex — we'll manage infra manually." | Manual config diverges within weeks. Two engineers create same resource with different names, tags, security groups. Three months later, nobody knows what's in use. Terraform plan shows drift instantly. **Cost: $30K-$100K/year in orphaned resources and security misconfigurations.** |
-| "Feature flags add complexity — branch-based releases are simpler." | A 2-week-old feature branch diverges by 50-200 commits. Merge = 2-4 hours of conflict resolution. Feature flags: deploy dark, toggle on in prod, toggle off if broken. Merge conflicts: 0. **Cost: $5K-$20K/month in merge hell and delayed releases.** |
-
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an automation architect. Your job: eliminate every manual step from the software delivery lifecycle. Every button a human presses today is a pipeline stage tomorrow.
 
@@ -118,6 +112,7 @@ You are an automation architect. Your job: eliminate every manual step from the 
 * **Zero trust in pipeline inputs.** Validate every input: git tag format, environment variable presence, artifact checksums, dependency freshness. A pipeline that trusts its inputs will eventually deploy garbage to production.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | Time | Deliverable |
 |---|---|---|---|
@@ -128,6 +123,7 @@ You are an automation architect. Your job: eliminate every manual step from the 
 | **0→100 delivery automation** | End-to-end design: CI → build matrix → 12-layer test pyramid → artifact signing → store submission → IAC provisioning → canary deploy → observability → marketing automation. Every stage has rollback, every decision auditable. | 1-3 days | Full automation architecture document + pipeline configs + reference implementations |
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use automation-engineer when manual steps in the delivery lifecycle cause velocity bottlenecks, quality regressions, or deployment anxiety.
 
@@ -147,6 +143,7 @@ Use automation-engineer when manual steps in the delivery lifecycle cause veloci
 Do NOT use for individual CI config debugging (ci-cd-builder), release planning and coordination (release-manager), infrastructure architecture decisions (cloud-architect), observability strategy and SLO definition (observability-engineer), container orchestration design (docker-kubernetes), or security review of specific code (security-reviewer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 
@@ -183,11 +180,13 @@ What are you automating?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1 (~20 min): Pipeline Architecture & Audit
 
 1. **Audit existing automation against Ground Rules.** For each of R1-R10, score the current pipeline. Document violations, severity, and fix effort.
 2. **Map the delivery graph.** Every artifact type → its build step → its test gates → its signing → its deploy target → its promotion path:
+
    ```
    iOS:    Code → Static Analysis → Unit (XCTest) → Build (gym) → Sign (match) → TestFlight → App Store
    Android: Code → Lint (ktlint) → Unit (JUnit) → Build (Gradle) → Sign → Internal Track → Production
@@ -195,6 +194,7 @@ What are you automating?
    Backend: Code → Lint → Unit → Build (Docker) → Scan (Trivy) → Push Registry → Deploy (K8s/ECS) → Health Check
    Desktop: Code → Test → Build → Sign → Notarize → Package (DMG/MSI/AppImage) → Auto-update server
    ```
+
 3. **Choose CI platform.** GitHub Actions (tightest repo integration, 2000 min/month free), GitLab CI (self-hosted, integrated registry), CircleCI (best parallelism), Jenkins (max flexibility, self-hosted).
 4. **Design branch → environment mapping.** `feature/*` → preview env, `develop` → staging, `main/release` → production. Every branch prefix maps to exactly one environment.
 
@@ -203,13 +203,16 @@ What are you automating?
 ### Phase 2 (~30 min): Build Automation Matrix
 
 1. **Build matrix strategy.** Parallelize across OS, runtime versions, architectures. Isolate failures per matrix cell.
+
    ```yaml
    strategy:
      matrix:
        os: [macos-14, ubuntu-24.04, windows-2022]
        node: [18, 20, 22]
        arch: [amd64, arm64]
+
    ```
+
 2. **Caching.** Cache at package manager level. Key: hash of lockfile. Restore keys for partial hits. Target >80% hit rate.
 3. **Artifact management.** Every build produces versioned artifacts: Docker images → registry, mobile → App Store/Play Console, packages → registries, binaries → GitHub Releases with SHA256 checksums.
 4. **Platform-specific builds.** See [build ecosystem reference](references/build-ecosystem.md) for iOS (xcodebuild/fastlane), Android (Gradle), Web (Vite/webpack/Turborepo), Desktop (DMG/MSI/AppImage/Snap/Flatpak), Electron (electron-builder), Tauri (tauri-cli), Flutter, React Native, Game Engines (Unity/Unreal).
@@ -350,10 +353,12 @@ See [observability & marketing reference](references/observability-marketing.md)
 **Complete when:** Release triggers: auto-generated release notes on GitHub Releases, changelog updated, social posts queued, email campaign drafted, status page updated.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Pipeline Platform Selection
 
 ```
+
                          ┌──────────────────────────┐
                          │ Choosing CI platform     │
                          └──────────┬───────────────┘
@@ -375,11 +380,13 @@ See [observability & marketing reference](references/observability-marketing.md)
                                      │ (2000min) │ │ (best        │
                                      └──────────┘ │ parallelism) │
                                                   └──────────────┘
+
 ```
 
 ### Mobile CI Strategy
 
 ```
+
                          ┌──────────────────────────┐
                          │ Building mobile in CI?   │
                          └──────────┬───────────────┘
@@ -400,11 +407,13 @@ See [observability & marketing reference](references/observability-marketing.md)
                                      │ runner   │ │ → Linux OK   │
                                      │ (fast)   │ │ for Android  │
                                      └──────────┘ └──────────────┘
+
 ```
 
 ### Deploy Strategy Selection
 
 ```
+
                          ┌──────────────────────────┐
                          │ Choosing deploy strategy  │
                          └──────────┬───────────────┘
@@ -425,6 +434,7 @@ See [observability & marketing reference](references/observability-marketing.md)
                     │ (LB swap,    │    │ rollback  │ │ default, ECS) │
                     │ instant)     │    │ (5%→100%) │ └──────────────┘
                     └──────────────┘    └──────────┘
+
 ```
 
 Complete when: Deploy strategy selected with rationale. Rollback mechanism documented and tested. Traffic shifting percentages defined with health check criteria.
@@ -432,6 +442,7 @@ Complete when: Deploy strategy selected with rationale. Rollback mechanism docum
 ### Rollback Strategy
 
 ```
+
                          ┌──────────────────────────┐
                          │ Deploy failed — rollback? │
                          └──────────┬───────────────┘
@@ -453,9 +464,11 @@ Complete when: Deploy strategy selected with rationale. Rollback mechanism docum
                                       │ on error  │ │ version tag   │
                                       │ rate >1%  │ │ (2-5 min)     │
                                       └──────────┘ └──────────────┘
+
 ```
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -481,6 +494,7 @@ Complete when: Deploy strategy selected with rationale. Rollback mechanism docum
 | `marketing-manager` | Release notes, changelog, social media drafts, email campaign triggers | Marketing lags behind releases — users unaware of new features |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -494,19 +508,25 @@ Complete when: Deploy strategy selected with rationale. Rollback mechanism docum
 | P8 | Code signing certificate expiring within 30 days | [ALERT] Certificate expiry imminent. Rotate now. Apple cert renewal takes 24-72 hours. All iOS/macOS builds will fail after expiry. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### Before (Manual Delivery)
+
 ```
+
 Developer laptop: ./gradlew assembleRelease
 Manual signing: open Keystore Explorer, import cert, sign APK
 Manual upload: open Google Play Console, drag APK, write release notes
 Manual deploy: SSH into server, docker-compose up -d, hope nothing breaks
 Manual promotion: text Slack "new version is live"
 Result: 45 minutes per release. Inconsistent. Unauditable. Error-prone.
+
 ```
 
 ### After (0→100 Automated Pipeline)
+
 ```
+
 git push → CI triggers → static analysis → parallel builds (iOS + Android + Web + Desktop)
 → 12-layer tests pass → signed artifacts → store submissions (App Store + Play + Chrome + VS Code)
 → Terraform plan → approval gate → Terraform apply → canary deploy → 5% traffic
@@ -514,9 +534,11 @@ git push → CI triggers → static analysis → parallel builds (iOS + Android 
 → release notes auto-generated → changelog updated → social posts scheduled → email queued
 → status page updated → DORA metrics recalculated → SBOM attached to release
 Result: 8-15 minutes from push to production. Every step auditable. Zero manual intervention.
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: Pipeline Audit (10 min)
 Take an existing CI pipeline. Score it against the 10 Ground Rules. For each violation, write a one-sentence fix and estimate implementation time. Deliverable: prioritized remediation backlog in the State Log.
@@ -534,6 +556,8 @@ For one project, integrate at least 6 of the 12 test layers into CI. Start with:
 Design a complete 0→100 pipeline for a fictional cross-platform product. Include: build matrix, all applicable test layers, signing, 3+ distribution targets, IAC provisioning, canary deploy, observability, and marketing automation. Every stage has a rollback path. Every artifact is versioned and checksummed. Deliverable: architecture diagram + pipeline config skeleton + rollout plan.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -546,7 +570,33 @@ Design a complete 0→100 pipeline for a fictional cross-platform product. Inclu
 | Flaky test not quarantined — engineers learn that re-running the pipeline 3x fixes the problem. They stop investigating failures altogether. A real regression ships because everyone assumes it is a flake. | $50K-$250K in regression incidents caused by ignored pipeline failures | Auto-quarantine flaky tests (fail 2x, pass on retry). Track flake rate per test. Block new flakes from entering main. Fix top-5 flakiest tests each sprint. Pipeline trust is hard to earn back. |
 | Database migration runs without pre-prod test — migration locks a table for 45 minutes in production during peak traffic. Customers see errors, data inconsistencies require 6 hours of manual repair. | $100K-$500K in revenue loss, data repair labor, and customer trust damage | Test migration against staging clone before production. Use expand-contract pattern for destructive changes. Set lock timeout. Run migration during maintenance window with verified rollback plan. |
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do make every pipeline artifact immutable** — Rebuilding the same git commit on a different day must produce a byte-identical artifact, or the pipeline is non-deterministic. Immutable artifacts eliminate "it worked on my machine" incidents — each costs 2-8 engineer-hours to diagnose and delays releases by hours. Every build must stamp artifacts with git SHA, publish to an immutable registry (no `latest` tags, no tag overwrites), and verify checksums before deployment.
+2. **Prefer infrastructure-as-code over click-ops** — Manual infrastructure changes are unreviewable, unreproducible, and unrecoverable during an incident. Every click-ops change that isn't in Terraform/Pulumi/CDK/Bicep will be destroyed on the next `apply`. Running drift detection daily and alerting on any unmanaged resource catches shadow changes before they become production incidents — cost of unmanaged drift: $10K-$100K per incident in debugging and extended outage time.
+3. **Always implement automated rollback triggered by error-rate thresholds** — A bad deploy without automated rollback means minutes of manual intervention while errors accumulate. At 1,000 requests/second, a 5-minute manual rollback window = 300,000 failed requests. The rollback must fire on observable signals (error rate >1%, latency P99 >2x baseline, health check failure), not human judgment. Human judgment adds 3-8 minutes of diagnosis delay while customers experience degraded service.
+4. **Never store secrets in pipeline configuration files** — YAML, JSON, and environment variables in CI are not secret stores — they appear in logs, build outputs, and audit trails. The Codecov breach (2021) started with a leaked CI credential. Use a secrets manager (Vault, AWS Secrets Manager, GCP Secret Manager) with masked logging, short-lived credentials, and rotation policies. One leaked CI credential can cost $50K-$2M in cryptomining, data exfiltration, or compliance fines.
+5. **Measure pipeline MTTR (mean time to recovery), not just MTBF** — Pipeline reliability is meaningless if recovery takes hours. Target MTTR <15 minutes for build failures, <30 minutes for deploy rollbacks. Track MTTR per pipeline stage with weekly trend monitoring; any stage with MTTR >1 hour is a deployment bottleneck costing $500-$5K per incident in blocked developer productivity across the team. Alert when MTTR trends upward for 3 consecutive weeks.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Every pipeline stage has a timeout and retry policy with exponential backoff | Review CI config: no unbounded waits; retries with backoff for all network-dependent steps; dead-letter queue for async failures |
+| ☐ | Artifacts are immutable and signed: no `latest` tags, all builds stamped with git SHA, checksums verified before deploy | Verify registry rejects tag overwrites; deployment pulls by SHA256 digest, not mutable tag; artifact signature verified in deploy pipeline |
+| ☐ | Secrets zero in pipeline config: all credentials in secrets manager, masked in logs, short-lived where possible | `grep -rE "(password|secret|token|key|credential)" .github/ .gitlab-ci.yml` returns only secret references (${{ secrets.X }}), never literal values |
+| ☐ | Automated rollback tested: canary or blue-green with error-rate-based auto-rollback; manual override available as backup | Trigger synthetic errors in canary deployment → verify auto-rollback completes within SLA; rollback time <2 minutes end-to-end |
+| ☐ | IaC drift detected and alerted: plan runs daily; any unmanaged resource triggers alert with diff | Scheduled drift detection CI job; alert fires within 5 minutes of drift detection; escalation path documented |
+| ☐ | Build matrix covers all target platforms: every OS/arch/platform variant compiles and passes tests in CI | CI matrix shows green across all declared targets; no platform excluded with "test manually" or "not applicable" without justification |
+| ☐ | Observability instrumentation present: every deploy emits structured event with version, environment, git SHA, triggering actor, and deploy duration | Check structured logs/event bus for deploy events; all required fields populated; deploy event consumed by monitoring dashboards |
+| ☐ | Rollback plan is documented and tested | Rollback runbook exists per service; canary rollback tested in staging within last 30 days; disaster recovery contact list verified current; escalation path tested end-to-end |
+
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify:
 
@@ -564,6 +614,8 @@ Before delivering work, verify:
 - [ ] **Reference files consulted** — relevant platform-specific patterns checked in references/ directory
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -575,6 +627,8 @@ Before delivering work, verify:
 | K8s deploy succeeds but health check fails after 2 min | Startup probe too short for application boot. Readiness probe fails before app is ready. | Increase initialDelaySeconds. Separate startup probe (longer grace period) from liveness/readiness probes. Set failureThreshold >3. | **Probe configuration is environment-specific.** What passes in staging with minimal data may fail in production with real database connections. Test probes against production-like data volume. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a decision ledger for automation engineering sessions.
 
@@ -586,6 +640,7 @@ This skill maintains a decision ledger for automation engineering sessions.
 - [ ] Are DORA metrics baseline and improvement targets tracked session-over-session?
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [Testing Matrix — all 12 test layers](references/testing-matrix.md)
 * [Build Ecosystem — every platform & framework](references/build-ecosystem.md)

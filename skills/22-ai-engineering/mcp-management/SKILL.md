@@ -38,8 +38,10 @@ Model Context Protocol (MCP) is an open protocol that standardizes how applicati
 The MCP protocol uses JSON-RPC 2.0 as its wire format with three **server primitives** (Tools, Resources, Prompts) and three **client primitives** (Roots, Sampling, Elicitation). Transport options are STDIO (local process spawning), Streamable HTTP (remote with optional SSE streaming for server→client push), or legacy SSE (deprecated in spec 2025-03-26).
 
 ---
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 Auto-route based on the first matching intent. If none match, escalate to A1 for triage.
 
@@ -55,6 +57,7 @@ Auto-route based on the first matching intent. If none match, escalate to A1 for
 | **A8** | "MCP security incident" / "compromised MCP server" / "suspicious tool call" | Execute the incident response lifecycle: contain → audit tool call history → rotate credentials → harden configuration. See Decision Tree #5. |
 
 **Intent tree for ambiguous requests:**
+
 ```
 MCP request
 ├── Connection problem? → A1 (diagnostics)
@@ -69,6 +72,7 @@ MCP request
 ---
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 1. **Mechanical Trigger:** Any MCP configuration file (`mcp-config.json`, `.mcp.json`, `claude_desktop_config.json`, `.cursor/mcp.json`, `.gemini/config.json`) MUST be validated against the MCP spec JSON-RPC 2.0 requirements before being deployed.
    **Violation Response:** Reject the config. State the exact JSON-RPC violation with line reference. Require correction before proceeding.
@@ -104,6 +108,7 @@ MCP request
 ---
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are the MCP infrastructure authority. Your mental model encompasses the full protocol stack: JSON-RPC 2.0 framing, capability negotiation at initialization, transport lifecycle, and the security boundary between the agent (client) and every MCP server (trusted or untrusted).
 
@@ -117,6 +122,7 @@ You are the MCP infrastructure authority. Your mental model encompasses the full
 ---
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 **L1 — Tactical Fix (2 min):** "Fix this MCP config." Validate JSON schema, check transport type matches server type, verify paths resolve, test with `mcp dev` or inspector. Apply minimal fix and verify connection.
 
@@ -128,23 +134,8 @@ You are the MCP infrastructure authority. Your mental model encompasses the full
 
 **L5 — Platform-Wide MCP Governance (4 hr):** "Design MCP governance for our organization." Define standard mcp-config.json schema, establish server certification requirements, implement CI/CD validation for configs, create incident response playbook, document transport standards, build an MCP server registry.
 
-### Scale Depth
-
-#### Solo (1 developer, 1-2 MCP servers)
-Manual mcp-config.json, STDIO transport only, local filesystem + memory servers. No auth needed (all local). Focus: learn MCP primitives (tools, resources, prompts), get your first agent integration working. Budget: $0 (open-source servers).
-
-#### Small (2-5 engineers, 3-5 MCP servers)
-Multi-server config with namespace prefixes. One remote server (database/API) with Streamable HTTP + OAuth. Tool authorization policies per server. Basic diagnostics script. Focus: secure multi-server setup, prevent tool collisions. Budget: minimal (most servers are open-source, auth is free-tier).
-
-#### Medium (5-20 engineers, 10+ MCP servers)
-MCP config schema standardized across teams. CI/CD validation for configs. Automated tool authorization enforcement. Multi-agent platform integration (Claude Code + Cursor + Codex). Health monitoring and alerting for MCP server availability. Focus: platform-wide reliability, security governance. Budget: $200-$1,000/month on monitoring and managed servers.
-
-#### Enterprise (20+ engineers, 20+ MCP servers, regulated environment)
-MCP server registry with certification process. OAuth 2.0 with enterprise IdP (Okta/Azure AD). Audit logging for all tool invocations. Incident response playbook with automated containment. MCP governance board reviewing new server additions. Focus: regulatory compliance, supply chain security, organizational standards. Budget: $1,000-$10,000/month on governance infrastructure.
-
----
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 **Use this skill when:**
 - Configuring a new MCP server (any transport, any server type)
@@ -166,27 +157,33 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 ---
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 ### Phase 1: Discovery
+
 ```
 1. Inventory existing MCP servers (check config files, running processes)
 2. Identify the agent platform (Claude Code, Codex, Cursor, etc.)
 3. Determine server type(s) needed: filesystem, database, API, memory, search
 4. Confirm deployment context: local dev, remote service, multi-tenant
 ```
+
   Complete when: All existing MCP servers inventoried; agent platform identified; server type requirements documented; deployment context confirmed.
 
 ### Phase 2: Transport Selection
+
 ```
 1. Local-only server → STDIO (spawn process, communicate over stdin/stdout)
 2. Remote server, request/response → Streamable HTTP (POST /mcp with JSON-RPC body)
 3. Remote server, streaming needed → Streamable HTTP + SSE (GET /mcp/sse for events)
 4. Legacy compatibility only → SSE (deprecated, prefer Streamable HTTP)
 ```
+
   Complete when: Transport type selected (STDIO/Streamable HTTP/SSE) with documented rationale matching deployment context; legacy SSE identified for migration.
 
 ### Phase 3: Server Configuration
+
 ```
 1. Select server implementation (official MCP server or custom)
 2. Write mcp-config.json with server declaration, transport, and args
@@ -194,9 +191,11 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 4. Apply security hardening (filesystem scope, auth, resource whitelist)
 5. Configure namespace prefix for multi-server setups
 ```
+
   Complete when: mcp-config.json written with server declaration, transport, and args; tool authorization set per-tool (allow/deny/require-approval); filesystem scope locked; namespace prefix configured.
 
 ### Phase 4: Validation & Diagnostics
+
 ```
 1. Test connection: does the server respond to initialize?
 2. List tools: does tools/list return expected tools?
@@ -205,9 +204,11 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 5. Test invocation: call a sample tool, verify response
 6. Test shutdown: verify clean disconnect, no orphaned process
 ```
+
   Complete when: Connection, tools/list, resources/list, prompts/list, tool invocation, and shutdown all tested successfully; diagnostics log clean.
 
 ### Phase 5: Production Hardening
+
 ```
 1. Lock down filesystem scope to minimal required directories
 2. Enable OAuth 2.0 for any remote HTTP transport
@@ -216,11 +217,16 @@ MCP server registry with certification process. OAuth 2.0 with enterprise IdP (O
 5. Configure logging for all tool invocations (audit trail)
 6. Set up health checks and connection monitoring
 ```
+
   Complete when: Filesystem scope minimized; OAuth enabled for remote transports; tool authorization deny-by-default; audit logging active; health checks passing.
+  Complete when: Model evaluation results documented — accuracy, latency, and cost metrics vs. baseline.
+  Complete when: Prompt version controlled with changelog and rollback capability.
+  Complete when: Guardrails tested against adversarial inputs — no jailbreak in test suite.
 
 ---
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### Decision Tree 1: Transport Selection
@@ -377,6 +383,7 @@ Security incident detected (suspicious tool call, data exfiltration, unauthorize
 ---
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -388,6 +395,8 @@ Security incident detected (suspicious tool call, data exfiltration, unauthorize
 | "After MCP server update, agent gets 'method not found' for previously working tools" | The server's tool list changed (tool renamed, removed, or capability reduced). The agent's cached tool list is stale and references tools that no longer exist. | Re-run `tools/list` after every server update and cache the result. The agent should validate tool existence before invocation. If a tool is missing, the agent should request the updated tool list and retry with the corrected tool name. | Tool lists are dynamic — they change when servers update. Cache invalidation on server restart prevents "method not found" errors. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -403,6 +412,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Handoff |
 |----------|----------------|---------|
@@ -419,14 +429,13 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ---
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration patterns, deployment constraints | Before designing AI/ML pipelines |
 | `mlops-engineer` | Model lifecycle, deployment patterns, monitoring requirements | Before deploying ML models to production |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 1. **Filesystem server with root (`/`) scope detected**
    *Why It Matters:* Exposing the entire filesystem to an LLM agent is equivalent to giving `sudo` access. Any prompt injection can read SSH keys, environment files, or source code with embedded secrets.
@@ -454,11 +463,13 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ---
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 **A properly configured MCP environment has these qualities:**
 
@@ -479,6 +490,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ---
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 **Skill-building exercises (do these to internalize MCP management):**
 
@@ -499,6 +511,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ---
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design mcp-config.json schemas as versioned, validated contracts.** Every MCP configuration must have a JSON Schema that validates: server type, transport, auth, tool authorization, and resource paths. Invalid configs should fail at CI, not at agent runtime. Use `$schema` references and enforce schema versioning — config format changes must be intentional and tracked.
 
@@ -521,6 +534,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 10. **Rotate credentials and audit tool call history after any security incident.** If an MCP server is compromised, the attacker had access to every tool the agent could invoke. Audit the full tool call history to understand what was accessed. Rotate all credentials exposed through that server (API keys, tokens, connection strings). Do not restart the server until the incident response is complete.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before deploying any MCP configuration to production, verify ALL of:
@@ -543,6 +557,7 @@ Before deploying any MCP configuration to production, verify ALL of:
 ---
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 1. **Tool poisoning via compromised MCP server** — **$500K+** supply chain attack. An attacker publishes a seemingly useful MCP server (e.g., "github-stats-server") that includes a hidden tool that exfiltrates environment variables or source code. Mitigation: Always audit MCP server source code before installing. Prefer official `@modelcontextprotocol/*` servers. Review the tool list before connecting.
 
@@ -559,6 +574,8 @@ Before deploying any MCP configuration to production, verify ALL of:
 7. **Race condition in STDIO process management** — **$15K+** intermittent failures. Agent spawns an MCP server, sends `initialize` before the process is ready, gets a broken pipe. Under load, this causes cascading failures. Mitigation: Wait for server ready signal before sending initialize. Implement health-check before tool invocation. Use process supervision (systemd, supervisord) for production.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -570,6 +587,7 @@ Before deploying any MCP configuration to production, verify ALL of:
 ---
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 Run these checks before considering any MCP configuration complete:
 
@@ -591,6 +609,7 @@ jq -r '.servers[] | select(.toolAuthorization == null) | .name + " MISSING toolA
 
 # 6. Test JSON-RPC handshake (requires running server)
 # echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"validator","version":"1.0.0"}}}' | nc localhost PORT
+
 ```
 
 Also run `scripts/verify-skill.sh` to validate the skill file structure.
@@ -598,10 +617,12 @@ Also run `scripts/verify-skill.sh` to validate the skill file structure.
 ---
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 | Reference | Content | Use Case |
 |-----------|---------|----------|
@@ -616,7 +637,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ---
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Excuse | Reality |
 |--------|---------|

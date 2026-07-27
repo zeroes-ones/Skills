@@ -57,6 +57,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Design or refine the customer onboarding program → Jump to "Core Workflow > Phase 1"
@@ -73,6 +74,7 @@ What are you trying to do?
 └── Customer wants to leave → Jump to "Core Workflow > Phase 4: Churn Intervention" immediately
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -92,7 +94,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **STOP if QBR deck leads with product features instead of customer business KPIs.** QBRs are about the customer's business, not your product. Lead every slide with their metric. | Trigger: QBR deck output AND `grep -n "slide 2\|slide 1"` shows product feature/roadmap content before customer KPI content | STOP. Respond: "QBR deck blocked by Rule R7. Slide 2 must display the customer's business KPIs, not your product features. Restructure: 80% customer business goals, 20% your product. Their metrics lead; your product follows." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -235,9 +236,14 @@ Build a weighted health score (0-100) from 5-8 signal categories. Each signal ge
 | Payment History | 10% | Billing system | On-time last 6 months | 1 late p
 
   Complete when: Weighted health score model (0-100) with 5-8 signal categories is built; data sources for each signal are connected and automated; health score thresholds (healthy/warning/critical) are calibrated per segment; automated health score dashboard with at-risk alerts is operational.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
-
 
 ## Error Recovery
 
@@ -298,11 +304,9 @@ Common chains:
 - **Expansion loop**: customer-success-manager → account-manager — Usage data signals → expansion pitch → upsell closed
 - **VoC to roadmap**: customer-success-manager → product-manager — Feedback aggregation → roadmap prioritization
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product roadmap, feature status, known issues | Before engaging customers about product capabilities |
-
 
 ## Proactive Triggers
 
@@ -318,7 +322,6 @@ Common chains:
 | Login frequency drops >50% over 30 days for an enterprise account | Account Manager | Adoption collapse. This is a leading churn indicator — users are abandoning the product en masse. Whether due to a bug, workflow change, or internal mandate, intervention is needed before the renewal conversation is poisoned. |
 | Support ticket volume spikes to 5+ in one week for a single account | Account Manager, Customer Support Engineer | Acute product or implementation crisis. The customer is blocked and frustrated. This level of ticket volume in one week is an escalation, not normal support activity. Resolution within 48 hours or churn risk escalates. |
 | Onboarding milestone missed by >14 days for an enterprise account | Account Manager, Sales Engineer | Delayed time-to-value is the earliest churn predictor. If onboarding is stalled, the customer hasn't seen value and the clock is ticking toward their internal "did we make a mistake?" conversation. Executive check-in required. |
-
 
 ## State Log
 
@@ -347,7 +350,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -366,6 +369,29 @@ graph LR
 - **CS team measured on "number of touches" instead of outcomes.** Each CSM is required to have 4 touchpoints/quarter per account. CSMs game it: automated "checking in!" emails, forwarding a blog post, logging a 2-minute call as a "strategic review." 800 touches/month, zero impact on adoption or NPS. The VP of CS reports "100% touchpoint coverage" to the board while net revenue retention drops from 115% to 98%. **Total cost: $300K-$600K in CSM salaries delivering theater instead of outcomes, plus $1M-$3M in missed expansion and avoidable churn over 12 months when the NRR decline finally surfaces.** Fix: Measure CSMs on leading outcome indicators (feature adoption rate, time-to-first-value, health score improvement), not activity metrics; audit a random sample of "touches" monthly for substance; tie CSM compensation to NRR and logo retention, not touchpoint quotas.
 - **Customer health score with equal weighting across 15 signals.** Login frequency, support tickets, NPS, feature usage, payment timeliness, CSM sentiment, and 9 other signals all get equal 6.7% weight. A Fortune 500 account with 2,000 seats and perfect payment history goes "Yellow" because a single low NPS response from a summer intern drops the score. The CS leadership team wastes 4 hours in a QBR debating false positives instead of focusing on accounts that are actually bleeding. **Total cost: $150K-$300K annually in wasted CS leadership and CSM time chasing phantom risks, plus 2-4 missed real churn signals that would have been caught with a properly weighted model — worth $200K-$800K in preventable churn.** Fix: Weight health signals by predictive power, not equally (validate against 12 months of churn data); segment health scores by customer tier and product usage pattern; set different thresholds for enterprise vs SMB; test your model by checking whether accounts that churned in the last 6 months were flagged as "red" 60+ days prior.
 - **Scaling CS with headcount instead of digital programs.** You have 200 accounts and 4 CSMs (50:1 ratio). ARR grows to $20M with 800 accounts — leadership hires 12 more CSMs ($1.2M/year in salary) to maintain ratio. But 60% of those 800 accounts are $5K-$15K ARR — they don't justify a named CSM at $100K fully-loaded cost. The unit economics invert: you're spending $6K/year to retain a $10K account. **Total cost: $600K-$1.2M in CSM salaries for accounts that should be digital-only, creating a negative margin on the bottom 60% of your customer base.** Fix: Segment accounts by ARR and create a digital-only CS track for accounts below a threshold (typically $25K-$50K ARR); invest the CSM salary savings into automated onboarding, in-app guidance, and a community/ knowledge base; the named CSM ratio should apply only to accounts where the CSM cost is < 15% of account ARR.
+
+## Best Practices
+
+1. **Do lead with leading indicators over lagging indicators in health scores** — A green score that overweights NPS renewal sentiment (lagging) masks a customer in freefall whose daily active users dropped 40% last month (leading). Structure health scores as ≥60% leading indicators; measure the lag between leading signal decline and actual churn to validate predictive power.
+2. **Prefer value-based onboarding milestones over task-based checklists** — A customer who completed all 23 setup tasks but hasn't achieved their primary use case is still onboarding. Define "onboarded" as the moment the customer confirms value realization in writing. TTFV measured in days-to-first-outcome, not days-to-last-task-checked, correlates with NRR by 2-3x.
+3. **Always pair every churn prediction with a dated intervention playbook** — "This account will churn in 60 days" without an assigned CSM owner, root cause diagnosis, and numbered action steps with deadlines is alarmism. Teams learn to ignore unactioned red scores within 2 quarters — the cost of alert fatigue is missed churn signals worth $150K+ per quarter at a mid-market portfolio.
+4. **Never include new logo ARR in NRR calculations** — Commingling acquisition and retention metrics inflates CS performance and masks portfolio decay at the board level. NRR = (starting ARR + expansion - contraction - churn) / starting ARR, using only customers active at period start. A 115% NRR that's secretly 95% organic + 20% new logos is fraud by arithmetic.
+5. **Measure health score calibration quarterly** — Compare predicted risk tier distribution to actual churn outcomes. An uncalibrated model that flags 40% of accounts as at-risk wastes intervention effort on false positives; one that flags 5% misses real churners. Recalibrate weights until predicted-at-risk percentage matches actual churn rate within ±10%.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Health score model calibrated against actual churn outcomes | Predicted risk distribution matches actual churn within ±10% over last 2 quarters; run quarterly calibration report |
+| ☐ | Every at-risk account has an assigned CSM and dated intervention playbook | Query CRM: zero red/yellow accounts without owner assignment and last-touch date within SLA window |
+| ☐ | NRR/GRR calculated from existing-customer ARR only (new logos excluded) | Formula audit: `(starting ARR + expansion - contraction - churn) / starting ARR`; cross-check against finance system |
+| ☐ | QBR deck leads with customer's business KPIs — slide 2 shows their metrics, not your product features | Deck review: first 3 slides cover customer goals, KPI trends, and value realized before any product roadmap appears |
+| ☐ | Onboarding measured by TTFV per segment, not task completion | Dashboard: TTFV benchmarked per plan tier and segment; quarter-over-quarter trend flat or improving |
+| ☐ | Voice of Customer feedback loop closed — every detractor has follow-up within 5 business days | NPS tool audit: zero detractor responses > 5 business days without logged follow-up action in CRM |
+| ☐ | Escalation SLA met — time from engineering-fix to customer-notified < 24 business hours for P0/P1 | Ticketing system: P0/P1 ticket resolution-to-notification gap measured; trend line below 24-hour threshold |
+| ☐ | Rollback plan documented — save offers and discount interventions have reversal path | Documented process for rescinding a save offer that didn't resolve churn; escalation contact list tested quarterly |
 
 ## Verification
 
@@ -403,4 +429,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

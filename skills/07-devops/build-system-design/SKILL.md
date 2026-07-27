@@ -53,8 +53,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end build system architecture and engineering — from taxonomy and selection through hermetic design, remote execution, and large-scale migration. Covers the full build system design space: task-based (Make, Just), artifact-based (Bazel, Buck2, Pants), and convention-based (Cargo, Go) systems. Focus on engineering tradeoffs, measurable ROI, and operational excellence — not religious tool debates.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous build advice before it is given. Violation means STOP and refuse to proceed.
 
@@ -75,6 +77,7 @@ These rules are non-negotiable constraints that detect dangerous build advice be
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a build system engineer who has lived through migrations, debugged non-deterministic failures at 2 AM, and watched build times silently destroy engineering velocity. Your mental model:
 
@@ -85,27 +88,15 @@ You are a build system engineer who has lived through migrations, debugged non-d
 * **Simple systems scale down. Complex systems scale up. Neither scales both.** Make scales down to personal projects. Bazel scales up to Google's monorepo. Nx scales across the middle. Choose based on your trajectory, not your current state.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick scan (30s):** Profile build times — incremental and clean. Check cache hit rate. Check for non-hermetic patterns (network access, system tools, unversioned dependencies). Identify the build system in use and whether it matches the team's scale.
 * **Triage (10min):** Generate build trace, analyze critical path. Identify top 5 slowest targets. Calculate engineer-hours lost to build waiting. Check if caching is configured. Assess hermeticity.
 * **Deep design (full session):** Full build system evaluation: taxonomy assessment, migration cost/benefit analysis, BUILD file architecture, remote execution design, custom rule authoring, CI integration plan, migration roadmap with milestones.
 * **Crisis mode (build broken, CI red, release blocked):** Triage build failure. Check for non-determinism (run same build 3 times — does it fail consistently?). Isolate to specific target with `--noshow_progress` + `--test_filter`. Rollback to last green commit immediately, debug offline.
 
-### Scale Depth
-
-#### Solo (1-5 engineers, single language)
-Use the language-native build tool: Cargo for Rust, Go modules for Go, Poetry for Python. Add a Makefile for convenience targets (build, test, lint). No need for Bazel — the overhead exceeds the benefit below 50K LOC.
-
-#### Small Team (5-20 engineers, 1-2 languages)
-Adopt a task-based build system with caching: Gradle (JVM), Bazel with `rules_*` for Python/Go, or Nx/Turborepo (JavaScript). Implement local build caching. Benchmark incremental build times monthly: target < 30 seconds for a single-file change. **Transition trigger:** When clean build exceeds 5 minutes, invest in remote caching.
-
-#### Medium Org (20-200 engineers, polyglot)
-Artifact-based build system (Bazel, Buck2, Pants). Remote cache deployed. Hermetic builds enforced in CI. Build graph optimization: dependency pruning, critical path analysis, test sharding with shard count tuned per target. Build cop rotation established. **Transition trigger:** When CI build time exceeds 15 minutes with caching, evaluate remote execution.
-
-#### Enterprise (200+ engineers, multi-team monorepo)
-Remote execution deployed (BuildBarn, BuildBuddy, custom REAPI workers). Custom Starlark rules for org-specific build patterns. Build artifact signing and provenance attestation. Build health dashboard with SLOs: p95 incremental build < 30s, p95 CI build < 10 min, flakiness < 0.1%. BUILD file semantic validation in CI beyond buildifier. Annual build system health review with migration evaluation (is Bazel still the right choice?). **Transition trigger:** When the build team becomes a bottleneck for feature teams, invest in self-service build infrastructure and BUILD file ownership per team.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use build-system-design when making build infrastructure decisions that affect the entire engineering organization — the focus is on system-level architecture, not individual build file maintenance.
 
@@ -123,10 +114,12 @@ Use build-system-design when making build infrastructure decisions that affect t
 Do NOT use build-system-design for monorepo tooling and workspace management (route to monorepo-manager). Do NOT use for CI/CD pipeline design (route to ci-cd-builder). Do NOT use for compiler flag optimization (route to performance-engineer). Do NOT use for task runner configuration (e.g., how to write a package.json script).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -141,6 +134,7 @@ Do NOT use build-system-design for monorepo tooling and workspace management (ro
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What build system task are you working on?
@@ -156,11 +150,13 @@ What build system task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- Full 125 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Build System Audit
+<!-- STANDARD: 3min -->
 Execute in order. Do not skip steps.
 1. CAPTURE BASELINE METRICS
 2. PROFILING — IDENTIFY THE BOTTLENECK
@@ -168,10 +164,107 @@ Execute in order. Do not skip steps.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 125 lines of detailed guidance
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Build System Selection by Scale
+
+        ┌── INPUT: What is your team and codebase size?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+<10 engineers,             50+ engineers,
+<100K LOC                  >1M LOC, polyglot
+   │                         │
+   ▼                         ▼
+Single language?            Artifact-based system
+   │                         (Bazel, Buck2, Pants)
+┌──┴──────────┐              │
+│             │         ┌────┴────┐
+▼             ▼         │         │
+C/C++ → Make  JS/TS →   ▼         ▼
+or CMake      tsc/esbuild Java+ → Bazel
+│             │              (best multi-language)
+▼             ▼              │
+Go → go build Python →       ▼
+Rust → cargo  setuptools    Python-heavy → Pants
+   │                         (simpler than Bazel)
+   ▼                         │
+AVOID Bazel/                 ▼
+Buck2/Pants at              Need 1+ dedicated
+this scale                  build engineer
+
+### Decision Tree 2: Caching Strategy
+
+        ┌── INPUT: Builds are slow — what caching fits?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Single CI runner,           Multi-runner CI
+single developer             or distributed team
+   │                         │
+   ▼                         ▼
+Local disk cache             Remote cache
+--disk_cache=path            --remote_cache=grpc://
+   │                         │
+   ▼                    ┌────┴────┐
+Verify: clean build     │         │
+then rebuild — second   ▼         ▼
+should be instant     bazel-     Buildbarn
+                      remote     (large scale)
+   │                   │         │
+   ▼                   ▼         ▼
+If second build       Good for   Good for
+still slow →          <50 devs   >50 devs
+check hermeticity                │
+(genrules, system                ▼
+deps leaking)                 Also enable
+                              --disk_cache as
+                              L1 in front of
+                              remote L2
+
+### Decision Tree 3: Migration Readiness Gate
+
+        ┌── INPUT: Should we migrate from Make/Gradle to Bazel?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Build times exceed           Build times are
+5min incremental             acceptable
+or 30min clean?
+   │                         │
+   ▼                         ▼
+YES — migration              NO — keep current
+is justified                 system, optimize
+   │                         within it
+   ▼
+Do you have 1+ engineer
+dedicated to build
+system health?
+   │
+┌──┴──┐
+│     │
+▼     ▼
+YES   NO
+│     │
+▼     ▼
+Proceed  Hire first or
+with     defer migration
+migration (ship will sink
+│         without a captain)
+▼
+Start with one
+language/team as
+pilot for 4-6 weeks
+before expanding
 
 #
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -180,8 +273,8 @@ Execute in order. Do not skip steps.
 | Autoscaler killing all remote execution workers — the RE cluster scales to zero during low traffic because the autoscaler doesn't understand build traffic patterns; builds hang with DEADLINE_EXCEEDED | $10K-$50K in blocked builds and developer downtime | Set minimum instance count on RE worker pool to 1 during business hours; add a health check endpoint that the build system probes before starting with a 30-second timeout |
 | Affected graph showing every project as affected — `nx affected:lint` lints all 200 projects because `nx.json` implicit dependencies list is empty; one-line CSS change triggers a full monorepo rebuild | $20K-$80K in wasted CI minutes and slowed developer feedback | Define `targetDefaults` in `nx.json` with `dependsOn` chains; run `nx graph` to verify that changing one file only highlights projects that depend on it |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -196,6 +289,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Nx affected graph shows every project as affected — `nx affected:lint` lints all 200 projects even when only 3 files changed | The `nx.json` implicit dependencies list is empty. Nx can't know that `package.json` changes in the root affect all projects, so it defaults to "everything is affected" as a safe fallback. | Define `targetDefaults` in `nx.json` with `dependsOn` chains. Run `nx graph` to visualize the dependency graph — verify that changing one file only highlights the projects that actually depend on it. | An overly safe affected graph is indistinguishable from no affected graph at all. The system that runs everything "just in case" is the system that gets ignored. |
 
 ## Build System Selection
+<!-- STANDARD: 3min -->
 
 ```
 How large is your team and codebase?
@@ -238,6 +332,7 @@ How large is your team and codebase?
 #
 
 ## Migration Readiness Assessment
+<!-- STANDARD: 3min -->
 
 ```
 Is your team ready for a build system migration?
@@ -277,6 +372,7 @@ Is your team ready for a build system migration?
 #
 
 ## Remote Execution Readiness
+<!-- STANDARD: 3min -->
 
 ```
 Should you invest in remote execution?
@@ -310,6 +406,7 @@ Should you invest in remote execution?
 #
 
 ## Build System Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ```
 Common build system mistakes and how to fix them:
@@ -349,6 +446,7 @@ Common build system mistakes and how to fix them:
 #
 
 ## Build vs Buy: Custom Rules vs External Tools
+<!-- STANDARD: 3min -->
 
 ```
 Should you write a custom build rule or integrate an external build tool?
@@ -379,6 +477,7 @@ Should you write a custom build rule or integrate an external build tool?
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design for incremental builds from day one.** Every target must declare its exact inputs (deps, srcs, data) and outputs. When a single `.cc` file changes, only affected targets rebuild — not the entire project. Incremental build time is the #1 developer experience metric.
 
@@ -401,6 +500,7 @@ Should you write a custom build rule or integrate an external build tool?
 10. **Sign build artifacts at creation time.** Attach a cryptographic signature to every release artifact. The build system (not CI glue scripts) should produce a signed artifact + provenance attestation. An unsigned artifact is indistinguishable from a compromised one.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -415,6 +515,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -433,6 +534,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -444,16 +546,20 @@ If a command or approach fails, follow this escalation path before giving up:
 | P6 | Build contains `genrule` with `cmd = "curl ..."` (network access in build) | [ALERT] genrule with network access breaks hermeticity. Replace with http_file/http_archive or pre-downloaded dependencies. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -465,13 +571,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -487,6 +596,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -496,6 +606,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[BS1]** Hermeticity verified: `bazel build --sandbox_block_network //...` passes — no network access, no system tool leaks, no timestamp embedding
 - [ ] **[BS2]** Determinism verified: two consecutive builds on the same machine produce bit-for-bit identical outputs — diff of `bazel-bin/` is empty
@@ -513,8 +624,10 @@ Before beginning a new phase, verify:
 - [ ] **[BS14]** Migration readiness (if planning): current pain quantified in $, migration cost estimated, projected ROI timeline < 18 months — all three documented in decision record
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 Ideal build system state (artifact-based, 200 engineers, polyglot monorepo):
 
 Incremental build:
@@ -538,11 +651,14 @@ Engineer experience:
   Build cop rotation: 1 engineer/week maintains build health (BUILD file hygiene, toolchain updates)
   Build dashboard: cache hit rates, build times, flakiness—visible to entire org
   Migration complete: no Makefiles, no Gradle scripts, no ad-hoc scripts in CI
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
+
 Phase 1: Single-language repo, no build system
   Makefile -> 3 targets, 5 source files -> 2 second build
   Goal: Understand task-based builds, dependency declaration
@@ -570,9 +686,11 @@ Phase 6: Full migration simulation
   Take a real 5K LOC Make project, estimate migration cost
   Write BUILD files, verify hermeticity, benchmark improvement
   Goal: End-to-end migration experience before doing it for real
+
 ```
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -583,6 +701,7 @@ Phase 6: Full migration simulation
 | "Buildifier makes our BUILD files correct — the linter passes." | Buildifier only formats. It doesn't validate dep completeness, visibility correctness, or glob scope. Teams that trust buildifier alone ship broken builds that "look right" — $15K-$50K in debugging non-obvious failures over 6 months. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Migrating to Bazel Without Training Budget
 **What it looks like:** Org decides "we're migrating to Bazel." Engineers get a wiki link and are expected to learn on the job. BUILD files are cargo-culted from existing targets.
@@ -620,8 +739,20 @@ Phase 6: Full migration simulation
 **Do this instead:** ccache is a compiler wrapper, not a build system. Fix the build graph first: correct dependency declarations, fine-grained targets, and artifact-based caching (remote cache). Use ccache as a complementary optimization, not a substitute.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-After designing or modifying a build system, run this sequence. Do not proceed past a failure.
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Hermeticity verified: `bazel build --sandbox_block_network //...` passes with no network access violations | Build passes with network blocked; zero targets depend on external network during build |
+| ☐ | Complete when Determinism confirmed: build twice on same machine produces bit-for-bit identical outputs; build on two different machines matches | `sha256sum` of all outputs matches across builds and machines |
+| ☐ | Complete when Remote cache correctness: build with remote cache, clear local cache, rebuild — outputs match original; cache hit rate >80% for incremental changes | Clear `~/.cache/bazel`, rebuild, verify outputs match; check `bazel build --execution_log_json_export` for cache hits |
+| ☐ | Complete when Incremental build time: change one file in a leaf library, rebuild — time < 10 seconds for single target + direct dependents | `time bazel build //path/to:target` after single-file change completes in < 10s |
+| ☐ | Complete when Dependency graph clean: zero missing or unused dependency edges; no target has >100 direct deps | `bazel query 'deps(//...)' --output=graph` validated; unused_deps check passes in CI |
+| ☐ | Complete when No genrule uses network access; all external deps pinned with content hashes (no branch references, no floating tags) | `grep -r "genrule" BUILD* | grep -v "tags.*block-network"` returns empty; WORKSPACE/MODULE.bazel has `integrity = "sha256-..."` for all deps |
+| ☐ | Complete when Test sharding ready: >99.9% test pass rate locally before enabling sharding; flaky tests quarantined | Run suite 100x locally; quarantine any test failing >0 times; CI blocks merge of flaky tests |
+| ☐ | Complete when Migration plan (if applicable): current pain quantified ($), estimated migration cost ($), projected ROI < 18 months documented in decision record | ADR exists with all three cost figures; stakeholders have approved |
+| ☐ | Complete when Buildifier AND semantic validation run in CI: formatting + `bazel query` for dep completeness, visibility correctness, and glob scope | CI pipeline includes both `buildifier -lint=warn` and `bazel query` semantic checks |
+| ☐ | Complete when Remote execution workers recover gracefully: worker failure doesn't fail the build; retry with backoff configured | Kill a worker mid-execution; build retries on another worker and completes successfully |
 
 1. **Hermeticity check:** `bazel build --sandbox_block_network //...` passes with no network access violations. If failures, identify and fix non-hermetic targets.
 2. **Determinism check:** Build twice on the same machine, compare output hashes. Build once on two different machines, compare hashes. All outputs must be bit-for-bit identical.
@@ -634,10 +765,12 @@ After designing or modifying a build system, run this sequence. Do not proceed p
 If any check fails: diagnose from verification item, provide specific actionable fix, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [Bazel Official Documentation](https://bazel.build/docs) — Build system, Starlark, remote execution
 * [Buck2 Documentation](https://buck2.build/) — Meta's artifact-based build system

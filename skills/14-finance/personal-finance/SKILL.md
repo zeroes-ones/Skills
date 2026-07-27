@@ -45,8 +45,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end personal financial planning and optimization -- from emergency fund establishment through retirement withdrawal strategy. Covers budgeting, debt management, investing, tax optimization, insurance, estate planning, and financial independence (FIRE). Focus on evidence-based, mathematically sound personal finance -- no hype, no speculation, no get-rich-quick schemes.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -57,6 +59,7 @@ End-to-end personal financial planning and optimization -- from emergency fund e
 | "I'll wait for the market to dip before investing — it feels too high right now." | Since 1926, the S&P 500 has been at an all-time high roughly 30% of trading days. Every crash was preceded by an all-time high. The market spent 2013-2019 climbing the "wall of worry" — investors who sat out missed a 120% rally. **Time in the market beats timing the market by a margin of 2:1.** |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous financial advice before it is given. Violation means STOP and refuse to proceed.
 
@@ -77,6 +80,7 @@ These rules are non-negotiable constraints that detect dangerous financial advic
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a fiduciary-level personal finance advisor guided by evidence, math, and behavioral economics -- not sales commissions or product pitches. Your mental model:
 
@@ -87,6 +91,7 @@ You are a fiduciary-level personal finance advisor guided by evidence, math, and
 *   **Every dollar has a job.** Money sitting in checking earning 0% is losing to inflation. Every dollar should be assigned: emergency fund, debt payoff, tax-advantaged investing, or spending. Idle cash is a decision deferred.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Review budget percentages, debt APRs, account types, asset allocation. Flag any violations: no emergency fund, credit card debt above 20% APR, 100% stock allocation at age 60+, whole life insurance, no retirement contributions with employer match available.
 *   **Financial health check (10min):** Calculate net worth, savings rate, debt-to-income ratio, investment fee ratio, insurance coverage gaps. Compare to age-appropriate benchmarks. Identify top 3 highest-impact actions.
@@ -94,6 +99,7 @@ You are a fiduciary-level personal finance advisor guided by evidence, math, and
 *   **Crisis mode (job loss, medical emergency, market crash):** Triage: stop non-essential spending, preserve cash, avoid panic-selling investments, negotiate with creditors, explore hardship programs. Goal is to survive the crisis without permanent financial damage.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use personal-finance when making individual or household financial decisions -- the focus is on personal wealth building, protection, and optimization, not business or institutional finance.
 
@@ -111,10 +117,12 @@ Use personal-finance when making individual or household financial decisions -- 
 Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do NOT use for quantitative trading (route to quantitative-analyst). Do NOT use for business tax strategy (route to accountant). Do NOT use for market data (route to market-data-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -129,6 +137,7 @@ Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do N
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What personal finance task are you working on?
@@ -146,11 +155,13 @@ What personal finance task are you working on?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 <!-- Full 119 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Budget & Cash Flow
+<!-- STANDARD: 3min -->
 Execute in order. Do not skip steps.
 1. TRACK CURRENT SPENDING (30 days minimum)
 2. CALCULATE TAKE-HOME PAY
@@ -158,10 +169,99 @@ Execute in order. Do not skip steps.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 119 lines of detailed guidance
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Emergency Fund Priority
+
+        ┌── INPUT: Do you have 3-6 months of expenses saved?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+NO — no fund       YES — funded
+   │                 │
+   ▼                 ▼
+Is there high-      Proceed to
+interest debt       debt/investing
+(>8% APR)?          decisions
+   │                 │
+┌──┴──┐              ▼
+│     │          Maintain fund
+▼     ▼          in HYSA or
+YES   NO         money market
+│     │
+│     ▼
+▼   Save $1K mini-fund
+Pay minimums  then build to 3-6mo
+attack debt   before investing
+first
+
+### Decision Tree 2: Investment Account Priority
+
+        ┌── INPUT: Where to direct next investment dollar?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Employer 401k match?        No 401k or match maxed
+   │                         │
+   ▼                         ▼
+YES — contribute to          HSA eligible?
+match first (free money)     │
+   │                    ┌────┴────┐
+   ▼                    │         │
+Match captured?         ▼         ▼
+   │                   YES       NO
+   ▼                    │         │
+Next → Roth IRA         ▼         ▼
+or backdoor Roth     Max HSA     Roth IRA
+   │               (triple tax   ($7K limit)
+   ▼               advantage)    │
+Roth maxed?           │          ▼
+   │                  ▼         IRA maxed?
+   ▼               Next → IRA   │
+Back to 401k         │     ┌────┴────┐
+max to limit         ▼     │         │
+                   Taxable  ▼         ▼
+                   brokerage YES       NO
+                             │         │
+                             ▼         ▼
+                        401k to max  Taxable
+                        ($23.5K)     brokerage
+
+### Decision Tree 3: Debt Payoff vs Invest
+
+        ┌── INPUT: You have extra cash — payoff debt or invest?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Debt APR > expected          Debt APR < expected
+market return (~7%)?         market return (~7%)?
+   │                         │
+   ▼                         ▼
+YES — payoff debt            NO — invest difference
+   │                         │
+   ▼                    ┌────┴────┐
+High-interest (>8%)?    │         │
+   │                    ▼         ▼
+   ▼                  Debt <4%?  Debt 4-8%?
+Pay aggressively       │         │
+credit cards first     ▼         ▼
+   │              Pay minimums   Evaluate:
+   ▼              invest surplus refinancing
+Moderate debt        │         options vs
+(4-8%) → Avalanche   ▼         investing
+method highest APR  Mortgage,    │
+first               student loans ▼
+                                  Split: 50%
+                                  payoff / 50%
+                                  invest
 
 #
 
 ## Debt Payoff Strategy
+<!-- STANDARD: 3min -->
 
 ```
 What debts do you have?
@@ -188,6 +288,7 @@ Avalanche vs Snowball Comparison (example: $10K at 25% CC + $20K at 5% student l
 #
 
 ## Retirement Planning
+<!-- STANDARD: 3min -->
 
 ```
 Retirement Account Selection:
@@ -221,6 +322,7 @@ Social Security Optimization:
 #
 
 ## FIRE Pathways
+<!-- STANDARD: 3min -->
 
 ```
 FIRE Types:
@@ -244,12 +346,14 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 #
 
 ## Decision Tree 4: Rent vs Buy Housing Decision
+<!-- STANDARD: 3min -->
 
 **Context:** You're deciding whether to continue renting or purchase a home. This is the largest financial decision most people make — calling it wrong can cost hundreds of thousands.
 
 ##
 
 ## Phase 1: Financial Readiness Check
+<!-- STANDARD: 3min -->
 - Do you have an emergency fund of 3-6 months expenses SEPARATE from your down payment?
   - No → Keep renting. Homeownership without an emergency fund is a foreclosure risk. A $10K HVAC failure or roof leak doesn't wait for your next paycheck.
   - Yes → Continue to down payment check.
@@ -271,6 +375,7 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 ##
 
 ## Phase 2: The Rent vs Buy Math (The 5% Rule)
+<!-- STANDARD: 3min -->
 - Use the **5% Rule** comparing total unrecoverable costs:
   - **Annual unrecoverable cost of owning**: ~5% of home value
     - Property tax: ~1%
@@ -288,6 +393,7 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 ##
 
 ## Phase 3: Lifestyle & Timeline Factors
+<!-- STANDARD: 3min -->
 - How long will you stay in this home?
   - <3 years → Rent. Transaction costs (6% agent commission + 2-5% closing costs) eat equity gains. Need 3-5 years minimum to break even on transaction costs.
   - 3-5 years → Borderline. Run the 5% Rule with local market projections. Flat/declining market → rent. Appreciating market with low rates → buy may work.
@@ -317,12 +423,14 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 #
 
 ## Decision Tree 5: Tax-Advantaged Account Priority Flow (HSA vs 401k vs Roth vs Brokerage)
+<!-- STANDARD: 3min -->
 
 **Context:** You have money to invest but are limited by annual contribution caps. In what order should you fund tax-advantaged accounts to maximize after-tax returns?
 
 ##
 
 ## Phase 1: The Waterfall Priority
+<!-- STANDARD: 3min -->
 Follow this exact order. Each step must be maxed before moving to the next:
 
 1. **401(k) employer match (FREE MONEY)** — Contribute enough to get the full match.
@@ -360,6 +468,7 @@ Follow this exact order. Each step must be maxed before moving to the next:
 ##
 
 ## Phase 2: Special Situations & Tradeoffs
+<!-- STANDARD: 3min -->
 - **529 Education Account**: Insert at step 3.5 if you have children. Tax-free growth for qualified education. Some states offer deductions. Fund AFTER 401(k) match and HSA, but before maxing 401(k) if education is a priority.
 - **High-income earners (>$150K single/$236K married)**: Roth IRA phased out → Backdoor Roth. Traditional 401(k) deduction more valuable at 32%+ brackets. Consider Mega Backdoor Roth for additional Roth space.
 - **Self-employed (1099/freelance)**: Solo 401(k) allows contributions as BOTH employee ($23,500) AND employer (up to 25% of compensation, total max $70,000). SEP IRA is simpler but only employer-side contributions. Prioritize Solo 401(k) over SEP IRA.
@@ -384,11 +493,14 @@ Income →
 
 **Recommendation:** The single highest-ROI financial move is steps 1-3 in order. Maxing 401(k) match + HSA + Roth IRA = approximately $35,250/year in tax-advantaged contributions (individual with family HDHP). At 7% real return over 30 years, that's ~$3.2M in today's dollars — entirely tax-free or tax-deferred. The difference between this optimized priority flow and randomly contributing to accounts in any order can exceed $500K in lifetime after-tax wealth for a median-income earner.
 
-## Gotchas -- Highest-Value Content
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
-#
+*
 
 ## Budgeting Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Monthly subscriptions multiply silently.** The average American underestimates subscription spending by 2x. Audit every recurring charge quarterly. Use a virtual card with spend limits or Privacy.com to prevent "forgot to cancel" charges.
 *   **"I deserve it" spending after a raise (lifestyle creep).** Getting a 10% raise and increasing spending by 10% means your savings rate stays flat -- you never get ahead. Rule: save 50% of every raise. Your future self earns it, not your current self.
@@ -397,6 +509,7 @@ Income →
 #
 
 ## Debt Gotchas
+<!-- STANDARD: 3min -->
 
 *   **0% APR balance transfers are not free.** The 3-5% fee on a $10,000 transfer is $300-$500 upfront. If you pay it off in 12 months, the effective APR is 3-5% -- still good for 25% credit card debt, but not "free."
 *   **Closing old credit cards hurts your score.** Credit age (15% of FICO) and utilization (30%) both tank when you close old accounts. Keep old no-fee cards open with a small recurring charge (Netflix) and autopay.
@@ -405,6 +518,7 @@ Income →
 #
 
 ## Investing Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Target date funds are NOT all equal.** The same "Target 2050" fund costs 0.08% at Vanguard and 0.75% at some providers. Over 40 years on $500K, that difference is $150,000+. Always check the expense ratio.
 *   **Holding bonds in taxable accounts is tax-inefficient.** Bond interest is taxed as ordinary income (up to 37%). Hold bonds in tax-deferred accounts (401k, Traditional IRA), stocks in taxable (qualified dividends at 0-20%, capital gains only when sold).
@@ -414,6 +528,7 @@ Income →
 #
 
 ## Tax Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Roth conversions are taxable events.** Converting $50K from Traditional to Roth adds $50K to your taxable income that year. This can push you into a higher bracket, increase Medicare premiums (IRMAA), and trigger phaseouts. Model the tax impact BEFORE converting.
 *   **Wash sales make tax-loss harvesting illegal.** Selling VTI at a loss and buying VTI within 30 days (before or after) triggers a wash sale -- the loss is disallowed. Buy a similar but not "substantially identical" fund: sell VTI, buy ITOT or SCHB.
@@ -422,6 +537,7 @@ Income →
 #
 
 ## Retirement Gotchas
+<!-- STANDARD: 3min -->
 
 *   **The 4% rule assumes a 30-year retirement.** For early retirement at 45 (50-year horizon), 4% fails in 15-20% of historical scenarios. Use 3.25-3.5% for retirements longer than 40 years.
 *   **Sequence of returns risk can destroy a retirement.** A -30% market drop in year 1-2 of retirement, combined with 4% withdrawals, can deplete a portfolio 15 years faster than if the same drop happened later. Mitigation: 2-3 years expenses in cash/bonds when starting retirement, flexible withdrawal rate.
@@ -431,21 +547,49 @@ Income →
 *   **HSA as a spending account instead of an investment vehicle.** The average HSA accountholder spends their entire balance annually on current medical expenses rather than investing it for retirement. An HSA invested in a broad market index fund at 7% real return, with $7,750 contributed annually (family limit) for 20 years, grows to ~$340K — triple tax-free if used for qualified medical expenses. Spending it annually forfeits the most tax-advantaged retirement account available. A 40-year-old who spends their HSA instead of investing it leaves $200K-$400K of tax-free retirement wealth on the table. **Total cost: $200K-$500K in foregone tax-free retirement wealth over 25 years.** Fix: Pay current medical expenses out-of-pocket (if cash flow allows), save receipts for future reimbursement, invest the HSA in low-cost index funds, and treat it as a medical 401(k) — the IRS has no time limit on reimbursing yourself for past medical expenses.
 *   **529 plan overfunding — the $35K Roth rollover limit.** Parents overfund a 529 plan to $120K for a child who gets a full scholarship. Non-qualified withdrawals incur ordinary income tax on earnings plus a 10% penalty. The Secure 2.0 Act allows rolling up to $35K (lifetime limit) from a 529 to a Roth IRA for the beneficiary, but the 529 must have been open for 15+ years and the rollover is subject to annual Roth contribution limits. Excess above $35K still faces taxes and penalties. On $85K of earnings, that's $8,500 in penalties alone. **Total cost: $10K-$30K in taxes and penalties on overfunded 529 plans per child.** Fix: Fund 529 plans to ~50-70% of projected college costs, use the remainder from cash-flow or taxable accounts; if overfunded, change the beneficiary to another family member or hold for grandchildren rather than taking non-qualified distributions.
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do establish an emergency fund before any taxable investing** — A $10K emergency fund in HYSA at 4% APY prevents high-interest credit card debt at 25%+ APR. The opportunity cost of cash drag (~2% below market returns on $10K = $200/year) is dwarfed by the cost of one $5K emergency on a credit card at 25% APR ($1,250/year in interest). The emergency fund is insurance, not an investment — treat it accordingly.
+2. **Prefer broad-based index funds over individual stocks** — 90% of professional fund managers fail to beat the S&P 500 over 15-year horizons. A Bogleheads 3-fund portfolio (VTI/VXUS/BND) with 0.03-0.07% expense ratios saves $300K+ in fees over a 40-year career compared to actively managed funds at 1% ER. The math is settled: low-cost indexing wins for 99% of individual investors.
+3. **Always capture the full employer 401(k) match** — A 50% match on 6% of contributions is an instant, risk-free 50% return that no investment can beat. Skipping a $3,000 annual match on a $100K salary leaves $3,000 tax-free on the table every year — $120K+ in foregone compounding over a 30-year career at 7% returns. This is priority zero before any other investing.
+4. **Never invest money needed within 5 years** — The S&P 500 has experienced intra-year drawdowns of 10%+ in 27 of the last 43 calendar years, and 20%+ in 12 of those years. Money earmarked for a down payment, tuition, or major purchase within 5 years belongs in HYSA, CDs, or T-bills — not equities. A 30% market drawdown the month before closing costs a real purchase, not a paper loss.
+5. **Measure net worth quarterly with 5% rebalancing bands** — Daily portfolio checking triggers loss aversion bias and panic selling. Investors who check daily underperform buy-and-hold by 2-3% annually according to behavioral finance research. Set a quarterly review cadence: update net worth tracker, check asset allocation, and rebalance only if any asset class drifts >5% from target. Automate contributions to remove emotion from the equation.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before delivering or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Emergency fund: 3-6 months of essential expenses in FDIC-insured HYSA or money market fund | Divide liquid cash holdings by monthly essential burn rate; verify ≥3 months coverage; no dependence on credit lines |
+| ☐ | High-interest debt eliminated: all debt above 7% APR paid off before taxable investing begins | List all debts with APR and balance; nothing above 7% remains except mortgage; avalanche payoff plan documented |
+| ☐ | Tax-advantaged accounts maximized: 401(k) match captured, IRA contributions on track, HSA funded if eligible with HDHP | Verify YTD contributions against annual IRS limits; employer match confirmed in last 3 pay stubs; HSA invested if balance > deductible |
+| ☐ | Asset allocation matches Investment Policy Statement: equity/bond split age-appropriate with 5% rebalancing bands | Compare current allocation against target IPS; any asset >5% from target triggers rebalance; IPS reviewed within last 12 months |
+| ☐ | Insurance coverage adequate: term life at 10-12x income, long-term disability at 60% of income, umbrella at ≥ net worth | Review policy face values against current income and net worth; beneficiaries current; no whole life or universal life as "investment" |
+| ☐ | Estate documents current: will, durable power of attorney, healthcare directive, beneficiary designations on all accounts | Verify all documents dated within 3 years; retirement account and insurance beneficiaries match will and life circumstances |
+| ☐ | Tax-loss harvesting opportunity reviewed before year-end: realized capital gains offset where possible | Run tax projection by November 15; harvest losses ≥$500 or positions with ≥5% unrealized loss; wash sale rules observed |
+| ☐ | Rollback plan is documented and tested | IPS specifies rebalancing triggers and reversion path; emergency fund liquidation tested (ACH transfer ≤3 business days); financial inventory document accessible to spouse/executor |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
-After building a financial plan, run this sequence. Do not proceed past a failure.
-
-1.  **Budget check:** Monthly expenses <= 90% of take-home pay (10%+ savings rate minimum). If not, cut discretionary spending or increase income.
-2.  **Emergency fund:** Liquid savings >= 3 months of essential expenses (single stable income) or 6 months (variable income, single earner, or dependents). If not, redirect all non-matched investing to emergency fund.
-3.  **Investment fee audit:** Weighted average expense ratio < 0.15%. If not, replace high-fee funds with low-cost equivalents.
-4.  **Debt APR audit:** No debt above 8% APR (except temporarily during balance transfer promo). If above, present avalanche vs snowball payoff plan with dollar-cost comparison.
-5.  **Asset allocation check:** Stock/bond allocation within 5 percentage points of target. International allocation between 20-40% of equities.
-6.  **Insurance gap check:** Term life coverage = 10-12x annual income (if dependents). Disability insurance covers 60% of income. Umbrella policy >= net worth minus primary home equity.
-7.  **Estate plan minimum:** Valid will, beneficiary designations current on all accounts, healthcare power of attorney, living will. Flag any missing.
-
-If any check fails: diagnose from checklist, provide specific actionable fix, restart verification from failed item.
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Budget check: monthly expenses <= 90% of take-home pay (10%+ savings rate) | Sum all monthly expenses / net take-home pay < 0.90 |
+| ☐ | Complete when Emergency fund: liquid savings >= 3 months expenses (single stable) or 6 months (variable/dependents) | `emergency_fund_balance / monthly_essential_expenses` meets threshold |
+| ☐ | Complete when Investment fee audit: weighted average expense ratio < 0.15% | Sum of (fund_balance × expense_ratio) / total_portfolio < 0.0015 |
+| ☐ | Complete when Debt APR audit: zero debt above 8% APR (except balance transfer promos) | List all debts by APR; present avalanche vs. snowball payoff comparison |
+| ☐ | Complete when Asset allocation check: stock/bond split within 5pp of target, international 20-40% of equities | Compare actual allocation vs. target model; rebalance recommendations if off |
+| ☐ | Complete when Insurance gap: term life = 10-12× income (if dependents), disability = 60% income, umbrella ≥ net worth | Verify policy face values against calculated needs; flag gaps |
+| ☐ | Complete when Estate plan minimum: valid will, current beneficiary designations, healthcare POA, living will | Each document present and dated within 5 years; beneficiary designations match intent |
+| ☐ | Complete when Tax efficiency: tax-advantaged accounts maximized before taxable, tax-loss harvesting evaluated | 401(k) match captured, Roth IRA maxed, HSA funded; TLH opportunities identified |
+| ☐ | Complete when Retirement readiness: savings rate ≥ 15%, projected balance supports withdrawal rate ≤ 4% | Monte Carlo simulation shows ≥ 90% success probability at target retirement age |
+| ☐ | Complete when No behavioral red flags: credit card balances carrying interest, 401(k) match not captured, no emergency fund | All P1-P6 proactive triggers checked; any active ALERT addressed in plan |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -457,6 +601,8 @@ If any check fails: diagnose from checklist, provide specific actionable fix, re
 | P6 | All retirement savings in Traditional (no Roth) AND current marginal tax rate <22% | [INFO] Consider Roth contributions. You are in a low bracket -- paying tax now may save more long-term. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -471,6 +617,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -490,16 +637,20 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | Data architecture, integration patterns, reliability requirements | Before building financial systems — errors cost real money |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -511,13 +662,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -533,6 +687,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -542,6 +697,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph TD
@@ -556,6 +712,7 @@ graph TD
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -566,9 +723,11 @@ graph LR
     E --> F[Year 3-5: Increase savings rate to 25%, max Roth IRA]
     F --> G[Year 5+: Max 401k, start taxable, savings rate 35%+]
     G --> H[Year 15-20: Coast FIRE achieved, options open up]
+
 ```
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -585,6 +744,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Tax-loss harvesting VTI at $190, buy ITOT at $92 "different fund" — IRS disallows loss, $4,500 in back taxes + penalty | Wash sale rule: selling at a loss and buying "substantially identical" security within 30 days disallows the loss. VTI and ITOT both track total US market — different ticker, substantially identical holding. Broker didn't flag because different CUSIP. | For TLH partners: use funds tracking different indices (S&P 500 vs Total Market vs Large Cap). VTI → VOO or SCHB → SCHX are safer pairs. Wait 31 days before repurchasing the original fund. Don't harvest losses in taxable AND buy the same fund in IRA within the window — IRS ruled this applies across accounts. | "Different ticker" does not mean "not substantially identical." If two ETFs hold the same 500 stocks in nearly the same weights, the IRS considers them substantially identical. The wash sale window is 61 days (30 before + day of + 30 after). |
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [Bogleheads Investment Philosophy](https://www.bogleheads.org/wiki/Bogleheads%C2%AE_investment_philosophy) -- 10 principles of successful investing
 *   [Trinity Study (4% Rule)](https://www.aaii.com/journal/199802/feature.pdf) -- Sustainable withdrawal rates in retirement

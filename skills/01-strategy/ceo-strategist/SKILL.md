@@ -49,7 +49,8 @@ chain:
 
 Executive-level strategy for company formation, fundraising, organizational design, and governance. Think like a founder/CEO making resource-constrained decisions under uncertainty.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -60,6 +61,7 @@ Executive-level strategy for company formation, fundraising, organizational desi
 | "Directional advice is fine — I don't need precision" | "Directional" hiring advice off by 30% = $300K/year in unnecessary payroll for a 20-person team. Precision isn't pedantry — it's the difference between a funded company and a dead one. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -76,12 +78,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -122,9 +124,11 @@ What are you trying to do?
 ├── Need board governance or investor updates? → Invoke `board-manager` skill
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Strategic Alignment and Vision"
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 The CEO's job is not to have all the answers — it's to **ask the right questions, ensure the right decisions get made (by whomever is best positioned to make them), and maintain organizational clarity when everything is ambiguous**. The output is not a strategy document; the output is a company that executes.
 
@@ -154,6 +158,7 @@ The CEO's job is not to have all the answers — it's to **ask the right questio
 - **The hardest decision is usually the right one.** Firing a co-founder, killing the original product, pivoting away from the vision that raised your Series A — these are CEO-class decisions precisely because they're painful. If a decision is easy, delegate it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 CEO strategy is inherently tied to company stage. The same frameworks apply differently at seed, growth, and scale.
 
@@ -168,6 +173,7 @@ CEO strategy is inherently tied to company stage. The same frameworks apply diff
 **Usage**: Say "as a growth-stage CEO, help me think through..." or calibrate by company size/stage. Default: **Seed-stage** (early-stage, hands-on, building fundamentals).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Fundraising strategy: when to raise, how much, from whom
@@ -195,6 +201,7 @@ Common chains:
 - **M&A**: ceo-strategist → legal-advisor → business-strategist — Acquisition thesis → due diligence → integration model
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -231,6 +238,7 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 | **80-200** (Series C+) | VPs with directors under them. COO runs ops. | 3-4 | CPO, CRO | $1.5M-4M |
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -290,11 +298,16 @@ Complete when:
 5. Review quarterly: what got done vs. committed? What did we learn? What changes for next quarter?
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
 - Operating rhythm defined: weekly standup, monthly business review, quarterly offsite schedule
 - Pre-mortem documented with failure scenarios and corresponding mitigations
 - Crisis response playbook with triggers, owners, communication templates, and 24-hour action plans
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -310,6 +323,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 The CEO sits at the center of all strategic decisions. Coordination failures here cascade into every function — product builds the wrong thing, engineering builds it wrong, sales sells to the wrong market.
@@ -357,6 +371,7 @@ Functional level (tactical: org change, process issue, vendor decision)
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -369,17 +384,20 @@ Functional level (tactical: org change, process issue, vendor decision)
 | Term sheet arrives with liquidation preference >1x or full-ratchet anti-dilution | Run the dilution model with these terms across best/worst exit scenarios before signing anything. Negotiate to 1x non-participating preferred with weighted-average anti-dilution. If investor won't budge, be prepared to walk — involve legal-advisor | A 2x liquidation preference today means common shareholders (including employees with options) get zero in a moderate exit. Bad terms in one round compound through every future round and make downstream fundraising nearly impossible |
 | Your calendar shows >80% internal meetings for two consecutive weeks — zero customer calls, zero recruiting | Audit your calendar immediately: which meetings require the CEO vs. which can be delegated? Cut or delegate everything that isn't customers, recruiting, fundraising, or strategy. Block 2 hours daily for deep work and refuse meeting invites in those slots | If the CEO is 100% internal, nobody is selling, recruiting executives, or talking to customers. The company runs on autopilot — directionless. Your calendar is your strategy; what it shows is what you actually prioritize |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Your cap table is clean, dilution is modeled through Series B, and your 409A is current. You can articulate your vision in one sentence that makes investors lean forward, not check their phones.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 CEO skill is built through repeated exposure to high-stakes decisions with structured reflection. The gap between a first-time CEO and a seasoned one is the decision journal they've accumulated.
 
@@ -402,6 +420,7 @@ graph LR
 **The One Highest-Leverage Activity**: Keep a decision journal. For every significant decision, write: what you decided, why, what you expect to happen, and your confidence level (60%? 90%?). Review quarterly. The gap between your expectations and reality is the most honest feedback you'll ever get.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Set vision before strategy, and strategy before tactics.** Vision = where you're going (5-10 year destination). Strategy = how you'll get there (3-5 year plan). Tactics = what you do this quarter. Most CEOs jump to tactics because vision is hard. But without vision, your team optimizes locally — each department pulls in different directions. Write the vision memo first. If your VP of Engineering and VP of Sales describe different destinations, you haven't set vision.
@@ -425,6 +444,7 @@ graph LR
 10. **Conduct quarterly strategy reviews with a red-team mindset.** Assign one exec to argue against the strategy. Force the team to articulate: "What would have to be true for our strategy to fail?" and "What early warning signs would tell us we're wrong?" Strategy isn't a plan — it's a set of testable hypotheses.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - **Vision that doesn't constrain** — "we will be the leading provider of enterprise solutions" applies equally to a CRM company, a cloud provider, and a consulting firm. A vision that doesn't say NO to anything provides zero decision-making leverage. "We will be the CRM that sales teams love using" says NO to marketing, support, and HR use cases.
@@ -442,6 +462,7 @@ graph LR
 - **What:** Presenting board decks as "everything is great" narratives. **Why:** Boards don't expect perfection — they expect judgment. When you hide problems until they're un-hideable, you destroy trust. The board's relationship with the CEO is the company's most important governance mechanism; trust erosion there is catastrophic. **Instead:** Lead board meetings with: "Here's what we're worried about, here's what we're doing about it, here's where we need your help." Send bad news immediately — don't wait for the board meeting.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any CEO-level deliverable leaves this skill, verify:
@@ -462,6 +483,8 @@ Before any CEO-level deliverable leaves this skill, verify:
 - [ ] CEO communication rhythm documented: all-hands cadence, written updates, skip-level schedule, AMA format
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -472,6 +495,7 @@ Before any CEO-level deliverable leaves this skill, verify:
 | Avoiding hard people decisions because "they're a good person" or "they've been here since the beginning" | Slow bleed: A-players leave because they see B-players tolerated, culture decays by osmosis | Apply the "knowing what you know now, would you enthusiastically re-hire this person?" test quarterly. If the answer is no for 2 consecutive quarters, act. Loyalty is repaid with generous severance and honest references, not by keeping someone in a role they've outgrown. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Vision/mission: every employee can articulate the company vision (verified by survey, ≥ 80% accuracy)
 - [ ] OKRs: company OKRs set, team OKRs cascade, progress reviewed monthly with data (not gut feel)
@@ -480,8 +504,9 @@ Before any CEO-level deliverable leaves this skill, verify:
 - [ ] Strategy: strategy memo reviewed quarterly — what changed in the market, what we're doing about it
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ### Solo/Pre-Seed (Founder + 0-5 employees)
 - Vision: 1-page founder memo — why this, why now, why you
@@ -520,6 +545,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - Deliverable: 3-year strategic plan + annual operating plan + quarterly earnings/board package + investor day presentation
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -532,6 +558,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Hired VP Sales who crushed it at $5M but flamed out at $50M | Hired for current-stage competence, not next-stage experience. Pattern-matched to "built from scratch" story without verifying "scaled to enterprise" experience. | When hiring executives, ask "Have you done this at our NEXT stage?" Reference-check specifically for scale transitions. The best startup VP may not be the best growth-stage VP. | Hire for the stage you're entering, not the stage you're leaving. |
 
 ## References
+<!-- STANDARD: 3min -->
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)
 - **Fundraising Cost by Round**: See [fundraising-cost-by-round.md](references/fundraising-cost-by-round.md)
 - **MVP-to-Scale Progression**: See [mvp-to-scale-progression.md](references/mvp-to-scale-progression.md)

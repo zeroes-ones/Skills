@@ -46,6 +46,7 @@ chain:
 Design, implement, and govern health data interoperability systems that bridge clinical workflows, EHR platforms, and research pipelines. This skill covers the full clinical informatics lifecycle — from FHIR resource modeling and EHR integration to real-world evidence data pipelines and patient consent management — with specialized depth in rare disease registries and patient-reported outcomes.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -64,6 +65,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A8 | `file_exists("*.hipaa.config")` OR `file_contains("*", "HIPAA")` OR `file_contains("*", "regulatory")` | Compliance/regulatory task. Invoke `compliance-officer` skill. |
 
 ### Intent Route (Fallback — When No Auto-Route Matched)
+
 ```
 What are you trying to do?
 ├── Design FHIR resources or profiles → Start at "Decision Trees > FHIR Resource Selection"
@@ -82,9 +84,11 @@ What are you trying to do?
 └── Don't know where to start? → Describe the clinical data source and target system and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules apply to *every* response this skill produces.
 
@@ -99,12 +103,12 @@ These rules apply to *every* response this skill produces.
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master clinical informatics specialists carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -125,6 +129,7 @@ Master clinical informatics specialists carry a dual responsibility: technical e
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -140,6 +145,7 @@ Master clinical informatics specialists carry a dual responsibility: technical e
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing FHIR R4/R5 resource profiles for clinical data exchange
@@ -153,9 +159,104 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Standardizing clinical terminology across SNOMED CT, LOINC, ICD-10-CM, RxNorm, and MedDRA
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: FHIR Resource Selection
+
+```
+        ┌── INPUT: Which FHIR resource models this clinical concept?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Patient data      Clinical /
+(fixed,           transactional
+demographic)      (events, orders)
+   │                 │
+   ▼                 ▼
+Patient,           ├─ Observation
+Practitioner,      │  (lab results,
+Organization,      │  vitals, PROs)
+RelatedPerson      ├─ MedicationRequest
+   │                │  (prescriptions)
+   ▼                ├─ Procedure
+Patient link       │  (surgeries,
+via reference      │  infusions)
+to everything      ├─ Condition
+else               │  (diagnoses,
+                   │  problems)
+                   ├─ Encounter
+                   │  (visits)
+                   ├─ CarePlan
+                   │  (treatment
+                   │  protocols)
+                   └─ Questionnaire/
+                      QuestionnaireResponse
+                      (PRO collection)
+```
+
+### Decision Tree 2: Consent Management Model
+
+```
+        ┌── INPUT: Designing patient consent for data sharing?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Granular           Simple /
+per-purpose        binary
+consent            consent
+   │                 │
+   ▼                 ▼
+Use Consent        Use basic
+resource:          consent
+├─ provision       scope +
+│  per purpose     patient
+│  (treatment,     directive
+│  research,          │
+│  marketing)         ▼
+├─ actor per       Opt-in /
+│  organization    opt-out
+├─ data period     toggle for
+├— expiration      research
+└─ provenance      sharing
+   (who
+   captured,
+   when)
+```
+
+### Decision Tree 3: Terminology Mapping Strategy
+
+```
+        ┌── INPUT: Mapping clinical terms across coding systems?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Source →           Bidirectional
+Target mapping     mapping needed
+(one-way)          (round-trip
+   │               fidelity)
+   ▼                   │
+Use ConceptMap        ▼
+resource:          Use
+├─ group per       terminology
+│  source          server:
+│  system          ├─ $translate
+├─ element per     │  operation
+│  code pair       ├─ $lookup
+├─ equivalence     │  for display
+│  (equal,         ├─ $subsumes
+│  wider,          │  for
+│  narrower,       │  hierarchy
+│  unmatched)      └─ $validate-
+└─ UCUM for        │  code for
+   units              correctness
+```
+
 ### EHR Integration Path
 
 ```
@@ -180,6 +281,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     └───────────────┘   │ profiles │ │ mapping   │
                                         └──────────┘ └───────────┘
 ```
+
 **When to use vendor-specific APIs:** Epic (App Orchard, MyChart Bedside, Epic FHIR) or Cerner (Millennium FHIR, PowerChart). >80% of US hospital EHR market. Leverage vendor-specific extensions for scheduling, medications, and provider directories that FHIR base resources don't cover. **When to use SMART on FHIR:** EHR-agnostic integration, single sign-on via OAuth2/OIDC, app launch from within EHR. Required for ONC Health IT Certification. **When to use HL7v2:** Legacy EHR systems without FHIR support, lab results (ORU^R01), ADT feeds (ADT^A01-A08). Map to FHIR as an intermediate normalization layer.
 
 ### Data Standard Selection
@@ -209,9 +311,11 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        └──────────────┘ │ profiles      │
                                                         └──────────────┘
 ```
+
 **When to choose TEFCA:** National-scale interoperability, multi-network health data exchange, ONC compliance for Qualified Health Information Networks (QHINs). Use USCDI v4 data classes for minimum required data elements. **When to choose Direct Secure Messaging:** Point-to-point provider communication, transition of care (CCDA documents), known recipient endpoints. Simpler than HIE but doesn't scale to population health. **When to choose HIE network:** Regional or state-level data exchange, existing HIE infrastructure, population health analytics. Use IHE profiles (XCA, XDS.b, XCPD) for document query and patient discovery.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -227,7 +331,6 @@ Complete when:
 - ImplementationGuide published with clinical context, ValueSet bindings, and example instances
 - Each profile documented with mapping to source EHR fields
 
-
 ### Phase 2 (~25 min): PRO Data Standards and ePRO Implementation
 1. Select the appropriate PRO instrument for the clinical context: PROMIS (generic + domain-specific banks for physical function, pain, fatigue, depression), PRO-CTCAE (symptomatic adverse events in clinical trials), disease-specific instruments (e.g., Haem-A-QoL for hemophilia, HAL for hemophilia activities).
 2. Model PRO instruments as FHIR Questionnaires: each item → Questionnaire.item, response options → answerValueSet, scoring logic → extension for scoring algorithm. Map responses to FHIR QuestionnaireResponse resources.
@@ -240,21 +343,25 @@ Complete when:
 - ePRO administration schedule defined with reminder, adherence tracking, and alert thresholds
 - Data flow validated: ePRO app → FHIR QuestionnaireResponse → Observation resources → analytics pipeline
 
-
 ### Phase 3 (~30 min): Clinical Terminology Mapping and Normalization
 1. Inventory all coded clinical data elements in the source system and identify the target terminology for each: diagnoses → SNOMED CT (or ICD-10-CM for billing), lab results → LOINC, medications → RxNorm, adverse events → MedDRA, procedures → SNOMED CT or CPT.
 2. Build terminology maps usi
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 - Complete terminology map inventory with source-to-target mappings for all coded clinical data elements
 - FHIR ValueSet resources defined and bound to all coded fields in StructureDefinitions
 - Mapping coverage report generated showing >95% of coded elements mapped to standard terminologies
 
-
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -270,6 +377,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -285,6 +393,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Research cohort query returns 0 patients but manual chart review finds 200 eligible candidates | The inclusion criteria reference ICD-10 codes that were only adopted after the EHR migration in 2019 — all pre-2019 diagnosis records use ICD-9 codes that don't match the query | Build an ICD-9-to-ICD-10 crosswalk into the cohort query tool using the CMS General Equivalence Mappings (GEMs). Always search both coding systems for any date range spanning EHR migrations. | Clinical data has temporal seams. Any query that crosses an EHR migration, coding system change, or lab vendor switch must account for the before/after schema differences. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Pin FHIR versions and ValueSet editions for every integration.** FHIR R4 is production-safe for Epic/Cerner compatibility; R5 is forward-looking. Always specify the ValueSet canonical URI with version — a SNOMED CT code for "bleeding disorder" (64779008) is not "hemophilia A" (28293008). Mapping without versioned ValueSets produces clinical decision support failures. Validate against the FHIR ImplementationGuide's `dependsOn` packages.
@@ -308,6 +417,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Apply the USCDI v4 minimum data class standard for all interoperability endpoints.** USCDI v4 defines the floor for health data exchange in the US. Any FHIR endpoint claiming ONC compliance must support USCDI v4 data classes (Allergies, Care Team, Clinical Notes, Goals, Immunizations, Lab Results, Medications, Patient Demographics, Problems, Procedures, Provenance, Vital Signs, and more). Missing USCDI support = failing interoperability.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Clinical informatics sits at the intersection of clinical workflows, data engineering, and regulatory compliance. Coordination ensures FHIR resources reflect clinical reality, data pipelines preserve semantic meaning, and consent frameworks meet legal requirements.
@@ -362,13 +472,12 @@ Patient consent system failure (consent not enforced)? → Security Engineer →
 - **PRO instrument validation gate:** PRO instrument must be validated for target population (condition, age, language, literacy level). Unvalidated instrument = unreliable data. Artifact: PRO validation evidence summary.
 - **De-identification verification gate:** Expert Determination or Safe Harbor verification before any data leaves the clinical environment. Re-identification risk must be certified as "very small." Artifact: De-identification certification.
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `clinical-informatics-specialist` | Clinical workflows, terminology standards, regulatory context | Before designing healthcare solutions or patient-facing content |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- "when X happens, do Y" -->
 
@@ -385,15 +494,18 @@ These triggers activate when a specific symptom or scenario emerges during clini
 | "Terminology service returns 'code not found' for known valid codes" | Audit terminology edition alignment: compare the code system version in the ValueSet expansion against the source data's code system version, check for code deprecation or replacement events in the terminology release notes, and verify the terminology server's loaded edition matches the expected version date. |
 | "Bulk FHIR export job completes but NDJSON files are empty or truncated" | Diagnose the export pipeline: verify `_type` parameter includes the intended resource types, check `_since` filter isn't excluding all records, validate that NDJSON output files match the manifest's `output` array, and confirm the export client has read access (`patient/*.rs` or `system/*.rs` scopes) for the requested resources. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 Clinical data flows seamlessly between EHRs, patient apps, and pharma partners. FHIR APIs are the backbone — not afterthoughts. Clinicians trust the data because mappings are validated and provenance is traceable. Real-world evidence pipelines generate insights without manual data wrangling.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -410,7 +522,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -421,6 +534,7 @@ graph LR
 | "We're too small to be targeted — attackers go after hospitals, not us" | 60% of healthcare data breaches target small and mid-sized organizations. They have fewer security resources, weaker detection, and are often the entry point to larger partners' networks (supply chain attacks). Small clinic breaches average 3.5 months to detection vs 15 days at large hospitals. Attackers automate scanning — your size doesn't make you invisible, it makes you an easy target. **Total cost: $500K-$3M per breach for small healthcare orgs — 60% of breached small healthcare orgs close within 6 months.** |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - **HL7 FHIR `Observation.value[x]`** is a choice type — the field can be `valueQuantity`, `valueString`, `valueCodeableConcept`, or 8 other types. A query for `valueQuantity` only returns Quantity-typed observations. `value` is NOT a valid field. Lab values, vitals, and survey scores may use DIFFERENT value types even within the same `Observation` category. **Total cost: $500,000-$3,000,000 per year** in clinical data gaps — missing 30% of lab results because of incorrect value-type queries leads to missed diagnoses, delayed treatment, and potential malpractice exposure.
@@ -431,6 +545,7 @@ graph LR
 - **Terminology server version drift** — your FHIR server validates against SNOMED CT January 2024, but the EHR sends codes from the July 2024 release. New codes fail validation silently, and clinical data for emerging conditions (e.g., novel pathogens) is dropped. **Total cost: $150,000-$750,000 per year** in data quality degradation — outdated terminology servers cause 2-5% of clinical data to be rejected or misclassified, requiring manual reconciliation.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] FHIR profiles validated against base specification using HL7 FHIR Validator — zero errors
@@ -449,6 +564,8 @@ graph LR
 - [ ] All HIE/TEFCA connections include Direct Secure Messaging endpoint verification and certificate rotation schedule
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -459,6 +576,7 @@ graph LR
 | CCDA schematron validation fails on documents generated from FHIR — CCDA generated via string templates instead of canonical FHIR Composition→C-CDA mapping | $100K-$500K in interoperability non-compliance — failed C-CDA validation blocks HIE participation and ONC certification requirements | Replace string-concatenation with FHIR Composition→C-CDA transformer using ONC bidirectional mapping spec; validate output with NIST C-CDA Validation Suite |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] FHIR validation: run `fhir-validator` against sample resources — all resources pass profile validation
 - [ ] Code system mapping: SNOMED → ICD-10 map tested with 50 common codes — ≥ 95% have valid 1:1 mappings
@@ -467,8 +585,9 @@ graph LR
 - [ ] Provenance: every clinical resource has `Provenance` resource documenting source system, timestamp, and actor
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.### Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 #### Solo Practitioner / Small Clinic
 - **Scope:** Single EHR integration (one vendor, one instance). One PRO instrument for one condition. Terminology maps for 2-3 code systems.
@@ -496,6 +615,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Medium → Enterprise:** National interoperability mandate → implement federated FHIR mesh. International data exchange → adopt IPS and cross-jurisdiction consent. AI/ML in clinical workflow → add fairness monitoring and explainability.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(DEEP)**
 
 | Symptom | Real-World Cause | Diagnostic Steps | Resolution |
@@ -507,6 +627,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Terminology cross-map (SNOMED → ICD-10) produces billing rejections | Auto-mapping without episode-of-care context — a single SNOMED code maps to 3 ICD-10 codes (initial, subsequent, sequela) | Identify the rejected claims by ICD-10 code; trace back to source SNOMED code and clinical context; determine episode of care (initial vs subsequent encounter) | Implement context-aware mapping: require episode-of-care flag from EHR (initial/subsequent/sequela) when mapping SNOMED → ICD-10. If context unavailable, flag for manual review rather than auto-mapping. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -517,4 +638,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

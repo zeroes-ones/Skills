@@ -40,6 +40,7 @@ chain:
 Conduct rigorous, ethical, and inclusive research with patient populations — from journey mapping for chronic conditions and clinical trial recruitment studies to IRB-aware protocols and health-literate survey design. This skill specializes in the unique constraints of healthcare research: vulnerable populations, regulatory oversight, health literacy barriers, and the imperative to produce actionable insights without burdening patients.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -58,6 +59,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A8 | `file_exists("*.accessibility.*")`OR`file_contains("*", "screen.reader")`OR`file_contains("*", "accessible.survey")`OR`file_contains("*", "caregiver.proxy")` | Accessible research design task. Jump to **Core Workflow > Phase 2 (Accessible Research Design)**. |
 
 ### Intent Route (Fallback — When No Auto-Route Matched)
+
 ```
 What are you trying to do?
 ├── Map a patient journey for a chronic condition → Jump to "Core Workflow > Phase 1 (Patient Journey Mapping)"
@@ -75,9 +77,11 @@ What are you trying to do?
 └── Don't know where to start? → Describe your research question and patient population and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules apply to *every* response this skill produces.
 
@@ -92,12 +96,12 @@ These rules apply to *every* response this skill produces.
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master patient experience researchers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -118,6 +122,7 @@ Master patient experience researchers carry a dual responsibility: technical exc
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -133,6 +138,7 @@ Master patient experience researchers carry a dual responsibility: technical exc
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Mapping patient journeys for chronic conditions (hemophilia, bleeding disorders, rare diseases)
@@ -146,9 +152,78 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Establishing and facilitating patient advisory boards for co-design of health products
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Research Method Selection
+
+        ┌── INPUT: What is the research
+        │   question type?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Lived experience /        Quantifiable patterns
+"what is it like?"        or prevalence?
+   │                         │
+   ▼                         ▼
+Semi-structured           ┌────┴────────────┐
+interviews or             │                 │
+focus groups              ▼                 ▼
+                     Sample size > 50?   Small population?
+                         │                 │
+                         ▼                 ▼
+                    Validated survey    Diary study or
+                    (SMOG ≤ 6th grade)  longitudinal
+                                        journaling
+
+### Decision Tree 2: Underserved Population Access Strategy
+
+        ┌── INPUT: Target population includes
+        │   historically underrepresented groups?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Language or literacy       Access barriers
+barriers?                  (transport, tech,
+   │                        trust)?
+   ▼                         │
+Translate materials        ▼
+to preferred language;     Community-based
+use pictorial scales;      participatory research;
+offer verbal consent;      partner with trusted
+pilot with community       orgs; compensate for
+reviewers first            time and travel
+
+### Decision Tree 3: PROM Selection Path
+
+        ┌── INPUT: Need a patient-reported
+        │   outcome measure (PROM)
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Validated PROM exists      No suitable PROM
+for this condition?        exists for this use?
+   │                         │
+   ▼                         ▼
+Check: is it validated     ┌────┴────────────┐
+in your target population  │                 │
+(language, literacy,       ▼                 ▼
+age range)?            Exploratory        Confirmatory
+   │                   research?          trial endpoint?
+   ▼                       │                 │
+YES → Use existing;        ▼                 ▼
+NO → Adapt + re-        Adapt existing     Full PROM
+validate with            with cognitive    development:
+cognitive interviews    debriefing only   item generation
+                                          → psychometric
+                                          testing → FDA
+                                          qualification
+
 ### Clinical Trial Research Path
 
 ```
@@ -185,6 +260,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
               └──────────────┘ │ interview)      │
                                └─────────────────┘
 ```
+
 **When to use recruitment barrier research:** Low trial enrollment (<30% of eligible patients), high screen-failure rate, demographic disparities in enrollment. Method: semi-structured interviews with patients who declined and patients who enrolled — compare to identify modifiable barriers. **When to use retention research:** >20% dropout rate, differential dropout by demographic group. Method: longitudinal diary study + exit interviews with dropouts. **When to route to clinical research:** Studying drug efficacy, safety, or a clinical intervention. This skill supports the patient experience component of clinical research but does not replace a clinical research protocol.
 
 ### IRB Determination Path
@@ -217,9 +293,11 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     │ expedited│ │ with IRB office.    │
                     └──────────┘ └────────────────────┘
 ```
+
 **When full IRB required:** Collecting identifiable health data for generalizable knowledge, testing an intervention, interacting with patients for research purposes beyond standard care. **When exempt:** Anonymous surveys, educational tests, benign behavioral interventions with adults (Category 3), secondary use of de-identified data. **Always confirm with your IRB office — this decision tree is guidance, not a regulatory determination.**
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -235,7 +313,6 @@ Complete when:
 - Map validated by 2-3 patients from different segments with feedback incorporated
 - Minimum 5 participants recruited per segment across all journey stages
 
-
 ### Phase 2 (~25 min): Accessible and Health-Literate Research Design
 1. Assess health literacy requirements: target population's likely literacy level, language preferences, cognitive load of the health condition, and any sensory or motor impairments. Run SMOG or Flesch-Kincaid on all materials — target ≤6th grade for general patient populations, ≤8th grade for condition-informed populations.
 2. Design accessible research modalities: remote options (video call, phone, asynchronous) for patients with mobility or transportation barriers, caregiver proxy protocols for pediatric or cognitively impaired patients, screen-reader-compatible digital surveys, and large-print/multi-language paper alternatives.
@@ -247,7 +324,6 @@ Complete when:
 - All research materials tested at ≤6th grade reading level (SMOG/Flesch-Kincaid verified)
 - 2-3 patients from target population confirmed comprehension via teach-back paraphrasing
 - Accessibility accommodations documented in research protocol: remote, caregiver proxy, screen-reader, multi-language
-
 
 ### Phase 3 (~20 min): PROM Validation and Selection
 1. Define what you need to measure: symptom severity, functional status, quality of life, treatment satisfaction, or disease-specific outcomes. Map to PROMIS domains for generic measures or disease-specific instruments (Haem-A-QoL, HAL, HJHS for hemophilia).
@@ -261,7 +337,6 @@ Complete when:
 - Selection rationale documented: instruments considered, evidence gaps, and ongoing monitoring plan
 - Cross-cultural validation confirmed: forward-back translation + cognitive debriefing for all non-English populations
 
-
 ### Phase 4 (~25 min): Diary Studies and Longitudinal Research
 1. Define the diary protocol: frequency (daily, weekly, event-contingent), duration (7 days for symptom tracking, 2-4 weeks for treatment adherence, 3-6 months for quality of life), and trigger (time-based prompts vs patient-initiated entries after a bleed/infusion).
 2. Design the diary instrument: keep each entry to ≤5 questions (diary fatigue kills compliance), use a mix of closed-ended (numeric rating scales, checkboxes) and one open-ended question ("Anything else about your experience today?"), support multimedia (photo of infusion site, voice note about pain).
@@ -270,13 +345,16 @@ Complete when:
 5. Close the loop with participants: after the study, share a summary of findings with participants. Patients who contribute time to research deserve to know what was learned. This also builds trust for future research recruitment.
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 - Diary protocol defined: frequency, duration, triggers, and ≤5 questions per entry
 - Adherence plan in place: reminder schedule, missed-entry protocol, researcher check-in threshold
 - Participant close-out plan documented: findings summary shared with all participants
 
-
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -292,6 +370,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Patient experience research informs clinical product design, regulatory strategy, and patient-facing content. Coordination ensures research findings translate into better products without violating patient privacy or regulatory boundaries.
@@ -344,13 +423,12 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 - **Compensation fairness gate:** Patient compensation must be fair but not coercive. For 60-minute interview, $50-75 typical. IRB scrutinizes amounts that could induce risk-ignoring behavior. Artifact: Compensation rationale documented in IRB submission.
 - **Results return gate:** Every participant must receive a 1-page plain-language summary of findings. Patients who give time deserve to know what was learned. Artifact: Participant summary document with readability score.
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `clinical-informatics-specialist` | Clinical workflows, terminology standards, regulatory context | Before designing healthcare solutions or patient-facing content |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -363,15 +441,17 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 | IRB review exceeds expected timeline by >2 weeks without communication | Proactively contact IRB coordinator; verify submission is complete; offer to address any preliminary concerns; do not assume "no news is good news" | IRB delays without communication often mean the reviewer found issues but hasn't formalized feedback yet |
 | Participant reports feeling coerced or pressured during recruitment or study participation | Pause recruitment from that channel immediately; investigate recruitment practices; retrain staff; document corrective action for IRB | Coercion in research — even perceived — violates ethical standards and can result in IRB suspension of the study |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 Research findings directly shape product decisions. Patient voices are present in every sprint review. Research operations scale without sacrificing participant care. Pharma partners cite your patient insights in their regulatory submissions. The research team is as diverse as the patient population.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -388,7 +468,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -399,6 +480,7 @@ graph LR
 | "We're too small to be targeted — attackers go after hospitals, not us" | 60% of healthcare data breaches target small and mid-sized organizations. They have fewer security resources, weaker detection, and are often the entry point to larger partners' networks (supply chain attacks). Small clinic breaches average 3.5 months to detection vs 15 days at large hospitals. Attackers automate scanning — your size doesn't make you invisible, it makes you an easy target. **Total cost: $500K-$3M per breach for small healthcare orgs — 60% of breached small healthcare orgs close within 6 months.** |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -413,6 +495,7 @@ graph LR
 | Health literacy level mismatch — patient materials at 10th-grade reading level when 60% of patients read at or below 6th-grade level (US baseline). Patients nod but don't understand. | $100K-$500K per year in avoidable readmissions due to low health literacy (30-50% higher readmission rates) | Use readability formulas (Flesch-Kincaid, SMOG); target 5th-6th grade for patient materials; test with actual patients, not formulas alone |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Interview sample: ≥ 12 participants across relevant demographics (age, condition, treatment stage)
 - [ ] Data saturation: coding shows no new themes emerging in final 3 interviews
@@ -422,6 +505,7 @@ graph LR
 - [ ] IRB/ethics: study approved by IRB or ethics committee (if applicable), informed consent documented
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
@@ -437,6 +521,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 10. **Map every research finding to a dated action item within 2 weeks of report delivery.** Assign a specific owner to each recommendation. Require quarterly progress reviews tracking which recommendations were implemented, deferred, or rejected with rationale. Research reports that sit in SharePoint without driving change waste $150K-$300K in redundant research and compound the original patient experience problems.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -449,6 +534,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Patient voice tokenism — inviting one patient to a design workshop and treating their story as design direction | Recruit 8-12 patients for structured analysis. Every design decision must be traceable to themes from multiple participants, not a single compelling story | `grep -r 'patient.voice\|patient.story\|co.design' --include='*.md' \| grep -c 'participant\|n='` — flag studies with n<8 | Design review gate: require thematic analysis documentation linking decisions to ≥3 participant sources |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -468,32 +554,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | [PX13] | Diary study protocol includes adherence plan: reminders, missed-entry handling, researcher check-in after 3 consecutive misses | `grep -r 'diary\|EMA\|ecological.momentary' research-protocols/ \| grep -v 'adherence\|reminder\|missed.entry'` | Protocol gate: block diary protocols without adherence plan |
 | [PX14] | Findings shared back with participants: summary of what was learned distributed within 30 days of study completion | `grep -r 'participant.feedback\|findings.shared\|results.summary' research-protocols/` | Post-study gate: flag studies >30 days past completion without participant summary |
 
-### Scale Depth
-
-<!-- DEEP: 10+min -->
-<!-- QUICK: 30s -- how patient research capacity evolves with organizational scale -->
-
-#### Solo (1 researcher, 1-2 studies/year)
-**Approach:** Single researcher conducts all phases — recruitment, interviews, analysis, reporting. Manual processes. IRB handled personally. Research serves immediate product decisions.
-**When to graduate:** Research demand exceeds 2 studies/year; studies require specialized populations (pediatric, rare disease, non-English speaking); IRB complexity increases.
-
-#### Small Team (2-5 researchers, 3-10 studies/year)
-**Approach:** Team with mixed methods expertise (qual + quant). Dedicated recruitment coordinator. Basic research operations (consent management, incentive processing). Reusable templates for IRB, consent, interview guides.
-**When to graduate:** Research portfolio spans multiple product lines; need for longitudinal/outcomes research capability; demand for publication-quality rigor.
-
-#### Medium Team (5-15 researchers, 10-30 studies/year)
-**Approach:** Specialized by method (qualitative, quantitative, diary/longitudinal) and population (pediatric, rare disease, health equity). Research operations function. Centralized participant registry with re-contact consent. Integrated with clinical outcomes data. Regular patient advisory board.
-**When to graduate:** Research drives regulatory submissions or publication; need for dedicated health equity research function; cross-product research synthesis required.
-
-#### Enterprise (15+ researchers, 30+ studies/year)
-**Approach:** Full research institute capability. IRB reliance agreements with multiple institutions. Published research contributing to the evidence base. Patient experience research integrated into clinical development. Dedicated health equity and accessibility research teams. Research governance board with external patient representatives.
-
-#### Transition Triggers
-- **Solo → Small Team:** >2 studies/year; specialized populations needed; IRB complexity exceeds single-researcher capacity
-- **Small Team → Medium Team:** Multiple product lines; longitudinal research demand; publication-quality rigor required
-- **Medium Team → Enterprise:** Regulatory submission evidence generation; cross-institutional IRB reliance; dedicated health equity function
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -505,6 +567,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Single IRB rejection delays study launch by 3+ months with no backup plan | IRB determination was sought after protocol was finalized. No exempt/expedited pathway was evaluated as fallback. No multi-site IRB reliance agreement was in place | Begin IRB consultation during protocol design, not after. Evaluate exempt and expedited pathways before defaulting to full review. Establish IRB reliance agreements for multi-site studies before they are needed | IRB is a design constraint, not a post-design hurdle. Treating it as the last step guarantees it becomes the bottleneck |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -514,4 +577,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

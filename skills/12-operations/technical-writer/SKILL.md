@@ -39,6 +39,7 @@ chain:
 Technical documentation system covering the full documentation lifecycle — from API reference generation to architecture decision records to knowledge base management. Designed for developer-tooling, platform, and infrastructure teams.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -78,6 +79,7 @@ What are you trying to do?
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -96,12 +98,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R9** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R10** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master technical writers know that operational excellence is invisible when it works — and catastrophically visible when it doesn't. They design for the 99th percentile, not the average.
 
@@ -122,6 +124,7 @@ Master technical writers know that operational excellence is invisible when it w
 - **Over-communicate during ambiguity.** When the path is unclear, silence is worse than wrong information.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -137,6 +140,7 @@ Master technical writers know that operational excellence is invisible when it w
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Generating or maintaining API reference documentation from OpenAPI/Swagger specifications
@@ -149,6 +153,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Structuring a knowledge base that stays discoverable and up-to-date as the codebase evolves
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Documentation Type Selection
 
@@ -184,6 +189,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                      │script││Tutorials  │
                                                      └─────┘└───────────┘
 ```
+
 **When to build API Reference:** Integrating developers — auto-generate from OpenAPI 3.x spec, include authentication, endpoints, request/response examples, error codes.
 **When to build Runbooks:** Operators/on-call — incident response procedures, deployment guides, rollback steps, health check endpoints, alert response playbooks.
 **When to build Onboarding Guides:** New team members — dev environment setup, architecture overview, first commit walkthrough, team norms, toolchain setup.
@@ -217,6 +223,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        └─────────┘ │Changelog    │
                                                    └─────────────┘
 ```
+
 **When to use Diátaxis:** Large docs site (>50 pages), multiple audience types — 4-quadrant structure (tutorials, how-to guides, explanation, reference) with cross-links.
 **When to use Flat + Search:** Small product, single audience — good search as primary navigation, minimal hierarchy, fast to maintain.
 **When to use Simple Hierarchy:** Medium scope — Getting Started → Guides → Reference → Changelog, works for most open-source projects and startups.
@@ -254,6 +261,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                 │gate  │└────────┘
                 └──────┘
 ```
+
 **When README passes:** One-liner description, install command, basic usage example, contributing link, license, CI/version badges — new developer builds in <5 minutes.
 **When README needs work:** Missing any of: description, install, usage, contributing, license. Each missing piece costs new contributors 5-20 minutes of frustration.
 
@@ -284,6 +292,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                    │truth        │
                                                    └─────────────┘
 ```
+
 **When to auto-generate from spec:** Have validated OpenAPI 3.x — use Redoc (static, clean), Swagger UI (interactive), or Scalar (modern). CI pipeline: spec change triggers doc regeneration + deploy.
 **When to write manually in Markdown:** <10 endpoints, no OpenAPI spec — write Markdown with code snippets extracted from integration tests, ensure examples are runnable.
 **When to create OpenAPI spec first:** >10 endpoints without spec — invest in creating the spec; it becomes source of truth for docs, SDK generation, and validation.
@@ -316,11 +325,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        └─────────┘ │.com format  │
                                                    └─────────────┘
 ```
+
 **When to auto-generate:** Conventional Commits + CI — semantic-release or release-please generates changelog, bumps version, publishes. Zero manual effort but requires commit discipline.
 **When to manually curate:** Infrequent releases — hand-write curated changelog per release with narrative, highlights, migration guide. Better for marketing-facing releases.
 **When to keep running CHANGELOG.md:** Per-PR entries in keepachangelog.com format — each PR adds entry under Unreleased; cut version on release. Good for fast-moving projects.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -356,11 +367,17 @@ debugging guide, performance tuning.
    - **Motivation**: why does this exist? What problem does it solve? When should I use it versus alternatives?
 
   Complete when: README template with quick-start that works in under 5 minutes is defined; API reference documentation standard with usage examples is established; contributing guide with local dev setup and PR process is published; changelog format (Keep a Changelog standard) is adopted.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -375,6 +392,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Technical writing serves developers, product teams, support, and users. Docs degrade when writers are isolated from the people building and using the product.
@@ -436,13 +454,12 @@ Technical writing serves developers, product teams, support, and users. Docs deg
 | Feature launches and user persona context | `product-manager` | Target audience, release timeline, and key messaging for documentation |
 | SEO and discoverability for public-facing docs | `seo-specialist` | Content hierarchy, meta descriptions, and crawlability |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — triggers that demand immediate action -->
 
@@ -457,17 +474,19 @@ Technical writing serves developers, product teams, support, and users. Docs deg
 | Security-sensitive content (architecture diagrams, IPs, internal endpoints) accidentally committed to public-facing docs | Immediately redact and force-push clean version; notify `security-reviewer`; audit git history for the exposure window; update docs review checklist | Public disclosure of internal architecture increases attack surface — must be treated as a security incident |
 | Translation/localization request for a new market (locale not yet supported in the toolchain) | Coordinate with `translation-manager` and `localization-engineer`; assess glossary coverage, TM readiness, and MT quality for the target locale; budget 2–4 weeks pipeline setup | Rushing localization without proper TM, glossary, and pipeline produces garbled docs that harm brand in new markets |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When technical writing is applied perfectly, API references are generated from specs so they never go stale, READMEs enable a new developer to make their first commit in under 10 minutes, runbooks are
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -484,7 +503,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -495,6 +515,7 @@ graph LR
 | "We'll update docs after the product redesign ships" | Docs that duplicate UI text need full rework every redesign — $50K-$150K per major release in documentation rewrites that could have been avoided by describing concepts, not buttons. |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **Documentation that's API reference without narrative** — you document every endpoint, every parameter, every response code. A developer trying to BUILD something doesn't know which endpoints to call in what ORDER. Reference docs answer "what does this do?" Guides answer "how do I accomplish X?" You need both. Without guides, reference is a dictionary without sentences. **Total cost: $200,000-$600,000 per year** in developer onboarding and support — new hires take 2-3x longer to ship their first PR without guided documentation, and support tickets for "how do I..." consume $50-$150 per ticket.
 - **"This is straightforward" in documentation** — it's straightforward to YOU because you wrote the API. To a developer encountering it for the first time, nothing is straightforward. Every time you use "straightforward," "simply," "just," or "obviously," replace it with the actual steps. "Just configure the OAuth flow" → 15 specific steps. **Total cost: $150,000-$400,000 per year** in abandoned integrations — developers who can't complete setup in under 30 minutes churn at 2-3x the rate, and each lost integration prospect is $5,000-$50,000 in platform ARR.
@@ -502,7 +523,31 @@ graph LR
 - **Versioned docs where Google indexes ALL versions** — a user searches "how to configure" and gets the v1.0 docs (from 2021). They follow the instructions, which reference deprecated APIs, and conclude your product is broken. Old docs must have `noindex` meta tags AND a banner linking to the current version. **Total cost: $100,000-$500,000 per year** in lost conversions and misdirected support — each user who follows stale docs and churns represents $1,000-$50,000 in lost lifetime value depending on your pricing tier.
 - **Docs that duplicate product UI text** — "Click the Create button." Then the product redesign changes "Create" to "New." Now the docs are wrong, and no one catches it because the text was duplicated, not linked. **Total cost: $50,000-$150,000 per major redesign** in docs rewrites — docs that mirror UI instead of describing concepts need full rework every redesign cycle.
 
+## Best Practices
+
+1. **Do generate API reference from the OpenAPI spec, not alongside it** — Hand-written endpoint docs drift from the code within one sprint. Use Redocly/Scalar/Docusaurus to auto-generate references from the spec; reserve human writing for conceptual guides, tutorials, and architecture decisions. The cost of out-of-sync API docs is developer support tickets that consume 15-20 engineering hours per week at scale.
+2. **Prefer the reader's search query as the page title** — "Auth0 Password Reset Error 403" helps no one because no customer searches for HTTP error codes. Title every knowledge base page as "How do I [user goal]?" Validate titles against actual search analytics; a page whose title doesn't match a top-10 search query may as well not exist.
+3. **Always verify quick starts on a clean machine in CI** — A README that fails on setup destroys developer trust more effectively than no README at all. Provision a fresh OS image, run every quick start command, and confirm the expected output. A broken quick start costs every new developer 30-60 minutes of debugging — at 50 new developers/month, that's $15K-$30K in wasted time monthly.
+4. **Never publish a code example without extract-and-run verification** — Snippets that don't compile breed frustration and erode trust in all your documentation. Every code block must be extractable into a test file, compiled/executed against the current API version, and guarded by a CI step: `scripts/verify-code-examples.sh`. One broken example makes developers stop trusting every example.
+5. **Measure time-to-first-successful-API-call from the onboarding guide** — A developer who takes 45 minutes to make their first API call will abandon your platform. Target < 10 minutes from landing on docs to a 200 response; instrument with analytics. Every additional 10 minutes of setup time halves your developer activation rate.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | API reference validated — every documented endpoint exists in the OpenAPI spec; no references to deprecated or planned-but-unavailable endpoints | `speccy lint openapi.yaml` passes; `diff <(yq '.paths | keys' openapi.yaml) <(grep -oP '(?<=`)[A-Z]+ /[^`]+' docs/api/*.md | sort)` shows zero undocumented or missing endpoints |
+| ☐ | Quick start verified on clean machine — CI job provisions fresh OS, runs all commands, confirms expected output | CI step: `docker run -v $(pwd):/app alpine:latest /app/scripts/verify-quickstart.sh` passes on all supported OS images |
+| ☐ | Code examples executable — every code block extractable, compiles/runs, verified against current API version; CI gate passes | `scripts/verify-code-examples.sh` extracts and runs every fenced code block; zero failures; snippets versioned alongside API |
+| ☐ | Stale documentation flagged — no page > 180 days without update; freshness CI gate active; deprecated pages have migration banner | `find docs/ -name '*.md' -mtime +180` returns zero results for active pages; deprecated pages have `[DEPRECATED — see [link]]` banner |
+| ☐ | ADR index consistent — no contradictory ADRs without explicit superseding links; every accepted ADR has Status/Context/Decision/Consequences sections | `grep -l "Status: accepted" docs/adr/*.md | xargs grep -l "[conflicting technology]" | wc -l` = 0 unless superseded ADR linked; ADR template fields all populated |
+| ☐ | Knowledge base titles match search intent — zero titles with internal system names or error codes as primary label | Title audit: every KB article title passes "would a customer search for this?" test; zero titles like "[System Name] Error [Code]" |
+| ☐ | Prerequisites explicit — every guide includes exact dependency versions, required accounts, and expected knowledge level; no condescending language | `grep -rn "simply\|just\|obviously\|straightforward" docs/` returns zero hits; every guide has Prerequisites section with version pins |
+| ☐ | Rollback plan: documentation version rollback tested — ability to revert to previous docs version within 1 hour; version selector on docs site functional | Docs CI supports `deploy --version-pin [previous-tag]`; version dropdown tested in staging; rollback drill completed within last quarter |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Guides: every major use case has a step-by-step guide (not just API reference)
 - [ ] Language audit: zero instances of "straightforward," "simply," "just," or "obviously" in docs
@@ -511,10 +556,12 @@ graph LR
 - [ ] Doc testing: top 10 code samples tested in CI against latest API version
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -528,7 +575,6 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

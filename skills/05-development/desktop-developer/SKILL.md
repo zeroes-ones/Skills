@@ -27,6 +27,7 @@ chain:
 # Desktop App Developer — Cross-Platform Desktop Application Engineering
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -67,6 +68,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect desktop development mistakes before they are made. Violation means STOP and refuse to proceed.
 
@@ -85,6 +87,7 @@ These rules are non-negotiable constraints that detect desktop development mista
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -111,6 +114,7 @@ Competent desktop developers make windows appear and respond to clicks. Masters 
 - **Ignore HiDPI for kiosk/embedded apps on fixed hardware.** If your app runs on a specific 1920×1080 industrial touchscreen forever, skip `@2x` assets. But document this assumption — the hardware will be replaced someday.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++), and managed runtimes (.NET MAUI/WPF). Level manifests in how deeply you understand the OS integration layer.
 
@@ -125,6 +129,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 **Usage**: Say "as an L3 desktop developer, design the multi-window architecture for..." Default: **L2** (production-ready, proper security boundaries).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building cross-platform desktop applications with Electron, Tauri, .NET MAUI, Qt, or WPF
@@ -142,6 +147,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 - Implementing accessibility (screen readers, keyboard navigation) in desktop webviews
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 188 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -152,8 +158,16 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 ...
 > 📎 **Full content (188 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: Framework is selected via decision tree, project scaffold runs and opens a window on the target platform, and the documented constraints (platforms, perf budget, team skills) are filed.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
+  Complete when: Feature flagged behind config — can be enabled/disabled without deployment.
+  Complete when: Error tracking configured — all unhandled exceptions routed to on-call.
+  Complete when: Documentation PR merged — README, API docs, and changelog updated.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Isolate the renderer process with `contextIsolation: true` and `nodeIntegration: false`** — Expose only needed APIs via `contextBridge.exposeInMainWorld()`. Each exposed method must validate its inputs. The preload script is the ONLY file that imports `electron`.
 2. **Typed IPC contracts with request/response pattern** — `ipcMain.handle('channel', async (event, args) => ...)` returns promises to the renderer. Define input schemas per channel; never use `ipcRenderer.sendSync()` which blocks the renderer thread.
@@ -167,6 +181,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 10. **Silent installer testing on clean VMs** — Test `start /wait MyAppSetup.exe /S` on a fresh Windows VM, `hdiutil attach MyApp.dmg` on a clean macOS VM. The installer IS the first product experience — SmartScreen or Gatekeeper warnings at install permanently reduce trust.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -339,6 +354,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 **When MSIX:** Windows Store. Sandboxed, clean install/uninstall. Automatic Store updates. Limited filesystem access.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -353,6 +369,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -390,6 +407,7 @@ App rejected from Mac App Store? → Release Manager → Legal Advisor
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — patterns that demand immediate intervention -->
 
@@ -404,6 +422,7 @@ App rejected from Mac App Store? → Release Manager → Legal Advisor
 | Crash reporter configured but not capturing native crashes (C++ panics, Rust panics, segfaults) | ALERT: "JavaScript crash reporters (Sentry JS SDK, window.onerror) only capture renderer-process JS exceptions. Native crashes — Rust unwraps, C++ segfaults, GPU process crashes — produce no JavaScript stack trace and are silently lost. Configure crashReporter.start() in Electron's main process or Sentry Native SDK for Tauri/WPF. Without native crash reporting, your crash rate dashboard shows 0.01% when the real rate is 3%." | Native crashes are the most common type in desktop apps (GPU driver bugs, filesystem permission errors, antivirus hook conflicts) but the least reported. Teams celebrate "99.9% crash-free" metrics while users experience daily native crashes that were never captured. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The app launches on a clean Windows VM without SmartScreen warnings, checks for updates, and shows the UI in under 2 seconds. Every IPC channel is documented with input validation and error responses. The preload script is the only file importing ipcRenderer. The installer runs silently in CI/CD and produces a signed, notarized artifact.
 
@@ -423,6 +442,7 @@ Common chains:
 - **Electron-to-Tauri migration**: desktop-developer (assessment) → backend-developer (Rust API rewrite) → desktop-developer (integration) → performance-engineer
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
@@ -442,6 +462,7 @@ Common chains:
 **Ship a desktop app with auto-update, code signing, and crash reporting to 10 real users every quarter.** Nothing exposes gaps like real users on real hardware. Their antivirus will flag your unsigned build. Their HiDPI display will break your layout. Their corporate proxy will block your update server. You cannot simulate these — you must experience them.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 > **NEVER enable `nodeIntegration: true` in production.** This is the single most dangerous Electron misconfiguration — it grants any XSS in your renderer full OS shell access. Audit: `grep -rn 'nodeIntegration.*true'` must return zero results in production configs.
 
@@ -455,7 +476,8 @@ Common chains:
 | 6 | **File-system race conditions with cloud-sync services** — OneDrive, Dropbox, and Google Drive place hooks on the filesystem that temporarily lock files during sync. Writing to `app.getPath('documents')` while OneDrive is syncing returns `EBUSY` on Windows. Reading a file while Dropbox is updating it returns partial content. `fs.watch` on a synced directory fires 3-4 events per actual change. | **$10,000-$25,000** in data corruption incidents, support tickets from users who "didn't do anything," and engineering time building retry logic after the fact. | Use atomic write patterns (write to temp file, fsync, rename). Retry `EBUSY` with exponential backoff (100ms, 200ms, 400ms, 800ms). Debounce `fs.watch` events by 500ms. Never assume a file is "done" just because it exists. |
 | 7 | **DPI scaling breaks layout when moving windows between monitors** — A user drags your app from a 100% scaling 1080p monitor to a 200% scaling 4K monitor. If you used pixel-based sizes (`width: 800px`), the window is now half the physical size on the 4K display. If you used CSS `zoom` or `transform: scale()` for HiDPI, text is blurry because it's being bitmap-scaled instead of re-rendered at native resolution. | **$8,000-$20,000** in negative reviews, accessibility compliance issues (blurry text is an accessibility failure), and engineering time retrofitting DPI awareness post-launch. | Use relative units (`rem`, `em`, `%`) and viewport units. Set `ENABLE_PER_MONITOR_DPI_AWARE_V2` on Windows. Listen for `display-metrics-changed` events and re-render at native resolution. Never use bitmap-based scaling for HiDPI. |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -466,6 +488,7 @@ Common chains:
 | "The installer is just a wrapper. Users know how to install software." | The installer is the first product experience every user has. A confusing installer with unsigned binaries triggers Windows SmartScreen ("Windows protected your PC"), macOS Gatekeeper ("cannot be opened because the developer cannot be verified"), and Linux package manager warnings. 25% of users who see a SmartScreen warning never click "More info" to proceed. Another 35% proceed but have permanently reduced trust in your product. Code signing, silent install options, and clean uninstall are not polish — they are the prerequisite for users to trust your software enough to run it. |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -481,6 +504,7 @@ When desktop apps go wrong, they go wrong in predictable ways. Here are the most
 | IPC message silently dropped — main process handler registered with `ipcMain.handle('get-data')` but renderer calls `ipcRenderer.send('get-data')` | `invoke`/`handle` and `send`/`on` are different IPC patterns. `handle` returns a Promise to the renderer. `send` is fire-and-forget — there's no return value. Using `send` on a `handle` channel means the renderer never receives the response | Standardize on `invoke`/`handle` for all request-response IPC. Reserve `send`/`on` for fire-and-forget events. Define typed IPC channels: `const channels = { GET_DATA: 'app:get-data', SAVE_DATA: 'app:save-data' } as const`. Add a linter rule that bans raw string channel names | IPC has two modes with incompatible semantics. Calling the wrong one produces zero errors — the message simply vanishes. Typed channel contracts are the only defense |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -491,6 +515,7 @@ When desktop apps go wrong, they go wrong in predictable ways. Here are the most
 | Forgetting to recompile native modules after Electron version bump — `Error: The module was compiled against a different Node.js version` | $8K-$20K in broken CI pipelines and delayed releases | Run `npx electron-rebuild` after every Electron version bump. Add `"postinstall": "electron-rebuild"` to package.json. Pin `electron-rebuild` in devDependencies. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run security audit: `grep -rn 'nodeIntegration.*true\|contextIsolation.*false\|sandbox.*false'` returns zero results
 - [ ] Run IPC audit: `grep -r 'ipcRenderer\.sendSync'` returns zero results
@@ -504,10 +529,12 @@ When desktop apps go wrong, they go wrong in predictable ways. Here are the most
 - [ ] Crash reporter captures both JS and native crashes: trigger test crash, verify it appears in Sentry dashboard
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -520,23 +547,12 @@ Detailed reference material loaded on demand:
 - **Desktop Window Management**: See [references/desktop-window-management.md](references/desktop-window-management.md) — Multi-window, frameless, DPI scaling, tray, menu bar, focus management
 - **Cross-Platform Testing**: See [references/cross-platform-testing.md](references/cross-platform-testing.md) — Spectron, Playwright, platform matrix, GPU testing, power-state simulation
 
-## Operating at Different Levels
-
-| Scale | Challenge | Solution |
-|---|---|---|
-| 1-10 users | Dev setup works, manual installs acceptable | DMG + NSIS, no auto-update required |
-| 10-100 | Version fragmentation begins | Add electron-updater with GitHub Releases provider |
-| 100-1K | Support tickets for "won't install" | Add .msi for enterprise, .deb/.rpm for Linux |
-| 1K-10K | CDN costs for updates, delta size matters | Differential updates, CDN with cache-control, staged rollouts (5%→25%→100%) |
-| 10K-100K | Crash reports flood in, need telemetry | Sentry/Bugsnag native + JS, crash rate target <0.1%, automated crash triage |
-| 100K+ | Store compliance, legal review, localization | Microsoft Store ingestion, Mac App Store sandbox, GDPR consent, 12-language installer |
-
-**Transition Triggers:** When 10+ users report version-related bugs → add auto-update. When CDN bandwidth exceeds 100GB/month → differential updates. When crash rate exceeds 0.1% → Sentry/Bugsnag with automated triage. When legal/enterprise customers request GDPR compliance → dedicated compliance review with data audit.
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true` (Electron)
 - [ ] Preload script is the ONLY file importing `ipcRenderer` from `electron`

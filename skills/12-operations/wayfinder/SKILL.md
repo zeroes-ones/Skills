@@ -45,8 +45,18 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Plan huge work across multiple sessions as investigation tickets. For work too large for a single session, create investigation tickets that break the work into trackable units of knowledge discovery. Each ticket resolves an unknown and produces a knowledge artifact — not necessarily code.
+<!-- QUICK: 30s -->
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules prevent investigation theater — going through the motions without producing actionable knowledge.
 
@@ -61,12 +71,12 @@ These rules prevent investigation theater — going through the motions without 
 | R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R8 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a knowledge cartographer. Your job is not to build software — it's to map the territory of what we don't know so that building becomes straightforward.
 
@@ -77,27 +87,15 @@ You are a knowledge cartographer. Your job is not to build software — it's to 
 * **Some unknowns are unknowable with current constraints.** Declaring an unknown as UNKNOWABLE (and documenting the constraints preventing resolution) is a valid, valuable knowledge artifact.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick scan (10 min):** For a well-scoped task with 2-3 unknowns. Create 2-3 investigation tickets, no DAG needed, resolve all in one session.
 * **Feature investigation (1-3 sessions):** For a feature with 5-15 unknowns. Build knowledge DAG, identify frontier, resolve tickets in dependency order. Produce decision document as capstone artifact.
 * **Domain exploration (3-10 sessions):** For a new technology, domain, or platform with 15-50 unknowns. Multi-session with wayfinder + handoff coordination. Knowledge artifacts form a growing knowledge base.
 * **Architecture investigation (5-20 sessions):** For system-level unknowns (migration strategy, technology selection, scalability modeling). Produces architecture decision records (ADRs) as knowledge artifacts. Feeds into system-architect.
 
-### Scale Depth
-
-#### Solo
-Personal investigation for individual contributors. A few investigation tickets, no formal DAG needed, one session to resolve. Focus: disciplined unknown elicitation, artifact production (not just research), and clear documentation so the investigator's own future self can resume. Tools: markdown tickets in `tickets/`, simple dependency notes.
-
-#### Small Team (2-15)
-Team-scale investigations with shared ticket boards. Formal knowledge DAG, frontier resolution across team members, capstone artifacts that feed into team decision-making. Focus: preventing duplicated investigation, maintaining a shared understanding of what's known vs unknown, handoff integration for multi-session continuity.
-
-#### Medium Organization (15-100)
-Cross-team investigations spanning multiple domains. Standardized ticket templates, artifact quality gates, and investigation-to-implementation transition protocols. Focus: knowledge artifacts as organizational currency — a decision document from one team's investigation eliminates re-investigation by others. Risk: dependency inflation across teams serializes parallel work.
-
-#### Enterprise (100+)
-Portfolio-level investigation management. Automated unknown discovery tooling, investigation ROI tracking, and knowledge artifact libraries. Focus: reducing the cost of organizational ignorance — every dollar spent re-investigating a question someone already answered is pure waste. Risk: investigation bureaucracy — ticket templates become more important than knowledge produced. Keep "we don't know [X]" as the invariant.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use wayfinder when the path from "idea" to "implementation plan" is blocked by unknowns — questions that must be answered before work can be effectively scoped.
 
@@ -112,6 +110,7 @@ Use wayfinder when the path from "idea" to "implementation plan" is blocked by u
 Do NOT use wayfinder for well-understood tasks where implementation can proceed immediately. Do NOT use for sprint planning or backlog grooming (route to scrum-master). Do NOT use for creating implementation tickets (route to project-manager). Do NOT use for product roadmap planning (route to product-manager).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts
 
@@ -135,6 +134,7 @@ What kind of investigation are you planning?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -168,6 +168,7 @@ Execute in order. The goal is to discover what we don't know.
    |-- Validate: topological sort must succeed (no cycles)
    |-- Output: `tickets/dependency-graph.md` with mermaid diagram
 ```
+
   Complete when: All unknowns classified, dependency graph renders without cycles, and tickets created in tickets/ directory.
 
 ### Phase 2: Frontier Resolution
@@ -199,6 +200,7 @@ Work the frontier — tickets with all dependencies resolved.
    |-- New unknowns discovered during investigation → create new tickets
    |-- Dependencies that turned out to be false → remove edges
 ```
+
   Complete when: All BLOCKING and ORDERING tickets resolved and knowledge artifacts produced for each completed ticket.
 
 ### Phase 3: Capstone Synthesis
@@ -221,9 +223,16 @@ After all BLOCKING and ORDERING tickets are resolved:
    |-- Update index with completion status
    |-- Knowledge artifacts remain as project documentation
 ```
+
   Complete when: Decision document produced with recommendations, implementation tickets handed off, and investigation artifacts archived.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -392,8 +401,9 @@ After all BLOCKING and ORDERING tickets are resolved:
                           └──────────────────┘
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -410,6 +420,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -419,13 +430,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Domain exploration for new product area | product-manager | Unknowns inform product feasibility; wayfinder reduces product risk |
 | Technology evaluation for build vs buy | system-architect, cto-advisor | Investigation artifacts inform procurement and architecture decisions |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -436,13 +446,16 @@ If a command or approach fails, follow this escalation path before giving up:
 | P5 | No tickets have `status: done` after 2 full sessions | [ALERT] Investigation producing no knowledge. Re-evaluate approach: are tickets too large? Wrong methods? |
 | P6 | `grep -c "UNKNOWABLE" tickets/*.md` growing faster than resolved tickets | [WARN] Too many dead ends. Consider whether the domain itself is the wrong fit. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### Before (Ad-Hoc Investigation)
+
 ```
 Dev: "I need to figure out which database to use for the new service."
      [reads blog posts for 2 hours]
@@ -458,6 +471,7 @@ Problems:
 ```
 
 ### After (Wayfinder Investigation)
+
 ```
 TICKET: DB-001 — "We don't know which database fits our query patterns"
   Unknown: What are the actual query patterns for the new service?
@@ -484,6 +498,7 @@ CAPSTONE: Decision document recommending PostgreSQL
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: Unknown Harvesting (15 min)
 Take a feature you're about to build. Set a 10-minute timer. Write "We don't know..." statements — as many as you can. Don't judge, don't categorize. After 10 minutes, classify each as BLOCKING, ORDERING, INDEPENDENT, or NICE_TO_HAVE. How many did you find?
@@ -500,17 +515,8 @@ Pick a known unknown. Ask: "What would we need to know to answer this?" Write th
 ### Exercise 5: Scope-Down Practice (15 min)
 Take an unknown that feels overwhelming ("Which cloud provider should we use?"). Scope it down 3 times: what's the smallest knowable piece? What's the next smallest? What's the next? Write an investigation ticket for the smallest piece only.
 
-## Anti-Rationalization
-
-| Rationalization | Reality |
-|---|---|
-| "We'll figure it out as we build — that's agile" | Coding against unresolved BLOCKING unknowns produces throwaway code — $30K-$100K in rework when a blocking unknown surfaces mid-implementation and invalidates weeks of work. |
-| "The 40-page research report is self-explanatory" | A research dump without explicit recommendation and confidence level equals zero knowledge transfer — $15K-$50K in duplicated investigation when the implementation team re-researches the same questions. |
-| "More dependencies between tickets means more thorough investigation" | Over-specified DAGs serialize all investigation into one frontier ticket — $20K-$80K in delayed time-to-decision when 3 parallel 2-week investigations become one 6-week serial chain. |
-| "We'll keep researching until we find the answer" | Spinning on UNKNOWABLE questions that cannot produce answers costs $5K-$30K per investigation — after 2 failed approaches, declare UNKNOWABLE and document constraints. |
-| "'Investigate database options' is a perfectly fine ticket" | Tickets without method, artifact specification, and completion criteria are just todos — $2K-$8K per shallow ticket that produces no actionable knowledge. |
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Every investigation ticket starts with "We don't know [X]."** An investigation without an explicit unknown statement is implementation masquerading as research. The unknown must be a complete sentence: "We don't know which database fits our query patterns" is actionable; "Database options" is a todo.
 
@@ -533,6 +539,7 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 10. **Test the transition to implementation before declaring investigation complete.** Verify: all BLOCKING unknowns resolved, decision document includes explicit recommendations, open questions documented with risk assessment, implementation team can create tickets from the capstone without re-investigating.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **The "we'll figure it out as we build" trap.** Starting implementation without resolving BLOCKING unknowns is exploration masquerading as progress. Every hour of coding against an unresolved architectural unknown produces code that may need to be rewritten. A team that spent 3 weeks building on PostgreSQL before discovering their workload needed DynamoDB lost $45,000 in engineering time on throwaway code. **Total cost: $30,000-$100,000 in rework when a blocking unknown is discovered mid-implementation. Fix: no implementation until all BLOCKING tickets are resolved.**
 
@@ -547,6 +554,7 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 - **The frontier starvation problem.** When 3 active tickets all block on the same dependency, and that dependency is slow (waiting for external data, access, or review), the entire investigation stalls. Meanwhile, INDEPENDENT tickets sit idle. **Total cost: $3,000-$15,000 in idle investigation time when the frontier is empty but work exists. Fix: always keep at least 1 INDEPENDENT ticket in the active set as a "fill" task — something that can be worked on while blocked tickets wait.**
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -558,6 +566,7 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 | 30+ investigation tickets for a single feature | Over-decomposition — every question became a ticket regardless of scope | Cluster related unknowns into themes. Target 8-15 tickets for a feature. Merge tickets sharing the same method or artifact type | Ticket granularity follows investigation effort, not question count. A 10-minute lookup needs a note, not a ticket |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -575,20 +584,9 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 - [ ] **Dependency edges audited:** Each A→B edge verified: can B genuinely not start without A's artifact?
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
 
-### Scale Depth
-
-Wayfinder scales from a 10-minute quick scan to multi-month architecture investigation. Match rigor to uncertainty level.
-
-| Scale | Unknowns | Structure | Duration |
-|-------|----------|-----------|----------|
-| **Quick scan** | 2-5 INDEPENDENT unknowns | Elicit → resolve in one session → document in single file. No DAG needed | 10-30 minutes |
-| **Feature investigation** | 8-20 unknowns with dependencies | Build DAG → classify → resolve frontier → capstone decision document | 1-3 sessions |
-| **Domain exploration** | 20-50 unknowns, new technology | Unknown harvesting → DAG → multi-session with handoff → knowledge base of artifacts | 3-10 sessions |
-| **Architecture investigation** | 30-100 unknowns, system-level | Full pipeline: elicitation → DAG → frontier → ADRs → transition plan. Feeds system-architect | 5-20 sessions |
-
-**Scaling rule:** The DAG is overhead for small investigations. For ≤5 INDEPENDENT unknowns, resolve without formal tickets. For 8+ unknowns with dependency relationships, the DAG pays for itself by preventing serialized investigation.
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -597,6 +595,7 @@ Wayfinder scales from a 10-minute quick scan to multi-month architecture investi
 | Premature synthesis before all BLOCKING tickets are done | $100K-$500K in wrong strategic decisions | Do not enter Phase 3 until all BLOCKING and ORDERING tickets are marked done |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **All tickets have unknown statements:** Every ticket starts with "We don't know [X]" or equivalent. Run `grep -L "don't know\|unknown\|uncertain\|?" tickets/*.md` — must return 0.
 - [ ] **All tickets have artifact specification:** Every ticket has an "Artifact:" line. Run `grep -L "Artifact:" tickets/*.md` — must return 0.
@@ -608,10 +607,12 @@ Wayfinder scales from a 10-minute quick scan to multi-month architecture investi
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [investigation-tickets.md](references/investigation-tickets.md) — Investigation ticket format, fields, and the distinction from implementation tickets
 * [knowledge-dag.md](references/knowledge-dag.md) — Building and maintaining the knowledge dependency graph with topological ordering

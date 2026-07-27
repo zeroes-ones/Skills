@@ -54,7 +54,6 @@ Board management and corporate governance for founders and executives. Run effec
 | **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -133,20 +132,6 @@ Do not read the entire skill. Follow the route above.
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-#### Solo
-- Manage governance for a Seed/Series A company with 3-5 directors. You run board meeting logistics, draft minutes, track action items, and coordinate pre-reads. D&O insurance is a checklist item handled personally. Board composition is driven by who you know in your network.
-
-#### Small Team
-- Govern a Series B/C company with 5-7 directors, formal committees, and institutional investors. You manage the annual governance calendar, run D&O renewals, oversee COI questionnaires, and support committee charters. A chief of staff or general counsel shares the load.
-
-#### Medium Organization
-- Lead governance for a late-stage private or newly public company. Full committee structure (audit, compensation, nominating/governance), independent director majority, board evaluations, and succession planning are ongoing programs. You coordinate across legal, finance, and HR to maintain compliance with exchange listing standards.
-
-#### Enterprise
-- Run governance for a public company with SEC reporting obligations, proxy season, shareholder engagement, and ESG governance. Board composition is managed against a formal skills matrix with professional recruiting firms. Activist preparedness, Say-on-Pay, and regulatory compliance are operationalized. The governance function directly mitigates shareholder litigation risk and shapes the company's reputation with institutional investors.
-
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -166,7 +151,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You're pre-revenue with no board (use `ceo-strategist` — this is premature governance overhead)
 - You need legal advice on fiduciary breach (use `legal-advisor` — this skill informs, doesn't replace counsel)
 - You're modeling how dilution impacts board dynamics (use `fp-and-a-analyst` for cap table work, then come back)
-
 
 ## Error Recovery
 **(STANDARD)**
@@ -230,6 +214,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ### Independent Director Recruiting
 <!-- STANDARD: 3min -->
+
 ```
 What board gap are you filling?
 ├── Industry expertise (your board is all investors)
@@ -315,6 +300,13 @@ What happened in the meeting?
 5. **Logistics check** (10 min): Hybrid setup tested (camera, screen share, backup dial-in). Printed copies if in-person. Parking, dietary, WiFi password in calendar invite.
 
   Complete when: Board meeting calendar is locked 12 months in advance; board deck with 12-slide standard structure is completed and sent 7 days before meeting; consent agenda with routine approvals is drafted; pre-meeting one-on-ones with each director are scheduled and completed; logistics checklist (hybrid setup, printed copies, amenities) is verified.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ### Board Deck Anatomy — What Goes In (and What Stays Out)
 <!-- DEEP: 10+min — this is the highest-leverage document a CEO produces -->
@@ -362,7 +354,6 @@ Common chains:
 
 ```
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -387,7 +378,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -454,15 +445,6 @@ graph LR
 - [ ] Succession planning: emergency CEO succession plan documented — reviewed annually by board
 - [ ] Compliance: annual governance review against applicable exchange rules, state law (DE corporate law), and investor expectations
 
-### Scale Depth
-
-| Company Stage | Board Structure | Key Governance Artifacts | Meeting Cadence |
-|--------------|----------------|-------------------------|-----------------|
-| **Seed/Pre-seed** | 1-3 directors (founders), informal meetings, no committees | Board consent for stock issuances, 409A grants, option grants | Quarterly, 1-2 hours, founder-led |
-| **Series A** | 3-5 directors (founders + lead investor + 1 independent), informal committees | Board deck, minutes, written consents, COI questionnaires, D&O insurance | Quarterly, 2-3 hours, CEO-led with investor participation |
-| **Series B/C** | 5-7 directors (founders + investors + 2+ independents), audit/comp committees formed | Above + committee charters, annual board calendar, CEO evaluation process, skills matrix, succession plan | Quarterly + committee meetings between, 3-4 hours, strategic discussion focus |
-| **Pre-IPO/Late Stage** | 7-11 directors (majority independent), full committee structure, lead independent director | Above + SEC-compliant governance, SOX readiness, formal risk oversight, investor engagement policy | Quarterly board + monthly committee calls, full-day strategy offsite, annual shareholder meeting |
-
 ## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -497,4 +479,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

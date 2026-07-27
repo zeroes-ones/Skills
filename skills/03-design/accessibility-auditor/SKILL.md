@@ -42,6 +42,7 @@ chain:
 Master the art and science of digital accessibility auditing — from automated scanning to manual assistive-technology testing. This skill covers WCAG 2.2 at all conformance levels, automated testing tools (axe-core, pa11y, Lighthouse), manual testing scripts for screen readers (VoiceOver, NVDA, JAWS), semantic HTML audits, focus management, accessible forms, time-based media, legal compliance frameworks, and remediation prioritization strategies.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -85,6 +86,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -101,12 +103,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Accessibility is not a compliance checkbox — it's **the recognition that disabled users are not edge cases; they are people navigating a world not designed for them**. The auditor's job is not to generate a list of violations; it's to ensure that every person, regardless of ability, can accomplish their goals with dignity and efficiency.
 
@@ -136,6 +138,7 @@ Accessibility is not a compliance checkbox — it's **the recognition that disab
 - **The business case is stronger than the moral case for most stakeholders.** Accessibility expands your market by 15-20%, improves SEO, reduces legal risk, and makes your product better for everyone. Lead with the moral case; close with the business case.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Accessibility auditing scales from single-page audits to org-wide accessibility governance and legal compliance programs.
 
@@ -150,6 +153,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
 **Usage**: Say "as an L3 accessibility auditor, audit the checkout flow for..." Default: **L2** (feature-level audit, independent execution).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Auditing a web application for WCAG 2.2 compliance (A, AA, or AAA)
@@ -163,6 +167,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
 - Prioritizing accessibility remediation by user impact severity
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -195,6 +200,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                             │ mitigation │  │ or MVP.      │
                             └────────────┘  └──────────────┘
 ```
+
 **When AA required:** Government, healthcare, education, financial services. Public-facing with > 10K users. Legal department advises or ADA litigation risk exists.
 **When A acceptable:** Internal admin tool used by < 100 known employees. Early-stage MVP with accessibility roadmap. No legal obligation (confirmed by counsel).
 
@@ -226,6 +232,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                             │ NVDA, JAWS)│  │ automate.    │
                             └────────────┘  └──────────────┘
 ```
+
 **When automated suffices:** ~30% of WCAG criteria are machine-testable. Color contrast, heading structure, ARIA validity, alt text presence. Run in CI on every PR.
 **When manual required:** ~70% of WCAG criteria need human judgment. Keyboard operability, focus management, meaningful alt text (not just presence), modal focus trapping.
 
@@ -255,6 +262,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                              │ weeks.     │  │ months.   │
                              └────────────┘  └───────────┘
 ```
+
 **When P0 (Critical):** Task-blocking for any disability group. Login, checkout, core navigation not operable. Legal exposure from ADA lawsuit precedent.
 **When P2:** Enhancement-level issue. Workaround exists. Affects WCAG AAA criteria only. Low-traffic page with no critical function.
 
@@ -284,10 +292,12 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                              └────────────┘  │ changes.  │
                                              └───────────┘
 ```
+
 **When HIGH risk:** US consumer-facing website/app. > 10K monthly visitors. E-commerce, education, healthcare, employment, or financial services.
 **When LOW risk:** Internal tool with < 100 known users. B2B SaaS with enterprise contracts (accessibility negotiated per deal). No US nexus.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -321,6 +331,7 @@ axe-core powers Lighthouse, Deque's browser extension, pa11y, and most CI tools.
 - Use "Intelligent Guided Tests" for components requiring manual verification (axe can detect a color contrast issue but needs human judgment for complex gradients or images).
 
 **CI Integration with Playwright:**
+
 ```typescript
 // e2e/accessibility.spec.ts
 import { test, expect } from '@playwright/test';
@@ -350,17 +361,25 @@ for (const path of PAGES_TO_AUDIT) {
     expect(results.violations).toEqual([]);
   });
 }
+
 ```
 
 Complete when:
+Complete when: Automated audit completed with axe-core, pa11y, and Lighthouse across all unique page templates. All critical and serious violations documented with WCAG success criterion references and remediation guidance.
+Complete when: Screen reader testing completed on VoiceOver (macOS and iOS), NVDA (Windows), and TalkBack (Android) covering all critical user flows including form submission, modal dialogs, and error recovery.
+Complete when: Keyboard accessibility verified: all interactive elements reachable and operable via Tab and Shift+Tab, visible focus indicators on every element, no keyboard traps, logical tab order matching visual layout.
+Complete when: Color and contrast audit completed: all text meets WCAG 2.2 AA contrast minimums (4.5:1 normal, 3:1 large), information not conveyed by color alone, focus indicators have 3:1 contrast against adjacent colors.
+Complete when: Forms and error handling audited: all inputs have persistent visible labels, error messages are descriptive and programmatically associated, required fields indicated both visually and programmatically.
+Complete when: Accessibility remediation roadmap produced with findings prioritized by severity, user impact, and implementation effort. Each finding has specific fix recommendation with code examples and estimated effort.
 - axe-core or equivalent automated testing integrated into CI pipeline with zero-violation gates for critical pages
 - Automated test suite covering all key user flows (login, checkout, dashboard, search) with WCAG 2.2 AA ruleset
 - Violations report with severity classification and remediation owners assigned
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -377,6 +396,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Accessibility is not a QA gate at the end — it's a design constraint from day one. Coordination with design, engineering, and legal ensures accessibility is built in, not bolted on.
@@ -406,6 +426,7 @@ Accessibility is not a QA gate at the end — it's a design constraint from day 
 ### Escalation Path
 
 ```
+
 Legal/regulatory risk (lawsuit filed, demand letter, DOJ investigation)
   └── `legal-advisor` + `ceo-strategist` + `product-manager` + `cto-advisor`. External counsel engaged. All-hands remediation.
 
@@ -414,9 +435,11 @@ Systemic accessibility failure (core user journey completely inaccessible)
 
 Design system violation (shared component fails audit, affects all products)
   └── `ui-ux-designer` + `frontend-developer`. Fix component, propagate to all consumers.
+
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -429,17 +452,20 @@ Design system violation (shared component fails audit, affects all products)
 | Enterprise customer or prospect requests VPAT/ACR and one doesn't exist or is >6 months out of date | Coordinate with `legal-advisor` and `product-manager` to produce/update VPAT. Run full WCAG 2.2 AA audit on the product version the customer will use. Document known issues with remediation timelines and workarounds | VPAT requests signal serious procurement evaluation. An outdated VPAT is worse than no VPAT — it represents a conformance claim the product may no longer meet. Enterprise deals worth $100K+ are lost over outdated accessibility documentation |
 | Interaction with `frontend-developer` for semantic HTML audit | Proactively review new component PRs for semantic correctness: single `<main>`, named `<nav>` elements, heading hierarchy without skips, `<label>` with `for` on every input, `<th scope>` in tables, `alt` text on meaningful images. Provide code-level fix guidance, not just violation reports | Accessibility auditors who only report violations create adversarial relationships with developers. Providing fix-ready code (the exact ARIA pattern, the exact semantic HTML replacement) turns auditors into force multipliers — developers learn patterns instead of memorizing rules |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every interactive element on the page is reachable via keyboard, announced correctly by screen readers, and perceivable at 200% zoom without content loss or horizontal scrolling.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Accessibility expertise grows through repeated exposure to how real users with disabilities interact with products. You cannot learn accessibility from specs alone — you must use assistive technologies.
 
@@ -461,7 +487,8 @@ graph LR
 
 **The One Highest-Leverage Activity**: Turn off your monitor and complete your product's core flow using only a screen reader. Every week. The friction you feel is what millions of users experience every day.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -472,6 +499,8 @@ graph LR
 | "We'll fix accessibility issues after launch — just ship first." | An e-commerce checkout launches without focus order or screen reader testing to 500K users. Three months later, an audit reveals 87 WCAG violations requiring partial rebuilds of cart, payment, and confirmation pages under a tight settlement deadline. Cost: **$20K-$100K** retroactive vs. **$5K-$15K** if designed upfront. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -480,6 +509,7 @@ graph LR
 | Auditing accessibility after launch instead of during design — accessibility treated as a pre-launch compliance checklist, not a design constraint. The audit reveals the color palette, navigation pattern, and form designs all need foundational redesigns. The "fixes" become brittle overrides layered on top of inaccessible defaults that break with every refactor. | $20K-$100K retroactive vs. $5K-$15K if integrated from wireframe stage — plus the compounding tech debt of accessibility overrides that fail silently after dependency updates | Insert accessibility review gates at every design phase: palette creation (contrast validation), wireframe review (focus order and heading hierarchy), component spec (all states keyboard-operable), and pre-launch audit (full WCAG 2.2 AA scan with manual verification). Focus order, heading structure, and color contrast are design decisions, not engineering bug fixes. An accessible design system is the default — not an override layer added the week before launch. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start with native HTML semantics.** Use `<button>` for buttons, `<a>` for links, `<nav>` for navigation, `<main>` for primary content. Native elements carry 30+ years of accessibility built in — focusability, keyboard operability, and screen reader role announcement are free. ARIA should be the exception, not the rule. "No ARIA is better than bad ARIA."
 
@@ -502,6 +532,7 @@ graph LR
 10. **Maintain and update VPAT/ACR documentation every 6 months.** An outdated VPAT is worse than no VPAT — it represents a conformance claim the product may no longer meet. Enterprise deals worth $100K+ are regularly lost over outdated accessibility documentation. Every VPAT must include: product version tested, evaluation methods used, WCAG criteria coverage percentage, known issues with remediation timelines, and testing date.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Accessibility tools that pass** — `axe-core` reports 0 violations. But `axe-core` catches ~30-57% of WCAG issues. It can't detect: keyboard trap (tab into a modal, can't tab out), focus order that jumps illogically, or that your "error" message text color passes contrast ratio but the error STATE isn't communicated to screen readers. Automated = baseline, not complete.
 - **ARIA `role` overrides native semantics** — `<button role="link">` looks like a link to screen readers but behaves like a button (responds to Space, not just Enter). Users navigating by landmark role get confused. First rule of ARIA: don't use ARIA if native HTML works. Second rule: never override native semantics.
@@ -515,6 +546,7 @@ graph LR
 - **Missing live region announcements for dynamic content updates.** A single-page app updates a shopping cart total, filters search results, or displays a form validation error by injecting new DOM nodes via JavaScript — screen readers detect none of it because no `aria-live` region is configured. A blind user submits an order thinking their discount coupon applied (the updated total was never announced), completes a purchase at the wrong price, and files an ADA complaint. Every async DOM mutation without a corresponding `aria-live="polite"` or `aria-live="assertive"` region is an invisible failure for screen reader users who can't visually scan for changes. **Total cost: $15K-$75K per complaint, emergency remediation sprint, and permanent loss of customer trust from inaccessible transactional flows.** Audit every dynamic UI update path — cart totals, search-as-you-type, form validation, notification toasts, infinite scroll — and wrap each in an appropriate live region with `aria-atomic` to control announcement granularity.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -526,6 +558,7 @@ graph LR
 | `aria-labelledby` references an ID that doesn't exist in the DOM | The referenced element was renamed during a refactor but the `aria-labelledby` attribute wasn't updated. No tool reports this at build time because ARIA references resolve at runtime | Implement a build-time lint rule (eslint-plugin-jsx-a11y `aria-props` + custom ID resolver) or a runtime audit (axe-core with `runOnly: ['aria-valid-attr']`). Add integration tests that verify ARIA references resolve to existing DOM nodes | Broken ARIA references are silent failures — screen readers announce nothing but no error is thrown. They're the most insidious a11y bug because automated tools can't catch them without runtime DOM inspection. Make ARIA reference validation part of your CI pipeline |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -543,20 +576,8 @@ graph LR
 - [ ] **Third-party components audited:** Any third-party widgets (chat, analytics embeds, payment iframes, video players) assessed for accessibility. Vendor VPAT collected. Gaps documented with mitigation plan
 - [ ] **Accessibility statement published:** Public accessibility statement on the website including: conformance target (WCAG 2.2 AA), contact method for accessibility feedback, known issues, and last review date
 
-### Scale Depth
-
-Accessibility auditing scales from single-page component checks to enterprise-wide governance programs. Match your depth to the organizational maturity level.
-
-| Scale | Scope | Key Activities | Cadence |
-|-------|-------|---------------|---------|
-| **Micro: Single Component** | One UI component, form, or page | Run axe-core + manual keyboard + screen reader (1 reader). Produce 5-10 findings with fix guidance | Per sprint, per new component |
-| **Feature: User Flow** | One end-to-end user journey (checkout, signup, search) | Full WCAG 2.2 AA audit: automated + keyboard-only walkthrough + VoiceOver + NVDA. 15-50 findings prioritized by severity and user impact | Per feature release or quarterly |
-| **Product: Full Application** | Entire product or product line | Comprehensive audit: all pages, all components, all user flows. Legal gap analysis (ADA, Section 508, EN 301 549). VPAT/ACR production. Remediation roadmap with effort estimates | Annual or bi-annual |
-| **Enterprise: Accessibility Program** | Multiple products across the organization | Governance framework: accessibility policy, procurement requirements, training program, design system a11y standards, CI/CD enforcement, VPAT library, third-party audit coordination, legal compliance monitoring | Ongoing program with quarterly board review |
-
-**Scaling rule:** Start at the component level and expand. A single-page audit that finds 20 issues is more valuable than an enterprise program that produces zero remediation. Build the auditing muscle before scaling the governance framework.
-
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Automated scan: `axe-core` or `WAVE` — zero violations at WCAG 2.2 AA
 - [ ] Keyboard audit: every interactive element reachable and operable by keyboard alone — no traps, logical order
@@ -566,10 +587,12 @@ Accessibility auditing scales from single-page component checks to enterprise-wi
 - [ ] Report: findings prioritized by severity and user impact, remediation recommendations specific and verifiable
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 - **Conformance Status**: See [conformance-status.md](references/conformance-status.md)
 - **Feedback**: See [feedback.md](references/feedback.md)
 - **Known Limitations**: See [known-limitations.md](references/known-limitations.md)

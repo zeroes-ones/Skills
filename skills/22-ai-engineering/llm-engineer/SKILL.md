@@ -45,14 +45,22 @@ chain:
 # LLM & AI Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+
+**Admit uncertainty.** LLMs are probabilistic engines — their behavior cannot be fully predicted. If a prompt technique, eval result, or latency target is ambiguous, say so rather than inventing benchmarks. One fabricated performance claim costs $15K-$100K in failed production deployments.
+
+**Flag your knowledge cutoff.** Model versions, API pricing, and inference optimizations change weekly. If your knowledge is > 30 days old on any model-specific detail (GPT, Claude, Gemini, Llama), flag it. Caching stale model capabilities data leads to $25K-$200K in architectural rework when the API surface changes.
+
+**Never guess security.** Prompt injection, jailbreak attempts, and PII leakage are not theoretical. Every LLM output path without content filtering is a loaded gun. Never recommend deploying an LLM to production without guardrails — the first incident costs $50K-$500K in liability.
+
+**[VERIFIED]** Every LLM deployment must pass: (1) automated eval suite with multi-metric scoring, (2) guardrail integration on all input/output paths, (3) token budget enforcement, and (4) cost monitoring. No exceptions for "MVP" or "internal tools."
 
 | Rationalization | Reality |
 |---|---:|
 | "I tested it on 20 prompts — it works fine. Evals can wait." | LLMs fail systematically, not randomly. Twenty prompts prove nothing — the 21st prompt is where the catastrophic failure lives. Deploying without automated evals means your users are your test suite, at a cost of $15K-$50K per incident in support tickets and churn. |
 | "We'll add content filtering after launch — ship first, guardrails later." | A single hallucinated legal citation or toxic output in production costs $50K-$500K in liability exposure. Guardrails are not a V2 feature — they're the difference between a product and a lawsuit. Every output path without filtering is a loaded gun pointed at your company. |
 | "Let's fine-tune the model — RAG is too complex to set up." | 80% of LLM use cases are solved with good retrieval. Fine-tuning is expensive, fragile, and degrades on out-of-distribution data. Your $15K fine-tuning job will be obsolete in 3 months when the base model updates. RAG gives you a $500 vector database and maintainable prompts. |
-| "Prompts in the frontend are fine — we're moving fast." | Fixing a hallucination then means App Store review, user updates, and 2-4 weeks of latency. One prompt injection attack and your proprietary system prompt — 3 months of engineering work — is publicly exposed. Move prompts to a versioned backend catalog. Now. |
+| "Prompt tested in the playground — ready for production."  | Playground testing covers 0% of adversarial inputs. Production users will find your prompt's failure modes in the first hour. Automated red-teaming and eval suites are not optional — they're the difference between a launch and an incident review. |
 | "Default model settings work — we don't need token budgets." | Without a token budget, a single runaway conversation can burn $500 in API costs. Without `max_tokens` checks, truncation silently cuts off responses — 5,000 incomplete answers/day generate $25,000 in support tickets. "It worked during development" is not a production strategy. |
 
 End-to-end LLM and AI engineering — from prompt design through production deployment of language model applications. Covers RAG pipeline architecture, prompt engineering at scale, model evaluation frameworks, latency and cost optimization, function calling and tool use patterns, safety guardrails, multi-agent orchestration, and fine-tuning strategies for production LLM systems.
@@ -75,13 +83,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-### Anti-Hallucination Ground Rules
-- **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
-- **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
-- **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
-- **VERIFIED**: Mark all definitive claims with **[VERIFIED]** when confirmed by documentation. Mark uncertain claims with **[BEST-KNOWN]** and provide the citation path to verify.
-
-##
 ## The Expert's Mindset
 
 Masters of LLM engineering don't just prompt — they **engineer systems where LLMs are a component, not the solution.** They think in failure modes, evaluation metrics, and cost curves.
@@ -146,6 +147,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | **A8** | `file_contains("*.py", "guardrail\|safety\|red.team\|prompt.injection\|jailbreak\|toxicity")` | AI Safety Engineer skill | "I detect AI safety code — routing to AI Safety Engineer for adversarial evaluation." |
 
 <!-- QUICK: 30s -- pick your path, skip the rest -->
+
 ```
 What are you trying to do?
 ├── Design a RAG pipeline → Jump to "Core Workflow > Phase 1"
@@ -161,8 +163,8 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
-Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Error Recovery
 
@@ -286,6 +288,13 @@ If a command or approach fails, follow this escalation path before giving up:
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Chunking strategy selected with documented rationale; embedding model benchmarked on domain data (recall@5); vector database selected with index type and parameters configured; evaluation criteria defined (retrieval recall@5, faithfulness).
+  Complete when: Model evaluation results documented — accuracy, latency, and cost metrics vs. baseline.
+  Complete when: Prompt version controlled with changelog and rollback capability.
+  Complete when: Guardrails tested against adversarial inputs — no jailbreak in test suite.
+  Complete when: Token usage and cost tracking dashboard operational with budget alerts.
+  Complete when: A/B test framework configured with statistical significance calculator.
+  Complete when: Model card published with intended use, limitations, and fairness evaluation.
+  Complete when: Fallback behavior defined when model is unavailable — graceful degradation tested.
 
 ## Best Practices
 
@@ -523,7 +532,6 @@ START: Detecting and reducing hallucinations in your LLM application
 CRITICAL: A single hallucinated medical/financial/legal answer costs $500K-$2M+ in liability. At 0.01% error rate on 100K requests/day = 10 incidents/day. This is the highest-ROI investment in your LLM pipeline.
 ```
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -549,23 +557,6 @@ graph LR
 | **Master** | Publish a case study of an LLM system failure in production: root cause, detection gap, and the architectural change that prevents recurrence | Semi-annually |
 
 **The One Highest-Leverage Activity:** Maintain a "failure log" for every LLM system you operate. For each unexpected output: the input, the output, why it was wrong, and what guardrail would have caught it. Review before every architecture change.
-
-### Scale Depth
-
-#### Solo Developer
-**Budget:** $0-$500/month. Direct API calls (OpenAI/Anthropic SDK) without orchestration framework. Single embedding model, ChromaDB for vector storage. Manual evaluation on 25 test queries. Prompt versioning via git.
-**Transition trigger:** First 100 DAU or second LLM feature → move to Small Team.
-
-#### Small Team (2-10)
-**Budget:** $500-$5K/month. LangChain or LlamaIndex for RAG pipelines. Automated evaluation with LLM-as-judge on 100+ test cases. Pinecone or Qdrant Cloud for vector DB. Semantic caching (GPTCache/Redis) at API layer. Cost tracking per feature with budget alerts.
-**Transition trigger:** 1K+ DAU or 3+ LLM pipelines → move to Medium Org.
-
-#### Medium Org (10-50)
-**Budget:** $5K-$50K/month. Multi-model router (cheap for classification, expensive for generation). Centralized prompt catalog with A/B testing. GPU-optimized serving (vLLM) for custom models. Continuous hallucination monitoring with automated eval on production samples. Feature store for RAG embeddings.
-**Transition trigger:** 10K+ DAU or 10+ LLM features → move to Enterprise.
-
-#### Enterprise (50+)
-**Budget:** $50K+/month. Dedicated LLM platform team. Multi-region inference deployment with edge routing. Custom fine-tuned models with continuous baseline comparison. Real-time guardrails with multi-layer defense. SOC 2 / HIPAA compliance for LLM pipelines. Token cost optimization: quantization, speculative decoding, dynamic batching.
 
 ## Anti-Patterns
 
@@ -666,5 +657,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

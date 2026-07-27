@@ -29,12 +29,14 @@ chain:
 Build production-grade native Android applications with Kotlin and Jetpack Compose. This is the internal playbook for FAANG-level Android engineering — every section contains concrete, actionable implementation patterns, not generic advice. Covers the full development lifecycle: Compose UI architecture with Material Design 3, MVVM and MVI patterns with ViewModel and StateFlow, Kotlin coroutines and Flow for asynchronous data, Room database with migrations and type converters, dependency injection with Hilt (compile-time verified), Gradle build variants with product flavors, background processing with WorkManager and Foreground Services, Play Store deployment with App Bundle signing, Android accessibility with TalkBack and semantic trees, and performance optimization — cold start under 1.5 seconds, locked 60fps scrolling, and under 50MB APK download — all measured on a $150 budget device with 4GB RAM.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
 | # | Condition | Action |
@@ -53,6 +55,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 If no auto-route matched, use this intent tree:
 
 ```
@@ -73,9 +76,11 @@ What are you trying to do?
 ├── Need backend API for Android → Invoke backend-developer skill instead
 └── Don't know where to start? → Describe your app idea and I'll route you
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -96,17 +101,20 @@ Do not read the entire skill. Follow the route above and read only the sections 
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
 #
 
 ## The Mental Model Shift
+<!-- STANDARD: 3min -->
 Competent Android developers build apps that work on their Pixel 9 Pro. Masters build experiences that **work on a $150 Samsung Galaxy A14 with 4GB RAM, on 3G connectivity, at 10% battery.** Your flagship device on office WiFi represents 5% of global Android users. Design for constraints first — enhance for abundance.
 
 #
 
 ## Cognitive Biases That Kill Android Experiences
+<!-- STANDARD: 3min -->
 | Bias | How It Manifests | Antidote |
 |-------|------------------|----------|
 | **Flagship device blindness** | Testing exclusively on latest Pixel — missing the 4GB RAM device where your app is killed every 30 seconds | Maintain a device lab: latest flagship + 3-year-old budget device. Budget is primary test target. |
@@ -117,6 +125,7 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 #
 
 ## What Android Masters Know
+<!-- STANDARD: 3min -->
 - **The Activity lifecycle is a contract, not a suggestion.** Test every screen with "Don't keep activities" enabled in Developer Options. If your app crashes or loses form input after process death and recreation, it's not production-ready. `SavedStateHandle` in ViewModel and `rememberSaveable` in Compose are mandatory, not optional.
 - **`LazyColumn` performance is 90% about `onBindViewHolder` cost.** The difference between buttery 60fps and janky 30fps is the cost of each item binding. Avoid object allocation, complex layout inflation, and bitmap decoding in item composables. Always provide stable `key = { it.id }` for correct recomposition on list mutations. Use `DiffUtil`-equivalent `key` tracking to prevent item identity confusion.
 - **R8/ProGuard rules are a liability, not a safety net.** Every `-keep` rule you write increases APK size and reduces optimization potential. The goal is zero custom keep rules in `proguard-rules.pro`. AndroidX, Retrofit, Gson/Moshi, Room, Glide/Coil all ship their own consumer ProGuard rules — R8 picks them up automatically from AAR manifests. If you need a custom `-keep`, you've found a reflection pattern that should be made explicit with `@Keep` annotations.
@@ -126,10 +135,12 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 #
 
 ## When to Break Your Own Rules
+<!-- STANDARD: 3min -->
 - **Skip Compose for GPU-intensive custom views.** Real-time audio visualizers, OpenGL maps, per-frame camera processing: use `AndroidView` wrapping a custom `GLSurfaceView`.
 - **Use ContentProvider for cross-app data sharing.** Room is for in-app persistence. Inter-app data goes through ContentProvider with a contract URI.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Android Output Characteristics |
 |---|---|
@@ -153,6 +164,7 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 **Usage**: Say "as an L3 Android developer, design the architecture for..." Default: **L2**.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Building a new native Android app with Kotlin and Jetpack Compose
 - Designing Compose UI: layouts, Material 3 theming, navigation, animation
@@ -168,12 +180,100 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 - Implementing accessibility: TalkBack, content descriptions, touch targets, contrast
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Coroutines vs RxJava
+
+        ┌── INPUT: Async work in a new module
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Green-     Existing
+field       codebase
+module?     with heavy
+   │        RxJava?
+   │           │
+   ▼      ┌────┴────┐
+KOTLIN    │         │
+COROUTINES ▼         ▼
++ Flow     RxJava    Wrap
+   │        only in   legacy Rx
+   ▼        this      in coroutine
+Structured module?    bridges
+concurrency     │     (kotlinx-
+with       ┌────┴────┐ coroutines-
+supervisor  │         │ rx3)
+Scope,      ▼         ▼
+cancellation YES       NO
+built-in       │         │
+               ▼         ▼
+           STAY WITH  MIGRATE
+           RxJava     NEW CODE
+           (no benefit TO
+           to mix)    COROUTINES
+
+### Decision Tree 2: Single Activity vs Multi-Activity
+
+        ┌── INPUT: App navigation architecture
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+All UI in  OS-level
+Compose?   entry points
+   │       (widget,
+   │       notification,
+   │       share target)?
+   ▼          │
+SINGLE    ┌────┴────┐
+ACTIVITY   │         │
++ NavHost  ▼         ▼
+           YES        NO
+   │        │         │
+   ▼        ▼         ▼
+Handles   MULTI-    SINGLE
+deep      ACTIVITY  ACTIVITY
+links     (separate (single
+natively  activity  entry,
+            per      Compose
+            entry    NavHost
+            point)   for
+                     everything)
+
+### Decision Tree 3: Local Storage Strategy
+
+        ┌── INPUT: Data persistence needs
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Simple     Complex
+key-value  structured
+pairs?     data with
+   │       queries?
+   │          │
+   ▼     ┌────┴────┐
+DATA-    │         │
+STORE    ▼         ▼
+Preferences Multi-table Offline-
+   │       relational? first +
+   ▼          │       sync?
+Typed,    ┌────┴────┐    │
+async,       │         │  ▼
+replaces     ▼         ▼ ROOM +
+Shared-     ROOM     ROOM  DataStore
+Prefs       (compile- (no   for
+(reactive   time SQL  sync) prefs +
+for small   verify)          remote
+config)                       mediator
 
 #
 
 ## Compose vs XML Layout
+<!-- STANDARD: 3min -->
 
 ```
 New project, minSdk ≥ 21, team comfortable with declarative UI?
@@ -186,6 +286,7 @@ New project, minSdk ≥ 21, team comfortable with declarative UI?
 #
 
 ## MVVM vs MVI
+<!-- STANDARD: 3min -->
 
 ```
 Complex user-driven state machines (wizard, checkout, multi-step forms)?
@@ -198,6 +299,7 @@ Complex user-driven state machines (wizard, checkout, multi-step forms)?
 #
 
 ## Room vs SQLDelight
+<!-- STANDARD: 3min -->
 
 ```
 KMP (Kotlin Multiplatform) planned or in use?
@@ -210,6 +312,7 @@ KMP (Kotlin Multiplatform) planned or in use?
 #
 
 ## Hilt vs Koin vs Manual DI
+<!-- STANDARD: 3min -->
 
 ```
 Build speed the overwhelming concern AND < 10 ViewModels?
@@ -218,11 +321,13 @@ Build speed the overwhelming concern AND < 10 ViewModels?
           ├── YES → Hilt. Compile-time DI graph verification + scope tree. 5-10% build overhead.
           └── NO  → Hilt. Even without scopes, compile-time safety justifies the cost.
 ```
+
 **Koin**: Prefer if team needs runtime DI with DSL definitions. Risk: runtime crash for missing deps vs Hilt's compile-time error.
 
 #
 
 ## Navigation Compose vs Fragments
+<!-- STANDARD: 3min -->
 
 ```
 UI built entirely with Compose (no XML screens)?
@@ -235,6 +340,7 @@ UI built entirely with Compose (no XML screens)?
 #
 
 ## ProGuard/R8 Configuration
+<!-- STANDARD: 3min -->
 
 ```
 Using reflection, serialization, or annotation processors requiring class names?
@@ -243,20 +349,30 @@ Using reflection, serialization, or annotation processors requiring class names?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- Full 203 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles -->
 #
 
 ## Phase 1 (~15 min): Project Setup & Architecture
+<!-- STANDARD: 3min -->
 1. **Gradle convention plugins** via `buildSrc` — shared `android { }` blocks, no copy-paste
 2. **Feature-based modules**: `:feature:auth`, `:feature:feed`, not layer-based `:data`, `:domain`, `:ui`
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 203 lines of detailed guidance
 
   Complete when: Gradle convention plugins are configured via buildSrc, feature-based modules are scaffolded with architecture pattern chosen (MVVM/MVI), and project compiles cleanly with all dependencies resolved.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
+  Complete when: Feature flagged behind config — can be enabled/disabled without deployment.
+  Complete when: Error tracking configured — all unhandled exceptions routed to on-call.
+  Complete when: Documentation PR merged — README, API docs, and changelog updated.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Derive UI state from ViewModel via `StateFlow<UiState>`** — Single sealed class per screen (`Loading`, `Success(data)`, `Error(message)`). Never expose mutable state directly to Compose — the ViewModel is the single source of truth.
 2. **Use `rememberSaveable` for Compose-local state that must survive process death** — `remember` data is lost on config change; `rememberSaveable` survives rotation AND process death when backed by `Bundle`-serializable types. For custom types, implement `Saver`.
@@ -270,6 +386,7 @@ Using reflection, serialization, or annotation processors requiring class names?
 10. **Espresso tests target visible elements by resource ID, not text** — `onView(withId(R.id.submit_button))` survives localization; `onView(withText("Submit"))` breaks in 50+ languages. Add `testTag` for Compose elements: `Modifier.testTag("submit_button")` → `onNodeWithTag("submit_button")`.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -284,6 +401,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -305,6 +423,7 @@ If a command or approach fails, follow this escalation path before giving up:
 #
 
 ## Communication Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Notify | Why |
 |---|---|---|
@@ -317,6 +436,7 @@ If a command or approach fails, follow this escalation path before giving up:
 #
 
 ## Escalation Path
+<!-- STANDARD: 3min -->
 
 ```
 Play Store rejection? → Release Manager → Legal Advisor
@@ -327,6 +447,7 @@ Accessibility blockers? → Accessibility Auditor → Compliance Officer
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These are signals that should trigger the Android developer to investigate — no one needs to tag you.
 
@@ -342,16 +463,19 @@ These are signals that should trigger the Android developer to investigate — n
 | "TalkBack reads 'unlabeled button' on half the UI" | ADA Title III lawsuits settle for $10K-$50K. Play Store pre-launch report flags a11y. Every `IconButton`, `FloatingActionButton`, `Image` without adjacent text needs `contentDescription`. Run Accessibility Scanner from Play Store. Group elements with `semantics(mergeDescendants = true)`. **Impact: $10K-$50K in accessibility lawsuit risk + Play Store pre-launch warnings.** |
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -363,13 +487,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -385,6 +512,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -394,6 +522,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every Compose screen handles three states (loading/success/error) as a sealed interface with zero blank screens on failure. Every network call is wrapped in a Repository with offline-first caching via Room — users see cached data instantly, network updates arrive async. Every coroutine is scoped to `viewModelScope` or `lifecycleScope` — zero `GlobalScope` instances. Every `Image`, `IconButton`, and interactive composable has `contentDescription`. Cold start <500ms on Galaxy A14 (4GB RAM, eMMC). Scrolls at locked 60fps in `LazyColumn` with 0 dropped frames in systrace. APK <30MB download.
 
@@ -402,6 +531,7 @@ Before beginning a new phase, verify:
 #
 
 ## Cross-skills Integration
+<!-- STANDARD: 3min -->
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -416,10 +546,12 @@ Common chains:
 - **Feature delivery**: product-strategist → android-developer → performance-engineer → play-store-deployment
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 #
 
 ## The Android Improvement Loop
+<!-- STANDARD: 3min -->
 1. **Install on a $150 Galaxy A14** — 4GB RAM, eMMC storage. Use as daily driver for one day.
 2. **Find every friction point** — Slow startup? Jank? OOM? ANR? Permission denied?
 3. **Profile and fix** — CPU Profiler, Memory Profiler, Battery Historian. Fix the worst offender.
@@ -428,6 +560,7 @@ Common chains:
 #
 
 ## Practice Routines
+<!-- STANDARD: 3min -->
 | Skill Level | Practice | Frequency | Expected Result |
 |-------------|----------|-----------|-----------------|
 | Novice → Competent | Build same screen in XML + Compose + Compose MVI. Compare line count, testability, recomposition. | Monthly | Understands when Compose improves vs adds complexity |
@@ -437,9 +570,11 @@ Common chains:
 #
 
 ## The One Thing
+<!-- STANDARD: 3min -->
 **Preload your app on Android Go edition (1-2GB RAM).** If it launches under 3s and doesn't crash scrolling 100 items, your architecture is solid.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Memory leak from retained Fragment View Binding ($15K-$40K).** `_binding` not nulled in `onDestroyView()` retains old view references across config changes. Multiply by navigation across 5 screens and you've got an OOM chain on 2GB devices. Fix: `private var _binding: FragmentXBinding? = null`; null in `onDestroyView()`; use `binding` property with `checkNotNull` guard.
 
@@ -461,7 +596,8 @@ Common chains:
 
 - **Configuration change destroys UI state — no SavedStateHandle ($20K+).** Rotating the device or enabling "Don't keep activities" in Developer Options destroys and recreates the Activity. If state is held in the Activity instead of ViewModel + `SavedStateHandle`, form inputs, scroll position, and navigation state are lost. `android:configChanges="orientation|screenSize"` is NOT a fix — it breaks multi-window, dark theme switching, and locale changes. Fix: All UI state in `ViewModel` + `SavedStateHandle`. Use `rememberSaveable` for Compose-local state. Test by rotating device mid-input on every form screen.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -472,6 +608,7 @@ Common chains:
 | "Hilt adds 15% build time — manual DI is simpler." | Manual DI's cost is runtime: missing dependency crashes, no scope enforcement, no compile-time verification. One null-pointer crash costs more than Hilt's build overhead saves in a year. |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -487,6 +624,7 @@ When Android goes wrong, it goes wrong in predictable ways. Here are the most co
 | WorkManager job runs on every app launch instead of once daily — battery drain complaints in Play Store reviews | `PeriodicWorkRequest` with `ExistingPeriodicWorkPolicy.REPLACE` enqueued in `Application.onCreate()`. Every cold start replaces the pending work, resetting the timer | Use `ExistingPeriodicWorkPolicy.KEEP` to preserve the existing schedule. Enqueue periodic work once in `Application.onCreate()` with KEEP policy. Use `WorkManager.enqueueUniqueWork()` for one-time work | `REPLACE` is the default enum value developers reach for because it compiles. Read the policy docs — KEEP, REPLACE, and APPEND have dramatically different behaviors for periodic work |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -495,6 +633,7 @@ When Android goes wrong, it goes wrong in predictable ways. Here are the most co
 | Image loading OOM on budget devices — 12MP image decoded at full resolution allocates ~48MB | $20K-$50K in 1-star reviews | Use Coil/Glide for automatic downsampling, set `inSampleSize` for `BitmapFactory`, never load full-resolution images; budget devices dominate global Android market |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] `./gradlew test` — all unit tests pass, no regressions
 - [ ] `./gradlew connectedCheck` — Espresso/Compose tests pass on target device
@@ -509,6 +648,7 @@ When Android goes wrong, it goes wrong in predictable ways. Here are the most co
 - [ ] Baseline profile generated and included in AAB
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] `nodeIntegration: false`, `contextIsolation: true` — no Node.js in renderer (if WebView used)
 - [ ] ProGuard/R8 enabled with `minifyEnabled = true`; release build tested on physical device
@@ -530,10 +670,12 @@ When Android goes wrong, it goes wrong in predictable ways. Here are the most co
 - [ ] Foreground service permissions properly declared with `foregroundServiceType`
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 

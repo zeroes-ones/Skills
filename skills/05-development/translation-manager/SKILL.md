@@ -95,7 +95,6 @@ These rules are non-negotiable constraints that detect localization mistakes bef
 | **R10** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R11** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -132,17 +131,6 @@ Masters of translation manager don't just build — they build **the right thing
 
 **Default level for this skill:** L2
 **Usage:** Invoke this skill with your target level, e.g., "as an L3 translation manager, design..."
-
-### Scale Depth
-**(STANDARD)**
-
-| Depth | Time | Scope | Artifacts |
-|---|---|---|---|
-| **QUICK** | 15-30 min | Single MT engine comparison, TM health check, glossary audit | MT quality report, TM leverage stats, termbase coverage score |
-| **STANDARD** | 2-4 hr | Full TMS pipeline setup, MT tier calibration, QA gate implementation | Configured TMS integration, locale files, CI quality gate config, MT tier budget |
-| **DEEP** | 1-3 days | Multi-team TM consolidation, localization analytics dashboard, org-wide MT standardization | Centralized TM with cross-team sharing, per-locale quality dashboard, MT engine selection decision record |
-
-For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 
@@ -300,6 +288,10 @@ Choose TMS: Lokalise (best UX, generous free tier), Phrase (most powerful API, b
 <!-- DEEP: 10+min -->
 Implement pre-commit and CI quality checks for translation files. Placeholder integrity: every `{0}`, `%s`, `{{variable}}` in the source must appear in the translation. ICU MessageFormat validation: parse ICU syntax and verify plural forms and selectors are intact. Length constraint check: flag translations exceeding UI element character limits (button: 30 chars, heading: 60 chars, body: 300 chars). Forbidden character detection: flag translations containing characters outside the target locale's expected character set. LQA scoring: automated score based on placeholder match (30%), length compliance (25%), ICU validity (25%), and termbase consistency (20%). Gate threshold: score ≥ 90 to pass, 80-89 warns, < 80 blocks.
   Complete when: Pre-commit and CI quality gates are in place covering placeholder integrity, ICU syntax validation, length constraints, and forbidden characters, with automated LQA scoring at ≥90 gate threshold.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
 
 ## Best Practices
 **(STANDARD)**
@@ -395,7 +387,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | No per-locale cost tracking — budget is a single line item | Implement cost tagging: tag every MT API call with locale, content type, and project; build per-locale cost dashboard | You can't optimize what you don't measure — per-locale costs typically vary 5-10x, and the expensive locales aren't necessarily the high-ROI ones |
 | Pseudolocalization passes but real locale screenshots show layout breaks | Add locale-specific length ratio checks: German (1.35x English), Arabic (1.1x + RTL), Japanese (0.8x + vertical height); requre screenshot diffs for top 3 non-English locales | Pseudo-loc shows the worst case but not every case — German word compounding creates overflow patterns that generic pseudo-loc padding doesn't catch |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -483,7 +474,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 **Why it fails:** MT quality varies dramatically by language pair due to training data availability, morphological complexity, and linguistic distance from English. Uniform post-editing budgets overpay for easy pairs (ES, FR, DE) and underfund hard pairs (KO, FI, AR). The result: good quality in languages you overpay for, poor quality in languages that need more investment.
 **Do this instead:** Segment languages into MT quality tiers: Tier 1 (ES, FR, DE, PT — light post-editing), Tier 2 (JA, ZH, KO, RU — full human review required), Tier 3 (FI, HU, AR, VI — MT + mandatory native-speaking reviewer). Budget post-editing proportionally based on actual MT error rates per pair. Reassess quarterly.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -545,4 +536,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

@@ -48,6 +48,7 @@ experimentation (A/B test design, sample size, statistical significance, SRM), S
 principles (chart selection, dashboard design, data storytelling).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -86,6 +87,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -101,7 +103,8 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R7** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-### Anti-Hallucination Ground Rules
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 - **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
 - **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
 - **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
@@ -109,6 +112,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 
 ##
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of analytics engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -129,6 +133,7 @@ Masters of analytics engineer don't just build — they build **the right thing,
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -144,6 +149,7 @@ Masters of analytics engineer don't just build — they build **the right thing,
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a dbt project: model layering (staging → intermediate → marts), incremental strategies, snapshot design
@@ -156,6 +162,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Migrating from "Excel hell" or legacy BI to a modern analytics stack
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -190,6 +197,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                               │overwrite│ │overwrite   │
                                               └──────┘ └────────────┘
 ```
+
 **When to choose Snapshot:** Historical tracking needed (SCD Type 2), audit trail required, or regulatory timestamp tracking.
 **When to choose View:** Small reference tables (<1M rows), always want live data, zero storage cost, acceptable latency.
 **When to choose Incremental:** >1M rows or runtime >5 min — append-only for event data, merge for mutable entities.
@@ -221,6 +229,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                   │ source  │ │ simple formula │
                                   └─────────┘ └──────────────┘
 ```
+
 **When to choose Semantic Layer:** Multi-tool consumption (Looker + Metabase + embedded), need centralized governance, access control per metric.
 **When to choose dbt mart:** Complex logic requiring SQL, need version control and testing, single source of truth in warehouse.
 **When to choose BI tool:** Single-tool consumption only, simple arithmetic (ratio, sum), rapid prototyping by analysts.
@@ -261,6 +270,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
               │monitoring │
               └───────────┘
 ```
+
 **When to use CUPED:** Small effects (<5%), want to reduce variance using pre-experiment covariates, increase statistical power without bigger sample.
 **When to use Market/Switchback:** Cannot randomize at user level (network effects, supply-side constraints), use time-based or geo-based randomization.
 **When to use sequential testing:** Continuous monitoring needed for safety, want early stopping for clear winners/losers — control false-positive rate.
@@ -295,6 +305,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                │CTE   │ └───────────┘
                                                └──────┘
 ```
+
 **When to add partitioning/clustering:** Full scans on tables >10GB — partition by date, cluster by frequent filter columns.
 **When to pre-aggregate:** Many-to-many JOIN causing row explosion — aggregate to target grain before joining, not after.
 **When to use materialized CTE:** Same CTE referenced 3+ times — materialize to temp table to avoid redundant computation.
@@ -327,11 +338,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                    │MoM/YoY  │ │ad-hoc analysis│
                                    └─────────┘ └───────────────┘
 ```
+
 **When to build Operational:** Real-time monitoring, alerting, on-call response — use streaming data, auto-refresh, threshold alerts.
 **When to build Strategic:** Executive review, board reporting — high-level KPIs, trend lines, MoM/YoY comparisons, snapshot data.
 **When to build Exploratory:** Self-service analysis — interactive filters, drill-down capabilities, flexible date ranges, multi-dimensional pivots.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -339,6 +352,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ### Phase 1 (~15 min): dbt Project Design & Patterns
 
 1. **Project Structure** — The standard layered approach:
+
    ```
    models/
    ├── staging/        # stg_stripe__payments.sql — 1:1 with source, rename + cast
@@ -362,6 +376,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    | **Snapshot** | SCD Type 2 dimensions | Tracks history automatically | Storage grows over time |
 
 3. **Incremental Model Pattern**:
+
    ```sql
    {{
        config(
@@ -375,9 +390,11 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    {% if is_incremental() %}
    WHERE event_date >= (SELECT MAX(event_date) FROM {{ this }})
    {% endif %}
+
    ```
 
 4. **Snapshot (SCD Type 2) Strategy**:
+
    ```sql
    {% snapshot customer_dimension %}
    {{ config(target_schema='marts', unique_key='customer_id', strategy='check', check_cols=['plan_type', 'region', 'status']) }}
@@ -387,6 +404,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    ```
 
 5. **dbt Tests — The Minimum Viable Suite**:
+
    ```yaml
    models:
      - name: fct_orders
@@ -399,14 +417,22 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
            tests: [not_null, {dbt_utils.accepted_range: {min_value: 0.01}}]
          - name: status
            tests: [not_null, {accepted_values: {values: ['pending', 'completed', 'cancelled']}}]
+
    ```
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **dbt models should be modular — one model, one concept.** A single model that joins 12 tables and produces 50 columns is a maintenance nightmare. Split into staging (1:1 with source, light cleaning), intermediate (business logic, joins), and marts (business-ready tables). Each model should have a clear, single purpose.
 
@@ -429,6 +455,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 10. **Freshness over perfection in operational dashboards.** A stale-but-perfectly-modeled dashboard is useless during an incident. Configure source freshness checks (`dbt source freshness`) with SLAs. Alert when data is late. Executives make decisions on stale data if they don't know it's stale.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -444,6 +471,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -459,6 +487,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `revops-manager` | Revenue definitions, CAC/LTV calculations, ARR/MRR reporting, customer segmentation queries | Revenue operations fly blind — forecasting and planning impossible |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -471,11 +500,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | New data source added to warehouse without dbt source definition or freshness check | Add dbt source YAML with freshness SLA before any model references it; notify data-engineer | Sources without freshness monitoring are blind spots — you won't know data is stale until users report wrong numbers |
 | Metric layer change proposed that would change historical reporting (e.g., "active user" definition) | Require impact analysis on all downstream dashboards; version the metric; communicate change to all consumers before deploying | Changing a metric definition retroactively breaks every historical comparison — version and communicate before, not after |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > dbt models run on a schedule, tests catch anomalies before dashboards update, and stale models are deprecated before anyone builds a report on them.
 
@@ -492,6 +522,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -508,17 +539,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|---|---|
-| "dbt will catch schema changes — that's what tests are for" | `source()` has no dependency tracking — upstream schema changes break silently and cascade through downstream models at $5K-$25K in data downtime and broken dashboards. |
-| "The incremental model will pick up the changes" | Without `merge_update_columns`, updates to existing rows are silently ignored — execs make pricing and hiring decisions from stale reports at $10K-$50K in bad business decisions. |
-| "We'll fix data quality issues later" | `dbt test` runs AFTER bad data is already in the warehouse — uniqueness failures mean you've already loaded corrupted tables requiring full rebuilds at $15K-$75K. |
-| "CTEs are free — the optimizer handles it" | 15+ CTE chains cause disk spillage by CTE #5 on large datasets — queries run 10-50x slower, blowing past warehouse credit budgets at $5K-$20K in compute overruns. |
-| "I'll just run the models I changed — downstream will be fine" | `dbt run --select` doesn't auto-select dependent models — stale downstream data produces incorrect executive reports discovered days later at $10K-$40K. |
-
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **dbt `ref()` vs `source()`**: `ref()` builds a DAG dependency — dbt knows model B depends on model A and runs them in order. `source()` references raw data with NO dependency tracking. If you `source('raw', 'events')` but someone upstream changes the schema, dbt can't warn you. **Total cost: $5,000-$25,000 in data downtime, broken dashboards, and engineering time debugging silent schema breakages that cascade through downstream models.**
 - **dbt incremental models** with `unique_key` but without `merge_update_columns` — only NEW rows are inserted. Updates to existing rows are silently ignored. You get duplicate key errors OR stale data depending on the `on_schema_change` config. **Total cost: $10,000-$50,000 in bad business decisions driven by stale data — execs making pricing, inventory, or hiring calls from reports that silently diverged from source truth.**
@@ -526,8 +548,8 @@ graph LR
 - **CTE (Common Table Expression) chains with 15+ CTEs** in a single model: dbt compiles these into a single massive query. Redshift/Postgres materialize every CTE as an in-memory temp table. On large datasets, you hit disk spillage at CTE #5. Use ephemeral materialization (`+materialized: ephemeral`) or split into multiple models. **Total cost: $5,000-$20,000 in compute overruns — disk-spilled queries run 10-50x slower, blowing past warehouse credit budgets and delaying downstream SLAs.**
 - **`dbt run` with `--select`** only runs the selected models. Downstream models that depend on the updated model are NOT auto-selected. If you `dbt run --select stg_orders` but `fct_orders` depends on it, `fct_orders` still has old data and you won't know until someone queries it. **Total cost: $10,000-$40,000 in incorrect executive reports and operational decisions made from stale downstream models — discovered days or weeks later when someone notices the numbers don't reconcile.**
 
-
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] **dbt project structure follows best practices:** Staging, intermediate, and marts layers with clear separation of concerns
@@ -543,54 +565,8 @@ graph LR
 - [ ] **Performance SLAs met:** All models build within configured time limits; long-running models identified with `dbt ls --resource-type model --output json`
 - [ ] **dbt package dependencies pinned:** Version constraints in `packages.yml`; no floating versions
 
-
-## Scale Depth
-
-### Solo (1 person, 0-100 models)
-- **Stack:** dbt Core + dbt docs. Manual runs. GitHub for version control.
-- **Modeling:** Staging → marts. 20-50 models. Manual testing.
-- **Documentation:** dbt docs descriptions. Manual catalog updates.
-- **Key constraint:** You own the entire pipeline. Freshness checks are your responsibility and easy to forget.
-
-### Small Team (2-10 people, 100-500 models)
-- **Stack:** dbt Cloud + Slim CI. Scheduled jobs. Slack alerts on failure.
-- **Modeling:** Staging → intermediate → marts. Data contracts between layers. Custom generic tests.
-- **Documentation:** dbt docs with column-level lineage. Data catalog browsable by business users.
-- **Key constraint:** Model ownership and PR review process. Who approves changes to `fct_orders`?
-
-### Medium Team (10-50 people, 500-2K models)
-- **Stack:** dbt Cloud Enterprise + mesh patterns. Multi-project dbt with cross-project refs. Great Expectations/Monte Carlo.
-- **Modeling:** Domain-owned data products. Semantic layer with MetricFlow. Data contracts with versioning.
-- **Documentation:** Automated data catalog with freshness, quality, and popularity scores. Column-level lineage.
-- **Key constraint:** Cross-domain dependencies. Model deprecation policy. Cost attribution per domain.
-
-### Enterprise (50+ people, 2K+ models)
-- **Stack:** dbt Mesh + data product platform. CI/CD with automated impact analysis. Data observability platform.
-- **Modeling:** Federated governance. Self-service with guardrails. Automated contract enforcement.
-- **Documentation:** Data product catalog with SLAs, owners, and quality scores. Executive data reliability dashboards.
-- **Key constraint:** Governance at scale — hundreds of contributors across dozens of domains need guardrails, not gates.
-
-### Transition Triggers
-- Solo → Small: More than 2 people editing the same dbt project. Merge conflicts on `schema.yml`.
-- Small → Medium: Cross-team dependencies ("we need your model, but it breaks our tests"). Model count exceeds 500.
-- Medium → Enterprise: Multiple teams want the same metric with different definitions. Regulatory audit requires full data lineage.
-
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| dbt run succeeds but data is stale | `dbt run --select stg_orders` doesn't auto-select downstream models. `fct_orders` still has old data. | Use `dbt run --select state:modified+` to include modified models and all downstream dependents. Or `dbt run --select +model_name`. | dbt's `--select` is surgical, not cascading. Explicit `+` suffix propagates downstream. |
-| Incremental model returns duplicates on re-run | `unique_key` configured but no merge strategy. New rows inserted but existing rows not updated. Duplicate keys. | Add `merge_update_columns` to the incremental config. Ensure the `unique_key` truly identifies unique rows across runs. | Incremental models need idempotency designed in — insert-only is not idempotent for mutable source data. |
-| dbt test fails AFTER data is loaded to warehouse | Tests run post-model-build. Uniqueness failure means bad data already committed to the table. | Use `dbt test --store-failures` to capture failure records. Add pre-hook validation where possible. Set `on_schema_change: fail` for incremental models with strict schemas. | dbt tests are detective, not preventive. They tell you something broke, not that you prevented it. |
-| CTE chain causes disk spillage on large datasets | dbt compiles all CTEs into one query. Redshift/Postgres materialize each CTE. 15 CTEs = 15 temp tables. | Split into multiple models. Use ephemeral materialization for reusable CTEs. Or switch to view materialization and let the warehouse optimizer handle it. | The elegance of CTE chains is syntactic — the database sees one massive query plan. |
-| dbt docs lineage graph shows broken link | Model referenced via `ref()` doesn't exist or has been renamed. dbt run fails but docs were generated from stale state. | Run `dbt docs generate` after every successful `dbt run`. Set CI to fail on broken refs. | dbt docs is a snapshot — it reflects the last successful run, not the current code state. |
-| `dbt source freshness` reports "PASS" but data is 3 days old | Freshness threshold set too high (e.g., `warn_after: {count: 72, period: hour}`). Source landed 70 hours ago — within threshold but effectively stale for business. | Set freshness thresholds based on business SLAs: C-level dashboards need < 4 hours, operational < 1 hour, analytical < 24 hours. | "PASS" means within your configured threshold — if your threshold is wrong, PASS is misleading. |
-| Cross-database dbt tests fail silently | `dbt test` runs on the target database. If a test references a table in another database via a cross-db query, the test may run against an empty result set. | Use `dbt test --select` to isolate tests. Verify cross-database connectivity in CI. Use Great Expectations for cross-source validation. | dbt's test framework assumes single-database. Multi-database validation needs external tooling. |
-
-
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -599,7 +575,6 @@ graph LR
 | Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
 | Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -610,6 +585,7 @@ graph LR
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `dbt deps` — all dependencies resolve, no missing packages
 - [ ] Run `dbt run --select state:modified+` — only changed models and downstream dependencies are rebuilt
@@ -619,10 +595,12 @@ graph LR
 - [ ] Check model performance: no model exceeds SLA (e.g., `< 5 minutes` for daily runs)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -633,5 +611,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

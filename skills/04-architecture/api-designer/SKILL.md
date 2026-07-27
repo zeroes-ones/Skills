@@ -41,7 +41,8 @@ chain:
 # API Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -54,6 +55,7 @@ chain:
 Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skill covers full API lifecycle design: specification-first development with OpenAPI 3.1, consistent error modeling, authentication and authorization patterns, rate limiting, pagination strategies, versioning approaches, and developer experience (DX) including SDK generation and documentation.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -98,6 +100,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -114,12 +117,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -143,6 +146,7 @@ Competent API designers build endpoints that return data. Masters build **contra
 - **Return 200 with an error body for legacy consumers.** If you have consumers that crash on non-200 status codes (it happens), wrap errors in a 200 response with an `error` field. It's not pure REST, but it keeps legacy consumers running while you migrate them.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 API design skill manifests in the scope of the API — from single endpoints to org-wide API governance.
 
@@ -157,6 +161,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
 **Usage**: Say "as an L3 API designer, design the API surface for..." Default: **L2** (domain-level API design, independent execution).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new REST, GraphQL, or gRPC API from scratch
@@ -169,6 +174,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
 - Reviewing API designs for consistency, security, and DX quality
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -194,6 +200,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                                       │ gRPC    │ │ REST  │
                                       └─────────┘ └───────┘
 ```
+
 **When to choose REST:** Public-facing CRUD APIs, >3 consumer types, need HTTP caching, team has REST experience. **When to choose GraphQL:** 3+ client platforms with divergent data needs, nested/relational data, over-fetching problem measured at >40% unused fields. **When to choose gRPC:** Internal microservices, >1000 req/s, need bidirectional streaming, polyglot service mesh.
 
 ### URL Path vs Header Versioning
@@ -214,6 +221,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                     │ (/v1/,/v2/) │   │ versioning yet  │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose URL Path:** Public API, >100 consumers, need discoverability and caching by version. **When to choose Header:** Internal-only API, <10 consumers, want clean URLs, can mandate Accept header usage.
 
 ### Cursor vs Offset Pagination
@@ -235,6 +243,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                     │  consistent) │   │ static datasets)│
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose Cursor:** Data changes frequently (>10 writes/sec), need stable pagination during mutations, dataset >10K records. **When to choose Offset:** Static or slowly-changing data (<1 write/min), need jump-to-page-N UX, dataset <10K records, simpler client implementation acceptable.
 
 ### API Key vs OAuth2 vs JWT
@@ -260,6 +269,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                                       │ (simple) │ │ contained) │
                                       └─────────┘ └────────────┘
 ```
+
 **When to choose OAuth2:** User-facing APIs, delegated access, need refresh tokens and scope-based permissions. **When to choose API Key:** Server-to-server, <10 internal consumers, no user context needed, simplest integration. **When to choose JWT:** Stateless auth, distributed systems, need claims without token lookup, short-lived tokens (<15 min).
 
 ### Rate Limiting Tier Design
@@ -282,9 +292,11 @@ API design skill manifests in the scope of the API — from single endpoints to 
                     │ Ent 10000/min│   └────────────────┘
                     └──────────────┘
 ```
+
 **When to choose Tiered:** Monetized API, >3 consumer tiers, need overage billing integration. **When to choose Flat:** Internal API, <100 consumers, no billing complexity needed, simple protection against abuse.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -317,9 +329,12 @@ Complete when:
 ### Phase 3 (~20 min): Consistency & Governance
 <!-- DEEP: 10+min -->
 1. **Error Schema** — Standardize on RFC 7807 Problem Details:
+
    ```json
    { "type": "https://api.example.com/errors/validation-error", "title": "Validation Error", "status": 422, "detail": "The 'email' field is required.", "instance": "/users/abc123", "errors": [{ "field": "email", "code": "required", "message": "Email is required" }] }
+
    ```
+
 2. **Pagination** — Cursor-based (preferred for large/real-time datasets) or offset-based (simpler, acceptable for small datasets). Use envelope: `{ "data": [...], "pagination": { "cursor": "...", "hasMore": true } }`.
 3. **Filtering & Sorting** — Query parameters: `?filter[status]=active&filter[createdAt][gte]=2024-01-01&sort=-createdAt&fields=id,name,email` (sparse fieldsets).
 4. **Idempotency** — Require `Idempotency-Key` header for mutating operations (POST/PUT/PATCH/DELETE); return stored response for duplicate keys.
@@ -336,6 +351,10 @@ Complete when:
 4. **Sunset policy**: vN supported for 12 months after vN+1 release.
 
 Complete when:
+  Complete when: Architecture decision record (ADR) created with context, options, and rationale.
+  Complete when: Non-functional requirements documented — performance, security, scalability targets.
+  Complete when: Dependency graph reviewed — no circular dependencies between bounded contexts.
+  Complete when: Capacity planning estimates validated with load testing at 2x expected peak.
 - Versioning strategy (URL path vs header) selected and documented with rationale
 - Deprecation policy defined: Sunset/Deprecation headers, changelog notification process, minimum 6-month notice
 - Sunset timeline documented: vN supported for 12 months after vN+1 release
@@ -352,8 +371,8 @@ Common chains:
 - **Greenfield service**: system-architect → api-designer → backend-developer — Architecture defines boundaries, API design formalizes the contract, backend implements it
 - **Data-driven API**: database-designer → api-designer → frontend-developer — Schema shapes the resources, API exposes them, frontend consumes them
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Specification-first, never code-first.** Write OpenAPI 3.1 before implementation. The spec is the contract — nothing ships that isn't documented. Generate mock servers from specs during development.
 
@@ -375,8 +394,8 @@ Common chains:
 
 10. **Rotate API keys with overlapping validity windows.** Short-lived access tokens (1-24h) with refresh token rotation. Log and alert on anomalous key usage patterns. Never accept API keys in URL query strings — they land in server access logs.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -393,6 +412,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -411,6 +431,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 API breaking incident (auth bypass, data leak, API-wide outage)
   └── API Designer + Security Engineer + System Architect + DevOps. War room. Hotfix or rollback within hours.
 
@@ -419,11 +440,13 @@ Breaking API change needed for >50% of consumers
 
 Minor API addition or non-breaking change
   └── API Designer reviews, team implements. No escalation needed. Changelog and docs updated.
+
 ```
 
 **What good looks like:** OpenAPI 3.1 spec renders cleanly in Swagger UI with no validation warnings. Every endpoint has at least one request example, one response example, and all error schemas documented. A frontend developer can generate a type-safe client from the spec and start integrating without asking a single question about pagination, filtering, sorting, or error handling.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -435,11 +458,12 @@ Minor API addition or non-breaking change
 | Switching an existing REST endpoint to WebSocket for real-time updates | Before upgrading, verify: (a) load balancer config supports WebSocket upgrade headers and connection draining, (b) CDN/proxy layers don't buffer or strip `Upgrade: websocket`, (c) auth tokens are passed on connect (not per-message), (d) reconnection with exponential backoff is client-implemented | Load balancers and CDNs configured for short-lived HTTP/1.1 connections silently drop WebSocket upgrades. Connection count per instance skyrockets. Without proper reconnection logic, clients hang forever on stale sockets thinking they're connected |
 | Designing idempotency for payment or order-creation endpoints | Propose `Idempotency-Key` header with server-side key storage (Redis with 24h TTL). The key must be generated by the client, not the server. Response includes `Idempotency-Replay: true` header when returning a cached response. Implement key collision detection for duplicate submissions from different clients | Payment gateways charge twice when retries aren't idempotent. Network blips cause client retries that create duplicate orders. Telling users "check if your order went through" is not a production strategy — idempotency keys make retries safe by design |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -458,12 +482,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[API13]** API changelog published, consumer notification channel active, deprecation calendar visible to all integrators
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > API consumers integrate in hours, not weeks. The specification is the source of truth — nothing ships that isn't documented. Breaking changes are rare and always communicated 6+ months ahead.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
@@ -484,6 +510,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 **Design an API by writing the consumer code first.** Before you write a single endpoint spec, write the code you wish you could write as a consumer. `const order = await api.orders.create({...})`. Let the ideal consumer experience drive the API design. An API that's easy to consume was designed from the outside in.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Breaking API change without versioning.** Renaming a field, changing a type, or removing an endpoint without a deprecation window breaks every client that depends on the old contract. Mobile apps that update slowly, third-party integrations you didn't know existed, and internal services all fail simultaneously. The support tickets, incident response, and emergency hotfix cost dwarf the time saved by "just changing it." **Total cost: $50,000-$200,000 in client integration breaks, support escalations, and emergency rollbacks.** Fix: Never remove or rename — only deprecate with a documented sunset window; use API versioning (URL path or header-based) before any breaking change; run contract tests in CI.
 - **REST API without rate limiting.** An unauthenticated endpoint with no rate limit is a DDoS vector. A buggy client retrying in a loop, or a malicious actor, can saturate your API servers and database with trivial requests — taking down the entire service for all users. Cloud auto-scaling can amplify the cost into thousands of dollars in compute before you notice. **Total cost: $10,000-$100,000 in DDoS vulnerability, auto-scaling cost explosion, and incident response.** Fix: Apply rate limiting at the API gateway layer (per IP for unauthenticated, per API key/token for authenticated); implement exponential backoff guidance in error responses; set aggressive rate limits as the default, not an afterthought.
@@ -498,6 +525,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Static API keys that never expire.** Long-lived API keys hardcoded in client configs, mobile app binaries, and third-party integration scripts are never rotated. When a key leaks — via an accidental GitHub commit, a former employee's laptop, or a compromised CI pipeline — every system using that key is exposed until someone notices, and there's no audit trail of which keys are active, who owns them, or when they were last used. **Total cost: $50,000-$500,000 in security breach costs from leaked static API keys, including incident response, mandatory customer notification, and credential rotation across all integrators.** Fix: Issue short-lived access tokens (1-24 hours) with refresh token rotation; support API key rotation with overlapping validity windows so clients transition without downtime; log and alert on anomalous key usage patterns; never accept API keys in URL query strings where they land in server access logs.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -507,6 +535,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | Versioning strategy not decided upfront | $150K-$500K in migration costs when breaking changes force a new version | Choose URL path vs header vs query param versioning before v1 ships. Document sunset policy. Never remove fields without deprecation period |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run OpenAPI validator: `redocly lint openapi.yaml` or `spectral lint openapi.yaml` — zero errors
 - [ ] Generate and inspect docs: `redocly build openapi.yaml` — all endpoints documented, all schemas have examples
@@ -516,6 +545,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Check `servers[].url` in OpenAPI: matches all environments (dev/staging/prod), no localhost URLs
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -533,5 +563,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | OpenAPI spec says `price` is `integer` but actual response is `"19.99"` — client's strict parser rejects it | Spec written manually, diverged from implementation. No contract testing to catch the mismatch. API evolved in code but spec wasn't updated | Generate OpenAPI spec from code (not manually). Run contract tests in CI: `openapi-enforcer` or `dredd` validates actual responses against spec. Spec becomes build artifact, not documentation | If your spec and your code live in different files and aren't tested together, they diverged the moment you wrote the first line. Contract tests or spec generation — pick one, but enforce it. |
 
 ## References
+<!-- STANDARD: 3min -->
 - **"Is REST Overkill?" Decision Tree**: See ["is-rest-overkill?"-decision-tree.md](references/"is-rest-overkill?"-decision-tree.md)
 - **Versioning Cost Analysis**: See [versioning-cost-analysis.md](references/versioning-cost-analysis.md)

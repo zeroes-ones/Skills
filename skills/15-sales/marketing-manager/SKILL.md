@@ -106,7 +106,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -195,6 +194,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
               │   evidence      │   │   recommendations     │
               └─────────────────┘   └───────────────────────┘
 ```
+
 **Battle Card use:** AE is going into a deal where Competitor X is named. They need: "Here's what they'll say. Here's how you respond. Here's the trap question to ask."
 
 **Landscape Analysis use:** You're entering a new market, launching a new product, or preparing for an analyst briefing. You need: "Here's everyone in the space, where they play, where we win, where we don't."
@@ -228,6 +228,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                 │ 8. "Jobs to be done"  │
                                                 └──────────────────────┘
 ```
+
 **Research before personas:** Never build personas from internal assumptions. Interview 10-15 people in the target role. Ask: "Walk me through yesterday. What was your biggest frustration? How are you measured? What did you research last? Who do you ask for advice on purchases like this?"
 
 **Valid persona:** "VP of Engineering at 200-500 person SaaS company. Measured on: velocity, uptime, cost. Pain: developer onboarding takes 6 weeks. Trigger: board mandated 30% faster time-to-market. Reads: Hacker News, Stratechery, CTO Craft newsletter. Objection: 'We could build this internally.'"
@@ -257,6 +258,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                │    upsells      │  │    or auto-upgrade  │
                └─────────────────┘  └─────────────────────┘
 ```
+
 **Pricing validation checklist:**
 - [ ] Van Westendorp Price Sensitivity Meter survey with 100+ target buyers
 - [ ] Competitive pricing indexed — are you premium, parity, or discount?
@@ -309,7 +311,9 @@ Write campaign briefs that demand generation can execute without back-and-forth.
 Analyst relations (AR) is a long game, not a deal-sprint. Strategy: (1) Identify the 2-3 analyst firms that matter for your category (Gartner, Forrester, IDC — but also category-specific analysts). (2) Build relationships with the analysts who cover your space — quarterly check-ins, not just evaluation-time panic. Share roadmap directionally, customer wins, market observations. (3) For Magic Quadrant / Forrester Wave evaluations: start 6 months before the research cycle begins. Align your product roadmap messaging to the evaluation criteria. Brief the analyst on your vision, not just your features. Submit responses that are concise, evidence-backed, and customer-validated. (4) Customer references for analysts: hand-pick 3-5 reference customers who will say you're strategic, not tactical. Prepare them with a briefing doc. (5) Post-evaluation: regardless of placement, publish a response. If you placed well, amplify. If not, acknowledge the feedback and share your plan. Analysts reward transparency. Track: analyst mentions, report placements, inquiry volume, and deal influence from analyst references.
 
   Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
 
 ## Error Recovery
 
@@ -378,7 +382,6 @@ Analyst evaluation outcome materially negative → CEO Strategist + VP Product +
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product positioning, competitive analysis, value proposition | Before engaging prospects or designing partnerships |
@@ -387,7 +390,6 @@ Analyst evaluation outcome materially negative → CEO Strategist + VP Product +
 | Downstream Skill | What You Provide | Impact of Delay |
 |---|---|
 | `automation-engineer` | Content calendar, campaign specs, audience segments | Marketing stays manual — launches go unannounced |
-
 
 ## Proactive Triggers
 
@@ -403,7 +405,6 @@ Analyst evaluation outcome materially negative → CEO Strategist + VP Product +
 | Launch asset misses deadline that cascades into full launch delay | All launch stakeholders, VP Marketing | Launch date recalibration; stakeholder expectation reset; root cause analysis on why deadline was missed |
 | Market category definition shifts (analyst redefinition, new entrant creating category, regulatory change) | CEO Strategist, Product Strategist, Business Strategist | Positioning may need fundamental repositioning; category-level strategy review within 2 weeks |
 | Competitor hiring patterns signal entry into your market segment (5+ relevant job listings in 30 days) | CEO Strategist, Product Manager, Business Strategist | New competitive threat forming; pre-emptive positioning and sales enablement before competitor launches |
-
 
 ## State Log
 
@@ -431,7 +432,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -500,49 +501,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Content audit: oldest 20% reviewed quarterly — outdated stats, broken links, deprecated features updated or archived
 - [ ] Case studies include named customers — anonymous "Fortune 500" references flagged for replacement or archival
 
-## Scale Depth
-
-<!-- DEEP: How this skill scales from solo to enterprise. -->
-
-### Solo PMM (Founder-led, pre-Series A)
-- **Tooling:** Google Slides for positioning, Google Docs for messaging, manual competitive research, founder runs all analyst briefings
-- **Process:** Founder = PMM; positioning and messaging from founder's vision; no formal competitive intelligence program
-- **Risk:** Positioning is founder's opinion, not market-validated; no systematic win/loss analysis
-- **Move to next level when:** You have ≥2 products to position OR preparing for first Gartner/Forrester evaluation
-
-### Small Team (1-2 PMMs, Series A-B)
-- **Tooling:** Competitive intelligence spreadsheet, basic win/loss interview cadence, Crayon/Klue for competitive monitoring, Canva/Figma for sales enablement
-- **Process:** Formal positioning framework (Message House), quarterly competitive analysis, launch checklist with gates, basic battle cards from win/loss interviews
-- **Key hire:** First dedicated competitive intelligence person (or PMM focused 50% on competitive)
-- **Move to next level when:** Running ≥4 launches/year OR managing analyst relations with ≥2 firms
-
-### Medium Team (3-6 PMMs, Series B-C)
-- **Tooling:** Competitive intelligence platform (Klue/Crayon Enterprise), win/loss analysis platform (Clozd/DoubleCheck), analyst relations management, sales enablement platform (Highspot/Seismic)
-- **Process:** PMMs dedicated to product lines, formal launch management process (tiered: Tier 1 company-wide, Tier 2 product-level, Tier 3 feature-level), quarterly analyst briefings, annual pricing review
-- **Metrics:** Launch pipeline influence, competitive win rate by competitor, analyst rating trajectory, sales enablement content utilization
-- **Move to next level when:** Positioning ≥5 distinct product lines OR preparing for Magic Quadrant/Forrester Wave submission
-
-### Enterprise (6+ PMMs, Series C+)
-- **Tooling:** Full competitive intelligence program with AI-powered battle cards, dedicated analyst relations team, global launch management platform, pricing optimization software (Vendavo/Pricefx)
-- **Process:** PMM leadership team, product-line PMM pods, dedicated competitive intelligence function, formal analyst relations calendar, annual global pricing strategy, regional market adaptation
-- **Metrics:** Category leadership score (analyst ratings + market share perception), win rate by competitor by region, launch ROI (pipeline generated / launch cost), pricing realization (actual vs list price)
-- **Governance:** Quarterly positioning audit across all products, monthly competitive intelligence briefing for executive team, annual brand health study, semi-annual pricing elasticity research
-
-## Error Decoder
-
-<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
-
-| Symptom | Diagnosis | Root Cause | Fix |
-|---------|-----------|------------|-----|
-| Positioning statement sounds like every competitor in the category | Logo-swap test failed — positioning is generic category description, not a unique claim | Positioning written without competitive differentiation research; internal team filled gaps with familiar category language | Identify 3 specific, provable differentiators that no competitor can claim; rewrite positioning around the one differentiator that matters most to your ICP; test with prospects |
-| Demo requests drop 25% after rebrand launch | New brand confuses ICP — messaging, visual identity, or value proposition no longer matches buyer expectations | Rebrand executed without customer research; internal team optimized for "fresh" not "clear" | Halt paid campaigns driving to new brand; A/B test old vs new messaging on landing pages; run 5-second comprehension test with 20 ICP prospects; revert if comprehension drops >20% |
-| Battle card says "we win because of better UX" but win/loss data shows we lose on pricing 60% of the time | Battle card built from internal opinions, not deal outcome data | No systematic win/loss interview program; PMMs relying on AE anecdotes which are biased toward product strengths | Launch win/loss interview program (≥5 won, ≥5 lost per competitor); rebuild battle cards from actual deal data; update quarterly |
-| Gartner places company as "Niche Player" despite strong product — CEO expected "Visionary" | Analyst briefing was 80% product demo, 20% vision — analysts score vision and execution, not features | PMM treated analyst briefing as an extended demo; no market vision narrative prepared | Reposition analyst briefing: market vision and trends (25%), customer momentum (25%), 12-month roadmap (20%), differentiation (20%), features (10%); practice with ex-analyst consultant |
-| Content generates 10K monthly visits but zero pipeline | Content ranks for informational keywords ("what is X") not buyer-intent keywords ("X pricing," "X vs Y") | Content calendar built from brainstorming, not keyword research; no buyer intent filtering | Audit content for buyer intent keywords; redirect 80% of content budget to bottom-of-funnel topics; measure pipeline per content dollar, not traffic |
-| Price increase announcement triggers 15% churn inquiry rate | Customers blindsided — no communication runway, no value-add narrative, no grandfathering | Price increase treated as financial event, not marketing event; no customer communication plan | Halt increase for existing customers; build 90-day communication plan: value-add narrative, grandfathering offer, customer FAQ, AE talking points; announce only after plan is complete |
-| Sales team ignores new battle cards and pitch deck — "the old one works fine" | Sales enablement created without sales input; content doesn't address real field objections | PMM built enablement in a silo; didn't interview AEs about what they actually need | Interview 10 AEs about top 5 objections they face; co-create enablement materials with top-performing AEs; pilot with 3 AEs for 2 weeks before full rollout |
-
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -552,7 +510,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
 | Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
 | RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -584,4 +541,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

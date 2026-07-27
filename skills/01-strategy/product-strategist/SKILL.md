@@ -41,6 +41,7 @@ chain:
 End-to-end product strategy from discovery through growth. Covers product-market fit validation, OKR-driven planning, pricing strategy, competitive positioning, and product-led growth — connecting business outcomes to product execution.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -73,7 +74,7 @@ What are you trying to do?
 ├── Set pricing strategy → Jump to "Decision Trees > Pricing Strategy Matrix"
 ├── Choose GTM model → Jump to "Decision Trees > Go-to-Market Model Selection"
 ├── Drive growth & retention → Go to "Core Workflow > Phase 4: Growth & Optimization"
-├── Scale product operations → Go to "Scale Depth"
+├── Scale product operations → Go to "Operating at Different Levels"
 ├── Need business model or GTM strategy? → `business-strategist`
 ├── Need user research or persona development? → `ux-researcher`
 ├── Need feature specs or PRD writing? → `product-manager`
@@ -83,7 +84,8 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -94,6 +96,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "We'll set the roadmap timeline — engineering will figure out the capacity" | Roadmap dates set without engineering input produce one of two outcomes: missed commitments (credibility damage) or cut corners (quality damage). "Figure it out" is not capacity planning — it's setting your team up for burnout. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -110,12 +113,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Product strategy is not about picking the right framework — it's about **seeing what others don't see and having the conviction to act on it before the data is conclusive**. The output is not a strategy document; the output is a company aligned around a shared direction that wins.
 
@@ -151,6 +154,7 @@ Product strategy is not about picking the right framework — it's about **seein
 - **Ignore roadmap discipline during existential pivots.** When the company might die, throw out the roadmap and focus all resources on the one thing that might save it. Survival is the strategy.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Product strategy scales from individual product lines to company-defining bets. The scope and time horizon of decisions defines the level.
 
@@ -165,6 +169,7 @@ Product strategy scales from individual product lines to company-defining bets. 
 **Usage**: Say "as an L3 product strategist, evaluate the PMF for..." Default: **L3** (full-product strategy, independent analysis).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Validating product-market fit for a new product or feature
@@ -177,6 +182,7 @@ Product strategy scales from individual product lines to company-defining bets. 
 - North Star metric definition and product metrics framework
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -215,6 +221,7 @@ Average deal size (ACV)?
 | Hybrid | Complex products | Maximized | Datadog, Snowflake |
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -263,11 +270,17 @@ Complete when:
 4. **Retention**: Cohort analysis. Identify "aha moment". Drive users there faster.
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 - Growth loop analysis with bottleneck identified across Acquisition → Activation → Retention → Revenue → Referral
 - PLG strategy documented: time-to-value target, PQL scoring criteria, and sales handoff triggers
 - Retention cohort analysis with "aha moment" identified and optimization plan documented
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -283,6 +296,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Product strategy sits at the intersection of business, design, engineering, and operations. Know when to coordinate:
@@ -312,6 +326,7 @@ Product strategy sits at the intersection of business, design, engineering, and 
 | OKR at risk | `ceo-strategist`, `cto-advisor` | Expectation management, resource reallocation |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -323,17 +338,20 @@ Product strategy sits at the intersection of business, design, engineering, and 
 | Retention cohort shows 40% of users churn within the first 7 days — team focused on building new features for existing users | Alert: "New user retention is the #1 growth lever. Fix activation before building for retention: (1) Map the time-to-value — what's the minimum steps from signup to "aha moment"? (2) Remove every step between signup and first value, (3) Track activation rate (users who reach aha moment within session 1). A 10% improvement in day-7 retention compounds to 2x more MAU in 12 months. Stop building features until activation rate exceeds 60%" | Acquisition fills a leaky bucket if activation is broken. Every dollar spent on acquisition for a product with 40% week-1 retention is 60% wasted. Fixing activation is the highest-leverage product work — it improves every growth channel simultaneously without spending a dollar on marketing |
 | Revenue per customer hasn't grown in 4 quarters but the team attributes it to "market conditions" | Flag: "Revenue stagnation has a root cause. Audit: (1) Is expansion revenue flat because there's nothing to expand to? → add higher-tier features. (2) Is churn offsetting expansion? → fix retention. (3) Are new customers lower-value? → fix ICP targeting. (4) Is pricing below market? → test increases. Market conditions affect everyone equally — if competitors are growing and you're not, it's a product strategy problem, not a market problem" | Blaming market conditions is the product equivalent of "it works on my machine." Revenue stagnation is almost always a product strategy failure: wrong features, wrong pricing, wrong segments, or wrong positioning. The market reveals the truth — listen to it |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Your product vision is one sentence every person in the company can repeat from memory — not a paragraph nobody read.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Product strategy is pattern-matching refined through exposure to diverse business models, markets, and outcomes. The strategist who has studied 100 failures sees patterns the strategist who has only studied successes cannot.
 
@@ -360,6 +378,7 @@ After every strategic decision: write down your explicit prediction. Check it at
 **Write your strategy on one page, then delete it and write it again in half the words.** The second version reveals what you actually believe. The first version reveals what you think you should believe. Do this before every strategy presentation.
 
 ## When NOT to Product Manage
+<!-- STANDARD: 3min -->
 
 ```
 Pre-PMF with < 5 users? → Founder IS the PM. No dedicated PM needed.
@@ -385,6 +404,7 @@ Common chains:
 - **Pricing & GTM**: product-strategist → business-strategist → growth-engineer — Pricing model → GTM strategy → growth experiments
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Validate product-market fit with the Sean Ellis test, not gut feel.** Ask active users: "How disappointed would you be if this product didn't exist?" Target ≥ 40% answering "very disappointed." Run this survey quarterly, segmenting by cohort. PMF isn't binary — it degrades over time as market expectations rise and competitors improve.
@@ -408,6 +428,7 @@ Common chains:
 10. **Define OKRs with outcomes, not outputs.** "Ship onboarding v2" is an output. "Increase week-1 activation rate from 25% to 40%" is an outcome. Output-based OKRs measure activity; outcome-based OKRs measure value. When the team ships v2 and activation doesn't move, an output-based OKR says "success" while an outcome-based OKR says "we learned something — iterate."
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - **TAM (Total Addressable Market)** top-down calculations: "Global CRM market is $80B, if we capture 1%..." — that 1% number is the most important variable and it's made up. Bottom-up TAM (number of target customers × annual contract value) is slower to calculate but 10x more defensible.
@@ -424,6 +445,7 @@ Common chains:
 - **What:** Prioritizing features based on the loudest customer's request without strategic filtering. **Why:** The loudest customer represents exactly one data point with unknown representativeness. Building for them optimizes for retention of one account at the expense of acquisition of dozens. Two years later, your product is a Frankenstein of custom work that only 5 customers use. **Instead:** Use a weighted scoring framework (RICE or CD3). Validate demand with 10+ customers before committing. Every feature must map to a company-level strategic goal.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any product strategy deliverable leaves this skill, verify:
@@ -444,6 +466,8 @@ Before any product strategy deliverable leaves this skill, verify:
 - [ ] Product strategy document includes explicit assumptions, risk register, and early warning indicators
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -454,6 +478,7 @@ Before any product strategy deliverable leaves this skill, verify:
 | Confusing TAM (total addressable market) with SAM (serviceable available market) in board decks | Overstated market opportunity that erodes investor and board trust | TAM = everyone who could theoretically use your product. SAM = the segment you can actually reach with your current GTM motion. Present SAM as your near-term reality. Break TAM into SAM → SOM (serviceable obtainable market) with documented assumptions at each layer. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] TAM/SAM/SOM: bottom-up calculation with documented assumptions and source data
 - [ ] Competitive landscape: positioning map updated within last 90 days
@@ -462,8 +487,9 @@ Before any product strategy deliverable leaves this skill, verify:
 - [ ] Strategic assumptions: all assumptions documented, risk-ranked, and validated or invalidated with evidence
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ### Solo (Founder-PM, pre-PMF, 0-5 customers)
 - PMF: Customer discovery interviews (20+), not surveys. Find the "struggling moment"
@@ -502,6 +528,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - Deliverable: 3-year product strategy + annual operating plan + quarterly board review + analyst briefings
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -514,6 +541,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Top-requested feature shipped after 6 months; 3% adoption at 90 days | Feature prioritized by request volume, not strategic fit. Vocal minority ≠ majority demand. No fake-door test or concierge MVP to validate before building. | Before building, run a fake-door test: add the feature to the UI with a "Coming Soon" notice and track clicks. If < 20% of target users click, don't build it. Interview the 3% who adopted to understand if the problem was the feature or the discovery. | Request volume measures noise, not demand. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -524,5 +552,4 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

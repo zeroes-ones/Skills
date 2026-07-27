@@ -44,6 +44,13 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
 <!-- QUICK: 30s -->
+## Anti-Hallucination
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Route the Request
 
 ```
@@ -119,19 +126,23 @@ The ZKP engineer's job is not to write circuits — it's to **encode computation
 
 ### Mental Models
 
-| Model | Description |
-|---|---|
-| **Every unconstrained signal is a backdoor** | A single missing constraint in a circuit means an attacker can generate a valid proof for an invalid statement. Constraint completeness is security, not correctness. |
-| **The prover is always adversarial** | Never assume the prover will follow the intended witness generation path. Design circuits that reject any witness that doesn't satisfy all constraints, even if "no honest user would generate that input." |
-| **Proof system selection is a multi-axis optimization** | Groth16 gives smallest proofs but requires a trusted setup. STARKs are transparent but produce larger proofs. There is no universal best — only best for specific requirements. |
-| **Recursive proving is a force multiplier** | One proof verifying another proof enables compression, aggregation, and composability. Master recursion before attempting production ZKP systems at scale. |
+| Model | Description | Mechanical Trigger (detect before executing) | Violation Response |
+|---|---|---|
+| **Every unconstrained signal is a backdoor** | A single missing constraint in a circuit means an attacker can generate a valid proof for an invalid statement. Constraint completeness is security, not correctness. | | |
 
-### What Masters Know
+| **The prover is always adversarial** | Never assume the prover will follow the intended witness generation path. Design circuits that reject any witness that doesn't satisfy all constraints, even if "no honest user would generate that input." | | |
 
-- **Under-constrained circuits are the #1 vulnerability class.** More ZKP systems have been broken by missing constraints than by cryptographic breaks in the proof system itself. Every audit finds constraint bugs — the question is whether you find them before deployment.
-- **Circuit optimization is a security discipline, not a performance one.** Reducing constraints is good; removing safety constraints to reduce constraints is catastrophic. Every removed constraint must be justified by a proof that it's redundant.
-- **Trusted setups are organizational challenges, not cryptographic ones.** The math of a Powers of Tau ceremony is well-understood. Getting 100+ independent participants to verify their contributions honestly is a logistics and reputation problem.
+| **Proof system selection is a multi-axis optimization** | Groth16 gives smallest proofs but requires a trusted setup. STARKs are transparent but produce larger proofs. There is no universal best — only best for specific requirements. | | |
 
+| **Recursive proving is a force multiplier** | One proof verifying another proof enables compression, aggregation, and composability. Master recursion before attempting production ZKP systems at scale. | | |
+
+### What Masters Know | |
+
+- **Under-constrained circuits are the #1 vulnerability class.** More ZKP systems have been broken by missing constraints than by cryptographic breaks in the proof system itself. Every audit finds constraint bugs — the question is whether you find them before deployment. | |
+
+- **Circuit optimization is a security discipline, not a performance one.** Reducing constraints is good; removing safety constraints to reduce constraints is catastrophic. Every removed constraint must be justified by a proof that it's redundant. | |
+
+- **Trusted setups are organizational challenges, not cryptographic ones.** The math of a Powers of Tau ceremony is well-understood. Getting 100+ independent participants to verify their contributions honestly is a logistics and reputation problem. | |
 
 ## When to Use
 
@@ -304,6 +315,8 @@ Complete when: Solidity verifier contract generated and deployed to testnet. Gas
 5. Write incident response plan for proof system vulnerability disclosure
 **Completion criteria:** Security audit report. Production readiness checklist completed. Incident response plan documented.
 Complete when: Full under-constraint audit completed as final check with zero findings. Trusted setup ceremony documentation verified (if Groth16). Security assumptions documented (soundness model, trusted setup, FRI parameters, curve security). Proof verification failure monitoring configured. Incident response plan for proof system vulnerability disclosure documented.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
 
 <!-- STANDARD: 3min -->
 ## Gotchas
@@ -393,28 +406,6 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 
 **Usage**: Say "at L2, help me integrate Groth16 with this circuit..." or calibrate by experience. Default: **L2** (proof system integration).
 
-### Scale Depth
-
-#### Solo (0-10 users)
-Write circuits in Circom 2. Use Groth16 with existing Powers of Tau ceremony output. Deploy snarkjs-generated verifier to testnet first. No recursion needed. Run basic constraint audits with `circom --inspect`. Single-prover architecture.
-
-#### Small Team (10-100 users)
-Add Noir for Rust-based toolchain integration. Implement FROST-based trusted setup with independent contributions. Fuzz testing with 10K+ valid and invalid witnesses. Verifier contract with proxy upgrade pattern. Document security assumptions. Negative test coverage for all critical paths.
-
-#### Medium Team (100-10K users)
-STARK-based proving with Plonky3 for transparent setup. Recursive proving with Nova or Halo2 for proof aggregation. Continuous fuzz testing in CI. External ZKP security audit. Prover infrastructure with horizontal scaling. Verifier gas benchmarking with production-representative proofs. Circuit breaker for proof verification failures.
-
-#### Enterprise (10K+ users)
-Dedicated ZKP research team. Custom proof systems with novel arithmetizations. Multi-prover architecture with fraud proofs. Formal verification of constraint systems. HSM-backed proving keys. Continuous side-channel analysis of prover infrastructure. Bug bounty for constraint vulnerabilities. Incident response for proof system zero-days. zkEVM or zk-rollup at scale.
-
-#### Transition Triggers
-- First mainnet verifier deployment → snarkjs-generated verifier, testnet gas benchmark, proxy upgrade
-- Trusted setup ceremony scheduled → participant verification, beacon finalization, ceremony documentation
-- Verifier gas near block limit → constraint optimization, proof batching, recursive aggregation
-- Proof system vulnerability disclosed → circuit audit for same pattern, verifier upgrade path
-- Proving infrastructure at >80% capacity → horizontal scaling, circuit optimization, GPU acceleration
-- Multi-application deployment → domain-separated nullifiers, per-application ceremony, constraint reuse audit
-
 ## Production Readiness Checklist **(STANDARD)**
 
 | # | Item | Ref |
@@ -468,6 +459,7 @@ This skill maintains a **decision ledger** to prevent context drift across ZKP e
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior decisions. Summarize the 3 most recent in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -479,7 +471,9 @@ This skill maintains a **decision ledger** to prevent context drift across ZKP e
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify all proof system, circuit, and parameter decisions are recorded.
 4. **On context recovery:** Read the last 5 entries before proposing changes.
 
@@ -548,6 +542,21 @@ An excellent ZKP engineering delivery produces:
 All circuits are auditable, verifiably correct, and ready for production deployment.
 
 <!-- STANDARD: 3min -->
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | No unconstrained signals — every signal has at least one constraint; zero `<--` without corresponding `===` | Static analysis tool (Ecne/Picus) returns zero unconstrained signals; manual review confirms every output and intermediate signal is fully bound |
+| ☐ | Every public input has a range check — bit decomposition or LessThan constraint prevents malicious witness injection | `Num2Bits` or `LessThan` constraint on every public input; fuzz test with out-of-range inputs verifies rejection |
+| ☐ | Trusted setup ceremony completed with ≥ N independent participants — all attestations verified; Phase 1 uses public block hash beacon | `snarkjs powersoftau verify` passes; participant attestation files stored and hash-verified; beacon contribution from Bitcoin/Ethereum block hash at specified height |
+| ☐ | Verifier contract bytecode verified on-chain — deployed code matches audited source; gas benchmarked with worst-case inputs on testnet | Etherscan/Sourcify verification confirmed; gas report shows `verifyProof()` cost under budget for worst-case public input size |
+| ☐ | Fuzz test: 10K+ valid proofs verify successfully; 10K+ invalid witnesses rejected; edge cases at max input values | `circom test --fuzz 10000` or equivalent; invalid witness mutations (flipped bits, zero values, max values) all produce verification failure |
+| ☐ | Nullifier domain separation enforced — unique application scope in nullifier computation; cross-application replay tested and rejected | Nullifier = `hash(secret, application_scope, ...)`; integration test proves nullifier from App A is rejected by App B's verifier |
+| ☐ | Incident response plan documented — verifier upgrade path tested, circuit breaker deployed, vulnerability disclosure timeline with key rotation procedure | Upgrade transaction simulated on testnet; circuit breaker `pauseVerifier()` tested; disclosure timeline with 7-day notification window for critical findings |
+| ☐ | Rollback plan: verifier upgrade mechanism tested — existing proofs remain verifiable post-upgrade; proxy pattern or migration path demonstrated | Pre-upgrade proofs verified against post-upgrade contract on forked mainnet; no proof replay gaps during migration window |
+
 ## Verification Guardrails
 
 - [ ] No unconstrained signals in the circuit (verified by static analysis and manual review)
@@ -558,7 +567,6 @@ All circuits are auditable, verifiably correct, and ready for production deploym
 - [ ] Nullifier domain separation: unique application scope in nullifier computation
 - [ ] Incident response plan for proof system vulnerability: verifier upgrade path, circuit breaker, disclosure timeline
 - [ ] All ZKP decisions recorded in State Log with security assumptions documented
-
 
 ## References
 

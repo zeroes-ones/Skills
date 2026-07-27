@@ -35,6 +35,7 @@ A veteran's playbook for planning and executing every type of production migrati
 This is not a theory document. Every section contains specific code, commands, scripts, and decision trees you can use tomorrow.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -67,9 +68,11 @@ What are you trying to do?
 └── Not sure? → Describe your current and target state, and I'll recommend a migration strategy
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -87,12 +90,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of migration architect don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -113,6 +116,7 @@ Masters of migration architect don't just build — they build **the right thing
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -128,6 +132,7 @@ Masters of migration architect don't just build — they build **the right thing
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You need to execute a database schema migration in production without downtime using expand-contract or online schema change tools
 - You are planning a cloud migration (on-prem to cloud or between clouds) and need to apply the 6 R's framework
@@ -151,6 +156,7 @@ Common chains:
 - **Chain**: database-designer → migration-architect → database-reliability-engineer — Schema design flows into migration plan; DBRE ensures reliability during and after the migration.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Migration Strategy Selection
@@ -186,6 +192,7 @@ Common chains:
     │ highest payoff.        │
     └────────────────────────┘
 ```
+
 **Lift-and-Shift:** When deadline <3 months or budget <$50K. Accept suboptimal architecture; optimize after migration.
 **Strangler Fig:** When zero downtime is required. Replace pieces incrementally behind a proxy/router.
 **Refactor-and-Migrate:** When long-term ROI matters more than speed. Highest payoff, highest risk.
@@ -220,6 +227,7 @@ Common chains:
                     └─────────┘ │ eventual cutover │
                                 └──────────────────┘
 ```
+
 **Big-bang:** Writes paused → dump → transform → load → verify → cut over. For <100GB with a maintenance window.
 **Dual-write:** Write to both old and new, backfill history, verify consistency, cut reads, then cut writes.
 **CDC:** For >100GB or high-throughput — Debezium/Kafka pipelines, no application changes needed for reads.
@@ -248,11 +256,13 @@ Common chains:
                             │ pattern  │ │              │
                             └──────────┘ └──────────────┘
 ```
+
 **<10K LOC → big-bang rewrite.** One sprint, full replacement.
 **Stable APIs → Strangler with adapters.** Migrate module-by-module behind same interface.
 **Unstable APIs → Feature flags per module.** Gradual, safe, allows A/B testing each component.
 
 ### 4. Cloud Migration Strategy (6 R's)
+
 ```
                  ┌──────────────────────────┐
                  │ START: What's the app    │
@@ -275,6 +285,7 @@ Common chains:
   └────────────┘     └───────────────┘    │ needed.          │
                                           └──────────────────┘
 ```
+
 **Rehost:** VM to cloud VM. Fastest, cheapest migration. Optimize later.
 **Replatform:** Containerize + use managed services (RDS instead of self-managed Postgres). Better TCO.
 **Refactor:** Rewrite for cloud-native. Highest effort, highest long-term ROI.
@@ -307,11 +318,13 @@ Common chains:
                                │ spike       │ │ duration.    │
                                └─────────────┘ └──────────────┘
 ```
+
 **Data corruption → immediate rollback. No waiting. No investigation during incident.**
 **P95 >3x baseline or error rate >1% → roll back after confirming non-transient.**
 **Everything else → extend bake period. Never roll back on the first small anomaly.**
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -348,9 +361,12 @@ Common chains:
 **Steps:** 1) Complete bake period (24-72h depending on component) 2) Run final data integrity reconciliation 3) Verify all monitoring/alerting operational on new system 4) Decommission old system (after confirmed no rollback needed) 5) Conduct retrospective, document lessons learned
 **Output:** Old system decommissioned, migration complete, retrospective document
   Complete when: Full business cycle bake period completed (24-72h), final data reconciliation passes, monitoring/alerting verified on new system, old system decommissioned after connection audit, and retrospective documented.
-
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -366,6 +382,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Big-bang cutover scheduled for Saturday 2 AM-6 AM — at 6 AM, data validation shows 12% of records have incorrect timestamps because the old system stored times in EST and the new system stores them in UTC | The migration script converted all timestamps by adding `+05:00` (EST offset), but the old system's timestamps were already in UTC with an implicit EST display layer. The script applied the offset to already-UTC times, shifting them 5 hours into the future. The 4-hour window became a 22-hour outage while data was re-migrated with corrected timezone handling | Before migration: validate timezone semantics on a SAMPLE of every date/time column. Run: `SELECT DISTINCT EXTRACT(TIMEZONE_HOUR FROM timestamp_col) FROM old_table` — if all values are 0, the timestamps are already UTC. Migrate with `AT TIME ZONE 'UTC'` on read, not arithmetic offset addition. Validate a random 1% sample for temporal correctness before full migration | Timezone handling is the most common data corruption vector in database migrations. Eastern Standard Time is -05:00 UTC; adding +05:00 to already-UTC timestamps creates future dates. Always validate timezone semantics on the source data before writing the migration script. Sample, don't assume. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Strangler Fig over big-bang cutover.** Incrementally replace system components behind a routing layer. Each replaced component is independently verifiable and reversible. Big-bang migrations fail 60% of the time — a 4-hour window becomes a 28-hour outage when the untested rollback path doesn't work at production scale.
 2. **Expand-Contract for every schema change.** Phase 1 (Expand): add new column/table alongside old, nullable with defaults. Phase 2: dual-write to both old and new. Phase 3: migrate existing data, backfill with checkpointing. Phase 4 (Contract): remove old column/table after verification. Each phase deploys independently without coordination.
@@ -379,6 +396,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Dry run on production-scale data before every migration.** A migration script tested on a 1GB dev database behaves completely differently on 5TB of production data. Dry runs catch timeout, OOM, lock-contention, and replication-lag issues before they become outages. The dry run must use a production snapshot or equivalent scale.
 
 ## Error Recovery **(DEEP)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -393,6 +411,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Migration architecture is inherently cross-functional — it spans databases, application code, infrastructure, and QA. A migration without coordination is a production incident waiting to happen.
@@ -451,13 +470,12 @@ Migration architecture is inherently cross-functional — it spans databases, ap
 | Database replication, failover testing, backup integrity | `database-reliability-engineer` |
 | Data access layer changes, API versioning, dual-write implementation | `backend-developer` |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
 
@@ -471,17 +489,19 @@ Migration architecture is inherently cross-functional — it spans databases, ap
 | Migration window timing conflicts with release freeze or holiday moratorium | Project Manager, Product Strategist | Reschedule migration; never run migrations during change freezes |
 | Third-party dependency for migration fails (CDC connector, cloud service, API) | System Architect, DevOps, Project Manager | Migration blocked; contingency plan or workaround activation needed |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When migration architecture is executed flawlessly, every migration has a phased plan with rollback checkpoints at each phase, data integrity is verified with row counts, checksums, and business-level
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -499,6 +519,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Migration Patterns
+<!-- STANDARD: 3min -->
 
 Detailed migration patterns, assessment frameworks, and database migration deep dives are in **[references/migration-patterns.md](references/migration-patterns.md)**:
 
@@ -514,6 +535,7 @@ Detailed migration patterns, assessment frameworks, and database migration deep 
 - **Data sync verification:** Row counts + checksums + business-level reconciliation queries
 
 ## Migration Workflows
+<!-- STANDARD: 3min -->
 
 Detailed workflow steps for framework, language, cloud, and stakeholder management are in **[references/migration-workflows.md](references/migration-workflows.md)**:
 
@@ -533,6 +555,7 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - **Rollback trigger #1:** Data corruption anywhere = immediate rollback
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Big bang migration without rollback.** Planning to cut over an entire system in one maintenance window — database, application, DNS, everything — with no tested path back to the old system. When the new database schema has a subtle incompatibility or the load balancer config is missing a rule, the system is down with no way back except restoring from backup. **Total cost: $500K-$5M in extended downtime. A 4-hour planned maintenance window that becomes a 48-hour outage costs $10K-$100K/hour in lost revenue for mid-market SaaS, plus regulatory fines in finance/healthcare, plus permanent customer churn.** Fix: every migration step must have a documented, tested rollback procedure. Practice the rollback in staging. Implement feature flags that can instantly revert traffic to the old system. The rollback runbook must be executable by the on-call engineer — not the migration architect who wrote it.
 - **Data migration without integrity validation.** Migrating millions of records without checksum verification or row-count reconciliation means data corruption is discovered weeks later — when customer reports surface mysterious data inconsistencies. A single character encoding issue during ETL can corrupt every non-ASCII name in the database, and by the time it's noticed, the old system has been decommissioned. **Total cost: $100K-$1M in corrupted data discovered post-migration. Fixing corrupted production data after the old system is gone requires forensic data reconstruction, manual customer outreach, and in regulated industries, mandatory breach notification.** Fix: run checksum validation on every table after migration: `CHECKSUM TABLE` / `MD5(CONCAT_WS(...))` on 100% of rows. Compare row counts, null ratios, and value distributions between source and target. Run application-level validation — a sample of customers should see identical data on both systems before cutover.
@@ -546,7 +569,8 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - **Storage migration with `rsync`** on a live filesystem — files change during the sync. `rsync` copies file A, file A changes, then `rsync` is already past file A. The target has a version of file A that never existed on the source at any single point in time. Use filesystem snapshots or database-native replication.
 - **"Strangler Fig" migration** where the new system calls the old system via API — if the new system's availability depends on the old system, you've added a dependency without removing one. The combined system is LESS reliable than either alone. Cut the dependency before declaring migration complete.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -557,6 +581,7 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 | "The old system can stay running as a fallback indefinitely" | Running dual systems doubles infrastructure cost, splits operational knowledge, and accumulates divergence — within 6 months, the "fallback" is an untested liability that can't actually be used |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -566,6 +591,7 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 | Migration timeline estimated by the engineering team without measuring data volume — "We'll migrate 5TB in a weekend." At 500MB/s with 4 parallel streams, that's actually 2.8 hours of pure transfer, plus 6 hours of validation, plus 4 hours of application smoke testing. The cutover window is physically impossible. | $25K-$100K in business impact when the migration overruns the approved window and systems are unavailable during business hours. Plus $15K-$40K in emergency communications and post-mortem overhead. | Measure actual throughput end-to-end with a 100GB sample. Include validation and smoke testing time — not just transfer time. Migration time = (data_volume / measured_throughput) × 1.5 (buffer) + validation_time + smoke_test_time. If total > approved window, you need zero-downtime migration, not a bigger window. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Source/target parity: row counts match ± 0.01% for every migrated table
 - [ ] Checksum validation: `SELECT MD5(CONCAT_WS('|', *))` on 100 random rows — source and target match
@@ -575,10 +601,12 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - [ ] Cutover runbook: step-by-step with timing estimates and rollback triggers for each step
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** Migration runbook exists with per-phase rollback plan, step-by-step timing estimates, and rollback triggers for each phase. Runbook executable by on-call engineer, not just the migration architect.
 - [ ] **[S2]** Dry run completed on production-scale data (snapshot or equivalent). No timeouts, OOM, lock contention, or replication lag issues detected. Results documented.
@@ -594,6 +622,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[S12]** Retrospective completed: what went well, what went wrong, what would we do differently. Lessons documented. Migration artifacts (runbook, validation reports, decision records) archived.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -604,7 +633,6 @@ Detailed reference material loaded on demand:
 - **Cost-Effective Decision Table**: See [cost-decisions.md](references/cost-decisions.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

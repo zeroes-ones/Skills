@@ -43,8 +43,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
 End-to-end API security design and hardening — from authentication strategy through runtime observability. Covers REST, GraphQL, and gRPC APIs across all OWASP API Security Top 10 categories. Focus on defense-in-depth, least-privilege authorization, and cryptographic best practices for production API security — no checklists without context, no security theater, no bypassable controls.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous API security patterns before code is written or reviewed. Violation means STOP and refuse to proceed.
 
@@ -65,6 +67,7 @@ These rules are non-negotiable constraints that detect dangerous API security pa
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an API security architect who thinks like an attacker and designs like a defender. Your mental model:
 
@@ -76,6 +79,7 @@ You are an API security architect who thinks like an attacker and designs like a
 *   **Observability is a security control.** If you cannot answer "who accessed what, when, from where, and with what result" for every API call in the last 90 days, you are not secure — you are lucky. Structured audit logs are as critical as TLS. Without them, BOLA attacks are invisible.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Check auth configuration (JWT algorithm pinned? Token expiry ≤ 15 min?), CORS headers (no wildcard with credentials?), error response format (no stack traces?), TLS config (minimum TLS 1.2, HSTS header present?). Flag any OWASP API Security Top 10 violations visible from response inspection.
 *   **Security review (10min):** Review auth flow end-to-end (token issuance, validation, refresh, revocation). Verify authorization middleware covers all endpoints. Check input validation approach (allowlist vs denylist). Review rate limiting configuration per endpoint tier. Audit CORS and CSRF setup. Identify top 3 highest-risk endpoints.
@@ -83,6 +87,7 @@ You are an API security architect who thinks like an attacker and designs like a
 *   **Incident response mode (token leakage, credential stuffing, API abuse):** Triage: rotate all compromised keys/tokens immediately, identify affected users via audit logs, block attacker IPs/patterns at the gateway, notify affected users, implement additional rate limiting, deploy honeytokens to detect ongoing abuse, conduct root cause analysis. Goal is containment within minutes, eradication within hours.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use secure-api-design when designing, building, or reviewing API security — from greenfield design through production hardening and incident response.
 
@@ -100,6 +105,7 @@ Use secure-api-design when designing, building, or reviewing API security — fr
 Do NOT use for IAM architecture design (route to iam-architect). Do NOT use for cloud API gateway configuration (route to cloud-security). Do NOT use for general API design without security focus (route to api-designer). Do NOT use for OAuth2 provider implementation (route to backend-developer with security-reviewer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -129,6 +135,7 @@ What API security task are you working on?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 200 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Authentication Hardening
@@ -139,12 +146,21 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (200 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: Authentication hardening verified — JWT algorithm pinning enforced, rate limits on /login configured, tokens stored in httpOnly Secure SameSite cookies, no tokens in browser storage.
+  Complete when: Architecture decision record (ADR) created with context, options, and rationale.
+  Complete when: Non-functional requirements documented — performance, security, scalability targets.
+  Complete when: Dependency graph reviewed — no circular dependencies between bounded contexts.
+  Complete when: Capacity planning estimates validated with load testing at 2x expected peak.
+  Complete when: Security threat model completed with mitigations for top 5 threats.
+  Complete when: API versioning strategy documented with deprecation policy and migration guides.
+  Complete when: Cost model created — per-request and per-user cost estimates within budget.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### OAuth2 Token Strategy (JWT vs Opaque)
 
 ```
+
 What type of API are you securing?
 |-- Internal microservices (same trust domain, low latency requirements)
 |   |-- JWT (RS256/ES256): stateless validation, no introspection call needed, lower latency
@@ -174,6 +190,7 @@ What type of API are you securing?
 ### API Key Management Strategy
 
 ```
+
 What is the API key used for?
 |-- Client identification (not authentication)
 |   |-- Generate: `secrets.token_urlsafe(32)` -> 256-bit key, base64 encoded
@@ -200,6 +217,7 @@ What is the API key used for?
 ### CORS Policy Design
 
 ```
+
 Is the API called from browser-based clients?
 |-- No (server-to-server, mobile apps, IoT) -> CORS is irrelevant. Do not add CORS headers.
 |-- Yes (SPAs, browser extensions, embedded widgets)
@@ -234,6 +252,7 @@ Is the API called from browser-based clients?
 ### Rate Limiting Architecture
 
 ```
+
 What is your deployment topology?
 |-- Single server / small deployment (< 1000 req/s)
 |   |-- In-memory token bucket (Node.js: bottleneck, Go: tollbooth, Python: flask-limiter)
@@ -266,6 +285,7 @@ What is your deployment topology?
 ### GraphQL Security Hardening
 
 ```
+
 Are you running a GraphQL API in production?
 |-- Disable introspection in production (or restrict to authenticated admin role)
 |   |-- Without introspection, attackers cannot discover your full schema automatically
@@ -303,6 +323,7 @@ Are you running a GraphQL API in production?
 ### API Error Handling Strategy
 
 ```
+
 What should an API error response contain?
 |-- Standard error envelope (consistent across ALL endpoints):
 |   |-- `{"error": {"code": "INSUFFICIENT_FUNDS", "message": "Account has insufficient funds for this transaction.", "request_id": "req_abc123"}}`
@@ -335,6 +356,8 @@ What should an API error response contain?
 ```
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -349,6 +372,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -368,6 +392,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | System design, C4 models, ADRs, scalability patterns | Before making architectural decisions that impact multiple systems |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response | What Happens If Ignored |
 |---|------------------|---------------|--------------------------|
@@ -380,8 +405,10 @@ If a command or approach fails, follow this escalation path before giving up:
 | P7 | Endpoint with resource ID parameter lacks per-resource ownership check — `grep -rn "\.get\(\|\.findById\|\.findOne\|\.query\|db\..*find" --include="*.ts" --include="*.js" --include="*.py" -A3 | grep -v "user_id\|owner_id\|tenant_id\|req\.user"` | [ALERT] BOLA (Broken Object Level Authorization) pattern detected. OWASP API1:2023 — the most common API vulnerability. Every resource access by ID must verify the authenticated user owns or is authorized for that specific resource. | User A changes their user ID from 123 to 124 in `/api/users/124/profile` — gets user B's full profile including email, phone, address, PII. HTTP 200. No error logged. No alert fired. Maximum impact: full data exfiltration via sequential ID enumeration; undetectable without per-resource authorization checks. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
                                     ┌──────────────────────────────┐
 Client (SPA/Mobile/Server) ────────>│        API GATEWAY           │
                                     │                              │
@@ -445,11 +472,14 @@ Client (SPA/Mobile/Server) ────────>│        API GATEWAY      
                                     │ 3. Honeytoken canary alerts  │
                                     │ 4. Rate anomaly dashboards   │
                                     └──────────────────────────────┘
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
+
 API Security Learning Progression:
 |-- Level 1 — Junior: Understand the basics
 |   |-- Implement JWT validation with pinned algorithms in a test API
@@ -481,6 +511,7 @@ API Security Learning Progression:
 ```
 
 ## Gotchas — Highest-Value Content
+<!-- STANDARD: 3min -->
 
 ### Authentication Gotchas
 
@@ -510,7 +541,22 @@ API Security Learning Progression:
 
 *   **Credential stuffing undetected for weeks — the slow bleed.** Without per-account failure rate monitoring, an attacker runs a distributed credential stuffing attack from 1,000 residential proxies, attempting 1 login per account per hour across 10,000 accounts. No single account triggers rate limiting. Over 2 weeks, 800 accounts are compromised (8% credential reuse rate). The attack looks like normal login failures. **Total cost: $200K-$1.5M — 800 account takeovers, fraudulent transactions, customer support burden, regulatory reporting for mass account compromise within 2 weeks.** Fix: Monitor global auth failure rate AND per-account failure rate. Alert when: (>50 failed logins/sec globally) OR (>3 failed logins per account per hour) OR (login attempts from >5 countries for the same account within 1 hour). Implement progressive delays, not just hard rate limits.
 
-## Anti-Rationalization — No Excuses
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| JWT algorithm `none` accepted — attacker forges tokens with admin claims | $500K-$5M in breach costs from full API compromise; every endpoint is accessible to anyone who crafts a token | Pin algorithm: verify `token.header.alg` matches expected algorithm. Never use `jwt.decode(token, verify=False)`. Require explicit algorithm in verify call: `jwt.decode(token, key, algorithms=['RS256'])` |
+| Rate limiting keyed on IP only in CGNAT/mobile world — 500 users behind one IP all throttled as one | $50K-$200K in lost revenue from blocked legitimate users; mobile carriers and corporate VPNs aggregate thousands of users behind single IPs | Key rate limits on authenticated user ID, not IP. For unauthenticated endpoints: progressive delays + CAPTCHA + behavioral analysis. Token-based limiting via JWT claims |
+| Refresh token rotation without revoking previous token — stolen refresh token remains valid indefinitely | $200K-$1M in data exfiltration; attacker uses stolen refresh token while legitimate user's token rotation silently generates new tokens for both parties | On rotation: invalidate the ENTIRE token family. If a rotated refresh token is reused, revoke ALL tokens for that user (detected token replay = compromised). Implement refresh token reuse detection |
+| Mass assignment via `Object.assign(user, req.body)` — attacker sets `role: "admin"` | $100K-$500K in privilege escalation breach; any user can self-escalate to admin by including `"role": "admin"` in any request body | Use allowlist for updatable fields: `const allowed = ['name', 'email']; const updates = pick(req.body, allowed)`. Strip unknown fields. Never use spread or assign with raw request body on database models |
+| GraphQL without query depth limit — nested query fetches 100K nodes from single request | $50K-$200K in database overload; single unauthenticated query can exhaust connection pool and cause denial of service | Set `max_depth: 5`. Add query cost analysis per field. Reject queries exceeding budget before execution. Monitor query complexity in production |
+| Error responses leaking stack traces — attacker fingerprints framework version, database type, and internal IPs | $100K-$500K in reconnaissance advantage; attacker uses version-specific CVEs after identifying exact framework and database from error messages | Return standardized error envelope: `{"error":{"code":"RESOURCE_NOT_FOUND","message":"...","request_id":"uuid"}}`. Log full stack trace server-side only, correlated by request_id |
+| TLS terminated at CDN, backend communicates over HTTP — token and data visible on internal network | $200K-$2M in lateral movement breach; attacker who compromises ANY internal system can sniff API traffic in plaintext | End-to-end TLS: CDN → backend over HTTPS with certificate validation. Internal mTLS between services. Never downgrade to HTTP after the CDN, even on "trusted" internal networks |
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -520,7 +566,31 @@ API Security Learning Progression:
 | "We return generic HTTP 500 with no body — giving error details helps attackers fingerprint the stack" | Generic errors blind your own on-call engineers during incidents; structured error codes with opaque correlation IDs aid debugging without leaking internals |
 | "We validate the JWT signature on every request — that’s all the spec requires" | Signature validation alone accepts tokens minted for other audiences or already expired; skipping iss, aud, and exp checks means the token could be stolen from another service |
 
+## Best Practices
+
+1. **Do per-endpoint authorization, not per-API authorization** — A valid JWT proves identity, not what data that identity can access. Every endpoint accessing a resource by ID must verify ownership or explicit permission. BOLA (Broken Object Level Authorization) is the #1 API vulnerability — it returns HTTP 200, no error, and is invisible to logs. A $10,000 pentest can miss what a $0 code review catches: `if (resource.owner_id !== req.user.id) return 403`.
+2. **Prefer distributed rate limiting with Redis over in-memory counters** — In-memory rate limits reset on deploy and desync across replicas, letting attackers bypass limits by routing to different instances. A token bucket in Redis with atomic Lua scripts costs $50/month in Redis hosting but prevents $25,000+ in abuse incidents from credential stuffing or API scraping that in-memory limits would miss.
+3. **Always fail closed — deny by default** — Every security control (auth, authorization, rate limiting, input validation) must reject on error, not pass through. An unhandled exception in auth middleware, a Redis timeout in the rate limiter, or a missing policy must return 403, not allow the request. Test this explicitly: kill Redis mid-request and verify the API returns 429, not 200.
+4. **Never reflect unvalidated Origin headers in CORS responses** — Read the `Origin` request header, check against a server-side allowlist, and reflect it back ONLY on match. Regex matching on Origin (e.g., `/.*\.example\.com$/`) creates bypasses — `attacker.example.com.evil.com` matches. A wildcard-reflect CORS misconfiguration exposes every authenticated endpoint to any website a victim visits, making XSS unnecessary.
+5. **Measure mean time to revoke (MTTR)** — How fast can you revoke a leaked API key or refresh token? Target: under 60 seconds from detection to revocation. A key leaked to a public GitHub repo will be discovered by automated scanners in under 3 minutes. If your MTTR exceeds 3 minutes, every leaked key is a breach waiting to happen. Test with an annual key-rotation drill.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | JWT algorithm is pinned (`alg` whitelist — never accept `"none"`) and token expiry ≤ 15 minutes for access tokens | `grep -r "algorithms\|verify(" --include="*.ts" --include="*.py" --include="*.go"` — confirm no wildcard algorithm acceptance; check `expiresIn` or `exp` claim value |
+| ☐ | Every authenticated endpoint has explicit resource-ownership authorization (not just "user is authenticated") | `grep -r "\.get\(\|\.find\(\|\.findOne\(" --include="*.ts" --include="*.py" -A2 | grep -v "user_id\|owner_id\|tenant_id"` — every resource access must filter by ownership |
+| ☐ | Zero instances of string concatenation into SQL, NoSQL, LDAP, or OS commands anywhere in the codebase | `grep -rPn '(f"[^"]*SELECT|"SELECT.*\$\{|db\.collection\.find.*\$where|os\.system|exec\(.*\+)' --include="*.ts" --include="*.py" --include="*.go"` — must return empty |
+| ☐ | Rate limiting is distributed (Redis/API gateway), auth endpoints limited to ≤ 5 req/min per account, and 429 responses include `Retry-After` header | `curl -v -H "Authorization: Bearer $TOKEN" https://api.example.com/login` repeatedly — after 5+ failures, must receive `HTTP 429` with `Retry-After` header, not `403` or `500` |
+| ☐ | No `Access-Control-Allow-Origin: *` with credentialed requests; Origin validation uses exact-match allowlist (not regex); OPTIONS preflight returns 204 without requiring auth | `curl -v -X OPTIONS -H "Origin: https://evil.com" https://api.example.com/api/endpoint` — must NOT reflect `evil.com` in `Access-Control-Allow-Origin` |
+| ☐ | API error responses never expose stack traces, database errors, or internal IPs — standardized envelope with `request_id` for correlation | `curl -v https://api.example.com/api/broken-endpoint | grep -i "stack\|trace\|exception\|ORA-\|PostgreSQL\|192.168.\|10\.\|172\."` — must return empty |
+| ☐ | Audit logs capture who accessed what, when, from where, and with what result — structured JSON, centralized, retained ≥ 90 days | Query log aggregator: `SELECT user_id, resource_id, action, result, timestamp FROM audit_log WHERE timestamp > now() - INTERVAL '1 hour'` — must return events for recent API calls |
+| ☐ | Rollback plan is documented and tested | Verify runbook exists with steps to: (1) rotate all active tokens/keys via admin endpoint, (2) flip rate-limit threshold to emergency mode, (3) disable compromised auth provider — test in staging within the last quarter |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 After designing or reviewing API security, run this sequence. Do not proceed past a failure.
 
@@ -543,6 +613,7 @@ After designing or reviewing API security, run this sequence. Do not proceed pas
 If any check fails: diagnose from checklist, provide specific actionable fix, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -560,6 +631,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | GraphQL query `{ users { posts { comments { author { posts { ... } } } } } }` — server OOM in 30 seconds | No query depth limit. Nested query creates exponential data fetch: 10 users × 10 posts × 10 comments × 10 authors × 10 posts = 100K nodes from a single query | Set `max_depth: 5` in GraphQL server config. Add query cost analysis: each field has a cost, queries have a max total cost. Reject queries exceeding budget. Monitor query complexity in production | GraphQL's power is also its vulnerability. Without depth and cost limits, a single query can bring down your database. Rate limiting by request count is irrelevant when one request fetches 100K objects. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [OWASP API Security Top 10](https://owasp.org/API-Security/editions/2023/en/0x00-header/) — Definitive ranking of the top 10 API security risks with detailed prevention guidance
 *   [JWT Best Practices (IETF RFC 8725)](https://datatracker.ietf.org/doc/html/rfc8725) — JSON Web Token Best Current Practices: algorithm pinning, claim validation, key rotation
@@ -576,6 +648,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 *   [references/api-security-observability.md](references/api-security-observability.md) — Audit logging schema, credential stuffing detection, honeytokens, monitoring dashboards
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
 

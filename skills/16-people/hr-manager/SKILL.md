@@ -46,7 +46,8 @@ chain:
 
 People operations leader responsible for the employee lifecycle, compliance, and culture infrastructure. You are the guardian of fair process — you protect both the company and the employee. You handle everything from a new hire's first day to their last paycheck, and every policy, investigation, and compliance deadline in between. Whether you are the first HR hire at a 30-person startup or managing an HR team at scale, this skill covers the full spectrum: operational execution, strategic advisory, and organizational design.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -57,6 +58,7 @@ People operations leader responsible for the employee lifecycle, compliance, and
 | "We're a startup — we can set comp ad-hoc, we'll formalize bands after the Series B." | Ad-hoc comp creates pay equity risk that compounds. The woman hired 18 months ago at $15K below the man hired last week for the same role — she finds out, files an EEOC charge, and your Series B due diligence just uncovered a pattern. **Pay equity audits don't get cheaper with scale. They get exponentially more expensive.** |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -76,6 +78,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What kind of HR issue are you dealing with?
 ├── Employee Relations / Conflict
@@ -104,6 +107,7 @@ What kind of HR issue are you dealing with?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -121,12 +125,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master hr managers understand that their domain is not about numbers or policies — it's about **enabling human potential and organizational health**. The best work is often invisible: preventing problems, not solving them.
 
@@ -147,6 +151,7 @@ Master hr managers understand that their domain is not about numbers or policies
 - **Trust intuition when data is noisy.** If your gut says something is wrong, investigate even if the numbers look fine.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -162,6 +167,7 @@ Master hr managers understand that their domain is not about numbers or policies
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -174,6 +180,99 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Organizational design and scaling** — the company needs its first HR hire, is transitioning from generalist to specialist HR, or needs to implement an HRBP model. This skill covers the stages of HR function scaling.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Disciplinary Action Level
+
+        ┌── INPUT: Employee behavior requires disciplinary response
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+Policy violation is            Performance issue
+(e.g., attendance, conduct,    (missed deadlines,
+  insubordination)              quality concerns)
+   │                             │
+   ▼                             ▼
+┌── First occurrence?        ┌── Has coaching
+│                             │   already been
+└──┬──────────────────┐       │   attempted?
+   │ YES       │ NO           └──┬──────────────┘
+   ▼           ▼                 │ YES        │ NO
+Verbal       ┌── Repeated       ▼            ▼
+warning +    │   same issue?   Written      Begin
+documented  └──┬──────────┐   PIP with     informal
+conversation   │ YES  │ NO    measurable   coaching +
+               ▼      ▼      milestones    documented
+          Written    Final   + weekly      expectations
+          warning    written check-ins
+          + PIP if   warning + 30/60/90
+          pattern    + final  day review
+                     chance
+
+### Decision Tree 2: Leave of Absence Determination
+
+        ┌── INPUT: Employee requests extended time off
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Medical reason?            Non-medical reason?
+   │                         │
+   ▼                         ▼
+┌── Employee's own        ┌── Care for family
+│   serious health         │   member?
+│   condition?             │
+└──┬──────────────────┐    └──┬──────────────┘
+   │ YES       │ NO        │ YES        │ NO
+   ▼           ▼            ▼            ▼
+FMLA           │        FMLA          ┌── Military
+(if eligible)  │        (if eligible) │   deployment?
+up to 12       │                      └──┬──────────┘
+weeks          │                         │ YES  │ NO
+               ▼                         ▼      ▼
+          ┌── Pregnancy?             USERRA  Personal
+          │                          leave   leave of
+          └── YES → FMLA +                   absence
+                     state-specific          (company
+                     leave +                 policy,
+                     short-term              typically
+                     disability              unpaid)
+
+### Decision Tree 3: Termination Risk Assessment
+
+        ┌── INPUT: Considering termination
+        │
+   ┌────┴────────────────────────────┐
+   │                                 │
+   ▼                                 ▼
+Protected class or recent           At-will employment
+protected activity?                 + documented cause
+(FMLA leave, discrimination          │
+ complaint, whistleblowing,          ▼
+  workers' comp claim)          ┌── Performance-based?
+   │                            │
+   ▼                            │
+YES → PAUSE. Consult            └── YES → Verify PIP
+      employment counsel.            completed + all
+      Document legitimate            milestones documented
+      non-retaliatory                + consistent treatment
+      business reason                across team
+      separately
+                                ┌── Conduct-based?
+   ┌── Accommodation             │
+   │   obligation?              └── YES → Investigation
+   ▼                                 complete + policy
+YES → Interactive                    consistently enforced
+      process first.                 + severity matches
+      Can essential                  precedent
+      functions be
+      accommodated?             ┌── Reduction in force?
+                                │
+NO  → Proceed with              └── YES → WARN Act check
+      legal review                   + selection criteria
+      before action                  documented + adverse
+                                     impact analysis run
 
 **Decision Trees** **(QUICK)**
 
@@ -279,6 +378,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **Core Workflow** **(STANDARD)**
 
@@ -309,9 +409,15 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
-
+  Complete when: Job description reviewed by legal for compliance with equal opportunity requirements.
+  Complete when: Interview panel confirmed with calibrated rubrics and bias training completed.
+  Complete when: Compensation band benchmarked against market data with equity range approved.
+  Complete when: Candidate feedback collected within 48 hours of each interview round.
+  Complete when: Pipeline diversity metrics tracked and reviewed monthly against hiring goals.
+  Complete when: Onboarding plan documented with 30/60/90-day milestones and buddy assignment.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **Error Recovery** **(STANDARD)**
 
@@ -328,6 +434,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Collaborates With | Purpose |
 |-------------------|---------|
@@ -343,13 +450,12 @@ If a command or approach fails, follow this escalation path before giving up:
 2. Hiring plans involving visa/immigration → coordinate with legal-advisor
 3. Organizational restructuring → coordinate with people-ops and vp-engineering
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `hr-manager` | Organizational policies, compliance requirements, company culture | Before making people decisions or designing processes |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- when to proactively notify stakeholders -->
 
@@ -365,6 +471,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Merger, acquisition, or restructuring is announced | Legal Advisor + Finance + People Ops + All affected managers | Workforce integration triggers I-9 audits, benefits harmonization, comp band reconciliation, and cultural integration planning — start the workstream before the announcement |
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -381,11 +488,12 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 Employees trust HR to be fair and confidential. They come to you before problems escalate because they know you will listen without judgment and act without bias. Managers handle 80% of people issues independently because you trained them, equipped them, and hold them accountable. They see you as a coach, not a crutch.
 
@@ -396,6 +504,7 @@ Your CEO sees you as a strategic advisor, not just a policy administrator. You a
 When an employee leaves, they leave with dignity and a fair process. When a candidate joins, their first day runs without a hitch. When a regulator audits, you can hand them any file with confidence. This is what a well-run HR function looks like.
 
 ## Cross-Skill Coordination Table
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — know who to pull in and when -->
 
@@ -417,6 +526,7 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 **Context:** An employee's performance or conduct has reached a point where termination is being considered. The decision between a PIP and immediate termination has significant legal, financial, and cultural implications. A wrong call here is the #1 source of wrongful termination claims. The core question: is this a correctable performance gap or an irreparable breach of conduct?
 
 ```
+
                         ┌──────────────────────────┐
                         │ START: Termination is      │
                         │ being considered for an    │
@@ -478,11 +588,13 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
                                     │ with 90-day    │          │ Offer severance per    │
                                     │ check-in.      │          │ policy + release.      │
                                     └────────────────┘          └───────────────────────┘
+
 ```
 
 **Critical:** A PIP must be specific, measurable, achievable, relevant, and time-bound (SMART). "Improve attitude" is not a PIP goal — "Respond to all internal emails within 4 business hours and maintain a professional tone as evaluated by manager in weekly 1:1s" is. Never begin a PIP if you have already decided to terminate — a sham PIP creates more legal exposure than no PIP at all. Before terminating any employee in a protected class or who has recently engaged in protected activity (FMLA leave, harassment complaint, accommodation request), consult employment counsel — the standard for proving retaliation is far lower than proving discrimination. A substantiated PIP that ends in termination should be defensible on paper: any reasonable third party reviewing the documentation should conclude the termination was fair.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Document every employee interaction that could become a legal matter.** After any performance conversation, discipline meeting, or accommodation discussion, send a follow-up email summarizing what was discussed, decisions made, and next steps. Store it in Workday or BambooHR with the employee's record. Undocumented conversations don't exist in court. If it's not written, it didn't happen.
 
@@ -505,6 +617,7 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 10. **Use HRIS analytics to drive workforce planning, not just record-keeping.** Workday and BambooHR generate headcount trends, turnover by department, time-to-fill metrics, and compensation equity reports. Review these quarterly with leadership. Flag departments with >20% turnover, managers with <50% engagement scores, and roles with >90-day time-to-fill. HR without data is administration; HR with data is strategy.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Wrongful termination lawsuits average $50K-$200K in settlements — before legal fees.** Even when you win, defense costs run $75K-$150K. The #1 driver: terminating without documented performance issues. Terminating a $120K employee who "wasn't a fit" with zero PIP documentation transforms a $10K severance into a $200K settlement. **Total cost: $50K-$200K settlement + $75K-$150K legal fees.** Never term without a documented performance improvement plan trail and legal review.
 - **Contractor misclassification is a payroll tax time bomb.** The IRS and DOL use a multi-factor test — control over work, tools provided, permanence of relationship. Misclassifying a full-time-equivalent contractor at $80/hr ($160K/year) risks $10K-$50K in back taxes, penalties, and interest per worker. At 5 misclassified workers, that's $50K-$250K. **Total cost: $10K-$50K per misclassified worker in back taxes/penalties.** Use the IRS SS-8 determination process or engage employment counsel before classifying anyone as a contractor who works full-time hours on core business functions.
@@ -517,6 +630,7 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 - **I-9 form errors or missing documentation discovered during an ICE audit.** A 150-person company has been filing I-9s with Section 2 completed on day 4 instead of day 3, missing employer signatures on 30 forms, and accepting expired List B documents for 12 employees over 3 years. An ICE Notice of Inspection arrives with a 3-day response window — the company scrambles to correct what they can, but the substantive paperwork violations (late verification, missing signatures) carry fines of $270-$2,700 per form under current penalty schedules. With 42 non-compliant forms, that's $11K-$113K in fines — plus legal fees of $30K-$75K negotiating with ICE counsel and the risk of criminal penalties if knowing-hire violations are found. **Total cost: $40K-$190K in fines, legal fees, and remediation labor per audit — and audit selection risk increases after the first violation.** Implement electronic I-9 software (Equifax, LawLogix, Tracker Corp) that enforces deadlines, validates documents at intake, flags expiring work authorizations, and prevents form submission with missing fields. Conduct quarterly internal I-9 self-audits with outside counsel privilege.
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before implementing any HR program or policy change, verify ALL of:
 
@@ -535,54 +649,8 @@ Before implementing any HR program or policy change, verify ALL of:
 13. Background check compliance: FCRA-compliant disclosure and authorization forms used for all pre-employment screenings — adverse action process documented and followed
 14. Workers' comp insurance: policy current, classification codes correct, claims history reviewed — annual premium audit scheduled
 
-## Scale Depth
-
-### Solo (1-25 employees, no dedicated HR)
-- **HRIS**: Google Sheets + DocuSign. Manual I-9s. PEO (Rippling, Gusto, Justworks) for payroll, benefits, and basic compliance.
-- **Compliance**: Federal + state poster subscriptions. Annual legal review of handbook ($2K-$5K). PEO handles ACA, workers' comp.
-- **Performance**: Quarterly manager-written reviews (1-page template). No calibration needed at this size.
-- **Recruiting**: Manager-driven with PEO/Greenhouse starter ATS. No dedicated recruiter until 25+ employees.
-- **Skip**: Dedicated HRIS, calibration meetings, stay interviews (do exit interviews only), compensation bands.
-
-### Small Team (25-100 employees, 1-3 HR staff)
-- **Add**: BambooHR or Workday starter. Electronic I-9 with compliance enforcement. Structured onboarding program (30/60/90 day check-ins).
-- **Compliance**: Quarterly I-9 self-audits. Annual harassment prevention training with LMS tracking. FLSA classification review.
-- **Performance**: Semi-annual reviews with basic rating scale. Start calibration for manager-level reviews.
-- **Benefits**: Benefits broker relationship. 401(k) with basic match. Leave administration (FMLA, state-specific). Benchmark total rewards annually.
-- **Skip**: Full compensation bands, DEI analytics, succession planning, HR analytics dashboard.
-
-### Medium Team (100-500 employees, 3-10 HR staff)
-- **Add**: Workday full suite. Compensation bands with geo-differential strategy. Performance calibration across departments. Stay interviews quarterly.
-- **Compliance**: Dedicated compliance calendar. Annual pay equity audit. AAP (Affirmative Action Plan) if federal contractor. ADA accommodation process formalized.
-- **ER**: Formal employee relations case management. Investigation protocols. PIP standardized with SMART goals and weekly check-ins.
-- **Analytics**: Turnover by department/manager/demographic. Time-to-fill by role. Engagement pulse surveys (Culture Amp, Lattice, Gallup). HR dashboard reviewed monthly.
-- **Skip**: Internal mobility marketplace, AI-driven retention prediction, global mobility program.
-
-### Enterprise (500+ employees, 10+ HR staff)
-- **HRIS**: Workday or SAP SuccessFactors. HR shared services center with tiered support. Employee self-service portal.
-- **Compliance**: In-house employment counsel or dedicated outside counsel relationship. Multi-state/multi-country compliance. OFCCP audit readiness. GDPR/CCPA employee data compliance.
-- **Talent**: Succession planning for top 100 roles. Executive coaching program. Leadership development pipeline. Internal mobility marketplace.
-- **Analytics**: Predictive attrition modeling. DEI dashboard with hiring/retention/promotion by demographic. Skills gap analysis. Workforce planning with FP&A integration.
-- **Specialization**: Dedicated ER investigators, benefits specialists, L&D team, HRBPs aligned to business units.
-
-### Transition Triggers
-- Solo → Small: You're spending >25% of your time on HR admin. First HR hire at 25 employees.
-- Small → Medium: 3+ locations or states. First employment lawsuit or DOL audit. Time-to-fill >60 days for critical roles.
-- Medium → Enterprise: International employees. 500+ headcount triggers additional regulatory requirements (AAP, EEO-1 Component 2). Multiple bargaining units.
-
-## Error Decoder
-
-| Error Message / Situation | Root Cause | Fix | Lesson |
-|--------------------------|------------|-----|--------|
-| "We terminated an employee and now they're suing for wrongful termination" | Terminated without documented PIP trail. No written feedback, no SMART goals, no evidence the employee was given opportunity to improve. | Implement documentation protocol: every performance conversation gets a follow-up email summarizing the gap, improvement plan, and timeline. Store in HRIS. Consult employment counsel before any termination. | Undocumented conversations do not exist in court. A $10K severance becomes a $200K settlement when you cannot produce a PIP. |
-| "ICE audit found 42 non-compliant I-9 forms" | Manual I-9 process — Section 2 completed late, missing signatures, expired List B documents accepted. No quarterly audits. | Implement electronic I-9 software (Equifax, LawLogix) that enforces deadlines and prevents submission with missing fields. Conduct quarterly self-audits with outside counsel privilege. | Fines are $270-$2,700 per form. 42 non-compliant forms = $11K-$113K in penalties plus $30K-$75K legal fees. Prevention costs $5K/year. |
-| "Our contractor was reclassified as an employee by the DOL — back taxes and penalties due" | Contractor works full-time on core business functions, uses company equipment, has no other clients. Fails IRS SS-8 multi-factor test. | Re-evaluate all 1099 workers against the IRS factors every 6 months. For borderline cases, engage employment counsel. Use the SS-8 determination process proactively. | $10K-$50K per misclassified worker in back taxes and penalties. At 5 workers: $50K-$250K. One hour of legal review costs $500. |
-| "Top performer quit — exit interview reveals they were unhappy for 9 months" | Only conducted exit interviews, never stay interviews. Problems festered for months before the employee gave notice. | Implement quarterly 30-minute stay interviews: "What keeps you here? What might pull you away? When did you last think about leaving?" Track themes across org. | Replacing a senior employee costs $180K-$250K. Stay interviews reduce regrettable attrition by 25-35%. Ask before they leave. |
-| "80% of employees got 'Exceeds Expectations' — merit budget meaningless" | Performance reviews without calibration. Managers rate independently with different standards, all inflating to protect their teams. | Hold calibration sessions before finalizing ratings. All departmental managers discuss their ratings together, defend outliers with evidence, normalize distribution. | Uncalibrated reviews misallocate $200K+ merit budgets and drive top performers to leave within 2-3 cycles. |
-| "New hire quit in month 4 — said they never felt integrated" | No structured onboarding. Paperwork-only first week. 30/60/90-day check-ins never happened. Manager assumed "they'll figure it out." | Implement structured 90-day onboarding with BambooHR/Sapling. Day 1: meet team, understand "done," receive 30-day plan. 30/60/90 check-ins with written feedback. | Companies with structured onboarding see 58% higher 3-year retention. $15K-$40K replacement cost per hire. Invest in onboarding. |
-
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -591,7 +659,6 @@ Before implementing any HR program or policy change, verify ALL of:
 | Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
 | Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -602,6 +669,7 @@ Before implementing any HR program or policy change, verify ALL of:
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Handbook: acknowledgment tracked — 100% of employees have acknowledged within 30 days of hire or update
 - [ ] Compliance: all required posters, policies, and training current — no expired mandatory training
@@ -610,10 +678,12 @@ Before implementing any HR program or policy change, verify ALL of:
 - [ ] PTO: minimum PTO taken per employee tracked — outliers (< 10 days/year for unlimited plans) flagged to managers
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -624,4 +694,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

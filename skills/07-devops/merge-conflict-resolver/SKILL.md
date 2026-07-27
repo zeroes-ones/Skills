@@ -31,8 +31,10 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Hunk-by-hunk merge conflict resolution traced to intent. Work through an in-progress git merge or rebase conflict systematically, resolving each conflict by tracing intent back to each side's primary source, then finish the operation — never `--abort` without explicit user direction.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable. A violation of any rule means the resolution is unsound and must be redone.
 
@@ -53,6 +55,7 @@ These rules are non-negotiable. A violation of any rule means the resolution is 
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Conflict resolution masters see what novices miss. They don't race to green; they excavate intent.
 
@@ -68,6 +71,7 @@ Conflict resolution masters see what novices miss. They don't race to green; the
 The master resolver treats each conflict marker as a door into another developer's thought process. They don't just diff lines — they reconstruct the mental model that produced each change.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 **L1 — Single-File, Single-Hunk Conflict**
 One conflict in one file. Quick resolution with intent tracing still required. Verify: build the file, run the test for that module. Time: 5-15 minutes.
@@ -81,27 +85,8 @@ Interdependent conflicts across modules with different owners. Trace intent to m
 **L4 — Multi-Branch Merge (20+ files, multiple feature branches)**
 Dozens of conflicts from parallel development streams. Build a conflict dependency graph. Resolve in dependency order. Coordinate with branch owners for conflicting design decisions. Verify: full CI pipeline locally. Time: 4-8 hours.
 
-### Scale Depth
-
-#### Solo
-A single developer resolving conflicts between personal feature branches. Strategy: three-way merge tool, hunk-by-hunk resolution, run local tests between hunks. No branch owner coordination needed. No architecture-boundary checks needed unless the repo has them configured. Merge commit message: document what was resolved and why.
-
-#### Small
-A small team (3-10 engineers) with occasional cross-branch conflicts. Strategy: intent tracing via PR descriptions and `git log --graph`, resolve in dependency order, full test suite before push. Coordinate with branch owners via Slack/PR comments for design-level conflicts. Binary file protocol: informal (DM the designer). No automated semantic conflict detection yet.
-
-**Transition trigger:** Conflicts span 3+ branches regularly, or a semantic conflict reaches production — it's time for automated semantic detection and structured resolution workflows.
-
-#### Medium
-An organization with 10-50 engineers. Structured conflict-resolution workflow: intent tracing required, conflict classification before strategy selection, per-hunk verification, architecture-boundary checks in CI. Binary file merge protocol documented in CONTRIBUTING.md. Automated semantic conflict detection via integration tests that exercise both branches' changes together. Merge commit messages follow a template (conflicts encountered, strategies used, design decisions).
-
-**Transition trigger:** 50+ engineers or multiple teams owning overlapping code paths — conflict resolution quality variance becomes a reliability risk. Standardized merge verification gates become necessary.
-
-#### Enterprise
-100+ engineers, multiple teams, monorepo with high merge velocity. Automated conflict prediction: CI warns when two open PRs touch overlapping files. Merge queue with pre-merge verification (full test suite + architecture checks + semantic conflict detection). Merge commit template enforced via commit hooks. Conflict resolution metrics tracked: time-to-merge, rollback rate post-merge, semantic conflict escape rate. Dedicated merge rotation for release-critical merges. Post-merge audit: random sample of merge resolutions reviewed quarterly for quality.
-
-**Transition trigger:** Merge-related production incidents exceed 1 per quarter, or a merge resolution introduces a security vulnerability — merge verification gates become mandatory and automated.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 **Use this skill when:**
 - A `git merge` or `git rebase` is in-progress with unresolved conflicts
@@ -121,10 +106,12 @@ An organization with 10-50 engineers. Structured conflict-resolution workflow: i
 - General code review of the merged result → route to `code-reviewer`
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts
+<!-- STANDARD: 3min -->
 
 Check these signals in order. The first match determines routing:
 
@@ -142,18 +129,22 @@ tree (<<<<<<< in tracked files)?   → YES → merge-conflict-resolver (unresolv
 ```
 
 Quick detection command:
+
 ```bash
 test -f .git/MERGE_HEAD && echo "MERGE_IN_PROGRESS" || \
   test -d .git/rebase-apply -o -d .git/rebase-merge && echo "REBASE_IN_PROGRESS" || \
   git diff --name-only --diff-filter=U | head -1 | grep -q . && echo "CONFLICTS_PRESENT" || \
   echo "NO_CONFLICT"
+
 ```
 
 #
 
 ## Intent Route
+<!-- STANDARD: 3min -->
 
 ```
+
 User says: "resolve conflicts" or
            "fix merge" or
            "I'm stuck on a rebase"
@@ -165,14 +156,17 @@ User says: "merge this branch"
   └─ Is a merge/rebase already in progress?
        ├─ YES → merge-conflict-resolver (resolve first, then complete)
        └─ NO → git-workflow (strategy selection, then merge)
+
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- Full 121 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Conflict Inventory
+<!-- STANDARD: 3min -->
 List all conflicted files and their hunk count. Build the resolution queue.
 # List conflicted files
 git diff --name-only --diff-filter=U
@@ -180,12 +174,106 @@ git diff --name-only --diff-filter=U
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 121 lines of detailed guidance
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Merge vs Rebase Decision
+
+        ┌── INPUT: Which operation to use for integrating branches?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Feature branch → main        Long-running branch
+(short-lived, <1 week)       diverged significantly
+   │                         │
+   ▼                         ▼
+Rebase preferred             Merge preferred
+git rebase main              git merge main
+   │                         │
+   ▼                         ▼
+Clean linear history         Preserves context of
+Resolve conflicts            when/how branches
+commit-by-commit             diverged
+   │                         │
+   ▼                    ┌────┴────┐
+If >5 conflicts         │         │
+during rebase →         ▼         ▼
+switch to merge        Shared     Feature
+   │                  branch      branch into
+   ▼                  (release)   main
+Avoid rebasing           │         │
+shared branches          ▼         ▼
+(rewrites public      Always merge  Merge creates
+history)              --no-ff to     merge commit
+                      preserve       (document the
+                      branch tip     integration point)
+
+### Decision Tree 2: Conflict Resolution Strategy
+
+        ┌── INPUT: For each conflicted hunk — which strategy?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+One side completely          Both sides     Changes are
+subsumes the other           introduce      semantically
+   │                         same concept   incompatible
+   ▼                         │              │
+Is subsumed intent           ▼              ▼
+still satisfied?        extract-to-shared  manual-merge
+   │                    Create shared       or escalate
+┌──┴──┐                 abstraction         │
+│     │                 both can use        ▼
+▼     ▼                    │              Document both
+YES   NO                   ▼              intents, flag
+│     │                 Verify both       for human
+▼     ▼                 sides compile     decision
+accept-that-side       against shared    │
+(with rationale)       interface         ▼
+│ must trace intent    │              NEVER resolve
+▼                      ▼              by discarding
+Record in              Best for       one side without
+resolution log         utility fn,    explicit strategy
+                       config, types  selection
+
+### Decision Tree 3: Post-Resolution Verification
+
+        ┌── INPUT: Conflict resolved — what verification is needed?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+Build verification           Test suite     Semantic check
+   │                         │              │
+   ▼                         ▼              ▼
+Does it compile?             Run affected   Are both sides'
+   │                         tests only     intents actually
+┌──┴──┐                      │              preserved?
+│     │                 ┌────┴────┐         │
+▼     ▼                 │         │    ┌────┴────┐
+YES   NO                ▼         ▼    │         │
+│     │               All pass  Fail   ▼         ▼
+▼     ▼                 │         │    YES       NO
+Continue Re-resolve     ▼         ▼    │         │
+to next the hunk     Continue  Investigate ▼     ▼
+hunk   with correct    │        fix before  Done   Flag as
+│      intent          ▼        proceeding         semantic
+▼                      Verify                             conflict
+Proceed to next        linter                │
+hunk until all         passes too            ▼
+resolved                                      Escalate to
+│                                             human review
+▼
+git merge --continue
+or git rebase --continue
 
 #
 
 ## Resolution Strategy Selection
+<!-- STANDARD: 3min -->
 
 ```
+
 For each conflicted hunk:
   │
   ├─ Does one side's change completely subsume the other?
@@ -205,15 +293,18 @@ For each conflicted hunk:
   └─ Is there a clear correctness argument for one side?
       ├─ YES → accept-that-side (with explicit rationale)
       └─ NO  → manual-merge (escalate to human if unresolvable)
+
 ```
 
 #
 
 ## Intent Source Prioritization
+<!-- STANDARD: 3min -->
 
 When tracing intent, prefer sources in this order:
 
 ```
+
 Intent Source Hierarchy:
   │
   ├─ 1. Linked issue (most authoritative — captures "why")
@@ -233,15 +324,18 @@ Intent Source Hierarchy:
   │
   └─ 6. Diff context (least authoritative — describes "what")
       └─ Contains: changed lines, but not why they changed
+
 ```
 
 #
 
 ## Semantic Conflict Detection
+<!-- STANDARD: 3min -->
 
 A semantic conflict exists when the merge succeeds textually but the resulting code has logical errors. Detection patterns:
 
 ```
+
 Check after every manual-merge and accept-* resolution:
   │
   ├─ Duplicate logic check:
@@ -263,15 +357,18 @@ Check after every manual-merge and accept-* resolution:
   └─ Contract violation check:
       Did one side change a function signature the other side calls?
       → Check all call sites of modified functions
+
 ```
 
 #
 
 ## Conflict Pattern Classification
+<!-- STANDARD: 3min -->
 
 Classify each conflict hunk into one of these patterns:
 
 ```
+
 Conflict Markers Detected:
   │
   ├─ Textual: Same lines modified differently
@@ -290,15 +387,18 @@ Conflict Markers Detected:
       ├─ Contract-change: function signature vs call site mismatch
       ├─ Initialization-order: setup steps from both sides conflict
       └─ Data-flow: one side changes data shape the other side consumes
+
 ```
 
 #
 
 ## When to Extract to Shared Module
+<!-- STANDARD: 3min -->
 
 The extract-to-shared strategy is the most invasive and should be used deliberately:
 
 ```
+
 Both sides introduce similar but incompatible implementations:
   │
   ├─ Is the concept genuinely shared (not coincidental similarity)?
@@ -319,9 +419,11 @@ Both sides introduce similar but incompatible implementations:
       3. Update THEIRS to use the shared implementation
       4. Verify both sides' tests pass with the shared code
       5. Document the abstraction in the resolution log
+
 ```
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -336,6 +438,8 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -343,8 +447,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Merge succeeds textually but fails semantically — the code compiles and tests pass, but both sides added the same function under different names; the duplicate logic causes unpredictable behavior at runtime | $30K-$100K in semantic bugs discovered days after merge | After resolution, grep for similar logic patterns across the merged file; run integration tests that exercise both code paths; add semantic conflict detection to the resolution checklist |
 | Skipping the full test suite after resolution — individual hunk tests pass but the integration between resolved hunks breaks; the merge is pushed and CI catches it 10 minutes later | $5K-$30K in CI cycle waste and team trust erosion | Always run the full test suite before completing the merge; `npm test` (not just scoped tests); if CI would have caught it, you should catch it locally first |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -359,8 +463,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `git rebase --continue` asks for a commit message — the message is the wrong one from 5 commits ago | During a rebase, one commit applied cleanly (no conflict) and Git auto-continued past it. A later commit conflicted, was resolved, and `rebase --continue` presents the commit message from the auto-resolved commit, not the resolved one. The wrong message gets attached to the resolution | Run `git rebase --edit-todo` and verify the sequence of commits before continuing. Use `git log --oneline HEAD..REBASE_HEAD` to see which commits are pending. For long rebases, prefix commit messages with `[REBASE]` temporarily to make message attribution errors obvious | `rebase --continue` doesn't tell you which commit's message you're editing. If auto-resolution skipped a commit, the message index is off by one. Always verify the commit subject matches the diff in the rebase-todo. |
 | Binary file conflict — a `.png` or `.pdf` changed in both branches with no way to visually diff | Two designers updated the same logo file independently. Git can't merge binary files — it flags the entire file as conflicted and offers "ours" or "theirs" as the only resolution. There's no way to see which pixels changed | Use `git checkout --theirs -- logo.png && git checkout --ours -- logo-v2.png` to extract both versions and diff visually. For non-image binaries: `git show OURS:file.pdf > ours.pdf && git show THEIRS:file.pdf > theirs.pdf && diff-pdf ours.pdf theirs.pdf`. Add `*.png merge=binary-keep-both` to `.gitattributes` to auto-duplicate conflicting binaries | Git can't diff binary files — resolution becomes a binary choice. Always extract both versions to named files for external comparison. For frequently-changing binaries (logos, diagrams), keep source files (SVG, Figma) versioned and treat binaries as build artifacts. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Trace intent before touching a single conflict marker.** Run `git log --oneline --all --graph` to understand what each branch was trying to accomplish. Read the PR descriptions and commit messages for both sides. Document the intent in the merge commit message. Conflict resolution without intent tracing produces code that compiles but is semantically wrong.
 
@@ -383,6 +487,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Add architecture-boundary checks to your merge verification.** A merge that compiles and passes tests can still violate architectural constraints (a pure-logic package suddenly depends on a database driver). Run `dependency-cruiser` or `eslint-plugin-boundaries` during merge verification. If the merge introduces a new cross-package dependency, flag it for architectural review before pushing.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | Handoff Trigger |
 |-------|-------------|----------------|
@@ -403,6 +508,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Detection | Action |
 |---------|----------|--------|
@@ -415,16 +521,20 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | **Semantic conflict detected post-merge** | Tests fail after clean merge; or logic inspection finds contradictions | "The merge succeeded textually but produced a semantic conflict. I'll re-examine the merged code." |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -437,12 +547,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "reversible": true
    }
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -458,6 +570,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -467,6 +580,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[MC-01]** Conflict inventory captured: `git diff --name-only --diff-filter=U` lists all conflicted files with hunk counts; resolution order documented (shared utilities first, then consumers)
 - [ ] **[MC-02]** Intent traced for both sides of every conflict: `git log --oneline --all --graph` reviewed; PR descriptions and commit messages read; intent documented in merge commit or state log
@@ -484,6 +598,7 @@ Before beginning a new phase, verify:
 - [ ] **[MC-14]** Post-merge verification: CI pipeline green after push, deployment smoke tests pass, monitoring dashboards show no regression in error rates or latency
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 COMMIT: a1b2c3d              COMMIT: e5f6g7h
@@ -541,33 +656,40 @@ PR #1842 ──┐                 PR #1901 ──┐
 Each hunk gets its own resolution pathway. No shortcuts. No batch acceptance. The resolution log serves as an audit trail connecting each conflict back to its source intent.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 #
 
 ## Exercise 1: Intent Tracing Drill (15 min)
+<!-- STANDARD: 3min -->
 Take a merged PR with known conflicts. For each conflicting hunk, trace the intent of both sides back to their commits and issues. Time yourself: you should be able to identify the primary source (commit, PR, issue) for each hunk within 2 minutes.
 
 #
 
 ## Exercise 2: Strategy Selection Speedrun (10 min)
+<!-- STANDARD: 3min -->
 Given 10 conflict scenarios (description of OURS vs THEIRS changes), select the correct resolution strategy (accept-ours, accept-theirs, manual-merge, extract-to-shared) within 30 seconds each. Check against expert answers.
 
 #
 
 ## Exercise 3: Semantic Conflict Detection (20 min)
+<!-- STANDARD: 3min -->
 Review 5 merge commits that introduced bugs despite clean textual merges. For each, identify the semantic conflict that testing caught. Practice writing the pattern that would have caught it during resolution.
 
 #
 
 ## Exercise 4: Multi-Hunk Dependency Resolution (30 min)
+<!-- STANDARD: 3min -->
 Set up a scenario with 5+ interrelated conflict hunks across 3 files. Resolve them in dependency order, verifying after each. Compare your resolution order to the optimal dependency graph.
 
 #
 
 ## Exercise 5: The No-Abort Challenge (45 min)
+<!-- STANDARD: 3min -->
 A colleague creates a deliberately difficult merge conflict (10+ hunks, semantic traps). Resolve it from inventory to completion without using `--abort`. Time yourself. Review each resolution decision afterward.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -578,6 +700,7 @@ A colleague creates a deliberately difficult merge conflict (10+ hunks, semantic
 | "We'll handle the merge conflicts during the release window — there's not that many." | Late-stage merge under time pressure forces rushed decisions. Quality of resolution drops, testing gets skipped, and regressions slip through. $15K-$40K in post-release hotfixes and rollbacks that a calm, pre-window merge would have avoided. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: The --abort reflex
 **What it looks like:** `git merge --abort` or `git rebase --abort` used as the first response when conflicts get messy. "It's cleaner to restart than work through this."
@@ -630,20 +753,26 @@ A colleague creates a deliberately difficult merge conflict (10+ hunks, semantic
 **Do this instead:** Diff CHANGELOG between the two SHAs. Prioritize the one containing security patches. Add CI check: fail if resolved submodule SHA is older than main minus security-related commits. Enable Dependabot/Renovate on submodule references.
 
 ## Verification
-<!-- Full 30 lines extracted to references/verification.md -->
+<!-- STANDARD: 3min -->
 
-Run these checks before declaring the conflict resolution complete:
-# 1. Verify no conflict markers remain in any tracked file
-grep -r '<<<<<<<' $(git ls-files) && echo "FAIL: Conflict markers still present" || echo "PASS"
-# 2. Verify all files are staged
-...
-> 📎 **[references/verification.md](references/verification.md)** — 30 lines of detailed guidance
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when No conflict markers remain in any tracked file — zero `<<<<<<<`, `=======`, or `>>>>>>>` in the working tree | `grep -r '<<<<<<<' $(git ls-files) && echo "FAIL" \|\| echo "PASS"` |
+| ☐ | Complete when All files staged after resolution — `git status` shows only resolved files staged, no unstaged diffs from resolution work | `git diff --name-only --cached` lists all resolved files; `git diff --name-only` is empty |
+| ☐ | Complete when Build succeeds with resolved code — `make build` or equivalent passes on first attempt | CI build green; no compilation errors or missing imports from incomplete resolution |
+| ☐ | Complete when Tests pass for both sides of the conflict — test suites from both merged branches pass against resolved code | Run test suite from branch A and branch B; both pass with zero regressions |
+| ☐ | Complete when Intent of both changes preserved — resolution doesn't silently drop functionality from either side | Code review confirms each original commit's intent is reflected in the resolution; resolution log documents trade-offs |
+| ☐ | Complete when Resolution log written — documents: conflict source (branch/PR), intent of each side, resolution strategy, why this strategy was chosen, and verification steps taken | Resolution log committed alongside merge; references both original PR/commit SHAs |
+| ☐ | Complete when Semantic conflicts checked — no cross-hunk dependencies broken; renamed/moved symbols resolved; submodule SHAs not regressed | Cross-reference all changed symbols; verify no function call targets moved/deleted in other hunks |
+| ☐ | Complete when CI pipeline green — all gates pass: lint, type-check, unit tests, integration tests, build | CI dashboard shows all checks passing on the merge commit |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [references/hunk-analysis.md](references/hunk-analysis.md) — Detailed methodology for analyzing individual conflict hunks, classifying complexity, and identifying dependency relationships between hunks
 - [references/intent-tracing.md](references/intent-tracing.md) — Step-by-step guide to tracing each side of a conflict back to its commit, PR, and issue with source hierarchy prioritization

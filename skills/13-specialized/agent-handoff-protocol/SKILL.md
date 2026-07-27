@@ -37,8 +37,10 @@ chain:
 Framework for serializing agent state, pruning context, recording decisions, and enforcing contracts between specialized agents in multi-agent pipelines. Designed for production use with LangGraph, CrewAI, and AutoGen patterns.
 
 ---
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 Every request enters through the auto-router. Match the intent to the anchor below. If nothing matches, escalate to human.
 
@@ -76,6 +78,7 @@ Incoming request
 ---
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|--------------------|--------------------|--------------------|
@@ -92,12 +95,12 @@ Incoming request
 
 ---
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 | Bias | Trap | Why It Hurts Handoffs | Correction |
 |------|------|-----------------------|------------|
@@ -111,6 +114,7 @@ Incoming request
 ---
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Name | When to Operate Here | Key Move | Token Budget | Example |
 |-------|------|---------------------|----------|-------------|---------|
@@ -123,6 +127,7 @@ Incoming request
 ---
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 | Trigger | Scenario | Which Level | Expected Output |
 |---------|----------|-------------|-----------------|
@@ -137,6 +142,7 @@ Incoming request
 ---
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Serialize State
 
@@ -178,6 +184,7 @@ Before any handoff, serialize the current agent's complete state into the standa
     {"question": "Should we use NestJS or Express?", "assigned_to": "backend-developer", "deadline": "2 days"}
   ]
 }
+
 ```
 
 **Checkpoint:** Is `handoff_version` compatible with target agent? Is `pipeline_id` consistent?
@@ -188,7 +195,9 @@ Before any handoff, serialize the current agent's complete state into the standa
 Apply pruning rules from [Context Pruning Rules](references/context-pruning-rules.md) based on pipeline stage.
 
 **Pruning algorithm:**
+
 ```
+
 1. Identify target skill role from pipeline stage
 2. Load stage-specific keep/remove rules
 3. Filter decisions: keep only decisions relevant to target's domain
@@ -196,6 +205,7 @@ Apply pruning rules from [Context Pruning Rules](references/context-pruning-rule
 5. Compress: collapse verbose rationale into one-line summaries
 6. Measure: if token_budget_after > 12,000, re-run with stricter rules
 7. Record: populate context_pruned object with what was removed
+
 ```
 
 **Checkpoint:** Is `token_budget_after` ≤ 12,000? Are all `non_negotiable: true` constraints intact?
@@ -223,13 +233,16 @@ Every architectural or strategic choice goes into the decision gate ledger. See 
 Create a handoff contract using the [Handoff Contract Template](references/handoff-contract-template.md).
 
 **Contract flow:**
+
 ```
+
 Upstream agent creates contract → PROPOSED
 Downstream agent reviews → ACCEPTED or REJECTED
 If ACCEPTED → Upstream delivers → IN_PROGRESS
 If REJECTED → Upstream revises or escalates
 On delivery verified → FULFILLED
 If deliverable fails acceptance → BREACHED
+
 ```
 
 **Checkpoint:** All P0 requests acknowledged? All deliverable paths resolve?
@@ -247,14 +260,19 @@ Downstream agent:
 5. Accepts or rejects contract
 6. Begins work
   Complete when: State file written to ~/.agents/state/handoffs/, downstream agent loads Tier 1-2, verifies checksums, audits constraint inheritance, and begins work.
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
 
 ---
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Decision Tree 1: Handoff Timing — When to Hand Off vs. Continue
 
 ```
+
 Agent finishes a unit of work
 │
 ├─ Are there >0 decisions made that affect downstream agents?
@@ -274,11 +292,13 @@ Agent finishes a unit of work
 └─ Are there >3 accumulated open questions?
    ├─ Yes → HANDOFF NOW (stop compounding uncertainty)
    └─ No  → CONTINUE (resolve more before handoff)
+
 ```
 
 ### Decision Tree 2: Context Pruning — What to Keep vs. Remove
 
 ```
+
 For each context item in handoff state:
 │
 ├─ Does the target agent's role need this to make decisions?
@@ -302,11 +322,13 @@ For each context item in handoff state:
 │  └─ No  → Continue
 │
 └─ KEEP (passes all filters)
+
 ```
 
 ### Decision Tree 3: State Serialization Format — JSON vs. YAML vs. SQLite vs. Memory
 
 ```
+
 Select serialization format:
 │
 ├─ Is this a cross-process handoff (different agent processes)?
@@ -326,11 +348,13 @@ Select serialization format:
 │  └─ No  → SQLite (best for machine-to-machine, queryable, incremental)
 │
 └─ Default: JSON (best balance of portability, validation, and readability)
+
 ```
 
 ### Decision Tree 4: Multi-Agent Topology Selection — Supervisor vs. Hierarchical vs. Peer vs. Debate vs. Swarm
 
 ```
+
 Select topology for pipeline:
 │
 ├─ Is the pipeline strictly sequential (A → B → C)?
@@ -352,11 +376,13 @@ Select topology for pipeline:
 │  └─ Yes → SWARM (all agents write to shared state, merge at end)
 │
 └─ Default: SUPERVISOR (simplest, best audit trail, works for 80% of cases)
+
 ```
 
 ### Decision Tree 5: Conflict Resolution — When Two Agents Disagree
 
 ```
+
 Agent B detects contradiction with Agent A's ledger:
 │
 ├─ Is the contradiction on the same decision gate?
@@ -379,12 +405,14 @@ Agent B detects contradiction with Agent A's ledger:
 │  └─ No  → MARK conflict. Escalate if confidence < high on either side.
 │
 └─ Default: When in doubt, ESCALATE. Silent override is the worst outcome.
+
 ```
 
 ---
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -399,6 +427,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream (Consumes From)
 
@@ -424,13 +453,12 @@ This skill has no upstream dependencies — it is a foundational framework that 
 
 ---
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Why It Matters | If Ignored |
 |---|-------------------|---------------|------------|
@@ -444,6 +472,7 @@ This skill has no upstream dependencies — it is a foundational framework that 
 ---
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Dimension | Excellent (10/10) | Mediocre (5/10) | Unacceptable (0/10) |
 |-----------|-------------------|-----------------|---------------------|
@@ -456,6 +485,7 @@ This skill has no upstream dependencies — it is a foundational framework that 
 ---
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 | Exercise | Skill Level | Time | What You'll Learn |
 |----------|-------------|------|-------------------|
@@ -470,6 +500,8 @@ This skill has no upstream dependencies — it is a foundational framework that 
 ---
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | # | Gotcha | Cost if Ignored | Prevention |
 |---|--------|----------------|------------|
@@ -483,7 +515,8 @@ This skill has no upstream dependencies — it is a foundational framework that 
 
 ---
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |-----------------|---------|
@@ -495,7 +528,33 @@ This skill has no upstream dependencies — it is a foundational framework that 
 
 ---
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do serialize state into a typed contract before every handoff** — Passing raw agent memory across boundaries leaks internal reasoning, wastes context tokens, and exposes implementation details. A serialized contract (problem statement, evidence gathered, decisions made with rationale, artifacts produced) reduces context size by 40-60% and makes downstream agents converge 2x faster because they don't re-derive what's already known. Every extra 1,000 tokens of cruft in a handoff costs $0.01-$0.05 in API charges and adds 2-5 seconds of processing latency.
+2. **Prefer immutable handoff artifacts over mutable shared memory** — Two agents writing to the same shared state without a locking protocol creates silent data corruption that compounds across handoffs. Immutable artifacts (signed decision logs, versioned output files, append-only ledgers) make corruption detectable and reversible. Shared mutable state makes corruption invisible until it produces a wrong business outcome — cost: $10K-$100K per undetected state corruption incident that reaches production.
+3. **Always include a decision ledger with rationale in every handoff** — The downstream agent must know why decisions were made, not just what was decided. Without rationale, downstream agents either trust blindly (propagating upstream errors) or re-litigate decisions (wasting tokens and time). A one-line decision log entry costs ~50 tokens; re-litigation of the same decision costs 500-2,000 tokens across multiple agents. At 5 handoffs × 3 re-litigated decisions, that's 7,500-30,000 wasted tokens — $0.08-$0.45 in direct API cost plus 30-120 seconds of latency.
+4. **Never exceed 5 sequential handoffs without a human-in-the-loop checkpoint** — Context degradation is exponential: each handoff loses 10-20% of critical nuance as agents summarize and prune. After 5 handoffs at 80% retention per hop, the remaining context fidelity is ~33% of the original (0.8^5). A $50K project pipeline with corrupt context at handoff 6 produces output that looks plausible but is wrong — rework cost: $15K-$30K. Insert human checkpoints every 3-5 handoffs based on domain criticality.
+5. **Measure context preservation ratio per handoff** — Track (key decisions retained by agent N) / (key decisions in original context handed to agent 1). Target >90% retention per hop. When retention drops below 80%, insert a human checkpoint immediately regardless of handoff count. This metric is the leading indicator for context rot — ignore it, and your multi-agent pipeline produces confident-sounding garbage that passes cursory review but fails under scrutiny.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | State schema typed and versioned: every handoff uses a typed contract with schema version field validated by downstream agent on receipt | Verify handoff artifacts include `schema_version` field; downstream agent rejects with clear error on version mismatch |
+| ☐ | Decision ledger complete: every non-trivial decision recorded with rationale, alternatives considered, confidence score, and deciding agent identity | Audit last 5 handoffs in pipeline; each has decision log entry with `why`, `alternatives`, and `confidence` fields populated |
+| ☐ | Context pruned to within token budget: final serialized handoff payload ≤80% of downstream agent's context window limit | Measure serialized handoff payload in tokens via tokenizer; verify ≤80% of target agent's maximum context size; safety margin ensures room for agent reasoning |
+| ☐ | Idempotency enforced: duplicate handoff with same correlation ID produces identical result; no double-processing or state corruption | Send duplicate handoff with same correlation ID → verify idempotent response; correlation ID logged in audit trail |
+| ☐ | Failure escalation path defined: every handoff has configurable timeout; escalation agent or human contact fires on timeout or rejection | Simulate downstream agent hang → verify escalation fires within configured timeout; escalation contact responds within SLA |
+| ☐ | Context rot detected: after 3+ sequential handoffs, retention audit confirms >80% of original decisions preserved without corruption | Sample handoff N decision ledger against handoff 1; verify no decisions silently dropped without explicit deprecation annotation |
+| ☐ | Handoff contract verified: downstream agent acknowledges receipt with explicit acceptance or rejection within configured SLA window | Check handoff audit logs; every handoff has corresponding ack/reject timestamp; rejection includes structured reason code |
+| ☐ | Rollback plan is documented and tested | Each handoff has documented revert path; pipeline tested by restoring checkpoint from handoff N-1 after injecting simulated corruption at handoff N; recovery time <5 minutes |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 ### Pre-Handoff Checklist (Upstream Agent)
 
@@ -532,10 +591,12 @@ This skill has no upstream dependencies — it is a foundational framework that 
 ---
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 This skill is supported by detailed reference specifications. Load these when deeper guidance is needed on a specific topic.
 
@@ -558,6 +619,7 @@ This skill is supported by detailed reference specifications. Load these when de
 - **OpenAI Swarm:** [github.com/openai/swarm](https://github.com/openai/swarm) — Lightweight multi-agent orchestration with handoff primitives
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -573,6 +635,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Max-depth counter set to 10 → legitimate 11-step multi-agent pipeline gets killed at step 10 with "max delegation depth exceeded." Pipeline produces partial output. Half-configured infrastructure is left running, costing $200/hr in cloud resources with no work being done | Depth limit was arbitrary — "10 seems like plenty." The actual pipeline is a linear chain: analyze → design → implement → test → review → refactor → document → package → deploy → verify → monitor. Each step is a legitimate delegation. No distinction between linear chains (legitimate depth) and cycles (illegitimate depth) | Distinguish depth from cycles: linear chain depth is fine, cycles are not. Use cycle detection (agent ID already in chain) as the hard limit, not an arbitrary max depth. Set a soft depth warning at 10+: log a warning but continue. Only kill on cycle detection or explicit timeout. Implement rollback: if pipeline is killed, the orchestrator cleans up partial state — never leave half-done infrastructure running | Max-depth counters are a blunt instrument for a specific problem (cycles). They catch one deep-architecture pattern (11-step linear pipeline) but let through a 3-step cycle. Cycle detection replaces arbitrary depth limits with a precise problem detector. Cleanup on kill is mandatory — a killed pipeline must not leave resources running |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
 

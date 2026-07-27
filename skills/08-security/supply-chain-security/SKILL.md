@@ -1,5 +1,5 @@
 ---
-name: supply-chain-security-engineer
+name: supply-chain-security
 description: >
   Use when designing a supply chain security program, implementing SLSA Levels 1-4, generating and
   signing SBOMs (SPDX/CycloneDX), configuring build provenance with Sigstore/cosign/in-toto,
@@ -60,6 +60,7 @@ chain:
 Design, implement, and validate software supply chain security controls across the full development lifecycle. This skill covers SLSA attestation, SBOM generation and lifecycle management, build provenance with Sigstore and in-toto, dependency security against typosquatting and dependency confusion, CI/CD pipeline hardening, artifact signing, vendor risk assessment, and open source governance.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
 | # | Detect Condition | Route To | Intent Route Fallback |
@@ -96,6 +97,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -112,12 +114,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master supply chain security engineers think like attackers, not auditors. They don't ask "does this pass compliance?" — they ask **"how would I compromise this supply chain if I were a nation-state adversary?"** Supply chain attacks are the highest-leverage vector in cybersecurity: one compromised upstream dependency can reach thousands of downstream organizations.
 
@@ -138,6 +140,7 @@ Master supply chain security engineers think like attackers, not auditors. They 
 - **Ship with a security exception (documented, time-bound).** Sometimes a vendor's SLSA L0 artifact is the only option. The exception must have an owner, an expiration date, compensating controls (network isolation, runtime monitoring), and executive sign-off.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -151,15 +154,6 @@ Master supply chain security engineers think like attackers, not auditors. They 
 **Usage:** Invoke this skill with your target level, e.g., "as an L3 supply chain security engineer, design..."
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
-
-### Scale Depth
-
-| Scale | Supply Chain Security Posture | You Focus On |
-|-------|------------------------------|--------------|
-| **Solo** | Single project, free/open-source tooling, no dedicated security personnel | syft/trivy for SBOM generation, cosign with keyless signing, npm audit/pip-audit for dependency scanning, gitleaks for secret scanning, Dependabot for automated updates. Manual SBOM review. SLSA L1 provenance. |
-| **Small Team** (2-10) | 5-20 projects, $500-2K/mo budget, part-time supply chain security ownership | SBOM generation in CI for all artifacts, cosign signing with Rekor transparency log, full-depth dependency scanning blocking CRITICAL CVEs, CycloneDX SBOMs with Dependency-Track registry, private npm/PyPI registry with dependency confusion protection, SLSA L2 provenance with hermetic builds, Renovate with auto-merge for patch updates only. |
-| **Medium** (10-50) | 20-100 projects, $5K-15K/mo budget, 1-2 dedicated supply chain security engineers | SLSA L3 provenance with hardened build platform, binary authorization (Kyverno/OPA blocking unsigned deployments), SBOM with VEX integration, typosquatting detection in CI, license compliance scanning (FOSSA/ORT), vendor SBOM collection with contractual SLAs, dependency confusion monitoring across all registries, automated dependency freshness scoring. |
-| **Enterprise** (50+) | 100+ projects, $50K+/mo budget, dedicated supply chain security team (3+) | SLSA L3+ with isolated build infrastructure, in-toto layout verification for multi-step pipelines, multi-cloud binary authorization, centralized SBOM registry with automated VEX generation, OpenSSF Scorecard monitoring for all dependencies, vendor risk management program with continuous assessment, open source fund contribution program, regulatory attestation pipeline (CRA, EO 14028, CISA), private build service with cryptographic hardware attestation. |
 
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -340,8 +334,8 @@ What are you signing?
 5. Monitor regulatory landscape: supply chain regulations are rapidly evolving. Subscribe to CISA, ENISA, and NIST updates for new requirements.
   Complete when: Controls mapped to EU Cyber Resilience Act, US EO 14028 SBOM mandate compliance confirmed, CISA Secure Software Attestation Form prepared, compliance evidence matrix maintained (requirement → control → evidence), and regulatory monitoring subscription active.
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -357,6 +351,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `npm install` pulls 1,200 transitive dependencies. One of them — `event-stream` — changed maintainership. New maintainer added malicious flatmap-stream dependency that targeted specific Bitcoin wallets. Detected by community, not by any organizational security control. "Do we use this?" → 4-day investigation across 200 repos | No transitive dependency monitoring. SCA tools configured to scan direct deps only because "transitive is too noisy." No anomaly detection: a dependency changing maintainership from one npm user to another should trigger review. No npm audit/advisory integration in CI that blocks on critical severity | Scan all dependencies to full transitive depth. Integrate npm audit/OSV-Scanner/Trivy in CI — fail on any advisory with severity ≥ HIGH. Subscribe to maintainer change notifications. Implement dependency firewall: mirror all packages through an internal registry (Verdaccio, Artifactory) where new versions are quarantined until scanned. Use `npm vet` to review dependency changes on every PR | The 1,200 dependencies you didn't review include the 1 that was compromised. Transitive dependencies are not "low risk because they're indirect" — they're high risk because nobody reviews them. Every dependency at any depth is code running in your production environment with your application's permissions |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Pin all dependencies to exact versions with content hashes.** `package-lock.json` with `lockfileVersion: 3`, `requirements.txt` with `package==1.2.3 --hash=sha256:...`, Go `go.sum` with `h1:` hashes. Version ranges (`^1.0.0`, `>=2.0`) allow silently different artifacts on rebuild. Pinning to a commit SHA without a content-addressable store risks garbage collection — use content digests.
 2. **Generate an SBOM at every build and query it for every zero-day.** Use CycloneDX or SPDX format with NTIA minimum elements. Store SBOMs in a queryable registry (Dependency-Track) that can answer "do we use Log4j?" in under 60 seconds. Without an SBOM, answering that question takes days of grepping every repo — during which your service is exploitable.
@@ -370,6 +365,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Require SBOMs from third-party vendors in procurement contracts.** Every vendor whose software runs in your environment must deliver a fresh SBOM on every release. Specify minimum SLSA L2 provenance, 30-day CVE remediation SLA, and vulnerability disclosure program as contractual requirements. A vendor without an SBOM cannot prove they know what's in their software — you inherit their unknown unknowns.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -384,6 +380,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -403,11 +400,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | `incident-responder` | Dependency compromise indicators, artifact integrity verification procedures, registry audit logs | Incident response lacks supply chain context — compromise scope is unknown |
 | `backend-developer` | Dependency security policies, allowed package registries, upgrade SLAs | Developers pull from unvetted registries — dependency confusion attacks succeed |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] SBOM generated for every production artifact at build time in CycloneDX or SPDX format with NTIA minimum elements; SBOM stored in queryable registry (Dependency-Track); zero-day exposure queryable in under 60 seconds
 - [ ] SLSA provenance attested for every production artifact at L2 or higher; provenance includes builder ID, source repository, commit SHA, and all materials consumed; provenance verified at deployment before reaching production
@@ -425,12 +423,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Supply chain incident response playbook defined and tested: dependency compromise scenario, artifact tampering scenario, CI/CD credential leak scenario; tabletop exercise conducted within last quarter
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every release has a verifiable SLSA provenance attestation, a signed SBOM with VEX integration, and an artifact signature chain that traces from signed commit to deployment. Dependencies are scanned at full transitive depth with automated update PRs, and every CI/CD pipeline uses OIDC federation — no long-lived credentials exist anywhere in the build infrastructure.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -446,6 +446,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | GitHub Advisory Database or OSV reports a vulnerability in a package you use, and the vulnerability has been unpatched for > 30 days with no maintainer response | The package may be unmaintained. Evaluate: (1) Is there a fork with active maintenance? (2) Can you patch and fork it yourself? (3) Is there a maintained alternative? Unmaintained packages with known CVEs are ticking time bombs. | Abandoned packages don't get security patches — ever. Every day an unmaintained critical dependency stays in your tree, the probability of exploitation approaches 1. The Log4Shell crisis proved that even the most widely-used libraries can become critically vulnerable and difficult to replace. |
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -462,6 +463,7 @@ graph LR
 **The One Highest-Leverage Activity:** Build an "artifact trust map." For every artifact your organization deploys, trace its full provenance from source commit → build → attestation → registry → deployment. Any link in the chain without verifiable integrity is a gap you must close before the next link has a gap too.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **`npm install` without `--ignore-scripts` runs arbitrary post-install scripts.** Every npm package can execute arbitrary code during installation via `postinstall`, `preinstall`, and `install` lifecycle scripts. A malicious package at any depth in your dependency tree can exfiltrate environment variables, SSH keys, and `.npmrc` tokens during `npm install`. 17% of all npm malware uses lifecycle scripts as the attack vector. **Total cost: $150K-$1.5M — a compromised npm package with a postinstall script exfiltrates CI secrets (GITHUB_TOKEN, NPM_TOKEN, AWS keys) during a routine `npm ci` in CI; the attacker uses the stolen credentials to push malicious releases to your npm registry and pivot to your AWS infrastructure.** **Fix:** add `ignore-scripts=true` to `.npmrc` for CI environments; only allow scripts for explicitly trusted packages via `--ignore-scripts=false <package>`. Audit lifecycle scripts in lockfiles with `npm ls --json | jq '.dependencies[] | select(.scripts.postinstall)'`.
 
@@ -479,7 +481,8 @@ graph LR
 
 - **Dependabot/Renovate auto-merge configured with `auto-merge: true` for "patch" updates can ship compromised dependency updates.** An attacker who compromises an npm maintainer account publishes a new "patch" version (e.g., 1.2.3 → 1.2.4) containing a backdoor. Dependabot opens a PR, your CI passes (the backdoor is stealthy), and auto-merge ships it to production within minutes. **Total cost: $200K-$2M — a malicious patch update to a widely-used library reaches your production deployment via automated merging before any human reviews it; the attacker now has code execution in your production environment.** **Fix:** never auto-merge dependency updates that touch production. Require human review on all dependency PRs. Use Dependabot's `open-pull-requests-limit` to batch updates. Configure CI to run full integration tests — not just unit tests — against updated dependencies before merge.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -489,8 +492,8 @@ graph LR
 | "Our base image is :latest but we scan on every registry push — that catches drift" | Scanning at push time doesn’t prevent TOCTOU; the image pulled during deploy can differ from the one scanned minutes earlier |
 | "We trust the CI runner — it’s GitHub’s infrastructure, they handle security" | Shared runners execute untrusted third-party code; a compromised dependency’s postinstall script has access to your repo secrets and deployment credentials |
 
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -499,6 +502,7 @@ graph LR
 | Allowing developers to use `:latest` tags in production deployments — the image deployed today may be different from the image deployed tomorrow, making provenance verification impossible and rollbacks unpredictable. | $50K-$200K in incident response when a compromised `:latest` image ships to production and the previous known-good version cannot be identified | Enforce immutable tags or content-digest pinning for all production deployments. Block `:latest` at admission control. Every production deployment must reference a specific SHA256 digest. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run SBOM generation: `syft <image> -o spdx-json` or `trivy fs --format spdx-json .` — SBOM produced with NTIA minimum elements
 - [ ] Verify SLSA provenance: `slsa-verifier verify-artifact <artifact> --source-uri <repo> --source-tag <tag>` — provenance verified
@@ -512,6 +516,7 @@ graph LR
 - [ ] Verify OIDC-only auth: confirm no long-lived tokens exist in CI configuration — all cloud access uses OIDC federation
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
@@ -526,7 +531,6 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 - SLSA Framework: <https://slsa.dev/spec/v1.0/levels>

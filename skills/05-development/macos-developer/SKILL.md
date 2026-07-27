@@ -35,6 +35,7 @@ chain:
 Build production-grade native macOS applications with deep expertise across SwiftUI, AppKit, Swift, and the full Apple platform stack. This is the internal playbook for Apple-platform engineering — every section contains concrete, actionable implementation patterns, not generic advice. Covers the full lifecycle: UI framework selection (SwiftUI vs AppKit vs Catalyst) with tradeoff matrices, sandboxing and hardened runtime entitlements, code signing and notarization, Universal Binary builds for Apple Silicon + Intel, Menu Bar app architecture, XPC service patterns, Metal GPU integration, accessibility compliance, and macOS-specific performance optimization.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -75,6 +76,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
@@ -88,12 +90,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R7** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 ### The Mental Model Shift
 Competent macOS developers make apps that look right. Masters make apps that **feel native.** The shift: stop thinking about what the framework makes easy and start thinking about what the platform expects. A macOS app that uses standard controls, respects System Preferences (Appearance, Accent Color, Reduce Motion), and integrates with Spotlight, Services, and Quick Look is automatically trusted by users. An app that reinvents every widget — no matter how beautiful — feels foreign and hostile.
@@ -117,6 +119,7 @@ Competent macOS developers make apps that look right. Masters make apps that **f
 - **Hardcode deployment target in `xcconfig` files, not in multiple `project.pbxproj` build settings.** A single source of truth for `MACOSX_DEPLOYMENT_TARGET` prevents drift between Debug and Release.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 The same macOS development task produces fundamentally different output depending on the practitioner's level. Invoke this skill with your target level to calibrate depth and scope.
 
@@ -130,16 +133,8 @@ The same macOS development task produces fundamentally different output dependin
 
 **Usage**: Say "as an L3 macOS developer, design the architecture for..." or "give me an L2 implementation of this document window" to calibrate. Default: **L2** (production-ready, independent execution).
 
-### Scale Depth
-**(STANDARD)**
-
-| Depth | Time | Scope | Artifacts |
-|---|---|---|---|
-| **QUICK** | 5-15 min | Single view fix, entitlement check, signing issue | Working code snippet, corrected config line |
-| **STANDARD** | 30-90 min | Full feature window, notarization pipeline, XPC service | Tested SwiftUI/AppKit code, entitlement file, build script |
-| **DEEP** | 2-8 hr | Multi-app ecosystem, framework design, migration strategy | Architecture decision record, shared framework, CI/CD workflow |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Building a new native macOS application from scratch with SwiftUI or AppKit
 - Choosing between SwiftUI, AppKit, and Catalyst for your macOS UI layer — with concrete tradeoffs and decision matrices
@@ -155,6 +150,7 @@ The same macOS development task produces fundamentally different output dependin
 - Setting up Sparkle or in-app update mechanisms for direct-distribution apps
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -197,6 +193,13 @@ The same macOS development task produces fundamentally different output dependin
 2. **Quick Look**: Implement `QLPreviewingController` for in-app previews. Register a Quick Look generator for custom file types via a `.qlgenerator` bundle.
 3. **Spotlight**: Index your app's documents with `CSSearchableIndex` or `NSMetadataQuery`. Provide a Core Spotlight importer for custom document types.
   Complete when: Services menu entry appears in other apps, Quick Look preview renders correctly for custom types, and Spotlight finds app documents by content.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
+  Complete when: Feature flagged behind config — can be enabled/disabled without deployment.
+  Complete when: Error tracking configured — all unhandled exceptions routed to on-call.
+  Complete when: Documentation PR merged — README, API docs, and changelog updated.
 4. **Touch Bar / Magic Keyboard**: Support `NSTouchBar` for MacBook Pro users. Map critical actions to the Touch Bar with fallback keyboard shortcuts.
 5. **Handoff & Continuity — Full Implementation:**
 
@@ -213,6 +216,7 @@ d. **Flag-aware Handoff:** When a feature is behind a flag, receiving devices ma
 e. **Testing:** Test Handoff iPhone↔Mac with Bluetooth+WiFi enabled, same iCloud account on both devices. Simulator doesn't support Handoff — test on physical hardware. Verify Handoff icon appears in Mac Dock within 5 seconds of iPhone activity becoming current. See ios-developer references/handoff-continuity.md for full NSUserActivity patterns.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start with SwiftUI; bridge to AppKit only for the 20% SwiftUI can't handle.** SwiftUI covers 80%+ of typical macOS UI with 60% less code. Write settings windows in `Form` + `@AppStorage` (40 lines) instead of `NSViewController` + `NSTableView` datasource/delegate (200+ lines). Escape to AppKit via `NSViewRepresentable`/`NSViewControllerRepresentable` for `NSTableView` with 10,000+ rows, custom Core Animation layers, or Metal interop.
 
@@ -235,6 +239,7 @@ e. **Testing:** Test Handoff iPhone↔Mac with Bluetooth+WiFi enabled, same iClo
 10. **Test on the latest macOS beta within 7 days of WWDC.** Apple changes superclass implementations, layer properties, and backing store configurations in macOS updates. A `draw(_:)` override without `super.draw(_:)` that works on macOS 14 may render as a black rectangle on macOS 15. Catch regressions before your users do.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### SwiftUI vs AppKit vs Catalyst — Framework Selection
@@ -377,8 +382,8 @@ START: Need privilege separation or crash isolation?
 
 See **references/xpc-services-patterns.md** for implementation patterns.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -394,6 +399,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -406,6 +412,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `NSView.draw(_:)` renders as black rectangle after macOS update | Developer overrode `draw(_:)` without calling `super.draw(_:)`. It worked on the dev macOS version. Apple changed superclass backing store setup in a macOS update — black rectangle | Always call `super.draw(dirtyRect)` at start of every `draw(_:)` override. If intentionally skipping (e.g., Metal rendering), document why and test on latest macOS beta within 7 days of WWDC | Apple changes superclass behavior in macOS updates. Non-standard overrides that "happen to work" are time bombs |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -443,6 +450,7 @@ Accessibility compliance issue? -> Accessibility Auditor -> Legal Advisor (ADA c
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Response |
 |---------|----------|
@@ -456,11 +464,12 @@ Accessibility compliance issue? -> Accessibility Auditor -> Legal Advisor (ADA c
 | "Using hardcoded colors in SwiftUI views (Color(hex:) or Color(red:green:blue:))" | "Colors won't adapt to Dark Mode, Increase Contrast, or Liquid Glass (macOS Tahoe). Replace with semantic colors: `.label`, `.secondaryLabel`, `.systemBackground`. Run `apple-hig-expert/scripts/hig_checker.py` to audit." |
 | "Custom controls with tight hit targets (under 44x44 pt)" | "macOS HIG requires accessible hit targets. Expand with `.contentShape(Rectangle().size(width: 44, height: 44))` or padding. Verify with `apple-hig-expert` audit." |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every window handles all states (loading, empty, error, content). The app integrates with macOS system services: the menu bar has standard items (About, Preferences, Hide, Quit), keyboard shortcuts follow HIG (⌘, for Preferences, ⌘W for Close), and every interactive element is navigable via Full Keyboard Access. The app builds as a Universal Binary, is sandboxed or hardened-runtime enabled, passes notarization, and launches in under 400ms cold. VoiceOver reads every label, every role, and every value change. The app respects Reduce Motion, Increase Contrast, and Dark Mode — automatically. Window restoration works: close and reopen the app, and every window returns to its previous position, size, and scroll offset.
 
@@ -502,6 +511,7 @@ A production-grade macOS app can be identified by these specific, testable chara
 - [ ] Crash-free sessions: 99.9%+ in production crash reporting within 7 days of release
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what to do -->
 
@@ -531,6 +541,7 @@ Unlike iOS where UIKit/SwiftUI are the only game in town, macOS development requ
 - Understand that `NSApplication.shared` is a singleton with 30+ years of accumulated state — and respect that state instead of fighting it
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Using `codesign --deep`
 **What it looks like:** Developer reads Stack Overflow, adds `codesign --deep` to the build script. It recursively signs every binary in the bundle with the same identity, overwriting framework signatures from their original developers.
@@ -567,7 +578,8 @@ Unlike iOS where UIKit/SwiftUI are the only game in town, macOS development requ
 **Why it fails:** Default activation policy for non-document apps is `.prohibited` (accessory mode). The app is invisible to users — no dock presence, no app switcher entry. The fix is one line but the symptom sends developers on multi-hour debugging tangents.
 **Do this instead:** In `applicationWillFinishLaunching(_:)`, call `NSApp.setActivationPolicy(.regular)` for standard apps, `.accessory` for menu bar-only apps. Must be set before `NSApp.activate(ignoringOtherApps: true)`.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -578,6 +590,7 @@ Unlike iOS where UIKit/SwiftUI are the only game in town, macOS development requ
 | "The app doesn't need notarization — my users can right-click > Open to bypass Gatekeeper." | Right-click bypass works for technically literate users. Every other user sees "App can't be opened because it is from an unidentified developer" and either deletes your app or emails support. Notarization takes 2-5 minutes per build in CI. Skipping it saves zero development time and costs you users. |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before shipping any macOS app to users, verify every item on this checklist. Each unchecked item is a bug report or App Store rejection waiting to happen.
@@ -599,6 +612,7 @@ Before shipping any macOS app to users, verify every item on this checklist. Eac
 - [ ] **App Store Review Guidelines checked:** App follows guidelines for data collection disclosure, privacy nutrition labels, in-app purchase rules, and content restrictions. Each rejection costs 24-48 hours and lost momentum.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -607,6 +621,7 @@ Before shipping any macOS app to users, verify every item on this checklist. Eac
 | Missing activation policy — non-document app invisible: no dock icon, no Command-Tab entry | $5K-$15K in debugging dead ends | Call `NSApp.setActivationPolicy(.regular)` in `applicationWillFinishLaunching` before `NSApp.activate()` |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `xcodebuild -project YourApp.xcodeproj -scheme YourApp -destination 'platform=macOS' test` — all XCTest and XCUITest pass
 - [ ] Run `swiftlint lint --strict` or `swift-format lint --strict --recursive .` — zero warnings
@@ -622,10 +637,12 @@ Before shipping any macOS app to users, verify every item on this checklist. Eac
 - [ ] Cold-launch test: `defaults write com.yourcompany.yourapp NSQuitAlwaysKeepsWindows -bool false` then launch — under 400ms to first window
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 

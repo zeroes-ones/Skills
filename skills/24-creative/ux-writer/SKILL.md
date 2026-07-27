@@ -46,6 +46,7 @@ chain:
 Craft the words that make digital health products feel safe, clear, and human. From onboarding microcopy to medical disclaimers, consent flows to error messages — every word builds trust, reduces anxiety, and drives health outcomes.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -82,9 +83,11 @@ What are you trying to do?
 └── Not sure? → Describe the screen, audience, and the action the user needs to take — I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -102,12 +105,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master ux writers operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
 
@@ -128,6 +131,7 @@ Master ux writers operate at the intersection of trust, safety, and human experi
 - **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -143,6 +147,7 @@ Master ux writers operate at the intersection of trust, safety, and human experi
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Writing onboarding flows, empty states, tooltips, or confirmation messages for a health product
@@ -156,8 +161,103 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Auditing content for screen reader compatibility and plain-language alternatives
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Error Message Severity Design
+
+```
+        ┌── INPUT: Designing error message for health product?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Blocks            Non-blocking
+clinical         (validation,
+workflow         form error)
+   │                 │
+   ▼                 ▼
+Critical:         Gentle tone,
+explain impact   guide to fix,
+on health data   never blame
+safety + next        │
+step to              ▼
+resolve          Confirm data
+   │              safety: "Your
+   ▼              information
+"Your action     hasn't been
+couldn't be      saved yet"
+completed.           │
+Your data is         ▼
+safe. Contact    3-part format:
+support at       What happened
+[X] if this      + Why + What
+persists."       to do next
+```
+
+### Decision Tree 2: Reading Level Adaptation
+
+```
+        ┌── INPUT: Adapting clinical content for health literacy?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Provider          Patient-facing
+audience          (≤8th grade
+(clinicians)      reading level)
+   │                 │
+   ▼                 ▼
+Clinical          Apply plain
+terminology      language:
+OK, precision    ├─ Short
+matters             sentences
+   │                 (≤15 words)
+   ▼              ├─ Common words
+Maintain         │  (use → "use"
+ICD-10, SNOMED   │  not "utilize")
+references,      ├─ Active voice
+abbreviations    ├─ Define
+as needed           medical terms
+                    on first use
+                 └─ Test with
+                    readability
+                    tool (Flesch-
+                    Kincaid)
+```
+
+### Decision Tree 3: Voice and Tone Selection
+
+```
+        ┌── INPUT: Choosing voice/tone for health product copy?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Sensitive         Routine/
+topic             everyday
+(diagnosis,       interaction
+test results,     (onboarding,
+consent)          settings)
+   │                 │
+   ▼                 ▼
+Compassionate    Warm +
+register:        encouraging
+├─ Warm but      ├─ Friendly
+│  not overly    │  without
+│  cheerful      │  being
+├─ Clear,        │  casual
+│  direct        ├─ Benefit-
+├─ Never         │  focused
+│  euphemistic   ├─ "Let's get
+├─ Acknowledge   │  started"
+│  emotion       └─ "You're
+└─ "We            │  all set"
+   understand
+   this may be
+   difficult"
+```
 
 ### Disclaimer Placement Decision Tree
 
@@ -186,6 +286,7 @@ What is the data sensitivity?
 **What good looks like:** A patient reads your onboarding flow and completes it without calling support. A clinician sees your disclaimer and nods — it's where they expect it, says exactly what's needed, and doesn't slow them down. A regulator reviews your consent language and finds no gaps. A usability test participant with 6th-grade reading level correctly explains what they just consented to.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -203,7 +304,6 @@ Complete when:
 - Copy designed for all UI states: onboarding, empty, loading, success, error, and destructive actions
 - Voice/tone consistency verified across all copy against brand voice attributes
 - Stakeholder review complete: product, clinical, and design sign-off obtained
-
 
 ### Phase 2 (~25 min): Medical Disclaimers
 
@@ -223,21 +323,25 @@ Complete when:
 - All regulatory requirements met: FDA 21 CFR Part 11, HIPAA, GDPR Art. 9, FTC Health Breach Notification Rule
 - Legal review completed and progressive disclosure pattern confirmed: essential inline, full text linked
 
-
 ### Phase 3 (~25 min): Consent Language Design
 
 Design consent flows that are truly informed — not just legally compliant.
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 - Consent flows designed with progressive disclosure: purpose → data use → risks → opt-in, one concept per screen
 - Comprehension tested with 5 target patients: >90% can correctly paraphrase what they consented to
 - Legal sign-off obtained with confirmation that consent language meets informed consent standards
 
-
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -252,6 +356,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -284,13 +389,12 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 | Reading level regression detected | `clinical-informatics-specialist`, `ux-researcher` | Patient comprehension at risk |
 | New regulatory requirement discovered | `regulatory-specialist`, `legal-advisor`, `ui-ux-designer` | May require flow redesign, new disclaimers |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `ui-ux-designer` | Visual design system, interaction patterns, brand guidelines | Before creating creative assets or marketing materials |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -303,17 +407,20 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 | New product feature adds >50 new strings without content design review | Halt string freeze until UX writer reviews all strings: check for consistency, reading level, translatability, error states, empty states, and loading states | Content design review before implementation prevents rework — every string without review is technical debt |
 | Regulatory finding cites missing disclaimer for AI-generated content or overly broad consent scope | Add per-feature disclaimers; narrow consent options to specific purposes; document regulatory rationale; update consent flow template to prevent recurrence | Regulatory requirements evolve — build disclaimers and consent flows with flexibility for changing compliance landscapes |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When UX writing is applied perfectly, every screen state — empty, loading, error, success — has clear, concise copy that guides the user forward, medical disclaimers appear at decision points without
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -331,12 +438,15 @@ graph LR
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## When NOT to Write UX Content
+<!-- STANDARD: 3min -->
 
 ```
+
 MVP with < 10 screens? → Designer writes the copy. Dedicated UX writer is overhead.
 Single-language, single-region? → UX writer can handle. No localization specialization needed.
 No clinical content? → Generalist UX writer works. Health specialization not required.
 Purely internal tool (clinician-only)? → Clinical informatics specialist writes. UX writer contributes tone.
+
 ```
 
 ### Cross-skills Integration
@@ -360,6 +470,8 @@ Common chains:
 - **Brand-aligned content**: brand-guidelines → ux-writer → content-strategist — Brand voice → product voice → content strategy
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -369,7 +481,8 @@ Common chains:
 | **Microcopy that's too clever** — a 404 page says "Oopsie! Our hamsters are on a coffee break 🐹☕" while a user trying to pay an invoice hits a broken link. | $50K-$200K in support costs and brand perception damage when humor misfires during high-stakes user workflows. | Humor in error states requires: (1) the error is low-stakes, (2) the fix is immediately clear, (3) humor doesn't replace actionable information. When in doubt, be helpful, not clever. |
 | **Onboarding flow written by the product team, not a UX writer** — signup says "Configure your instance parameters" instead of "Choose how your team works together." | $100K-$500K monthly in wasted customer acquisition spend from jargon-induced onboarding abandonment (20-40% drop-off). | Jargon in the first 30 seconds of user experience causes massive drop-off. Every onboarding string must pass: "Would my mom understand what to do?" Translate internal terminology to user outcomes. |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -379,7 +492,31 @@ Common chains:
 | "Consistency just means using the same words" | Consistent terminology without consistent tone fractures brand trust; a friendly onboarding CTA next to a cold, robotic error message erodes user confidence |
 | "We'll test copy with users after launch" | Copy tested post-launch means bad microcopy is already driving churn; A/B testing 5 button labels during design costs $0, fixing confusing flows post-launch costs $50K+ |
 
+## Best Practices
+
+1. **Do validate every patient-facing string at ≤8th grade reading level** — Health outcomes depend on comprehension. A patient who misreads "contraindication" as "recommendation" faces real harm. Run Flesch-Kincaid on every string before shipping; replace clinical terms with plain-language alternatives or inline definitions. A readability gap between your copy and your audience costs adherence — non-adherent patients cost the U.S. healthcare system $290B annually.
+2. **Prefer compassionate-clinical register over cheerful-casual for serious medical conditions** — "You're crushing it!" erodes trust when the user is managing a chronic illness or recovering from surgery. Match tone to clinical severity: warm and encouraging for wellness/prevention, clear and supportive for treatment, calm and present for serious diagnoses. Tone mismatch is the #1 trust-destroyer cited in health app abandonment surveys.
+3. **Always open error messages with data-safety confirmation in clinical workflows** — "Something went wrong" is terrifying when a patient just spent 20 minutes entering symptoms or medication history. Every error in a clinical flow must lead with "Your information is saved. You can resume where you left off." The cost of one abandoned clinical workflow due to data-loss fear is a delayed diagnosis.
+4. **Never bury medical disclaimers in 10px footer text** — A disclaimer at #999 in a page footer is legally and ethically equivalent to no disclaimer. Render disclaimers inline at the decision point with accessible contrast (≥4.5:1) and explicit acknowledgement. An adverse event traced to an unread disclaimer exposes the company to FDA warning letters and class-action liability.
+5. **Measure microcopy comprehension with 5-user qualitative testing** — Copy that makes sense to the writer does not make sense to a stressed patient. Test consent language, error recovery paths, and treatment instructions with representative users; target ≥90% comprehension of the primary action. A consent flow that 30% of users don't understand is not informed consent — it's a regulatory violation.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Reading level audit — all patient-facing strings ≤8th grade Flesch-Kincaid; clinical terms have inline plain-language definitions | Run `npx readability-check --text "$OUTPUT" --grade-level 8` on every string; zero terms like "contraindication" without parenthetical explanation |
+| ☐ | Consistency audit — same action labeled identically everywhere ("Save" vs "Submit"); terminology matches product taxonomy | Grep for action labels across all screens; zero instances of two different labels for the same action; cross-reference with design system token names |
+| ☐ | Medical disclaimer placement — every disclaimer at its decision point (inline, modal, adjacent to CTA), not in page footer | Visual audit: every disclaimer within 50px of the decision element; zero disclaimers rendered at font-size < 14px or contrast < 4.5:1 |
+| ☐ | Consent flows validated — granular options per data type, comprehension check question, explicit withdrawal path with contact method | Consent screen has ≥2 independent toggle groups; includes "Which of these will be shared?" check; "How to withdraw consent" link goes to actionable page |
+| ☐ | Error messages confirm data preservation — every clinical-flow error opens with "Your information is saved. You can resume where you left off." | `grep -rn "error\|Error" *.json *.md` — every error string in clinical context contains `saved\|safe\|preserved\|not.lost\|resume` |
+| ☐ | Localization readiness — all strings use ICU MessageFormat, zero concatenated strings, translator context comments on ambiguous terms | `grep -rn "\+ "` on string files returns zero concatenation; every ambiguous string has `<!-- i18n: context -->` comment; plurals use `{count, plural, ...}` |
+| ☐ | Screen reader test — all content tested with VoiceOver/NVDA; zero information conveyed ONLY by visual formatting (color, position, icon without label) | Screen reader transcript shows every action, status, and instruction is announced; no `aria-label` gaps on interactive elements |
+| ☐ | Rollback plan: content versioning in place — ability to revert to previous copy version within 1 hour if comprehension or trust metrics degrade | CMS or code repo supports content version rollback; previous version deployable via CI without code change; rollback tested in staging |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Error messages: every error message has 3 parts — what happened, why, what to do next
 - [ ] Consistency audit: same action has same label everywhere — "Save" or "Submit," not both
@@ -388,6 +525,7 @@ Common chains:
 - [ ] Reading level: all microcopy at ≤ 8th grade reading level (Flesch-Kincaid)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -405,6 +543,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Legal requires adding "by clicking continue you agree to our Terms of Service and Privacy Policy" — the button was "Next" and now wraps to 3 lines | The legal disclaimer was bolted on after design was finalized. The 104-character legal string was shoved into a 200px-wide container next to the button. | Include legal copy requirements in the design brief, not as a post-design addition. Design a dedicated legal consent pattern: checkbox + link to ToS + link to Privacy Policy. Never embed legal text inline in a CTA — it kills readability and conversion. | Legal copy is a design constraint, not an afterthought. Budget space for it from wireframe stage or you'll be redesigning at launch. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -416,5 +555,4 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

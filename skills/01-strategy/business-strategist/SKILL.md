@@ -35,6 +35,7 @@ chain:
 Design and validate business models, craft go-to-market strategies, build financial models, and plan sustainable growth. Think like a COO/CFO/Head of Strategy combined.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -67,7 +68,7 @@ What are you trying to do?
 │   └── Fundraising prep → Jump to "Decision Trees > Fundraising Readiness"
 ├── Set pricing strategy → Start at "Decision Trees > Pricing Model Selection"
 ├── Plan growth & market expansion
-│   ├── Scaling up → Go to "Scale Depth"
+│   ├── Scaling up → Go to "Operating at Different Levels"
 │   └── Channel/partnership strategy → Jump to "Key Frameworks"
 ├── Need company vision or fundraising strategy? → `ceo-strategist`
 ├── Need product-market fit or competitive analysis? → `product-strategist`
@@ -77,7 +78,8 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -88,6 +90,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "Single channel is fine — we'll diversify when growth slows" | Channels break overnight: one algorithm change, one ad price spike, one platform policy shift. Single-channel GTM = your entire customer acquisition is one executive decision away from zero. Diversify channels before you need to — because when you need to, it's already too late. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -105,12 +108,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Business strategy is not about filling out canvases — it's about **finding the intersection of what customers want, what you can deliver uniquely, and what generates sustainable profit**. The canvas is a tool for thinking; the thinking is what matters.
 
@@ -140,6 +143,7 @@ Business strategy is not about filling out canvases — it's about **finding the
 - **The fatal assumption is usually about customer behavior, not technology.** Most business failures are market failures, not product failures. "We thought they'd pay for it" is the most expensive sentence in business.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Business strategy scales from a single product line to corporate strategy. The time horizon and scope of decisions defines the level.
 
@@ -154,6 +158,7 @@ Business strategy scales from a single product line to corporate strategy. The t
 **Usage**: Say "as an L3 business strategist, evaluate the market entry for..." Default: **L2** (product-level business strategy).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Business model canvas design and validation
@@ -166,6 +171,7 @@ Business strategy scales from a single product line to corporate strategy. The t
 - Fundraising preparation and investor materials
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -193,6 +199,7 @@ Business strategy scales from a single product line to corporate strategy. The t
         └─────────┘ └────────┘  │fee      │ └──────────┘
                                 └────────┘
 ```
+
 **When to choose Usage-based:** Product value directly correlates with API calls, data processed, or compute consumed. CAC payback < 12 months at median usage.
 **When to choose Tiered/Flat:** Predictable value delivery per customer. Buyers need budget predictability. Implementation cost is similar regardless of usage volume.
 
@@ -214,6 +221,7 @@ Business strategy scales from a single product line to corporate strategy. The t
             │ Marketing│ │ + Content│ │ Outbound SDR  │
             └──────────┘ └──────────┘ └──────────────┘
 ```
+
 **When to choose PLG/Content:** Self-serve onboarding exists. Product demonstrates value in < 15 minutes. CAC target < $200.
 **When to choose Enterprise Sales:** Requires procurement, security review, or executive approval. Implementation takes > 2 weeks. ACV justifies > $1K CAC.
 
@@ -235,6 +243,7 @@ Business strategy scales from a single product line to corporate strategy. The t
         │ expansion        │  │ in current market   │
         └──────────────────┘  └────────────────────┘
 ```
+
 **When to expand:** Current market share > 30% OR TAM in adjacent market > 2x current. Can repurpose > 60% of existing tech/sales motion.
 **When to deepen:** Current market share < 15%. CAC is trending down. Unit economics improving with scale.
 
@@ -257,6 +266,7 @@ Business strategy scales from a single product line to corporate strategy. The t
         │ Gross margin>70%?│  │ Revisit in 6 months. │
         └──────────────────┘  └──────────────────────┘
 ```
+
 **When to fundraise:** > 6 months runway remaining. Clear use of funds tied to milestones. Strong founder-market fit narrative.
 **When to wait:** < 4 months runway (emergency mode — bridge round). Growth is flat. Missing key hires needed to deploy capital effectively.
 
@@ -277,6 +287,7 @@ Common chains:
 - **Pricing overhaul**: product-strategist → business-strategist → financial-modeling — Pricing hypothesis → pricing strategy + tiering → revenue projections
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -312,11 +323,18 @@ Complete when:
 5. Create board/investor reporting package
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 - 3-year financial model with base/optimistic/pessimistic scenarios saved
 - Funding requirements and dilution impact calculated with assumptions documented
 - Investor reporting package with key metrics and milestones exported
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -332,6 +350,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Business strategy lives or dies on cross-functional alignment. A brilliant GTM strategy fails if product can't ship, sales can't sell, and finance can't fund.
@@ -376,6 +395,7 @@ Tactical business decision (segment targeting, campaign optimization, channel mi
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -388,17 +408,20 @@ Tactical business decision (segment targeting, campaign optimization, channel mi
 | No coordination with `product-manager` for market validation — business strategy and product roadmap are disconnected | Schedule joint review: does the business model assume features the product team hasn't prioritized? Does the product roadmap build things the business model doesn't monetize? Align product strategy with revenue model quarterly | Business strategy and product strategy are two sides of the same coin. A business model that assumes enterprise sales while the product is built for self-serve PLG is a contradiction that wastes engineering capacity and marketing budget |
 | Fundraising materials prepared without `fp-and-a-analyst` review — model has circular references or unrealistic assumptions | Coordinate model review: every assumption must have a source (customer interview, benchmark, industry report). Line items must reconcile. Run sensitivity analysis: which assumptions, if they move 20%, change the outcome? Raise when the model is defensible, not when it's pretty | Investor due diligence finds every weak assumption. A model that breaks under 20% sensitivity analysis will break in the first partner meeting. Defensibility is not about being right — it's about knowing exactly where you might be wrong and having a plan for both cases |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Your financial model has three defensible scenarios with documented assumptions, not wishful projections. Your TAM/SAM/SOM analysis is grounded in bottom-up data that an investor would trust.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best business strategists treat strategy as a craft, not a meeting. Deliberate practice means regularly producing strategic artifacts, getting feedback from the market, and refining your mental models.
 
@@ -421,6 +444,7 @@ graph LR
 **The One Highest-Leverage Activity**: Write a one-paragraph business strategy for a real or hypothetical company every week. If the strategy doesn't fit in a paragraph, you haven't understood it yet. Share with a peer and ask: "What's wrong with this?"
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Start with the business model canvas, not the pitch deck.** Map all 9 building blocks (value propositions, customer segments, channels, customer relationships, revenue streams, key resources, key activities, key partnerships, cost structure) before writing a single slide. The canvas forces you to confront contradictions (e.g., enterprise pricing vs. self-serve channel) that slide decks let you gloss over.
@@ -444,6 +468,7 @@ graph LR
 10. **Document all strategic assumptions and assign an owner to validate each one.** Every business plan contains 20-50 unstated assumptions (market growth rate, customer willingness to switch, competitor response time, regulatory timeline). List them explicitly. Assign each to a named owner with a validation deadline. Track which assumptions have been validated, invalidated, or remain open. An invalidated assumption is a gift — it prevents a bigger mistake later.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - **Porter's Five Forces** analysis that's a one-time exercise — you do it in January, file it away, and the market shifts in March (new entrant, supplier consolidation, substitute product launch). The analysis is stale before it reaches the board. Five Forces must be a quarterly living document, not an annual ritual.
@@ -459,6 +484,7 @@ graph LR
 - **What:** Building a GTM strategy by copying the market leader's playbook. **Why:** The leader optimized for their position (brand awareness, existing customer base, massive budget). You're optimized for a different position (zero awareness, zero customers, constrained budget). Copying their playbook is fighting their battle on their terms. **Instead:** Identify unoccupied GTM channels the leader ignores (communities, niche events, partner ecosystems, product-led growth loops) and dominate those before expanding.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any deliverable leaves this skill, verify:
@@ -479,6 +505,8 @@ Before any deliverable leaves this skill, verify:
 - [ ] Exit strategy or long-term value creation thesis documented (IPO path, strategic acquirer profile, or sustainable private model)
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -489,6 +517,7 @@ Before any deliverable leaves this skill, verify:
 | Annual planning that projects linear growth from exceptional quarters | Missed targets, board credibility damage, morale collapse | Use trailing-12-month averages, not best-quarter extrapolation. Exceptional quarters regress to the mean. Build plans on 70th-percentile confidence, not "if everything goes perfectly." Leave stretch goals for internal motivation, not board commitments. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Market analysis: Porter's Five Forces reviewed within last quarter, changes documented
 - [ ] Competitive intelligence: top 5 competitors tracked quarterly — funding, product launches, pricing changes, leadership moves
@@ -497,8 +526,9 @@ Before any deliverable leaves this skill, verify:
 - [ ] Pricing: pricing strategy reviewed within last 6 months — value-based, not competitor-minus
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ### Solo (1-10 employees, pre-revenue)
 - Business model: Lean Canvas (1-page), not full business model canvas
@@ -533,6 +563,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - Deliverable: 3-year strategic plan with annual operating plan, board-reviewed quarterly
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -545,6 +576,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Board approved $5M GTM budget; 12 months later, pipeline is flat | Budget allocated without channel unit economics; spend distributed evenly across channels regardless of efficiency | Reallocate budget toward channels with proven CAC:LTV ratio. Require per-channel efficiency reporting before releasing next quarter's budget. Implement 90-day kill criteria for underperforming channels. | Budget without unit economics = gambling with other people's money. |
 
 ## References
+<!-- STANDARD: 3min -->
 - **Financial Modeling Best Practices**: See [financial-modeling-best-practices.md](references/financial-modeling-best-practices.md)
 - **GTM Cost by Channel (B2B SaaS)**: See [gtm-cost-by-channel-b2b-saas.md](references/gtm-cost-by-channel-b2b-saas.md)
 - **Key Frameworks**: See [key-frameworks.md](references/key-frameworks.md)

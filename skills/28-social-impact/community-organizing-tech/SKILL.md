@@ -55,7 +55,8 @@ chain:
 
 End-to-end technology development for grassroots community power — building platforms that strengthen neighborhoods, enable mutual aid, coordinate volunteers, and amplify collective action. This skill covers the full stack of community organizing technology: volunteer coordination systems that match skills to needs, mutual aid networks that track requests from food to housing, petition platforms that convert signatures into policy change, secure communication tools that protect activists from surveillance, offline-capable field organizing apps, participatory budgeting platforms that democratize public spending, time banks and skill exchanges that build community currency, and impact measurement dashboards that prove the work matters. Every recommendation integrates privacy-by-design for vulnerable populations, accessibility for ALL community members regardless of device or language, and measurable community outcomes. The goal is not just shipping features — it is building tools that measurably strengthen communities, redistribute resources, and enable people to shape their own neighborhoods.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -68,6 +69,7 @@ End-to-end technology development for grassroots community power — building pl
 Build technology for grassroots community power with deep expertise across the organizing technology stack — volunteer coordination, mutual aid logistics, petition and advocacy, secure communication, field organizing, participatory budgeting, time banks, coalition building, and community impact measurement. This is the internal playbook for community organizing technologists — every section contains concrete, actionable patterns that reflect the unique constraints of organizing work: privacy for vulnerable populations, accessibility across the digital divide, offline capability for field work, and measurable community outcomes.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -120,6 +122,7 @@ Discovery Questions (when the organizing domain is unclear):
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -141,6 +144,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs or established practice, [COMMON-PRACTICE] — widely used in community organizing tech, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. Community safety depends on accurate security claims.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -165,6 +169,7 @@ Competent developers build features that work. Masters build tools that **commun
 - **Use existing tools when they're secure enough.** Signal for group chat, Mutual Aid Wiki for resource directories, Action Network for petitions. Don't rebuild what already works securely — integrate and fill the gaps.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Community organizing tech spans deep domain expertise, so level manifests in the sophistication of privacy, accessibility, and community power decisions.
 
@@ -179,6 +184,7 @@ Community organizing tech spans deep domain expertise, so level manifests in the
 **Usage**: Say "as an L3 community organizing technologist, design the mutual aid data model for..." Default: **L2** (production-ready, community-safe implementation).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building a volunteer coordination platform with skills matching, scheduling, and hour tracking
@@ -198,6 +204,7 @@ Community organizing tech spans deep domain expertise, so level manifests in the
 - Designing secure communication channels for activist organizing
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -301,6 +308,7 @@ Voting mechanism?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -316,7 +324,6 @@ Complete when:
 - RBAC model documented with explicit permissions per role and data type
 - Encryption design documented: application-level encryption for PII, per-user keys, audit log for all PII access
 
-
 ### Phase 2 (~30 min): Volunteer Coordination
 <!-- DEEP: 10+min -->
 1. **Volunteer profiles**: Skills inventory (taxonomy with proficiency levels), availability (recurring weekly blocks + ad-hoc), location (approximate for matching), contact preferences. Background check status if required.
@@ -330,7 +337,6 @@ Complete when:
 - Volunteer profile schema defined with skills taxonomy, availability, location, and contact preferences
 - Matching algorithm tested: skill overlap × 0.4 + availability × 0.3 + proximity × 0.2 + reliability × 0.1
 - Hour tracking workflow designed: QR/geofence check-in → coordinator verification → export for grant reporting
-
 
 ### Phase 3 (~30 min): Mutual Aid Networks
 1. **Request submission**: Multi-channel intake — web form, SMS bot, IVR phone tree, paper form (digitized by volunteer). Categorize: food, housing, transportation, childcare, medical transport, utility assistance, emergency funds.
@@ -347,7 +353,6 @@ Complete when:
 - Request matching algorithm defined with auto-match against inventory, volunteers, and partner orgs
 - Fulfillment workflow documented: submitted → triaged → matched → claimed → in_progress → fulfilled → verified with SLA tracking
 
-
 ### Phase 4 (~25 min): Petition & Advocacy
 1. **Petition creation**: Clear demand statement, target identification (elected official, corporation, institution), signature goal, deadline. Supporting materials (fact sheets, testimonies).
 2. **Signature collection**: Online (email verification + optional SMS 2FA) + offline (PDF/paper forms with unique batch codes for data entry). Duplicate detection (email + name + zip fuzzy matching).
@@ -359,7 +364,6 @@ Complete when:
 - Petition schema defined: demand statement, target identification, signature goal, deadline, supporting materials
 - Target database integrated with Google Civic Information API and custom target types
 - Campaign tools designed: email-your-rep templates, click-to-call scripts, social amplification with action tracking
-
 
 ### Phase 5 (~25 min): Field Organizing Tools
 1. **Offline-capable canvassing app**: PWA + Service Worker + IndexedDB. All scripts, maps, and constituent data synced before going offline. Form submissions queued and synced when online.
@@ -374,7 +378,6 @@ Complete when:
 - Turf cutting algorithm specified: polygon assignment → volunteer dispatch → coverage heatmap
 - Sync protocol defined: queued submissions, conflict resolution strategy (CRDT), no 'no internet' errors for core functions
 
-
 ### Phase 6 (~25 min): Geographic & Community Mapping
 1. **Asset mapping**: Community-submitted locations with categories (food, health, education, safety, recreation). Moderation queue for new submissions. Verification workflow.
 2. **Participatory mapping**: Drawing tools for community members to add: "This is where we gather," "This intersection is dangerous," "We need a bus stop here." Story + photo attachment.
@@ -387,7 +390,6 @@ Complete when:
 - Asset mapping workflow defined: community submission → moderation → verification with category taxonomy
 - Service gap analysis configured: asset locations + census ACS data overlay → underserved area identification
 - Print export designed: high-quality printable maps with QR codes linking to digital interactive version
-
 
 ### Phase 7 (~25 min): Participatory Budgeting
 1. **Proposal submission**: Community members submit project proposals with: description, estimated cost, location, supporting materials, endorsements. Moderation and feasibility review by staff.
@@ -402,7 +404,6 @@ Complete when:
 - Voting method selected (RCV, approval, or cumulative) with budget constraint enforcement
 - Results transparency designed: round-by-round breakdown, winning projects, allocation visualization
 
-
 ### Phase 8 (~20 min): Time Banks & Skill Exchanges
 1. **Member profiles**: Skills offered (with proficiency), skills needed, availability, location. Trust building: references, completed exchanges, community endorsements.
 2. **Time credit system**: 1 hour of service = 1 time credit, regardless of service type. All hours are equal — a lawyer's hour and a babysitter's hour are both 1 credit.
@@ -414,7 +415,6 @@ Complete when:
 - Time credit system defined: 1 hour = 1 credit regardless of service type, community pool for donations
 - Exchange matching designed: need posting → skill matching → direct messaging → mutual confirmation → credit transfer
 - New member orientation workflow created: profile setup, skill listing, philosophy introduction, required before first exchange
-
 
 ### Phase 9 (~20 min): Coalition Building
 1. **Multi-org coordination**: Organization profiles with: mission, member count, service areas, programs. Shared calendar with coalition events, actions, and deadlines.
@@ -429,7 +429,6 @@ Complete when:
 - Resource sharing directory designed: meeting spaces, equipment, funding opportunities with request/offer board
 - Collective impact measurement framework: shared metrics, aggregated dashboards across all coalition members
 
-
 ### Phase 10 (~20 min): Donation & Fundraising
 1. **Grassroots fundraising pages**: Campaign pages with: story, goal, progress bar, donor wall (opt-in). Recurring donation option (Stripe + monthly).
 2. **In-kind donation tracking**: Item donations (food, supplies, equipment) with: description, quantity, value estimate, pickup/dropoff coordination. Tax receipt generation.
@@ -440,7 +439,6 @@ Complete when:
 - Grassroots fundraising page designed: story → goal → progress → donor wall with recurring donation option
 - In-kind donation tracking defined: item description → quantity → value → pickup/dropoff → tax receipt
 - Transparency dashboard configured: funds raised/distributed, programs funded, admin overhead percentage, impact updates
-
 
 ### Phase 11 (~20 min): Neighborhood Communication
 1. **Hyperlocal forums**: Geographically-bounded discussion (neighborhood, block, building). Category-based (buy nothing, recommendations, safety, events).
@@ -454,7 +452,6 @@ Complete when:
 - Alert system designed: multi-channel delivery (push + SMS + email) with confirmation of receipt
 - Moderation workflow created: flag → review → action → appeal with transparency reporting
 
-
 ### Phase 12 (~20 min): Impact Measurement
 1. **Metrics framework**: People served (demographic breakdown), volunteers engaged (hours, retention), resources distributed (food lbs, dollars, rides), petitions signed and won, policies changed, dollars raised and distributed.
 2. **Equity metrics**: Who is being reached? Demographic breakdown by race, income, language, geography, disability status. Who is being missed? Gap analysis against community demographics.
@@ -466,8 +463,8 @@ Complete when:
 - Equity metrics defined: demographic breakdown by race, income, language, geography, disability; gap analysis vs community demographics
 - Dashboards designed: real-time organizer dashboard, funder summary reports, public transparency dashboard
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Privacy is the first feature, not the last.** Before any CRUD, implement: data minimization, encryption at rest, access control, audit logging, deletion workflows, and a privacy policy that a non-lawyer can understand. Trust lost to a data breach cannot be rebuilt with features. Use application-level encryption for PII fields — never rely solely on database encryption. Per-user encryption keys prevent bulk data extraction.
 
@@ -490,10 +487,12 @@ Complete when:
 10. **Plan for platform succession from day one.** Community organizing platforms outlast their original developers. Open-source the code. Document the architecture. Export all data in standard formats (CSV, GeoJSON). The ultimate success metric: the community can run the platform without you.
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before any community-facing deployment, verify ALL of:
 
@@ -517,6 +516,7 @@ Before any community-facing deployment, verify ALL of:
 18. Moderation: content moderation workflow tested. Appeal process documented. Moderation team trained
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > A community member with a basic phone, limited English, and intermittent internet can request food assistance, get matched with a neighbor who speaks their language, and confirm receipt — all without creating an account that stores their legal name or address. Organizers can see service gaps on a map, deploy volunteers to fill them, and measure the impact in real meals delivered and families served.
 
@@ -539,6 +539,7 @@ Common chains:
 - **Secure organizing platform**: security-engineer → community-organizing-tech → localization-engineer — Secure architecture first, build organizing features, translate for community access
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
@@ -559,6 +560,7 @@ Common chains:
 **Volunteer at a community organization using technology you didn't build.** Every 6 months, spend a day as a volunteer user of someone else's organizing platform. Feel the friction. Note what confused you, what scared you about your data, what made you want to quit. These are the exact experiences your users have with your platform. Build to eliminate them.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -573,6 +575,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -612,6 +615,7 @@ Cross-org coordination failure? → Coalition Coordinator → Project Manager �
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -625,6 +629,7 @@ Cross-org coordination failure? → Coalition Coordinator → Project Manager �
 | "We'll add a chat feature so volunteers can communicate in the app" | Stop: "In-app chat creates a permanent, searchable, subpoena-able record of organizer communication. This is a surveillance risk for activists. Instead: (a) Integrate Signal protocol via libsignal for end-to-end encrypted messaging, (b) Auto-deleting messages after configurable time, (c) Option to communicate outside the platform entirely, (d) Clear warning that in-app messages are stored. Better: point users to Signal and don't build chat at all. The best secure communication tool is the one that doesn't store messages." | In-app chat generates a permanent communication graph — who talked to whom, when, about what. For activist organizing, this metadata IS the surveillance threat. Building chat means building a surveillance target. Unless you can implement full E2E encryption with forward secrecy and metadata protection, directing users to Signal is the safer and more responsible choice. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### 1. Surveillance-By-Default Data Collection
 **What it looks like:** Every form collects full name, address, phone, email, date of birth. Fields are required by default. No data retention policy. All organizers can see all data. Export to CSV is one click away.
@@ -677,6 +682,7 @@ Cross-org coordination failure? → Coalition Coordinator → Project Manager �
 **Fix:** Automate operations that don't require human judgment: reminders, status updates, simple matching, report generation. Reserve organizer time for: complex cases, relationship building, strategy. The platform should reduce organizer toil, not create it.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -692,6 +698,7 @@ When community organizing tech goes wrong, it goes wrong in ways that hurt real 
 | Community event had 200 RSVPs, 30 showed up — organizers were using a platform that sent confirmation emails to spam folders | Single-channel communication. No RSVP confirmation workflow. No reminder sequence | Implement: multi-channel RSVP (app + SMS + email), confirmation required (one-tap "Yes, I'm coming"), reminder sequence (1 week, 1 day, 2 hours before), "can't make it" workflow. RSVP confidence score. **Lesson:** RSVPs without confirmation and reminders are fantasy numbers — design for the communication channels people actually check |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -702,6 +709,7 @@ When community organizing tech goes wrong, it goes wrong in ways that hurt real 
 | Offline field data loss during canvassing — 8 hours of door-knocking data lost when canvasser's phone dies because background sync never triggered and IndexedDB wasn't persisting properly on low-storage device | $5K-$15K in re-canvassing costs and data gaps per incident | Implement aggressive auto-save to IndexedDB after every interaction; show "unsynced records" count prominently; trigger sync on app resume (not just background sync); test with device storage at 95%+ full; add manual "Force Sync" button with checksum verification |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -717,6 +725,7 @@ Before considering the task complete, verify:
 8. **Impact verification**: Metrics pipeline produces correct numbers — validate against manual count for one metric
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -727,6 +736,7 @@ Before considering the task complete, verify:
 | V5 | `grep -c "encrypt\|privacy\|threat.*model\|surveillance\|doxx" SKILL.md` < 3 | [WARN] Insufficient privacy/security coverage for activist-facing tools. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Mutual Aid Data Models**: Database schemas for request tracking, volunteer matching, and inventory management —
 - **Privacy Framework**: Threat modeling templates, data retention policies, and encryption architecture for community organizing —

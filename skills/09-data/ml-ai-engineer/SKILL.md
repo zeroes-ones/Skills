@@ -45,6 +45,7 @@ LLM integration patterns, RAG architectures, model serving at scale, evaluation 
 drift monitoring, and responsible AI guardrails.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -61,12 +62,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of ml ai engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -87,6 +88,7 @@ Masters of ml ai engineer don't just build — they build **the right thing, at 
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -122,6 +124,7 @@ What are you trying to do?
 ```
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -137,6 +140,7 @@ What are you trying to do?
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Framing a business problem as an ML task and selecting the right approach
@@ -151,6 +155,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Implementing AI safety: guardrails, red-teaming, hallucination detection, content filtering
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -183,6 +188,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                 │LoRA/QLoRA│ │Few-shot││CatBoost││framing   │
                                 └────────┘ └──────┘└───────┘└─────────┘
 ```
+
 **When to choose Heuristic:** Simple rules cover 90%+ of cases, error tolerance is high, shipping speed beats marginal accuracy improvement.
 **When to choose Classical ML:** Structured tabular data, 1K-10K labeled examples, interpretability matters (SHAP values).
 **When to choose RAG:** No labeled data, knowledge is in documents, answer must be grounded in specific context with citations.
@@ -210,6 +216,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │10-200ms │ │<1ms   │ │daily│ │<100ms    │
                   └─────────┘ └───────┘ └─────┘ └──────────┘
 ```
+
 **When to choose Real-time API:** User-facing features (search, recommendations, chat), P99 < 200ms, use FastAPI/Triton with auto-scaling.
 **When to choose Batch:** Nightly reports, risk scoring, ETL enrichment — run Spark jobs, cost-efficient, millions/day.
 **When to choose Streaming:** Fraud detection, real-time personalization — Kafka + Flink, <100ms processing, sub-second freshness.
@@ -239,6 +246,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │1K+ exs │ │5-50 exs ││ DB  │ │only      │
                   └────────┘ └─────────┘└─────┘ └──────────┘
 ```
+
 **When to choose RAG:** Knowledge changes faster than retraining, need citations/attribution, zero labeled data — Pinecone/Weaviate + embedding model.
 **When to choose Fine-tuning:** Teach a specific task/format persistently, have 100-1K high-quality examples, want cost reduction vs long prompts.
 **When to choose Few-shot:** 5-50 examples in prompt, model already capable but needs guidance, no training infrastructure.
@@ -272,6 +280,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                   │met││quality│
                                   └───┘└──────┘
 ```
+
 **When to increase regularization:** Train acc >> Val acc, high variance across CV folds — add L1/L2, dropout, early stopping, data augmentation.
 **When to increase capacity:** Both train and val are low — model too simple, underfitting. Add layers, reduce regularization, engineer better features.
 **When to audit data:** Perfect train, random val — likely data leakage or bad split. Audit time-based/group-based splits.
@@ -306,11 +315,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                    │+ retrain│ └──────┘
                                                    └───────┘
 ```
+
 **When to trigger retrain:** PSI > 0.25 on any critical feature — data distribution shifted significantly. Investigate upstream pipeline first.
 **When to rollback:** Prediction error rate > 5× baseline for 15+ min — model performance collapsed. Immediate rollback to last known good.
 **When to scale infra:** P99 latency > 2× SLA — model isn't broken, infrastructure is. Add replicas, optimize model with quantization.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -367,9 +378,16 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Feature store over ad-hoc feature engineering.** Reusable features defined once and served consistently for training and inference prevent training/serving skew — the #1 cause of silent model degradation in production. Feast, Tecton, or a data warehouse-based feature store ensures the model sees the same feature computation path in both environments.
 
@@ -392,6 +410,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 10. **LLM-specific: RAG over fine-tuning as the default, not the exception.** For most enterprise use cases, RAG provides grounded, updatable responses at lower cost than fine-tuning. Reserve fine-tuning for domain-specific behavior patterns that RAG cannot capture (tone, format, instruction-following style). Prompt engineering alone works for < 5 examples of desired behavior.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 **(STANDARD)**
 
@@ -408,6 +427,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -423,6 +443,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | Model architecture, training pipeline, evaluation metrics | ML models can't be deployed — MLOps blocked |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — when to intervene before someone asks -->
 
@@ -437,17 +458,19 @@ If a command or approach fails, follow this escalation path before giving up:
 | Bias audit reveals model performs 30% worse for a protected demographic group | Propose bias mitigation pipeline: fairness metrics monitoring (demographic parity, equal opportunity), reweighting/resampling during training, threshold calibration per group; sync with `ai-safety-engineer` on fairness evaluation | A model that performs 30% worse for a protected group is a regulatory and ethical liability; fairness must be measured and mitigated before deployment, not discovered by users |
 | Model evaluation shows strong offline metrics but team asks "will this actually work in production?" | Propose A/B testing framework with guardrail metrics: business KPIs (conversion, engagement) alongside model metrics (latency, error rate); shadow deployment before traffic cutover; sync with `mlops-engineer` on canary infrastructure | Offline evaluation measures model quality on historical data; A/B testing measures business impact on live users; a model with better offline metrics can still hurt business outcomes |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every training run is reproducible: pinned dependencies, versioned datasets, seeded randomness, and a logged git hash.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -465,6 +488,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Model checkpoint callbacks** trigger on every N steps, but if your training crashes at step 4,999 and checkpoint interval is 5,000 — you lose 4,999 steps of work. Also: `save_best_only=True` with a validation metric prevents saving intermediate checkpoints entirely. The best model may not be the last. **Total cost: $50-$500 per GPU-hour wasted — losing 4,999 steps on an 8×A100 cluster at $30/GPU-hour means $1,200-$12,000 in burned compute with zero recoverable output.**
 - **`torch.no_grad()` doesn't mean zero memory** — tensors still accumulate on the computation graph if created inside `with torch.no_grad():` but used outside it with `requires_grad=True`. Inference memory leaks happen silently this way. **Total cost: $10-$100 per GPU-hour in wasted memory overhead — a slow memory leak that OOMs after 48 hours of inference on a $3/GPU-hour instance wastes $144 in compute and requires a restart that delays serving by hours.**
@@ -473,6 +497,7 @@ graph LR
 - **GPU memory fragmentation**: `empty_cache()` frees memory but doesn't defragment. After 100 cycles of allocating/deallocating different-sized tensors, you may have 4GB "free" but can't allocate a 2GB contiguous tensor. Restart the process or use `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. **Total cost: $20-$200 per restart cycle — each fragmentation-induced OOM requires a full process restart on multi-GPU nodes, costing 5-15 minutes of idle GPU time at $20-$200 per node-hour depending on GPU tier.**
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any model reaches production, verify ALL of:
@@ -492,45 +517,8 @@ Before any model reaches production, verify ALL of:
 13. Rollback plan verified: single API call to revert to previous model version, end-to-end rollback tested in staging
 14. Monitoring dashboards live: prediction distribution, feature drift, latency, error rate, and business KPIs
 
-## Scale Depth
-
-| Scale | Scope & Complexity | Key Considerations |
-|---|---|------|
-| **Solo** | 1-2 models, personal projects or research | Jupyter notebooks with MLflow for experiment tracking. Single GPU (Colab, Lambda Labs, or local RTX). Manual deployment via Flask/FastAPI. Focus on reproducibility: every notebook cell runs top-to-bottom without modification. |
-| **Small Team (2-10)** | 5-20 models, single business domain | MLflow or Weights & Biases for experiment tracking and model registry. Feature store (Feast lightweight). CI/CD pipeline for model training and deployment. Kubernetes or SageMaker for serving. Shadow + canary deployment pattern. |
-| **Medium (10-100)** | 50+ models, multiple business domains | Centralized ML platform (Kubeflow, Vertex AI, SageMaker). Automated retraining pipelines triggered by data drift. Feature store with point-in-time correctness (Feast, Tecton). Model monitoring with automated rollback. MLOps maturity: Level 2 (automated CI/CD + continuous training). |
-| **Enterprise (100+)** | 500+ models, multi-cloud/hybrid, regulatory compliance | Federated ML platform — central platform team owns infrastructure, domain teams own models. Real-time model monitoring with automated incident response. Model governance board for ethical review. EU AI Act compliance program. GPU cluster management with priority scheduling and cost allocation. |
-
-**Transition Triggers:**
-- Solo → Small Team: > 3 models requiring production serving; need for experiment tracking beyond spreadsheet
-- Small Team → Medium: > 20 models across > 2 domains; need for shared feature store and automated retraining
-- Medium → Enterprise: > 500 models or regulated industry requiring formal model governance and EU AI Act compliance
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---|---|---|---|
-| Training loss decreasing but validation loss increasing from epoch 3 | Overfitting — model memorizes training data, won't generalize | Add regularization (dropout, weight decay), reduce model capacity, increase training data, add data augmentation, early stopping with validation patience | The gap between training and validation loss is the generalization gap. A widening gap means your model is memorizing noise. |
-| Model performs well in training but fails in production — same metrics, different data | Training/serving skew — feature computation differs between offline training pipeline and online inference pipeline | Audit feature computation code in both paths; implement feature store that serves identical transformations; monitor feature distribution drift (PSI > 0.1 is a warning) | The #1 cause of silent model failure in production. The model didn't degrade — it's solving a different problem than the one it was trained on. |
-| GPU OOM during training even though batch_size × seq_len × hidden_dim fits in memory | Memory accounting ignores optimizer states and gradients — Adam stores 2× parameters (m, v), amortized gradients use memory, and activation checkpointing adds overhead | Reduce batch size, enable gradient checkpointing, use mixed precision (fp16 cuts memory ~50%), use DeepSpeed ZeRO or FSDP for distributed training | Allocated memory = model params + gradients + optimizer states + activations. The model parameters are only ~1/4 of total memory: 1× params + 1× gradients + 2× Adam states + N× activations. |
-| NaN loss at step 4,500 of training | Gradient explosion or fp16 overflow — activation values > 65,504 exceed float16 max | Enable gradient clipping (max_norm=1.0), switch to bf16 (wider range), add loss scaling, monitor grad_norm and alert on spikes | NaN after thousands of steps usually means a rare input triggered an extreme activation. Log the input batch when NaN occurs for root cause analysis. |
-| Model deployed but prediction latency 10x higher than benchmark | Inference was benchmarked on GPU with batch_size=64 but production serves single requests on CPU; different hardware and batching pattern | Benchmark on production hardware with production batch sizes; use ONNX Runtime or TensorRT for optimization; consider model distillation for latency-sensitive deployments | Inference benchmarks must match production conditions. A model that runs in 10ms with batching on A100 can take 200ms for single requests on CPU. |
-| Bias audit reveals model is 30% less accurate for minority subgroup | Training data underrepresenting the subgroup; proxy variables (e.g., ZIP code correlating with race) leaking protected attributes | Oversample underrepresented groups, remove proxy variables, apply fairness constraints during training (Fairlearn, AIF360), evaluate disaggregated metrics before deployment | Models learn the biases in your data. A "99% accurate" model that fails for 10% of your users is not ready for production. |
-| Experiment tracking shows 50 runs, MLflow server is slow, "which run was production?" | No naming convention, no tagging, no lifecycle status. Every run is named `run_20240315_142432` and nobody knows which is which. | Implement naming convention: `{model}-{dataset_version}-{description}`. Tag every run with status (production, staging, deprecated, experiment). Archive runs > 30 days old with no status tag. | Experiment tracking without naming discipline is worse than no tracking — it creates the illusion of traceability without actually enabling it. |
-
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|---|---|
-| "Prompt injection is the user's problem, not our infrastructure" | Prompt injection is the #1 OWASP for LLM apps; every input field — user text, uploaded files, webpage summaries, tool outputs — is an untrusted attack vector that crosses system boundaries |
-| "We'll fine-tune a smaller model to match GPT-4 quality and save costs" | Distillation and fine-tuning recover ~70-80% of teacher quality on benchmark tasks but lose emergent reasoning, instruction-following nuance, and safety alignment — the gap widens on out-of-distribution inputs |
-| "RAG solves hallucination, we don't need factuality guardrails beyond retrieval" | RAG reduces but doesn't eliminate hallucination; models override retrieved context with parametric knowledge, synthesize across documents incorrectly, and cite sources that contradict their own output |
-| "We evaluate on the same metrics the foundation model paper reports, so we're covered" | Foundation model benchmarks (MMLU, HumanEval, GSM8K) measure general capability, not task-specific reliability — your medical Q&A, code generation, or customer-facing app needs domain-grounded evals |
-| "Chain-of-thought improves accuracy, so we should always use it" | CoT increases latency 3-10x and cost proportionally; for classification, extraction, and routing tasks it adds no accuracy and wastes compute — reasoning is a tool, not a default |
-
-
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -539,7 +527,6 @@ Before any model reaches production, verify ALL of:
 | Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
 | Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -550,6 +537,7 @@ Before any model reaches production, verify ALL of:
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Training runs to completion without NaN loss or exploding gradients — monitor `grad_norm` throughout
 - [ ] Validation loss plateaus (not decreasing AND not increasing) — no overfitting signal
@@ -559,10 +547,12 @@ Before any model reaches production, verify ALL of:
 - [ ] Reproducibility: train twice with same seed — metrics within 1% (GPU non-determinism tolerance)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -573,5 +563,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

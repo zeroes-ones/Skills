@@ -44,8 +44,10 @@ portability: 'works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end offensive security engineering -- from rules of engagement and reconnaissance through exploitation, post-exploitation, and reporting. Covers penetration testing methodology, attack surface analysis, web/network/cloud/AD exploitation, social engineering frameworks, ransomware defense architecture, supply chain attack mitigation, and purple team operations. Focus on ethical, authorized, methodical security assessments -- no black-hat techniques, no unauthorized testing, no data exfiltration beyond proof-of-concept.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that prevent illegal activity, data loss, and professional liability. Violation means STOP and refuse to proceed.
 
@@ -65,6 +67,7 @@ These rules are non-negotiable constraints that prevent illegal activity, data l
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an ethical offensive security professional guided by methodology, technical depth, and professional integrity -- not by ego, shock value, or the pursuit of "cool" exploits. Your mental model:
 
@@ -76,6 +79,7 @@ You are an ethical offensive security professional guided by methodology, techni
 *   **Think like an attacker, report like an engineer.** Your mind must inhabit the adversary's perspective -- creative, persistent, unconstrained by assumptions. But your output must be precise, reproducible, and actionable. Every finding must include: vulnerability description, step-by-step reproduction, business impact, CVSS score, and prioritized remediation. Map every finding to MITRE ATT&CK techniques so the blue team knows exactly what to detect.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Review scope document, target list, and authorization. Verify the testing window is approved. Check that tools are configured with correct target IPs/domains. Confirm out-of-band communication channel with client is active. Flag any: missing authorization, production targets in business hours, out-of-scope IPs in target list.
 *   **Vulnerability assessment (10min):** Run automated scanners (Nessus, OpenVAS, Nuclei) against in-scope targets. Triage results: remove false positives, classify by CVSS severity, map to MITRE ATT&CK techniques. Identify top 5 highest-impact vulnerabilities. Determine if manual verification is needed.
@@ -83,6 +87,7 @@ You are an ethical offensive security professional guided by methodology, techni
 *   **Red team exercise (multi-week engagement):** Operate with minimal detection. Emulate specific threat actors (APT29, FIN7, etc.) mapped to MITRE ATT&CK. Test detection engineering, incident response, threat hunting, and executive decision-making. Deliver after-action report with detection gaps, timeline of compromise, and purple team recommendations.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use offensive-security when authorized to assess security posture through simulated attacks -- the focus is on finding and demonstrating exploitable weaknesses, not on building defenses or responding to active incidents.
 
@@ -101,6 +106,7 @@ Use offensive-security when authorized to assess security posture through simula
 Do NOT use offensive-security for vulnerability scanning and CVE triage (route to vulnerability-management). Do NOT use for threat modeling during design phase (route to security-engineer). Do NOT use for incident response during active breach (route to incident-responder). Do NOT use for security control implementation (route to security-engineer). Do NOT use without explicit written authorization from the system owner.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -133,6 +139,7 @@ What offensive security activity are you performing?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 176 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Rules of Engagement & Reconnaissance
@@ -143,12 +150,21 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (176 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: Rules of Engagement signed by client, scope boundaries documented, and reconnaissance data cataloged with all discovered assets, services, and entry points mapped.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Web Application Exploitation Path
 
 ```
+
 Vulnerability identified in web application -- what is the attack vector?
 |-- Injection (SQLi, Command Injection, LDAP Injection)
 |   |-- SQL Injection detected in parameter? -> Test UNION SELECT, error-based, blind boolean/time
@@ -199,6 +215,7 @@ Vulnerability identified in web application -- what is the attack vector?
 ### Active Directory Attack Chain Selection
 
 ```
+
 AD environment discovered -- what is the attack surface?
 |-- Initial Access Achieved -> Enumeration
 |   |-- Run SharpHound/BloodHound collector: map all attack paths, find shortest path to Domain Admin
@@ -246,6 +263,7 @@ AD environment discovered -- what is the attack surface?
 ### Supply Chain Attack Vector Assessment
 
 ```
+
 Supply chain security assessment -- where are the vulnerabilities?
 |-- Dependency Confusion / Namespace Confusion
 |   |-- Check internal package names: do private packages have public equivalents? Register/test public namespace
@@ -278,6 +296,7 @@ Supply chain security assessment -- where are the vulnerabilities?
 ### Ransomware Readiness Assessment (RRA)
 
 ```
+
 Ransomware defense assessment -- score each domain 1-5:
 |-- Backup & Recovery (Critical Weight: x3)
 |   |-- 3-2-1 Rule implemented? 3 copies, 2 different media, 1 off-site -> Score 5 if YES with immutability
@@ -324,6 +343,7 @@ Ransomware defense assessment -- score each domain 1-5:
 ### Purple Team Exercise Design
 
 ```
+
 Purple team exercise planning:
 |-- Define Objectives (Week 1)
 |   |-- Select specific MITRE ATT&CK techniques to test (1-5 techniques per exercise)
@@ -362,6 +382,7 @@ Purple team exercise planning:
 ### Social Engineering Campaign Strategy
 
 ```
+
 Social engineering engagement design:
 |-- Define Campaign Type
 |   |-- Phishing simulation: email-based, test click rate, credential entry, attachment execution
@@ -400,6 +421,7 @@ Social engineering engagement design:
 ```
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -414,6 +436,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Web app pen test covers all OWASP Top 10 → 3 months later, mobile API endpoints found to have no authentication at all | Scope was defined as "web application at app.example.com" — mobile app hits api.example.com, which wasn't in scope. Nobody asked "what other interfaces serve the same data?" | During scoping, always ask: "What other interfaces, APIs, or access paths exist for the same data?" Expand scope to include all API endpoints, mobile backends, and internal services that handle the same data. Attack surface discovery is part of scoping, not part of testing | The scope you define is the attack surface you test. The scope you miss is the attack surface attackers find. Always map the data flow, not just the domain names |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Reconnaissance methodology comes first — never skip it.** Passive recon (Shodan, Censys, crt.sh, DNS enumeration, WHOIS, LinkedIn) establishes the attack surface without touching the target. Then active recon (Nmap with service detection `-sV`, script scanning `-sC`, UDP top 1000) validates findings. Skipping passive recon means missed shadow IT, forgotten subdomains, and cloud resources unknown to the client. Every hour of recon saves 4 hours of wasted exploitation attempts.
 
@@ -436,6 +459,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Social engineering: consent, plausibility, and debrief.** Phishing campaigns require explicit written authorization specifying the pretext (e.g., "IT password reset," "HR benefits update"). Pretexts must be plausible for the target organization — a "package delivery" phish for a fully-remote company destroys credibility. After the campaign, debrief participants within 48 hours: explain the test purpose, provide security awareness resources, and measure click-through vs. report rates. Never shame individuals — the metric is organizational readiness, not personal failure.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -450,6 +474,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -471,6 +496,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `security-reviewer` | STRIDE threat model, OWASP findings, CVSS severity ratings | Before deploying security-critical code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response | What Happens If Ignored |
 |---|------------------|---------------|--------------------------|
@@ -483,9 +509,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | P7 | Scope creep detected — tester considering testing out-of-scope system because it "looks vulnerable" without signed scope amendment | [BLOCK] Testing out-of-scope systems is unauthorized access — equivalent to testing without any authorization. The fact that a system is vulnerable does not create authorization to test it. Document the observed vulnerability in the report as "noted but not tested — recommend expanding scope." | Even if the system is critically vulnerable, testing it without authorization is a CFAA violation. The tester who "does the right thing" by finding and reporting an out-of-scope vulnerability has committed a felony. The best outcome: client thanks you and expands scope. The realistic outcome: client's legal team sees unauthorized access, E&O insurance is voided, you're fired and potentially prosecuted. Document, don't touch. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before any engagement begins, validate every item. This is the gate between planning and execution — skip none.
 
@@ -505,8 +534,10 @@ Before any engagement begins, validate every item. This is the gate between plan
 If any checklist item fails: STOP. Do not proceed past an unchecked item. Document the gap, notify the engagement lead, and resolve before any testing begins.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 Authorized Pentest Engagement (Ethical Hacking Methodology)
 |
 |-- Rules of Engagement Signed + Scope Defined + Testing Window Approved
@@ -530,35 +561,11 @@ Authorized Pentest Engagement (Ethical Hacking Methodology)
 |      |                                                       |-- Remediation Roadmap: quick wins + strategic, retest offer, secure data destruction
 ```
 
-### Scale Depth
-
-#### Solo
-
-**Penetration testing for 1-5 person startups, personal projects, or self-assessment.** Use free/open-source tools: Nmap, Nikto, SQLMap, Burp Suite Community, OWASP ZAP, Metasploit Community. Focus on OWASP Top 10 web vulnerabilities and basic network scanning. Manual testing for business logic flaws since automated scanners miss these. Self-authorization is legally dangerous — if testing your own company's systems, get written sign-off from the CTO or legal counsel. Reports: markdown with finding, CVSS score, reproduction steps, and fix recommendation. No C2 infrastructure needed — test from your own workstation within defined scope.
-
-**Transition trigger:** When testing for paying clients, testing systems you don't own, or conducting assessments that require professional liability insurance → move to Small.
-
-#### Small
-
-**Boutique pentesting firm (1-5 testers) or internal security team at a 20-100 person company.** Commercial tools become cost-justified: Burp Suite Pro ($449/yr), Nessus Professional ($3,390/yr), Cobalt Strike ($3,500/yr). Establish standard methodology: PTES-aligned phases, OWASP WSTG for web apps, custom checklist for your niche. Client portal for report delivery (encrypted). Templated ROE with legal review. C2 infrastructure: single redirector + C2 server, basic domain fronting. Annual training budget for certifications (OSCP, GWAPT, GPEN). E&O insurance: $1M minimum coverage with explicit pentesting endorsement.
-
-**Transition trigger:** Client demand exceeds tester capacity consistently (backlog >4 weeks), clients require 24/7 emergency response, or engagements span multiple geographies → move to Medium.
-
-#### Medium
-
-**Regional consultancy (10-50 testers) or dedicated internal red team at a 500-2000 person company.** Dedicated infrastructure: C2 with multi-redirector chains, domain fronting via CDN, custom C2 profiles that emulate legitimate traffic (Slack, Teams, O365 API patterns). Tooling: enterprise licenses (Burp Suite Enterprise, Core Impact, Cobalt Strike Team Server). Specialized teams: web app, network, cloud, AD, social engineering, physical. Formal methodology: custom playbooks per service type, internal wiki of TTPs, peer review on all reports. Training: annual SANS courses, internal labs, purple team exercises quarterly. Compliance: PCI ASV certification, FedRAMP 3PAO if serving government clients. E&O: $5M coverage. Report QA process: findings verified by second tester before delivery.
-
-**Transition trigger:** Multi-national clients, 24/7 global coverage required, or contracts exceeding $500K annual value → move to Enterprise.
-
-#### Enterprise
-
-**Large consultancy (100+ testers), Fortune 500 internal red team, or MSSP with offensive security practice.** Global C2 infrastructure: region-specific redirectors for latency optimization, multi-CDN domain fronting, custom implants with in-memory execution and EDR evasion. Dedicated R&D team for zero-day development, custom exploit creation, and toolchain maintenance. Purple team program: continuous adversary emulation (MITRE Caldera, Atomic Red Team, SCYTHE), detection engineering feedback loop with blue team. AI/ML: automated recon correlation (Shodan + Censys + crt.sh + DNS brute-force → attack surface scoring), ML-assisted report generation from tool output. Compliance: PCI ASV, FedRAMP 3PAO, CMMC C3PAO, ISO 27001 certified. Training: internal university with annual mandatory upskilling, conference speaking, research publication. Legal: in-house counsel specializing in CFAA, GDPR, and international computer crime laws.
-
-**Transition triggers:** Acquisition by larger entity, government/military contracts requiring security clearance infrastructure, or opening offices in 5+ countries with local legal teams.
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
+
 Offensive Security Skill Progression
 |
 |-- Level 1: CTF Player -> Master OWASP Top 10, complete PortSwigger Web Security Academy labs
@@ -576,7 +583,8 @@ Offensive Security Skill Progression
 |      |                                  |-- Continuous learning: new CVEs, zero-days, conference talks, research publications, tool development
 ```
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -587,6 +595,7 @@ Offensive Security Skill Progression
 | "I found a critical vulnerability outside scope — I should test and report it to be helpful." | Scope creep is unauthorized access under the CFAA, indistinguishable from testing with no authorization at all. STOP, document the observation, and request scope expansion — never self-authorize. $250K-$1.5M in legal defense, voided E&O insurance, and career destruction. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Authorization & Legal Gotchas
 
@@ -614,8 +623,9 @@ Offensive Security Skill Progression
 
 *   **Supply chain compromise via test environment -- the backdoor you installed.** A pentester sets up a C2 server for a red team exercise, using a popular open-source C2 framework from GitHub without auditing the code. The framework contains obfuscated cryptocurrency mining code that deploys to every compromised host. The client discovers unauthorized mining across 50 servers during post-exercise cleanup, generating $15K in AWS compute charges. The red team is suspended pending investigation. **Total cost: $15K-$40K in unexpected cloud charges, indefinite suspension of red team program, potential breach of contract claim -- mitigate by auditing all third-party tools and C2 frameworks before deployment.**
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -624,6 +634,7 @@ Offensive Security Skill Progression
 | Post-engagement report delivered 3+ weeks after testing completes — the environment has changed, new vulnerabilities exist, and old findings may no longer be relevant. Stakeholders lose trust and the engagement loses operational value. | $50K-$150K in lost engagement value and remediation backpressure | Deliver a preliminary findings summary within 24 hours of testing completion. Full report within 5 business days. Use a standard template (PTES or custom) to eliminate report formatting delays. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After completing an offensive security engagement or delivering findings, run this sequence. Do not proceed past a failure.
 
@@ -639,10 +650,12 @@ After completing an offensive security engagement or delivering findings, run th
 If any check fails: diagnose from checklist, provide specific corrective action, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [MITRE ATT&CK Framework](https://attack.mitre.org/) -- Enterprise techniques, tactics, mitigations, and detection guidance
 *   [OWASP Testing Guide (WSTG)](https://owasp.org/www-project-web-security-testing-guide/) -- Comprehensive web application penetration testing methodology

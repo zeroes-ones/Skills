@@ -108,7 +108,7 @@ The meta-router for the zeroes-ones/Skills library. When you have a task and don
 | R4 | **DETECT no-match cases.** If no leaf matches, say so explicitly. Never route to "close enough" without caveats. | Trigger: stated need has no matching leaf | STOP. "No skill covers [need]. Closest is [skill] (scope: [X]). For [need], consider `writing-great-skills`." |
 | R5 | **REFUSE hallucinated skill names.** Verify via `ls skills/*/[name]/SKILL.md`. | Trigger: recommended skill name not in filesystem | STOP. "Verifying availability..." then check `skills/` directory. |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|

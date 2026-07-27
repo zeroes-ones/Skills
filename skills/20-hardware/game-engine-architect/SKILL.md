@@ -154,11 +154,116 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Designing memory management: object pools with pre-allocated arrays, arena/linear allocators for per-frame scratch, console memory budgets with subsystem caps
 
 ## Decision Trees
-<!-- 245 lines extracted to references/decision-trees.md -->
 
-  <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
+### Decision Tree 1: Rendering Pipeline Selection
 
-> 📎 **Full content (245 lines):** [references/decision-trees.md](references/decision-trees.md)
+```
+        ┌── INPUT: Target platforms and visual requirements
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Forward rendering           Deferred rendering
+(simple, low bandwidth)     (many lights, complex)
+   │                         │
+   ├─ Mobile/VR targets      ├─ High-end PC/console
+   ├─ MSAA-friendly          ├─ Many dynamic lights
+   ├─ Transparent objects    ├─ G-Buffer: < 64 bytes/pixel
+   └─ GPU: integrated/low    └─ GPU: discrete/dedicated
+        │                         │
+        ▼                         ▼
+   ┌────────────────────┐   ┌────────────────────┐
+   │ Clustered Forward?  │   │ Clustered Deferred? │
+   │ YES → many lights   │   │ YES → even more     │
+   │  on forward path    │   │  lights + volumes   │
+   └────────────────────┘   └────────────────────┘
+```
+
+### Decision Tree 2: ECS Architecture Decision
+
+```
+        ┌── INPUT: Entity count and component complexity
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+< 10K entities,              > 50K entities,
+few component types          many component combos
+   │                         │
+   ▼                         ▼
+GameObject/MonoBehaviour     Pure ECS (DOTS/EnTT/Flecs)
+   │                         │
+   ├─ Unity: MonoBehaviour    ├─ Unity: DOTS Entities
+   ├─ Unreal: Actor+Comp     ├─ C++: EnTT or Flecs
+   └─ Fast iteration OK      ├─ Burst-compiled jobs
+                              ├─ Cache-friendly SoA layout
+                              └─ Archetype count < 20
+                                   │
+                              ┌────┴────┐
+                              │         │
+                              ▼         ▼
+                         Optional      Mandatory
+                         components?   components only?
+                              │         │
+                              ▼         ▼
+                         Limit to      Optimal —
+                         ≤ 3 optional  no archetype
+                         per entity    explosion
+```
+
+### Decision Tree 3: Netcode Architecture
+
+```
+        ┌── INPUT: Multiplayer requirements
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Deterministic lockstep      Client-server
+(RTS, turn-based)           (FPS, MMO, most genres)
+   │                         │
+   ├─ All clients simulate   ├─ Server authoritative
+   │  identical frames       ├─ Client prediction +
+   ├─ Input delay = latency  │  server reconciliation
+   └─ No cheating possible   ├─ Interpolation buffer:
+        │                      │  2x P95 latency
+        │                      ├─ Snapshot delta
+        │                      │  compression
+        │                      └─ Reconciliation rate
+        │                          must be > 99%
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+P2P mesh    Dedicated server
+(small      (competitive,
+sessions,   anti-cheat,
+≤ 4 players) scalable)
+```
+
+### Decision Tree 4: Memory Strategy
+
+```
+        ┌── INPUT: Platform memory constraints
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Console/mobile               PC (generous budget)
+(fixed budget, strict)       │
+   │                         ▼
+   ▼                    Arena allocators
+Arena + pools           for loading phases
+   │                         │
+   ├─ Per-frame alloc         ├─ Loading: arena
+   │  < 1KB after load       ├─ Gameplay: pool
+   ├─ Object pools for       └─ Frame alloc: stack
+   │  hot-path entities
+   ├─ Peak < 85% budget
+   └─ 8-hour soak test:
+       zero alloc failures
+```
+
 ## Core Workflow
 <!-- COMPRESSED: Full 65 lines extracted to references/core-workflow.md -->
 
@@ -233,6 +338,7 @@ Console certification failure (TRC/TCR)? → Embedded Engineer + QA → +4 weeks
 ```bash
 # Architecture → Rendering → Performance → QA certification
 /system-architect && /game-engine-architect && /performance-engineer && /qa-engineer
+
 ```
 
 **Decision Gates & Handoff Artifacts:**
@@ -273,6 +379,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -285,6 +392,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "reversible": true
    }
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
@@ -331,6 +439,7 @@ Before beginning a new phase, verify:
 ```mermaid
 graph LR
     A[Implement] --> B[Profile<br/>on min-spec] --> C[Study<br/>GDC talks/postmortems] --> D[Re-implement<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -347,6 +456,7 @@ graph LR
 - **Unity `GameObject.Instantiate()` inside `Update()` triggers GC.Collect spikes.** Every `Instantiate()` allocates managed memory for the Transform, MonoBehaviour array, and native-object mapping. After 1000 instantiates, the Mono heap fragments, GC.Collect fires, and your 16ms frame becomes 120ms. **Cost: $50K–$150K** in refund waves & store delisting when frame drops trigger platform thermal watchdogs and crash the app on mid-range devices. **Fix:** Pre-allocate object pools at scene load. Use `Pool.Get<T>()` / `Pool.Release(T)` with a ring buffer. For DOTS, use `EntityCommandBuffer.Instantiate()` in a Burst job with pre-allocated chunk capacity.
 
 - **Fixed timestep physics desync from variable rendering without interpolation causes rubber-banding.** Physics runs at 60Hz (dt=16.67ms). Renderer runs at 144Hz (dt=6.94ms). Without interpolation, the renderer shows the last physics state repeated 2-3 times per visual frame, then a sudden jump. Players perceive this as "lag" even though it's purely visual. **Cost: $100K–$300K** in competitive integrity investigations, esports credibility damage & player churn when hit-registration feels inconsistent. **Fix:**
+
 ```cpp
 // Interpolation: visual state = lerp(prev_physics_state, current_physics_state, alpha)
 // where alpha = accumulator / fixed_dt
@@ -356,6 +466,7 @@ Transform renderTransform = Transform::Lerp(
     alpha
 );
 ```
+
 Always run physics at a multiple of your display rate when possible (e.g., 120Hz physics for 60/120/240Hz displays).
 
 - **Shader compilation stutter on first material load crashes certification.** On Vulkan/D3D12, graphics pipeline state objects (PSOs) must be compiled before first draw. If a new material appears mid-gameplay (player equips a rare item, particle effect triggers), the driver compiles the pipeline on-demand — 50-500ms hitch. Sony TRC R5054: "No frame shall exceed 50ms." **Cost: $80K–$250K** in cert resubmission fees (4-week turnaround), delayed launch revenue ($50K+/day for AA titles), and crunch overtime for the rendering team. **Fix:** Unreal: `r.ShaderPipelineCache.Enabled=1` with `.upipelinecache` file pre-baked from a gameplay coverage run. Unity: `ShaderVariantCollection` with `WarmUpAllShaders()` in loading screen. Vulkan: serialize `VkPipelineCache` to disk, ship with build.
@@ -365,6 +476,7 @@ Always run physics at a multiple of your display rate when possible (e.g., 120Hz
 - **Nanite overdraw on translucent/foliage geometry saturates GPU at 100% on low settings.** Nanite rasterizes micropolygons via software rasterization. Transparent surfaces require per-pixel sorting, which Nanite cannot do — it falls back to conventional rasterization but still pays the meshlet traversal cost. On foliage with masked opacity, every leaf triggers a separate material evaluation. At 1440p on an RTX 2060, this can hit 100% GPU utilization with 80% overdraw. **Cost: $50K–$200K** in refunds, negative Steam reviews & min-spec user churn when players on recommended hardware get 12fps in forest biomes. **Fix:** Profile with `r.Nanite.Visualize.Overdraw 1`. Set `r.Nanite.MaxPixelsPerEdge 2` (half-resolution) for foliage meshes. Implement `r.Nanite.FallbackPercentTriangle` to switch masked materials to simplified fallback meshes at distance.
 
 - **Unmanaged memory leak in Burst-compiled job crashes after 4 hours at 2+ GB RSS.** A Burst job allocates `NativeList<T>` in `OnCreate()`, adds elements in `OnUpdate()`, but the `Dispose()` call is inside `#if UNITY_EDITOR`. In a player build, the disposal is compiled out. The `NativeList` internally allocates from the `UnsafeUtility` allocator (malloc-backed, not GC-tracked). After 4 hours of gameplay at 60 FPS, 864K job executions have leaked ~500KB each → 432MB leaked. Combined with other subsystems, RSS exceeds 2GB, OS terminates the process. **Cost: $75K–$300K** in launch-day crash reports (4-hour play session = guaranteed crash), emergency hotfix scramble, and review-bombing during the critical first-week sales window. **Fix:**
+
 ```csharp
 [BurstCompile]
 struct MyJob : IJobChunk {
@@ -384,9 +496,11 @@ private static void CheckLeaks(ref NativeList<float> list) {
         list.Dispose();
     }
 }
+
 ```
 
 - **Client-side prediction without server reconciliation is a cheating vector.** Client predicts player position +5 ticks ahead. Server authoritative state arrives at tick T. Without reconciliation, the client never corrects its state — a modified client can report `position=(1000, 0, 0)` while the server says `position=(5, 0, 0)`. If the server doesn't re-simulate and correct, the cheater teleports. This is the #1 multiplayer vulnerability exploited in the first 72 hours of any online game launch. **Cost: $500K–$2M** in anti-cheat emergency investment, player-base collapse (30-50% churn in competitive titles), and permanent reputation damage — many multiplayer games never recover from a cheat-infested launch. **Fix:**
+
 ```cpp
 void Client::OnServerState(const ServerState& state, int32_t tick) {
     // Find predicted state for this tick
@@ -414,7 +528,7 @@ void Client::OnServerState(const ServerState& state, int32_t tick) {
 
 - **Draw call count hides script overhead — 100 draw calls but 3000 Update() calls means 90% CPU in C# VM.** A Unity scene has 3000 GameObjects, each with a `MonoBehaviour` that runs empty `Update()` methods. The C# runtime invokes 3000 native-to-managed transitions per frame. Each transition is ~100ns, but the cumulative overhead + IL2CPP metadata lookups = 5ms per frame at 3000 objects. With only 100 draw calls, the GPU is idle. The developer sees "100 draw calls" and concludes rendering is optimized. **Cost: $50K–$150K** in optimization fire drills 2 weeks before launch, crunch overtime, and last-minute content cuts when the "CPU-bound at 30fps with GPU at 40%" problem is finally diagnosed. **Fix:** Profile with Unity Profiler Deep Profile. Identify empty `Update()` methods. Disable GameObjects not on screen. Use `MonoBehaviour.enabled = false` instead of destroying. In DOTS, use `IAspect` and `ISystem` with `RequireForUpdate<T>()` — only updated components trigger system execution.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -424,15 +538,43 @@ void Client::OnServerState(const ServerState& state, int32_t tick) {
 | "Memory budgets are a console problem; we'll deal with it during porting" | A PC game that uses 12GB RAM won't fit in a console's unified 8-13GB without cutting texture resolution, audio quality, and level size — all changes visible to players as "downgrades" |
 | "We can add a deterministic game loop for replays later" | Determinism requires fixed-point math, fixed timestep, and zero floating-point in game logic — retrofitting means rewriting every gameplay system from movement to physics to AI |
 
+## Best Practices
+
+1. **Do profile on minimum-spec target hardware before selecting a rendering pipeline** — A deferred renderer at 120 FPS on an RTX 4090 may run at 12 FPS on the integrated GPU your actual players use. Profile with RenderDoc/PIX/Xcode GPU Capture on the lowest-tier device in your Steam Hardware Survey target bracket. The cost of pipeline reselection mid-project is $200K+ in reworked shaders, assets, and tooling.
+2. **Prefer frame time consistency over average FPS** — A 60 FPS average with 30ms spikes every 3 seconds is unshippable. Target P99 frame time under the display refresh budget (16.67ms at 60Hz, 8.33ms at 120Hz). One hitch per 10 seconds loses more players than 10 fewer average FPS — players perceive variance, not averages.
+3. **Always pre-warm shader compilations before gameplay begins** — Cold shader compiles on first material load cause 50-500ms hitches that players experience as stutter. Ship with PSO caches (Unreal), ShaderVariantCollections (Unity), or manual Vulkan pipeline cache serialization. Run a hidden "shader warmup" pass covering all materials during the loading screen — the cost of skipping this is negative Steam reviews citing "stuttering."
+4. **Never ship client-side prediction without server reconciliation** — A player who can teleport by spoofing movement packets destroys competitive integrity and triggers refund requests. Every predicted client move must be replayed against the server-authoritative state and corrected on mismatch. Competitive games without reconciliation lose players at 3x the rate — each refund costs $60+platform fee+support overhead.
+5. **Measure per-frame allocation count, not just draw calls** — GC spikes from managed allocations (C# in Unity) or heap fragmentation (C++) kill frame pacing regardless of GPU performance. Target zero allocations in the hot path; use arena allocators for per-frame scratch and object pools for frequently created/destroyed entities. A single `new GameObject()` per frame in a Unity title at 60 FPS generates 3,600 GC-triggering allocations per minute.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Rendering budget verified — G-Buffer bandwidth < 64 bytes/pixel; overdraw < 8x for Nanite; shader compile < 1ms warm; profiled on min-spec hardware | RenderDoc capture on target min-spec GPU; G-Buffer size in Resource Inspector; Nanite visualization mode shows overdraw heatmap |
+| ☐ | Game loop determinism — 100K+ frame replay produces identical outputs; fixed timestep interpolation smooth at 30/60/120/144Hz | Replay log comparison tool; 144Hz display with physics at 60Hz shows zero stutter in interpolation path; spiral-of-death guard triggered and recovered |
+| ☐ | ECS performance — 50K entities update < 1ms in Burst/Jobs; zero managed allocations in hot path; chunk utilization > 80% | Unity Profiler Deep Profile or Burst Inspector: `GC.Alloc` = 0 in `IJobFor.Execute`; ArchetypeChunk utilization in EntityDebugger |
+| ☐ | Multiplayer reconciliation — client prediction error < 1cm at 50ms ping; reconciliation rate > 99%; snapshot interpolation smooth with ±30ms jitter | Network simulator with latency injection; reconciliation mismatch log shows < 1% corrections; jitter buffer absorbs ±30ms without visual pop |
+| ☐ | Memory budget — peak usage < 85% of console budget; zero allocation failures in 8-hour soak test; per-frame alloc < 1KB after loading | Platform memory profiler after 8-hour automated gameplay session; allocation callstack shows zero `malloc`/`new` in frame boundary |
+| ☐ | Cross-platform shader compilation — all shaders compile on all target platforms from single source; SPIR-V verified; visual parity within 5% | CI matrix compiles every shader for D3D12/Vulkan/Metal; perceptual difference tool shows < 5% delta between platforms |
+| ☐ | Loading performance — level load time < target on min-spec HDD (not SSD); async loading doesn't hitch main thread; seek count < 100 per level load | Profile on 5400 RPM HDD; main thread time in loading screen < 2ms per frame; asset packaging tool reports seek distribution |
+| ☐ | Rollback plan: ability to disable experimental render features via runtime config — Nanite/Lumen/ray tracing toggle without engine restart | Console variable or config file toggle tested in shipping build; fallback pipeline renders at target frame rate when experimental feature is off |
+
 ## Verification
 
-- [ ] Rendering: RenderDoc capture shows G-Buffer bandwidth <64 bytes/pixel; shader compile <1ms after warm-up; zero PSO creation in hot path
-- [ ] Game loop: Deterministic replay for 100K+ frames; interpolation smooth at 30/60/120/144Hz physics-render rate combos; spiral-of-death guard tested
-- [ ] ECS: 50K entities update <1ms in Burst job; zero managed allocations; chunk utilization >80%; `EntityCommandBuffer` batch latency <0.5ms
-- [ ] Unreal: Nanite overdraw <8x; Lumen update <2 frames; GAS ability blocking tested under all state combinations
-- [ ] Multiplayer: Client prediction error <1cm at 50ms ping; reconciliation rate >99%; snapshot interpolation smooth with ±30ms jitter
-- [ ] Memory: Peak usage <85% of console budget; zero alloc failures in 8-hour soak; per-frame alloc <1KB after loading
-- [ ] Cross-platform: All shaders compile on all target platforms from single source; visual parity within 5% perceptual difference; platform-specific paths tested
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Rendering: RenderDoc capture shows G-Buffer bandwidth < 64 bytes/pixel; shader compile < 1ms warm | Profile frame in RenderDoc/PIX; check G-Buffer size and shader compilation times |
+| ☐ | Complete when Game loop: deterministic replay for 100K+ frames; interpolation smooth at all physics-render rate combos | Replay log produces identical frame outputs; spiral-of-death guard tested at 30/60/120/144Hz |
+| ☐ | Complete when ECS: 50K entities update < 1ms in Burst job; zero managed allocations; chunk utilization > 80% | Unity Profiler/Burst Inspector: no GC.Alloc in hot path; EntityCommandBuffer latency < 0.5ms |
+| ☐ | Complete when Unreal: Nanite overdraw < 8x; Lumen update < 2 frames; GAS ability blocking tested under all states | Nanite visualization mode; Lumen scene view; GAS tag-blocking unit test suite |
+| ☐ | Complete when Multiplayer: client prediction error < 1cm at 50ms ping; reconciliation rate > 99% | Netcode simulation with latency injection; snapshot interpolation smooth with ±30ms jitter |
+| ☐ | Complete when Memory: peak usage < 85% of console budget; zero alloc failures in 8-hour soak test | Memory profiler after 8-hour automated gameplay; per-frame alloc < 1KB after loading |
+| ☐ | Complete when Cross-platform: all shaders compile on all target platforms from single source; visual parity within 5% | SPIR-V cross-compilation test; perceptual difference comparison across D3D12/Vulkan/Metal |
+| ☐ | Complete when Physics: no tunneling at target velocity; collision detection passes at 30fps physics tick | Sweep tests at max entity speed; CCD (continuous collision detection) enabled for fast movers |
+| ☐ | Complete when Audio: latency < 20ms from event to sound; zero dropouts under CPU load | Audio profiler shows buffer underrun count = 0; 3D spatialization verified per platform |
+| ☐ | Complete when Loading: level load time < target on min-spec hardware; async loading doesn't hitch main thread | Profile on HDD (not SSD); asset packaging verified (seek count < 100 per level load) |
 
 ## Verification Guardrails
 

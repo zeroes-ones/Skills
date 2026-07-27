@@ -51,6 +51,7 @@ chain:
 Build AI-powered applications and features — from concept through production. Covers RAG system architecture, AI agent design, foundation model integration, vector search, AI pipeline optimization, output evaluation at scale, and AI safety guardrails for user-facing products. Focus on product engineering with AI, not model training or infrastructure.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -68,12 +69,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -106,6 +107,7 @@ What are you building with AI?
 ```
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a senior AI engineer who has shipped AI features to millions of users. You know that AI products fail at the edges, not the happy path. Your instincts:
 
@@ -115,6 +117,7 @@ You are a senior AI engineer who has shipped AI features to millions of users. Y
 - **The model is not the product.** Users don't care about your embedding model, chunking strategy, or agent architecture. They care about getting correct, fast, affordable answers. Optimize for user outcomes, not technical novelty.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick scan (10s):** Identify if this is a RAG, agent, embedding, or simple API-call problem. Read key files (`requirements.txt`, `pyproject.toml`, any `.py` importing `openai`/`langchain`).
 - **Design review (5min):** Map the architecture. Does it have evaluation? Retrieval quality measurement? Cost tracking? Guardrails? If any of these four are missing, flag as incomplete.
@@ -122,6 +125,7 @@ You are a senior AI engineer who has shipped AI features to millions of users. Y
 - **Crisis mode (production issue):** AI output degradation → run eval suite first to quantify. Latency spike → run benchmark. Cost spike → check token counters. Never guess — always measure.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use ai-engineer when building AI-powered product features — integrating foundation models into applications, not training them. The defining characteristic is that an AI model (LLM, embedding, or multi-modal) is a core component of the product experience.
 
@@ -136,6 +140,7 @@ Use ai-engineer when building AI-powered product features — integrating founda
 Do NOT use ai-engineer for model training, fine-tuning, or experiment tracking (route to ml-engineer). Do NOT use for MLOps infrastructure, model serving, or monitoring pipelines (route to mlops-engineer). Do NOT use for LLM-specific prompt engineering or evaluation at the model level (route to llm-engineer).
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -227,6 +232,7 @@ DESIGN THE AGENT LOOP:
   Complete when: Architecture pattern selected (RAG/Agent/Embeddings) with documented rationale; vector DB, embedding model, and chunking strategy chosen with benchmark data; architecture diagram reviewed.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start with evaluation, not architecture.** Define quality bar, test set, and metrics before writing a single line of AI code. Without evals, every prompt change, model swap, or retrieval tweak is a blind bet on quality. Minimum: 50 golden test cases with known correct answers.
 2. **Heuristic before AI.** Before reaching for LLMs, evaluate regex, keyword search, templates, and decision trees. Only proceed to AI if the heuristic fails on ≥20% of test cases. AI adds latency, cost, and non-determinism — don't pay that tax when a simpler solution exists.
@@ -240,6 +246,7 @@ DESIGN THE AGENT LOOP:
 10. **Maintain a central prompt catalog.** Hardcoded prompts in 15+ frontend components require app store deployment to fix a typo. Backend prompts with versioned templates allow hotfix in seconds. Versioning enables A/B testing and rollback. Each prompt change is a model behavior change — treat it like a deployment.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -357,8 +364,14 @@ EVERY AI FEATURE MUST PASS THESE BEFORE DEPLOYMENT:
 ```
 
   Complete when: Streaming endpoint responds within 500ms first-token latency; all quality gates (correctness, safety, performance, cost) pass with thresholds met; deployment artifact deployed to staging.
+  Complete when: Model evaluation results documented — accuracy, latency, and cost metrics vs. baseline.
+  Complete when: Prompt version controlled with changelog and rollback capability.
+  Complete when: Guardrails tested against adversarial inputs — no jailbreak in test suite.
+  Complete when: Token usage and cost tracking dashboard operational with budget alerts.
+  Complete when: A/B test framework configured with statistical significance calculator.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Ship Without Evals
 **What it looks like:** Building an AI feature, testing it against 10 manually crafted prompts, and declaring it production-ready because "the responses look good." No systematic evaluation, no test set, no metrics tracking.
@@ -421,6 +434,7 @@ EVERY AI FEATURE MUST PASS THESE BEFORE DEPLOYMENT:
 - **Anthropic's `max_tokens` is REQUIRED, not optional.** Forgetting it throws a 400 error: "`max_tokens` is required." OpenAI defaults to model max; Anthropic does not. Discovery in production = **3am pager, 1-2 hours to diagnose, $500-$2,000 in engineer time** + revenue lost during partial outage. Always set `max_tokens` explicitly for every LLM call — it's good practice across all providers. Add to your integration checklist: ☐ `max_tokens` set on every call.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 Before any AI feature reaches production, verify:
 
@@ -440,7 +454,8 @@ Before any AI feature reaches production, verify:
 - [ ] Health check endpoint: `/health` returns model version, latency, and error rate
 - [ ] Fallback behavior defined: what happens when the LLM API is unavailable (graceful degradation, not crash)
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -451,6 +466,8 @@ Before any AI feature reaches production, verify:
 | "Latency and cost optimization can wait until we have traffic" | Architecture decisions made for speed (no streaming, oversized context windows, synchronous chains) become technical debt that requires full rewrites when traffic arrives |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -460,6 +477,7 @@ Before any AI feature reaches production, verify:
 | Using regex to parse structured output from LLM text | $50K-$250K in silent data corruption from format changes | Use structured output APIs (function calling with strict mode, JSON mode with schema validation). Never fall back to defaults on parse failure. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After building an AI feature, run this sequence. Do not proceed past a failure.
 
@@ -487,6 +505,7 @@ After building an AI feature, run this sequence. Do not proceed past a failure.
 6. **If any check fails:** diagnose from error output, fix, restart from step 1.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These reactive checks fire automatically in any conversation. They require no intervention and continuously scan for pre-conditions.
 
@@ -499,8 +518,9 @@ These reactive checks fire automatically in any conversation. They require no in
 | **P5** | `grep -rn "stream\|SSE\|EventSource\|text/event-stream" --include="*.py" --include="*.ts"` returns hits | ☑ Route to **Phase 3: Streaming Architecture**. Verify first-token latency < 500ms. |
 | **P6** | `grep -rn "llama.cpp\|ollama\|vllm\|TGI\|local.*model\|self.hosted" --include="*.py" --include="*.sh" --include="Dockerfile"` returns hits | ☑ Route to **Decision Trees: Model Selection**. Verify GPU requirements, quantization strategy, cold start handling. |
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -517,6 +537,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -528,6 +549,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Streaming endpoint works in dev but hangs in production under load | `response.choices[0].message.content` is None when streaming — the code accesses `.content` without iterating chunks. In dev, single-request testing doesn't trigger the memory leak from accumulating partial responses. | Iterate chunks: `for chunk in response: content += chunk.choices[0].delta.content or ''`. Test streaming end-to-end in staging with load: `wrk -t4 -c100 -d60s --script=stream.lua $ENDPOINT`. | Streaming is a different code path than batch. The same LLM call with `stream=True` returns a generator, not a response object. Load testing must simulate concurrent streaming connections — single-request manual testing won't catch memory leaks or connection drops. |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -540,18 +562,18 @@ If a command or approach fails, follow this escalation path before giving up:
 | AI pipeline needs deployment | mlops-engineer | Serving infrastructure, monitoring, CI/CD |
 | AI feature scoping and UX | product-manager, ui-ux-designer | User needs, interaction patterns, success metrics |
 
-
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration patterns, deployment constraints | Before designing AI/ML pipelines |
 | `mlops-engineer` | Model lifecycle, deployment patterns, monitoring requirements | Before deploying ML models to production |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph TD
@@ -568,9 +590,11 @@ graph TD
     K -->|No| L[Optimize: smaller model, cache, batch]
     K -->|Yes| M[Deploy with streaming + guardrails]
     M --> N[Monitor: eval drift, cost, latency]
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -585,28 +609,13 @@ graph LR
 
 Progress from "it works on my 10 test queries" to "it works on 10,000 daily queries at p95 < 2s with 95%+ answer quality." The gap between these two states is AI engineering.
 
-### Scale Depth
-
-#### Solo Developer
-**Budget:** $0-$500/month. Use OpenAI/Anthropic API directly (no orchestration framework). Single prompt template with versioning via git. ChromaDB for vector storage (embedded, zero infra). Manual evaluation: 25 test queries run before each deploy. Deploy as a single FastAPI endpoint on a $20/month VPS.
-**Transition trigger:** First 100 DAU or second AI feature → move to Small Team.
-
-#### Small Team (2-10)
-**Budget:** $500-$5K/month. Introduce LangChain or LlamaIndex for RAG pipelines. Automated evaluation with LLM-as-judge on 100+ test cases. Pinecone or Qdrant Cloud for vector DB. Implement streaming (SSE). Add cost tracking per feature. Centralized prompt catalog with versioning.
-**Transition trigger:** 1K+ DAU or 3+ AI features → move to Medium Org.
-
-#### Medium Org (10-50)
-**Budget:** $5K-$50K/month. Multi-model routing (cheap model for classification, expensive for generation). Semantic caching at API gateway (40-60% cache hit rate). A/B testing framework for prompts and models. GPU-optimized serving (vLLM) for custom models. Automated CI/CD evaluation gates. Cost attribution per user/feature with anomaly detection.
-**Transition trigger:** 10K+ DAU or 10+ AI features → move to Enterprise.
-
-#### Enterprise (50+)
-**Budget:** $50K+/month. Dedicated AI platform team. Multi-region inference deployment with edge routing. Custom fine-tuned models with continuous evaluation against baseline. Real-time guardrails on input and output. Federated prompt catalog with approval workflows. SOC 2 / HIPAA compliance for AI pipelines. GPU cost optimization with spot/preemptible instances and dynamic batching.
-
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [RAG evaluation: RAGAS framework](https://docs.ragas.io/) — Automated RAG pipeline evaluation (faithfulness, relevancy, context precision/recall)
 - [Embedding model leaderboard: MTEB](https://huggingface.co/spaces/mteb/leaderboard) — Massive Text Embedding Benchmark across 58 datasets

@@ -164,6 +164,7 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Operating at Different Levels
@@ -180,8 +181,6 @@ Do not read the entire skill. Follow the route above and read only the sections 
 **Usage:** Invoke this skill with your target level, e.g., "as an L3 business intelligence engineer, design..."
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
-
-### Scale Depth
 
 #### Solo (1 analyst, 1 data source)
 Single database, manual SQL queries → spreadsheet → chart. No semantic layer. One source of truth (the database). Focus: get answers fast, learn what questions matter. Budget: $0/month (existing DB + spreadsheet tools).
@@ -309,13 +308,125 @@ Common chains:
 - **Chain**: business-intelligence-engineer → investor-relations — BI provides verified metrics for investor reporting, due diligence, and fundraising materials
 
 ## Decision Trees
-**(QUICK)**
 
-<!-- 66 lines extracted to references/decision-trees.md -->
+### Decision Tree 1: Data Modeling — Star vs. Snowflake vs. OBT
 
-Key BI decisions: data modeling (star vs snowflake vs OBT), ETL vs ELT, materialization strategy, metric layer design, and semantic model governance.
+```
+        ┌── INPUT: Query patterns and data volume
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Ad-hoc exploration,          Standardized reporting,
+fast queries needed          storage efficiency needed
+   │                         │
+   ▼                         ▼
+OBT (One Big Table)          STAR SCHEMA
+   │                         │
+   ├─ Denormalized, wide      ├─ Fact + Dimension tables
+   ├─ Best for: < 100M rows   ├─ Best for: 100M+ rows
+   ├─ Simple for analysts     ├─ Query performance at scale
+   └─ Risk: update anomalies  └─ Use: most BI workloads
+                                   │
+                              ┌────┴────┐
+                              │         │
+                              ▼         ▼
+                         Simple dims    Complex, slowly
+                         (static)       changing dims
+                              │         │
+                              ▼         ▼
+                         STAR (flat)    SNOWFLAKE
+                              │         (normalized dims)
+                              │              │
+                              │         ├─ SCD Type 2 tracking
+                              │         ├─ Hierarchical dims
+                              │         └─ Risk: join complexity
+```
 
-> 📎 **Full decision trees (66 lines):** [references/decision-trees.md](references/decision-trees.md)
+### Decision Tree 2: ETL vs. ELT Strategy
+
+```
+        ┌── INPUT: Data volume and transformation complexity
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+< 500GB, simple transforms   > 1TB, complex transforms
+   │                         │
+   ▼                         ▼
+ETL (Extract → Transform      ELT (Extract → Load →
+     → Load)                       Transform)
+   │                         │
+   ├─ Transform before         ├─ Load raw data first
+   │  warehouse load          ├─ Transform in-warehouse
+   ├─ Tools: Airbyte, Fivetran ├─ Tools: dbt, Dataform
+   └─ Lower warehouse cost    └─ Warehouse compute
+                                   scales independently
+```
+
+### Decision Tree 3: Materialization Strategy
+
+```
+        ┌── INPUT: Dashboard freshness requirements
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Real-time / < 5 min          Daily / hourly refresh OK
+   │                         │
+   ▼                         ▼
+VIEW or streaming            INCREMENTAL
+   │                         │
+   ├─ View: always fresh,     ├─ dbt incremental with
+   │  but slow at scale       │  unique_key
+   ├─ Streaming: Kafka →       ├─ Partition pruning
+   │  materialized views      ├─ Idempotency: run twice,
+   └─ Cost: high compute       │  same row count
+                                   │
+                              ┌────┴────┐
+                              │         │
+                              ▼         ▼
+                         Query < 5s?   Query > 30s?
+                              │         │
+                              ▼         ▼
+                         Incremental   Pre-aggregate
+                         is sufficient  to summary tables
+```
+
+### Decision Tree 4: Governance Tier Assignment
+
+```
+        ┌── INPUT: Dashboard audience and impact
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Board/investor/regulatory    Internal team/operational
+   │                         │
+   ▼                         ▼
+CERTIFIED (locked)           MANAGED (domain-owned)
+   │                         │
+   ├─ Single metric owner     ├─ Team can edit
+   ├─ All metrics from        ├─ Peer review required
+   │  semantic layer only     ├─ Freshness SLA: < 24h
+   ├─ Freshness SLA: < 1h     └─ Watermark: "Team
+   ├─ Change requires PR +        Analytics — not
+   │  data steward approval       board-reviewed"
+   └─ PagerDuty on staleness
+
+        ┌─────────────────┐
+        ▼                 │
+   EXPLORATORY (self-serve)│
+        │                 │
+        ├─ Any user can    │
+        │  create          │
+        ├─ Watermark:      │
+        │  "DRAFT — not    │
+        │  reviewed"       │
+        └─ Auto-archive    │
+           after 90 days   │
+           of no views ────┘
+```
 
 ## What Good Looks Like
 
@@ -347,6 +458,7 @@ graph LR
 **Context:** Choosing between real-time streaming and batch processing is one of the most consequential architecture decisions in BI. The wrong choice leads to unnecessary infrastructure cost and complexity, or stale data that undermines trust. The default should always be batch — streaming is adopted only when a specific business decision requires sub-minute data.
 
 ```
+
 START: New data pipeline needed for BI/reporting use case
   │
   ├─ What is the maximum acceptable data latency for the PRIMARY consumer?
@@ -414,6 +526,7 @@ START: New data pipeline needed for BI/reporting use case
             │    → Batch with freshness SLA. Alert if stale beyond 2x the SLA window. → END
             └─ LOW (stale data → minor inconvenience, historical analysis) → BATCH.
                  Daily or weekly refreshes. No freshness SLA needed. → END
+
 ```
 
 **Cost Comparison (approximate, 2024 cloud pricing):**
@@ -426,6 +539,7 @@ START: New data pipeline needed for BI/reporting use case
 | CDC + Streaming | $8K-$35K | High-Very High | < 1 second | Source schema changes break pipeline |
 
 **Rule of thumb:** 80% of BI use cases are served perfectly by daily batch. Build streaming only when you can name the specific business or clinical decision that requires sub-minute data — and the stakeholder who will act on it. If nobody can name the decision, it's a batch pipeline.
+
 ```
 
 #
@@ -435,6 +549,7 @@ START: New data pipeline needed for BI/reporting use case
 **Context:** BI tool selection locks the organization into a visualization paradigm, semantic layer approach, licensing model, and user workflow for 3-5 years. Switching costs are high — retraining users, rebuilding dashboards, and migrating semantic layers costs $50K-$200K+. Choose based on organizational profile, not feature comparison matrices.
 
 ```
+
 START: Selecting or re-evaluating a BI platform
   │
   ├─ ORGANIZATIONAL PROFILE — dominant stack and culture:
@@ -523,6 +638,7 @@ START: Selecting or re-evaluating a BI platform
        └─ Metabase: $0-$50K (open-source free, Cloud $85/month starter, Enterprise custom)
 
 **Decision Principle:** Do not select based on feature matrices — every tool has 95% feature overlap. Select based on: (1) alignment with existing data stack and team skills, (2) primary user persona match, (3) semantic layer governance requirements, (4) embedding and distribution needs. The tool your team actually adopts and uses daily is better than the "objectively best" tool that collects dust.
+
 ```
 
 #
@@ -532,6 +648,7 @@ START: Selecting or re-evaluating a BI platform
 **Context:** The choice between data warehouse, data lake, and lakehouse architectures determines BI platform scalability, cost structure, query performance, governance model, and team structure for years. Each pattern has distinct strengths — the right answer depends on data types, query patterns, team skills, and latency requirements, not on hype cycles.
 
 ```
+
 START: Selecting analytics data store architecture
   │
   ├─ DATA TYPE PROFILE: What types of data will dominate your analytics workload?
@@ -639,6 +756,7 @@ START: Selecting analytics data store architecture
 - Structured + unstructured + ML workloads + > 100 TB → LAKEHOUSE (Databricks or open-source)
 - Multi-engine + cost-sensitive at petabyte scale → LAKEHOUSE with open table formats
 - Regulated industry + need mature governance now → WAREHOUSE or Databricks Unity Catalog
+
 ```
 
 ## Best Practices
@@ -683,20 +801,6 @@ Before any board-facing dashboard or critical BI pipeline goes live, verify ALL 
 13. Extract refresh schedules configured with failure notifications — no extract goes > 2x its SLA without alert
 14. Dashboard owner assigned for every dashboard with 24h response SLA on data quality alerts
 
-## Scale Depth
-
-| Scale | Scope & Complexity | Key Considerations |
-|---|---|------|
-| **Solo** | 1-person analytics, single tool (Metabase, Lightdash) | Single BI tool with extracts from production read replica. Google Sheets as lightweight metric dictionary. Focus on answering the top 5 business questions reliably — don't build what won't be used. |
-| **Small Team (2-10)** | 3-10 dashboards, 2-3 data sources, growing stakeholder base | Standardize on one BI platform. dbt for transformations, one data warehouse. Semantic layer (LookML/dbt metrics) for core KPIs. Dashboard governance: owner + freshness SLA for every dashboard. |
-| **Medium (10-100)** | 50+ dashboards, 5+ departments, embedded analytics requests | Multi-tool BI ecosystem with centralized semantic layer (dbt + MetricFlow). Tiered governance: Board, Operational, Exploratory. Data catalog (Alation, Atlan, Amundsen) with ownership and lineage. Embedded analytics with tenant-isolated query pools. |
-| **Enterprise (100+)** | 500+ dashboards, multi-region, regulatory compliance | Federated BI: central data platform team owns semantic layer, catalog, and governance; domain teams own dashboards. Headless BI architecture — metrics API (Cube, MetricFlow) serving multiple consumption tools. Board dashboards with 99.9% freshness SLA. Data product thinking: dashboards as products with SLAs, support, and deprecation policies. |
-
-**Transition Triggers:**
-- Solo → Small Team: > 2 departments requesting dashboards; need for shared metric definitions
-- Small Team → Medium: > 50 dashboards or embedded analytics requirements; need for formal governance
-- Medium → Enterprise: > 500 dashboards or multi-region deployment; need for federated governance model
-
 ## Anti-Patterns
 
 - **Dashboard without actionability.** Dashboards that show "total revenue" or "daily active users" without segmentation, thresholds, or "what should I do about this?" context become wallpaper. Execs open them once, see a green number, and never return. **Total cost: $50K-$200K/year in BI team time, tooling costs, and data warehouse spend building dashboards with zero business impact. Industry surveys show 60-73% of enterprise dashboards go unused after the first month.** Fix: every dashboard tile must answer "who should take what action when this number changes?" Add thresholds (green/yellow/red), trend arrows, and links to the underlying data. Sunset dashboards with < 5 views/month.
@@ -713,7 +817,7 @@ Before any board-facing dashboard or critical BI pipeline goes live, verify ALL 
 - **Row-level security (RLS)** in Looker via `access_filters` applies at QUERY time, not at explore time. A user who can't see `region: APAC` can still see COUNT(DISTINCT region) = 5 and deduce the existence of hidden regions. Aggregate metrics leak information through cardinality.
 - **Power BI `import mode`** loads the FULL dataset into memory. A 500MB dataset on a shared capacity node with 4GB RAM leaves 3.5GB for ALL other reports. One dataset can starve every other report on the node. Monitor dataset sizes and enforce refresh schedules to prevent overlap.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -734,12 +838,18 @@ Before any board-facing dashboard or critical BI pipeline goes live, verify ALL 
 
 ## Verification
 
-- [ ] Dashboard load test: open dashboard in production — all charts render within 5 seconds
-- [ ] Verify extracts: each extract has refresh schedule AND failure notification configured
-- [ ] RLS (row-level security) test: login as user with restricted access — can only see authorized data, can't see unauthorized counts via aggregates
-- [ ] Cross-filter behavior: click a bar chart segment — all other charts filter correctly, no broken interactions
-- [ ] Mobile test: open dashboard on phone/tablet — layout adapts, all interactions work with touch
-- [ ] Verify data freshness: `SELECT MAX(updated_at) FROM ${source}` — data is within freshness SLA (e.g., < 24 hours)
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Dashboard load test: open dashboard in production — all charts render within 5 seconds | Measure TTFI (time to first interaction); each chart renders within 5s under production data volumes |
+| ☐ | Complete when Verify extracts: each extract has refresh schedule AND failure notification configured | Check extract admin panel: every extract has schedule; test notification fires on simulated failure |
+| ☐ | Complete when RLS (row-level security) test: login as user with restricted access — can only see authorized data | Login as restricted user; verify authorized data visible; query aggregates — no unauthorized counts leak |
+| ☐ | Complete when Cross-filter behavior: click a bar chart segment — all other charts filter correctly | Test every cross-filter interaction; no broken interactions or stale state after rapid clicks |
+| ☐ | Complete when Mobile test: open dashboard on phone/tablet — layout adapts, all interactions work with touch | Test on iOS Safari + Android Chrome; all charts readable; touch targets ≥ 44px |
+| ☐ | Complete when Verify data freshness: data is within freshness SLA | Run `SELECT MAX(updated_at) FROM ${source}` — timestamp within SLA (e.g., < 24 hours) |
+| ☐ | Complete when Semantic model validation: measures return consistent results across all report pages | Test 3 measures on 5 different report pages — values match ±0, no cross-page drift |
+| ☐ | Complete when Incremental refresh: partition-based refresh completes without full reload | Verify refresh history: only latest partition refreshed; no full-table scan in query plan |
+| ☐ | Complete when Export/PDF render: all report pages render correctly as PDF with embedded fonts | Export to PDF; verify all fonts embedded, no text truncation, all charts visible |
+| ☐ | Complete when Performance baseline: top 10 queries all complete within 2 seconds at 95th percentile | Run performance analyzer; verify execution times; identify and tune any slow DAX/SQL |
 
 ## Verification Guardrails
 
@@ -756,7 +866,6 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 ## State Log

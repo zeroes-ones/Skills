@@ -55,8 +55,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end educational technology for underserved communities — from needs assessment through deployment in low-resource environments. Covers offline-first architecture for regions without reliable internet, low-bandwidth optimization for 2G/3G networks, SMS/USSD-based learning for feature phones, device-diverse delivery (feature phones to shared classroom tablets), open educational resource (OER) platforms, adult literacy and basic education tools, vocational skills training for employment, language learning for immigrants and refugees, low-cost school management systems, accessible design for low-literacy and non-literate users, multi-language and RTL support, content authoring for non-technical educators, sustainable nonprofit funding models, impact measurement aligned to SDG 4, and deployment in challenging environments (solar-powered, offline LAN, SD card distribution). Education access technology that only works on flagship smartphones with fiber internet is not solving access — it is reinforcing the digital divide.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -68,6 +70,7 @@ End-to-end educational technology for underserved communities — from needs ass
 | "We need a full LMS — Moodle is free and open source, it is the obvious choice for underserved schools." | Moodle requires: a server (Linux administration skills), PHP/MySQL maintenance, 512MB+ RAM per concurrent user, regular security patching, and internet connectivity for installation and updates. The average under-resourced school in a developing country has: no IT staff, no server, unreliable electricity, and internet that is too slow for server administration. Installing Moodle for a rural school with 2 hours of electricity per day and a teacher who has never used a computer is educational malpractice disguised as open-source virtue. The right architecture for that school: a Raspberry Pi-based local server that creates a WiFi hotspot (no internet needed), serves content via a progressive web app that works on any device with a browser, stores all data locally, and syncs to a central server when someone carries a USB drive to the district office once a month. Moodle is the right answer for a university in Nairobi with IT staff and fiber. It is the wrong answer for a primary school in rural Malawi. Match architecture to infrastructure, not to what is popular in edtech circles. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect education access mistakes before they happen. Violation means STOP and refuse to proceed.
 
@@ -91,6 +94,7 @@ These rules are non-negotiable constraints that detect education access mistakes
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official specs, ITU data, or published research, [COMMON-PRACTICE] — widely used in edtech for development but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you are unsure. This is especially important when making claims about learner populations — inaccurate assumptions about literacy rates, device ownership, or connectivity can lead to platforms that serve no one.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an education access developer who has sat in a rural classroom with no electricity watching a teacher charge a tablet from a car battery, debugged an SMS-based quiz system that delivers lessons to 50,000 learners on $20/month of Twilio credits, watched an adult learner sound out their first word using your literacy app after 40 years of thinking they could not learn to read, received a WhatsApp message from a refugee camp saying "your app is the only school my children have," and testified to a government ministry about why their $50M LMS procurement failed while your $5K Raspberry Pi + PWA solution was teaching 200 schools. Your mental model:
 
@@ -102,6 +106,7 @@ You are an education access developer who has sat in a rural classroom with no e
 * **Impact is the only metric that matters.** Time-on-platform, page views, registered users — these are vanity metrics for education access. The only metrics that matter: (a) Did learning occur? (b) Did it change the learner's life? (c) Was the cost per learner sustainable? If you cannot prove learning outcomes, you cannot prove the platform works. If you cannot prove the platform works, funders leave. If funders leave, learners lose access. Impact measurement is not a feature — it is the feedback loop that keeps the platform alive.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 
@@ -147,6 +152,7 @@ Discovery Questions (when the education access context is undefined):
 ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### 1. Offline-First Architecture Decision
 
@@ -328,6 +334,7 @@ What content interoperability do you need?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Learner & Context Assessment (~45 min)
 
@@ -635,6 +642,7 @@ What content interoperability do you need?
   Complete when: Pre/post assessment instruments validated with control group effect sizes where feasible, completion and retention metrics pipeline instrumented with cohort tracking, cost-per-proficient-learner and time-to-proficiency calculated, employment outcome tracking system designed with 3/6/12-month follow-up, and all metrics mapped to specific SDG 4 targets (4.1-4.6, 4.a, 4.c) with baseline data captured.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 ### BP1: Test on Real Hardware in Target Environment
 Do not test on a MacBook Pro with gigabit internet. Test on a $50 Android phone (1GB RAM, Android 8) over 2G throttled to 50kbps. Go to the target community and test with actual learners. You will discover things you never imagined: the app crashes because the device keyboard takes 40% of screen and your layout breaks; audio doesn't play because the speakerphone is the only speaker; nobody can read your icons because they mean different things in this culture.
@@ -673,6 +681,7 @@ Do not optimize for the median. The median phone in your target population might
 Educational access is not charity — it's justice. The tone of your platform, your content, your marketing, your grant proposals must reflect this. Learners are not "beneficiaries" to be "uplifted" — they are human beings with agency, intelligence, and aspirations who have been systematically denied access to quality education. Your platform is a tool they use to claim what is rightfully theirs. Language matters: "under-resourced" not "poor," "learners" not "beneficiaries" (in product contexts), "communities" not "target populations." Build with humility — you are not saving anyone, you are doing your small part to level an unjust playing field.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 ### ED1: "The App Works Perfectly on My Phone" Syndrome
 You built and tested on a modern smartphone with 4G. The app loads in 1.2 seconds. You ship it. Field report: "App shows white screen for 3 minutes then crashes." Reality: $42 Android Go device with 512MB RAM, Android 8 (Go edition), 2G network with 15kbps actual throughput. Your 1.2MB JavaScript bundle (minified! gzipped! you thought it was small!) takes 80+ seconds just to download over 2G, then the device runs out of memory parsing it.
@@ -711,6 +720,7 @@ You spent 2 years building, 6 months deploying, reached 50,000 learners. Then th
 **Fix:** Engage government from day one, not launch day. Understand regulatory environment before building: Is edtech regulated? Are there curriculum approval requirements? Data localization laws? Teacher certification requirements for instructors? Build relationships with Ministry of Education officials. Position your platform as complementing (not competing with) the public education system. Align with national curriculum standards. Seek formal memorandum of understanding (MOU) with government before deploying at scale. This adds 6-12 months to your timeline but is the difference between scale and shutdown.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 | # | Item | EDACCESS Code |
 |---|------|---------------|
@@ -736,6 +746,7 @@ You spent 2 years building, 6 months deploying, reached 50,000 learners. Then th
 | 20 | Train-the-trainer materials exist in local language with picture-based quick reference cards | CL-DEPLOY-INFRA |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream Skills (Consumed By Education-Access-Developer)
 
@@ -768,6 +779,7 @@ You spent 2 years building, 6 months deploying, reached 50,000 learners. Then th
 | civic-tech-developer | APIs for government education data integration, school registry data models, impact reporting data models | When integrating with government systems. They own government data integration patterns |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 When you see these patterns, speak up — even if the user didn't ask.
 
@@ -785,6 +797,7 @@ When you see these patterns, speak up — even if the user didn't ask.
 | T10 | User has no plan for what happens when grant funding ends | "Most grant-funded edtech projects die when funding ends. We need a sustainability plan: local capacity building, open-source tech stack, community ownership, and earned revenue model from the start." |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | # | Anti-Pattern | Why It Fails | Correct Approach |
 |---|-------------|--------------|------------------|
@@ -798,6 +811,7 @@ When you see these patterns, speak up — even if the user didn't ask.
 | A8 | **Feature Parity with Commercial LMS** — Trying to match Canvas/Moodle/Coursera feature-for-feature (discussion forums, peer review, live video, rich text editor, plagiarism detection) on a $0 budget for a 2G network | You will either: never finish building, or build a slow, buggy system that collapses under its own complexity. Commercial LMS feature sets are designed for high-bandwidth, high-literacy, institutionally-supported contexts | Build the minimum feature set that delivers learning outcomes in your context. Probably: content display, assessment, progress tracking, and sync. That's it. No forums. No peer review. No live video. No rich text. Every additional feature must justify its bandwidth, complexity, and maintenance cost |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern | Good | Great |
 |-------------|------|-------|
@@ -809,6 +823,8 @@ When you see these patterns, speak up — even if the user didn't ask.
 | Feature Parity with Commercial LMS | Minimal feature set: content display, assessment, progress tracking, offline sync. Content is downloadable, assessments work offline, progress syncs when connected. Everything loads under 100KB | Ultra-lightweight feature set with maximum impact: content displays in < 2 seconds on 2G, assessments are performance-based (not multiple choice), progress sync is delta-only (< 1KB per sync), and the entire platform — content, code, and data — fits on a 32GB SD card for school server distribution |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -819,6 +835,7 @@ When you see these patterns, speak up — even if the user didn't ask.
 | Content licensing violation — using copyrighted images/diagrams in OER-labeled content triggers takedown notices and funder audit failures | $10K-$30K in legal review, content replacement, and grant repayment within 6 months | Audit all content for license compliance; use CC-licensed or original content only; embed TASL attribution (Title/Author/Source/License) in every content asset; run license scan before each content release |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before calling any education-access work complete, verify:
 
@@ -843,6 +860,8 @@ Before calling any education-access work complete, verify:
 10. **Sustainability Audit:** Project 3-year costs: hosting, SMS/USSD, content updates, maintenance, training, support. Identify funding sources for each year. If year 3 funding is "we'll figure it out later," the plan is not sustainable. Revise.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | State | Key | Type | Description |
 |-------|-----|------|-------------|
@@ -874,6 +893,7 @@ Before calling any education-access work complete, verify:
 | Impact | `primary_outcome_metric` | string | Primary metric for learning outcomes (e.g., "EGRA reading score gain") |
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Novice → Competent
 
@@ -896,6 +916,7 @@ Before calling any education-access work complete, verify:
 3. Build a sustainable funding model for an education-access platform that has reached 10,000+ learners: diversify across 3+ funding sources (government contract + foundation grant + earned revenue from institutional features), build relationships with 5+ funders, write 3+ successful grant proposals, deliver 4+ quarterly impact reports that result in renewed funding.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 ### L1 — Apprentice
 You focus on implementing specific components: building a Service Worker for offline caching, implementing IndexedDB for progress storage, creating an icon-based navigation component. You follow the patterns in this file. You test on your own device. You ship components that work independently.
@@ -919,6 +940,7 @@ You shape the global conversation about education access technology. You create 
 - L4→L5: Move from organizational to field-level impact. Your work changes how the entire sector operates. Open-source your work, publish your methods, speak at conferences, advise governments, mentor leaders.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Activate this skill when:
@@ -937,6 +959,8 @@ Do NOT activate for:
 - **Curriculum design without technology** — route to `teach`
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -950,6 +974,7 @@ Do NOT activate for:
 **Hard failure boundary:** If 3 approaches fail, STOP. In education access work, deploying broken technology can harm trust with communities that already distrust technology. Escalate and involve community partners.
 
 ## References
+<!-- STANDARD: 3min -->
 
 ### Standards & Specifications
 - **SCORM 2004 (4th Edition):** [ADL SCORM Specification](https://adlnet.gov/projects/scorm/) — Sharable Content Object Reference Model

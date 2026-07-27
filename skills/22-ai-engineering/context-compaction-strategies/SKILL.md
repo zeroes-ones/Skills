@@ -21,8 +21,10 @@ chain:
     - staff-engineer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -33,6 +35,7 @@ chain:
 | "We'll just summarize when we hit the limit." | Reactive summarization at 95% window saturation means the summarizer runs on a nearly-full context, produces lower-quality output, and the agent already suffered 15 turns of diluted attention. Proactive compaction at 70% yields better summaries and cleaner context. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---------------------|-------------------|---------------------|
@@ -52,6 +55,7 @@ chain:
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Context compaction is the art of maximizing decision quality per token. You are not compressing text — you are curating attention. Three principles govern everything:
 
@@ -67,6 +71,7 @@ Context compaction is the art of maximizing decision quality per token. You are 
 - *Format attachment* — believing markdown carries information that XML doesn't
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 ### Quick Scan (~30s)
 Check context window saturation. If > 85%, trigger Tier 3 eviction. Verify no skill conflicts (2+ active skills sharing domain keywords). Run: `python context_dashboard.py --quick`
@@ -77,21 +82,8 @@ Full compaction audit: redundancy detection (0.92 threshold), staleness scoring 
 ### Deep Dive (~30min)
 Architecture review of the entire compaction pipeline. Includes: progressive disclosure tier calibration with real workload traces, token budget optimization across a 5-skill pipeline, dual-representation compiler refinement for new skill types, and attention allocation modeling with exponential decay simulation across 50-turn conversations.
 
-### Scale Depth
-
-#### Solo (1 agent, 1 skill)
-Single-skill invocation, well under context budget. Progressive disclosure is optional — Tier 1 (overview) often sufficient. Focus: understand token consumption patterns, establish baseline attention budget. No compaction needed if context stays below 40% of window.
-
-#### Small (2-5 concurrent skills, 1-3 agents)
-Multi-skill pipeline with occasional context pressure. Implement Tier 1/2 progressive disclosure. Manual redundancy check before long conversations. Focus: prevent attention dilution from skill overlap, establish compaction trigger thresholds. Budget: minimal (compaction is mostly structural, not API-based).
-
-#### Medium (5-15 concurrent skills, production agents)
-Full three-tier progressive disclosure with automated context rotation. Dual-representation compilation with validation suite. Automated redundancy detection at 0.92 threshold. Attention zone optimization. Focus: consistent agent performance across multi-turn conversations, token cost optimization. Budget: $50-$200/month on compaction API calls.
-
-#### Enterprise (15+ skills, agent platform)
-Platform-wide compaction governance. Context budget allocation modeled across all skills. Compaction pipeline as infrastructure with CI/CD validation. Attention allocation modeling with exponential decay simulation. Cross-skill fragmentation prevention at scale. Focus: org-wide token economics, agent reliability standards. Budget: $200-$1,000/month on optimization infrastructure.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 **Triggers:**
 - Skill instruction set exceeds 2,500 tokens — needs progressive disclosure tiering
@@ -112,6 +104,7 @@ Platform-wide compaction governance. Context budget allocation modeled across al
 - Single-skill, single-turn, well-under-budget invocations
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ```
                     ┌─────────────────────────────────┐
@@ -139,6 +132,7 @@ Platform-wide compaction governance. Context budget allocation modeled across al
 - "Multiple skills conflicting" → Start at "Context Fragmentation Prevention" (Decision Tree 5)
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- COMPRESSED: Full 213 lines extracted to references/core-workflow.md -->
@@ -151,7 +145,8 @@ Design the three-tier loading system for every skill:
 ...
 > 📎 **Full content (213 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-## Decision Trees                        <decision_tree id="compaction_trigger">
+## Compiled Decision Tree Example                        <decision_tree id="compaction_trigger">
+<!-- STANDARD: 3min -->
                                          <branch>
 ├─ Token > 80%?                          <condition>token_count > 0.8 * window</condition>
 │  └─ COMPACT NOW                        <action priority="emergency">COMPACT_NOW</action>
@@ -159,6 +154,7 @@ Design the three-tier loading system for every skill:
                                          </decision_tree>
 
 ## Anti-Patterns                         <gotchas_json>[
+<!-- STANDARD: 3min -->
 {"id":1,"title":"Over-pruning decisions",
  "impact":"System inconsistency",
  "cost":"$10K-$50K","mitigation":"State ledger
@@ -166,6 +162,7 @@ Design the three-tier loading system for every skill:
 ```
 
 **Compilation pipeline:**
+
 ```
 1. EXTRACT frontmatter → JSON-LD structured metadata
 2. PARSE decision trees → nested <branch> XML elements
@@ -206,6 +203,7 @@ references                    gotchas, reference docs   specifically needed
 ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### Decision Tree 1: Token Budget Saturation Response
@@ -218,6 +216,7 @@ references                    gotchas, reference docs   specifically needed
 - [ ] Saturation % = current_tokens / window_size
 
 **Phase 2 — Decide:**
+
 ```
 Saturation level?
 ├── < 70% → HEALTHY — no action needed
@@ -252,6 +251,7 @@ Saturation level?
 - [ ] Criticality: which sections are MUST-HAVE vs NICE-TO-HAVE
 
 **Phase 2 — Decide:**
+
 ```
 For each section in skill:
 ├── Section is "Route the Request" or headline description?
@@ -351,6 +351,7 @@ What pattern is triggered?
 - [ ] Agent's current task description
 
 **Phase 2 — Decide:**
+
 ```
 How many skills have Tier 2+ content loaded?
 ├── 1-3 → HEALTHY — no fragmentation risk
@@ -409,6 +410,7 @@ Agent appears stuck in loop
 ```
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -420,6 +422,8 @@ Agent appears stuck in loop
 | "Sliding window evicts the architecture decision from turn 3 but keeps verbose error logs from turns 7-10" | Pure recency-based eviction: the oldest context is dropped regardless of importance. The architecture decision on turn 3 is still binding; the error logs on turns 7-10 are obsolete. | Replace recency-only eviction with importance-weighted eviction. Score each segment: importance (is this decision still binding?) × recency (how old?) × uniqueness (is this info available elsewhere?). Evict lowest-scored segments — which may be recent but unimportant. | Recency is not relevance. A binding decision from turn 3 matters more than a resolved error from turn 9. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -435,6 +439,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Handoff |
 |----------|----------------|---------|
@@ -455,6 +460,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `mlops-engineer` | Model lifecycle, deployment patterns, monitoring requirements | Before deploying ML models to production |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Condition | Detection Mechanism | Automatic Action |
 |-----------|-------------------|------------------|
@@ -470,6 +476,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Conversation exceeds 20 turns without summarization | `python turn_monitor.py --threshold 20` | Force conversation summarization to 20% token density; archive to state ledger |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ✅ **Good — Token Budget Management:**
 "Monitored 5-skill pipeline at 68% saturation. Proactive redundancy detection identified 3 duplicate ground rule sections (12% token waste). Deduplicated to canonical versions. Evicted 2 stale Tier 3 gotchas unreferenced for 8+ turns. Result: 62% saturation with no decision-quality loss. Projected savings: $1,240/month."
@@ -490,6 +497,7 @@ If a command or approach fails, follow this escalation path before giving up:
 "Compacted context at turn 18 without checkpointing. Pruned 3 architecture decisions made at turns 5-8. At turn 22, agent needed to know why microservice A communicates via gRPC not REST. Decision was pruned, rationale lost. Agent proposed REST migration. $15K rework to revert." [[Violates Pattern 12 — always checkpoint before pruning decisions]]
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Token Budget Calibration Drill:** Take a real 10-skill agent pipeline trace. Calculate actual token consumption per skill vs. budgeted. Identify the top 3 budget overruns. Recalibrate tier boundaries. Target: all skills within 15% of budget.
 
@@ -506,6 +514,7 @@ If a command or approach fails, follow this escalation path before giving up:
 7. **Cross-Skill Fragmentation Test:** Load 8 skills simultaneously. Observe attention distribution. Detect keyword conflicts. Apply fragmentation prevention (Pattern 11). Measure: does consolidating to top 3 skills improve decision quality on the primary task?
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Use structured summarization for decisions, not free-form prose.** "We chose PostgreSQL" is ambiguous. "Decision: database=PostgreSQL 16; rationale: team expertise + JSONB support; constraints: GDPR EU-only; reversible: true" is recoverable. Structured summaries enable automated context reconstruction; prose requires re-reading.
 
@@ -528,6 +537,7 @@ If a command or approach fails, follow this escalation path before giving up:
 10. **Test compaction with behavioral equivalence suites, not token count checks.** A compaction that reduces tokens by 40% but drops a negation ("Do NOT use X" → "Use X") is a regression. Run the same 50-scenario eval suite against the compacted and original context. Pass threshold: >= 95% behavioral equivalence on all dimensions. Token savings without behavioral equivalence is compression, not compaction.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before deploying any context compaction pipeline to production, verify ALL of:
@@ -548,6 +558,7 @@ Before deploying any context compaction pipeline to production, verify ALL of:
 14. Recovery drill completed: simulate need for pruned information, verify successful recovery from ledger or file reference
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | # | Gotcha | Impact | Cost |
 |---|--------|--------|------|
@@ -561,6 +572,8 @@ Before deploying any context compaction pipeline to production, verify ALL of:
 | 8 | **Tier 3 loaded without Tier 2 grounding:** Agent received full gotchas but no decision tree context to understand when they apply — misapplied edge-case warnings to standard path | Over-cautious agent, unnecessarily complex solutions | $15K-$75K in over-engineering |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -570,30 +583,33 @@ Before deploying any context compaction pipeline to production, verify ALL of:
 | Compaction threshold set too high (95%) — pipeline runs at 90% saturation without triggering | $50K-$200K/year in degraded model performance from context overflow | Set proactive compaction trigger at 70% saturation. Compact Tier 3 content at 70%, evict Tier 3 at 85%+, emergency eviction at 95%. Proactive compaction at 70% produces better summaries than reactive compaction at 95%. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-| # | Check | Expected |
-|---|-------|----------|
-| 1 | Token budget per skill declared | All active skills have tier assignments with token budgets |
-| 2 | Context saturation < 70% | Healthy operating band; no eviction needed |
-| 3 | Context saturation < 85% | No Tier 3 eviction triggered; monitor for growth |
-| 4 | Context saturation < 95% | Emergency eviction NOT triggered; Tier 2 content preserved |
-| 5 | Redundancy detection passed | Zero duplicate sentences at 0.92 similarity threshold |
-| 6 | No security sections compacted | All "NEVER", "MUST NOT", security/auth constraints preserved verbatim |
-| 7 | Attention zones correct | Guardrails in primacy zone (first 200 tokens); output format in recency zone (last 100 tokens) |
-| 8 | No unproductive loops | < 3 identical (action, outcome) pairs in any 10-turn window |
-| 9 | ≤ 3 concurrent full-skill loads | Active skills at Tier 2+ do not exceed 3 |
-| 10 | No skill conflicts | No two active skills share > 3 domain keywords |
-| 11 | Dual-representation validated | Compiled skill passes behavioral equivalence at ≥ 95% |
-| 12 | State ledger populated | All pruned decisions have recovery path recorded in ledger |
-| 13 | Compaction logged | Metadata recorded: what was removed, why, when, recoverable? |
-| 14 | Recovery tested | Simulated need for pruned information → successfully recovered from ledger or file reference |
-| 15 | Code blocks preserved or referenced | No paraphrased code; all code either verbatim or file:hash reference |
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Token budget per skill declared | All active skills have tier assignments with token budgets |
+| ☐ | Complete when Context saturation < 70% | Healthy operating band; no eviction needed |
+| ☐ | Complete when Context saturation < 85% | No Tier 3 eviction triggered; monitor for growth |
+| ☐ | Complete when Context saturation < 95% | Emergency eviction NOT triggered; Tier 2 content preserved |
+| ☐ | Complete when Redundancy detection passed | Zero duplicate sentences at 0.92 similarity threshold |
+| ☐ | Complete when No security sections compacted | All "NEVER", "MUST NOT", security/auth constraints preserved verbatim |
+| ☐ | Complete when Attention zones correct | Guardrails in primacy zone (first 200 tokens); output format in recency zone (last 100 tokens) |
+| ☐ | Complete when No unproductive loops | < 3 identical (action, outcome) pairs in any 10-turn window |
+| ☐ | Complete when ≤ 3 concurrent full-skill loads | Active skills at Tier 2+ do not exceed 3 |
+| ☐ | Complete when No skill conflicts | No two active skills share > 3 domain keywords |
+| ☐ | Complete when Dual-representation validated | Compiled skill passes behavioral equivalence at ≥ 95% |
+| ☐ | Complete when State ledger populated | All pruned decisions have recovery path recorded in ledger |
+| ☐ | Complete when Compaction logged | Metadata recorded: what was removed, why, when, recoverable? |
+| ☐ | Complete when Recovery tested | Simulated need for pruned information → successfully recovered from ledger or file reference |
+| ☐ | Complete when Code blocks preserved or referenced | No paraphrased code; all code either verbatim or file:hash reference |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [token-budget-allocation.md](references/token-budget-allocation.md) — Per-skill budget formulas, saturation thresholds, eviction policy implementation
 - [progressive-disclosure-patterns.md](references/progressive-disclosure-patterns.md) — Tier 1/2/3 architecture, boundary enforcement, transition triggers
@@ -609,6 +625,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [loop-detection-patterns.md](references/loop-detection-patterns.md) — Action/outcome hashing, escalation context injection, prevention strategies
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
 

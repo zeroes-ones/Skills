@@ -72,10 +72,11 @@ What are you trying to do?
 ├── Need safety for a traditional ML model (not LLM) → Invoke security-engineer instead
 └── Not sure where to start? → Start at "Ground Rules" then "When to Use"
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -145,7 +146,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-### Anti-Hallucination Ground Rules
+## Anti-Hallucination
 - **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
 - **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
 - **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
@@ -205,6 +206,77 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 2: How Do I Architect Guardrails for a Health LLM?
+
+        ┌── INPUT: Health LLM feature needs safety guardrails
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Input filtering   Output filtering   Both layers
+only              only               (defense in depth)
+   │                 │                  │
+   ▼                 ▼                  ▼
+Best for:         Best for:          Best for:
+Preventing        Catching           Regulated
+prompt injection,  hallucinations     medical devices
+PII in prompts    after generation   or high-risk CDS
+   │                 │                  │
+   ▼                 ▼                  ▼
+Regex + LLM       LLM-as-judge +    Combine both +
+classifier on     medical KB        audit log every
+user input        validation        blocked/filtered
+   │                 │                  │
+   ▼                 ▼                  ▼
+Latency: <50ms    Latency: +200ms   Latency: +250ms
+Cost: low         Cost: medium      Cost: high
+
+### Decision Tree 3: How Do I Scope a Red-Teaming Exercise?
+
+        ┌── INPUT: Health LLM needs adversarial testing
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Pre-launch        Post-incident      Periodic
+baseline          targeted           compliance
+   │                 │                  │
+   ▼                 ▼                  ▼
+Full taxonomy:    Focus on the       Sample from
+jailbreak,        failure mode       taxonomy;
+prompt inject,    that caused        rotate attack
+harmful content,  the incident;      categories
+bias probes       expand related     quarterly
+   │                 │                  │
+   ▼                 ▼                  ▼
+Run 500+ prompts  Run 200+ prompts   Run 100+ prompts
+across 5 personas across 3 personas  across 2 personas
+
+### Decision Tree 4: How Do I Choose a Safety Monitoring Strategy?
+
+        ┌── INPUT: Health LLM is deployed; need ongoing safety
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Real-time          Batch              Hybrid
+scrubbing          auditing           (scrub + audit)
+   │                 │                  │
+   ▼                 ▼                  ▼
+Block harmful      Sample 5% of       Real-time for
+outputs before     outputs daily;     P0/P1 harm
+user sees them     clinician review   categories;
+   │                 │                  │
+   ▼                 ▼                  ▼
+Best for: SaMD     Best for:          batch for P2/P3
+Class II/III;      informational     quality issues;
+P0 harm vectors    tools; lower      best coverage
+   │                 │                  │
+   ▼                 ▼                  ▼
+Cost: high per     Cost: low per      Cost: moderate
+request; latency   request; delay     per request
+impact: +100ms     tolerant
 
 ### Regulatory Classification (FDA AI/ML)
 
@@ -295,6 +367,10 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **What good looks like:** Safety dashboard with guardrail trigger rates, bypass attempt trends, and evaluation scores over time. Weekly eval run. Human reviewers sampling 1% of interactions. Incident response documented and exercised.
 
   Complete when: Safety dashboard live with guardrail trigger rates, bypass trends, and eval scores over time; weekly eval runs automated; human sampling pipeline active; incident response playbook documented.
+  Complete when: Model evaluation results documented — accuracy, latency, and cost metrics vs. baseline.
+  Complete when: Prompt version controlled with changelog and rollback capability.
+  Complete when: Guardrails tested against adversarial inputs — no jailbreak in test suite.
+  Complete when: Token usage and cost tracking dashboard operational with budget alerts.
 
 ## Best Practices
 
@@ -334,8 +410,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | **After** | `product-manager` | Safety findings, launch readiness assessment → informed go/no-go decision |
 | **After** | `medical-content-reviewer` | AI response accuracy issues, hallucination patterns → feeds content quality improvement |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -362,23 +438,6 @@ graph LR
 | **Master** | Teach a junior to design a system; your role is to ask questions, not give answers | Monthly |
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
-
-### Scale Depth
-
-#### Solo Developer
-**Budget:** $0-$500/month. Manual safety evaluation: 25 test cases run before each release. Use open-source classifiers (Llama Guard, Perspective API free tier) for output filtering. Manual red-teaming with 20 attack patterns. Document safety decisions in README.
-**Transition trigger:** First user-facing health feature or handling PII/PHI → move to Small Team.
-
-#### Small Team (2-10)
-**Budget:** $500-$5K/month. Automated safety test suite with 100+ test cases via pytest/garak. Deploy NeMo Guardrails or open-source guardrails (guardrails-ai). Automated weekly red-teaming with 50+ attack patterns. Bias testing across race, gender, age. Safety dashboard (Grafana). Slack alerts for guardrail trigger spikes.
-**Transition trigger:** Deploying a SaMD-classified feature or >10K daily users → move to Organization.
-
-#### Organization (10-50)
-**Budget:** $5K-$50K/month. LLM-as-judge evaluation pipeline for ambiguous safety cases. Continuous red-teaming with automated probes (garak, PyRIT) plus monthly manual red-team exercises. Dedicated safety engineer (0.5-1 FTE). Multilingual safety testing across all supported languages. Incident response automation: auto-pause features on safety spikes. Human sampling: 1% review pipeline with dedicated reviewers.
-**Transition trigger:** Regulatory submission (510(k)/De Novo) or >100K daily users → move to Enterprise.
-
-#### Enterprise (50+)
-**Budget:** $50K+/month. Full-time AI safety team (2+ engineers). Custom guardrail models trained on domain-specific harm taxonomy. Quarterly external red-teaming with specialized firms. Regulatory-grade documentation pipeline (model cards, safety case, PCCP). Multi-model safety evaluation (testing across all provider models in production). Independent safety audit by third party. Continuous bias drift monitoring across demographic subgroups. Safety incident response: on-call rotation, <15min detection, <1hr containment.
 
 ## Anti-Patterns
 
@@ -438,18 +497,8 @@ Before any AI system reaches production with safety evaluation, verify:
 - [ ] All benchmark results published including failures with documented limitations
 - [ ] Continuous monitoring: output anomaly detection, toxicity spikes, PII leakage alerts active
 
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|---|---|
-| "We use constitutional AI, so the model's values are encoded in the training objective" | Constitutional principles are interpreted by the same model that's being constrained — it learns to route around rules, not internalize them; constitutions need adversarial validation, not trust |
-| "Safety classifiers catch harmful outputs before they reach users" | Classifiers operate on individual tokens or messages; they miss semantic harm spread across turns, coded language, and outputs that are safe in isolation but dangerous in sequence |
-| "Our model scores below 1% on ToxiGen and RealToxicityPrompts benchmarks" | Benchmark datasets are static targets — they measure performance on known attack surface from 2022; adversarial prompt evolution renders them obsolete within months of release |
-| "We have a human-in-the-loop review process for flagged outputs" | Human reviewers exhibit automation bias with high-confidence model outputs, decision fatigue at scale, and cultural blind spots — the loop amplifies rather than corrects at throughput |
-| "Safety is a training problem — better data, better model" | Safety is a systems problem: deployment context, tool access, multi-agent interaction, and user population all change the harm surface independently of model quality |
-
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -481,4 +530,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)

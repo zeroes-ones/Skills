@@ -44,8 +44,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end Git workflow and versioning discipline covering trunk-based development, atomic commits, git worktrees for parallel agent work, semantic versioning, human-readable changelogs, and merge-vs-rebase decision frameworks. Treat every commit as a save point in a game -- commit working slices frequently, never lose progress, always be able to roll back.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -59,12 +61,12 @@ End-to-end Git workflow and versioning discipline covering trunk-based developme
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 - **Every commit is a save point.** Commit working slices of ~50-150 lines. If the build breaks, bisect finds the exact commit. If you need to revert, you lose minimal work. Commit like you are playing a game with no autosave.
 - **The history tells a story.** A git log should read like a narrative of decisions, not a dump of file changes. Each commit message explains WHY the change exists -- the diff shows WHAT changed.
@@ -73,27 +75,15 @@ End-to-end Git workflow and versioning discipline covering trunk-based developme
 - **Bisectability is the ultimate test.** If you cannot `git bisect` to find the exact commit that introduced a bug, your commits are too large or your history is not clean. Every commit should pass tests independently.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick scan (30s):** Check branch status (`git status`), recent commits (`git log --oneline -10`), verify main is not diverged, check for uncommitted work or dirty worktrees.
 - **Standard engagement (10min):** Review PR diff for atomicity, check commit message quality, verify CI status, run pre-commit hooks, squash fixup commits, rebase on main if behind.
 - **Deep dive (full session):** Audit full repository history for secrets and large files, restructure commit history for clarity, set up branch protection rules, configure Git hooks, establish versioning and changelog automation.
 - **Crisis mode (broken main, bad merge, lost work):** Triage: identify the breaking commit with `git bisect`, revert the breaking change, communicate to team. Use `git reflog` for lost commits. Never force-push to shared branches.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 engineer, 1 repo)
-Trunk-based development on `main`. Direct commits acceptable for small repos. Pre-commit hooks for secrets and formatting. Annotated tags for releases. Focus: atomic commits, Conventional Commits, `.gitignore` hygiene. `git bisect` should work — that's the only test that matters.
-
-#### Small (2-10 engineers, 1-5 repos)
-Feature branches with PR reviews required for `main`. Branch protection: require approvals, status checks, linear history. Pre-commit + pre-push hooks. Conventional Commits enforced. Focus: merge strategy consistency (rebase vs merge documented), CODEOWNERS for critical paths, automated changelogs, signed commits for supply chain integrity.
-
-#### Medium (10-50 engineers, 5-20 repos, possible monorepo)
-Monorepo: CODEOWNERS, affected-project detection in CI, sparse checkout for large repos. Branch protection with required linear history. Commit signing mandatory. `git worktree` for parallel work. Focus: stale branch automation, Git LFS for large assets, monorepo-specific merge strategy, commit history audits for secrets and large files quarterly.
-
-#### Enterprise (50+ engineers, 20+ repos, monorepo with 100+ contributors)
-Federated repository governance: shared `.github` repo with org-wide pre-commit configs, branch protection templates, and CODEOWNERS conventions. Monorepo: build graph with affected-project detection, merge queue for serializing `main` commits, remote caching for CI. Focus: supply chain security (SLSA Level 3+, signed commits + signed tags + signed builds), compliance audit trails (every merge to `main` has PR, review, CI pass, and approval record). "This is how we version control — every team uses these conventions, every commit is traceable, every release is reproducible."
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Designing a branching strategy for a team or project
 - Writing atomic, well-structured commits with descriptive messages
@@ -109,6 +99,7 @@ Federated repository governance: shared `.github` repo with org-wide pre-commit 
 **When NOT to use:** CI/CD pipeline design (ci-cd-builder), monorepo tooling (monorepo-manager), release coordination across teams (release-manager), or platform engineering workflows (platform-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ```
 What Git task are you working on?
@@ -123,6 +114,7 @@ What Git task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 ### Phase 1: The Atomic Commit (Save Point Pattern)
 
@@ -164,6 +156,7 @@ What Git task are you working on?
    |-- git push origin feature/branch-name
    |-- NEVER git push --force to shared branches
 ```
+
   Complete when: `git diff --cached` shows exactly one logical change with a conventional commit message, pre-commit hooks pass, and `git log -1` shows a well-formed commit with body explaining the WHY.
 
 ### Phase 2: Quality Gates (Git Hooks)
@@ -199,6 +192,7 @@ What Git task are you working on?
    |-- Build verification
    |-- Branch naming convention check
 ```
+
   Complete when: `pre-commit run --all-files` passes with zero failures, commit-msg hook enforces conventional commit format, and pre-push hook runs the full test suite successfully.
 
 ### Phase 3: Versioning and Changelogs
@@ -221,9 +215,16 @@ What Git task are you working on?
    |-- Annotated tags (git tag -a) include author, date, message
    |-- Push tags: git push origin v1.2.0 or git push --tags
 ```
+
   Complete when: version bump type is determined from commit history, changelog follows Keep a Changelog format with human-readable impact descriptions, and an annotated tag is pushed to the remote.
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
+  Complete when: Infrastructure drift detection enabled — Terraform plan shows zero unmanaged changes.
+  Complete when: Runbook documented and tested via game day exercise with < 3 action items.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Branching Strategy
 
@@ -352,8 +353,9 @@ What did you lose?
 |   |-- Or: git switch -c new-branch-name
 ```
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -362,8 +364,8 @@ What did you lose?
 | Rebasing a shared branch — rewriting history that others have based work on; every teammate's local branch now diverges and requires force-push recovery | $20K-$100K in team-wide git recovery and merge conflict resolution | Only rebase private branches that nobody else depends on; once a branch is pushed and shared, use merge commits instead; communicate branch state changes to the team |
 | Squash-merging without preserving the PR description — the squash commit has a generic "Fix bug" message and the design rationale from the PR body is lost | $5K-$20K in lost context when debugging 6 months later | Configure squash-merge to use PR title + body as the commit message; every commit on `main` should be self-contained with the WHY in the body; link back to the PR for full discussion history |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -378,8 +380,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `git commit --amend` on a pushed commit causes a divergent branch — the next `git pull` produces a merge commit that undoes the amendment | The developer amended a commit that was already pushed (damn). Then they ran `git pull` which fetched the original commit from origin and merged it back into the amended history. The result: a merge commit that re-adds the old version alongside the amended version | Use `git commit --amend` only on unpushed commits. If already pushed: `git push --force-with-lease` (but communicate to all branch collaborators first). Enable branch protection "Require linear history" to prevent merge commits from re-introducing old history. Add a `pre-push` hook: `git log origin/<branch>..HEAD --oneline | wc -l` — if 0, warn on amend | Amending pushed commits creates a history fork. The next pull merges both versions together. The only safe amend is an unpushed amend. After push, use `--force-with-lease` (with coordination) or accept the original commit and add a new one. |
 | Git hooks defined in `.git/hooks/` work on developer's machine but not on any other developer's machine — the `.git/hooks/` directory isn't versioned | Someone manually copied a `pre-commit` hook into `.git/hooks/` and it worked for them. But `.git/hooks/` is local to the clone — it's not tracked in Git. Every other developer and CI runner lacks the hook | Use a hooks manager: `pre-commit` (Python framework), `husky` (Node.js), or `lefthook` (cross-language). Configure hooks in a versioned file (`.pre-commit-config.yaml`, `.husky/pre-commit`, `lefthook.yml`). CI must run the SAME hooks as pre-commit to prevent mismatches | `.git/hooks/` is a local directory. Hooks placed there are invisible to version control and unreproducible. Always use a hooks manager that stores configuration in the repo and installs hooks via `pre-commit install` or `husky install`. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Trunk-based development with short-lived feature branches.** Branch from `main`, merge back within 1-3 days. Branches older than 5 days accumulate merge debt exponentially — a 3-week-old branch behind 200 commits generates 47 conflicts across 15 files. CI enforces: flag branches >5 commits behind main.
 
@@ -401,8 +403,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Git worktrees for parallel work — never stash, never context-switch.** `git worktree add ../feature-branch feature/branch` creates a parallel working directory. Work on a feature in one worktree, fix a critical bug on `main` in another, review a PR in a third. No stashing, no WIP commits, no lost context. Clean up stale worktrees with `git worktree prune` weekly.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -417,6 +419,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -428,14 +431,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Documentation versioning alongside code | documentation-engineer | Versioned docs, changelog integration |
 | Incident: need to bisect and revert | incident-responder | Finding the breaking commit, safe revert strategy |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `cloud-architect` | Infrastructure design, networking, IAM, cost model | Before provisioning infrastructure or designing deployment pipelines |
 | `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -446,11 +448,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | P5 | No Git hooks configured in repository | [INFO] Consider setting up pre-commit hooks for linting, secret scanning, and commit message validation. |
 | P6 | `git log --oneline` shows consecutive commits with same message | [WARN] Duplicate commit messages suggest fixup/squash opportunity before merging. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[GIT1]** Branch protection rules enabled on `main`, `master`, `develop`, `release/*`: require PR reviews, dismiss stale reviews, require status checks, require branches up-to-date, disallow force pushes
 - [ ] **[GIT2]** Required PR reviews: ≥1 approving review before merge, CODEOWNERS enforcing domain expertise on critical paths (auth, payments, infrastructure)
@@ -467,6 +471,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[GIT13]** Secret scanning in CI and pre-commit: gitleaks or detect-secrets runs on every push, blocks commits containing secrets — if committed, rotate immediately and purge history with BFG
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 FEATURE: Add two-factor authentication
@@ -485,6 +490,7 @@ Bad alternative (anti-pattern):
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **The 10-Commit Challenge:** Take a feature you built in one large commit. Rebuild it as 5-10 atomic commits where each commit message tells a clear story. Verify each commit passes tests independently using `git rebase -i --exec "npm test"`.
 
@@ -496,7 +502,8 @@ Bad alternative (anti-pattern):
 
 5. **Merge Conflict Gauntlet:** Have two branches make conflicting changes to the same 5 files (different refactors, renamed functions, moved files). Merge them without losing any work. Practice with `git mergetool` and understand when to accept theirs vs ours vs manually resolve.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -507,6 +514,7 @@ Bad alternative (anti-pattern):
 | "We don't need a documented merge strategy — just merge when ready." | Undefined workflow = 2-3 hrs/week per engineer in merge confusion, rebase-vs-merge debates, and accidental overwrites. $15K-$30K/year in friction that a one-page merge strategy doc eliminates. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Force-pushing to main destroys the team's afternoon.** An engineer force-pushes a rebased main, overwriting 3 teammates' merged PRs. The reflog saves the commits, but coordination to re-apply takes 2 hours across 4 engineers. **Total cost: $1,500-$3,000 in lost productivity per incident.** Fix: Enable branch protection with force-push disabled on shared branches.
 
@@ -523,6 +531,7 @@ Bad alternative (anti-pattern):
 - **`git add .` in a monorepo commits other teams' changes.** In a monorepo, a developer runs `git add .` from the root, accidentally staging 20 files across 5 projects that other teams were working on. The commit message says "fix login bug" but includes unrelated changes. Code review catches it, but 1 hour is wasted untangling the commit. **Total cost: $500-$1,500 per incident in review and untangling.** Fix: Use `git add -p` or `git add path/to/specific/files`. Configure IDE to stage only files in the current project.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `git log --oneline -20`: every commit message follows Conventional Commits format with meaningful descriptions
 - [ ] Run `git log --oneline --diff-filter=A -- "*.key" "*.pem" "*.p12"`: no secret files found in repository history
@@ -534,10 +543,12 @@ Bad alternative (anti-pattern):
 - [ ] Run `git branch -r --no-merged main | wc -l`: stale remote branches count is under control
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [Conventional Commits Specification](https://www.conventionalcommits.org/) -- Standard for human and machine-readable commit messages
 - [Keep a Changelog](https://keepachangelog.com/) -- Guide to writing changelogs for humans

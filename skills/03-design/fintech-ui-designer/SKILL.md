@@ -41,8 +41,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
 Design interfaces for financial applications where **precision, trust, and speed** are paramount. Financial UI carries legal weight — a misplaced decimal point, a confusing fee disclosure, or an inaccessible gain/loss indicator can cost real money and trigger regulatory action.
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route
 
@@ -67,7 +69,8 @@ What are you building?
 └── Not sure → Describe the financial domain and primary user action
 ```
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---------------------|--------------------|--------------------|
@@ -80,6 +83,7 @@ What are you building?
 | G7 | Never specify animations that delay data visibility or misrepresent financial values — every animation must complete in ≤200ms and never interpolate prices | `file_contains(spec, "animate|transition|motion|spring|tween")` AND NOT `file_contains(spec, "duration.*ms|200ms|prefers-reduced-motion|no.interpolation")` | REFUSE. "Financial UI animations must never delay data visibility or distort values. Rules: (1) price animations ≤200ms — faster is better, (2) NEVER interpolate between prices — a price change flash communicates the fact of change, not a fake 'tween' from old to new, (3) transaction confirmations: checkmark animation + haptic, (4) every animation must have a `prefers-reduced-motion: reduce` fallback to instant. A 400ms price 'count-up' animation showing $97.34 → $103.21 is showing the user WRONG numbers for 400ms." |
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Financial UI is **high-stakes information design**. Users don't browse financial data — they scan for anomalies, make decisions with real consequences, and need absolute trust in what they see. Every element must answer: "If I act on this information, will I lose money?"
 
@@ -108,6 +112,7 @@ Financial UI is **high-stakes information design**. Users don't browse financial
 - **Financial data has seasons.** Tax season, earnings season, end-of-quarter — design for these high-stress periods. Users will be emotional. Your UI must be calm.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | User | Scope | What Changes |
 |-------|------|-------|-------------|
@@ -117,7 +122,64 @@ Financial UI is **high-stakes information design**. Users don't browse financial
 | **L4 — Medium** | Established fintech, multiple products | Multi-product platform with shared design system | Design system with financial component library. Accessibility at WCAG 2.2 AA minimum. Multi-region compliance. Performance monitoring on data feeds. |
 | **L5 — Enterprise** | Bank, exchange, or major fintech | White-label platform, institutional + retail | Institutional-grade data density. Customizable dashboards per user role. SOC 2, PCI-DSS, GDPR compliance built into UI components. Audit-every-click tracking. |
 
+## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Real-Time Data Strategy
+
+        ┌── INPUT: How fresh does the data need to be?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Real-Time <1s]   [Near-RT 1-15s]   [Delayed >15s]
+Trading,          Portfolio         Statements,
+order books,      balances,         reports,
+live pricing      positions         history
+   │                 │                  │
+   ▼                 ▼                  ▼
+WebSocket with    Polling with      REST fetch
+delta updates     cache headers     on-demand
+→ show staleness  → show last       → show timestamp
+indicator         updated time      of generation
+
+### Decision Tree 2: Compliance Disclosure Placement
+
+        ┌── INPUT: What type of disclosure?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Transactional]   [Informational]    [Consent]
+Fee breakdown,    Risk warnings,     KYC/AML,
+exchange rate     terms updates      data sharing
+   │                 │                  │
+   ▼                 ▼                  ▼
+Inline,           Persistent         Modal or
+pre-confirmation  banner/footer      dedicated
+before submit     (non-dismissible   screen before
+                  for regulatory)    account access
+
+### Decision Tree 3: Data Density Calibration
+
+        ┌── INPUT: Who is the primary user?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Retail Consumer] [Pro Trader]       [Institutional]
+Casual investor,  Day trader,        Portfolio
+banking customer  analyst            manager
+   │                 │                  │
+   ▼                 ▼                  ▼
+Low density:      High density:      Extreme density:
+cards, simple     tables, candles,   multi-panel,
+charts, single    order books,       customizable
+metric per view   multiple metrics   layouts, API
+                  per row            data grids
+
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Domain Discovery (10 min)
 
@@ -184,6 +246,7 @@ Financial UI is **high-stakes information design**. Users don't browse financial
 - Mobile: reduce animation complexity on low-power mode. Detect via `navigator.hardwareConcurrency` and battery API
 
 ## Trading Interfaces
+<!-- STANDARD: 3min -->
 
 ### Order Entry Form
 
@@ -220,6 +283,7 @@ Buy AAPL — Apple Inc.
 - **Timeframe selector**: 1D, 1W, 1M, 3M, 1Y, 5Y, ALL — always visible.
 
 ## Banking UX
+<!-- STANDARD: 3min -->
 
 ### Transaction List
 - Grouped by date: "Today," "Yesterday," "This Week," "February 2026"
@@ -235,6 +299,7 @@ Buy AAPL — Apple Inc.
 5. Fee disclosure: "Transfer fee: $0.00" or "Wire transfer fee: $25.00"
 
 ## Compliance-Driven UI
+<!-- STANDARD: 3min -->
 
 ### KYC/Onboarding Flow
 - Progress indicator: "Step 2 of 5"
@@ -255,6 +320,7 @@ Buy AAPL — Apple Inc.
 - Export capability: CSV, PDF for compliance reporting
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What We Need | When |
 |---------------|-------------|------|
@@ -269,6 +335,7 @@ Buy AAPL — Apple Inc.
 | `data-visualization-engineer` | Chart requirements, data update frequency, precision requirements | During chart design phase |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -279,10 +346,13 @@ Buy AAPL — Apple Inc.
 | "Submit" or "Confirm" on destructive financial action | Flag: "Add review step with: amount, fees, delivery time, and 'This cannot be undone' warning." | Accidental transactions are irreversible in many financial systems. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The dashboard loads in under 2 seconds with skeleton screens for every data region. Prices update via WebSocket with a green connection dot. Every gain/loss has +/− sign, arrow icon, and color (checked with colorblind simulation). The order entry form shows estimated total with fee breakdown before the review step. The review step shows a clear "This order cannot be undone" warning. All tables are navigable by screen reader with proper ARIA roles. Currency is formatted consistently to 2 decimal places across every screen. The "last updated" timestamp is visible in the persistent header. Security indicators (lock icon, "256-bit TLS encryption") appear in the footer or status bar.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix |
 |---------|-----------|-----|
@@ -291,8 +361,109 @@ Buy AAPL — Apple Inc.
 | Prices showing as "$0.000000" | Floating-point precision error in display | Format all currency to 2 decimal places. Use integer cents internally, format for display. |
 | Real-time chart freezes during volatility | Too many re-renders per second | Throttle updates to 100ms batches. Drop intermediate ticks; show final price for each batch. |
 
-## Anti-Hallucination
+## Best Practices
 
+1. **Do show every fee, total, and consequence before a confirmatory action** — Hidden fees destroy trust permanently in financial products. A user who discovers a $25 wire fee after confirming a transfer will never fully trust your platform again. The review screen must show: fee breakdown, total amount, delivery time estimate, and an explicit "This action cannot be undone" warning. Trust-repair cost after a hidden-fee incident: $50,000-$200,000 in churn and support burden.
+2. **Prefer amber/orange for warnings over red** — In financial contexts, red means emergency, error, or critical alert. Overusing red causes alarm fatigue — when everything is red, nothing is. Reserve red for irreversible loss events (trade rejected, transfer failed, account frozen). Use amber for warnings (approaching margin limit, unusual activity), blue for informational (new feature, market update). A dashboard where 40% of elements are red desensitizes users within 2 weeks.
+3. **Always pair color indicators (green/red) with +/− signs, arrow icons, and percentage text** — Approximately 8% of males have color vision deficiency. A gain/loss display using only red/green is invisible to protanopes and deuteranopes. Test every financial data view in grayscale — if any gain/loss state becomes ambiguous without color, add shape/icon/text differentiation. An inaccessible portfolio view costs $250,000+ in ADA litigation exposure.
+4. **Never abbreviate financial numbers without a visible legend and full-precision tooltip** — "$1.2M" must reveal "$1,234,567.89" on hover/tap. Users making decisions based on abbreviated numbers without knowing the rounding direction (floor, ceiling, nearest) can make costly errors. A trader seeing "$1.2M" for a position worth $1,249,999 acts on different information than one worth $1,200,001. Missing tooltip on abbreviated values has caused $10,000+ trading errors.
+5. **Measure time-to-confirmation for common financial tasks** — How many seconds from intent to confirmed completion for a transfer, trade, or bill pay? Target: under 15 seconds for frequent tasks (balance check, recent transactions), under 60 seconds for complex tasks (multi-leg trade, wire transfer). Every additional 10 seconds of friction increases abandon rate by 7% in financial flows. Track via RUM (Real User Monitoring) segmented by task type.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Every price, balance, or rate display includes a visible timestamp — "As of [HH:MM:SS]" or "Delayed [N] minutes" adjacent to the value | Audit all financial data screens: every monetary value must have a timestamp within 50px; missing timestamps trigger Ground Rule G1 |
+| ☐ | Gain/loss indicators use +/− sign + arrow icon + percentage text — never color alone; verify in grayscale mode | Toggle device grayscale; confirm all gain/loss states remain unambiguously distinguishable without any color channel |
+| ☐ | Every buy/sell/transfer flow has a review step showing: fee breakdown, total amount, delivery time, and irreversible warning before final confirm | Walk through each transactional flow end-to-end; pre-confirmation screen must render all four elements before the final submit button |
+| ☐ | All abbreviated numbers (K/M/B/T) show full precision (2 decimal places) on hover/tap with a visible abbreviation legend | Hover/tap every abbreviated value in chart legends, table cells, and summary cards; tooltip must reveal the exact number |
+| ☐ | Security indicators (lock icon + "Secured by 256-bit TLS") visible in persistent chrome on every screen displaying user financial data | Verify lock icon and encryption label render in a consistent position (e.g., footer or header) across all account, balance, and portfolio views |
+| ☐ | All UI telemetry, analytics, and error logging redact account numbers to last 4 digits and strip PII at the pipeline | Inspect log output at DEBUG level: no full account numbers, email addresses, tokens, passwords, or SSN appear in any log statement |
+| ☐ | Price update animations complete in ≤ 200ms and never interpolate between price values — no "count-up" animations showing intermediate fake numbers | Time a price update animation via performance profiler: render-to-completion must be under 200ms; confirm the new price replaces the old instantly — only a flash/color change communicates the fact of change |
+| ☐ | Rollback plan is documented and tested | Verify: canary deploy to 1% of users; monitor error rate and transaction confirmation rate for 15 minutes; kill switch reverts to previous UI version without data loss |
+
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when every price, balance, or rate display includes a timestamp showing "As of [timestamp]" or "Delayed [N] minutes" adjacent to the value | Verify every financial data point on screen has a visible timestamp; missing timestamps trigger Ground Rule G1 violation |
+| ☐ | Complete when gain/loss indicators use at minimum: +/− sign prefix, arrow icon (up/down), and percentage text — never color alone | Verify by viewing in grayscale; all gain/loss states remain distinguishable without any color channel |
+| ☐ | Complete when every confirmatory action (buy, sell, transfer) shows a review step with: fee breakdown, total amount, delivery time estimate, and irreversible warning | Verify pre-confirmation review screen renders all four elements before the final submit button; missing any element triggers G3 |
+| ☐ | Complete when abbreviated large numbers (K/M/B/T) show full precision on hover/tap with the abbreviation legend visible in chart or table footers | Verify tooltip/hover on any abbreviated value reveals full number to 2 decimal places; legend maps abbreviations to scale |
+| ☐ | Complete when security indicators (lock icon, "Secured by 256-bit TLS" label) are visible in persistent chrome on every screen displaying user financial data | Verify lock icon and encryption label render in a consistent position across all account, balance, and portfolio views |
+| ☐ | Complete when all UI telemetry and logging redacts account numbers to last 4 digits, strips PII at the pipeline, and never captures credentials in any log level | Verify by inspecting log output at DEBUG level; no full account numbers, emails, tokens, or passwords appear in any log statement |
+| ☐ | Complete when financial UI animations complete in ≤ 200ms, never interpolate between price values, and have `prefers-reduced-motion: reduce` fallbacks to instant | Verify every animation duration via inspection; price change indicators flash the new value instantly — no count-up or tween from old to new |
+| ☐ | Complete when candlestick/OHLC charts use colorblind-safe palettes (blue-orange or equivalent) with pattern fills as secondary encoding for up/down candles | Verify charts with colorblind simulator; hollow/filled candle distinction or pattern overlay provides redundancy beyond red/green |
+| ☐ | Complete when order book and trade tape update via throttled batches (≤ 100ms intervals) with final price for each batch, never dropping ticks during volatility | Verify by stress-testing with rapid price feed; UI must not freeze, and displayed prices must match the last tick in each batch |
+| ☐ | Complete when all KYC/onboarding flows include: progress indicator, save-and-resume, clear error recovery on validation failure, and estimated completion time | Verify progress bar advances correctly through each step; form data persists across navigation; validation errors point to specific fields with fix instructions |
+
+## When to Use
+<!-- STANDARD: 3min -->
+
+| Condition | Use This Skill | Use Instead |
+|-----------|---------------|-------------|
+| Designing trading platform UI (order books, charts, price ladders) | ✅ Apply real-time data display patterns, candlestick charts | — |
+| Building banking dashboard (accounts, transactions, transfers) | ✅ High-density information layouts, compliance-driven UI | — |
+| Designing payment flow (checkout, wallet, P2P transfer) | ✅ Review step, fee breakdown, irreversible action warnings | — |
+| Building KYC/onboarding flow | ✅ Compliance-driven UI patterns with progress tracking | — |
+| General analytics dashboard (non-financial) | ❌ | `data-visualization-engineer` |
+| Backend financial system architecture | ❌ | `backend-developer` or `financial-security` |
+| Cryptocurrency exchange UI | ✅ Real-time order book, trade tape, wallet integration | — |
+| Insurance portal design | ✅ Claims flow, policy management, document upload patterns | — |
+
+## Deliberate Practice
+<!-- STANDARD: 3min -->
+
+1. **Audit a real trading platform.** Open Robinhood, Coinbase, or Interactive Brokers. Count: how many data points on screen? How is gain/loss communicated? What happens when you tap "Buy" — is there a review step? Find 3 things the platform does well and 3 things that violate best practices.
+2. **Design an order confirmation screen.** Create a mockup for a $10,000 stock purchase. Show: ticker + quantity, limit price, estimated total, commission/fees breakdown, settlement time (T+2), and a clear "This order cannot be undone" warning. Test with a colleague — can they understand the full cost in under 5 seconds?
+3. **Build a colorblind-safe portfolio view.** Take a portfolio screen showing 5 positions (2 up, 3 down). Redesign so gain/loss is unambiguous without color: +/− signs, arrow icons, percentage text. Verify by viewing in grayscale. Then test all three colorblind types (deuteranopia, protanopia, tritanopia).
+4. **Design a KYC flow end-to-end.** Map the full identity verification journey: ID upload → selfie → address verification → review → approval/rejection. Handle every error state: blurry photo, expired ID, address mismatch. Time each step — target under 3 minutes total.
+5. **Optimize a real-time data display.** Given a WebSocket stream spitting 100 price updates/second, design a throttled display that updates at 100ms intervals, shows the final price per batch, and has a visible connection status indicator.
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Gain/loss shown only as red/green color — 8% of males are colorblind and cannot distinguish | $50K-$200K in accessibility lawsuit exposure; $15K-$40K in trading errors from misinterpreted signals | Always include +/− signs, up/down arrows, and percentage text. Test with colorblind simulators for all three types |
+| Hidden fees only shown after confirmation — #1 cause of fintech user complaints and regulatory fines | $100K-$1M in CFPB/FCA fines for deceptive fee disclosure; 40% churn from first-time users who feel tricked | Show fee breakdown BEFORE confirm button: subtotal, platform fee, network fee, tax, total. Never use "estimated total" without full itemization |
+| Real-time prices without connection status indicator — users trade on stale data thinking it's live | $25K-$500K in trade errors from stale price execution; regulatory liability for displaying outdated data as current | Persistent connection dot (green/yellow/red) + "As of [timestamp]" or "Delayed [N] minutes" on every price display |
+| Abbreviated numbers (1.2M) without tooltip showing full precision — users misread scale | $10K-$100K in trading mistakes from misreading order size or position value | Hover/tap reveals full number to 2 decimal places. Abbreviation legend visible in chart footer (K=thousands, M=millions, B=billions) |
+| Financial data displayed without consistent decimal places — erodes trust in platform | $50K-$200K in lost user trust and abandonment; institutional clients require formatting consistency | Standardize to 2 decimal places for currency. Integer cents internally. Format only at display layer. Zero-pad to consistent width |
+| No review step on irreversible financial action (buy, sell, transfer) — accidental transactions | $50K-$5M in liability for irreversible erroneous transactions; regulatory penalties for inadequate confirmation | Mandatory review step with: amount, fees, total, delivery time, "This action cannot be undone" warning. Require explicit confirmation gesture |
+| Animations interpolating between price values — shows wrong numbers during transition | $20K-$100K in trading errors from stale interpolated values; violates MiFID II best execution requirements | Flash the new value instantly. Never count-up or tween between prices. Animations ≤200ms with reduced-motion fallback to instant |
+
+## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Decision | Status | Timestamp |
+|----------|--------|-----------|
+| (none yet) | — | — |
+
+## References
+<!-- STANDARD: 3min -->
+
+- [PCI DSS v4.0](https://www.pcisecuritystandards.org/document_library/) — Payment Card Industry Data Security Standard for UI compliance
+- [WCAG 2.2 Guidelines](https://www.w3.org/TR/WCAG22/) — Web Content Accessibility Guidelines for financial accessibility
+- [CFPB Design Guidelines](https://www.consumerfinance.gov/design/) — Consumer Financial Protection Bureau design standards
+- `references/trading-interface-patterns.md` — Order book, price ladder, depth chart design patterns
+- `references/banking-ux-patterns.md` — Account dashboard, transaction history, transfer flow patterns
+- `references/payment-ux-patterns.md` — Checkout flows, wallet design, P2P transfer UX
+- `references/compliance-ui-patterns.md` — KYC, audit trails, regulatory disclosure design
+- `references/financial-data-visualization.md` — Candlestick charts, portfolio allocation, time-series patterns
+- `references/fintech-colorblind-safety.md` — Colorblind-safe palettes for financial data
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 - [VERIFIED] — Standard financial UI pattern (used by major brokerages/banks)
 - [COMMON-PRACTICE] — Widely adopted in fintech startups and products
 - [INFERRED] — Reasonable extrapolation from financial UX principles

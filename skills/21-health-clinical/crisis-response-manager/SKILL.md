@@ -43,6 +43,7 @@ chain:
 Manage health-related crises in patient-facing communities and digital health products — from adverse event detection and regulatory reporting to suicide prevention escalation and public health emergency response. This skill covers the full crisis lifecycle with regulatory timelines, safety taxonomies, communication templates, and post-crisis review protocols designed for FDA-regulated, patient-safety-critical environments.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -79,9 +80,11 @@ What are you trying to do?
 └── Active crisis in progress? → Start at "Decision Trees" — Crisis Activation then follow escalation matrix
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -99,12 +102,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master crisis response managers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -125,6 +128,7 @@ Master crisis response managers carry a dual responsibility: technical excellenc
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -140,6 +144,7 @@ Master crisis response managers carry a dual responsibility: technical excellenc
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Detecting, triaging, and reporting adverse events (AEs) from patient community posts, app feedback, or support tickets
@@ -152,9 +157,120 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Conducting post-crisis reviews with root cause analysis and corrective action plans
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Adverse Event Reporting Timeline
+
+```
+        ┌── INPUT: Adverse event detected — when to report?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Serious +          Non-serious
+unexpected         or expected
+(expedited)        (periodic)
+   │                 │
+   ▼                 ▼
+Report within      Report in
+15 calendar       periodic
+days (death /      safety update
+life-threatening:   │
+7 calendar days)     ▼
+   │              Quarterly for
+   ▼              first 3 years,
+Submit to:        then annually
+├─ FDA MedWatch      │
+│  (Form 3500A)      ▼
+├─ EudraVigilance  Document in
+│  (EU)            safety
+├─ IRB/EC          database,
+│  (if            include in
+│  applicable)    aggregate
+└─ Manufacturer   review
+   (if device)
+```
+
+### Decision Tree 2: Pharmacovigilance Signal Detection
+
+```
+        ┌── INPUT: Analyzing AE data for safety signals?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Quantitative       Qualitative
+(statistical)      (clinical
+   │               review)
+   ▼                   │
+Apply:                ▼
+├─ PRR            Review:
+│  (Proportional  ├─ Case
+│  Reporting      │  narratives
+│  Ratio)         ├─ Temporal
+├─ ROR            │  relationship
+│  (Reporting     ├─ De-challenge/
+│  Odds Ratio)    │  re-challenge
+├─ IC             ├─ Biological
+│  (Information   │  plausibility
+│  Component)     └─ Confounding
+└─ EBGM              factors
+   (Empirical
+   Bayes
+   Geometric
+   Mean)
+
+Signal if:       Signal if:
+PRR ≥2,          New causal
+chi-square ≥4,   association,
+N ≥3             unexpected
+                 severity,
+                 or pattern
+                 in specific
+                 population
+```
+
+### Decision Tree 3: Crisis Communication Channel
+
+```
+        ┌── INPUT: Communicating during a health crisis — which channel?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Internal           External
+stakeholders       (patients,
+   │               public,
+   ▼               regulators)
+Notify:               │
+├─ CEO (S1-S2)        ▼
+│  within 15min    Choose:
+├─ Legal counsel   ├─ Patient
+├─ Regulatory      │  notification
+│  affairs         │  (in-app,
+├─ Clinical        │  email,
+│  leadership      │  SMS for
+├─ PR/Comms        │  urgent)
+└─ Board (S1)      ├─ Public
+                      statement
+                      (press
+                      release,
+                      website)
+                   ├─ Regulatory
+                   │  disclosure
+                   │  (FDA, HHS,
+                   │  state AG)
+                   └─ Social media
+                      (prepared
+                      statements
+                      only, no
+                      real-time
+                      engagement)
+```
+
 ### Safety Incident Classification
 
 ```
@@ -187,6 +303,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                         │ 4 hrs │ │ 24 hrs│
                                                         └───────┘ └───────┘
 ```
+
 **S1 — Critical:** Death, life-threatening event, or immediate threat to patient population. Activate crisis team within 15 minutes. CEO, Legal Advisor, Health Compliance, Regulatory notified. **S2 — Severe:** Requires medical intervention or hospitalization. No death. Activate within 1 hour. VP-level notification. **S3 — High:** Affects >10 patients or has media/social media potential. Within 4 hours. Director-level. **S4 — Medium:** Isolated event, no media risk, affect <10 patients. Within 24 hours. **S5 — Low:** Near-miss, potential concern, no patient impact. Within 72 hours. Standard review.
 
 ### Mental Health Crisis Escalation
@@ -222,9 +339,11 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                           │ in 24 hrs.   │ └──────────┘
                                           └──────────────┘
 ```
+
 **Immediate escalation (plan/intent/means):** Call 988 Suicide & Crisis Lifeline (US) or local crisis service. If patient identifiable, contact them by phone if safe. Notify clinical lead within 5 minutes. Do NOT leave patient with only an automated message. **Moderate risk (ideation without plan):** Administer C-SSRS screening. Provide warm handoff to crisis resources within 30 minutes. Follow up in 24 hours. **Low risk:** Document concern. Monitor. Follow up in 24 hours. If any escalation in language, move to moderate risk.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -239,7 +358,6 @@ Complete when:
 - AE detection rules implemented across all patient-facing channels with human triage workflow
 - Regulatory reporting pathway documented: FDA MedWatch 3500A, EudraVigilance, manufacturer PV
 - Internal incident record template created with timeline, seriousness/expectedness assessment, and submission confirmation
-
 
 ### Phase 1 Implementation: AE Reporting Code (~30 min)
 
@@ -289,15 +407,20 @@ def generate_medwatch_3500a_xml(ae_report: dict) -> str:
     ET.SubElement(reporter, "reportergivename").text = ae_report.get("reporter_name", "")
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 - MedWatch eMDR XML generator function tested with sample AE report and validated against ICH E2B schema
 - Reporting workflow validated end-to-end: detection → triage → form generation → submission → audit log
 - Code reviewed for HIPAA compliance: patient demographics de-identified, PII handled per data retention policy
 
-
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -313,6 +436,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Crisis response is inherently cross-functional. Delays in coordination compound patient risk and regulatory exposure. This table defines exactly who needs to know what and when.
@@ -341,10 +465,12 @@ Crisis response is inherently cross-functional. Delays in coordination compound 
 ### Escalation Path
 
 ```
+
 S1 — Critical (death, life-threatening)? → CEO + Legal + Health Compliance + Clinical Lead. War room within 15 minutes.
 S2 — Severe (hospitalization, significant disability)? → VP-level + Legal + Health Compliance. Within 1 hour.
 Regulatory inspection or enforcement action? → CEO + Legal + Health Compliance + Compliance Officer. Within 2 hours.
 Media inquiry about safety incident? → CEO + Legal + Communications/PR. Do not respond before coordination.
+
 ```
 
 ### Regulatory Handoffs & Clinical Validation Gates
@@ -366,13 +492,12 @@ Media inquiry about safety incident? → CEO + Legal + Communications/PR. Do not
 - **Post-crisis review gate:** Every S1-S3 incident requires blameless post-crisis review within 2 weeks. Must include: root cause analysis, timeline reconstruction, what worked, what didn't, corrective actions with owners and deadlines. Artifact: Post-crisis review report with CAPA assignments.
 - **Evidence preservation gate:** Never delete or modify crisis-related content. Archive with timestamp and reason. Destroyed evidence = regulatory violation. Artifact: Content preservation log with chain of custody.
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `clinical-informatics-specialist` | Clinical workflows, terminology standards, regulatory context | Before designing healthcare solutions or patient-facing content |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These triggers fire automatically based on detected signals in patient community content, support tickets, or system events. When a trigger fires, route to the specified action immediately — do not wait for manual triage.
 
@@ -387,17 +512,20 @@ These triggers fire automatically based on detected signals in patient community
 | Misinformation about product safety spreading in community (10+ posts in 1 hour) | Invoke `content-policy-manager` for containment. Prepare fact-based correction from Clinical Lead. Coordinate with `community-operations-manager` for community-wide announcement. Do NOT delete posts — add corrective reply and archive. |
 | Medical device malfunction reported with patient harm ("my insulin pump delivered too much," "pacemaker shocked me") | Trigger FDA MDR reporting per 21 CFR Part 803. 30-day timeline if death/serious injury. Simultaneously notify manufacturer. Quarantine device data logs. Escalate to S2-S3 per Safety Incident Classification. |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 When a crisis hits, the response is swift, coordinated, and compassionate. Adverse events are reported within regulatory timelines. The team knows exactly who does what. Post-crisis reviews lead to concrete improvements. Patients feel protected, not policed.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
+
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
 
@@ -413,6 +541,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -422,7 +551,8 @@ graph LR
 | No post-crisis review process — crisis ends, everyone is exhausted, and the same root cause triggers an identical incident 6 months later. Repeat incidents face aggravated penalties. | $1M-$10M per repeat incident — organizations without formal post-incident review repeat the same crisis type at 3x the rate | Conduct formal post-incident review within 30 days; update templates and playbooks; track repeat-crisis metrics quarterly |
 | Single decision-maker during crisis — CEO is sole approver of public statements but is on a plane for 6 hours. Crisis escalates with no communication. $50K-$200K per hour in brand erosion. | $500K-$3M per incident in delayed response — every hour of silence costs $50K-$200K in brand value erosion for mid-market companies | Designate 2+ authorized signatories with no overlapping unavailability; document delegation authority in crisis playbook; test decision-tree scenarios quarterly |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -432,8 +562,8 @@ graph LR
 | "Patients and families will understand notification delays — these things take time." | Regulators and juries do not accept "administrative complexity" as justification for delayed patient notification after a harm event. CMS requires notification within 7 days of a reviewable adverse event. The standard isn't "when we're ready" — it's "as soon as the facts are confirmed." Every day of delay adds $10K-$50K in settlement value per affected patient. |
 | "This type of incident has never happened before — it's unprecedented." | Healthcare crises cluster in predictable patterns: data breaches, adverse events, fraud allegations, executive misconduct, and quality-of-care failures. Organizations that claim "unprecedented" typically haven't done crisis scenario planning. 80% of healthcare crises fall into 5 known categories. Having pre-drafted templates for each is standard of care for crisis management programs. |
 
-
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Crisis templates: top 5 crisis scenarios have pre-drafted templates — reviewed and updated quarterly
 - [ ] Communication drill: crisis comms team tested within last 6 months — tabletop exercise with simulated media inquiry
@@ -442,6 +572,7 @@ graph LR
 - [ ] Post-crisis review: within 30 days — what worked, what didn't, templates and playbooks updated
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
@@ -457,6 +588,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 10. **Write all crisis communications as if they will be published on the front page.** There is no "internal only" during a crisis. A memo sent to 500 employees marked "Internal Only — Do Not Share" will be on Twitter within 15 minutes. Every communication — internal email, Slack message, draft statement — must be written to the standard of public disclosure. Leaked internal communications add 48-72 hours to crisis resolution as the team pivots to "respond to the leak about the response."
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -469,6 +601,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Suicide risk post receives automated "We're here to help — call this number" response with no human follow-up | Immediate human contact by phone if safe and identifiable. Administer C-SSRS. Warm handoff to crisis service within 30 minutes. Automated responses to suicidal content are contraindicated | `grep -r 'automated\|auto.response\|bot' crisis-protocols/ \| grep 'suicide\|self.harm\|crisis'` | Response gate: block automated responses for suicide/self-harm content; require human escalation |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -488,32 +621,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | [CR13] | AE content preservation: flagged posts locked from deletion, timestamps documented, content preserved for regulatory record | `grep -r 'preserve\|do.not.delete\|lock\|regulatory.record' ae-procedures/` | Auto-protect rule: potential AE posts locked; deletion requires regulatory lead override |
 | [CR14] | Tabletop crisis exercise conducted within last 6 months — simulated media inquiry, regulatory notification, and patient communication | `grep -r 'tabletop\|exercise\|drill\|simulation\|last.exercise.date' crisis-plans/ \| grep '202[5-6]'` | Scheduled audit: alert if no exercise in >6 months |
 
-### Scale Depth
-
-<!-- DEEP: 10+min -->
-<!-- QUICK: 30s -- how crisis response evolves with organizational scale -->
-
-#### Solo (1 person, no dedicated crisis function)
-**Approach:** Crisis response is ad-hoc. No pre-drafted templates. CEO/Founder handles all communications personally. Regulatory reporting done manually. No formal post-crisis review.
-**When to graduate:** First S1/S2 incident; first regulatory inquiry; patient safety event exposes lack of protocol.
-
-#### Small Team (2-5 people, part-time crisis responsibility)
-**Approach:** Designated crisis response lead (part-time). Basic templates for top 3 scenarios. Escalation matrix documented. Quarterly tabletop exercises. Regulatory timeline calendar with reminders. Post-crisis debriefs conducted but informally.
-**When to graduate:** Multiple simultaneous incidents; need for 24/7 coverage; regulatory reporting volume exceeds manual capacity.
-
-#### Medium Team (5-15 people, dedicated crisis function)
-**Approach:** Dedicated crisis response team with 24/7 on-call rotation. Automated AE detection and triage. Full template library for all scenarios. Formal post-crisis review with CAPA tracking. Pharmacovigilance signal detection capability. Crisis communication pre-cleared with legal. Quarterly multi-stakeholder drills.
-**When to graduate:** Global operations requiring multi-jurisdiction regulatory reporting; public company with SEC disclosure obligations; crisis response data used in regulatory submissions.
-
-#### Enterprise (15+ people, crisis response department)
-**Approach:** Chief Crisis Officer or VP Crisis Management. Global 24/7 crisis operations center. AI-assisted signal detection across all patient-facing channels. Integrated crisis management platform. Published crisis response research. Regulatory agency relationships. Board-level crisis governance committee. Annual external audit of crisis preparedness.
-
-#### Transition Triggers
-- **Solo → Small Team:** First S1/S2 incident; regulatory inquiry received; patient safety event without protocol
-- **Small Team → Medium Team:** Multiple simultaneous incidents; 24/7 coverage required; regulatory volume exceeds manual capacity
-- **Medium Team → Enterprise:** Global operations; SEC disclosure obligations; regulatory submission-grade crisis data
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -525,6 +634,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Crisis communication sent as "Internal Only — Do Not Share" to 500 employees. Leaked to Twitter within 15 minutes. Comms team now responding to "respond to the leak about the response" | Internal communications during crisis treated as private. "Internal Only" label created false sense of security. Memo contained unvetted language not suitable for public consumption | Write every crisis communication — internal email, Slack, draft statement — as if it will be published on the front page of the New York Times. There is no "internal only" during a crisis. Assume every memo will leak, because it will | The "Internal Only" label is wishful thinking. In a 500-person organization during a crisis, someone will share it — out of concern, out of anger, out of a belief that transparency is the right thing. The only safe communication is one you would stand behind if published |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -535,4 +645,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

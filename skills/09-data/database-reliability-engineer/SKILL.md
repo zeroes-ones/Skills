@@ -48,6 +48,7 @@ strategies, multi-tenant design, data archival and lifecycle management, databas
 management at scale, and cost optimization.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -86,6 +87,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -103,12 +105,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of database reliability engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -129,6 +131,7 @@ Masters of database reliability engineer don't just build — they build **the r
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -144,6 +147,7 @@ Masters of database reliability engineer don't just build — they build **the r
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You need to design a high-availability database architecture with clear RPO and RTO targets
 - You are choosing a replication strategy (synchronous, async, semi-sync, logical) for multi-region DR
@@ -155,6 +159,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are managing a fleet of 10+ databases and need standardized monitoring, maintenance, and lifecycle automation
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -253,6 +258,7 @@ Recovery requirements?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -303,9 +309,15 @@ Recovery requirements?
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Analysis results documented with effect sizes and confidence intervals, segment analysis complete, and findings communicated to stakeholders.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Backup strategy is a contract — define RPO and RTO before choosing technology.** Recovery Point Objective (how much data can you lose?) and Recovery Time Objective (how long can you be down?) determine backup method, frequency, and retention. Test restores quarterly — an untested backup is a hope, not a plan.
 
@@ -328,6 +340,7 @@ Recovery requirements?
 10. **Major version upgrades via logical replication, not pg_dump/restore.** Logical replication enables near-zero-downtime upgrades with rollback capability. pg_dump/restore downtime scales with data size — multi-TB databases require hours or days of downtime. Test the upgrade procedure on a staging clone before touching production.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 **(STANDARD)**
 
@@ -344,6 +357,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -358,6 +372,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `site-reliability-engineer` | Database SLO definitions, failover procedures, capacity forecasts, runbooks for database incidents | SRE can't enforce database reliability — outages unmanaged |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -370,11 +385,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | ALTER TABLE with ACCESS EXCLUSIVE lock in deployment pipeline | Reject deployment; require expand-contract pattern: add nullable → backfill → set NOT NULL → set DEFAULT; enforce via migration linter | Locking DDL in production is surgery without anesthesia — review every schema change against a production-sized dataset |
 | WAL archiving gap detected — PITR window compromised | Investigate archive command failure; restore archiving immediately; document gap; re-evaluate RPO against business requirements | If WAL archiving has a gap, PITR is incomplete — your RPO is whatever was committed before the gap started |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > PITR restores to any second in the last 30 days, tested monthly. Query performance regressions are caught in CI before they reach production, slow queries surface in dashboards with actionable EXPLAIN
 
@@ -391,6 +407,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -407,7 +424,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -418,6 +436,7 @@ graph LR
 | "autocommit is fine for this one UPDATE" | An UPDATE on 10M rows without explicit BEGIN...COMMIT runs as 10M individual transactions — 10-100x slower execution at $3K-$15K in cascading timeouts across dependent services. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **PostgreSQL `VACUUM` doesn't return disk space to the OS** — it marks dead tuples as reusable within the table file. The file stays the same size. Only `VACUUM FULL` (which locks the table exclusively) or `pg_repack` (online) shrinks the file on disk. **Total cost: $5,000-$25,000 in wasted provisioned storage — a table that doubles in size from bloat costs 2x in EBS/cloud storage fees indefinitely until someone runs `pg_repack` or provisions larger volumes.**
 - **MySQL `autocommit=1`** means every statement is a transaction. An `UPDATE` on 10M rows without explicit `BEGIN...COMMIT` runs as 10M individual transactions, taking 10-100x longer than wrapping in a single explicit transaction. **Total cost: $3,000-$15,000 in degraded application performance — a routine UPDATE that should take 30 seconds runs for 50 minutes, blocking dependent services and triggering cascading timeouts across the stack.**
@@ -426,6 +445,7 @@ graph LR
 - **Indexes on low-cardinality columns** (boolean, status with 3 values) are often ignored by the query planner because the selectivity is too low. But a partial index `WHERE status = 'active'` on the 5% active subset IS selective and WILL be used. **Total cost: $5,000-$20,000 in slow query degradation — missing partial indexes on low-cardinality columns cause full table scans on multi-terabyte tables, multiplying query times and compute costs 10-100x.**
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] **RPO/RTO defined and documented:** Recovery Point Objective and Recovery Time Objective agreed with stakeholders; backup strategy aligned
@@ -442,47 +462,8 @@ graph LR
 - [ ] **Access control audited:** Principle of least privilege; no shared superuser accounts; connection limits per role
 - [ ] **High availability architecture documented:** Patroni/Stolon/RDS Multi-AZ with automated failover; split-brain prevention configured
 
-## Scale Depth
-
-### Solo (1 person, 1-5 databases)
-- **Stack:** Managed service (RDS/Cloud SQL) with automated backups. pg_stat_statements for query analysis.
-- **Operations:** Manual vacuum and index maintenance. Alert-based monitoring (CPU, storage, connections).
-- **Key constraint:** You ARE the DBA. Automate everything you can — manual intervention doesn't scale past 3 AM pages.
-
-### Small Team (2-10 people, 5-20 databases)
-- **Stack:** Patroni/Stolon for HA. PgBouncer for pooling. Prometheus + Grafana for monitoring.
-- **Operations:** CI/CD for schema migrations. Automated vacuum tuning. Regular failover drills.
-- **Key constraint:** Schema change coordination across services. Migration backward compatibility is critical.
-
-### Medium Team (10-50 people, 20-100 databases)
-- **Stack:** Multi-region replication. Connection pool fleet. Centralized monitoring with cross-DB dashboards.
-- **Operations:** Automated capacity planning. Chaos engineering for failure modes. SLO-based alerting.
-- **Key constraint:** Cost optimization — per-database instance cost grows linearly. Consolidate where isolation requirements permit.
-
-### Enterprise (50+ people, 100+ databases)
-- **Stack:** DBaaS platform with self-service provisioning. Automated fleet management. Database mesh with service discovery.
-- **Operations:** Automated upgrade orchestration. Predictive capacity planning. Database reliability SRE team with on-call rotation.
-- **Key constraint:** Compliance and data residency. Multi-tenancy isolation. Audit logging at scale.
-
-### Transition Triggers
-- Solo → Small: First 3 AM page that manual intervention can't solve within 15 minutes.
-- Small → Medium: Schema change causes production outage. No one knows which team owns which database.
-- Medium → Enterprise: Compliance audit requires database inventory. Cost of idle/over-provisioned databases exceeds 30% of budget.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Replica is "caught up" by bytes but hours behind in time | Single giant transaction (bulk DELETE) produced one WAL record but replays millions of row operations. Bytes-behind is near zero while lag in wall-clock time is hours. | Monitor `pg_stat_replication.replay_lag` (PostgreSQL 14+) or use a heartbeat table with timestamps on the primary. Failover only when time-based lag is within RPO. | LSN-based lag measures bytes, not time. A single large transaction is invisible to byte-based monitoring. |
-| Connection pool at capacity but database CPU is idle | Connections stuck `idle in transaction` — client opened a transaction but never committed. Pool is full but connections do no work. | Set `idle_in_transaction_session_timeout` to 5-10 minutes. Query `pg_stat_activity` for state = 'idle in transaction'. | The most dangerous connections are the ones doing nothing — they consume a scarce resource (connection slot) without using it. |
-| `VACUUM` runs but disk usage keeps growing | VACUUM marks dead tuples as reusable but doesn't shrink the file. Bloat accumulates from UPDATE/DELETE-heavy workloads. | Run `pg_repack` (online) or `VACUUM FULL` (offline, exclusive lock). Monitor bloat with `pgstattuple` or check `n_dead_tup` vs `n_live_tup` in pg_stat_user_tables. | VACUUM is a garbage collector, not a disk defragmenter. Bloat accumulates silently until the disk fills. |
-| Query plan changes suddenly — 50ms query becomes 5 seconds | Statistics drift: `ANALYZE` not run after large data changes. Planner uses stale row count estimates and chooses a bad plan. | Run `ANALYZE table_name` after bulk loads. Set `autovacuum_analyze_scale_factor` lower for large tables. Consider `pg_stat_statements` plan tracking. | The query planner is only as good as its statistics. Stale stats = wrong plans = production incidents. |
-| Failover succeeds but application can't connect | DNS TTL too high or connection string hardcoded to old primary IP. Application resolves to failed primary. | Use short DNS TTL (30-60 seconds) for database endpoints. Configure client libraries with `target_session_attrs=read-write` and reconnect on failure. Test failover end-to-end, not just database promotion. | Database failover is only one piece — the application's ability to discover the new primary is equally critical. |
-| `autovacuum: VACUUM` runs constantly but dead tuples increase | Autovacuum can't keep up with write rate. Long-running transactions hold old snapshot preventing vacuum from cleaning dead tuples. | Tune `autovacuum_vacuum_cost_limit` higher. Kill or set timeout on long-running queries. Monitor `pg_stat_activity` for transactions older than 5 minutes. | A single long-running SELECT can block vacuum for an entire table, causing bloat that cascades into degraded performance for every other query. |
-| Index not used despite being "perfect" for the query | Low-cardinality column (boolean, status with 3 values). Planner estimates the index would return too many rows and chooses sequential scan instead. | Use partial index: `CREATE INDEX ON t (ts) WHERE status = 'active'` — only indexes the selective subset. Or use expression index for function-based queries. | The planner ignores indexes when they're not selective enough. Partial indexes fix this by indexing only the selective portion of the data. |
-
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -491,7 +472,6 @@ graph LR
 | Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
 | Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -502,6 +482,7 @@ graph LR
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Backup: `pg_dump` or `xtrabackup` completes successfully — restore from backup verified in staging
 - [ ] Replication lag: `SELECT pg_last_wal_replay_lsn() - pg_last_wal_receive_lsn()` on replica — lag < 100MB (or configured threshold)
@@ -511,10 +492,12 @@ graph LR
 - [ ] Disk space: `df -h` on data directory — usage < 80%, auto-extend or alerts configured
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -525,5 +508,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

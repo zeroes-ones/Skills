@@ -44,6 +44,7 @@ chain:
 Technical growth engineering system for designing, instrumenting, and scaling growth loops. Combines product instrumentation, experimentation infrastructure, and data-driven optimization to drive sustainable user acquisition, activation, retention, and monetization.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately to the indicated section.
@@ -85,6 +86,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -101,12 +103,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master growth engineers understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -127,6 +129,7 @@ Master growth engineers understand that strategy is not about predicting the fut
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -142,6 +145,7 @@ Master growth engineers understand that strategy is not about predicting the fut
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing or rebuilding an A/B testing infrastructure from scratch (server-side, client-side, or hybrid)
@@ -154,17 +158,81 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Designing feature flags and progressive rollouts to de-risk product changes
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Activation Loop Design
+
+        ┌── INPUT: What % of new users reach aha moment in 7 days?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+[<20%]             [>20%]
+   │                 │
+   ▼                 ▼
+Redesign            Optimize existing
+onboarding:         flow:
+1. Remove steps     1. A/B test each step
+   before aha       2. Add progress
+2. Add checklist       indicators
+   or wizard        3. Reduce time-to-
+3. Progressive          value with defaults
+   profiling            and templates
+→ target: >40%
+   within 30 days
+
+### Decision Tree 2: Referral Program Architecture
+
+        ┌── INPUT: What's the natural sharing behavior of your product?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+[Inherently social:       [Inherently solo:
+collaboration, sharing,    personal tool,
+single-player with         private data]
+network effects]
+   │                         │
+   ▼                         ▼
+Double-sided incentive:    Single-sided reward:
+"Give $10, Get $10"        "Refer a friend,
+→ optimize: invite flow,   get 1 month free"
+CTR, signup conversion,    → lower K-factor
+reward redemption          → focus on quality
+→ track viral              over quantity
+coefficient K > 0.5
+
+### Decision Tree 3: Experiment Ramp Strategy
+
+        ┌── INPUT: What's the blast radius if this experiment goes wrong?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[Low] [Medium]             [High]
+(UI    (payment              (auth,
+color)  flow, email)         data model)
+   │    │                    │
+   ▼    ▼                    ▼
+Ramp:   Ramp:               Ramp:
+1%→50%  0.1%→1%→10%→50%    0.01%→0.1%→1%→5%
+in 48h  over 1 week         over 2+ weeks
+→ AA    → AA test first     → AA test + rollback
+test   → p99 latency        plan + on-call
+only    check               notified
+
 ### Experiment Design: A/B vs Multivariate vs Sequential vs Bayesian
 
 ```
                      ┌──────────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -200,8 +268,14 @@ Complete when: A/B testing framework deployed (client-side, server-side, or hybr
 3. **Retention Loop**: Identify habit-forming triggers (external: email/push notifications; internal: user's own data). Build re-engagement flows: personalized digests, inactivity nudges, feature discovery emails. Measure D7/D30/D90 retention by cohort.
 4. **Monetization Loop**: Optimize pricing page (design, copy, social proof, money-back guarantee). Test: annual vs. monthly defaults, price anchoring, feature gating, expansion revenue (upsell/cross-sell). Measure ARPU, expansion MRR, churn rate.
 Complete when: Acquisition loops instrumented with viral coefficient, CAC by channel, and attribution tracking. Activation loop optimized with time-to-activation measured and onboarding completion rate tracked. Retention loop active with D7/D30/D90 cohort retention dashboards. Monetization loop running with ARPU and expansion MRR measured.
+Complete when: North Star metric tracked in real-time dashboard with automated anomaly detection, driver tree model validated against 90-day actuals with under 10 percent MAPE, and growth model recalibrated based on observed conversion rates.
+Complete when: Experiment backlog prioritized by ICE score (Impact, Confidence, Ease), with top 10 experiments having complete hypothesis documents, MDE calculations, and sample size requirements.
+Complete when: Data pipeline validated end-to-end from event collection to warehouse to BI tool, with under 1 percent event loss rate, under 5min ingestion latency, and identity resolution accuracy above 95 percent.
+Complete when: Growth review cadence established (weekly experiment review, monthly metric review, quarterly strategy review) with templated dashboards and pre-read documents for each meeting.
+Complete when: Team velocity measured: experiment throughput (experiments per week), win rate (statistically significant positive results), and time-to-insight (hypothesis to statistical significance decision).
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -217,6 +291,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Growth engineering intersects product, marketing, data, and engineering. Experiments fail when coordination breaks — wrong data, wrong audience, or wrong interpretation.
@@ -279,13 +354,12 @@ Growth engineering intersects product, marketing, data, and engineering. Experim
 - **`product-manager`** — When growth experiments need product roadmap alignment or feature prioritization input
 - **`revops-manager`** — When experiments affect pricing, revenue models, or sales funnel metrics
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Target audience, growth model (PLG vs SLG), product positioning | Before designing growth experiments or content strategy |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- trigger-action table for autonomous growth workflow -->
 
@@ -313,36 +387,43 @@ The Growth-Engineer-to-Product-Manager partnership is the engine of data-driven 
 | **Feature flag lifecycle** | Flag implementation, percentage rollout ramp plan, monitoring dashboard, automated kill-switch criteria | Rollout communication plan (internal and external), success criteria for 100% rollout, timeline for flag removal |
 | **Growth model update** | Updated model with actual cohort data, variance analysis (forecast vs. actual), what-if scenarios for proposed experiments | Strategic context: upcoming launches, market changes, competitive moves that affect growth assumptions; prioritization of growth levers |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The feature flag platform enables percentage rollouts, kill switches, and automatic ramp-down when guardrail metrics degrade, and the experimentation pipeline detects interactions between concurrent e
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
 
 ```mermaid
+
 graph LR
     A[analytics-engineer] --> B[growth-engineer]
     B --> C[product-manager]
     D[seo-specialist] --> B
     B --> E[data-scientist]
+
 ```
+
 Run skills in the order shown:
+
 ```bash
+
 # Chain A: analytics-engineer → growth-engineer → product-manager
 # Chain B: seo-specialist → growth-engineer → data-scientist
 
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
+
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
 
@@ -357,7 +438,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -368,6 +450,7 @@ graph LR
 | "Analytics tracking is set up — the events are firing" | Silent event failures from a single misnamed property mean you optimize with incomplete data for weeks — $40K-$150K in misdirected effort on broken growth loops you can't see. |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -376,6 +459,7 @@ graph LR
 | Implementing dark patterns (confirmshaming, hidden costs, forced continuity, roach motels) to boost short-term conversion metrics | $200K-$1M+ in brand destruction and regulatory risk — a 15% short-term conversion lift from a pre-checked "subscribe to annual billing" checkbox generates $150K in incremental revenue, then a tweet goes viral, FTC/consumer protection regulators investigate, chargeback rates spike 3x, and churn doubles for 6 months as trust erodes. The reputational damage outlasts the revenue gain by years. | Test ethical persuasion instead of deception: social proof ("10,000 teams signed up this month"), urgency with integrity ("seats at this price are limited because we're onboarding in cohorts — next cohort opens in 2 weeks"), and transparent pricing. If you'd be embarrassed to explain the UX pattern to a journalist, don't ship it. Growth that burns trust is just churn in slow motion. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Design growth loops, not growth funnels.** Funnels are linear (acquire → activate → retain → revenue → refer) and leak at every stage. Loops are self-reinforcing: new users generate more new users (viral loops), usage generates content that attracts more usage (content loops), or paid acquisition funded by revenue that grows with user base (paid loops). A funnel requires continuous fuel; a loop generates its own.
@@ -399,6 +483,7 @@ graph LR
 10. **Treat growth as a cross-functional discipline, not a marketing function.** Growth lives at the intersection of product, engineering, data, and marketing. A growth team without engineering resources is a marketing team running A/B tests on landing pages. A growth team without data resources is guessing. The most effective growth teams are embedded with product and have dedicated engineering, data, and design support.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - **A/B test without statistical significance — shipping on noise.** You run a checkout flow experiment for 3 days, variant B shows +8% conversion with p=0.12, and you declare it "directionally positive" and ship it. The p=0.12 means there's a 12% chance the observed lift is pure random noise — far above the standard α=0.05 threshold. Six weeks later, when the feature is fully rolled out with 50,000 users, the "8% lift" has regressed to a statistically insignificant 1.2%, but you've already committed engineering resources, written documentation, and trained the support team on the new flow. A single bad decision based on an underpowered test costs $50K in wasted engineering time and lost opportunity, and a growth team making 10 such decisions per year ships 3-4 features that have zero or negative impact. **Total cost: $50K-$200K in bad product decisions from false positives in underpowered or prematurely stopped A/B tests.** Pre-register every test with a required sample size (power=0.80, MDE defined), use sequential testing with adjusted stopping boundaries if peeking is necessary, and never ship a result where p > 0.05 or the confidence interval includes zero.
@@ -417,6 +502,7 @@ graph LR
 - **What:** Celebrating a 20% lift in a secondary metric while the primary metric is flat or down. **Why:** Growth teams optimize themselves out of a job by chasing vanity metrics. "Click-through rate up 20%" while "purchases down 3%" means you optimized the wrong thing. The secondary metric improvement came at the expense of the primary. **Instead:** Pre-register ONE primary metric per experiment. If the primary metric doesn't move, the experiment is inconclusive regardless of secondary metric movement. Investigate why, don't ship.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any growth deliverable leaves this skill, verify:
@@ -437,6 +523,7 @@ Before any growth deliverable leaves this skill, verify:
 - [ ] Experiment review cadence established: weekly results review, monthly portfolio review, quarterly strategy review
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] A/B test duration pre-registered: start date, end date, sample size, and success metric documented BEFORE test starts
 - [ ] Sample ratio mismatch (SRM): chi-squared test passes — control and variant groups are within 0.1% of expected split
@@ -446,8 +533,9 @@ Before any growth deliverable leaves this skill, verify:
 - [ ] Funnel analysis: both joined AND unjoined funnel conversion rates reported — discrepancy explained
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ### Solo/Pre-PMF (Founder + 0-5 employees)
 - Growth: Founder-led. Talk to every user. Manual outreach and personal onboarding
@@ -478,6 +566,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - Deliverable: Weekly team reviews + monthly growth portfolio review + quarterly board presentation + annual growth strategy
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -490,6 +579,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Retention curve flattened; invested 6 months in re-engagement campaigns; no improvement | Retention problem was activation, not re-engagement. Users who never experienced the aha moment churn regardless of re-engagement emails. The 6 months should have been spent on onboarding. | Analyze where users drop off in their first 3 sessions. Interview users who churned in week 1. Fix the core experience before building re-engagement campaigns. Re-engagement only works on users who already found value. | Re-engagement can't fix activation failure. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -502,7 +592,6 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

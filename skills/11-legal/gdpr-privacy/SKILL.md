@@ -43,6 +43,7 @@ chain:
 Privacy compliance for GDPR (EU), CCPA/CPRA (California), LGPD (Brazil), PIPEDA (Canada), and emerging global privacy regulations. Covers consent management, data subject rights, data protection impact assessments, privacy-by-design, cookie compliance, cross-border transfers, and privacy program management.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -60,12 +61,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master gdpr privacys understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -86,6 +87,7 @@ Master gdpr privacys understand that strategy is not about predicting the future
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
@@ -101,6 +103,7 @@ Master gdpr privacys understand that strategy is not about predicting the future
 | **A8** | `file_contains("README.md", "privacy\|GDPR\|CCPA\|data.protection")` or `file_exists("PRIVACY.md")` | Core Workflow → Phase 1 (Privacy Assessment) | "I detect privacy documentation — routing to Phase 1 for privacy program completeness assessment." |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -115,21 +118,8 @@ Master gdpr privacys understand that strategy is not about predicting the future
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-#### Solo
-- Implement cookie consent for a single web property, write a privacy notice, and respond to DSARs manually — focus on getting the fundamentals right before scaling to programmatic compliance
-
-#### Small Team
-- Deploy a CMP for consistent consent management, automate DSAR workflows across data stores, maintain a data inventory, and establish privacy review as a pre-launch gate for new features
-
-#### Medium Organization
-- Run a full privacy program with DPO oversight, conduct DPIAs for high-risk processing, manage processor relationships with annual audits, and implement privacy-by-design across product teams with engineering-embedded privacy champions
-
-#### Enterprise
-- Operate a global privacy office covering multiple jurisdictions, manage cross-border transfer mechanisms with binding corporate rules or SCC frameworks, drive privacy engineering at the platform architecture level, and maintain regulatory horizon scanning across 30+ jurisdictions
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 > **Token-saving rule:** The full GDPR skill covers 10+ areas (data inventory, consent, DPA, SAR, breach response, etc.). Load only the section relevant to your current task. If you need data inventory, skip consent law. Each section references the relevant GDPR articles — read the article reference, not the full GDPR text. A typical task requires ~1500 tokens, not the full 8000+.
 
@@ -145,6 +135,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Designing privacy-by-design into product architecture
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -182,6 +173,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                 │1(a))  ││+ LIA  ││1(e)) │ │1(d))    │
                                 └───────┘└──────┘└──────┘ └─────────┘
 ```
+
 **When to choose Contractual Necessity:** Processing essential to provide the paid service — storing user data to deliver their account, processing payment, shipping order. Cannot be used for analytics or marketing.
 **When to choose Consent:** Email marketing, non-essential cookies, sensitive data — must be freely given, specific, informed, unambiguous, and withdrawable. Document proof.
 **When to choose Legitimate Interest:** Analytics, product improvement, fraud prevention — must pass 3-part balancing test (LIA documented), user has right to object (Art. 21).
@@ -223,6 +215,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                         │lists)       │
                                                         └────────────┘
 ```
+
 **When DPIA is mandatory:** Special category data, automated decisions with significant effects, large-scale monitoring of public areas, systematic profiling, large-scale processing of criminal data.
 **When DPIA may be needed:** New technology with high risk, processing vulnerable person data, combining datasets in unexpected ways. Check your DPA's Art. 35 list.
 **When DPIA not required:** Low-risk processing, no special categories, small scale, no automated decisions. Document the decision not to do a DPIA.
@@ -255,6 +248,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │(Art.34)│ └─────────────┘
                   └────────┘
 ```
+
 **When to notify DPA:** Any breach likely to cause risk to individuals (identity theft, financial loss, reputational damage, loss of confidentiality) — 72-hour clock, explain delay.
 **When to notify individuals:** High risk to rights and freedoms — must be done without undue delay, clear and plain language, describe likely consequences, mitigation steps taken.
 **When no notification needed:** Breach unlikely to result in risk (encrypted data, keys safe), or no personal data was actually exposed. Document reasoning thoroughly.
@@ -288,6 +282,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        └─────────┘│      │ │law analysis│
                                                    └──────┘ └────────────┘
 ```
+
 **When to rely on Adequacy Decision:** Transfer to EU-recognized adequate country — simplest path, no additional safeguards needed, but periodically verify status remains valid.
 **When to use SCCs + DPF:** Transfer to US — EU-US Data Privacy Framework certification + Standard Contractual Clauses + Transfer Impact Assessment (TIA).
 **When to use BCRs:** Intra-group transfers across multiple jurisdictions — Binding Corporate Rules approved by lead DPA, costly and slow to set up but durable.
@@ -321,11 +316,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     │ - Consent log │
                     └───────────────┘
 ```
+
 **When full consent banner needed:** Any non-essential cookies — analytics (GA4 without consent mode), marketing pixels (Meta, LinkedIn), social widgets, advertising.
 **When notice-only sufficient:** Only strictly necessary cookies (session, CSRF, load balancing, shopping cart) — no consent required but must inform users.
 **When to use Consent Mode:** Google services (GA4, Ads) — signals consent state without cookies, enables modeled data for non-consenting users, reduces gap.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -369,8 +366,13 @@ Complete when: Cookie consent banner deployed with IAB TCF 2.2 framework and gra
 4. **Vendor assessment**: Standardized privacy review for new vendors/tools
 5. **Regulatory monitoring**: Track new regulations (EU AI Act, Digital Services Act, state-level US privacy laws)
 Complete when: Annual privacy review schedule established with re-assessment checklist. Role-based privacy training materials created (engineering, marketing, support). 72-hour breach notification workflow documented per Articles 33-34. Vendor assessment questionnaire standardized for new tool procurement. Regulatory monitoring dashboard tracking applicable new legislation.
+  Complete when: Legal review completed and all required disclosures documented.
+  Complete when: Data retention policy defined with automated enforcement and audit trail.
+  Complete when: Cross-border data transfer impact assessment completed and documented.
+  Complete when: Third-party vendor compliance verified — DPA signed and security review passed.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -386,6 +388,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Privacy compliance is everyone's responsibility — not just legal. Engineering, product, security, and marketing decisions create the data flows that determine compliance.
@@ -449,13 +452,12 @@ Privacy compliance is everyone's responsibility — not just legal. Engineering,
 | EU representative or DPO identifies systematic non-compliance | **Board/Audit Committee** + CEO Strategist | Governance failure; personal liability risk for executives |
 | Cross-border transfer mechanism invalidated (e.g., Privacy Shield successor struck down) | **External Privacy Counsel** + CTO Advisor + Legal Advisor | All international data flows may need restructuring |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `compliance-officer` | Regulatory requirements, audit frameworks, control mappings | Before providing legal or privacy advice |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -469,12 +471,14 @@ Privacy compliance is everyone's responsibility — not just legal. Engineering,
 | Privacy training completion rate drops below 90% across workforce | Escalate to HR and department heads; gate system access on training completion; track per-department compliance | Untrained employees create liability — regulators cite training gaps in every enforcement action; human error is the leading breach cause |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When GDPR compliance is fully embedded, every data flow is mapped and lawful, consent mechanisms are transparent and granular, DSARs are fulfilled within 30 days with complete accuracy, DPIAs precede
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -492,6 +496,7 @@ graph LR
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Consent banner with no "Reject All" button** — the banner has "Accept All" and "Manage Settings" but no single-click reject. GDPR requires refusing consent to be as easy as giving it. One-click accept + three-click reject = violation.
 - **"Legitimate interest" used for everything** — marketing emails, third-party data sharing, analytics tracking all claimed as legitimate interest. LI requires a balancing test where data subject rights override your interest. Marketing and analytics rarely pass the balancing test.
@@ -500,6 +505,7 @@ graph LR
 - **Data retention: "we keep data forever just in case"** — GDPR requires specific retention periods. "Forever" or "until we don't need it" violates the storage limitation principle. Every data category must have: retention period, legal basis for that period, and deletion mechanism.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -509,8 +515,8 @@ graph LR
 | "Right to erasure request denied: data required for legal obligation" | Vague claims like "we might need it" don't satisfy the legal obligation exception under Art. 17(3) | Name the specific statute, regulation, or legal order with the mandated retention period in the denial response | Every erasure denial must cite a concrete, verifiable legal duty — generic "we need it" claims violate the accountability principle |
 | Cookie scan reports 30 cookies but you only set 5 | Third-party scripts (analytics, embeds, CDNs) set cookies silently without your knowledge or consent configuration | Scan after every third-party integration update; add all discovered cookies to CMP configuration with proper categorization | Third-party cookie proliferation is invisible without automated scanning — your consent banner is only as accurate as your last scan |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Map data flows before writing policies.** Conduct a complete data inventory across all systems before drafting privacy documentation — you cannot protect what you don't know exists. Every processing activity must be documented with purpose, legal basis, data categories, recipients, and retention periods.
 
@@ -532,11 +538,12 @@ graph LR
 
 10. **Track the regulatory horizon continuously.** EDPB guidelines, Schrems rulings, adequacy decisions, and new state-level US privacy laws change the compliance landscape quarterly. Subscribe to DPA enforcement newsletters, monitor EUR-Lex and Federal Register, and attend to regulatory developments in all jurisdictions where you process personal data.
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] Consent mechanism: Reject All is one click (or equally easy as Accept All). Consent is granular per purpose. Consent records are stored with timestamp and proof.
@@ -549,6 +556,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Cross-border transfers: transfer impact assessment for each third country. SCCs in place. Supplementary measures documented if needed.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **Third-party data processor engaged without a Data Processing Agreement (DPA)** — you sign up for a SaaS analytics tool, upload 50,000 customer records containing PII, and start processing. Six months later, the processor suffers a data breach exposing your customers' email addresses, purchase histories, and partial payment data. The EU supervisory authority determines you are jointly liable because you never executed a DPA — under Article 28, controllers must only use processors that provide "sufficient guarantees" via a binding contract. Without a DPA, your liability exposure is treated the same as if you caused the breach yourself, with fines up to 4% of global revenue plus civil damages from affected data subjects. **Total cost: $100K-$500K in shared liability fines, legal defense, and customer notification costs for a mid-market company; larger enterprises face multi-million-euro exposure.** Before onboarding any third-party processor, execute a signed DPA covering processing scope, sub-processor notification rights, breach notification timelines, and data deletion upon contract termination.
 - **Consent under GDPR must be FREELY given** — "Accept all or pay €5/month" (cookie paywalls) is being challenged in EU courts. Consent-or-pay models may be ruled non-compliant because consent isn't freely given if the alternative is a financial penalty. The EDPB's current leaning is that paywalls undermine freely given consent. **Total cost: €100K-€10M in fines across EU member states when consent-or-pay models are ruled non-compliant by DPAs, plus retroactive consent remediation for every user who paid — the CNIL, ICO, and other DPAs have already signaled enforcement against cookie paywalls as invalid consent under the ePrivacy Directive and GDPR.**
@@ -561,7 +569,8 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Cookie consent banner with pre-checked boxes or no real opt-out.** The CNIL fined Google €150M and Facebook €60M for making rejection harder than acceptance — dark patterns like "Accept All" as a prominent button with "Manage Settings" buried behind multiple clicks violate the ePrivacy Directive and GDPR. **Total cost: $100K-$500K per violation across EU member states.** Implement a one-click "Reject All" button with equal visual prominence to "Accept All" and ensure no non-essential cookies are set before consent is given.
 - **Data Subject Access Request (DSAR) not fulfilled within 30 calendar days.** A customer exercises their Article 15 right of access, and your team acknowledges the request but needs 45 days to gather data from 8 internal systems — the DPA fines you regardless of complexity, with extensions requiring documented justification before the deadline expires. **Total cost: up to €10M or 2% of global annual revenue for non-compliance, plus legal costs.** Maintain a real-time data inventory across all systems (database, CRM, support tickets, analytics, logs) and pre-automate DSAR response workflows so any request can be fulfilled within 20 days, leaving a 10-day safety buffer.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -572,6 +581,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "Our US-based cloud provider handles GDPR compliance for us" | Standard Contractual Clauses require YOU (data exporter) to conduct a Transfer Impact Assessment documenting equivalent protection. This is YOUR regulatory obligation, not AWS/GCP/Azure's — the cloud provider is a processor, not a compliance surrogate. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Data inventory: all data stores catalogued with data categories, retention periods, and legal basis for processing
 - [ ] Consent mechanism: opt-in (not pre-checked), granular (per purpose), withdrawable (as easy as giving)
@@ -581,10 +591,12 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Privacy policy: written in plain language (< 8th grade reading level), covers all required Art 13/14 information
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -609,7 +621,6 @@ Detailed reference material loaded on demand:
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **10. Privacy by Design**: See [privacy-by-design.md](references/privacy-by-design.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

@@ -39,7 +39,8 @@ chain:
 
 Technical project management covering initiation through closure. Work breakdown structures (WBS), dependency mapping, critical path analysis, risk management (RAID logs), stakeholder communication plans, budget tracking, resource leveling, milestone management, status reporting cadence, and project postmortems.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -50,6 +51,7 @@ Technical project management covering initiation through closure. Work breakdown
 | "Give me a delivery date — the exec team needs something for the board deck tomorrow." | A date without team capacity data, velocity history, scope estimates, and known interrupt load is a lie with a calendar attached. You'll miss it by 30-50% and explain the miss to the same board in 90 days. **Fiction delivered fast is still fiction. And the board remembers who wrote the fiction.** |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -84,6 +86,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -101,12 +104,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master project managers know that operational excellence is invisible when it works — and catastrophically visible when it doesn't. They design for the 99th percentile, not the average.
 
@@ -127,6 +130,7 @@ Master project managers know that operational excellence is invisible when it wo
 - **Over-communicate during ambiguity.** When the path is unclear, silence is worse than wrong information.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -141,21 +145,8 @@ Master project managers know that operational excellence is invisible when it wo
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 PM, 1-2 projects)
-Single project charter, WBS in a spreadsheet, RAID log in Notion or Excel. Critical path tracked manually. Weekly status email to 1-2 stakeholders. Focus: disciplined charter writing, WBS decomposition, and risk identification. Tools: Notion, Google Sheets, Excel.
-
-#### Small (2-5 PMs, 5-10 projects)
-Standardized templates (charter, WBS, RAID, status report). Portfolio view with resource allocation across projects. Bi-weekly portfolio review with sponsors. Focus: resource leveling across projects, earned value on high-risk projects, change control process. Tools: Jira + Confluence, Smartsheet, Asana portfolios.
-
-#### Medium (5-15 PMs, 10-50 projects)
-PMO established with standardized methodology (waterfall/agile-hybrid). Portfolio governance board with stage-gate reviews. Centralized RAID log with portfolio-level risk aggregation. Focus: portfolio optimization (which projects get resources?), EVM on all projects > $500K, capacity planning 6-12 months out. Tools: Jira Advanced Roadmaps + Confluence, ServiceNow PPM, Planview, or Monday.com portfolios.
-
-#### Enterprise (15+ PMs, 50+ projects, multi-department)
-Enterprise PMO with methodology office. Stage-gate governance with executive steering committees. Portfolio financial management with CapEx/OpEx tracking. Resource capacity planning across departments. Focus: strategic alignment (do projects map to OKRs?), benefits realization tracking (did we get the ROI we projected?), PM competency framework and career ladder, project management tooling and training. Tools: ServiceNow SPM, Planview Enterprise, Clarity PPM, SAP PPM, or Oracle Primavera.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Starting a new project that needs structured planning (initiation phase)
@@ -172,6 +163,7 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
 - **Use `/technical-program-manager` instead** when: You need to coordinate across multiple teams, manage cross-team dependencies, drive a program with a fixed timeline and multiple workstreams. TPM handles scope that spans teams; PM handles scope within a single project.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -204,6 +196,7 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
                   └─────────┘ │sprints   │ │+ cadence│ └─────────────┘
                               └──────────┘ └─────────┘
 ```
+
 **When to choose Waterfall:** Physical/construction deliverables, regulatory phase-gate requirements, fixed-price contracts with clear scope — critical path method, milestone-driven.
 **When to choose Hybrid:** Fixed scope + evolving implementation — waterfall planning/milestones with agile delivery sprints. Good for heavily regulated software.
 **When to choose Agile/Scrum:** Software with evolving requirements, co-located or async-capable team — 2-week sprints, backlog refinement, working software increments.
@@ -241,6 +234,7 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
                               │SLA   ││cy plan│
                               └──────┘└──────┘
 ```
+
 **When to Avoid:** High risk, viable alternative approach — change technology, scope, or delivery plan to eliminate the risk entirely (strongest response).
 **When to Transfer:** Financial or liability risk that can be insured or contracted away — insurance, vendor SLA, fixed-price contract with penalty clauses.
 **When to Mitigate:** Can reduce probability (add testing, prototyping) or impact (contingency budget, fallback plan) — always assign an owner and deadline.
@@ -273,6 +267,7 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
                                         │cies     │ │update      │
                                         └─────────┘ └────────────┘
 ```
+
 **When to send Executive-level comms:** Sponsor/steering committee — 1-page RAG status, milestone vs plan, top 3 risks, decisions needed. Monthly or at gate reviews.
 **When to send Detailed comms:** Team leads, dependent teams, blockers — task-level status, dependencies, timeline changes. Weekly or per sprint.
 **When to send General comms:** Wider org, indirect stakeholders — project newsletter, wiki update, Slack broadcast. Optional consumption, no action required.
@@ -304,6 +299,7 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
                     └───────────────┘  └─────────┘ │plan.         │
                                                    └──────────────┘
 ```
+
 **When RED (SPI/CPI < 0.85):** >15% behind schedule or over budget — immediate root cause analysis, recovery plan with specific dates, stakeholder escalation, increased monitoring frequency.
 **When AMBER (SPI/CPI 0.85-0.95):** 5-15% off plan — course correct now with specific actions, don't wait for RED. Adjust resource allocation or re-baseline.
 **When GREEN (SPI/CPI > 0.95):** On or ahead of plan — continue monitoring, celebrate ahead-of-plan performance, but verify metrics aren't gamed.
@@ -335,10 +331,12 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
                     └───────────────┘    │ decision.        │
                                          └──────────────────┘
 ```
+
 **When to capacity-split:** Equal priority — agree % allocation with both sponsors (e.g., 60/40), document impact on both timelines, review monthly. Escalate to portfolio if not feasible.
 **When to yield:** Unequal priority — lower priority project adjusts plan, higher priority proceeds. Escalate to portfolio governance for formal decision if contested.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -381,9 +379,14 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
 5. **Celebration**: Acknowledge the team. Seriously — it matters for retention.
 
   Complete when: Project closure checklist is completed and signed by sponsor; lessons learned document is published with action items; postmortem report with planned vs actual metrics (timeline, budget, quality) is delivered; knowledge transfer artifacts are handed to operations.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start every project with a one-page charter.** Before WBS, before Gantt, before anything — write the problem statement, business case, success criteria, constraints, and assumptions in a single page. A charter that exceeds one page means scope isn't crisp. Use Confluence or Notion templates; circulate to the sponsor and all key stakeholders for sign-off within the first week. Projects without charters drift 30-50% in scope by month 3 because nobody agreed on what "done" means. **Tool:** Jira + Confluence integration links charter to epics for traceability.
 
@@ -405,8 +408,8 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
 
 10. **Establish a single source of truth for project artifacts.** Schedule in one tool, RAID log in one place, decisions in one document, action items in one tracker. When the PM is the only person who knows where everything lives, the PM is a bottleneck. Choose a platform (Jira + Confluence, Asana, Notion, Linear + Notion) and enforce it — no rogue spreadsheets, no Slack-decision threads that aren't captured. The project should run for two weeks without you. **Tool:** Notion project hub, Confluence space with standardized templates, or Asana project with linked goals.
 
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -417,8 +420,8 @@ Enterprise PMO with methodology office. Stage-gate governance with executive ste
 | Budget at 90% consumed with 40% of scope remaining | No earned value tracking. Costs were tracked against budget but not against progress. EVM (CPI/SPI) would have surfaced the variance months earlier. | Implement earned value management: track planned value (PV), earned value (EV), and actual cost (AC) monthly. CPI = EV/AC. CPI < 0.90 triggers a formal variance report. | Cost tracking without progress tracking is a rearview mirror. EVM gives you a windshield. |
 | RAID log has 25 risks, all marked MEDIUM, zero HIGH, zero closed in 3 months | Risk inflation without triage. The PM added every risk as MEDIUM to avoid the hard conversation of what's truly HIGH. | Force triage every review cycle: each MEDIUM risk is either downgraded to LOW, upgraded to HIGH (with immediate mitigation activation), or closed as no longer relevant. Target: ≤ 10 active risks at any time. | A register with 10 decision-ready risks is more valuable than 45 T-shirt-sized worries. |
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -435,6 +438,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Project management is the hub — coordinating product, engineering, design, QA, DevOps, stakeholders, and business. The PM doesn't do the work; the PM ensures the right people talk to each other at the right time.
@@ -497,13 +501,12 @@ Project management is the hub — coordinating product, engineering, design, QA,
 | Vendor contract, procurement, or external delivery | `vendor-manager` or `legal-advisor` | Contractual obligations and external dependency management |
 | Budget governance and portfolio prioritization | `vp-engineering` or `director-engineering` | Executive decision on cross-project resource allocation |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- trigger-action table for autonomous PM workflow -->
 
@@ -532,11 +535,12 @@ The project-manager-to-fullstack-developer handoff is the bridge between plannin
 | **Cross-team dependency** | Introduction to the owning team's PM, committed dates, escalation contact | Technical requirements document, API contract needs, integration test scenarios |
 | **Sprint review prep** | Demo script aligned to stakeholder expectations, success metric context | Working increment, performance benchmarks, known limitations |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -556,12 +560,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[PM14]** Project closure checklist: deliverables accepted, contracts closed, financials reconciled, team released, knowledge transferred, postmortem published
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When project management is applied perfectly, every project has a clear charter with defined success criteria, the critical path is known and actively managed, risks are identified before they become
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -579,6 +585,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Gantt chart with 100% dependency chaining** — task B → C → D → ... → Z. Any delay to B delays the entire project by the same amount. Every dependency is a single point of failure. Parallelize independent work streams and only chain them at integration milestones. The longest chain IS your minimum project duration. **Total cost: $50,000-$500,000 in delay penalties, missed market windows, and extended team burn — a 2-week slip on a fully-chained 12-person team at $150/hour loaded cost burns $144,000 in unplanned labor alone.**
 - **Status report: "Project is GREEN"** for 11 consecutive weeks, then "RED" in week 12 because the deadline is next week and the remaining work is 3 weeks. A project that's GREEN until the week before the deadline was never truly GREEN. Status = (remaining work / remaining time), not "are we past the deadline yet?" **Total cost: $100,000-$1,000,000 in blown deadlines — discovering a 3-week gap one week before launch forces triage: ship broken ($0 revenue), delay (lose market window), or crunch (burnout + attrition). All options cost 6-7 figures.**
@@ -587,6 +594,7 @@ graph LR
 - **Project buffer pooled at the end** — a single 2-week buffer after the last task gives a false sense of safety. If Task B (week 2) slips by 5 days, the buffer absorbs it. But by week 6, 4 tasks have each slipped 3-4 days, consuming 14 of the 10 available buffer days before anyone notices. Buffers must be allocated per-workstream, not pooled at the end. **Total cost: $20,000-$200,000 in silent schedule erosion — pooled buffers hide cumulative slippage until the final weeks, when recovery options have shrunk to crunch-or-delay, both costing $10,000-$50,000 per week of extended timeline.**
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -595,6 +603,7 @@ graph LR
 | Unclear critical path with no named owners or buffers | $50K-$200K in cascading delays | Maintain a single-source-of-truth critical path map with named owners and buffer per node |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Schedule: critical path identified — every task on the critical path has a single owner and a buffer
 - [ ] Status: weekly status uses (remaining work / remaining time) formula — not gut feel
@@ -603,10 +612,12 @@ graph LR
 - [ ] Risk register: top 5 risks have mitigation plans and triggers — reviewed weekly
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -619,7 +630,6 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

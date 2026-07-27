@@ -49,8 +49,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end deprecation and migration engineering: removing dead code, sunsetting APIs, migrating users off deprecated surfaces, and managing breaking changes with minimal user pain. "Code is a liability" -- every line you maintain costs money in bugs, build time, cognitive load, and security surface area. The best code is the code you never wrote; the second best is the code you successfully deleted. This skill covers the full lifecycle from detection through communication, migration, and final removal.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -64,12 +66,12 @@ End-to-end deprecation and migration engineering: removing dead code, sunsetting
 | R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 - **Code is a liability, not an asset.** Every line of code you maintain costs money: it must be read, tested, secured, migrated, and debugged. The best line of code is the one you deleted. The second best is the one you never wrote. Measure your impact not by lines added but by lines responsibly removed.
 - **Deprecation is a product decision, not just an engineering task.** Users built workflows around your API. Removing it without empathy destroys trust. Treat deprecation as a product launch: communicate clearly, provide migration paths, measure adoption, and support users through the transition.
@@ -78,6 +80,7 @@ End-to-end deprecation and migration engineering: removing dead code, sunsetting
 - **Backward compatibility has an expiration date.** Supporting v1 forever is not kindness -- it is technical debt that slows down v2 and v3. Every deprecated API version must have a published sunset date. Users need certainty to plan their migrations.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick scan (30s):** Check deprecation dashboard: count of active deprecations, overdue removals, zombie code percentage, oldest deprecated-but-not-removed artifact.
 - **Standard engagement (10min):** Review a specific deprecation: verify migration guide is complete, check adoption metrics for the replacement, confirm traffic to deprecated surface is declining, validate sunset timeline.
@@ -85,6 +88,7 @@ End-to-end deprecation and migration engineering: removing dead code, sunsetting
 - **Crisis mode (deprecated API causing production issue):** If the deprecated surface has an active incident, accelerate the migration timeline for remaining users with direct outreach. If the replacement has a bug, fix it immediately -- users migrating off the deprecated surface must land on stable ground.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Planning to deprecate an API version, endpoint, or SDK method
 - Removing a feature that has been superseded or has low adoption
@@ -98,6 +102,7 @@ End-to-end deprecation and migration engineering: removing dead code, sunsetting
 **When NOT to use:** Greenfield API design (api-designer), database schema migrations without user-facing deprecation (database-designer), incident response during active outage (incident-responder), or monorepo-wide refactors without deprecation (monorepo-manager).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ```
 What deprecation/migration task are you working on?
@@ -111,6 +116,7 @@ What deprecation/migration task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Deprecation Audit
 
@@ -150,6 +156,7 @@ What deprecation/migration task are you working on?
    |-- Tier 4 (Intervention Needed): Growing traffic on deprecated surface
    |-- Tier 5 (Contract-Bound): Paying customers, cannot remove unilaterally
 ```
+
   Complete when: All deprecated surfaces inventoried with traffic categories (ZERO/DECLINING/STABLE/GROWING), zombie code measured (target <3% of codebase), and removal priority tiers (1-5) assigned to each surface.
 
 ### Phase 2: Migration Guide
@@ -179,6 +186,7 @@ What deprecation/migration task are you working on?
    |-- Identify slow migrators for direct outreach
    |-- Celebrate migration milestones to maintain momentum
 ```
+
   Complete when: Migration guide published with before/after examples for every deprecated surface, migration tooling available (codemods or lint rules), and migration progress tracking dashboard operational.
 
 ### Phase 3: Removal Execution
@@ -206,9 +214,16 @@ What deprecation/migration task are you working on?
    |-- Announce removal completion to stakeholders
    |-- Retro: was the deprecation smooth? What could be improved?
 ```
+
   Complete when: Zero traffic to removed surface confirmed for 30+ days, all consumers migrated or released, 48-hour post-removal monitoring shows zero errors, and retrospective documented.
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
+  Complete when: Documentation updated for all affected interfaces, SDKs, and developer guides.
+  Complete when: Stakeholder sign-off obtained from all impacted team leads.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### API Deprecation
 
@@ -353,8 +368,8 @@ Phase 3: EXECUTE
 |-- Retro: was the advance notice sufficient? Were migration tools adequate?
 ```
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -370,6 +385,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Dead code removal deletes `LegacyReportGenerator.java` — 3 weeks later, a quarterly regulatory report fails to generate, and the company misses a compliance filing deadline | The class was never called from application code — it was invoked by a cron job on a server that wasn't in the CI inventory. The cron job's existence was documented in a wiki page last updated in 2019. The dead code analysis tool (static call-graph) correctly reported zero callers — because the caller wasn't in the codebase | Before removing any "dead" code: search all cron configurations (`crontab -l` on every host, Kubernetes CronJob resources, Airflow DAGs, Jenkins jobs). Search all runbooks and operational docs for references to the class/method name. Add a runtime counter for 60 days — even a single invocation means the code is alive, regardless of what static analysis says | Dead code detection by static analysis is incomplete. Cron jobs, one-off scripts, operational runbooks, and external orchestration systems invoke code that has zero in-code references. Always pair static analysis with runtime instrumentation — a counter that logs every invocation is the only authority on whether code is truly dead. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Never delete based on intuition — instrument with counters first.** "Nobody uses that endpoint anymore" is a production outage waiting to happen. Add a runtime counter, monitor for 30+ days across all environments, and only delete after confirming zero invocations. Intuition-based deletion cascades through payment pipelines and costs $25K-$150K in downtime and SLA credits.
 2. **Replacement-first deprecation.** Never deprecate without a working, feature-complete replacement available on day one of the announcement. A "coming soon" v2 that's 6 months late drives enterprise customers with 12-month integration cycles to competitors. Cost: $100K-$1M in churned ARR. The replacement must be at least as capable as what it replaces.
@@ -383,6 +399,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Retro after every deprecation.** What went smoothly? What surprised us? Were migration tools adequate? Was the timeline realistic? Document lessons learned. Each retro improves the next deprecation. A deprecation without a retro repeats the same mistakes — timelines set by engineering convenience that force customer churn, zombie code that nobody instrumented, and breaking changes shipped without Expand-Contract.
 
 ## Error Recovery **(DEEP)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -397,6 +414,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -408,13 +426,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Contract-bound deprecation for enterprise customers | customer-success-manager, legal-advisor | Customer outreach, contract renegotiation, SLA compliance |
 | Security-motivated deprecation (vulnerable dependency) | security-engineer | CVE severity, forced migration timeline, exception process |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -424,11 +441,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | P4 | @deprecated annotation older than 12 months without removal | [ALERT] Deprecated code [location] has been undead for 12+ months. Schedule removal this sprint or remove the deprecation annotation (if it will never be removed). |
 | P5 | Breaking change shipped without a scheduled breaking change window | [ALERT] Breaking change in [PR/commit] shipped outside scheduled window. Verify consumer notification was adequate. Monitor for error rate spikes. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 DEPRECATION: Payment API v1 -> v2
@@ -454,6 +473,7 @@ Bad alternative (anti-pattern):
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Zombie Hunt:** Take a production codebase and run a static dead code detector (knip, vulture, deadcode). For each finding, classify as: definitely dead, possibly cold-path, or false positive. Add counters to the top 5 "definitely dead" candidates. After 30 days, remove the ones with zero invocations.
 
@@ -465,7 +485,8 @@ Bad alternative (anti-pattern):
 
 5. **Expand-Contract Pattern Drill:** Take a database schema change that would normally be breaking (rename column, split table). Design an Expand-Contract migration: Phase 1 (Expand): add new column/table alongside old. Phase 2: write to both. Phase 3: read from new, fall back to old. Phase 4 (Contract): remove old column/table. Time each phase and identify the rollback point at each step.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -476,6 +497,7 @@ Bad alternative (anti-pattern):
 | "That dead code isn't costing us anything — it's just sitting there." | 12% dead code in a high-traffic microservice still executes CPU cycles on every request. At 10K req/s, that's 1.2 wasted servers continuously. Across 50 services over a year: **$30K-$100K/year** in unnecessary cloud compute. Dead code is a recurring infrastructure tax. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Deleting code that is still called in production causes an immediate outage.** A developer deletes a deprecated endpoint that "nobody uses anymore" based on intuition, not data. Three critical internal services still call it, and the deletion causes a cascade of failures across the payment pipeline. **Total cost: $25,000-$150,000 in downtime, emergency fixes, and SLA credits.** Fix: Never delete based on intuition. Instrument with counters, monitor for at least 30 days across all environments. Only delete after confirming zero invocations.
 
@@ -492,6 +514,8 @@ Bad alternative (anti-pattern):
 - **Removing error handling for "impossible" conditions creates silent data corruption.** During a zombie hunt, a developer removes error handling for a database constraint violation because "this constraint is enforced at the application layer, so it can never fail in production." Six months later, a race condition in a new feature bypasses the application check, the constraint violation is unhandled, and the transaction silently fails -- corrupting financial data for 2 weeks before detection. **Total cost: $50,000-$500,000 in financial data correction and audit remediation.** Fix: Distinguish between "dead code" (never reached in any execution path) and "error handling for unlikely conditions." Zombie code removal must not remove safety nets. If you remove an error handler, replace it with an explicit assertion that fires an alarm if the impossible happens.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -501,6 +525,7 @@ Bad alternative (anti-pattern):
 | Deprecation communicated only via broadcast Slack channel that consumer teams have muted — teams discover the breaking change when their builds fail months later. | $20K-$60K in emergency migration costs when teams scramble under duress, plus $30K-$100K in delayed feature delivery from blocked deploys. | Multi-channel notification: Slack + email to team leads + runtime deprecation warning in API response header + GitHub issue tagged on consumer repos. Track acknowledgment — require explicit confirmation within 14 days. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Deprecation audit: all deprecated surfaces have a sunset date, a replacement, and a migration guide
 - [ ] Traffic verification: zero-invocation surfaces confirmed by 30+ days of counter metrics before code removal
@@ -512,10 +537,12 @@ Bad alternative (anti-pattern):
 - [ ] Rollback plan: for every removal, the revert path is documented (restore from git history, re-deploy)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** Deprecation inventory complete: all deprecated surfaces (APIs, features, flags, libraries, endpoints) cataloged with sunset date, replacement, and migration guide. Audit refreshed within last 30 days.
 - [ ] **[S2]** Replacement available and feature-complete: every deprecated surface has a working replacement deployed to production before deprecation announcement. Replacement is at least as capable as what it replaces.
@@ -531,6 +558,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[S12]** Rollback plan for every removal: revert path documented (restore from git history, re-deploy). Emergency contact list for unexpected breakage. Post-removal monitoring for 30 days with alert on related error spikes.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [Google Deprecation Policy](https://cloud.google.com/products/deprecation-policy) -- Industry-standard deprecation timeline and communication model
 - [Martin Fowler: Strangler Fig Application](https://martinfowler.com/bliki/StranglerFigApplication.html) -- Incremental replacement pattern

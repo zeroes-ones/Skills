@@ -43,7 +43,8 @@ chain:
 # Mobile Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -56,6 +57,7 @@ chain:
 Build production mobile applications — spanning native (Swift/Kotlin), React Native (Expo), and Flutter — with deep expertise across the full development lifecycle. This skill covers decision frameworks for choosing the right technology, architecture patterns, platform-specific design systems (iOS HIG, Material Design 3), offline-first data synchronization, performance optimization to 60fps, security hardening, CI/CD pipeline design, and App Store/Google Play deployment.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -95,9 +97,11 @@ What are you trying to do?
 └── Don't know where to start? → Describe your app idea and platform targets and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect mobile development mistakes before they are given. Violation means STOP and refuse to proceed.
 
@@ -113,12 +117,12 @@ These rules are non-negotiable constraints that detect mobile development mistak
 | R8 | **ANCHOR to runtime versions before generating platform-specific code.** Never generate SwiftUI/UIKit/Jetpack Compose/React Native/Flutter API calls from training data alone — platform SDKs change with every OS release and Expo/Flutter versions introduce breaking API changes. | Trigger: skill receives code-generation task involving platform-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect React Native/Expo/Flutter versions → for native iOS/Android, check `ios/Podfile.lock` and `android/build.gradle` for SDK versions → anchor all API calls to detected versions | STOP. Respond: "Detected: {platform} SDK {version}. Anchoring all API calls to this version. I will flag any APIs that may have changed in more recent OS releases with // VERIFY: comments. See `scripts/references/source-of-truth-anchoring.md`." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -143,6 +147,7 @@ Competent mobile developers build apps that work on their test device. Masters b
 - **Use WebView for content that changes daily.** Terms of service, help center, marketing pages — content that changes faster than your app review cycle belongs in a WebView, not in native code.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Mobile development spans platform-specific concerns (app stores, device capabilities, offline) that manifest differently at each level.
 
@@ -189,6 +194,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 - A/B testing framework with feature flags, phased rollout, and automated rollback on crash rate spike
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between native (Swift/Kotlin), React Native, Flutter, or PWA for a new mobile project
@@ -203,6 +209,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 - Implementing security: certificate pinning, secure storage, code obfuscation, root/jailbreak detection
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Offline-First Strategy
@@ -232,6 +239,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                              │ sync queue │  │ + assets  │
                              └────────────┘  └───────────┘
 ```
+
 **When full offline-first:** Field workers, travelers, areas with unreliable connectivity. Users must create/edit data offline. Conflict resolution needed.
 **When read-only offline:** Content consumption app (news, docs, media). Users don't create data. Pre-cache on WiFi, serve from local when offline.
 
@@ -262,6 +270,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                             │ linking    │  │ link support │
                             └────────────┘  └──────────────┘
 ```
+
 **When Tab + Stack:** Instagram/YouTube pattern. 3-5 top-level sections. Each tab has its own navigation history. Deep linking into nested screens required.
 **When Stack only:** Linear flows (onboarding, checkout wizard, setup). No persistent bottom navigation. Each screen leads to the next or back.
 
@@ -293,6 +302,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                              │ + analytics│  │ reminders.   │
                              └────────────┘  └──────────────┘
 ```
+
 **When data-only + WebSocket:** Real-time chat/messaging. Push delivers wake-up signal; actual content fetched via persistent connection. Avoids 4KB APNs limit.
 **When FCM/APNs with deep link:** Transactional alerts, marketing. Notification tappable → deep link to relevant screen. Rich media (images, video thumbnails) for engagement.
 
@@ -322,10 +332,12 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                           │            │  │ Provider     │
                           └────────────┘  └──────────────┘
 ```
+
 **When TanStack Query:** API-driven data that needs caching, pagination, and optimistic updates. Server is source of truth. Background refetch on focus.
 **When Zustand/Riverpod:** Client-only global state (auth token, theme mode, feature flags). Cross-screen persistence without API round-trip. Lightweight (< 5KB).
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 0 (~15 min): Native vs Cross-Platform Decision Framework
@@ -358,9 +370,16 @@ Before writing a single line of code, select the right technology for the job. T
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
   Complete when: Platform decision (Native/React Native/Flutter) is documented with justification against rendering, hardware, team-skill, and time-to-market criteria. Scaffolded app builds and runs on both target platforms.
-
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
+  Complete when: Feature flagged behind config — can be enabled/disabled without deployment.
+  Complete when: Error tracking configured — all unhandled exceptions routed to on-call.
+  Complete when: Documentation PR merged — README, API docs, and changelog updated.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design for offline-first from day one, not as a retrofit.** Cache last-known-good data locally using SQLite (React Native), Hive/Isar (Flutter), or Core Data/SwiftData (native). Show cached content with a discreet "offline" indicator — never a white screen or crash. Queue mutations locally and sync when connectivity returns. Test every screen in airplane mode before merge.
 
@@ -382,8 +401,8 @@ Before writing a single line of code, select the right technology for the job. T
 
 10. **Profile scroll performance with platform tools, not just the naked eye.** iOS: Instruments Core Animation tool (Color Blended Layers, Color Offscreen-Rendered). Android: GPU Rendering Profile Bars (ensure each frame is under 16ms). React Native: Flipper performance plugin or `react-native-performance`. Flutter: performance overlay (rebuild counts, raster times). Jank visible to the eye is already >100ms of dropped frames.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -398,6 +417,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -434,6 +454,7 @@ Cross-platform inconsistency? → UI/UX Designer → Product Strategist
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These are signals that should trigger the mobile developer to investigate — no one needs to tag you; you should be watching for these.
 
@@ -448,11 +469,12 @@ These are signals that should trigger the mobile developer to investigate — no
 | "App Store rejected — 'Your app declares support for background modes but doesn't use them'" | Capability audit: remove unused `UIBackgroundModes` from Info.plist. Apple's static analyzer checks if declared background modes match actual API usage. `fetch`, `remote-notification`, `processing`, `bluetooth-central` — only declare what your code actually calls. Remove stale capabilities from old experiments |
 | "Crash rate spikes on iOS major version release day" | OS compatibility audit: run your test suite against the iOS beta 2 months before public release. Check all native modules for deprecated APIs (`#available` guards). Maintain a `PlatformCompatibility.md` with per-OS-version breaking changes. iOS major version releases are predictable — the crash shouldn't be a surprise |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before any app store submission or production release, verify ALL of:
 
@@ -474,6 +496,7 @@ Before any app store submission or production release, verify ALL of:
 16. Release notes, screenshots, and promotional text ready for App Store Connect and Google Play Console
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The app launches cold in under 1.5 seconds, scrolls at a locked 60fps, and stays under 50MB of memory on low-end devices.
 
@@ -492,6 +515,7 @@ Common chains:
 - **API-driven mobile**: api-designer → mobile-developer → release-manager — API contract defines data, mobile builds the client experience, release manager handles app store submission
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
@@ -512,6 +536,7 @@ Common chains:
 **Delete your app and reinstall it. On a device you've never used for development. On a slow network. With no account pre-created.** The first-run experience you see is what every new user sees. If it's not delightful, nothing else in the app matters.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### 1. App Store Rejection at Launch
 **What it looks like:** Submitting to review the day before launch. Apple/Google reject for private APIs, missing privacy labels, or placeholder content. Each rejection adds 1-3 days to review queue. Marketing spend burns with no product live.
@@ -563,6 +588,7 @@ Common chains:
 **Fix:** Listen for `"inactive"` state and handle it explicitly. Pause playback on both `"inactive"` and `"background"`, or check `"active"` explicitly and pause on anything else.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -578,6 +604,7 @@ When mobile apps go wrong, they go wrong in predictable ways. Here are the most 
 | App works on Wi-Fi, fails on cellular — API calls timeout, images don't load, users on 4G/5G can't use the app | Cellular connections have higher latency (50-200ms RTT), lower bandwidth (especially in rural areas), and aggressive carrier NAT. Timeouts set to 5 seconds work on Wi-Fi (10ms RTT) but fail on cellular. Large images and uncompressed payloads time out on slow connections | Set network timeout to 30 seconds minimum. Use adaptive image loading (thumbnail → full resolution). Test on Network Link Conditioner with "Edge" and "3G" profiles. Monitor `NetInfo.isConnected` and `NetInfo.isInternetReachable` — degrade gracefully when connectivity is poor | "Works on my Wi-Fi" is the mobile equivalent of "works on my machine." Cellular networks are slower, less reliable, and more latent than any development setup. Every network call must survive 200ms+ latency and 500kbps bandwidth |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -588,6 +615,7 @@ When mobile apps go wrong, they go wrong in predictable ways. Here are the most 
 | Shipping without certificate pinning for finance/health apps — compromised CA enables MITM of all traffic | $50K-$200K in regulatory fines and breach disclosure | Pin against SPKI hash (not certificate — certs expire). Include backup pin. Test with Charles/mitmproxy to verify. OWASP MASVS L2 requires pinning for sensitive apps. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `npm test` / `flutter test` / XCTest — all tests pass
 - [ ] Build for both platforms: `npx react-native run-ios` AND `npx react-native run-android` (or Flutter equivalents) — both build without error
@@ -597,10 +625,12 @@ When mobile apps go wrong, they go wrong in predictable ways. Here are the most 
 - [ ] Verify app size: `du -sh` the built .ipa/.apk — within budget (< 20% increase from baseline)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -611,5 +641,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

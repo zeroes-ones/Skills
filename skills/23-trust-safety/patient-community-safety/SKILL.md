@@ -77,6 +77,7 @@ What are you trying to do?
 └── Not sure? → Describe your community (condition, size, vulnerability profile) and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -96,7 +97,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **STOP and ASK before collecting mental health symptom data without specific, unbundled consent.** "We may share your data for research" is not informed consent for selling de-identified datasets to pharmaceutical companies. Health data consent must specify: who, what purpose, and opt-in per use case. | Trigger: generated output proposes `data.collection\|symptom.tracking\|mood.data\|health.data` AND NOT `specific.consent\|per.purpose.opt.in\|unbundled\|pharma.disclosure` within 30 lines | STOP. Ask: "This design collects sensitive health data. The consent flow must: (1) specify each data use purpose separately, (2) disclose if data may be shared with pharmaceutical companies or researchers, (3) allow opt-in per purpose (not bundled), (4) never combine ZIP + age + gender + diagnosis in shared datasets (re-identifiable with public data). A consent that's legally compliant but feels like a betrayal is a trust breach." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -219,9 +219,16 @@ Health communities have a different threat model than general social apps. Map y
 ```markdown
 
   Complete when: Threat model documented, risks prioritized by severity, and mitigation owners assigned with deadlines.
-
+  Complete when: Content moderation accuracy validated — false positive rate < 1% on test set.
+  Complete when: Appeals process documented with SLA for human review (< 24 hours).
+  Complete when: Safety classifier evaluated on adversarial examples — no bypasses found.
+  Complete when: User reporting flow tested end-to-end with confirmation and status tracking.
+  Complete when: Moderation latency measured — 95th percentile < 500ms for automated decisions.
+  Complete when: Policy update communication plan created with rollout timeline and stakeholder review.
+  Complete when: Transparency report data collected and draft prepared for quarterly publication.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 <!-- STANDARD: 3min -->
 
@@ -268,8 +275,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - **Identifiable photo in medical context** → Patient photo + condition details = PHI. Offer anonymization option. Remove if not anonymized. 🟡
 - **Vulnerable population targeted** → Account targeting pediatric, mental health, or rare disease communities with unsolicited treatment advice. Enhanced scrutiny. 🟠
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -281,6 +288,7 @@ A patient can share their treatment experience without fear of harassment. Medic
 ## Deliberate Practice
 
 ```mermaid
+
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
 
@@ -361,7 +369,7 @@ graph LR
 - **Unmoderated direct messages in patient communities** — a predator joins a cancer support group, DMs vulnerable members offering "alternative treatments" that are actually dangerous supplements they sell. Community guidelines that only cover public posts leave private channels as ungoverned spaces where the most vulnerable members are targeted. DMs must have abuse reporting, and known-bad-actor patterns must be monitored across both public and private channels. **Total cost: $250K-$2M in platform liability, victim litigation, and regulatory investigation when private channels become exploitation vectors.**
 - **Community closure without data portability** — the platform shuts down a rare-disease community with 5 years of patient-generated knowledge. Members lose access to treatment logs, symptom timelines, and peer support networks. GDPR/CCPA right of access requires data export, and the reputational damage from destroying patient-contributed health data is irreparable. **Total cost: $100K-$500K in regulatory penalties and permanent trust loss with patient communities when health data is deleted without export options.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -371,9 +379,8 @@ graph LR
 | "De-identified community data can be sold to researchers without consent." | Community members consider their lived-experience narratives as personal as medical records. Selling de-identified health community data without explicit opt-in consent has triggered class-action lawsuits under state biometric and consumer health data laws (Washington My Health My Data Act, Nevada SB 370). $5M+ settlements for unauthorized health data monetization. |
 | "Automated content flags + human review is sufficient for suicide risk detection." | Machine learning suicide risk classifiers have 40-60% false negative rates on nuanced expressions of suicidal ideation ("I'm tired of fighting this" vs "I want to kill myself"). Every false negative is a potential preventable death. Hybrid systems require trained clinical moderators, not just content moderators, with ≤15 minute response SLAs for flagged crisis content. |
 
-
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -382,7 +389,6 @@ graph LR
 | Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
 | Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
 | Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -428,51 +434,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | 16 | Alternative medicine monitoring: evidence-based stickied posts + expert AMAs counterbalance anecdotal cure claims in chronic illness communities | 🟢 Low | Evidence-based resources pinned per therapeutic area; expert AMA schedule maintained |
 | 17 | Cross-platform threat intelligence: predator/exploitation patterns shared with other health platforms; NCMEC reporting pipeline configured | 🟢 Low | Threat intel sharing agreement active; NCMEC reporting tested end-to-end |
 
-## Scale Depth
-
-<!-- STANDARD: 2min -->
-
-#### Solo Developer
-- **Safety**: Single-condition community (e.g., one rare disease) with volunteer moderation and manual crisis escalation to 988/crisis hotline
-- **Minimum**: Community guidelines with public-permanent warning, anonymous posting, crisis hotline auto-response, basic keyword flagging for self-harm/suicide/CSAM
-- **Add**: Clinical consultant (part-time, on-call for crisis escalation), disease-specific misinformation classifier
-- **Cost**: ~$200-1,000/mo (crisis hotline API + basic moderation tools + part-time clinical consultant)
-- **Coverage**: One condition community, < 5,000 users — sufficient for rare disease support groups
-
-#### Small Team (2-10)
-- **Safety**: Multiple condition communities with trained moderators and hybrid (automated + human) crisis response
-- **Minimum**: 24/7 on-call clinical escalation, per-condition misinformation classifiers, DM safety monitoring, COPPA-compliant pediatric architecture
-- **Add**: Lived-experience advisory board, evidence-based content library per condition, quarterly transparency reports
-- **Cost**: ~$3,000-8,000/mo (clinical on-call service + moderation platform + classifier hosting + advisory board stipends)
-- **Risk**: Without 24/7 clinical escalation, off-hours crisis posts may go unreviewed for 12+ hours — the suicide contagion window is 2-6 hours
-
-#### Medium Org (10-100)
-- **Priority**: In-house clinical safety team (not outsourced) with dedicated crisis response staff
-- **Minimum**: Full safety operations center with clinical + content moderation staffing, disease-specific ML classifiers with human-in-the-loop, image/video scanning for CSAM (PhotoDNA/Thorn integration), pediatric safety architecture
-- **Add**: Cross-platform threat intelligence sharing, NCMEC reporting pipeline, academic research partnerships for health misinformation detection, survivor speech classifier calibration
-- **Cost**: ~$15,000-40,000/mo (in-house clinical safety team of 2-4 + enterprise moderation platform + ML infrastructure)
-- **Coverage**: Multiple therapeutic areas, 10K-500K users — regulated health platform scale
-
-#### Enterprise (100+)
-- **Organization**: Dedicated trust & safety org with clinical safety, content policy, ML engineering, and crisis response teams; safety embedded in product development
-- **Minimum**: Real-time crisis detection with clinical triage, federated ML across therapeutic areas, regulatory-grade transparency reporting, NCMEC/Thorn/INHOPE integration, academic research consortium
-- **Add**: Predictive safety analytics (identifying at-risk communities before harm occurs), multi-language crisis detection, health outcome tracking linked to community participation, published safety research
-- **Cost**: $50,000-150,000+/mo (dedicated safety org of 8-20 + enterprise-grade infrastructure + research partnerships)
-- **Focus**: Setting industry standards for health community safety — publish protocols, share threat intelligence, advocate for patient-centered platform regulation
-
-## Error Decoder
-
-<!-- QUICK: 30s -->
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Terminal cancer patient's "I'm stopping treatment" post auto-flagged as suicide risk and escalated to crisis hotline — patient feels policed, leaves community | End-of-life and suicide prevention use the same escalation path; classifier trained on suicide ideation patterns flags treatment discontinuation | Implement separate escalation paths: end-of-life protocol (palliative care expertise, autonomy-respecting language, support resources) vs. suicide prevention protocol (immediate clinical triage, crisis hotline). Train classifiers to distinguish "stopping treatment" from "ending life" | One-size-fits-all crisis response harms the patients it's designed to protect. End-of-life and suicide prevention are distinct clinical domains requiring distinct protocols |
-| Eating disorder community becomes a pro-ana gathering space despite "pro-recovery" rules — moderation can't keep up with coded language | Moderation relies on keyword lists ("thinspo," "pro-ana") but community has evolved coded language ("butterfly," "ana buddy") that bypasses filters | Implement image-based detection (body-checking photos, before/after collages), behavioral signals (rapid weight-loss celebration patterns, meal-skipping encouragement), and recovery-oriented content amplification. Clinical advisor reviews emerging coded language monthly | Content safety is an arms race. Keyword filters lose within months. Behavioral and image-based signals are harder to evade |
-| Rare disease community with 5 years of patient-generated treatment data shut down without data export — patients lose treatment logs, symptom timelines, peer support | Platform had no community closure plan; deletion was treated as infrastructure decommissioning, not patient data stewardship | Implement community closure protocol: 90-day notice, data export tool (all user content in machine-readable format), referral pathway to alternative communities, permanent archive option with consent. Test annually | Health community data is clinical data to patients. GDPR/CCPA right of access applies. Destroying patient-contributed health data without export is both a compliance violation and a trust catastrophe |
-| Automated misinformation classifier flags 40% of survivorship posts as "anti-medicine" — cancer patients saying "chemo was brutal" get content warnings | Classifier trained on sentiment polarity (negative treatment sentiment = misinformation) without survivorship speech carve-out; no clinical context in classification pipeline | Implement survivorship speech whitelist: negative treatment experience ≠ misinformation. Human review required for all negative-sentiment treatment posts before flagging. Train classifier on labeled survivorship vs. misinformation datasets per therapeutic area | Sentiment-based classification silences patient voice. The difference between "treatment X didn't work for me" (survivorship) and "treatment X doesn't work" (misinformation) requires clinical context |
-| Predator exploits cancer support group DMs to sell dangerous "alternative treatments" — undetected for 6 months because moderation only covers public posts | Safety monitoring limited to public channels; DMs treated as private spaces outside moderation scope | Extend safety monitoring to DMs: abuse reporting with one-click flagging, known-bad-actor heuristics (new accounts DMing vulnerable-population members at high volume), pattern detection across public + private activity. Publish DM safety policy in community guidelines | Private channels are the highest-risk surface in health communities. Predators target DMs because that's where moderation doesn't look |
-| Pediatric diabetes community launches without COPPA compliance — collects data on 500+ under-13 users before legal review catches it | COPPA treated as launch checklist item rather than architectural requirement; age gates retrofitted post-launch cannot protect already-collected data | Build COPPA-compliant architecture from day zero: verifiable parental consent flow before any data collection, separate data storage for under-13 users, no behavioral advertising, automated age-up transition at 13. Retroactive compliance requires deletion of all under-13 data collected without consent | COPPA is an architecture constraint, not a legal checkbox. Retroactive compliance means data deletion — you cannot un-collect data from children |
-
 ## References
 
 Detailed reference material loaded on demand:
@@ -483,4 +444,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

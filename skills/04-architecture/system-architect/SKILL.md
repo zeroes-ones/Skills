@@ -46,7 +46,8 @@ chain:
 # System Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -59,6 +60,7 @@ chain:
 Design and evaluate system architectures through structured modeling, trade-off analysis, and architectural decision records. This skill covers end-to-end architecture from requirements to deployment topology, including C4 modeling (Context, Container, Component, Code), Architecture Decision Records (ADRs), scalability patterns, and capacity planning.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -93,7 +95,7 @@ What are you trying to do?
 │   ├── Write an ADR → Jump to "Core Workflow > Phase 3"
 │   └── Create C4 diagrams → Jump to "Core Workflow > Phase 4"
 ├── SCALE or fix
-│   ├── System under load → Go to "Scale Depth" section
+│   ├── System under load → Go to "Operating at Different Levels" section
 │   ├── Refactoring legacy → Jump to references/complexity-cost-model.md
 │   └── Capacity planning → Jump to "Core Workflow > Phase 5"
 ├── Need technology strategy and build-vs-buy → Invoke cto-advisor skill instead
@@ -155,6 +157,7 @@ What's the primary task?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -176,12 +179,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R12** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R13** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -205,6 +208,7 @@ Competent architects design systems that meet requirements. Masters design syste
 - **Ship a monolith to prove the market, then split.** If you're pre-PMF, optimize for speed of learning, not scalability. A monolith that can be refactored in a month is better architecture than microservices that took 6 months to build for a product nobody wants.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Architecture decisions compound — a decision made at L2 has L4 consequences. Understanding level expectations ensures the right depth for the problem at hand.
 
@@ -219,6 +223,7 @@ Architecture decisions compound — a decision made at L2 has L4 consequences. U
 **Usage**: Say "as an L4 architect, review the system design for..." Default: **L3** (multi-service design, independent architectural decisions).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new system or service from scratch
@@ -231,6 +236,7 @@ Architecture decisions compound — a decision made at L2 has L4 consequences. U
 - Multi-tenancy strategy design (database-per-tenant, schema-per-tenant, shared)
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -312,6 +318,7 @@ Synchronous or asynchronous between services?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -361,11 +368,16 @@ Complete when:
 6. Plan for resilience: circuit breakers, retries (with exponential backoff + jitter), bulkheads, timeouts, graceful degradation, chaos engineering.
 
 Complete when:
+  Complete when: Architecture decision record (ADR) created with context, options, and rationale.
+  Complete when: Non-functional requirements documented — performance, security, scalability targets.
+  Complete when: Dependency graph reviewed — no circular dependencies between bounded contexts.
+  Complete when: Capacity planning estimates validated with load testing at 2x expected peak.
 - Traffic estimates quantified: peak QPS, DAU, data ingestion rate, read/write ratio
 - Latency budgets broken down per service; data growth projections (1y/3y) with tiering strategy
 - Scaling strategy (vertical/horizontal, read replicas, sharding) and resilience patterns (circuit breakers, bulkheads, retries) documented
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Write ADRs for every irreversible decision.** Title must state the decision, not the topic. Include Context, Decision, Consequences, and rejected alternatives. Store in `docs/adr/` alongside code.
 
@@ -387,8 +399,8 @@ Complete when:
 
 10. **Instrument observability from day one.** Distributed tracing (OpenTelemetry), structured logging with correlation IDs, and RED metrics (Rate, Errors, Duration) per endpoint must be specified in the architecture — not bolted on during incidents.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -405,6 +417,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -447,6 +460,7 @@ Architecture guidance, review, or approval for team-level design
 **What good looks like:** Architecture Review Board signs off with zero unresolved critical findings. C4 diagrams (Context → Container → Component → Code) are accurate and up-to-date — a new team member traces the system's data flow from ingress to persistence in under 10 minutes. ADRs for the last 5 major decisions are written, reviewed, and merged. The architecture sketch passes the 'explain to a new hire in 5 minutes' test.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -460,6 +474,7 @@ Architecture guidance, review, or approval for team-level design
 | Planning the observability stack (service mesh + APM + tracing) for a distributed system | Before selecting tools, propose the three pillars with specific instrumentation: (1) distributed tracing with OpenTelemetry — propagate trace context across ALL service boundaries (HTTP, gRPC, message queues, DB calls), sample at 10% for success, 100% for errors; (2) structured logging with correlation IDs — every log line has `trace_id` and `span_id`; (3) RED metrics (Rate, Errors, Duration) per endpoint per service. Discuss SLO-based alerting: alert on error budget burn rate | Observability bolted on after incidents is useless — you can't add tracing during an outage. Without propagated trace context, a 5-second P99 latency spike is a mystery: is it service A's DB query? Service B's network call? Service C's serialization? Distributed tracing answers in one query. Without it, you're grep'ing logs across 10 services at 3 AM |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### BEFORE (Novice) → AFTER (World-Class)
 
@@ -480,6 +495,7 @@ Architecture guidance, review, or approval for team-level design
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
@@ -500,6 +516,7 @@ Architecture guidance, review, or approval for team-level design
 **Redesign a system you built 2 years ago using what you know now.** Would you make the same decisions? If yes: you haven't grown enough. If no: write down why. Your old architectures are a record of your thinking at that time. Revisiting them is the fastest way to see your own growth.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Microservices before product-market fit.** Startups with 10 users running 12 microservices on Kubernetes spend $200K-$2M/year on infrastructure, observability, and DevOps headcount — for a monolith that would run on a $50/month VPS. The complexity overhead (service mesh, distributed tracing, schema registry, CI/CD per service) consumes engineering capacity that should go to finding product-market fit. **Total cost: $200K-$2M in wasted infrastructure and engineering time over the first 18 months.** Fix: start with a well-structured monolith (modular, not big-ball-of-mud). Extract services only when you have a dedicated team for each bounded context and clear scaling pain points.
 - **No architecture decision records (ADRs).** Without ADRs, every new team member or returning architect re-litigates "Why did we choose Kafka over RabbitMQ?" in Slack threads, design reviews, and meetings. A 20-person engineering org spends 50-200 hours per quarter re-debating settled decisions. **Total cost: $50K-$200K/year in re-litigation overhead across the engineering org.** Fix: write an ADR for every significant architectural decision (Context, Decision, Consequences). Store them in the repo alongside code. Link ADRs from PR templates.
@@ -522,6 +539,7 @@ Architecture guidance, review, or approval for team-level design
 - **Capacity planning with percentiles**: "Average response time 200ms" means 50% of requests are below 200ms, but 1% might be 5 seconds. P95, P99, and P99.9 matter more than average. Architect for the P99, not the mean.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -531,6 +549,7 @@ Architecture guidance, review, or approval for team-level design
 | Architecture decisions undocumented — original rationale lost after 6 months | $150K-$500K in re-architecture costs when teams rediscover why decisions were made | Write ADRs for EVERY significant decision. Format: Context → Decision → Consequences. Link ADRs to code with architecture fitness functions |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] C4 diagrams render correctly: PlantUML/Mermaid syntax valid, all components labeled
 - [ ] ADR (Architecture Decision Record) template complete: Context, Decision, Consequences all filled
@@ -544,6 +563,7 @@ Architecture guidance, review, or approval for team-level design
 - [ ] Routing check: confirms system-architect is the right skill (not backend-developer, devops-engineer, or cloud-architect)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -561,10 +581,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Message queue depth alert fires at 3 AM — on-call engineer can't determine which service is the bottleneck | Three services consume from the same queue. Backpressure isn't traceable: Service A slowed down, queue backed up, Services B and C also show high lag. Everyone assumes someone else's problem | Instrument queue consumer lag per consumer group, not just queue depth. Add distributed tracing (W3C Trace Context) across all consumers. Dashboard: consumer lag by service, with links to trace showing where time is spent in each | Queue depth tells you there's a problem. Consumer lag per service tells you whose problem it is. Without per-consumer metrics, every queue incident is a blame game played at 3 AM. |
 
 ## References
+<!-- STANDARD: 3min -->
 - **Architecture Fitness Functions**: See [architecture-fitness-functions.md](references/architecture-fitness-functions.md)
 - **When Monolith Wins**: See [when-monolith-wins.md](references/when-monolith-wins.md)
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
 
@@ -578,6 +600,7 @@ This section documents every irreversible decision made during the session. It i
 - If revisiting a decision, add a NEW row (do not edit the old one)
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 

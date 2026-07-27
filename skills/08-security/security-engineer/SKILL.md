@@ -60,7 +60,8 @@ Design, implement, and validate security controls across the application, infras
 layers. This skill covers threat modeling, penetration testing methodology, IAM architecture,
 secrets management, API hardening, zero trust adoption, and continuous security monitoring.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -71,6 +72,7 @@ secrets management, API hardening, zero trust adoption, and continuous security 
 | "A security review will block our release — we can't afford the delay." | A 2-hour threat model finds issues before they're baked into architecture. A 4-day incident response is what you get when you skip it. Pick one: 2 hours now, or 4 days of production down plus customer notification costs plus regulatory fines. The math isn't close. |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
 | # | Detect Condition | Route To | Intent Route Fallback |
@@ -85,6 +87,7 @@ secrets management, API hardening, zero trust adoption, and continuous security 
 | **A8** | `file_exists("SECURITY.md")` or `file_exists(".github/SECURITY.md")` | Core Workflow → Phase 1 (Threat Modeling) | "I detect SECURITY.md — this is the security-engineer domain. Routing to Threat Modeling phase." |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -101,12 +104,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master security engineers think like attackers, not defenders. They don't ask "is this system secure?" — they ask **"how would I break this if I wanted to?"** Security is not a feature; it's an emergent property of design.
 
@@ -126,6 +129,7 @@ Master security engineers think like attackers, not defenders. They don't ask "i
 - **Accept a known risk when the mitigation is worse than the threat.** A 0.001% breach probability × $10K impact = $0.10 expected loss. Don't spend $100K to fix it.
 - **Ship with a security exception (documented, time-bound).** Sometimes you need to move fast. The exception must have an owner, an expiration date, and compensating controls.
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -139,15 +143,6 @@ Master security engineers think like attackers, not defenders. They don't ask "i
 **Usage:** Invoke this skill with your target level, e.g., "as an L3 security engineer, review..."
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
-
-### Scale Depth
-
-| Scale | Security Posture | You Focus On |
-|-------|-----------------|--------------|
-| **Solo** | Single app, single cloud account, $0 budget | OWASP ZAP for DAST, Semgrep OSS for SAST, gitleaks for secret scanning, manual threat modeling with pen and paper. Free tier of every tool. Monthly manual security review of critical paths. |
-| **Small Team** (2-10) | 5-20 services, one cloud account, $200-500/mo budget | CI-integrated SAST blocking on PRs, Snyk/Burp Suite Community, npm audit/trivy in CI, Wazuh SIEM, HashiCorp Vault Community. Quarterly pentests. One dedicated security engineer. |
-| **Medium** (10-50) | 20-100 services, multi-account cloud, $5K-20K/mo budget | Burp Suite Pro, Snyk Team, centralized SIEM (Elastic Security/Splunk), CSPM (Wiz/Prisma Cloud), bug bounty program (private), dedicated AppSec team. Continuous red team exercises. SOC 2 Type II. |
-| **Enterprise** (50+) | 100+ services, multi-account/multi-cloud, $50K+/mo | Full AppSec program: SAST + DAST + IAST + RASP, Veracode/Checkmarx, Synopsys Black Duck, HackerOne public bounty, dedicated SOC with 24/7 monitoring, continuous threat hunting. SOC 2 Type II + ISO 27001 + FedRAMP. |
 
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -165,6 +160,101 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees **(QUICK)**
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: IAM Strategy Selection
+
+```
+        ┌── INPUT: Designing access control for new system?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Simple role       Complex,
+hierarchy,        attribute-
+static            driven
+permissions       policies
+   │                 │
+   ▼                 ▼
+RBAC             ABAC
+   │                 │
+   ▼                 ▼
+Roles mapped     Attributes
+to job           (dept,
+functions        clearance,
+   │             geo, device
+   ▼             trust) →
+Need just-in-   dynamic
+time access?    policy
+   │             evaluation
+   ▼
+Add JIT
+(short-lived
+credentials,
+approval
+workflow)
+```
+
+### Decision Tree 2: API Security Hardening Path
+
+```
+        ┌── INPUT: Hardening an API against OWASP Top 10?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Public-facing    Internal/
+API              service-to-
+   │             service
+   ▼                 │
+Priority:            ▼
+├─ AuthN/Z       Priority:
+│  (OAuth2,      ├─ mTLS
+│  OIDC)         ├─ Service
+├─ Rate          │  identity
+│  limiting      │  tokens
+├─ Input         ├─ Network
+│  validation    │  policy
+├─ WAF rules     └─ Internal
+├─ API gateway   │  rate
+│  (schema       │  limits
+│  validation)   │
+└─ CORS config
+```
+
+### Decision Tree 3: Secrets Management Approach
+
+```
+        ┌── INPUT: Where to store secrets and credentials?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Cloud-native     Multi-cloud
+single           or hybrid
+provider         environment
+   │                 │
+   ▼                 ▼
+AWS Secrets      HashiCorp
+Manager /        Vault
+GCP Secret       (self-managed
+Manager /        or HCP)
+Azure Key           │
+Vault               ▼
+   │             Unified
+   ▼             secrets
+Native IAM      engine,
+integration,    dynamic
+auto-rotation   secrets,
+   │             audit log,
+   ▼             encryption-
+CI/CD →         as-a-service
+inject at
+runtime, never
+in env vars
+or config
+files
+```
+
 ### Threat Modeling Depth
 
 ```
@@ -255,6 +345,8 @@ Team size?
 4. Hunt for threats proactively: run hypothesis-driven threat hunts monthly based on threat intelligence and MITRE ATT&CK.
 5. Tune alerting to balance signal-to-noise: measure mean time to detect (MTTD) and mean time to acknowledge (MTTA).
   Complete when: Centralized SIEM ingesting all log sources, detection rules defined for top attack patterns, SOAR playbooks operational, and threat hunting cadence established with MTTD/MTTA baselines measured.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
 
 ### Cross-skills Integration
 
@@ -266,8 +358,8 @@ Team size?
 # Security reviewer finds issues. Security engineer implements fixes. Compliance officer maps to controls.
 ```
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -283,6 +375,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Secrets rotation automation: script rotates database password in AWS Secrets Manager successfully. Application connection pool still holds old password in memory — 45-minute outage until connection retry logic exhausts and picks up new secret. 200,000 failed transactions | Secrets rotation script updated the secret but didn't trigger application reload. Application cached database connections with the old password. Connection retry had exponential backoff with 30-minute max delay — application didn't reconnect until the old connections timed out or failed | Secrets rotation must include an application reload step: after rotation, trigger a rolling restart or connection pool refresh. Use secret leases with TTL — applications must refresh before expiry. Implement circuit breaker: if connection failures spike after rotation, automated rollback to previous secret version. Test rotation in staging with production traffic patterns — not just "did the secret update?" | Secrets management is not just about storing secrets — it's about the lifecycle including application consumption. Rotation that updates the stored secret but not the running application is a 50% complete rotation. The other 50% is making sure every application is actually using the new secret |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Threat model early and continuously.** Run STRIDE-per-element on every new feature before code is written. Schedule quarterly threat model reviews for all Tier 1 services — a threat model from 6 months ago is archaeology, not security. Use OWASP Threat Dragon or Microsoft Threat Modeling Tool to produce shareable, version-controlled diagrams.
 2. **Implement defense in depth.** Never rely on a single security control. Layer WAF at the edge, security groups at the network, IAM conditions at the identity layer, and parameterized queries at the application layer. When one control fails — and it will — the next layer must catch the threat. Attackers must defeat every layer; defenders only need one layer to hold.
@@ -296,9 +389,11 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Practice incident response before you need it.** Write runbooks for top 10 failure modes and test them quarterly with tabletop exercises. Conduct game days and chaos engineering experiments. Measure MTTD (detect), MTTA (acknowledge), and MTTR (resolve) — if you're not measuring response time, you're not managing it.
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] Every production repository runs SAST (Semgrep/CodeQL) in CI with blocking mode enabled for net-new HIGH/CRITICAL findings on PRs
 - [ ] SCA scanning (Dependabot/Snyk/Trivy) runs on every CI build with CRITICAL CVE blocking; CVEs in CISA KEV catalog trigger incident response within 24 hours
@@ -316,13 +411,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Vulnerability SLA enforced: CRITICAL CVEs patched within 24 hours, HIGH within 7 days, MEDIUM within 30 days; SLA breach triggers escalation to security leadership
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every pull request runs SAST, SCA, and container scanning in CI, and critical findings block merge without exception.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -337,6 +433,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -355,6 +452,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | OIDC setup, secrets injection, signed commit verification | Pipeline lacks security — audit fails |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -368,6 +466,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Security scanning pipeline is bypassed or disabled for an "emergency hotfix" without documented approval | The hotfix must still pass SAST and secret scanning — these checks add <2 minutes. If truly impossible, require a break-glass approval from the security lead with a 24-hour remediation window. Bypassing security gates normalizes the behavior. | Emergency bypasses are how Shadow IT creeps into production. Every bypass that isn't remediated becomes the new normal — and attackers know to target the un-scanned paths. |
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -385,6 +484,7 @@ graph LR
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **`crypto.randomBytes()` vs `Math.random()`**: `Math.random()` is a PRNG seeded from the current time (predictable). Using it for token generation produces tokens that can be brute-forced in minutes. All security tokens MUST use `crypto.randomBytes()` or equivalent CSPRNG.
 - **`bcrypt` has a 72-byte input limit** for the password. Passwords longer than 72 bytes are truncated silently. `sha256(password)` before bcrypt avoids truncation but reduces entropy if the sha256 output has known patterns. Use `bcrypt(sha512(password))` or switch to `argon2`.
@@ -395,8 +495,8 @@ graph LR
 - **Transitive dependency RCE at depth 4 in the dependency tree** — a logging library at depth 4 in `package-lock.json` has a critical RCE vulnerability (CVSS 9.8). Your vulnerability scanner's default configuration only scans direct dependencies (depth 0) or up to depth 2. The vulnerability is exploitable, unpatched, and invisible to your tooling for 6 months. An attacker finds it via the public CVE database, launches a reverse shell on your production server, and exfiltrates the customer database. **Total cost: $100K-$2M in breach response (forensic investigation, incident response retainer, customer notification, credit monitoring) plus regulatory fines — GDPR penalties up to 4% of annual global revenue, easily $500K-$20M for a mid-market SaaS company.** Fix: configure dependency scanners (`npm audit --all`, `trivy`, `snyk`) to scan the full tree including transitive dependencies. Add a CI gate: builds fail on any vulnerability with CVSS ≥ 7, regardless of depth. Subscribe to the GitHub Advisory Database for your ecosystem. Run `npm audit fix --force` monthly on a staging branch and test before merging.
 - **S3 bucket with `public-read` ACL containing database backups — "just for testing" that became permanent** — a developer sets up a test environment, copies a production database backup to an S3 bucket with `public-read` for easy access, and never deletes it. Marketing team later discovers the bucket and shares the download link internally. 18 months pass. A security researcher finds the exposed bucket, verifies it contains unencrypted customer PII (names, emails, hashed passwords, billing addresses), and responsibly discloses — or worse, posts it on Twitter. **Total cost: $250K-$5M in breach notification costs (all 50 states' AG notification requirements), GDPR/CCPA fines, class-action settlement ($500-$1,500 per affected customer), mandatory credit monitoring for 2 years, and permanent reputational damage — customers churn at 5-10%. A mid-market B2B SaaS with 50K customer records faces $2M-$4M in hard costs alone.** Fix: enable S3 Block Public Access at the account level. Use AWS Config rule `s3-bucket-public-read-prohibited` with automatic remediation. Run quarterly automated scans of all S3 buckets for public access. Database backups must be encrypted at rest and access-granted only via IAM roles with least privilege. Never use `public-read` for any bucket — there is always a better access pattern.
 
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -405,6 +505,7 @@ graph LR
 | Security engineers designing controls without shadowing developers for a sprint — the controls assume an idealized development workflow that doesn't exist, developers work around them, and security becomes a checkbox rather than an enabler. | $150K-$500K in wasted security engineering effort and bypassed controls | Every security engineer must shadow at least one development sprint per quarter. Security controls must be designed for how developers actually work, not how you wish they worked. Measure control adoption rate, not just control existence. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `semgrep --config=auto .` — zero high/critical findings
 - [ ] Run dependency scan: `npm audit` / `pip-audit` / `trivy` — zero known vulnerabilities with CVSS ≥ 7
@@ -414,17 +515,18 @@ graph LR
 - [ ] Rate limiting: send 100 requests/second to login endpoint — requests after threshold return 429
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 - **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
 - **Best Practices**: See [best-practices.md](references/best-practices.md)
 - **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 <!-- QUICK: 30s -- links to deeper reading -->
 - OWASP Top 10: <https://owasp.org/www-project-top-ten/>

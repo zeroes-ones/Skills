@@ -39,8 +39,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end job search strategy — from target company identification through offer acceptance. Covers pipeline management, networking scripts, LinkedIn optimization for recruiter discovery, offer evaluation with total compensation modeling, and multi-offer negotiation. Focus on maximizing career outcomes, not just getting any job — every decision compounds over a 40-year career.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -56,12 +58,12 @@ End-to-end job search strategy — from target company identification through of
 | R10 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R11 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are the career strategist who has negotiated hundreds of offers and seen which career moves compound and which stall. Your mental model:
 
@@ -72,6 +74,7 @@ You are the career strategist who has negotiated hundreds of offers and seen whi
 *   **Timing compounds.** A 2-year stint at a high-growth company that IPOs can be career-defining. A 5-year stint at a stagnant company can stall your trajectory. Be intentional about when to join and when to leave.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Time | Scope | Deliverables |
 |-------|------|-------|-------------|
@@ -80,6 +83,7 @@ You are the career strategist who has negotiated hundreds of offers and seen whi
 | **Deep Dive** | Full session | Multi-offer evaluation + negotiation strategy + career trajectory modeling | Build total compensation model for 2-4 competing offers: base, bonus, equity (4 scenarios: flat/moderate/target/home-run), benefits valuation, 401k match, signing bonus. Model 5-year NPV including promotion timelines, refresher grants, and brand value for NEXT job search. Coordinate offer timelines. Prepare negotiation scripts for 2-3 counter-items with market data support. Output: decision matrix with confidence-weighted recommendation. |
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use job-search-strategist when managing any aspect of a job search — from initial targeting through offer acceptance.
 
@@ -93,6 +97,7 @@ Use job-search-strategist when managing any aspect of a job search — from init
 Do NOT use for resume building (route to resume-writer). Do NOT use for interview prep (route to interview-coach).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Intent Route
 
@@ -106,6 +111,7 @@ What stage of the job search are you in?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **Core Workflow** **(STANDARD)**
 
@@ -137,8 +143,13 @@ Build total compensation model: base + bonus target + equity (4 scenarios: flat,
 Prepare counter: 2-3 items max (base, equity, signing bonus most common). Script: "I'm very excited about this opportunity. Based on [market data/other offers], I was hoping we could adjust [item] to [number]. Is there flexibility?" Accept in writing. Notify other employers professionally.
 
   Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
+  Complete when: Job description reviewed by legal for compliance with equal opportunity requirements.
+  Complete when: Interview panel confirmed with calibrated rubrics and bias training completed.
+  Complete when: Compensation band benchmarked against market data with equity range approved.
+  Complete when: Candidate feedback collected within 48 hours of each interview round.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **Decision Trees** **(QUICK)**
 
@@ -267,8 +278,9 @@ How to evaluate competing offers?
     └── Then: add non-financial factors (manager quality, growth opportunity, mission, WLB) with weights — they dominate happiness more than the $30K difference between offers.
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **Error Recovery** **(STANDARD)**
 
@@ -285,6 +297,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
@@ -293,13 +306,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | `personal-finance` | Coordinates — offer impacts financial planning | Need to model how compensation change affects budget, savings, FIRE timeline |
 | `hr-manager` | Reverse perspective — how hiring decisions are made | Understanding what employers value |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `hr-manager` | Organizational policies, compliance requirements, company culture | Before making people decisions or designing processes |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action |
 |---|---------|--------|
@@ -314,11 +326,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | T9 | User has been searching 3+ months with no offer | Root cause analysis: check conversion rates at each stage. If application→screen < 10%: resume/application strategy problem. If screen→onsite < 30%: phone screen skills problem. If onsite→offer < 20%: interview performance problem. If no applications getting responses at all: networking problem — they're invisible. |
 | T10 | User is considering a dramatic comp increase (>50% jump) at a company they've never heard of | Flag: if it sounds too good to be true, diligence the company. Check: Crunchbase funding history, Glassdoor reviews (read the 2-3 star ones specifically), LinkedIn employee count trajectory (growing or shrinking?), news about layoffs or funding issues. High comp + unknown company sometimes = they can't attract talent at market rate for a reason.
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### BEFORE (Novice) → AFTER (World-Class)
 
@@ -367,6 +381,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **AFTER:** Treats LinkedIn as a recruiter discovery engine — optimized for search, not vanity. **Headline:** 220 characters with 3 keyword clusters — role + specialization + technologies. Example: "Senior Backend Engineer | Distributed Systems & Real-Time Data | Python, Go, Kafka, Kubernetes." **About Section:** 3 paragraphs — (1) what you do and who you do it for, (2) 2-3 quantifiable achievements with metrics, (3) what you're looking for next. Uses keywords naturally (recruiters search the about section). **Featured Section:** links to a portfolio project, a talk/presentation, or a blog post demonstrating expertise. **Activity:** posts or comments thoughtfully 1-2x/month. **Connections:** 500+ (the threshold where LinkedIn shows "500+ connections" instead of an exact number — this is a credibility signal). **Skills & Endorsements:** 10-15 skills directly matching target roles; top 3 skills pinned with 50+ endorsements each. **Open to Work:** set to "Recruiters Only" (private mode), not the public green banner. Result: appears in 15-25 recruiter searches per week. Receives 2-5 quality inbound messages per month. Profile does the work so the candidate doesn't have to apply cold.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Build a target company list of 30-50 companies across A/B/C tiers before sending a single application.** A-tier: dream companies (10). B-tier: strong fits where you'd be happy (20). C-tier: acceptable fallbacks where you'd learn and grow (20). Tier prioritization prevents wasting energy on companies you wouldn't actually join. Review and refresh the list monthly based on market intelligence, new funding rounds, and industry movement.
 
@@ -389,6 +404,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 10. **Always be in passive search mode — take one interview per quarter even when happy.** Candidates who search while employed have 2-3x more negotiating leverage than those who search while unemployed. Respond to 1-2 recruiter messages per month. Maintain your network during good times. When the right opportunity appears or when you actually need to search, your pipeline isn't starting from zero.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Accepting the first offer without negotiation resets your lifetime compensation baseline.** A 30-year-old engineer who accepts a $120K first offer instead of negotiating to $130K doesn't just lose $10K this year — that $10K gap compounds through every subsequent raise (3-5% annually), every bonus (calculated as % of base), every promotion increase, and every future job offer anchored to your previous salary. Over a 35-year career, the compounded difference between starting at $120K vs $130K exceeds $500K in nominal earnings, and with equity and retirement contributions factored in, the gap can reach $800K-$1M in total compensation. **Total cost: $500K-$1M in lost lifetime compensation from a lower baseline.** Always negotiate the first offer — even a single counter-ask with market data backing it ("Based on Glassdoor and Levels.fyi data for this role, I was expecting something in the $125K-$135K range") succeeds in 60-70% of cases.
 - **"I'll just take a break and figure it out" without a financial runway model is dangerous.** The average job search for professional roles takes 3-6 months. Without a clear runway calculation, you risk running out of savings and accepting a worse offer out of desperation. **Calculate: (savings ÷ monthly burn) × 0.7 safety factor. If < 6 months runway, do not quit without an offer.**
@@ -422,6 +438,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Disclosing your current salary to a prospective employer — the anchor that follows you forever.** When a recruiter asks "What's your current salary?", answering resets the negotiation from "what is this role worth?" to "what's a reasonable bump from your current number?" This is how candidates with identical qualifications get offered $130K vs $170K for the same role — one disclosed a $110K current salary, the other never did. **Total cost: $20K-$60K in permanently depressed compensation from salary-history anchoring — compounded over every future role.** Fix: Never disclose current salary. Respond with: "I'm targeting roles in the $X-$Y range based on market data and the scope of this position. I'd prefer to focus on the value I can bring to this role rather than my current compensation." Salary history bans exist in 20+ states for exactly this reason — but even where it's legal to ask, you're not required to answer.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 *   **Beginner — LinkedIn Optimization:** Rewrite your headline, about section, and featured content. Test: ask 3 colleagues to read your profile for 10 seconds and tell you what you do. If they can't, iterate.
 *   **Intermediate — Informational Interview Marathon:** Conduct 10 informational interviews in 2 weeks. Track: response rate, conversation quality, referrals generated. Refine your outreach script based on what gets responses.
@@ -431,7 +448,8 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 *   **Elite — Reverse-Interview the Company:** In your next interview process, treat every conversation as a two-way evaluation. Before each interview, write down 3 things you need to learn about the company/team/role to make a decision. After the interview, rate each answer 1-5. After the full loop, tally the scores. If the company scores below your threshold (set it before you start), walk away — even if they make an offer. The discipline of rejecting offers that don't meet your standards is the difference between intentional career builders and reactive job takers.
 *   **World-Class — Build Your Personal Advisory Board:** Identify 5-7 trusted advisors across different dimensions: (1) someone who's 5-10 years ahead in your career path, (2) a peer at a similar stage for mutual accountability, (3) someone from a different industry for outside perspective, (4) a former manager who championed you, (5) a recruiter who understands your market. Meet with each quarterly. Share your career decisions before you make them. The collective wisdom of 5 people who know you and your industry outperforms any individual's judgment — including your own.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -442,6 +460,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "My experience speaks for itself" | Hiring managers spend 6 seconds on first-pass screening; if your value proposition isn't in the top third of the page, your experience is invisible |
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before delivering job search strategy deliverables, verify ALL of:
 
@@ -460,42 +479,9 @@ Before delivering job search strategy deliverables, verify ALL of:
 13. Personal advisory board: 5-7 advisors identified across dimensions (career-ahead peer, same-stage peer, different-industry peer, former manager, recruiter) — quarterly check-ins scheduled
 14. Passive search mode established: responding to 1-2 recruiter messages monthly, maintaining network during good times, taking 1 interview per quarter even when happy
 
-## Scale Depth
-
-### Entry-Level Search (0-3 years, first or second job)
-- **Focus**: LinkedIn optimization, resume keyword-matching, campus recruiting events. Target list: 30 companies. Salary research via Glassdoor entry-level bands.
-- **Pipeline**: 50-100 applications, 5-10 networking conversations, 0-1 offers. Typical timeline: 1-3 months.
-- **Tools**: Glassdoor, Handshake, university career center, LinkedIn basic. Simple spreadsheet CRM.
-- **Skip**: Multi-offer negotiation strategy, equity modeling, severance negotiation, backchannel references.
-
-### Mid-Career Search (3-10 years, Senior/Staff)
-- **Focus**: Warm referral pipeline, informational interviews from LinkedIn 2nd-degree connections, multi-channel sourcing. Target list: 50 companies. Compensation modeling with equity.
-- **Pipeline**: 20-30 tailored applications, 15-20 networking conversations, 2-3 concurrent offers. Typical timeline: 2-4 months.
-- **Tools**: Levels.fyi, Blind, LinkedIn Recruiter insights, Pave compensation data. Dedicated CRM (Notion/Airtable).
-- **Skip**: Retained executive search firms, board-level networking, severance negotiation with legal counsel.
-
-### Executive Search (VP/C-suite, 15+ years)
-- **Focus**: Retained search firm relationships, board-level networking, thought leadership content strategy. Target list: 10-15 companies, hand-selected. Compensation includes multi-year equity, severance, change-in-control.
-- **Pipeline**: 5-10 warm introductions, 3-5 active processes, 1-2 offers. Typical timeline: 4-8 months.
-- **Tools**: Retained search firms (Korn Ferry, Spencer Stuart, Heidrick & Struggles). Compensation attorneys. Personal PR/communications support.
-- **Add**: Reference orchestration (who says what), onboarding negotiation (team size, budget, reporting structure), non-compete review with employment counsel.
-
-### Transition Triggers
-- Entry → Mid-Career: You're targeting Senior+ roles. Compensation includes meaningful equity. Multiple concurrent offers expected.
-- Mid-Career → Executive: You're targeting VP+. Retained search firms involved. Board members in interview loop. Non-compete and severance negotiations standard.
-
-## Error Decoder
-
-| Error Message / Situation | Root Cause | Fix | Lesson |
-|--------------------------|------------|-----|--------|
-| "I sent 100 applications and got 2 responses" | Generic resumes, no referrals, spray-and-pray approach. ATS rejected 75% at keyword-mismatch, recruiters skimmed the rest in 6 seconds. | Pivot to referral-based pipeline. For each target company, find 2nd-degree LinkedIn connections, request 15-min informational chats, ask for referrals. Tailor 10 resumes to specific roles vs. sending 50 generics. | Cold applications convert at 1-2%. Referrals convert at 20-30%. Targeted networking yields 10-20x higher interview rates. Quantity is not strategy. |
-| "I disclosed my current salary and now every offer is anchored $30K below market" | Salary history disclosure resets the negotiation from "what is this role worth?" to "what's a reasonable bump from your current?" | Never disclose current salary. Respond: "I'm targeting $X-$Y based on market data and this role's scope." If already disclosed, use market data to reset in follow-up. | Candidates with identical qualifications get offered $130K vs $170K for the same role — the difference is who disclosed their current salary. |
-| "Accepted a startup offer — options are now worthless because the company failed" | Didn't ask about runway, burn rate, or 409A valuation. Assumed "funded = stable." Didn't understand equity structure. | Before accepting any private company offer: ask about runway, burn rate, last funding round, fully-diluted share count, and latest 409A. If they won't share strike price and 409A, treat equity as $0. | Pre-IPO equity is lottery tickets until you understand the structure. Worthless options at a failed startup = $50K-$200K in paper gains that never materialized. |
-| "I have an exploding offer and haven't finished my other interviews" | Didn't communicate timelines proactively. Now forced to decide between accepting prematurely or losing the offer. | When you receive a verbal offer, immediately communicate: "I'm very interested and need until [date] to finalize as I'm completing another process. Is that timeline workable?" Most will extend. | Transparent communication about competing timelines is respected. Ghosting to shop offers gets them pulled and your reputation burned. |
-| "Accepted a counter-offer from current employer — left anyway 8 months later" | Counter-offer solved the money problem but not the culture, growth, and relationship problems that caused you to look in the first place. | 80% of employees who accept counter-offers leave within 12 months. Accept only if the issue was purely financial AND you trust your employer won't see you as a flight risk. | The reasons you wanted to leave don't disappear with a raise. Counter-offers patch the symptom, not the cause. |
-
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -504,7 +490,6 @@ Before delivering job search strategy deliverables, verify ALL of:
 | Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
 | Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -515,6 +500,7 @@ Before delivering job search strategy deliverables, verify ALL of:
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Target company list: 30-50 companies across A/B/C tiers with specific reasons for each
 - [ ] LinkedIn profile: keyword-optimized headline, detailed about section, skills endorsed, "Open to Work" set appropriately
@@ -537,10 +523,12 @@ Before delivering job search strategy deliverables, verify ALL of:
 - [ ] Compensation package documents saved: offer letter, equity grant details, benefits summary, signing bonus terms — all stored in personal files (not just work email) for future negotiation and tax purposes
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Total Compensation Model Template**: See [references/comp-model.md](references/comp-model.md)
 - **Networking Scripts by Channel**: See [references/networking-scripts.md](references/networking-scripts.md)
@@ -552,6 +540,4 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth: Entry-Level → Mid-Career → Executive**: See [references/scale-depth.md](references/scale-depth.md)
-- **Scale Depth**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

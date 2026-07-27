@@ -47,7 +47,8 @@ This skill provides battle-tested patterns for on-call rotations, incident comma
 communication during outages, blameless postmortems, runbook automation, and building
 a culture of reliability.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -58,6 +59,7 @@ a culture of reliability.
 | "We don't need tabletop exercises — we've read the runbooks." | Reading a fire escape plan is not the same as walking it in smoke. Untested IR plans have gaping holes — missing escalation contacts, stale runbook credentials, broken comms templates — that only surface when you execute them. IBM data: organizations with tested IR plans save $1.05M per breach. Test quarterly, or pay the difference in real incidents. |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -93,9 +95,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -113,12 +117,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master incident responders know that quality is not found — it is **engineered into the process**. They don't catch bugs; they make bugs uneconomical to produce.
 
@@ -139,6 +143,7 @@ Master incident responders know that quality is not found — it is **engineered
 - **Skip the test for throwaway code.** If the code lives < 1 week, a manual check suffices.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -153,16 +158,8 @@ Master incident responders know that quality is not found — it is **engineered
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-| Scale | Incident Response Posture | You Focus On |
-|-------|--------------------------|--------------|
-| **Solo** | Single service, no on-call rotation, self-paging | Define severity levels (SEV1-SEV4), write 5 critical runbooks, set up PagerDuty free tier. Communicate via personal Slack/email. Postmortems in a shared doc. Manual incident response — no automation budget. |
-| **Small Team** (2-10) | 5-20 services, shared on-call, PagerDuty/OpsGenie | Primary/secondary on-call rotation, follow-the-sun for global teams, incident channel per event, pre-written communication templates. Top 10 failure mode runbooks tested quarterly. Blameless postmortems with tracked action items. Game days twice yearly. |
-| **Medium** (10-50) | 20-100 services, dedicated SRE rotation, incident management platform | FireHydrant/incident.io for incident lifecycle, automated runbook execution, status page auto-update, SLO-based alerting with error budgets. Monthly chaos engineering. Postmortem action item SLA tracking. Incident metrics dashboard (MTTD/MTTA/MTTR trending). |
-| **Enterprise** (50+) | 100+ services, 24/7 SOC + SRE, multi-region | Dedicated incident command team, automated containment playbooks, cross-region failover testing, regulatory breach notification workflow integration (GDPR 72h, PCI DSS). executive briefing templates for SEV1. Continuous chaos engineering. Certified IR retainer. Crisis communication team with legal review. |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing an incident response program from scratch or maturing an existing one
@@ -175,6 +172,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Implementing SRE practices: error budgets, toil reduction, and reliability targets
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Incident Severity Classification
@@ -205,6 +203,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                           │day        │
                                           └───────────┘
 ```
+
 **When to declare SEV1:** Complete outage of core product. Data loss or corruption confirmed. Security breach with active exploitation. PagerDuty alerts all engineering.
 **When SEV3/SEV4:** Cosmetic issue, non-blocking, workaround available. Affects < 5% of users. No data risk. Create ticket, address in next sprint.
 
@@ -233,6 +232,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ → VP → CTO │ │ still stale. │
     └────────────┘ └──────────────┘
 ```
+
 **When to escalate:** SEV1 not contained within 30 minutes. Customer data potentially exposed. Decision needed beyond IC authority (external comms, legal exposure).
 **When to hold:** Progress is being made. Mitigation is active and working. ETA to resolution is credible and within SLA.
 
@@ -256,6 +256,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
         │ within 48 hours  │  └──────────────────────┘
         └──────────────────┘
 ```
+
 **When full postmortem required:** Customer data loss or exposure. Revenue loss > $10K. Regulatory notification triggered. Mean time to resolve > 4 hours.
 **When light postmortem suffices:** SEV3 with quick resolution. Known failure mode with existing runbook. No user impact or < 1% user impact.
 
@@ -286,10 +287,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                             │ sprints    │  │ quarterly    │
                             └────────────┘  └──────────────┘
 ```
+
 **When to automate immediately:** Recurring incident (> 2x/quarter). Resolution requires > 10 minutes of human time. Error rate in manual resolution > 10%.
 **When documentation suffices:** Incident occurred once and root cause was permanently fixed. Resolution is simple (restart service, scale up). Annual recurrence expected.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -352,6 +355,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Use error budgets to drive reliability investments: when the budget is exhausted, freeze feature launches and prioritize reliability work.
 5. Reduce toil: identify manual steps during incidents and automate them — runbook automation, auto-rollback, self-healing.
   Complete when: Runbook library maintained for all known failure modes, game days conducted quarterly, incident metrics (MTTD/MTTA/MTTR) trended, error budgets defined, and toil reduction backlog prioritized.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
 
 ### Cross-skills Integration
 
@@ -360,10 +366,11 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 /site-reliability-engineer && /incident-responder && /security-engineer
 /observability-engineer && /incident-responder && /compliance-officer
 # SRE provides infrastructure context. Security handles threat containment. Compliance manages reporting obligations.
+
 ```
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -379,6 +386,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Security incident: engineer `kill -9` the suspicious process before capturing memory dump — the attacker's persistence mechanism is now unknown and the host must be rebuilt from scratch, extending the incident by 2 days | The first responder saw a cryptominer process and killed it immediately. Standard security response procedure says "isolate first, preserve evidence, then remediate." But the procedure was in the security team's wiki, not the on-call runbook. The on-call engineer is an SRE, not a security analyst — they defaulted to "stop the bleeding" | Add security-specific incident response steps to the GENERAL on-call runbook: (1) isolate the host — network ACL deny all, don't shut down, (2) capture: `ps auxf`, `netstat -antp`, `lsof -p <PID>`, memory dump via `gcore`, disk image via `dd`, (3) THEN kill the process. Run a quarterly security incident drill with the on-call rotation | Every incident is a security incident until proven otherwise. The first responder's instinct is "stop the damage" — but stopping a cryptominer by killing the process destroys the forensic trail. Security response steps must be in the general on-call runbook, not a separate security-only doc that nobody reads at 3 AM. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Prioritize triage by blast radius, not by who's loudest.** Assess impact first: how many users affected, what data is exposed, what revenue is at risk. A SEV1 affecting 10,000 paying customers takes priority over a CISO pinging you about a single suspicious login. Use objective severity criteria (SEV1-SEV4) defined in your incident response plan before the incident starts.
 2. **Preserve forensic evidence before remediation.** For security incidents, never reboot, reimage, or restore from backup until you've captured memory dumps, disk images, active network connections, and process lists. `kill -9` destroys thread dumps. Reverting a compromised host destroys attacker persistence indicators. Isolate first, capture evidence, then remediate.
@@ -392,6 +400,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Monitor your monitoring.** Deploy your monitoring stack in a separate failure domain (different region, different account) from production. Configure a dead-man's switch alert that fires if monitoring itself goes down. When all dashboards go dark during an incident because the monitoring region is the one that's down, you're flying blind.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -406,6 +415,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -422,6 +432,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **What good looks like:** Incident timeline documented with all decisions and actions. Root cause identified and confirmed. Containment completed within SLA (SEV1 < 1 hour). Post-mortem published within 48 hours with action items, owners, and due dates.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Rationale |
 |---|---|---|
@@ -444,12 +455,14 @@ If a command or approach fails, follow this escalation path before giving up:
 | Incident ↔ Communications | Pre-written communication templates for SEV1, SEV2, security incidents, and scheduled maintenance. Status page auto-update from incident management tool. Customer-facing messaging approved and published within 15 minutes of confirmed impact. Executive briefing template for SEV1 with business impact summary. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The postmortem is blameless, published within 48 hours, and every action item is tracked to completion.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -467,6 +480,7 @@ graph LR
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **"Let's just reboot everything"** — rebooting destroys forensic evidence (memory dumps, active connections, attacker persistence mechanisms). For security incidents, isolate and preserve evidence FIRST. For availability incidents, rebooting is the LAST resort after evidence capture.
 - **Incident declared 2 hours after the first alert** because "we thought it was a false positive." Every alert that isn't triaged within 5 minutes is an untriaged incident. If you've been ignoring a critical alert for months, it IS an incident when it finally fires for real — the response time starts at alert, not at declaration.
@@ -475,17 +489,19 @@ graph LR
 - **Post-incident review that becomes a blame session** — "Who deployed the bad config?" "Why wasn't this caught in review?" The room gets defensive, people hide details, and the same incident happens again with different people. Blameless postmortems ask: "What conditions allowed this to happen?" not "Who caused this?"
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 - **PagerDuty: "Incident acknowledged but no one responding"** → The on-call engineer acknowledged (to stop the escalation) but is driving/driving/sleeping and can't respond. Escalation policy should auto-escalate if acknowledged but no activity (comment, status update) within 5 minutes.
 - **"Alert auto-resolved after 10 minutes"** → The condition that triggered the alert self-healed (CPU dropped below threshold, error rate returned to normal). But the underlying cause is still there (memory leak building up for next spike, race condition that hits 1% of requests). Auto-resolve = hiding real problems.
 - **"Can't find the runbook"** → The runbook is in a wiki that requires VPN. The VPN is down (that's the incident). Runbooks must be accessible WITHOUT the infrastructure they're documenting. Print critical runbooks or store them in an always-available external system.
 - **"All dashboards are empty" during an incident** → Your monitoring stack is in the same region that's down. Dashboards, logs, metrics, and traces all went dark simultaneously because they share infrastructure with production. Monitoring must be deployed in a separate failure domain (different region, different account).
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] On-call rotation: current (no gaps), primary and secondary assigned, escalation policy tested within last month
 - [ ] Runbooks: top 10 incident scenarios have runbooks. All runbooks tested within last quarter. Runbooks accessible without production infrastructure.
@@ -496,6 +512,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Game day: incident response drill conducted within last quarter. Findings incorporated into runbooks and escalation policies.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **"Revert to last known good"** as a first instinct — if the incident is a security breach, reverting destroys forensic evidence (access logs, modified files, attacker persistence mechanisms). For security incidents, isolate first, investigate, then remediate. Only revert for availability incidents.
 - **Communication "blast radius"**: posting "PRODUCTION DOWN" in the #general Slack channel summons 500 people into the incident channel. Every new person asks "what's happening?" restarting the diagnostic cycle. Use a designated incident channel, announce only to responders, and post external updates to a status page.
@@ -509,6 +526,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Alert fatigue causing responders to miss or ignore genuine critical incidents.** An on-call SRE receives 200 alerts per night — 198 are non-actionable (transient CPU spikes that self-resolve, backup warning thresholds set too low, disk-at-80% alerts that clear automatically). When a real database corruption alert fires at 3 AM, it is buried in the noise. The responder either misses it entirely or reflexively acknowledges it with the same urgency as the previous 198 false positives. The database corruption spreads unchecked for 4 hours — corrupting replicas, poisoning backups, and turning a 30-minute recovery into a 2-day restoration from off-site archives. **Total cost: $100K-$500K in extended outage impact, lost data, and recovery engineering effort from a critical alert lost in the noise.** Implement alert tiering (P1-P4 with defined response SLAs per tier), enforce a signal-to-noise SLA (no more than 20% of alerts may be non-actionable per on-call shift), and require every alert to link to a runbook with specific remediation steps — if you can't write a runbook for it, it shouldn't be an alert.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run incident response drill: inject a known failure — incident declared within 2 minutes, IMOC assigned, comms channel created
 - [ ] Verify on-call rotation: PagerDuty/Opsgenie schedule is current — next week's on-call engineer confirmed
@@ -518,10 +536,12 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Verify monitoring coverage: every service in production has an alert for "service is down" + "service is degraded"
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -531,5 +551,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

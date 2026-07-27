@@ -75,6 +75,7 @@ Request: "Make this HIPAA compliant..."
 └── Not sure where to start?
     → Run: inventory your PHI. Where is patient data stored, transmitted, and processed?
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -94,7 +95,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and WARN about 'just an email address — it's not PHI' assumption.** Email + health app context = PHI. When combined with any health data or the fact that someone uses a health app, an email address is PHI. | Trigger: generated code treats email as non-PHI (`email NOT in PHI_fields\|exclude email from audit\|email is not PHI`) | WARN: "An email address in a health app context IS PHI under HIPAA. The fact that someone uses a health app, combined with their email, is protected health information. Apply the same protections (audit logging, encryption, minimum necessary access) to email as to any other PHI field." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -153,6 +153,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- STANDARD: 3min -->
 
 ### Is This PHI?
+
 ```
 Does the data element...
 ├── Relate to past, present, or future physical/mental health?
@@ -214,6 +215,7 @@ grep -rn "requests.post\|fetch\|axios" src/ --include="*.ts"
 
 # 4. Where does it appear in logs?
 grep -rn "console.log\|print\|logger.info" src/ app/ --include="*.ts" --include="*.py"
+
 ```
 
 Output: A PHI inventory spreadsheet with columns: Data Element, Storage Location, Transmission Path, Access Pattern, Retention Period, BAA Required.
@@ -301,7 +303,9 @@ async def log_modification(db: AsyncSession, *, user_id, ip_address, record_id, 
     )
     db.add(audit)
     await db.commit()
+
 ```
+
   Complete when: Audit tables created for every PHI-containing table with immutable append-only design; audit logging middleware implemented for all CRUD operations.
 
 ### Phase 3: Encryption at Rest and in Transit (~3 hours)
@@ -356,12 +360,12 @@ class EncryptionService:
 # Key rotation: Use AWS KMS / GCP Cloud KMS with automatic rotation
 # aws kms create-key --description "PHI field encryption" --rotation-period 365
 ```
+
   Complete when: Encryption at rest (AES-256 with KMS CMK) and in transit (TLS 1.2+ with verify-full) implemented and verified for all PHI data stores, connections, and backups.
 
 ### Phase 4: BAA Management (~2 hours)
 
 ```markdown
-
 
 ## Error Decoder — War Stories from the Trenches
 
@@ -402,6 +406,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Implement purpose-based access control, not just role-based access.** A provider accessing records for treatment has different access justification than the same provider accessing records for research. FHIR Consent resources with `.provision.purpose` = `TREAT` should not authorize research access. Map every PHI access to a documented purpose-of-use (treatment, payment, operations, research, public health) and enforce it at the authorization layer.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -450,8 +455,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - **BAA expiry approaching** → A vendor BAA is expiring within 30 days. Queue renewal or data migration off that vendor. 🟠
 - **Patient deletion incomplete after 30 days** → Deletion was requested but verification task found residual data in caches/backups. Escalate for manual cleanup. 🔴
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -463,6 +468,7 @@ Every PHI access is logged — who, what, when, from where, and why. The audit t
 ## Deliberate Practice
 
 ```mermaid
+
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
 
@@ -519,7 +525,7 @@ graph LR
 - [ ] Purpose-based access control documented for each role — access justification (TREAT/PAYMENT/OPERATIONS/RESEARCH) required per access
 - [ ] De-identification uses Expert Determination with formal statistical certification for all published/shared datasets — Safe Harbor only for internal use with no external sharing
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -530,8 +536,13 @@ graph LR
 | "Event logging is optional — it's an 'addressable' specification." | "Addressable" under HIPAA does NOT mean optional. It means you must implement the specification OR document why it's not reasonable and implement an equivalent alternative. No major OCR settlement has accepted "we decided not to" as a valid alternative to audit logging. Implement or document with legal review. |
 
   Complete when: BAA registry current for all vendors handling PHI; sub-processor audit completed; quarterly BAA review cadence established.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -552,7 +563,7 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.### Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 #### Solo / Seed-Stage Startup
 - **Scope:** Single application. Cloud-hosted (AWS/Azure/GCP). PHI in one database. 1-2 vendors with BAAs. No dedicated security team.
@@ -605,4 +616,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

@@ -41,7 +41,8 @@ chain:
 # Data Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -60,6 +61,7 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
 (Kafka, Flink, exactly-once semantics).
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -75,12 +77,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R7** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of data engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -101,6 +103,7 @@ Masters of data engineer don't just build — they build **the right thing, at t
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -141,6 +144,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -156,6 +160,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing end-to-end data pipelines: ingestion → transformation → storage → serving layers
@@ -169,6 +174,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building real-time analytics with Kafka Streams, Flink, or Spark Structured Streaming
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -194,6 +200,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                  │+ Kafka │ │Flink    │
                  └────────┘ └─────────┘
 ```
+
 **When to choose Batch:** Data freshness SLA ≥ 1 hour, large historical reprocessing needed, SQL-first transformations via dbt.
 **When to choose CDC:** Database replication, audit trail capture, cache invalidation — need <5 min freshness from transactional DBs.
 **When to choose Streaming:** Real-time dashboards, fraud detection, alerting — need sub-second to sub-minute latency.
@@ -221,6 +228,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                      └─────────┘ │BigQuery │
                                                   └─────────┘
 ```
+
 **When to choose Warehouse:** SQL-only analytics, BI-dominant, no unstructured data — Snowflake/BigQuery/Redshift.
 **When to choose Lakehouse:** Mix of SQL + Spark + ML, unstructured data (logs, images), open table formats — Databricks.
 **When to choose Data Mesh:** 5+ teams, domain autonomy required, each team needs to own data quality and SLAs.
@@ -248,6 +256,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                     │Fact+Dim │  │  Vault   │
                                     └─────────┘  └──────────┘
 ```
+
 **When to choose Star Schema:** BI and self-service analytics, predictable query patterns, 3-10 dimensions, Kimball methodology.
 **When to choose Data Vault:** Enterprise data warehouse integrating 10+ source systems, full audit trail required, frequent schema evolution.
 **When to choose OBT:** Performance-critical, simple dimensional model (≤ 5 dims), no SCD Type 2 history, dashboard-specific.
@@ -276,6 +285,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │+ Checkpt │ │silver)   │
                   └──────────┘ └──────────┘
 ```
+
 **When to use Idempotent + Checkpointing:** Financial data, regulatory reports, any pipeline where duplicate rows cause incorrect metrics. Use MERGE/UPSERT with unique keys.
 **When to use At-least-once:** High-volume event streams where occasional duplicates are tolerable and downstream dedup handles it.
 **When to add DLQ:** Any streaming pipeline — bad messages must go to dead letter queue, never silently dropped.
@@ -302,12 +312,14 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                     │fresh  │ │(reusable)│
                                     └───────┘ └──────────┘
 ```
+
 **When to use Incremental:** Append-only fact tables >100M rows, daily partitions, 3-day lookback for late data.
 **When to use View:** Staging layer, small datasets, always-fresh requirement — but recomputed on every query.
 **When to use Table:** Dashboard source tables, complex joins queried 100×/day — fast reads at storage cost.
 **When to use Ephemeral:** Reusable CTEs needed by multiple downstream models, never queried directly.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -368,9 +380,15 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Pipeline idempotency by default.** Every pipeline stage should produce the same result when re-run with the same input. Use `INSERT OVERWRITE` partition-level writes, not `INSERT INTO`. Idempotent pipelines enable safe retries and backfills without data duplication.
 
@@ -393,6 +411,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 10. **Cost observability as a pipeline metric.** Tag every pipeline, table, and query with a cost center. Monitor compute cost per pipeline run, storage cost per table, and query cost per user. Set budgets and alerts — unoptimized queries scanning full tables can 10x costs silently.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -408,6 +427,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -424,6 +444,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `business-intelligence-engineer` | Clean data warehouse tables, query performance optimization, data catalog with lineage | BI reports can't run — business decisions on hold |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — when to intervene before someone asks -->
 
@@ -438,17 +459,19 @@ If a command or approach fails, follow this escalation path before giving up:
 | Multiple teams ask for access to the same production database tables with different latency requirements | Propose medallion architecture: Bronze (raw CDC, <5min) → Silver (cleaned, deduplicated, <1hr) → Gold (business aggregates, <4hr); sync with `backend-developer` on CDC configuration and `analytics-engineer` on transformation layer | Direct production DB access creates competing SLAs — analytics queries slow down operational DB; medallion architecture provides tiered freshness: operational consumers get Bronze, analytics get Silver/Gold; isolation protects production |
 | Data warehouse costs are 3× the infrastructure budget and growing linearly with data volume | Propose query optimization: partition pruning, clustering on high-cardinality columns, materialized views for common aggregations; implement data retention policies (Bronze: 90 days, Silver: 1 year, Gold: 7 years); sync with `analytics-engineer` on query patterns | Unoptimized queries scan full tables on every run; partition pruning eliminates 99% of data before query execution; retention policies prevent unbounded storage growth — not all data needs 7-year retention |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Raw data lands in the lake within minutes of generation, idempotent pipelines produce identical results on every re-run, and downstream consumers never wonder whether the data is stale.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -466,6 +489,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Apache Spark `collect()`** brings the entire distributed dataset to the driver node's memory. A 10GB DataFrame with `collect()` will OOM the driver (which typically has 2-4GB). Use `show()`, `take()`, or aggregate before collecting. **Total cost: $5,000-$25,000 in failed production jobs, cluster downtime, and engineering hours debugging OOM crashes that require full job restarts.**
 - **DataFrames are immutable** — every `.filter()`, `.select()`, `.withColumn()` creates a new DataFrame. But Spark's lazy evaluation means these operations don't execute until an action (`count()`, `write`, `collect()`). A chain of 50 transformations hasn't cost anything yet; one action triggers all 50. **Total cost: $3,000-$15,000 in engineering time wasted debugging "why is this so slow?" when the real answer is a hidden 50-stage DAG that no one traced before calling `.count()`.**
@@ -475,6 +499,7 @@ graph LR
 - **Kafka consumer group rebalancing** during deployment — if your consumer takes 3 minutes to process a batch but the `max.poll.interval.ms` is 300 seconds, and deployment restarts take 2 minutes, the consumer group rebalance stalls all partitions for the full interval. Tune `max.poll.interval.ms` > (max batch time + max deployment time × 2). **Total cost: $5,000-$20,000 in message backlog buildup, delayed downstream processing, and SLA breaches during rebalance storms that stall all partitions simultaneously.**
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] **Pipeline idempotency verified:** Re-running the same pipeline with the same inputs produces identical outputs with no data duplication
@@ -492,55 +517,8 @@ graph LR
 - [ ] **Data retention policies enforced:** Bronze (90 days), Silver (1 year), Gold (7 years) with automated archival/purge
 - [ ] **CDC pipeline lag monitored:** Replication lag < configured threshold; alert fires if lag exceeds SLA window
 
-## Scale Depth
-
-### Solo (1 person, 0-100 GB/day)
-- **Stack:** dbt + Airbyte/Fivetran + Snowflake/BigQuery. Managed services over self-hosted.
-- **Pipeline design:** Monorepo dbt project with staging → marts. Single orchestration DAG.
-- **Testing:** dbt built-in tests (unique, not_null). Freshness checks on sources.
-- **Monitoring:** dbt Cloud job status + Snowflake query history. Slack alerts on failure.
-- **Key constraint:** You ARE the on-call. Design for failure tolerance and self-healing retries.
-
-### Small Team (2-10 people, 100 GB-10 TB/day)
-- **Stack:** Airflow/Dagster + dbt + Great Expectations + DataHub. CI/CD for dbt with Slim CI.
-- **Pipeline design:** Medallion architecture. Separate staging, intermediate, and marts repositories. Data contracts between layers.
-- **Testing:** Custom generic dbt tests. Row count validation. Distribution checks. Source freshness SLAs.
-- **Monitoring:** Monte Carlo/Elementary + Prometheus/Grafana. Data quality dashboards. On-call rotation.
-- **Key constraint:** Data discoverability becomes critical — invest in DataHub/Amundsen early.
-
-### Medium Team (10-50 people, 10 TB-1 PB/day)
-- **Stack:** Spark/Flink for streaming + dbt for batch + Kafka for CDC. Feature store for ML pipelines.
-- **Pipeline design:** Data mesh principles — domain-owned data products with explicit contracts. Self-serve infrastructure platform.
-- **Testing:** Statistical data quality (distribution drift). Cross-source reconciliation. Schema evolution testing.
-- **Monitoring:** Real-time pipeline observability (Datadog/Dynatrace). Automated incident response runbooks.
-- **Key constraint:** Cost governance — implement chargeback/showback. One team's full table scan is another team's budget overrun.
-
-### Enterprise (50+ people, 1 PB+/day)
-- **Stack:** Multi-region lakehouse (Delta Lake/Iceberg) + Trino/Presto for federated query + OpenLineage.
-- **Pipeline design:** Data product mesh with developer portal. Self-service infrastructure with guardrails. Automated data contract enforcement.
-- **Testing:** ML-based anomaly detection on data quality. Automated root cause analysis.
-- **Monitoring:** Central data observability platform. SLA/SLO tracking per data product. Executive data reliability dashboards.
-- **Key constraint:** Regulatory compliance (GDPR, CCPA, SOC2) — automated data classification, retention enforcement, and right-to-deletion pipelines.
-
-### Transition Triggers
-- Solo → Small: On-call burden exceeds 20 hours/week. Pipelines fail more than twice daily.
-- Small → Medium: Data consumers exceed 50. Multiple teams need the same raw data. Ad-hoc data requests exceed capacity.
-- Medium → Enterprise: Cross-domain data joins become common. Regulatory requirements multiply. Data incidents affect revenue.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Spark job OOM at `collect()` | Entire distributed dataset moved to driver memory (typically 2-4 GB). A 10 GB DataFrame exceeds driver heap. | Replace `collect()` with `show()`, `take(n)`, or aggregate before collecting. Increase `spark.driver.memory` only as last resort. | Operations that bring data to the driver are rare and expensive — always check whether aggregation can happen on executors first. |
-| Airflow DAG triggers 365 runs on first deploy | `catchup=True` (default) backfills all missed runs from `start_date` to now. | Set `catchup=False` on DAG. If backfill is intentional, set `start_date` to deployment date and use `airflow dags backfill` explicitly. | Framework defaults optimize for correctness, not safety — explicitly opt in to side effects. |
-| dbt `--full-refresh` wipes historical data in incremental models | `--full-refresh` drops and recreates tables. Incremental models lose all history. Downstream models cascade. | Full-refresh bottom-up (staging → intermediate → marts). Never full-refresh a model with downstream dependents without rebuilding them too. | Incremental models hide dependency complexity — a full refresh is a nuclear option that must respect the DAG. |
-| Kafka consumer group rebalance stalls all partitions | Consumer processing time exceeds `max.poll.interval.ms`. During deploy restarts, rebalance timeout freezes all partitions. | Set `max.poll.interval.ms` > (max batch time + max deploy time × 2). Use static group membership to avoid rebalances on restart. | Consumer configuration is a SLA contract — tune timeouts for worst-case scenarios, not averages. |
-| dbt model silently stale — no error, just old data | `dbt run --select stg_orders` doesn't auto-select downstream dependents. Downstream models serve old data. | Use `dbt run --select state:modified+` to run modified models AND their dependents. Or `dbt run --select +model_name` for full upstream chain. | dbt's `--select` is surgical, not cascading — explicit `+` suffix is required for downstream propagation. |
-| Partitioned table scan still reads all partitions | WHERE clause uses a function on the partitioned column (e.g., `WHERE YEAR(dt) = 2024`). The optimizer can't prune. | Use direct partition column: `WHERE dt >= '2024-01-01' AND dt < '2025-01-01'`. Avoid functions on partition columns in WHERE. | Partition pruning depends on the query planner seeing the raw column — any transformation breaks the optimization. |
-| `INSERT INTO` duplicates data on retry | Non-idempotent writes. Pipeline fails mid-write, retry appends same data again. | Use `INSERT OVERWRITE` with partition-level granularity. Design every write operation to be idempotent. | Idempotency is not automatic — it must be designed into every write operation from the start. |
-
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -549,7 +527,6 @@ graph LR
 | Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
 | Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -560,6 +537,7 @@ graph LR
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run pipeline locally on sample data: `dbt run --select ${model}` or `python pipeline.py --sample` — completes without error
 - [ ] Run data quality tests: `dbt test --select ${model}` — uniqueness, not-null, and referential integrity tests pass
@@ -569,10 +547,12 @@ graph LR
 - [ ] Verify row counts: source row count ± 1% = target row count (accounting for filters/joins)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -583,5 +563,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

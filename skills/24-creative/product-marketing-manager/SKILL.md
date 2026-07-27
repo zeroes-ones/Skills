@@ -39,6 +39,7 @@ chain:
 Bridge product and market — translate clinical capabilities into compelling value propositions, position health products against competitors with evidence, equip sales with clinical proof, and orchestrate launches that resonate with patients, providers, and payers alike.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -75,9 +76,11 @@ What are you trying to do?
 └── Not sure? → Describe the product, stage (pre-launch/growth/scale), and what's most urgent — I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -95,12 +98,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master product marketing managers operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
 
@@ -121,6 +124,7 @@ Master product marketing managers operate at the intersection of trust, safety, 
 - **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -136,6 +140,7 @@ Master product marketing managers operate at the intersection of trust, safety, 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Planning a product launch for a health tech product (T1/T2/T3 tiering, checklist, retro)
@@ -149,8 +154,106 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Running win/loss analysis and monitoring competitive landscape
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Messaging Architecture Design
+
+```
+        ┌── INPUT: Building product messaging for health tech?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Core narrative    Audience-specific
+(positioning      messaging
+statement)        (by persona)
+   │                 │
+   ▼                 ▼
+Define:           Map to:
+├─ For [target    ├─ Provider:
+│  audience],     │  clinical
+│  [product]      │  workflow,
+│  is the         │  outcomes data
+│  [category]     ├─ Patient:
+│  that           │  quality of
+│  [primary       │  life, access
+│  benefit]       │  to care
+├─ Because        ├─ Payer:
+│  [proof point   │  cost savings,
+│  1, 2, 3]       │  population
+└─ Unlike         │  health
+   [alternative], ├─ Pharma
+   we [unique     │  partner:
+   differentiator]│  RWE, patient
+                  │  recruitment
+                  └─ KOL:
+                     clinical
+                     evidence,
+                     adoption
+                     data
+```
+
+### Decision Tree 2: Persona-Based Messaging
+
+```
+        ┌── INPUT: Crafting messages for a specific health persona?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+HCP audience      Patient
+(provider,        audience
+specialist,           │
+care team)            ▼
+   │              Segment by:
+   ▼              ├─ Newly
+Focus on:         │  diagnosed
+├─ Clinical       │  → hope +
+│  outcomes       │  guidance
+├─ EHR            ├─ Treatment
+│  integration    │  experienced
+├─ Workflow       │  → outcomes +
+│  efficiency     │  community
+├─ Guideline      ├─ Caregiver
+│  adherence      │  → support +
+└─ Reimbursement  │  logistics
+                  └─ Advocacy
+                     → data +
+                     impact
+```
+
+### Decision Tree 3: Sales Enablement Collateral
+
+```
+        ┌── INPUT: What collateral does the sales team need?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Early-stage       Late-stage
+(discovery,       (evaluation,
+awareness)        decision)
+   │                 │
+   ▼                 ▼
+Provide:          Provide:
+├─ One-pager      ├─ Battle card
+│  (problem +     │  (vs specific
+│  solution)      │  competitors)
+├─ Clinical       ├─ ROI
+│  evidence       │  calculator
+│  summary        ├─ Case studies
+├─ Patient        │  (named
+│  journey map    │  accounts)
+└─ Demo script    ├─ Security /
+                  │  compliance
+                  │  FAQ
+                  └─ Clinical
+                     outcomes
+                     by peer
+                     institution
+```
 
 ### Launch Tier Decision Tree
 
@@ -185,6 +288,7 @@ Competitor announced [feature/claim]?
 **What good looks like:** A sales rep opens the battle card in a prospect meeting and finds the exact objection handler they need in under 10 seconds. A provider reads your value proposition and nods — it speaks directly to their workflow pain. An analyst at Gartner or KLAS cites your positioning accurately in their report. A competitor's launch triggers your response playbook, and sales has updated materials within 48 hours.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -205,7 +309,6 @@ Complete when:
 - Cross-functional coordination confirmed: product freeze date, engineering deployment, clinical evidence package, regulatory sign-off
 - Post-launch retrospective scheduled within 2 weeks with metrics: pipeline generated, win rate, NPS, support volume
 
-
 ### Phase 2 (~25 min): Competitive Positioning
 
 Build defensible differentiation based on evidence, not opinion.
@@ -217,15 +320,21 @@ Build defensible differentiation based on evidence, not opinion.
 5. **Positioning statement formula**: For [target healthcare audience] wh
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 - Competitive matrix complete with axes mapped and KLAS/evidence-backed differentiation documented
 - Battle cards published for all active competitors with honest strengths, specific weaknesses, and 3+ objection handlers each
 - Win/loss analysis framework active: standardized interview template deployed, quarterly aggregation cadence set
 
-
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -240,6 +349,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -269,13 +379,12 @@ Product marketing is the connective tissue between product, sales, and market. K
 | New clinical evidence published | `content-strategist`, `sales-engineer`, `demand-generation` | Messaging refresh, content creation |
 | Regulatory clearance received | `ceo-strategist`, `marketing-manager`, `legal-advisor` | Claims expansion, launch acceleration |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `ui-ux-designer` | Visual design system, interaction patterns, brand guidelines | Before creating creative assets or marketing materials |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -288,17 +397,20 @@ Product marketing is the connective tissue between product, sales, and market. K
 | Pharma partner or strategic collaborator signals disengagement (delayed meetings, reduced communication) | Diagnose: is value prop too generic? No real-world evidence to share? Compliance concerns? Build specific engagement recovery plan with mutual KPIs | Pharma partnerships require specificity — generic value propositions signal you don't understand their business model |
 | Messaging audit reveals >3 different value propositions used across channels | Build and socialize messaging architecture with mandatory review gate; hold quarterly messaging alignment session; any employee should articulate the core narrative in 30 seconds | Without a messaging hierarchy, every channel writes its own story — internal inconsistency becomes market confusion |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When product marketing is firing on all cylinders, every launch has a tiered plan with cross-functional sign-off and a retro within 30 days, battle cards are updated within 48 hours of a competitive m
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -316,12 +428,15 @@ graph LR
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## When NOT to Product Market
+<!-- STANDARD: 3min -->
 
 ```
+
 Pre-PMF product with < 10 customers? → Founder does PMM. Learn from early customers directly.
 Single buyer persona (e.g., only D2C patients)? → Demand generation covers enough. PMM overhead not justified.
 Launching a minor feature update? → Product manager writes the blog post. PMM focuses on T2+ launches.
 No clinical differentiation? → Focus on product differentiation first. PMM amplifies, doesn't create.
+
 ```
 
 ### Cross-skills Integration
@@ -345,6 +460,8 @@ Common chains:
 - **Launch orchestration**: product-strategist + marketing-manager → product-marketing-manager → sales-engineer + demand-generation + content-strategist
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -354,7 +471,8 @@ Common chains:
 | **Case study that reads like a press release** — "Company X achieved 10x ROI with our platform" without baseline, timeline, or methodology. | $250K-$1M in lost enterprise pipeline when buyer trust is eroded by unsubstantiated claims. | Every claim needs a named customer (or permissioned blind), a quantified baseline, and a measured timeframe. Credibility-destroying fluff costs more than no case study. |
 | **Product launch with messaging frozen 6 months prior** — the deck finalized in January launches in July, ignoring a competitor's March launch and May market shift. | $1M-$5M in wasted launch spend and missed category-creation windows from stale messaging. | Revisit messaging 2 weeks before launch with a fresh competitive and market scan. Messaging must be alive, not frozen. |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -364,7 +482,31 @@ Common chains:
 | "Competitive analysis is a one-time research project" | Competitors ship weekly; a battlecard from Q1 is dangerously wrong by Q3 — stale competitive intel loses deals sales didn't know they were losing |
 | "Product launch is a single event with a press release" | Launches are campaigns, not moments; one-and-done launches capture 15% of the attention a sustained 6-week rollout generates |
 
+## Best Practices
+
+1. **Do lead with clinical outcomes evidence, not feature lists** — Healthcare buyers evaluate products with procurement checklists that reward measurable outcomes. Every value proposition must cite a specific study: journal, year, sample size, and outcome metric. An uncited "improves patient outcomes" claim triggers procurement skepticism and can delay an enterprise deal by 3-6 months while buyers request evidence.
+2. **Prefer durable differentiators over price positioning** — A competitor can match your price in one pricing update. Build positioning around FDA clearance status, EHR integration depth, patented clinical workflow, or peer-reviewed outcomes data — advantages that take years and millions in R&D to replicate. Price-first positioning loses every time to a well-funded incumbent.
+3. **Always define explicit go/no-go criteria for every launch tier** — Shipping without delay conditions means you'll launch with known gaps under schedule pressure. At T-2 weeks: verify messaging tested (≥80% message recall), sales certified (≥90% certification pass rate), and demand-gen campaigns live. Any pillar below threshold triggers a documented delay decision — the cost of a premature launch is buyer trust that takes 2+ years to rebuild.
+4. **Never message roadmap features as if they exist today** — "Coming in Q3" and "available now" are legally and contractually distinct in healthcare procurement. A health system that buys based on a roadmap promise has grounds for contract dispute if the feature slips. Mark every non-GA capability with `[ROADMAP — Target: Q3 2026. Not yet available.]` in all external-facing materials.
+5. **Measure message recall and differentiation with 5-second testing** — If a prospect cannot explain what your product does and who it's for after a 5-second exposure to your positioning, the messaging fails. Battle cards should produce ≥2 durable differentiators that no competitor can truthfully claim. Run win/loss analysis quarterly to validate that differentiation holds in real deals.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Clinical claims backed by cited evidence — every outcome claim has study name, journal, year, sample size; regulatory team sign-off on all claims | `grep -rn "reduce\|improve\|better.outcome\|superior" *.md` within 5 lines of a citation; regulatory approval documented per claim |
+| ☐ | Competitive battle cards updated within last 90 days — analyst quotes (Gartner/KLAS), kill points, objection handling; win/loss data from last 2 quarters | Battle card file modification date < 90 days; contains ≥3 analyst citations; objection handling section ≥5 entries with rebuttals |
+| ☐ | Launch go/no-go criteria defined and T-2 week checkpoint executed — any pillar below threshold triggered documented delay decision | Launch plan contains explicit go/no-go table with measurable thresholds; checkpoint results logged with pass/fail per pillar |
+| ☐ | Messaging consistency audit — website, sales deck, product UI, and analyst briefing use identical value proposition and terminology | Side-by-side comparison of 1-sentence positioning across all channels; zero contradictory claims between sales deck and product UI |
+| ☐ | ROI claims transparent — every ROI figure has documented methodology with formula, assumptions, data source, and time horizon | ROI section includes methodology disclosure; assumptions are falsifiable; data source is publicly verifiable or documented with customer permission |
+| ☐ | Feature availability accurately labeled — GA features vs roadmap items clearly distinguished; RFP responses free of roadmap features without "not yet available" annotation | Feature-availability matrix cross-referenced with engineering release notes; zero roadmap-only features in RFP language presented as current |
+| ☐ | Sales enablement materials current — pitch deck, one-pagers, objection handlers reflect latest product version and pricing within 30 days of any change | Material inventory with last-updated dates; every item modified within 30 days of the most recent product/pricing change it references |
+| ☐ | Rollback plan: messaging rollback tested — ability to revert to previous positioning within 24 hours if market response is negative or a claim is challenged | Previous messaging version archived and deployable; rollback procedure documented; rollback tested in mock drill within last quarter |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Positioning: 1-sentence positioning statement — competitor can't truthfully say the same thing
 - [ ] Landing page: 5-second test — someone unfamiliar with your brand can explain what you do and who it's for
@@ -372,6 +514,7 @@ Common chains:
 - [ ] Messaging consistency: website, sales deck, and product UI use same value proposition and terminology
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -389,6 +532,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Product launch messaging gets panned on Hacker News because it claims to "revolutionize" an industry that customers view as "reliable and trusted" | The messaging framework used disruption language ("revolutionize," "disrupt," "kill") for a product targeting risk-averse enterprise buyers in compliance-heavy industries. The audience reads "revolutionize" as "unproven and dangerous." | Map messaging tone to buyer psychology. Risk-averse buyers want evolution language: "builds on," "extends," "modernizes without disrupting." Disruption language only works for early adopters buying point solutions. Test messaging with 5 ICP prospects before going public. | "Revolutionize" is a red flag to enterprise buyers. It means "you'll get fired if this fails." Use language that reduces perceived career risk. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -400,5 +544,4 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

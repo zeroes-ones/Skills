@@ -66,7 +66,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-### Anti-Hallucination Ground Rules
+## Anti-Hallucination
 - **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
 - **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
 - **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
@@ -158,6 +158,7 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -175,20 +176,6 @@ Do not read the entire skill. Follow the route above and read only the sections 
 **Usage:** Invoke this skill with your target level, e.g., "as an L3 ai safety health reviewer, design..."
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
-
-### Scale Depth
-
-#### Solo (1 engineer, 1 health AI feature)
-Manual review of AI outputs against clinical guidelines. Checklist-based safety audit (does output mention consult your doctor? does it avoid diagnostic language?). No automated pipeline. Focus: prevent the most dangerous failure modes (hallucinated drug interactions, diagnostic claims without CDS clearance). Budget: $0/month (manual process).
-
-#### Small (2-10 engineers, 1-3 health AI features)
-Automated safety classifiers for crisis detection and PHI leakage. Weekly clinical review of flagged outputs. Basic demographic stratification reporting. Focus: catch systematic failures before they scale, establish safety baselines. Budget: $500-$2,000/month on review tooling and clinical SME time.
-
-#### Medium (10-50 engineers, health AI platform)
-Full safety pipeline: NLI-based fact verification, crisis detection with semantic classifiers, stratified performance dashboards, KB freshness monitoring, monthly FDA regulatory review. Focus: regulatory readiness, health equity monitoring, systematic hallucination prevention. Budget: $5,000-$15,000/month on infrastructure + clinical review team.
-
-#### Enterprise (50+ engineers, regulated health AI products)
-FDA SaMD submission-ready safety evidence packages. Continuous monitoring with automated adverse event detection. Multi-stakeholder safety review board (clinical, regulatory, engineering, legal). Cross-product safety standards enforced by platform team. Focus: regulatory compliance at scale, post-market surveillance, liability risk management. Budget: $20,000-$100,000/month.
 
 ## When to Use
 
@@ -212,6 +199,7 @@ FDA SaMD submission-ready safety evidence packages. Continuous monitoring with a
 | "FDA auditor asks for safety evidence and the team has no structured documentation" | Safety decisions were made ad-hoc by reviewers without standardized documentation. There's no audit trail linking specific outputs to specific review decisions with regulatory justification. | Implement a safety decision ledger: every output that passes review gets a record with reviewer ID, timestamp, harm classification, regulatory basis (e.g., "21 CFR 820.30 — design control, no diagnostic claim detected"), and evidence. | If it's not documented, it didn't happen — at least as far as the FDA is concerned. Safety documentation is a regulatory requirement, not a nice-to-have. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -281,6 +269,13 @@ If a command or approach fails, follow this escalation path before giving up:
 > 📎 **Full content (57 lines):** [references/core-workflow.md](references/core-workflow.md)
 
   Complete when: Medical AI output evaluated against safety criteria; hallucination prevention verified; regulatory pathway identified (informational/CDS/SaMD); clinical review documented for sample outputs.
+  Complete when: Model evaluation results documented — accuracy, latency, and cost metrics vs. baseline.
+  Complete when: Prompt version controlled with changelog and rollback capability.
+  Complete when: Guardrails tested against adversarial inputs — no jailbreak in test suite.
+  Complete when: Token usage and cost tracking dashboard operational with budget alerts.
+  Complete when: A/B test framework configured with statistical significance calculator.
+  Complete when: Model card published with intended use, limitations, and fairness evaluation.
+  Complete when: Fallback behavior defined when model is unavailable — graceful degradation tested.
 
 ## Cross-Skill Integration
 
@@ -305,6 +300,70 @@ Common chains:
 **(QUICK)**
 
 <!-- QUICK: 60s -- flowchart-style logic for fork-in-the-road decisions -->
+
+### Decision Tree 2: How Do I Classify an AI Hallucination in Health Output?
+
+        ┌── INPUT: AI output contains factually incorrect health claim
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Fabricated         Distorted         Omission
+clinical trial     statistic         (missing
+or drug name       (wrong %)         contraindication)
+   │                 │                  │
+   ▼                 ▼                  ▼
+P0 CRITICAL        P1 HIGH if         P2 MEDIUM if
+Block + report     could mislead      context would
+to FDA if SaMD     treatment choice   change decision
+   │                 │                  │
+   ▼                 ▼                  ▼
+Root cause:        Root cause:        Root cause:
+RAG retrieval      Training data      Prompt didn't
+failure or         contamination      request complete
+prompt injection   or outdated        safety context
+
+### Decision Tree 3: How Do I Determine FDA Submission Pathway?
+
+        ┌── INPUT: Health AI feature ready for regulatory assessment
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Informational     Clinical           Diagnostic
+only (education,  decision           or triage
+FAQ, summary)     support (CDS)      (patient-specific)
+   │                 │                  │
+   ▼                 ▼                  ▼
+NOT a device      Likely Class II    Likely Class II
+per FDA 2024      SaMD; 510(k)       or III SaMD;
+guidance. Add     or De Novo         De Novo or PMA
+disclaimers.      pathway. CALM      pathway. Pre-
+                  framework if       submission
+                  adaptive ML.       meeting required.
+
+### Decision Tree 4: How Do I Scope a Health AI Bias Audit?
+
+        ┌── INPUT: Health AI feature needs fairness evaluation
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Single-language   Multi-language     Pediatric or
+English-only      or translated      vulnerable
+user base         content            populations
+   │                 │                  │
+   ▼                 ▼                  ▼
+Audit: race,      Add: language      Add: age-stratified
+gender, age       quality parity;    outcomes; guardian
+bias in clinical  translation        consent flows;
+accuracy          fidelity; reading  developmental
+                  level match        appropriateness
+   │                 │                  │
+   ▼                 ▼                  ▼
+Standard panel    Extended panel     Full IRB-reviewed
+of 3 clinicians   with linguist +    audit with
+                  cultural advisor   pediatrician panel
 
 ### When to Escalate a Model Output Concern
 <!-- Decision tree for determining escalation path based on output severity and context -->
@@ -354,6 +413,7 @@ START: AI model generates health-related output
 | **Informational (P4)** | Output is safe and accurate but missing optimal formatting or disclaimers | Automated correction via template, track in periodic content audit | Missing disclaimer on educational content; formatting deviates from style guide |
 
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -384,6 +444,7 @@ graph LR
 **Context:** Health AI systems use content safety filters to block or flag potentially harmful outputs. Setting thresholds too high lets dangerous content through; setting them too low creates excessive false positives that erode user trust and clinical utility. This decision tree calibrates filter sensitivity based on use case, audience, and regulatory context.
 
 ```
+
 START: Calibrating content safety filter for health AI output
   │
   ├─ Is this system classified as a medical device (FDA Class II/III, EU MDR Class IIa+)?
@@ -432,6 +493,7 @@ START: Calibrating content safety filter for health AI output
        │         Allow general health information through with auto-attached disclaimer. → END
        └─ NO → Re-evaluate use case classification. Default to MODERATE sensitivity with
                 quarterly threshold review and adverse event monitoring.
+
 ```
 
 **Threshold Monitoring Requirements:**
@@ -449,6 +511,7 @@ START: Calibrating content safety filter for health AI output
 **Context:** When a health AI model generates hallucinated content — fabricated studies, invented drug names, incorrect statistics, or misattributed sources — the response decision (block entirely vs. flag for review) depends on hallucination type, clinical risk, and downstream consequences. Not all hallucinations are equal; a fabricated citation is more dangerous than a minor date error.
 
 ```
+
 START: Health AI output contains hallucinated content
   │
   ├─ HALLUCINATION TYPE CLASSIFICATION:
@@ -502,6 +565,7 @@ START: Health AI output contains hallucinated content
                 for trend analysis and monthly pattern review.
 
 **Hallucination Registry Minimum Fields:** timestamp, model version, prompt (de-identified), full output, hallucination type (A-F), severity (P0-P4), disposition (block/flag/surface), reviewer, root cause category, remediation action, time-to-resolution.
+
 ```
 
 **Cross-Reference:** All Type A and Type B hallucinations must be reported to the clinical safety officer within 1 hour. If the system is an FDA-cleared device, evaluate against the device's pre-specified performance criteria — a pattern of fabrications may constitute a reportable adverse event under 21 CFR Part 803.
@@ -511,6 +575,7 @@ START: Health AI output contains hallucinated content
 **Context:** Health AI models often perform better when trained or fine-tuned on real patient data, but every access point to PHI creates exposure risk. This decision tree evaluates when the utility gain justifies the data exposure risk and what mitigations are non-negotiable regardless of perceived benefit.
 
 ```
+
 START: Considering using patient data to improve model performance
   │
   ├─ Is the patient data de-identified per HIPAA Safe Harbor (18 identifiers removed)
@@ -600,6 +665,7 @@ START: Considering using patient data to improve model performance
 4. Data minimization: use the smallest dataset necessary for the stated purpose
 5. Patient data inventory: know exactly which patients' data is in which model run
 6. Breach notification protocol: HIPAA 60-day clock starts at discovery, not confirmation
+
 ```
 
 ## Best Practices
@@ -651,17 +717,8 @@ Before any health AI deployment or major update, verify ALL of:
 - **Equity in health AI** — a dermatology model trained on images of light-skinned patients has 95% accuracy for light skin and 70% for dark skin. The model is "92% accurate overall" but systematically misdiagnoses Black patients. Disaggregate performance metrics by demographic: accuracy, sensitivity, specificity for EACH group separately. **Total cost: $5M-$50M in civil rights litigation, FDA consent decree costs, and market withdrawal for biased medical AI systems.**
 - **"Symptom checker says I'm fine"** — the AI says "your symptoms are consistent with a common cold, monitor at home." The patient has meningitis (same early symptoms). They don't seek care until it's severe. The AI didn't include "go to the ER if X, Y, Z develop" because the safety net was in the fine print. Safety nets must be prominent, not footnotes. **Total cost: $2M-$20M in wrongful death litigation and product liability claims when AI triage tools miss life-threatening conditions.**
 
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|---|---|
-| "The model was fine-tuned on peer-reviewed medical literature, so clinical safety is baked in" | Fine-tuning on literature teaches domain vocabulary, not clinical judgment — models still hallucinate drug interactions, contraindications, and dosing with dangerous confidence |
-| "We added a disclaimer saying this isn't medical advice, liability is covered" | Users ignore disclaimers under cognitive load; a confident-sounding model output about symptoms or treatment creates de facto clinical reliance regardless of legal text |
-| "The model refused to answer a harmful query in testing, so the safety filter works" | Single-turn refusal tests miss multi-turn grooming attacks where harm is built incrementally across conversation context without any single toxic message |
-| "Our RLHF data includes safety examples, the model is aligned" | RLHF teaches politeness, not safety reasoning; the model learns to phrase dangerous advice courteously rather than recognizing and refusing it |
-| "We're generating educational content, not clinical decisions — safety review is overkill" | Educational content about health conditions is indistinguishable from medical guidance to patients; a wrong explanation of disease progression causes real-world harm |
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -693,5 +750,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

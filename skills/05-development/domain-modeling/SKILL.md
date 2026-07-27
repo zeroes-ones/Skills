@@ -33,8 +33,10 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
 # Domain Modeling
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -47,6 +49,7 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 Active domain modeling discipline — not just a glossary but a living practice of challenging vague terms, stress-testing with edge-case scenarios, maintaining CONTEXT.md inline, and cross-referencing code against stated domain rules. ADRs are created only when a decision is hard-to-reverse, surprising-without-context, AND the result of a real tradeoff.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable. The agent MUST follow every rule on every invocation.
 
@@ -67,12 +70,14 @@ These rules are non-negotiable. The agent MUST follow every rule on every invoca
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Domain modeling masters think differently. They don't just document — they interrogate. Every term is a hypothesis until tested against edge cases. Every boundary is a bet about where complexity lives. Every ADR is a signal that the team faced a genuine fork in the road.
 
 #
 
 ## Cognitive Biases to Guard Against
+<!-- STANDARD: 3min -->
 
 | Bias | How It Corrupts Domain Modeling | Countermeasure |
 |---|---|---|
@@ -83,6 +88,7 @@ Domain modeling masters think differently. They don't just document — they int
 | **Sunk Cost** | Refusing to rename a core concept because "we've always called it that" | Price the cost of confusion over the next 12 months vs. the cost of the rename |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Domain modeling operates at four levels of granularity. Ascend when the current level can't resolve the problem.
 
@@ -95,16 +101,8 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 
 **Escalation rule**: If L1 term disputes can't be resolved without discussing aggregates, move to L2. If L2 aggregate conflicts stem from different assumptions about what "the system" means, move to L3.
 
-### Scale Depth
-**(STANDARD)**
-
-| Depth | Time | Scope | Artifacts |
-|---|---|---|---|
-| **QUICK** | 10-20 min | Single term definition, ambiguity resolution | CONTEXT.md term entry with negative space and validation rule |
-| **STANDARD** | 1-3 hr | Aggregate design, bounded context identification, context mapping | Aggregate diagram, context map, ubiquitous language glossary per context |
-| **DEEP** | 1-3 days | Enterprise context map, event storming workshop, core domain identification | Full context map, domain event catalog, aggregate inventory, strategic DDD decision record |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Onboarding new team members who need a mental model of the domain
 - Refactoring when code uses inconsistent terminology for the same concept
@@ -118,6 +116,7 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 #
 
 ## Do NOT Use
+<!-- STANDARD: 3min -->
 
 - **Code implementation** — route to [backend-developer], [frontend-developer], or [fullstack-developer]
 - **Database schema design** — route to [database-designer]
@@ -127,10 +126,12 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 - **UI/UX wireframes** — route to [ui-ux-designer]
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts
+<!-- STANDARD: 3min -->
 
 When the request context includes these files, auto-activate domain-modeling:
 
@@ -145,6 +146,7 @@ When the request context includes these files, auto-activate domain-modeling:
 #
 
 ## Intent Route
+<!-- STANDARD: 3min -->
 
 ```
 User request
@@ -172,6 +174,7 @@ User request
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- Full 128 lines extracted to references/core-workflow.md -->
@@ -179,6 +182,7 @@ User request
 #
 
 ## Phase 1: Term Harvesting — Scan the Codebase
+<!-- STANDARD: 3min -->
 **Goal**: Build an initial glossary of every domain-significant term in the codebase.
 for each source in [code, docs, tickets, conversations]:
     extract nouns that appear in:
@@ -186,6 +190,7 @@ for each source in [code, docs, tickets, conversations]:
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 128 lines of detailed guidance
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Establish a ubiquitous language that lives in a living document.** Maintain a CONTEXT.md at the repository root with every domain-significant term, its precise definition, what it is NOT (negative space), and a validation rule. The document must be < 30 days fresh — stale glossaries cost $30K-$80K per onboarded developer in trial-and-error learning. Use `find . -name "CONTEXT.md" -mtime +30` in CI to flag staleness.
@@ -209,11 +214,104 @@ for each source in [code, docs, tickets, conversations]:
 10. **Write ADRs only for decisions that require the three-part test.** An Architecture Decision Record (ADR) is warranted only when: (a) the decision is architecturally significant (impacts structure, non-functional characteristics, or dependencies), (b) multiple viable alternatives exist, and (c) the decision is not easily reversible. Premature ADR creation costs $5K-$15K in decision debt — cluttering the register makes genuinely important ADRs harder to find.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
+
+### Decision Tree 1: Entity vs Value Object
+
+        ┌── INPUT: Modeling concept C in domain
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+C must    C is defined
+have a    by its
+unique    attributes
+identity  alone
+over time?
+   │         │
+   ▼         ▼
+ENTITY   Does C need
+         to be shared
+         (referenced,
+         not copied)?
+            │
+       ┌────┴────┐
+       │         │
+       ▼         ▼
+      YES       NO
+       │         │
+       ▼         ▼
+   ENTITY    VALUE OBJECT
+   (shared  (immutable,
+   ref by   replaceable,
+   ID)      equality by
+            values)
+
+### Decision Tree 2: Aggregate Design
+
+        ┌── INPUT: Group of related entities E1, E2, E3
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Must all    Can any
+three be    entity be
+consistent  modified
+in a single  independently
+transaction? without
+   │         breaking
+   ▼         invariants?
+        ┌────┴────┐
+        │         │
+        ▼         ▼
+      YES        NO
+        │         │
+        ▼         ▼
+   SINGLE     SPLIT INTO
+   AGGREGATE  SEPARATE
+   (E1 root,  AGGREGATES
+   E2+E3      (each with
+   children)  own root)
+
+### Decision Tree 3: Module vs Bounded Context
+
+        ┌── INPUT: Two logical modules M1 and M2
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Do M1 &     Are M1 &
+M2 share    M2 owned
+the same    by different
+ubiquitous  teams?
+language?      │
+   │       ┌────┴────┐
+   ▼       │         │
+   NO      ▼         ▼
+   │      YES        NO
+   ▼       │         │
+SEPARATE   ▼         ▼
+BOUNDED   SEPARATE   Do M1 &
+CONTEXTS  BOUNDED    M2 have
+           CONTEXTS   different
+           (org        lifecycles?)
+           boundary)      │
+                     ┌────┴────┐
+                     │         │
+                     ▼         ▼
+                    YES        NO
+                     │         │
+                     ▼         ▼
+                   SEPARATE   SINGLE
+                   BOUNDED    CONTEXT
+                   CONTEXTS   (or shared
+                              kernel)
 
 #
 
 ## Term Ambiguity Detection
+<!-- STANDARD: 3min -->
 
 ```
 Term T encountered in request or codebase
@@ -236,6 +334,7 @@ Term T encountered in request or codebase
 #
 
 ## ADR Trigger Decision
+<!-- STANDARD: 3min -->
 
 ```
 ADR requested for decision D
@@ -259,6 +358,7 @@ ADR requested for decision D
 #
 
 ## Bounded Context Boundary Placement
+<!-- STANDARD: 3min -->
 
 ```
 Proposed boundary between concepts A and B
@@ -287,6 +387,7 @@ Proposed boundary between concepts A and B
 #
 
 ## Edge-Case Generation Strategy
+<!-- STANDARD: 3min -->
 
 ```
 Given domain term T with definition D
@@ -320,6 +421,7 @@ Given domain term T with definition D
 #
 
 ## Glossary Maintenance Cadence
+<!-- STANDARD: 3min -->
 
 ```
 CONTEXT.md maintenance trigger
@@ -346,6 +448,8 @@ CONTEXT.md maintenance trigger
 ```
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -361,6 +465,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -373,6 +478,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Event storming session runs 4 hours, produces 200 sticky notes on a wall — two weeks later nobody can reconstruct the decisions | No artifact synthesis. Event storming produces raw material, not a finished model. Without synthesis into a context map or ubiquitous language glossary, the insights evaporate within days | Synthesize within 48 hours: produce a context map diagram, prioritized domain event catalog, aggregate inventory, and CONEXT.md update from the workshop. Share with all participants for async review. Schedule 1-hour follow-up to validate synthesis | Event storming is discovery, not design. The output of discovery is insight. The output of design is a context map. You need both — the workshop without synthesis is a team-building exercise, not domain modeling |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 Domain modeling feeds domain clarity into every downstream skill while consuming strategic intent from upstream.
 
@@ -389,6 +495,7 @@ Domain modeling feeds domain clarity into every downstream skill while consuming
 #
 
 ## Coordination Protocol
+<!-- STANDARD: 3min -->
 
 When domain-modeling detects a conflict between a consumed artifact and domain reality:
 1. Document the conflict in CONTEXT.md under a "Cross-Skill Conflicts" section
@@ -402,6 +509,7 @@ When domain-modeling detects a conflict between a consumed artifact and domain r
 | `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 The agent watches for these signals and acts without being asked.
 
@@ -415,16 +523,20 @@ The agent watches for these signals and acts without being asked.
 | Code comment contains "TODO: clarify business rule" | grep for `TODO.*(business rule\|domain rule\|clarify\|verify)` | Extract the TODO, create a task to define the rule in CONTEXT.md, link back to the code location |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -436,13 +548,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -458,6 +573,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -467,10 +583,12 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 A well-modeled domain has clear boundaries, a shared language, and traceability from business rule to code.
 
 ```
+
 ┌─────────────────────────────────────────────────────────────────────┐
 │                     ENTERPRISE CONTEXT MAP                           │
 │                                                                      │
@@ -501,6 +619,7 @@ A well-modeled domain has clear boundaries, a shared language, and traceability 
 │                                                                      │
 │  Key: UB = Ubiquitous Language   ───▶ = Integration via ACL/Events  │
 └─────────────────────────────────────────────────────────────────────┘
+
 ```
 
 **Signs of excellence**:
@@ -511,35 +630,42 @@ A well-modeled domain has clear boundaries, a shared language, and traceability 
 - The term drift log shows active evolution, not neglect
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Five exercises to sharpen domain modeling skills.
 
 #
 
 ## Exercise 1: The 30-Second Definition
+<!-- STANDARD: 3min -->
 Pick any domain term from your current project. Define it in 30 seconds to a colleague who knows nothing about the project. If they can't explain it back correctly, your definition isn't precise enough. Repeat until they can.
 
 #
 
 ## Exercise 2: The Edge-Case Gauntlet
+<!-- STANDARD: 3min -->
 Take the 5 most important domain rules in your project. For each, write 3 edge cases that would break a naive implementation. Then check if your current code handles them. Document the gaps.
 
 #
 
 ## Exercise 3: The Terminology Audit
+<!-- STANDARD: 3min -->
 Pick a bounded context. List every term used in class names, API endpoints, and database tables. Circle any term that appears in more than one bounded context with a different meaning. Propose disambiguation.
 
 #
 
 ## Exercise 4: The ADR Litmus Test
+<!-- STANDARD: 3min -->
 Review the last 10 "architecture decisions" your team made informally (Slack threads, PR comments, meeting notes). For each, run the three-part trigger test. How many would have warranted a formal ADR? Write those ADRs.
 
 #
 
 ## Exercise 5: The Glossary Time Machine
+<!-- STANDARD: 3min -->
 Open your CONTEXT.md (or create one). For each term, ask: "Would this definition have been correct 6 months ago? Will it be correct 6 months from now?" Terms that fail the time test need the term drift log.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Ambiguous terminology across teams — "Account" means everything and nothing
 **What it looks like:** The Identity team's "Account" includes email, password hash, MFA state, and session tokens. The Billing team's "Account" includes payment methods, invoice history, credit balance. Both teams call their API `/accounts` and nobody realizes they're different things until the first integration breaks. Every cross-team feature requires a 2-hour discovery meeting to clarify which "Account" we're talking about.
@@ -577,6 +703,7 @@ Open your CONTEXT.md (or create one). For each term, ask: "Would this definition
 **Do this instead:** Synthesize within 48 hours into: (a) a context map diagram showing bounded contexts and integration patterns, (b) a prioritized domain event catalog, (c) an aggregate inventory with invariants per aggregate, (d) a CONTEXT.md update reflecting new terminology and definitions. Share with all participants for async review. Schedule a 1-hour follow-up to validate the synthesis.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before declaring a domain model complete or shipping any feature that depends on it, verify every item. Each unchecked item is a future integration failure or audit gap.
@@ -598,6 +725,8 @@ Before declaring a domain model complete or shipping any feature that depends on
 - [ ] **Glossary steward assigned:** One person per bounded context is accountable for CONTEXT.md freshness in that context. Steward rotation documented. No glossary section is > 30 days without a designated owner.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -608,20 +737,26 @@ Before declaring a domain model complete or shipping any feature that depends on
 | Treating all subdomains as equally important — 70% of engineering effort goes to generic subdomains (auth, payments) instead of the core domain | $50K-$150K in competitive disadvantage | Classify: Core domain (competitive advantage) gets 70% of effort. Supporting (custom, not differentiating) gets 20%. Generic (solved problems) gets 10% — buy, don't build. Invert the effort if you're spending more on auth than on the thing that makes you unique. |
 
 ## Verification
-<!-- Full 40 lines extracted to references/verification.md -->
+<!-- STANDARD: 3min -->
 
-Run these checks to confirm the domain model is healthy.
-# Check CONTEXT.md freshness (should be < 30 days old)
-find . -name "CONTEXT.md" -mtime +30 -exec echo "STALE: {}" \;
-# Find domain terms used in class names but missing from CONTEXT.md
-...
-> 📎 **[references/verification.md](references/verification.md)** — 40 lines of detailed guidance
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Ubiquitous language glossary (CONTEXT.md) is current — every domain term has a single, unambiguous definition; zero terms with >1 meaning across bounded contexts | `grep -n "means\|refers to\|defined as" CONTEXT.md` returns distinct definitions; cross-reference with code identifiers |
+| ☐ | Complete when Bounded contexts mapped explicitly — each context has named boundaries, integration pattern (Partnership/Customer-Supplier/Conformist/ACL), and owning team | Context map diagram exists; `find . -name "CONTEXT.md" | wc -l` matches bounded context count |
+| ☐ | Complete when Every domain rule is encoded as a named, testable predicate — zero implicit if-checks encoding business logic without a discoverable name | `grep -r "is[A-Z]\|can[A-Z]\|should[A-Z]\|must[A-Z]" src/` returns predicates matching CONTEXT.md rules |
+| ☐ | Complete when Subdomain classification complete: Core (70% effort), Supporting (20%), Generic (10%) — buy decisions documented for Generic subdomains | Effort allocation dashboard maps engineering hours to subdomain classification; >60% goes to Core |
+| ☐ | Complete when Term drift log maintained — any term gaining a second meaning triggers disambiguation protocol within the sprint | Term drift log shows zero unresolved conflicts; CI check verifies no term used ambiguously across bounded contexts |
+| ☐ | Complete when ADRs created for all architecturally significant decisions — three-part test (architecturally significant + multiple alternatives + not easily reversible) applied | `ls docs/adr/` returns ADRs; each references at least 2 considered alternatives with trade-offs |
+| ☐ | Complete when Integration patterns documented per bounded context relationship — no implicit coupling between contexts without explicit contract | Context map shows integration type per boundary; contract tests exist for each Customer-Supplier relationship |
+| ☐ | Complete when Code cross-reference verified — every domain rule in CONTEXT.md has a corresponding enforcing function path; every predicate links back to a CONTEXT.md rule | Link audit: `grep -r "see CONTEXT.md\|\\.\\./CONTEXT" src/` count matches domain rule count |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 1. [Ubiquitous Language](references/ubiquitous-language.md) — Core principles and maintenance of shared vocabulary
 2. [Term Challenging](references/term-challenging.md) — Protocol for interrogating domain term precision

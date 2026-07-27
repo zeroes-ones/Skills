@@ -51,8 +51,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end shipping and launch discipline: pre-launch readiness verification, staged rollout execution, feature flag lifecycle management, rollback decision frameworks, and launch communication. Every launch is a calculated risk -- the goal is to reduce blast radius, detect problems before users do, and have a clear rollback path when things go wrong. Ships are not events; they are processes with gates, signals, and pre-rehearsed abort procedures.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -66,12 +68,12 @@ End-to-end shipping and launch discipline: pre-launch readiness verification, st
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 - **Ships are processes, not events.** A launch is not the moment you click deploy. It is the weeks of preparation, the staged rollout, the monitoring vigil, the go/no-go decision, and the post-launch retro. Treat the deploy button as step 7 of 20, not the finish line.
 - **Blast radius is everything.** The difference between a bad launch and a catastrophe is blast radius. Start with 1% of traffic, then 5%, then 25%. At each stage, let the metrics stabilize for at least 15 minutes before expanding. A bug affecting 1% of users is a ticket; a bug affecting 100% is a SEV-1.
@@ -80,27 +82,15 @@ End-to-end shipping and launch discipline: pre-launch readiness verification, st
 - **Rollback is a feature, not a failure.** Designing for rollback (feature flags, backward-compatible schemas, blue-green deploys) is engineering excellence. If you cannot rollback in under 5 minutes, your launch is under-prepared.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick scan (30s):** Check launch checklist status, verify staging is green, confirm on-call schedule, check error budgets, review the kill switch for the primary feature flag.
 - **Standard engagement (10min):** Review pre-launch checklist completion, verify monitoring dashboards show staging data, confirm rollback procedure is documented and tested, validate go/no-go criteria against current metrics.
 - **Deep dive (full session):** Full launch readiness audit: run through every checklist item with evidence, review staged rollout percentages and stabilization periods, validate feature flag lifecycle (creation through deprecation), dry-run rollback in staging, draft launch communication for stakeholders and users.
 - **Crisis mode (launch going badly):** Execute rollback immediately if any go/no-go threshold is breached. Do not debug in production. Rollback first, investigate in staging later. Communicate status to stakeholders within 5 minutes of rollback decision.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 engineer, 1 service)
-Staged rollout: canary (25% for 15min) → 100%. Feature flags = environment variables. Rollback = `kubectl rollout undo` or `git revert` + redeploy. Pre-launch checklist in a markdown file. Focus: ship safely, automate repeated steps, set up monitoring dashboards before launch. Dark launch all data-mutating changes.
-
-#### Small (2-10 engineers, 2-5 services)
-Staged rollout with defined percentages and automated metric gates. Feature flags via LaunchDarkly or Unleash with kill switches. Go/no-go with documented criteria. Rollback runbook tested monthly. Stakeholder communication template. Focus: launch checklist institutionalized, monitoring baselines established, error budget integration into go/no-go, post-launch retros with tracked action items.
-
-#### Medium (10-50 engineers, 5-20 services)
-Progressive delivery with automated canary analysis (Argo Rollouts, Spinnaker). Feature flag lifecycle management with automated cleanup in CI. Go/no-go integrated with deployment pipeline — gates automatically block progression if metrics regress. Launch communication automated: status page updates, Slack announcements at each rollout stage. Focus: runtime kill switches for every feature flag, dark launch for all data-mutating changes, launch metrics dashboard tracking DORA + SLO compliance per launch.
-
-#### Enterprise (50+ engineers, 20+ services, multi-region)
-Multi-region staged rollouts with regional canary before global expansion. Change management integrated with ITSM (ServiceNow). Federated launch coordination: central launch calendar, per-team go/no-go, shared monitoring war room. Focus: compliance audit trails for every launch decision (who approved, what criteria, when), zero-downtime data migrations at scale, launch governance framework. "This is how we launch — every team follows this checklist, every launch has a rollback plan, every go/no-go is data-driven."
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Preparing a new feature or service for production launch
 - Designing a staged rollout strategy with defined percentages and stabilization periods
@@ -114,6 +104,7 @@ Multi-region staged rollouts with regional canary before global expansion. Chang
 **When NOT to use:** CI/CD pipeline automation (ci-cd-builder), release calendar management (release-manager), live incident response (incident-responder), or performance optimization (performance-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ```
 What launch activity are you working on?
@@ -128,6 +119,7 @@ What launch activity are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Pre-Launch Checklist
 
@@ -178,6 +170,7 @@ What launch activity are you working on?
    |-- Changelog entry written for user-facing changes
    |-- Internal wiki updated: onboarding, setup, common issues
 ```
+
   Complete when: all 6 gates (code quality, security, performance, accessibility, infrastructure, documentation) have zero failing CRITICAL items signed off by the release commander.
 
 ### Phase 2: Staged Rollout
@@ -216,6 +209,7 @@ What launch activity are you working on?
    |-- Schedule flag removal ticket for 2-4 weeks post-launch
    |-- Post-launch retro scheduled within 1 week
 ```
+
   Complete when: canary metrics are within baseline for error rate and latency at each stage, dark launch shows zero discrepancies in mirrored responses, and the feature flag kill switch is confirmed operational.
 
 ### Phase 3: Launch Communication
@@ -239,9 +233,16 @@ What launch activity are you working on?
    |-- Support handoff: known issues, workarounds, escalation criteria
    |-- Feature flag cleanup ticket created with owner and deadline
 ```
+
   Complete when: stakeholder email is sent, support team is trained with FAQ and escalation path, launch day communication template is ready, and feature flag cleanup ticket is assigned with a deadline.
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
+  Complete when: Infrastructure drift detection enabled — Terraform plan shows zero unmanaged changes.
+  Complete when: Runbook documented and tested via game day exercise with < 3 action items.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Staged Rollout
 
@@ -402,8 +403,9 @@ Launch War Room Setup (for high/critical risk launches):
 |-- Communication: status updates every 15 minutes to stakeholders
 ```
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -411,8 +413,8 @@ Launch War Room Setup (for high/critical risk launches):
 | Dark launching with 1% mirrored traffic but never comparing responses — the dark launch runs for 24 hours "successfully" but the new code returns 500s on 3% of mirrored requests because no one checked the comparison | $20K-$100K in deploying broken code that was "verified" by dark launch | Dark launch must include automated response comparison: diff old vs new responses, alert on any discrepancy > 0%; a dark launch without comparison is just warming CPUs |
 | Killing a feature flag after 2 weeks without checking if the flag is still referenced in code — removing the flag key crashes the application for users who had it cached | $10K-$50K in production crash from stale flag references | Keep flags as kill switches for minimum 2 weeks post 100% rollout; before removal, grep the entire codebase for the flag key; schedule flag removal as a separate deploy, not bundled with feature work |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -427,8 +429,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Rollback completes in 3 minutes but the on-call engineer wakes up at 4 AM to find the database migration wasn't rolled back — the deploy reverted but the schema change persisted | The deploy rollback (`kubectl rollout undo`) reverted the application version. But the release included a database migration that added a `NOT NULL` column. The old application code doesn't know about the new column and INSERTs fail because it doesn't supply a value. The migration was applied forward but never reversed | Every release must include BOTH forward and reverse migration scripts. The reverse migration is tested in staging as part of the rollback drill. For irreversible schema changes (added NOT NULL column), the release is tagged DEPLOY-ROLLBACK-ONLY — the schema change is separated into a follow-up release with its own rollback plan | Application rollback and database rollback are independent operations. `kubectl rollout undo` reverts code; it does not revert schema. Writes that hit new columns with old code fail silently or noisily. Always pair every migration with a tested reverse migration — and if reversal is impossible, the deploy and the schema change must be separate releases. |
 | Launch communication goes out on Slack at 10 AM — customers start reporting issues at 10:03 but the support team hasn't been briefed and tells customers "we're investigating" for 2 hours | The launch-day communication plan included stakeholder updates and a status page banner. But the support team wasn't on the distribution list. When customers reported issues, the support team had no context — they didn't know a launch was happening, didn't have the new feature's known-limitations doc, and escalated every ticket to engineering | Add the support team to the launch comms distribution 48 hours before launch. Create a "support brief" document: what's changing, known limitations, troubleshooting steps, escalation path. Run a 15-minute support briefing call 24 hours before launch. During the launch, have an engineering liaison in the #support-escalation channel | Support is the front line of every launch. Customers report issues to support, not to engineering. If support doesn't know a launch is happening, every customer report becomes a SEV1 escalation. Brief support before launch — they're your first responders. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Pre-launch checklist as a non-negotiable gate — not a suggestion.** Six mandatory gates: Code Quality (PRs approved, tests passing, no TODOs), Security (no CVEs, rate limiting, encrypted data), Performance (load tested, no memory leaks, query plans reviewed), Accessibility (zero critical a11y violations, keyboard nav verified), Infrastructure (IaC reviewed, autoscaling configured, health checks defined), Documentation (API docs updated, runbooks current, ADRs created). All six must show GREEN before any user sees the change.
 
@@ -450,8 +452,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Post-launch retro within 1 week: small, blame-free, action-oriented.** Three questions: What went well? What went wrong? What do we change for next launch? Produce ≤5 concrete action items with owners and dates. Track retro action item completion rate across launches — the metric that measures whether your launch process is actually improving. A retro without tracked action items is therapy, not engineering.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -466,6 +468,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -478,7 +481,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | Monitoring and alerting setup | observability-engineer | Dashboard creation, alert thresholds, SLO tracking |
 | Feature flag infrastructure | platform-engineer | Flag system availability, kill switch reliability, flag evaluation performance |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `cloud-architect` | Infrastructure design, networking, IAM, cost model | Before provisioning infrastructure or designing deployment pipelines |
@@ -489,8 +491,8 @@ If a command or approach fails, follow this escalation path before giving up:
 |---|---|
 | `automation-engineer` | Launch checklist, rollback plan, comms timeline | Launch without automation — manual errors |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -500,11 +502,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | P4 | No staging deploy in last 48 hours before production launch | [ALERT] Staging has not been validated recently. Deploy and run smoke tests before production launch. |
 | P5 | Go/no-go criteria document references metrics without dashboards | [WARN] No dashboard found for metric [name]. Create dashboard before relying on it for go/no-go decisions. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[SHIP1]** Pre-launch checklist: all 6 gates (Code Quality, Security, Performance, Accessibility, Infrastructure, Documentation) show GREEN — no exceptions, no "will fix after launch"
 - [ ] **[SHIP2]** Rollback procedure tested in staging within the last 7 days, timed at <5 minutes for feature flag and <15 minutes for deploy rollback — runbook works from a fresh terminal with zero local state
@@ -522,6 +526,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[SHIP14]** Feature flag cleanup tickets created: one per flag, assigned to flag owner, due within 30 days of 100% rollout — CI enforces cleanup within 60 days
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 LAUNCH: Personalized recommendations engine
@@ -555,6 +560,7 @@ Bad alternative (anti-pattern):
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Checklist Gap Analysis:** Take the last 3 production incidents from your team's post-mortems. For each incident, identify which pre-launch checklist item would have caught it. If none would have, add a new checklist item. Run the updated checklist against the next launch.
 
@@ -566,7 +572,8 @@ Bad alternative (anti-pattern):
 
 5. **Launch Communication Template:** Draft a launch communication for a fictional major outage during a launch. Include: what happened, user impact, current status, estimated resolution, workaround, next update time. Practice delivering it in under 3 minutes. Then draft the post-launch retro summary.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -577,6 +584,7 @@ Bad alternative (anti-pattern):
 | "Manual go/no-go based on the team's gut feel is faster than formal process." | A green test suite means "nothing we predicted broke," not "nothing broke." Go/no-go without production canary data is gambling. $50K-$500K in incident response and lost revenue per judgment-error release. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Launching on Friday at 5pm guarantees a weekend incident.** A team deploys a major feature Friday afternoon and leaves for the weekend. A latent bug surfaces Saturday morning when traffic patterns differ from weekday testing. No one is monitoring, and the first alert comes from a customer tweet 8 hours later. **Total cost: $15,000-$50,000 in weekend emergency response, customer trust damage, and potential SLA credits.** Fix: Launch Tuesday-Thursday before 2pm. Never launch on Friday without explicit executive approval and 24/7 on-call coverage.
 
@@ -593,6 +601,7 @@ Bad alternative (anti-pattern):
 - **Launch communication that blames "a routine deployment" erodes trust.** After a launch causes a 30-minute partial outage affecting 15% of users, the status page says "We performed routine maintenance." Users who could not access the service know this is false. Social media erupts with "routine maintenance = we broke something." **Total cost: Hard to quantify but significant -- customer churn, reputation damage, reduced feature adoption.** Fix: Be honest in launch communication. "We deployed [feature] and encountered an unexpected issue with [component]. We rolled back within [N] minutes. Full post-mortem will be published within 5 business days."
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Pre-launch checklist: all 6 gates (Code Quality, Security, Performance, Accessibility, Infrastructure, Documentation) show GREEN
 - [ ] Rollback procedure: tested in staging within last 7 days, timed at under 5 minutes for feature flag and under 15 minutes for deploy rollback
@@ -604,10 +613,12 @@ Bad alternative (anti-pattern):
 - [ ] On-call coverage: engineer scheduled and available for full launch window plus 2 hours after final expansion
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [LaunchDarkly Feature Flag Best Practices](https://launchdarkly.com/blog/) -- Feature flag management patterns and anti-patterns
 - [Google SRE: Managing Risk](https://sre.google/sre-book/managing-risk/) -- Error budgets, SLOs, and risk-based launch decisions

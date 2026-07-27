@@ -37,7 +37,7 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 # Doubt-Driven Development
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---:|
@@ -111,20 +111,6 @@ Masters of doubt-driven development don't just review code — they **weaponize 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-#### Solo (1 developer, personal projects)
-Self-review with claim extraction checklist. Run 1 doubt cycle on the highest-risk claim before merging. Focus: build the habit of articulating assumptions before coding. Budget: $0 (manual process).
-
-#### Small (2-5 engineers, 1-2 critical services)
-Adversarial pairing: reviewers swap code, extract claims, run 1-2 doubt cycles. Cross-model escalation for CRITICAL claims at cycle 3. RECONCILE.md for all non-trivial decisions. Focus: catch the 65-85% of defects that standard review misses. Budget: $5-$50/month on cross-model API calls.
-
-#### Medium (5-20 engineers, safety-critical systems)
-Full doubt-driven gate: no deployment without resolved doubt inventory. Adversarial fresh-context review mandatory for all PRs touching critical paths. Doubt theater detection automated. Residual risk quantified and tracked. Focus: systematic defect prevention, regulatory-grade review evidence. Budget: $50-$200/month on cross-model escalation.
-
-#### Enterprise (20+ engineers, regulated products)
-Doubt-driven development as organizational standard. Pre-mortems required before architecture decisions. Probabilistic risk modeling for residual doubt acceptance. Cross-model review panel (3+ models) for safety-critical claims. FDA/regulatory submission-ready doubt resolution evidence. Focus: organizational risk management, auditable safety decisions. Budget: $200-$1,000/month on review infrastructure.
-
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -175,6 +161,7 @@ What are you trying to do?
 ├── Review is for a prototype or throwaway code → Invoke **code-reviewer** instead (standard review, not adversarial)
 └── Not sure where to start? → Start at "Ground Rules" then "When to Use"
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Core Workflow
@@ -196,6 +183,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 ### When to Trigger a Doubt Cycle
 
 ```
+
                          ┌─────────────────────┐
                          │ New code/PR received │
                          └──────────┬──────────┘
@@ -237,6 +225,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
                                             │ claim, max 3  │ │          │
                                             │ claims        │ │          │
                                             └──────────────┘ └──────────┘
+
 ```
 
 **Phase 2 — Doubt Intensity Calibration:**
@@ -247,6 +236,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 ### Claim Extraction Depth
 
 ```
+
                     ┌──────────────────────┐
                     │ Begin claim extraction│
                     └──────────┬───────────┘
@@ -277,6 +267,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
                                    │   conditions│ │   internal│
                                    └──────────┘ │   invariants│
                                                 └──────────┘
+
 ```
 
 **Phase 2 — Extraction Rules by Depth:**
@@ -287,6 +278,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 ### Doubt Severity Classification
 
 ```
+
                    ┌─────────────────────┐
                    │ Doubt identified for │
                    │ claim                │
@@ -332,6 +324,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
                                                                    │ or self-  │
                                                                    │ healing)  │
                                                                    └──────────┘
+
 ```
 
 **Phase 2 — Response by Severity:**
@@ -343,6 +336,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 ### Reconciliation Strategy
 
 ```
+
                   ┌──────────────────────┐
                   │ Doubt requires        │
                   │ reconciliation        │
@@ -378,6 +372,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
                         │ short-   │ │          │ │          │ │ escalation│
                         │ term     │ │          │ │          │ │ criteria)│
                         └──────────┘ └──────────┘ └──────────┘ └──────────┘
+
 ```
 
 **Phase 2 — Reconciliation Outputs:**
@@ -389,6 +384,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 ### Cross-Model Escalation Criteria
 
 ```
+
                   ┌──────────────────────┐
                   │ Consider cross-model   │
                   │ escalation             │
@@ -425,6 +421,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
                                             │ ESCALATE │ │ Single   │
                                             │ optional │ │ model OK │
                                             └──────────┘ └──────────┘
+
 ```
 
 **Phase 2 — Model Pairing Guide:**
@@ -437,6 +434,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 ### Doubt Theater Detection
 
 ```
+
                     ┌──────────────────────┐
                     │ Doubt statement        │
                     │ received               │
@@ -474,6 +472,7 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
                                               │ example         │
                                               │ (c) test        │
                                               └──────────────┘
+
 ```
 
 **Phase 2 — Doubt Theater Patterns (memorize these):**
@@ -489,11 +488,13 @@ The five-phase adversarial review cycle. Each phase produces an artifact that fe
 
 **Response template for doubt theater:**
 ```
+
 FLAGGED: Doubt Theater — [pattern name]
 Your statement: "[original quote]"
 Missing: [which of (a)/(b)/(c) is absent]
 Reformulate as: "Claim [X] would be wrong if [concrete condition].
                  Example: [specific scenario]. Test: [grep/run/check]."
+
 ```
 
 ## Error Decoder
@@ -508,6 +509,7 @@ Reformulate as: "Claim [X] would be wrong if [concrete condition].
 | "Pre-mortem identifies 'database connection pool exhaustion' as top risk — but it still happens in production" | The pre-mortem identified the risk but didn't generate a mitigation. "Database connection pool exhaustion" is a risk statement, not a prevention plan. | Every pre-mortem risk must have: (1) a specific trigger condition, (2) a prevention mechanism (circuit breaker, connection limit, timeout), and (3) a detection mechanism (alert on pool utilization > 80%). Risks without mitigations are just anxiety written down. | Pre-mortems that don't produce mitigations are performative. The output of a pre-mortem is not a list of risks — it's a list of changes to the design. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -565,12 +567,14 @@ If a command or approach fails, follow this escalation path before giving up:
 | New file added to `middleware/`, `guard/`, `filter/`, or `interceptor/` directory | Auto-invoke Phase 1 on trust boundary claims | New middleware sits on the request path; every request passes through its assumptions |
 
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
 
 ### Before (Standard Review)
 ```
+
 Reviewer: "LGTM! Code looks clean. Nice use of async/await.
           Minor nit: consider extracting the token parsing
           to a helper function."
@@ -581,10 +585,12 @@ Problems:
   threw unhandled exceptions → 500 errors in production
 - No adversarial stance — reviewer confirmed what they expected to see
 - No doubt cycles run — zero defects found because zero doubts raised
+
 ```
 
 ### After (Doubt-Driven Review)
 ```
+
 Reviewer: "CLAIM-002: Absence of token → 401.
           DOUBT-C002-2: Would be wrong if jwt.verify throws.
           TEST: grep -n 'try.*catch' auth.js → 0 results.
@@ -607,6 +613,7 @@ Improvements:
 - Concrete test condition for every doubt
 - Both defects would have reached production under standard review
 - Full audit trail from claim → doubt → reconciliation
+
 ```
 
 ## Deliberate Practice
@@ -687,6 +694,7 @@ Before deploying any code that passed doubt-driven review, verify ALL of:
 - **The trust decay curve.** Every time a doubt-driven review finds a defect that standard review missed, team trust in standard review erodes. After 5 such incidents, engineers start running informal doubt cycles on every PR regardless of criticality — burning 40% more review time with no process guardrails. Without formal doubt-driven development, you get the cost of adversarial review without the structure. **Total cost: $80K-$200K/year in stealth process overhead for a 10-engineer team. Fix: formalize doubt-driven development as an explicit, opt-in process; don't let it become a shadow process.**
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -697,18 +705,18 @@ Before deploying any code that passed doubt-driven review, verify ALL of:
 
 ## Verification
 
-<!-- Run this checklist before marking any doubt cycle complete -->
-
-- [ ] **Ground Rules:** All 7 ground rules checked. No violations unaddressed. Run `grep -c "DOUBT_THEATER" doubt_log.md` — each flag must have a reformulation or dismissal note.
-- [ ] **Claims extracted:** Every non-trivial decision in the diff has at least 1 claim. Run `grep -c "CLAIM-" claims.md` — count should exceed number of functions changed.
-- [ ] **Claims anchored:** Every claim has file:line, test reference, or spec section. Run `grep -c "file:\|line:\|spec:\|test:" claims.md` — count must equal total claims.
-- [ ] **Doubt cycles:** No claim exceeded 3 cycles. Run `grep -c "CYCLE-4\|cycle: 4" doubt_log.md` — must return 0.
-- [ ] **Doubt theater filtered:** All doubts are substantive (specific failure condition + test). Run `grep -c "have we considered\|what about\|edge cases\|best practices" doubt_log.md` — each hit must have a resolution note within 3 lines.
-- [ ] **Critical reconciled:** All CRITICAL severity doubts have RESOLVED status. Run `grep "CRITICAL" doubt_log.md | grep -v "RESOLVED"` — must return 0.
-- [ ] **Residual risk documented:** Every ACCEPTED doubt has a monitoring plan with alert configuration. Run `grep "ACCEPTED" RECONCILE.md | grep -v "monitoring\|alert\|runbook"` — must return 0.
-- [ ] **Cross-model considered:** Every CRITICAL doubt that reached cycle 3 has an escalation record. Run `grep "CRITICAL.*cycle: 3" doubt_log.md | grep -v "escalat"` — must return 0.
-- [ ] **STOP report complete:** All phases produce output artifacts. RECONCILE.md has entries for every non-HOLDS doubt.
-- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when all 7 Ground Rules are checked with zero unaddressed violations — every "DOUBT_THEATER" flag in `doubt_log.md` has a reformulation or documented dismissal note within 3 lines | Verify `grep -c "DOUBT_THEATER" doubt_log.md`; each match is followed by a resolution note; `scripts/verify-skill.sh --ground-rules` returns zero failures |
+| ☐ | Complete when claims are extracted for every non-trivial decision in the diff, with claim count exceeding the number of functions changed (≥ 1 claim per changed function) | Verify `grep -c "CLAIM-" claims.md` ≥ number of changed functions; every claim has a unique ID; no function change lacks a corresponding claim |
+| ☐ | Complete when every claim is anchored to a concrete location — file:line pair, test case reference, or specification section — with 100% anchor coverage across all claims | Verify `grep -c "file:\|line:\|spec:\|test:" claims.md` equals total claim count; any unanchored claim is escalated to the reviewer for location tracing |
+| ☐ | Complete when no claim has exceeded its maximum doubt cycle: CRITICAL ≤ 3, HIGH ≤ 3, MEDIUM ≤ 2, LOW ≤ 1 — zero cycle-4 entries in the doubt log | Verify `grep -c "CYCLE-4\|cycle: 4" doubt_log.md` returns 0; any claim approaching its cycle limit has an escalation or acceptance decision recorded |
+| ☐ | Complete when doubt theater is filtered: all doubts contain a specific failure condition (IF...THEN), counter-example, or concrete test — zero vague concerns like "have we considered edge cases" without a resolution note | Verify `grep -c "have we considered\|what about\|edge cases\|best practices" doubt_log.md`; each hit has a resolution note within 3 lines; `scripts/verify-skill.sh --doubt-theater` passes |
+| ☐ | Complete when all CRITICAL severity doubts have RESOLVED status — zero unresolved critical risks remain in the doubt log before marking the cycle complete | Verify `grep "CRITICAL" doubt_log.md | grep -v "RESOLVED"` returns 0; any unresolved CRITICAL blocks the STOP report from completing |
+| ☐ | Complete when every ACCEPTED doubt has a monitoring plan with an alert configuration, runbook link, and owner assignment — residual risk is quantified and documented, not just acknowledged | Verify `grep "ACCEPTED" RECONCILE.md | grep -v "monitoring\|alert\|runbook"` returns 0; each ACCEPTED entry has monitoring plan, alert threshold, and named owner |
+| ☐ | Complete when every CRITICAL doubt that reached cycle 3 has a cross-model escalation record showing review by a different model family (GPT-4o ↔ Claude, Gemini ↔ Claude) — not same-model confirmation | Verify `grep "CRITICAL.*cycle: 3" doubt_log.md | grep -v "escalat"` returns 0; escalation record includes the reviewing model, its findings, and any disagreement with the original assessment |
+| ☐ | Complete when the STOP report is complete: all phases (Synthesize, Test, Observe, Publish) produce output artifacts, and RECONCILE.md has entries for every non-HOLDS doubt with outcomes documented | Verify RECONCILE.md entry count matches non-HOLDS doubt count; every outcome (RESOLVED/ACCEPTED/DEFERRED/ESCALATED) has a decision rationale; STOP report references all artifacts |
+| ☐ | Complete when `scripts/verify-skill.sh` passes all checks — ground rules, claims coverage, doubt cycles, theater detection, cross-model escalation, and reconciliation completeness — with zero failures before delivery | Verify `scripts/verify-skill.sh` exit code is 0; all sub-checks pass; any failure is resolved and the script re-run before the Verification section is marked complete |
 
 ## Verification Guardrails
 

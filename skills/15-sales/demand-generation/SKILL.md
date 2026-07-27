@@ -93,7 +93,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -183,6 +182,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                │ sponsorships    │  │                      │
                └─────────────────┘  └──────────────────────┘
 ```
+
 **B2B LinkedIn:** Target by job title, company size, industry. Lead-gen forms (pre-filled) outperform landing page redirects by 3-5x on conversion. Expect CPL $50-200. Use for: top-of-funnel awareness + mid-funnel lead gen.
 
 **B2B Google Search:** Bid on competitor names, category terms, pain-point queries. High intent — these prospects are actively searching. Expect CPC $5-50 for SaaS. Use for: bottom-of-funnel capture.
@@ -222,6 +222,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                 └─────────────────┘  │ creation, 10% split  │
                                     └──────────────────────┘
 ```
+
 **Recommended default:** U-Shaped attribution with a 90-day lookback window. 40% credit to first touch, 40% to lead creation touch, 20% evenly across middle touches. State the model explicitly in every report.
 
 **When to use data-driven attribution:** >50 conversions/month per channel, machine learning can assign fractional credit based on actual influence patterns. Requires significant data volume.
@@ -262,6 +263,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ -10             │ │          │ │                  │
     └─────────────────┘ └──────────┘ └──────────────────┘
 ```
+
 **Scoring thresholds:** Score >50 = MQL (handoff to sales). Score 30-50 = Nurture (keep in marketing). Score <30 = Long-term nurture or discard.
 
 **Validation:** Run a correlation analysis quarterly. Are high-scoring leads actually converting at higher rates? If not, your scoring model is broken. Adjust weights based on actual closed-won data, not hunches.
@@ -297,6 +299,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                           │ if not needed│ └──────────────┘
                                           └──────────────┘
 ```
+
 **When to optimize above-fold:** Bounce >70%. Fix within 48 hours. Test headline + hero + CTA as a triad.
 
 **When to optimize form:** >60% drop form → submit. Reduce to ≤5 fields. Every field costs ~10% conversion.
@@ -330,7 +333,11 @@ Design nurture sequences, not email blasts. Architecture: (1) Welcome sequence (
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Error Recovery
 
@@ -398,11 +405,9 @@ MQL quality crisis (sales rejects >50% of MQLs) → Sales leadership + Marketing
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product positioning, competitive analysis, value proposition | Before engaging prospects or designing partnerships |
-
 
 ## Proactive Triggers
 
@@ -418,7 +423,6 @@ MQL quality crisis (sales rejects >50% of MQLs) → Sales leadership + Marketing
 | Landing page conversion drops below 2% from paid traffic (sustained >1 week) | Growth Engineer, Marketing Manager | CRO emergency; test headline, offer, form length, page speed. Every day below threshold burns ad budget with no return |
 | Competitor launches aggressive paid campaign targeting your branded keywords or ICP | Marketing Manager, Business Strategist | Brand CPC inflation and share-of-voice loss; competitive response strategy needed within 48 hours |
 | Nurture sequence holdout test shows no statistically significant lift vs. control after 90 days | Marketing Manager, Content Strategist | Nurture is burning effort for zero incremental pipeline; kill the sequence and redirect resources to higher-ROI activities |
-
 
 ## State Log
 
@@ -446,7 +450,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -515,49 +519,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Negative keyword lists reviewed weekly for paid search campaigns — search term reports audited
 - [ ] Webinar targeting criteria defined: job title (Director+), ICP industry, budget authority — attendee vetting process in place
 
-## Scale Depth
-
-<!-- DEEP: How this skill scales from solo to enterprise. -->
-
-### Solo Demand Gen (Founder-led, pre-Series A)
-- **Tooling:** Google Ads with manual bidding, Mailchimp for email, Google Sheets for attribution, Google Analytics for web tracking
-- **Process:** Founder runs LinkedIn ads and writes email sequences personally; no formal lead scoring; attribution is last-touch only
-- **Risk:** No holdout groups; no suppression lists; no A/B testing — every campaign is a single-variant gamble
-- **Move to next level when:** Monthly ad spend exceeds $5K OR you have ≥2 active channels (paid + email + webinar)
-
-### Small Team (1-2 Demand Gen, Series A-B)
-- **Tooling:** HubSpot/Marketo for marketing automation, Google Ads + LinkedIn Campaign Manager, basic UTM governance spreadsheet, Google Data Studio for dashboards
-- **Process:** Formal UTM taxonomy, lead scoring model (fit + engagement), email nurture with basic suppression, monthly campaign performance review
-- **Key hire:** First marketing operations person to manage HubSpot/Marketo, UTM governance, and CRM integration
-- **Move to next level when:** Monthly ad spend exceeds $50K OR running campaigns across ≥4 channels simultaneously
-
-### Medium Team (3-6 Demand Gen, Series B-C)
-- **Tooling:** Marketo/Pardot Enterprise, multi-touch attribution platform (Bizible/Full Circle Insights), ABM platform (6sense/Demandbase), dedicated analytics (Tableau/Looker)
-- **Process:** Multi-touch attribution (U-shaped or W-shaped), formal ABM program with sales SLA, weekly campaign optimization cadence, channel-level ROI reporting, dedicated CRO specialist for landing pages
-- **Metrics:** MQL → SQL → Opportunity → Closed-Won conversion rates by channel, CAC by channel, pipeline velocity, attribution-weighted ROI
-- **Move to next level when:** Running ABM for ≥100 named accounts OR annual marketing spend exceeds $2M
-
-### Enterprise (6+ Demand Gen, Series C+)
-- **Tooling:** Full marketing cloud (Marketo Engage + Salesforce Marketing Cloud), CDP for audience segmentation, AI-powered bidding (Google Smart Bidding + LinkedIn Predictive Audiences), dedicated MOPs team, media mix modeling
-- **Process:** Predictive lead scoring, real-time personalization, automated multi-channel orchestration, global campaign governance (regional teams follow central framework), quarterly media mix modeling
-- **Metrics:** Marketing-influenced pipeline vs marketing-sourced pipeline, LTV:CAC ratio by channel, incrementality testing results, brand lift studies, media efficiency ratio (MER)
-- **Governance:** Monthly marketing leadership review of channel performance, quarterly attribution model audit, annual media agency performance review, global UTM governance enforced via marketing automation
-
-## Error Decoder
-
-<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
-
-| Symptom | Diagnosis | Root Cause | Fix |
-|---------|-----------|------------|-----|
-| $50K ad spend, 15,000 clicks, 2 demo requests | Campaign bidding on "maximize clicks" instead of "maximize conversions"; traffic from low-intent audiences | No conversion tracking installed; campaign optimized for volume, not quality | Switch to Target CPA or Maximize Conversions bidding; install conversion tracking; review search term reports weekly; add negative keywords for students, jobs, free, tutorial |
-| Email nurture: 40% open rate, 0.5% click rate, zero pipeline | Open rates inflated by Apple Mail Privacy Protection; emails not driving action | Lead scoring uses opens as primary signal; content not mapped to buyer journey stage | Remove opens from lead scoring; score on clicks, form fills, site visits only; audit nurture content for buyer-stage relevance; add 10% holdout group to measure true incrementality |
-| 100 MQLs passed to sales, 40 accepted, 60 rejected with no feedback | MQL definition doesn't match what sales considers qualified; no rejection reason tracking | Sales and marketing never aligned on MQL criteria; no recycle path for rejected leads | Hold joint MQL definition workshop; document and sign shared criteria; require rejection reason for every lead; build automated recycle path (6-month re-nurture with additional qualification gates) |
-| UTM reports show 3 different "LinkedIn" sources, can't aggregate | No UTM taxonomy governance; each team uses different utm_source values | UTM parameters treated as optional; no automated validation in marketing platform | Create UTM taxonomy document with mandatory values; enforce via HubSpot/Marketo field validation; audit monthly; reject campaigns with non-compliant UTMs |
-| Attribution report shows "Campaign X drove $500K" but model is unspecified | Single number reported without methodology or lookback window | Attribution model not selected or documented; stakeholders don't understand model differences | Always report: model name (U-shaped/W-shaped/multi-touch), lookback window (90/180/365 days), and disclaimer that attribution is directional for budget allocation |
-| ABM program: 500 target accounts engaged, 3 opportunities created | Marketing generated engagement signals but sales didn't follow up within 48 hours | No sales follow-up SLA in ABM program; signal decay exponential after 48 hours | Implement 48-hour sales follow-up SLA; auto-escalate breaches to sales leadership; pause ABM spend if SLA breach rate exceeds 20%; add sales capacity check before launching new ABM campaigns |
-| LinkedIn ads: CPL rising 15% month-over-month, CTR declining | Creative fatigue — same ads running for 6+ weeks without refresh | No creative testing cadence; single variant per campaign; no kill criteria | Launch ≥5 variants per campaign; kill variants after $500 spend if CTR < 2× channel average; refresh weekly; never run same creative >14 days |
-
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -567,7 +528,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
 | Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
 | RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -600,4 +560,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

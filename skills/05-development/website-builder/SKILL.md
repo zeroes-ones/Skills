@@ -55,13 +55,23 @@ chain:
 
 End-to-end website building from concept to production — covering static site generators, low-code platforms, full custom builds, and everything in between. This skill provides a decision framework for choosing the right stack based on requirements, budget, technical capability, and long-term maintenance capacity. Every recommendation includes cost transparency, performance budgets, SEO foundations, and accessibility baselines.
 
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
@@ -78,6 +88,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 If no auto-route matched, use this intent tree:
 
@@ -106,6 +117,7 @@ Discovery Questions (when user has no idea what to build):
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect website building mistakes before they happen. Violation means STOP and refuse to proceed.
 
@@ -130,16 +142,19 @@ These rules are non-negotiable constraints that detect website building mistakes
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 #
 
 ## The Mental Model Shift
+<!-- STANDARD: 3min -->
 
 Competent web developers build sites that look good on their MacBook Pro with gigabit WiFi. Masters build sites that **load in under 2.5 seconds on a $150 Android phone with 3G connectivity, render correctly at 320px width, score 100 on Lighthouse, and cost $0/month to host indefinitely.** The shift: your Retina display is not representative. The median web user browses on a mid-range mobile device with variable connectivity. Design for constraints first — enhance for abundance.
 
 #
 
 ## Cognitive Biases That Kill Websites
+<!-- STANDARD: 3min -->
 
 | Bias | How It Manifests | Antidote |
 |-------|------------------|----------|
@@ -151,6 +166,7 @@ Competent web developers build sites that look good on their MacBook Pro with gi
 #
 
 ## What Website Masters Know That Others Don't
+<!-- STANDARD: 3min -->
 
 - **The cheapest hosting is no hosting.** A static site deployed to Cloudflare Pages or GitHub Pages costs $0/month forever. No servers to patch, no databases to backup, no runtime to monitor. If your site doesn't need server-side logic, don't pay for server-side infrastructure.
 - **JavaScript is a progressive enhancement, not a requirement.** Your site must be functional and readable with JavaScript disabled. Semantic HTML handles navigation, forms, and content. JavaScript adds interactivity (animations, filtering, dynamic loading) but must never be the sole mechanism for core functionality.
@@ -161,6 +177,7 @@ Competent web developers build sites that look good on their MacBook Pro with gi
 #
 
 ## When to Break Your Own Rules
+<!-- STANDARD: 3min -->
 
 - **Use a heavy framework when the dynamic features justify it.** If your marketing site has a real-time dashboard, user auth, and database-driven content, Next.js or Remix is appropriate. Don't use Astro just because "static is always better."
 - **Use a low-code platform when the alternative is no website at all.** A non-technical founder with no budget for developers should use Webflow or Framer rather than waiting months to hire. A launched site > no site.
@@ -177,60 +194,173 @@ Competent web developers build sites that look good on their MacBook Pro with gi
 - Don't use for backend API development or full-stack web apps with complex server-side logic — invoke backend-developer or fullstack-developer
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Rendering Strategy
+
+        ┌── INPUT: Website content & traffic profile
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Content    Content
+changes    changes
+rarely     frequently
+(<daily)?  or is user-
+   │       specific?
+   │          │
+   ▼     ┌────┴────┐
+STATIC   │         │
+SITE     ▼         ▼
+GENERA-  Real-time  SEO is
+TOR (SSG) dashboard  critical?
+Build at   or highly    │
+deploy,    interactive?┌────┴────┐
+serve      │         │
+static     ▼         ▼
+HTML     SINGLE    YES       NO
+from     PAGE APP   │         │
+CDN      (SPA)      ▼         ▼
+         Client-   SERVER-   SPA
+         side      SIDE      with
+         rendered  RENDERING prerender
+                   (SSR) or  or
+                   Incremental CSR-only
+                   Static
+                   Regen (ISR)
+
+### Decision Tree 2: CMS Selection
+
+        ┌── INPUT: Content management needs
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Non-tech   Developers
+content     are the
+editors?    only editors?
+   │         │
+   ▼         ▼
+HEADLESS   GIT-BASED
+CMS        CMS
+(Strapi,   (markdown
+Sanity,    files +
+Contentful) git workflow)
+   │         │
+   ▼         ▼
+Need       Need
+WYSIWYG +  versioning
+media      and PR
+library?   workflows?
+   │         │
+   ▼         ▼
+Sanity     Contentful
+or         or custom
+Strapi     MDX setup
+
+### Decision Tree 3: Hosting Platform
+
+        ┌── INPUT: Site complexity & traffic
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Static     Needs
+site?      backend
+   │       (API, DB,
+   │       server
+   ▼       functions)?
+CLOUDFLARE    │
+PAGES or  ┌────┴────┐
+Netlify    │         │
+(CDN-      ▼         ▼
+native,   Serverless Custom
+free      functions  runtime
+tier)     only?      needed?
+             │         │
+        ┌────┴────┐    ▼
+        │         │  RAILWAY,
+        ▼         ▼  FLY.IO,
+      Vercel    Netlify or
+      (Next.js  AWS ECS
+      native)   Functions  (Docker/
+                (AWS Lambda container)
+                backend)
 
 Detailed reference material
 
 > 📎 Full content extracted to [references/decision-trees.md](references/decision-trees.md) — 158 lines of detailed guidance, patterns, and code examples.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 Before writing a single line of code or choosing a platform, answer five questions. The answers dete...
 
 > 📎 See [references/core-workflow.md](references/core-workflow.md) for complete guidance (398 lines).
 ## Cost Matrix — Full Transparency
+<!-- STANDARD: 3min -->
 
 Detailed reference material
 
 > 📎 Full content extracted to [references/cost-matrix---full-transparency.md](references/cost-matrix---full-transparency.md) — 54 lines of detailed guidance, patterns, and code examples.
 
 ## Gotchas — Dollar-Quantified Website Footguns
+<!-- STANDARD: 3min -->
 
 - **"I'll just use WordPress" → $3,200/mo in security cleanup.** WordPress power...
 
 > 📎 Full content extracted to [references/gotchas---dollar-quantified-website-footguns.md](references/gotchas---dollar-quantified-website-footguns.md) — 25 lines of detailed guidance, patterns, and code examples.
 
-## Anti-Rationalization Table — No Excuses
-
-| The Temptation | Why It Feels Right | The Devastating Reality | Prevention |
-|---------------|-------------------|------------------------|------------|
-| **"WordPress is fine, everyone uses it"** | Most popular CMS (43% of web), massive plugin ecosystem, every developer knows it | Also the most hacked — 90% of CMS breaches target WordPress. The plugin ecosystem IS the attack surface. A single abandoned plugin with 10K installs is an exploit vector for 10K sites. The average hacked WP site has 20+ plugins — each one a potential entry point | Use static site generators for content sites — no database, no PHP runtime, no plugins. If WP is unavoidable, use managed hosting (Kinsta/WP Engine) with auto-updates, WAF, and zero-plugin policy. Maximum 5 well-maintained plugins |
-| **"I'll add SEO later"** | Focus on building the product first. SEO is just meta tags — can add in an afternoon | SEO is a 3-6 month compounding investment. "Later" = 6 months of zero organic traffic while competitors build domain authority. Retroactive SEO requires: content audit, URL restructuring (breaking backlinks), meta tag backfill, and re-indexing. Each month delayed is 30 days of traffic you'll never recover — search rankings are temporal | Semantic HTML + `<title>` + `<meta description>` from template scaffolding. Structured data (JSON-LD) on first deploy. Sitemap generation in CI/CD. These are 30-minute additions to any scaffold — there is no "later" cost savings |
-| **"Mobile optimization can wait until after launch"** | Desktop testing is faster. Mobile is "just smaller." Chrome DevTools responsive mode is good enough | 60%+ of global web traffic is mobile. Google exclusively uses mobile-first indexing as of 2023. A desktop-only site is literally invisible to Google. Beyond indexing: mobile users abandon sites that take >3 seconds to load at a 53% rate. A non-responsive site is non-functional for the majority of users | Design at 320px first (Tailwind mobile-first breakpoints enforce this). Test on a real $150 Android phone — DevTools emulation misses touch targets, font rendering, and real network latency. Every page must pass Core Web Vitals on mobile with 4G throttling |
-| **"One more plugin instead of custom code"** | Faster implementation. "Why write 200 lines of CSS when there's a plugin?" The ecosystem exists so I don't have to code | WordPress sites average 20+ plugins. Each plugin is: a security surface, a performance cost (its own CSS/JS bundle), a compatibility risk (conflicts with other plugins/themes/WP versions), and an abandonment risk (maintainer stops updating → security vulnerability). A 100-line custom CSS solution is safer than a 10,000-line plugin with 3 dependencies | Write custom code for specific features. Use libraries (Alpine.js, Swiper.js) not monolithic plugins. Every dependency added to a project must justify itself: "What problem does this solve that 20 lines of vanilla code wouldn't?" |
-| **"The free tier will be enough for now"** | Zero upfront cost. Quick to launch. "We'll upgrade when we hit the limits" | Free tiers have hidden cliffs: Vercel free limits commercial use to non-commercial/hobby projects (per ToS); Netlify free caps at 100GB bandwidth; Cloudflare Pages limits 1 concurrent build. The moment you exceed a limit — midnight bandwidth spike from a viral post, bot crawl triggering function overages — you face a choice: emergency upgrade (downtime during migration) or service degradation (your site is down/slow). "We'll upgrade when we need to" = "We'll deal with an outage first" | Budget $5-20/mo from day one. This covers: a domain ($1/mo), a hobby-tier hosting plan, and an analytics tool. Free tiers are for prototyping — a site that generates revenue or represents your brand deserves a paid plan |
-| **"I don't need analytics — I'll just check occasionally"** | One less tool to set up. "Traffic doesn't matter yet" — we're pre-launch. Analytics can wait until there's something to measure | You cannot improve what you don't measure. Without analytics: you don't know which content performs, which pages have 90% bounce rates, which referrers send traffic, or whether your SEO is working. Six months post-launch, you have zero data to inform decisions. Marketing spend is blind. Content strategy is guesswork. | Install Plausible or Umami (privacy-first, 5-minute setup, $0-9/mo). It's 1 script tag. There is no legitimate reason to skip this — the cost is near-zero and the data compounds in value every month |
-| **"I'll build my own e-commerce — Stripe is enough"** | Full control. No monthly platform fees. "Stripe Checkout handles payments — what else do I need?" | E-commerce is not just payments. You need: inventory management, tax calculation (VAT, GST, state-by-state US sales tax — Stripe Tax costs extra), shipping label generation, abandoned cart recovery, customer accounts/order history, and fraud detection. Building these from scratch takes 200-400 hours. Maintaining them as tax laws change is ongoing. Shopify/Medusa have solved these problems with teams of engineers | For 1-10 products, Gumroad/Lemon Squeezy. For 10-100 products, Shopify. For developer-controlled e-commerce with custom flows, Medusa (open-source). Only build from scratch if your e-commerce requirements are genuinely novel — and you have the team to maintain tax/shipping/fraud logic indefinitely |
-| **"I can set up my own server — $5 VPS is cheaper than any platform"** | Lowest raw cost. Full control. "A $5/mo DigitalOcean droplet can handle 100K visits" — technically true for static files | A VPS requires: OS patching (monthly), web server config (nginx/Apache), SSL renewal automation, DDoS protection, monitoring, backups, and security hardening. These are "free" if your time has zero value. At a developer rate of $100/hr and 2 hours/month of maintenance, that $5 VPS costs $205/month. A managed platform at $20/mo is cheaper the moment you value your time above $10/hr | Use managed platforms for all but the most specialized use cases. Cloudflare Pages ($0), Vercel ($20), Netlify ($19) handle patching, SSL, CDN, DDoS, and monitoring. Spend your time building the site, not administering a server. VPS is for custom backend services that cannot run on serverless — not for hosting a marketing site |
-
 ## Error Recovery — Explicit Step-by-Step
+<!-- STANDARD: 3min -->
 
 **Symptoms:** Build process crashes with `JavaScript heap out of memory`, `FATAL...
 
 > 📎 Full content extracted to [references/error-recovery---explicit-step-by-step.md](references/error-recovery---explicit-step-by-step.md) — 68 lines of detailed guidance, patterns, and code examples.
 
+## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| Site loads blank page after deployment | Build output path mismatch — framework outputs to `/dist` but CDN serves from `/build` | Verify build output directory matches CDN config. Run `npm run build && ls dist/` or `ls .next/`. Check `_redirects` or `vercel.json` for correct output |
+| Form submissions silently fail with 0 emails received | Server-side validation missing or email service not configured; client-side validation passed but server rejected | Check server logs for form endpoint. Verify email service API key and sender domain. Add monitoring: alert if 0 submissions in 24 hours. Always validate server-side |
+| Lighthouse SEO score drops from 100 to 60 after relaunch | Missing meta tags, broken canonical URLs, or robots.txt blocking all crawlers post-migration | Audit: `curl -I https://site.com | grep -i robot`, check `<meta name="robots">` is NOT `noindex`, verify `sitemap.xml` is accessible and submitted to Search Console |
+| Images load as broken on production but work locally | Relative paths that break with base URL change, or CDN misconfigured to block referrer | Use absolute URLs or `import` for assets. Check CDN CORS headers. Verify `assetPrefix` in framework config matches production domain |
+| Mobile menu doesn't open — JS error in console | Third-party script loaded synchronously blocks menu JS execution | Load third-party scripts with `async` or `defer`. Use Partytown for heavy scripts. Check browser console for render-blocking errors |
+| Fonts flash invisible for 3 seconds then appear | `font-display: block` (default) hides text during font load; on slow 3G this means invisible text for seconds | Set `font-display: swap` on all `@font-face` declarations. Preload critical fonts: `<link rel="preload" as="font" crossorigin>` |
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Building a custom CMS when a static site generator would suffice — over-engineering maintenance burden | $50K-$200K in unnecessary development and maintenance costs; 80% of website needs are content display, not dynamic logic | Use Astro/Hugo/11ty for content sites. Only add a CMS or backend when user-generated content, auth, or real-time features are requirements |
+| Choosing a platform without checking the exit strategy — site trapped in proprietary ecosystem | $20K-$100K in migration costs when platform raises prices or discontinues features; content locked in proprietary database format | Store content as markdown in git. Use standard frameworks (Astro, Next.js, Hugo, 11ty). Test: can you migrate to an alternative host in <4 hours? |
+| Ignoring Core Web Vitals until after launch — 53% of mobile visitors abandon sites taking >3 seconds | $50K-$500K in lost conversions; each 100ms delay in LCP reduces conversion rate by ~1%. Google uses CWV as ranking signal | Target: LCP <2.5s, FID <100ms, CLS <0.1. Set performance budgets before writing code. Test on real Moto G4 with 4G throttling, not MacBook Pro |
+| Not implementing form submission monitoring — 3 weeks of silent failures before noticing | $10K-$50K in lost leads/sales; broken contact form = 0 leads for weeks with no alert | Monitor form submissions: alert if 0 in 24 hours for a form that normally gets 5+/day. Send confirmation emails. Test form weekly with edge case inputs |
+| Deploying without CSP headers — first XSS vulnerability compromises entire site | $50K-$500K in breach costs; XSS via a third-party script or user content can exfiltrate all user data | Set Content-Security-Policy without `unsafe-inline` or `unsafe-eval`. Add HSTS, X-Frame-Options, X-Content-Type-Options. Test with Mozilla Observatory |
+| Not compressing or optimizing images — 5MB hero image on homepage | $20K-$80K in lost SEO traffic; Largest Contentful Paint blocked by unoptimized image drops search rankings | Use `<img>` with `srcset` and `sizes`. Convert to WebP/AVIF with `<picture>`. Lazy load below-fold images. Target: hero image <100KB, all images <200KB |
+| Using `target="_blank"` without `rel="noopener noreferrer"` — security vulnerability | $10K-$50K in phishing risk; opened page can redirect original page to phishing site via `window.opener.location` | Always use `rel="noopener noreferrer"` with `target="_blank"`. ESLint rule: `react/jsx-no-target-blank`. This is a known security anti-pattern |
+
 ## Verification Guardrails — Binary Deployment Checklist
+<!-- STANDARD: 3min -->
 
 Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F...
 
 > 📎 Full content extracted to [references/verification-guardrails---binary-deployment-checklist.md](references/verification-guardrails---binary-deployment-checklist.md) — 18 lines of detailed guidance, patterns, and code examples.
 
 ## Sub-Skills — When to Use Specialized References
+<!-- STANDARD: 3min -->
 
 | Sub-Skill | When to Use | See Reference |
 
 > 📎 Full content extracted to [references/sub-skills---when-to-use-specialized-references.md](references/sub-skills---when-to-use-specialized-references.md) — 6 lines of detailed guidance, patterns, and code examples.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |----------------|-----------------|-----------------|
@@ -254,6 +384,7 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 #
 
 ## Communication Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
@@ -276,6 +407,7 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | "We need a website by next week" | Start at Decision Trees → Time-Constrained Builds | Short timeline changes stack selection dramatically |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Website Output Characteristics | Stack Evolution |
 |-------|-------------------------------|-----------------|
@@ -285,22 +417,27 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | **Enterprise (20+ people, $500-5,000+/mo)** | Multi-tenant SaaS, global CDN, multi-region deployment, SOC 2 compliance, SSO, audit logging, custom analytics pipeline, dedicated support. | Next.js/Remix on AWS (ECS/EKS or Amplify). Enterprise CMS (Contentful/Contentstack). Auth0/Okta for SSO. DataDog/New Relic for observability. LaunchDarkly for feature flags. Incident response on-call rotation. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Prefer static over dynamic.** Every dynamic feature (SSR, serverless functi...
 
 > 📎 Full content extracted to [references/best-practices.md](references/best-practices.md) — 21 lines of detailed guidance, patterns, and code examples.
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -312,13 +449,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -334,6 +474,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -357,6 +498,7 @@ Before beginning a new phase, verify:
 | **Migrate a site from one host to another in under 4 hours** | Platform portability, domain configuration | Zero downtime, SSL intact, all redirects preserved, DNS propagation handled | 4 hours |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -372,17 +514,36 @@ When website builds go wrong, they go wrong in predictable ways. Here are the mo
 | Form submissions work locally, silently fail in production — 50+ leads lost before anyone notices. No error, no bounce, just an empty inbox | Server-side form handler (API route or serverless function) crashes on input it didn't expect: empty field, emoji in name, plus-sign in email. The client-side `fetch` resolves (the request was sent) but the server returns 500. No client-side error handling checks the response | Check `response.ok` after every form fetch: `if (!response.ok) throw new Error(...)`. Add server-side validation with clear error messages. Set up form submission monitoring: log every submission, alert if submissions stop. Test with edge-case inputs: emoji, SQL fragments, 1000-character names | Client-side `fetch` doesn't throw on HTTP errors — it throws on network errors. A 500 response is a "successful" fetch. You must explicitly check `response.ok` or `response.status` on every form submission |
 | CSS `font-display: block` causes invisible text for 3 seconds on slow connections — users bounce before reading a single word | Web font hasn't loaded yet. `font-display: block` tells the browser to hide text (invisible fallback) for up to 3 seconds while the font downloads. On 3G, the font takes 4+ seconds — text is invisible the entire time | Use `font-display: swap` — the browser shows fallback text immediately, then swaps to the web font when loaded. Preload critical fonts: `<link rel="preload" as="font" crossorigin>`. Subset fonts to Latin-only if targeting English-speaking audiences | The browser's font loading strategy determines whether users see your content in 0ms or 3000ms. `font-display: swap` guarantees content is readable immediately. Invisible text for 3 seconds is a worse UX than using a system font |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Lighthouse Performance ≥ 90 on mobile (simulated 4G, Moto G4) for every page | Run Lighthouse CI on PR; build fails if Performance < 90 or Accessibility < 95 |
+| ☐ | Complete when All `<img>` tags have explicit `width` and `height` attributes paired with `aspect-ratio` in CSS | `grep -r "<img" src/ | grep -v "width="` returns zero results; CLS < 0.1 verified |
+| ☐ | Complete when Third-party scripts loaded with `async`, `defer`, or Partytown — zero render-blocking scripts | Lighthouse report shows zero render-blocking resources; blocking time < 50ms per script |
+| ☐ | Complete when HTML cache TTL set short (`max-age=0, must-revalidate`); static assets cached by content hash | `curl -I https://site.com | grep Cache-Control` confirms short TTL for HTML; assets use hash filenames |
+| ☐ | Complete when Form submissions check `response.ok` on every fetch; server-side validation catches edge cases (emoji, SQL fragments, 1000-character names) | Test form with all edge-case inputs; submission monitoring alerts on zero-submission periods |
+| ☐ | Complete when `font-display: swap` on all `@font-face` declarations; critical fonts preloaded with `<link rel="preload" as="font" crossorigin>` | Lighthouse FCP < 1.8s; no invisible text period during font loading on Slow 3G |
+| ☐ | Complete when Structured data (JSON-LD) validated for all page types: Article, Product, FAQ, Breadcrumb | Google Rich Results Test returns zero errors or warnings for every page template |
+| ☐ | Complete when SPA fallback configured: server returns `index.html` for all routes; no 404 on page refresh for client-side routes | `curl -I https://site.com/about` returns 200, not 404; Netlify `_redirects` or Vercel `rewrites` configured |
+| ☐ | Complete when CSP headers set without `unsafe-inline` or `unsafe-eval`; security headers (HSTS, X-Frame-Options, X-Content-Type-Options) present | `curl -I https://site.com | grep -E "Content-Security|Strict-Transport|X-Frame|X-Content"` confirms all headers |
+| ☐ | Complete when Site migratable in <4 hours: content stored as markdown in git, no proprietary lock-in, DNS and SSL documented | Migration runbook tested: clone repo → install deps → build → deploy to alternate host in <4 hours |
+
 ## Production Checklist — Pre-Launch Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **P1. Lighthouse Performance ≥ 90 on mobile** (simulated 4G, Moto G4). Tar...
 
 > 📎 Full content extracted to [references/production-checklist---pre-launch-verification.md](references/production-checklist---pre-launch-verification.md) — 22 lines of detailed guidance, patterns, and code examples.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The site loads in under 1.5 seconds on a $150 Android phone with 4G connectivity. Every page scores 95+ on Lighthouse mobile (Performance, Accessibility, SEO, Best Practices). The homepage is under 150KB total (HTML + CSS + JS + images + fonts). Meta tags, structured data, and sitemaps were part of the initial scaffold — not retrofitted. The monthly hosting bill is under $20 and clearly understood by the site owner. Content editors update blog posts through a visual CMS without touching git. Forms validate server-side, deliver emails reliably, and have never been exploited. The site has never had a security breach, never failed a Core Web Vitals threshold, and never shown a blank page to a visitor. When the platform changes pricing, the site can migrate to an alternative in under 4 hours because the content is stored as markdown in git. This is what a 10/10 website build looks like.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -392,7 +553,6 @@ Detailed reference material loaded on demand:
 - **Deliberate Practice**: See [deliberate-practice.md](references/deliberate-practice.md)
 - **Error Recovery**: See [error-recovery.md](references/error-recovery.md)
 - **Gotchas**: See [gotchas.md](references/gotchas.md)
-- **Scale Depth: Operating at Different Levels**: See [scale-depth.md](references/scale-depth.md)
 - **State Log**: See [state-log.md](references/state-log.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Verification Guardrails**: See [verification-guardrails.md](references/verification-guardrails.md)
@@ -401,6 +561,7 @@ Detailed reference material loaded on demand:
 #
 
 ## External Resources
+<!-- STANDARD: 3min -->
 
 - **Content Architecture Patterns**: Content modeling (collections, taxonomies, relationships), multilingual strategies, CMS migration paths, markdown-to-headless-CMS workflow. See Astro content collections, Hugo taxonomies, and 11ty data cascade docs.
 - **Static Site Starter Templates**: Scaffolding for Astro (content collections, View Transitions), Hugo (modules, pipes), 11ty (data cascade, pagination), and Next.js (App Router, static exports). See framework docs for deployment config.

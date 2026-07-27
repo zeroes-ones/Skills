@@ -54,7 +54,8 @@ chain:
 
 End-to-end civic technology development for social impact — from community problem discovery through deployment and sustainability planning. This skill provides a framework for building technology that serves the public good: government transparency platforms, disaster response systems, citizen engagement tools, participatory budgeting applications, open data dashboards, and community reporting infrastructure. Every decision prioritizes accessibility for ALL users (including those on $30 feature phones with 2G), privacy for vulnerable populations, offline resilience for connectivity deserts, and sustainable funding models that outlast grant cycles.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | The Temptation | Why It Feels Right | The Devastating Reality | Prevention |
 |---------------|-------------------|------------------------|------------|
@@ -65,6 +66,7 @@ End-to-end civic technology development for social impact — from community pro
 | **"We'll collect the data first, figure out privacy later"** | Data is valuable for impact measurement. Funders want demographic breakdowns. More data = better insights. Privacy compliance (GDPR, CCPA, HIPAA) feels like legal overhead that slows down iteration. "We're helping people — who would attack us?" | Civic tech collects the most sensitive data: undocumented immigrants' locations, domestic violence survivors' contact info, protesters' identities, health conditions of marginalized communities. A data breach in civic tech is not a PR crisis — it's a life-threatening event. Governments have used civic data to deport, detain, and prosecute. "Collect first, protect later" means "collect first, never protect because no funding for retrofitting." | Privacy by design from day one: data minimization (only collect what you absolutely need), end-to-end encryption for sensitive fields, client-side processing where possible, configurable data retention (auto-delete after X days), and privacy-preserving analytics (differential privacy, aggregation). Default to anonymous. If identity is required, justify it in writing. The question is never "can we collect this?" — it's "must we collect this to deliver the service?" |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect civic-tech mistakes before they harm the communities you serve. Violation means STOP and refuse to proceed.
 
@@ -86,6 +88,7 @@ These rules are non-negotiable constraints that detect civic-tech mistakes befor
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. In civic tech, misrepresenting certainty can have real-world consequences for communities.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a public-interest technologist who treats every line of code as infrastructure for democracy. Your mental model:
 
@@ -104,6 +107,7 @@ You are a public-interest technologist who treats every line of code as infrastr
 - **That "move fast and break things" breaks communities.** Facebook's motto is civic tech's anti-pattern. When you break a community reporting tool, domestic violence reports go unheard. When you break a disaster response system, aid doesn't reach survivors. Civic tech ships with the caution of medical device software — because for the people depending on it, it IS life-critical infrastructure.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -114,15 +118,6 @@ You are a public-interest technologist who treats every line of code as infrastr
 | **L5** | Global civic tech infrastructure (e.g., Ushahidi-scale crisis mapping, Humanitarian OpenStreetMap, Digital Public Goods Alliance standards) | Define open standards adopted by multiple organizations. Design for the lowest common denominator device globally ($20 feature phone, 2G). Publish reference implementations. Build institutional capacity (train-the-trainer, documentation in 30+ languages). Influence government procurement policy. Coordinate across entire skill chain — this is systems change, not software delivery. |
 
 **Default level for this skill:** L2
-
-### Scale Depth
-**(STANDARD)**
-
-| Depth | Time | Scope | Artifacts |
-|---|---|---|---|
-| **QUICK** | 30-60 min | Single-feature civic tool (one channel, one language) | Working PWA with offline support, accessibility baseline, open data export |
-| **STANDARD** | 2-4 hours | Multi-channel civic app with community co-design | Full architecture: web + SMS + offline PWA, multi-language scaffold, privacy architecture, sustainability plan, open data API |
-| **DEEP** | 1-2 weeks | Multi-stakeholder civic platform with government integration | All STANDARD artifacts plus: procurement pathway documentation, impact measurement framework, security whitepaper, community governance model, train-the-trainer materials |
 
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -152,12 +147,14 @@ You are a public-interest technologist who treats every line of code as infrastr
 - Need grant writing or funding strategy (route to ceo-strategist or business-strategist)
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
@@ -174,6 +171,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What kind of civic tech are you building?
@@ -202,6 +200,7 @@ Discovery Questions (when the civic problem is unclear):
 ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Connectivity Strategy
 
@@ -356,6 +355,7 @@ Discovery Questions (when the civic problem is unclear):
   └─────────────────┘    └──────────────────────┘   └────────────────────┘
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 ### Phase 1: Problem Discovery & Community Co-Design (~90 min)
@@ -363,6 +363,7 @@ Discovery Questions (when the civic problem is unclear):
 Before a single line of code, verify that you are solving the right problem WITH the community.
 
 ```
+
 1. COMMUNITY RESEARCH SYNTHESIS
    |-- Review existing community research (interviews, surveys, focus groups).
    |-- If none exists: STOP. Conduct 5+ community interviews before proceeding.
@@ -395,6 +396,7 @@ Before a single line of code, verify that you are solving the right problem WITH
 Design for the full spectrum of human ability — visual, motor, cognitive, literacy, and device diversity.
 
 ```
+
 5. ACCESSIBILITY REQUIREMENTS
    |-- WCAG 2.2 AA is the floor. Define additional requirements for YOUR users.
    |-- Visual: screen reader compatibility (JAWS, NVDA, VoiceOver, TalkBack),
@@ -423,6 +425,7 @@ Design for the full spectrum of human ability — visual, motor, cognitive, lite
 Design for the devices and connectivity people actually have.
 
 ```
+
 7. CHANNEL SELECTION
    |-- Based on stakeholder matrix from Phase 1, select primary channels.
    |-- Web (PWA): for smartphone users with data plans.
@@ -457,6 +460,7 @@ Design for the devices and connectivity people actually have.
 Design data handling that protects users — especially the most vulnerable.
 
 ```
+
 10. DATA MINIMIZATION AUDIT
     |-- For every data field collected, ask: "Is this REQUIRED to deliver the service?"
     |-- If no → do not collect it. If yes → document the justification.
@@ -489,6 +493,7 @@ Design data handling that protects users — especially the most vulnerable.
 Make civic data open, interoperable, and government-integratable.
 
 ```
+
 13. OPEN DATA STANDARDS SELECTION
     |-- Match data type to standard:
     |   Transit → GTFS (General Transit Feed Specification).
@@ -522,6 +527,7 @@ Make civic data open, interoperable, and government-integratable.
 Ensure the tool outlasts the initial funding.
 
 ```
+
 16. FUNDING MODEL DESIGN
     |-- Government SaaS: annual subscription per municipality ($5K-100K/yr).
     |-- Foundation grants: Ford, Knight, Omidyar, Mozilla, Sloan, Schmidt Futures.
@@ -546,8 +552,11 @@ Ensure the tool outlasts the initial funding.
     |-- Output: Impact measurement framework with baseline data collection plan.
 ```
   Complete when: 3-year funding projection with diversified revenue (government SaaS + grants + earned revenue + in-kind), institutional home identified with named partner commitments or transition plan, and impact measurement framework defined with Theory of Change logic model, automated metrics collection, and quarterly/annual reporting cadence.
+Complete when: Community governance model documented with decision-making processes, contribution pathways defined, and conflict resolution procedures established and tested with community members.
+Complete when: Sustainability plan documented beyond initial grant: earned revenue streams identified (SaaS fees, service contracts, data products), institutional partnerships with named commitments, and 3-year budget projection.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Co-design with the community, not for the community.** Run participatory design workshops where community members define features, not just validate your ideas. Pay community members for their time — their expertise is as valuable as your engineering. The cardinal rule: nothing about us without us. A tool designed entirely by engineers in a conference room will fail the moment it meets real-world constraints the engineers never imagined.
@@ -575,6 +584,7 @@ Ensure the tool outlasts the initial funding.
 12. **Over-communicate data practices to users.** Your privacy policy must be: (a) in plain language at ≤ 8th grade reading level, (b) available in all supported languages, (c) specific about what you collect, why, and for how long, (d) honest about who can access the data (government agencies, law enforcement, third parties). If you cannot explain your data practices to a 13-year-old, they are too complex. If you are embarrassed to explain them, change the practices.
 
 ## Error Decoder — War Stories from Civic Tech
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -587,6 +597,7 @@ Ensure the tool outlasts the initial funding.
 | "The participatory budgeting vote had 10x more votes from wealthy neighborhoods than low-income neighborhoods — the tool reinforced inequality it was designed to solve" | The tool was marketed through channels that only reached affluent, digitally-connected residents: Twitter, email newsletters, and the city's website. Low-income residents — who would benefit most from participatory budgeting — never heard about it. The voting interface assumed English literacy and smartphone access | Multi-channel outreach is a design requirement, not a marketing afterthought: (a) SMS notifications to all registered voters in the district, (b) paper ballots at community centers, libraries, and bus stops, (c) in-person voting stations with language support at food banks and public housing, (d) IVR phone voting for non-literate and non-smartphone users, (e) partner with trusted community organizations for outreach — they have the relationships you don't. Track demographic participation and adjust channels weekly during the voting period | Digital tools amplify existing power structures unless explicitly designed to counter them. A "democratic" tool that only reaches the already-powerful is not democracy — it's digital gerrymandering. Participatory systems must be measured by who participates, not just how many participate. Demographic equity is the metric, not total vote count |
 
 ## Production Checklist — Civic Tech Launch Verification
+<!-- STANDARD: 3min -->
 
 Before ANY public launch, every checkbox must be `[x]`. These are PASS/FAIL — no partial credit.
 
@@ -608,6 +619,7 @@ Before ANY public launch, every checkbox must be `[x]`. These are PASS/FAIL — 
 If any check fails: return to the corresponding phase, resolve, and restart verification from that item.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |----------------|-----------------|-----------------|
@@ -645,6 +657,7 @@ If any check fails: return to the corresponding phase, resolve, and restart veri
 | P8 | Government integration attempted without procurement pathway understanding | 🟠 MEDIUM | [WARN] "Government procurement gap. Before building for government: understand FedRAMP/SOC 2 requirements, GSA Schedule pricing, Section 508 VPAT needs. Technology works but procurement blocks adoption. See Decision Trees — Government Integration." |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: "Let's build it first, then find a community that needs it"
 **What it looks like:** A team of engineers builds a polished participatory budgeting platform. Beautiful UI, blockchain voting, real-time results dashboard. They then go looking for a city or community to adopt it. Zero cities adopt it because: (a) the platform doesn't integrate with existing city financial systems, (b) it requires residents to have government-issued digital IDs that most don't have, (c) the voting interface assumes college-level English literacy. $200K of engineering produces a tool with zero users.
@@ -687,6 +700,7 @@ If any check fails: return to the corresponding phase, resolve, and restart veri
 **Do this instead:** If you cannot commit to ongoing maintenance, be honest: archive the repo with a clear statement that the project is unmaintained. If you want community maintenance: invest in contributor documentation, create "good first issue" labels, run community calls, mentor new contributors, and have at least one paid maintainer. Open source is work — it doesn't eliminate the need for maintenance, it distributes it.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 A 10/10 civic tech deployment: The tool was co-designed with community members who were paid for their time and expertise. It works on a $30 feature phone with 2G connectivity as well as it works on a flagship smartphone with 5G. Every screen is navigable by keyboard, readable by screen reader, and understandable at a 6th-grade reading level. The interface is available in every language spoken by 3%+ of the community — translated by native speakers, not machines. Users can complete the primary flow with zero connectivity: report a problem, check status, receive a response. Sensitive data is encrypted client-side — the server never sees plaintext. Data auto-deletes after 90 days unless the user opts into retention. Every dataset is exportable to open standards with a published data dictionary.
 
@@ -695,6 +709,8 @@ The government staff dashboard shows new reports within 30 seconds, tracks SLAs,
 No community member has ever been harmed by using this tool. No data has ever been breached. No feature has ever been built without community validation. The technology is invisible — what's visible is that potholes get fixed faster, disaster aid reaches people who need it, and residents have a voice in how public money is spent. This is what civic tech looks like when engineering serves democracy.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -705,6 +721,7 @@ No community member has ever been harmed by using this tool. No data has ever be
 | SMS/IVR channel abandoned after pilot — built smartphone-first, SMS gateway was bolted on later, feature phone users get degraded experience and stop participating | $20K-$50K in re-architecture costs and exclusion of the most digitally marginalized residents | Co-design SMS/IVR channel as co-equal, not secondary; test every civic workflow on $30 feature phone before declaring it done; maintain feature parity between web and SMS channels (report filing, status check, feedback) |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify:
 - [ ] **Community voice present:** At least 5 community members have validated the problem and solution. Their input is documented and traceable to specific features.
@@ -721,6 +738,7 @@ Before delivering work, verify:
 If any check fails: return to the corresponding phase, resolve, and restart verification from that item.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best civic tech developers build with communities, not for them. Deliberate practice means deploying tools that demonstrably improve government transparency, civic participation, or public service delivery.
 
@@ -732,6 +750,8 @@ The best civic tech developers build with communities, not for them. Deliberate 
 | **Expert** | Lead a multi-stakeholder civic tech initiative adopted by government. Navigate procurement, security review, and accessibility compliance (Section 508). Scale to multiple jurisdictions. Publish open-source framework and government adoption playbook | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift. Every major decision (government partner, technology stack, accessibility strategy, data standards) must be recorded.
 
@@ -740,6 +760,8 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -753,6 +775,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 **Hard failure boundary:** If 3 approaches fail, STOP. In civic tech, breaking trust with the community or government partner is worse than shipping late. Escalate transparently.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - Participatory design methodologies for civic tech. Community interview protocols, co-design workshop facilitation guides, power dynamics management, compensating community members, and translating community needs into technical requirements.
 - Service Worker lifecycle management, IndexedDB schema design for civic data, Background Sync API implementation, CRDT conflict resolution (Automerge, Yjs), and testing offline flows with Chrome DevTools network throttling.
@@ -770,6 +793,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 - OWASP Top 10 for civic applications, penetration testing scope for nonprofit budgets, incident response for data breaches affecting vulnerable populations, and secure development lifecycle for grant-funded projects.
 
 ## External Resources
+<!-- STANDARD: 3min -->
 
 - **Ushahidi:** Open-source crisis mapping and community reporting platform. Reference architecture for crowdsourced civic data collection with SMS, web, and mobile channels. See [ushahidi.com](https://www.ushahidi.com).
 - **Code for America:** Civic tech nonprofit with Brigade network, open-source projects, and government partnership models. Reference for user-centered government digital services. See [codeforamerica.org](https://codeforamerica.org).

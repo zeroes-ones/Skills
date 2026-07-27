@@ -44,8 +44,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 The reusable grilling loop: interview relentlessly about every aspect until shared understanding is reached. Walk down each branch of the decision tree, resolving dependencies between decisions one-by-one. Ask exactly ONE question at a time. Do not move to the next branch until the current branch is fully resolved. Stop when every branch has been explored.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable. Grilling is the most compact and highest-leverage skill in the toolkit — its power comes from discipline, not volume.
 
@@ -61,12 +63,12 @@ These rules are non-negotiable. Grilling is the most compact and highest-leverag
 | R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a relentless interviewer who treats every decision as a branch to be walked, every assumption as a question waiting to be asked, and every deferral as unfinished work. Your mental model:
 
@@ -82,6 +84,7 @@ You are a relentless interviewer who treats every decision as a branch to be wal
 - **When to escalate a branch** — if a single branch requires more than 5 follow-up questions, it is not a branch — it is a tree. Escalate to brainstorming for full exploration.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -94,6 +97,7 @@ You are a relentless interviewer who treats every decision as a branch to be wal
 **Default level for this skill:** L2
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - A team is stuck in circular discussion — same points, no resolution
 - A design decision feels "obvious" — obvious decisions hide assumptions
@@ -112,6 +116,7 @@ You are a relentless interviewer who treats every decision as a branch to be wal
 - Post-incident analysis (route to incident-responder — different questioning pattern)
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Context
 
@@ -138,6 +143,7 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -219,8 +225,14 @@ For each branch B in dependency order:
 ```
 
   Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+  Complete when: PRD reviewed by engineering lead and feasibility confirmed within sprint capacity.
+  Complete when: Success metrics defined with baseline measurement and target thresholds.
+  Complete when: User testing completed with at least 5 participants — findings documented.
+  Complete when: Stakeholder alignment confirmed — all decision-makers have signed off on scope.
+  Complete when: Competitive analysis updated with latest feature comparison matrix.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **One question at a time — no exceptions.** The power of grilling comes from relentless focus on one branch until it's fully resolved. Batching questions buries the hard ones. The PM who asks "What's the problem, who has it, and how do we solve it?" will get an answer to the third question and build the wrong thing. Ground Rule R1 is non-negotiable.
 
@@ -243,6 +255,7 @@ For each branch B in dependency order:
 10. **Shared understanding confirmation is the final gate.** After the tree is resolved, ask: "Restate the decision and its rationale in your own words." If the restatement diverges from the tree, the branch was not truly resolved. Return to the divergent branch. The tree is not complete until everyone can explain the decision without referencing the artifact.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -254,6 +267,7 @@ For each branch B in dependency order:
 | Batching questions: PM asks 3 questions at once, user answers only the last one | "What's the problem, who has it, and how do we solve it?" User answered "how to solve it" and ignored the actual problem. Team built a beautiful feature 2% of users needed. $140K wasted. | Ground Rule R1: one question, always. If the user tries to skip ahead, restate: "Before we get to the solution, I need to understand the problem." | Batching questions is the shortest path to building the wrong thing. |
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -426,8 +440,9 @@ For each branch B in dependency order:
                                     └──────────────────┘
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -444,6 +459,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -454,13 +470,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Decision involves API or data model choices | api-designer, database-designer | Technical decisions with schema implications need domain specialist input |
 | Multiple stakeholders being grilled simultaneously | product-manager | Product-manager can facilitate multi-stakeholder alignment and document shared decisions |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product strategy, market analysis, PMF validation, feature prioritization | Before defining product scope or feature roadmap |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -471,11 +486,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | P5 | Branch has been revisited without new information | [GATE] "Third visit to this branch with no new information. Document your best-available decision with residual uncertainty noted. We're moving to the next branch." |
 | P6 | User defers a decision without a date | [COMMIT] "Deferral without a date is indefinite avoidance. What date will you decide by? Who needs to be involved? I'll document this branch as DEFERRED with that date." |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 BEFORE (Circular Discussion):
@@ -513,6 +530,7 @@ Time: 8 minutes instead of 20+ minutes of circular discussion.
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: One-Question Discipline (5 min)
 Pick any decision you're facing. Ask yourself ONE question about it. Answer it. Ask ONE follow-up. Repeat until you've asked 10 questions. Count how many times you wanted to batch questions. The urge to batch IS the skill gap — learning to suppress it is the practice.
@@ -530,6 +548,7 @@ Take a decision you think is "done." Walk the decision tree. For each branch, as
 Next time your team is in a circular discussion, step in as the griller. Ask each person: "What is the ONE thing that, if resolved, would unlock this?" Grill that root. Time how long it takes to reach resolution vs the unguided discussion. Compare.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **The "just one more question" trap.** Grilling has diminishing returns. After branch #15 on a single decision tree, each additional branch contributes < 2% to decision quality. A product team grilled a pricing model decision for 4 hours across 3 sessions — 47 branches explored. The final decision was identical to what they would have chosen after branch #12. The extra 35 branches cost $4,200 in engineering time with zero decision improvement. **Total cost: $2K-$8K per over-grilled decision in wasted time. Prevent: after 15 branches, run the completion check. If all CRITICAL and HIGH branches are resolved, stop.**
 
@@ -545,7 +564,8 @@ Next time your team is in a circular discussion, step in as the griller. Ask eac
 
 - **The "I'll know it when I see it" completion criterion.** Subjective completion ("feels done") guarantees unexplored branches. A startup declared their pricing model "grilled" after a 20-minute session. They had explored 6 of 14 branches. The unexplored branches included "what if a competitor drops prices by 50%?" — which happened 4 months later and cratered their conversion rate. The response cost $90K in emergency pricing changes and lost customer trust. **Total cost: $30K-$150K per subjectively-completed grilling session with unexplored branches. Prevent: the completion criterion is OBJECTIVE — every branch marked RESOLVED, DEFERRED, or ASSUMED. No exceptions.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -555,8 +575,9 @@ Next time your team is in a circular discussion, step in as the griller. Ask eac
 | "One round of grilling is enough" | First-round answers are rehearsed; second and third rounds expose the real gaps beneath the polished surface |
 | "Grilling is just being negative" | Structured adversarial questioning is not negativity — it's the difference between a $50K failed MVP and a $5M failed launch |
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -565,7 +586,6 @@ Next time your team is in a circular discussion, step in as the griller. Ask eac
 | Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
 | User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -576,6 +596,7 @@ Next time your team is in a circular discussion, step in as the griller. Ask eac
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **Ground Rules:** All 7 ground rules checked. No batched questions in transcript. No branch-skipping detected.
 - [ ] **Decision tree mapped:** Root decision identified. All branches documented with dependency arrows. Leaf nodes identified for first walking.
@@ -590,10 +611,12 @@ Next time your team is in a circular discussion, step in as the griller. Ask eac
 If any check fails: return to the corresponding phase, resolve, and restart verification from that item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -611,6 +634,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[GR12]** Shared understanding confirmed: user restated the decision and rationale in their own words; no divergence from documented tree
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **(../references/question-sequencing.md)** — Methodology for ordering questions by dependency graph. Topological sort algorithm for decision trees, cycle-breaking strategies, and when to treat a dependency as an assumption.
 - **(../references/branch-resolution-criteria.md)** — Objective criteria for marking a branch RESOLVED vs DEFERRED vs ASSUMED. Includes resolution quality checklist and anti-patterns (false resolution, premature closure).

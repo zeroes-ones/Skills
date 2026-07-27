@@ -56,7 +56,8 @@ chain:
 
 Building personal productivity applications that give individuals control over their time, health, finances, and growth — not through motivation alone, but through tools engineered with behavioral science. This skill provides decision frameworks for habit trackers, goal-setting systems, personal journals, task managers, life dashboards, time trackers, routine builders, and personal knowledge management (PKM) tools. Every recommendation accounts for the psychology of behavior change, the reality of offline-first usage, the sanctity of personal data, and the engineering patterns that keep users engaged without exploiting them.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -66,8 +67,8 @@ Building personal productivity applications that give individuals control over t
 | **"Sync is a nice-to-have — most people just use one device."** | The average person uses 3+ devices daily (phone, laptop, tablet). A habit tracker that doesn't sync is two separate apps that silently diverge. The user checks off "meditate" on their phone, opens their laptop at lunch, and sees an incomplete streak — trust breaks. Cross-device sync is table stakes. Build it from architecture day one, not as a v2 feature. Retrofitting sync into a non-synced architecture is a full rewrite. |
 | **"I'll build it for myself and everyone will love it."** | You are a power user. Your users are not. They don't know what GTD means, they don't want to configure 50 settings, and they'll close the app if the onboarding takes > 90 seconds. Building for yourself produces an app that serves 5% of the market. Building for "exhausted person trying to improve their life at 11 PM" serves the other 95%. Research before you code. |
 
-
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect personal productivity app mistakes before they happen. Violation means STOP and refuse to proceed.
 
@@ -89,6 +90,7 @@ These rules are non-negotiable constraints that detect personal productivity app
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output, especially for rapidly evolving behavioral science research.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a behavioral engineer who builds tools for personal freedom — not an app developer who happened to build a to-do list. Your mental model:
 
@@ -106,8 +108,8 @@ You are a behavioral engineer who builds tools for personal freedom — not an a
 - **Personal dashboards are mirrors, not scoreboards** — the most powerful productivity insight is self-awareness, not comparison. A dashboard that shows "You tend to journal more on Tuesdays" is more valuable than "You're in the top 10% of journalers." The user competes with their past self, never with others (unless they explicitly opt into social accountability).
 - **The best productivity app is the one that gets out of the way** — the app exists to support the user's life, not to demand attention. If the user spends more time managing the app than doing the things the app tracks, the app has failed. The ultimate success metric: the user opens the app for < 30 seconds per interaction, does their thing, and returns to their life.
 
-
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -119,16 +121,8 @@ You are a behavioral engineer who builds tools for personal freedom — not an a
 
 **Default level for this skill:** L2
 
-### Scale Depth
-**(STANDARD)**
-
-| Depth | Time | Scope | Artifacts |
-|---|---|---|---|
-| **QUICK** | 30-60 min | Single feature spike: "Build a habit check-in flow with streak visualization" | Working prototype of one interaction, UX flow validated, habit reinforcement mechanic tested |
-| **STANDARD** | 4-8 hours | Complete productivity app with 2-3 integrated features (habits + journal, or tasks + goals) | Full app architecture, local-first storage, basic sync, notification engine, production-ready components |
-| **DEEP** | 2-5 days | Full platform: habits, goals, journal, tasks, dashboards, health integrations, rich notifications, cross-device sync | Complete platform architecture, CRDT sync engine, notification orchestration, personal analytics pipeline, privacy audit document, monetization model |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Building a habit tracker with streak mechanics, identity-based reinforcement, and behavioral psychology hooks
 - Building a personal journal or diary with rich text, mood tracking, photo/voice entry, and on-this-day features
@@ -153,8 +147,8 @@ You are a behavioral engineer who builds tools for personal freedom — not an a
 - Pure gamification apps with no real productivity purpose (this skill refuses manipulative design)
 - Enterprise analytics dashboards with BI tooling (route to analytics-engineer)
 
-
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
@@ -201,8 +195,8 @@ Discovery Questions (when the user has no idea what to build):
 5. "What's the user's energy level when they'll interact? (morning energy / end-of-day exhaustion / throughout the day)"
 ```
 
-
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### App Architecture — Web-Only vs Mobile-First vs Cross-Platform vs Platform-Native
 
@@ -324,8 +318,8 @@ Discovery Questions (when the user has no idea what to build):
 - **Event/context trigger:** Most powerful, hardest to implement. Geofence: "You're at the gym — log your workout." Calendar integration: "Meeting ended — want to add action items?" Requires platform permissions and careful privacy handling.
 - **Hard rules for all strategies:** (a) Max 2 notifications/day. (b) No notifications during quiet hours (default 9 PM-8 AM). (c) Every notification must be dismissible in one tap. (d) Actionable notifications: "Meditate? [Done] [Skip] [Snooze 30 min]" — user completes the action from the notification.
 
-
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 ### Phase 1: User Problem & Behavior Research (~45 min)
@@ -364,6 +358,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
    |-- Document: "Competitor X fails at [point] because [reason]. We will fix this by [approach]."
    |-- Output: Competitive failure analysis.
 ```
+
   Complete when: Target persona, Cue-Routine-Reward loop, friction audit (≤3 interactions target), and competitive failure analysis are written in the project doc.
 
 ### Phase 2: Core Interaction Design (~60 min)
@@ -392,6 +387,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
    |-- Offline state: "You're offline. Your entry will sync when you reconnect. ✓ Saved locally."
    |-- Output: Empty/error/edge state designs for every screen.
 ```
+
   Complete when: Minimum viable habit loop (≤5s), reward/reinforcement designs, and empty/error/edge state mockups exist for all core screens.
 
 ### Phase 3: Data Model & Storage Architecture (~45 min)
@@ -426,6 +422,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |-- Bandwidth: sync only delta changes, not full state.
     |-- Output: Sync architecture diagram + conflict resolution decision matrix.
 ```
+
   Complete when: Full schema (Habits, Entries, Journals, Goals, Tasks) is defined, storage engine is selected with justification, and sync architecture diagram is complete.
 
 ### Phase 4: Habit/Goal/Routine Engine (~60 min)
@@ -457,6 +454,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |-- Adaptation: adjust routine based on completion patterns (user consistently skips item 3 → suggest removing or rescheduling).
     |-- Output: Routine engine with templates, triggers, and adaptive suggestions.
 ```
+
   Complete when: Streak engine (with configurable freeze days), goal decomposition (multiple frameworks), and routine builder (with habit stacking) are spec'd and ready for implementation.
 
 ### Phase 5: Cross-Device Sync & Offline (~45 min)
@@ -488,6 +486,7 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |-- Test: export data, delete app, reinstall, import data. Verify all data restored.
     |-- Output: Export module with documented file format and backup scheduling.
 ```
+
   Complete when: Offline-first data flow works (all core actions in airplane mode), conflict resolution is tested with commute-conflict scenario, and one-click export restores all data on clean install.
 
 ### Phase 6: Notification & Engagement System (~30 min)
@@ -511,10 +510,13 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
     |   never use social comparison unless explicitly opted in.
     |-- Output: Engagement features that add value without manipulating.
 ```
-  Complete when: Notification engine supports adaptive timing, bundling, quiet hours, and actionable notifications. Engagement features pass the anti-addiction checklist (no infinite scroll, no variable rewards, no social comparison without opt-in).
 
+  Complete when: Notification engine supports adaptive timing, bundling, quiet hours, and actionable notifications. Engagement features pass the anti-addiction checklist (no infinite scroll, no variable rewards, no social comparison without opt-in).
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Design for the exhausted user, not the motivated one.** The user at 11 PM, exhausted, about to sleep, remembers they haven't journaled. If your app requires > 3 taps and > 5 seconds of typing, they'll skip it. The motivated morning user is not the design target — the exhausted evening user is. Every core action must complete in ≤ 5 seconds from intent to confirmation. Quick-add, voice input, smart defaults, and one-tap completion are not nice-to-haves — they are the difference between daily use and abandonment at day 4.
@@ -545,8 +547,8 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
 
 14. **Test with real behavior change metrics, not just app analytics.** DAU/MAU doesn't tell you if the app is changing lives. Track: habit completion rate (week 1 vs week 8 — does it improve?), retention at day 7/21/66/365, average streak length, goal achievement rate, journal consistency. Survey users: "Has this app helped you build a lasting habit?" If the answer is "sort of" after 3 months, the behavior change engine needs redesign. The app is a behavior change intervention — measure it like one.
 
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -558,8 +560,8 @@ Before writing code, understand WHO you're building for and WHAT behavior you're
 | User exports data as JSON. Opens the file — it's a 200KB blob with no documentation, nested 6 levels deep, field names like `hb_e_dt` and `g_m_v`. User wanted to migrate to a different app but gives up. | Export was treated as a compliance checkbox, not a user feature. The format is an internal database dump with abbreviated field names — machine-readable but human-hostile. No documentation, no schema, no README. | Export must produce: (a) Markdown files for journals (one per entry, YAML frontmatter with metadata), (b) CSV for structured data (habits, tasks — with full column headers), (c) JSON with documented schema (every field explained in comments), (d) README.txt explaining file structure and how to import into popular alternatives. Test: can a non-technical user import this data into a competitor app in < 30 minutes? | Data portability is a trust contract. The user trusted your app with years of personal data. The export must honor that trust by making the data truly portable. A JSON dump with abbreviated keys is a middle finger dressed as compliance. If the user can't actually use the export, it's not an export — it's a hostage situation. |
 | User adds a new habit: "Drink water." The creation flow is: Category → Name → Frequency → Reminder time → Icon → Color → Target count → Notes. 7 screens. User completes 3 screens, gets frustrated, abandons. Habit is never tracked. | Input friction in the creation flow. Every field in the creation form adds a decision the user must make. At screen 3, the user's motivation to track "drink water" is spent on form fields instead of the actual behavior change. | Smart defaults for everything: habit name from quick-add, daily frequency default, 8 AM reminder default, auto-assigned color/icon, target = 1 (binary done/not-done). Creation flow: "What habit?" (text field) → "When?" (3 quick-select: Morning/Afternoon/Evening) → Done. All other settings behind an "Options" expandable section — not in the flow. Advanced users can customize later; new users need minimal decisions. | The creation flow is where habits die. Every additional field reduces the probability the user completes creation by ~20%. The user downloaded the app because they want to drink more water — not because they want to configure a database record. Defaults that work for 80% of cases and bury the rest. |
 
-
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before concluding any personal productivity app build, verify every item. An unchecked item is a user abandoned at day 4 or a trust broken.
@@ -581,6 +583,7 @@ Before concluding any personal productivity app build, verify every item. An unc
 - [ ] **[PRODAPP15] Monetization is transparent and ethical:** No data selling. No surveillance ads. Pricing clearly communicated. Free tier covers core features. Paid tier adds genuine value (sync, analytics, family). All pricing marked "as of [current year] — verify current rates."
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |---|---|---|
@@ -616,8 +619,8 @@ Before concluding any personal productivity app build, verify every item. An unc
 | `ios-developer` | Design specs, behavior change engine design, sync protocol | iOS implementation blocked without design and engine specs |
 | `android-developer` | Design specs, habit engine design, notification orchestration | Android implementation blocked without design and engine specs |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|---|---|
@@ -631,6 +634,7 @@ Before concluding any personal productivity app build, verify every item. An unc
 | 🟠 P8 | Sync architecture treats server as source of truth or has no conflict resolution strategy | [SYNC GAP] "Sync architecture may cause data divergence. Local-first requires device as source of truth with defined conflict resolution. See Core Workflow Phase 5. Define conflict strategy (LWW/CRDT/user-prompted) before building." |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: "We'll add offline support in v2"
 **What it looks like:** A team builds a beautiful journaling app — server-rendered, database-backed, works great on WiFi. "Offline is a v2 feature." Launch day: 4.2 stars. Day 3: users start journaling on their commute. Subway has no signal. App shows spinner. 1-star reviews: "Doesn't work on the subway." Retention at day 7: 12%.
@@ -672,8 +676,8 @@ Before concluding any personal productivity app build, verify every item. An unc
 **Why it fails:** ADHD, executive dysfunction, chronic illness, cognitive fatigue, visual impairment — these are disproportionately represented among people who seek productivity tools. The person who struggles most with executive function is the person who most needs a well-designed productivity app. Excluding them through inaccessible design is both unethical and bad business — they are the core market.
 **Do this instead:** Accessibility from day one: large tap targets (≥ 44pt), high contrast (≥ 4.5:1), screen reader labels, simplified mode, keyboard navigation. Test with actual users who have accessibility needs. The app that works for someone with ADHD during an executive dysfunction episode works for everyone — accessibility is the ultimate stress test.
 
-
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 BEFORE (Feature-First To-Do List):
@@ -732,6 +736,8 @@ productivity app build looks like.
 ```
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -742,6 +748,7 @@ productivity app build looks like.
 | Notification spam — 3 separate pings for 3 habits due at the same time drives users to disable all notifications | $10K-$25K in lost re-engagement channel | Bundle notifications: one notification for all habits due at the same time. Adaptive timing learns optimal notification time from engagement patterns. Hard block during user-defined quiet hours. Actionable notifications with [Done] [Skip] [Snooze]. |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
@@ -761,6 +768,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 If any check fails: return to the corresponding Core Workflow phase, resolve, and restart verification from that item.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best personal productivity developers treat habit formation and behavioral design as crafts, not features. Deliberate practice means building tools you personally use, measuring behavior change scientifically, and iterating based on data.
 
@@ -772,6 +780,8 @@ The best personal productivity developers treat habit formation and behavioral d
 | **Expert** | Build a production productivity app deployed to app stores with 1000+ users. Implement A/B testing infrastructure, analyze retention cohorts, publish a case study on behavior change patterns | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, behavioral design decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
@@ -780,6 +790,8 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -795,6 +807,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Habit Formation Science:** Charles Duhigg — "The Power of Habit" (cue-routine-reward loop, golden rule of habit change). James Clear — "Atomic Habits" (identity-based habits, 4 laws of behavior change, habit stacking, never miss twice, 1% better). BJ Fogg — "Tiny Habits" (B=MAP: Behavior = Motivation + Ability + Prompt, celebration as reward). Phillippa Lally — 66-day habit formation study (2009, European Journal of Social Psychology). Implementation intentions (Gollwitzer, 1999) — "I will [behavior] at [time] in [location]."
 - **Goal Frameworks:** SMART goals (Doran, 1981). OKRs (Grove/Doerr — adapted for personal use with qualitative Objectives + quantitative Key Results). 12-Week Year (Moran/Lennington — annual goals compressed into 12-week execution cycles). WOOP (Oettingen — Wish, Outcome, Obstacle, Plan; mental contrasting with implementation intentions). Backward goal setting (start from desired outcome, work backward to today).

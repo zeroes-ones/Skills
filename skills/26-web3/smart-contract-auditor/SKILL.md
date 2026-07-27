@@ -46,6 +46,13 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
 <!-- QUICK: 30s -->
+## Anti-Hallucination
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Route the Request
 
 ```
@@ -105,19 +112,23 @@ The smart contract auditor's job is not to find bugs — it's to **think like an
 
 ### Mental Models
 
-| Model | Description |
-|---|---|
-| **The attacker thinks in compose, not isolate** | A vulnerability in Contract A + a permission in Contract B + a flash loan from Contract C = an exploit that no single-contract audit would catch. Audit the integration surface, not just the individual contracts. |
-| **Economic security is security** | A technically correct contract can still be economically exploited if incentives align for attackers. If profit > cost-of-attack, assume an attack will occur. |
-| **Upgradeability is a double-edged sword** | Upgradeable contracts fix bugs but introduce governance risk. An upgradeable contract with a compromised admin key is equivalent to a non-upgradeable contract with a backdoor. |
-| **Every external call is a re-entrancy opportunity** | Even if your contract follows checks-effects-interactions, the contract you're calling might not. Cross-contract re-entrancy via read-only re-entrancy and view-function manipulation is real. |
+| Model | Description | Mechanical Trigger (detect before executing) | Violation Response |
+|---|---|---|
+| **The attacker thinks in compose, not isolate** | A vulnerability in Contract A + a permission in Contract B + a flash loan from Contract C = an exploit that no single-contract audit would catch. Audit the integration surface, not just the individual contracts. | | |
 
-### What Masters Know
+| **Economic security is security** | A technically correct contract can still be economically exploited if incentives align for attackers. If profit > cost-of-attack, assume an attack will occur. | | |
 
-- **The best auditors don't find more bugs — they find the bugs that matter.** A Medium-severity finding that prevents a $50M exploit is worth more than 50 Low-severity findings. Severity classification is a skill, not a formula.
-- **business logic vulnerabilities outnumber technical vulnerabilities in production exploits.** Flash loan attacks, oracle manipulation, and governance attacks exploit correct code operating in unexpected economic conditions. Read the whitepaper before reading the code.
-- **Every protocol has at least one Critical-severity bug at launch.** The question is whether your audit finds it or the attacker finds it first. Audit with the assumption that you're racing against an adversary who's also reading the code.
+| **Upgradeability is a double-edged sword** | Upgradeable contracts fix bugs but introduce governance risk. An upgradeable contract with a compromised admin key is equivalent to a non-upgradeable contract with a backdoor. | | |
 
+| **Every external call is a re-entrancy opportunity** | Even if your contract follows checks-effects-interactions, the contract you're calling might not. Cross-contract re-entrancy via read-only re-entrancy and view-function manipulation is real. | | |
+
+### What Masters Know | |
+
+- **The best auditors don't find more bugs — they find the bugs that matter.** A Medium-severity finding that prevents a $50M exploit is worth more than 50 Low-severity findings. Severity classification is a skill, not a formula. | |
+
+- **business logic vulnerabilities outnumber technical vulnerabilities in production exploits.** Flash loan attacks, oracle manipulation, and governance attacks exploit correct code operating in unexpected economic conditions. Read the whitepaper before reading the code. | |
+
+- **Every protocol has at least one Critical-severity bug at launch.** The question is whether your audit finds it or the attacker finds it first. Audit with the assumption that you're racing against an adversary who's also reading the code. | |
 
 ## When to Use
 
@@ -260,6 +271,9 @@ Complete when: CVL rules written for all mission-critical invariants. Certora Pr
 6. Provide 30-day remediation timeline with re-audit recommendation
 **Completion criteria:** Final audit report. All Critical/High findings have PoCs. Remediation timeline agreed with development team.
 Complete when: Business logic review completed covering tokenomics, incentives, and governance mechanics. Audit report produced with Trail of Bits severity classification. Reproducible PoCs for every Critical/High finding. Gas analysis with adversarial considerations included. 30-day remediation timeline with re-audit recommendation agreed.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
 
 <!-- STANDARD: 3min -->
 ## Gotchas
@@ -349,27 +363,6 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 
 **Usage**: Say "at L3, audit this lending protocol..." or calibrate by protocol complexity. Default: **L3** (protocol-level audit).
 
-### Scale Depth
-
-#### Solo (0-10 users)
-Run Slither and static analysis. Use OpenZeppelin contracts. Focus on known vulnerability patterns (reentrancy, access control, overflow). Single auditor, manual review only. No fuzzing infrastructure needed.
-
-#### Small Team (10-100 users)
-Add Echidna fuzzing with handcrafted invariants. Implement Foundry invariant tests in CI. Track findings in a structured database. Begin using Manticore for symbolic execution on critical paths. Two-reviewer policy for all Critical findings.
-
-#### Medium Team (100-10K users)
-Continuous fuzzing in CI with corpus management. Trail of Bits severity classification. Formal verification with Certora for economic invariants. Third-party audit firm engagement. Bug bounty program with defined scope. MEV and economic attack modeling.
-
-#### Enterprise (10K+ users)
-Dedicated internal audit team. Formal verification of all state transitions. Real-time monitoring with circuit breakers. Multiple independent audit firms. Public bug bounty with $1M+ maximum. Governance attack simulations. Cross-chain attack surface analysis. Incident response retainer.
-
-#### Transition Triggers
-- TVL exceeds $10M → add Echidna fuzzing and invariant tests
-- TVL exceeds $100M → engage third-party audit firm, add Certora formal verification
-- TVL exceeds $1B → establish internal audit team, continuous fuzzing, bug bounty
-- Governance token launched → add governance attack simulation, timelock review
-- Cross-chain deployment → add bridge security audit, message verification review
-
 ## Production Readiness Checklist **(STANDARD)**
 
 | # | Item | Ref |
@@ -423,6 +416,7 @@ This skill maintains a **decision ledger** to prevent context drift across audit
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior findings and methodology decisions.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -435,7 +429,9 @@ This skill maintains a **decision ledger** to prevent context drift across audit
      "constraints": ["Must be exploitable with <$1M capital"],
      "alternatives_considered": ["Medium (team dispute)", "High (CVSS 8.7)"]
    }
+
    ```
+
 3. **Before completing work:** Verify all findings, severity classifications, and methodology decisions are recorded.
 4. **On context recovery:** Read the last 5 entries before proposing changes.
 
@@ -505,6 +501,21 @@ An excellent smart contract audit produces:
 Results are measured in findings caught before deployment, not post-exploit.
 
 <!-- STANDARD: 3min -->
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Automated analysis complete on final commit hash | `slither . --print human-summary` returns zero High/Critical; `echidna . --test-limit 100000` or `forge test --fuzz-runs 100000` passes all invariants |
+| ☐ | Every external call follows CEI pattern with ReentrancyGuard | `grep -rn "\.call{" contracts/` and verify state updates precede each external call; cross-contract read-only reentrancy assessed |
+| ☐ | All state-changing functions have access control — no unprotected proxy upgrades, no `tx.origin` auth | `grep -rn "onlyOwner\|onlyRole\|require(msg.sender" contracts/` on every non-view function; zero `tx.origin` references |
+| ☐ | Oracle manipulation resistance verified — TWAP ≥ 30 min or Chainlink with staleness check | No spot-price-only oracles; `latestRoundData()` includes `answeredInRound` and staleness threshold; no single-DEX price feeds |
+| ☐ | Upgrade safety verified — storage gap, initializer protection, no selfdestruct in implementation | Storage layout diff between versions shows no collisions; `initializer` modifier present; `selfdestruct` absent from implementation contract |
+| ☐ | Every Critical/High finding has a reproducible Foundry/Hardhat PoC exploit script | Audit report appendix contains standalone `Exploit.t.sol` or `exploit.js` for each Critical/High; all PoCs verified to succeed against audited commit |
+| ☐ | Audit report delivers severity methodology, finding details with before/after code, and 30-day fix timeline | Trail of Bits or CVSS-aligned severity classification; each finding has `Before:`/`After:` code blocks; remediation timeline with milestone dates |
+| ☐ | Rollback plan: upgrade pause mechanism tested; emergency shutdown path documented and testnet-verified | Proxy admin can pause new upgrades; `pauseUpgrades()` tested on testnet; emergency withdrawal/shutdown script verified against forked mainnet |
+
 ## Verification Guardrails
 
 - [ ] Automated analysis complete: Slither, Mythril, and at least one fuzzer (Echidna/Foundry) run without errors
@@ -516,7 +527,6 @@ Results are measured in findings caught before deployment, not post-exploit.
 - [ ] Every Critical/High finding has a reproducible PoC exploit (Foundry test or Hardhat script)
 - [ ] Audit report includes: severity methodology, finding details with PoCs, remediation guidance with before/after code
 - [ ] All findings recorded in State Log with severity classification rationale
-
 
 ## References
 

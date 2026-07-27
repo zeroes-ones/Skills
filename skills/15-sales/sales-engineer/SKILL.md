@@ -45,7 +45,7 @@ chain:
 
 Own the technical side of the sales cycle: discover with MEDDIC/BANT/SPICED, design proofs-of-concept that close, deliver demos that map to pain, write RFP responses that score, and build demo environments that never fail during a call.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---:|
@@ -109,7 +109,6 @@ These rules apply to *every* response this skill produces.
 | **R7** | Never let competitive FUD sit unanswered for >24 hours. FUD has a 24-hour half-life — silence confirms the competitor's claim. | `grep -rn "competitor\|FUD\|objection" *.eml \| awk -F',' '{split($1,d,"-"); if((systime()-mktime(d[1] " " d[2] " " d[3] " 0 0 0"))/86400 > 1 && !/response\|rebuttal\|evidence/) print "UNANSWERED FUD"}'` → flag unanswered competitive objections | **STOP**: Auto-flag any competitive objection not responded to within 24 hours. Require evidence-based response: customer proof, third-party validation, or architecture explanation. Escalate if still unanswered at 48h |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -188,6 +187,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                       │           │  │ Decision   │  │ Champion       │
                       └───────────┘  └────────────┘  └───────────────┘
 ```
+
 **BANT** — Transactional deals, SMB. Gateway check: does this deal have budget, authority, need, and timeline? 5-minute qualification.
 
 **SPICED** — Mid-market ($10K-100K ACV). Focuses on champion building and economic buyer identification. Ask: "Who else needs to see the value of this?"
@@ -268,6 +268,7 @@ C - Champion: Do you have an internal advocate with influence who will fight for
                                           │              │ │ walk away.    │
                                           └──────────────┘ └──────────────┘
 ```
+
 **When to do a PoC:** Clear success criteria defined, < 2 weeks effort, deal size justifies investment (>5:1 return), champion identified, and mutual success plan signed by both sides.
 
 **When to refuse a PoC:** No success criteria, scope creep risk ("we'll figure it out as we go"), no champion, deal ACV < 5× SE cost, or the PoC is being used to beat up the incumbent for a better price.
@@ -295,6 +296,7 @@ C - Champion: Do you have an internal advocate with influence who will fight for
                       │ study."      │          │ better outcome."     │
                       └──────────────┘          └──────────────────────┘
 ```
+
 **Golden rule:** Never say "we have that on the roadmap." Say: "That's on our roadmap for Q3. In the meantime, here's how our customers solve it today — and here's the recorded conversation with our VP of Product explaining why we're building it the way we are."
 
 ## Core Workflow
@@ -348,7 +350,8 @@ Map your product against top 3 competitors on a 2×2: X-axis = completeness of v
 Track technical win rate = (deals where you were technical evaluator's choice) / (total deals engaged). Target > 40% technical win rate. For every loss, run a 15-minute loss analysis: (1) What was the technical reason given? (2) What was the real reason (ask the AE, the champion, the evaluator)? (3) Did we lose on product, on process, or on politics? (4) What's the pattern across the last 3 losses? Common failure modes: demo didn't map to pain (fix: better discovery), PoC scope too large (fix: mutual success plan), no champion (fix: qualification), competitive trap sprung (fix: battle card refresh). Review win/loss patterns monthly with product management — product gaps that repeat across losses are roadmap input.
 
   Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
 
 ## Error Recovery
 
@@ -417,11 +420,9 @@ RFP commitment exceeds current capability → Legal Advisor + VP Product + CEO S
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product positioning, competitive analysis, value proposition | Before engaging prospects or designing partnerships |
-
 
 ## Proactive Triggers
 
@@ -520,49 +521,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Battle cards updated within last 90 days with win/loss data from ≥5 deals per competitor
 - [ ] Gong/Chorus recording reviewed for last 3 demos — patterns documented, objections catalogued
 
-## Scale Depth
-
-<!-- DEEP: How this skill scales from solo to enterprise. -->
-
-### Solo SE (1 person, pre-Series A)
-- **Tooling:** One demo environment (Docker Compose or VM snapshot), manual health checks, Google Slides for demos
-- **Process:** Founder runs demos alongside building product; no formal discovery framework
-- **Risk:** No backup if the solo SE is unavailable; demo environment is a single point of failure
-- **Move to next level when:** You miss a demo due to an environment issue OR you have ≥3 active PoCs simultaneously
-
-### Small Team (2-5 SEs, Series A-B)
-- **Tooling:** Infrastructure-as-Code demo environments (Terraform/CloudFormation), shared demo booking calendar (Calendly), Gong/Chorus for call recording, shared RFP answer library in Notion/Confluence
-- **Process:** Formal MEDDIC/BANT discovery, standardized demo scripts with pain→feature mapping, bi-weekly SE team knowledge sharing
-- **Key hire:** Hire for industry specialization (e.g., SE dedicated to healthcare vertical)
-- **Move to next level when:** SEs cover ≥3 distinct verticals AND demo environment management consumes >10 hours/week
-
-### Medium Team (6-15 SEs, Series B-C)
-- **Tooling:** Per-SE isolated demo environments (on-demand spin-up/down), demo automation platform (DemoStack/Navattic), Salesforce integration for technical win tracking, RFP automation (Loopio/RFPIO)
-- **Process:** Dedicated SE onboarding (2-week bootcamp), specialization by vertical AND product area, SE→Product feedback loop with quarterly roadmap input
-- **Metrics:** Technical win rate by SE, time-to-first-demo for new SEs, PoC conversion rate, demo no-show rate
-- **Move to next level when:** You need SE coverage across ≥3 time zones OR enterprise deals require multi-day on-site PoCs
-
-### Enterprise (15+ SEs, Series C+)
-- **Tooling:** Dedicated demo engineering team maintaining demo infrastructure, automated demo smoke tests (pre-flight checks 30 min before every scheduled demo), SE enablement platform (Highspot/Seismic), competitive intelligence tool (Klue/Crayon)
-- **Process:** SE career ladder (Associate → Senior → Principal → Distinguished), formal SE-to-PM rotation program, annual SE Summit for knowledge sharing, dedicated SE for top 20 enterprise accounts
-- **Metrics:** SE-influenced pipeline vs SE-attached pipeline, time-to-technical-win by deal size, SE utilization rate (demo hours / total hours), competitive win rate by SE
-- **Governance:** Monthly SE leadership review of demo quality (random sampling of 5 recorded demos/month), quarterly security FAQ refresh, annual SE compensation review tied to technical win rate
-
-## Error Decoder
-
-<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
-
-| Symptom | Diagnosis | Root Cause | Fix |
-|---------|-----------|------------|-----|
-| Demo crashes during live presentation | API key expired, database connection pool exhausted, or config file changed since last walkthrough | No pre-demo health check run within 24 hours; shared demo environment modified by another SE | Run automated smoke test script 30 min before every demo; move to isolated per-SE environments on-demand |
-| PoC runs 8 weeks with no end in sight | Scope creep — buyer keeps adding "one more use case" | No signed Mutual Success Plan with hard stop date and exit criteria | Halt PoC immediately; require signed MSP with ≤3 criteria and 2-week max before resuming; any additions go to Phase 2 |
-| Technical win claimed but deal goes dark | Buyer's technical stakeholder gave verbal "yes" but didn't sign off on documented requirements | Technical discovery was informal; buyer has unstated requirements not met by your solution | Require documented technical requirements sign-off as gate to "technical win" status; include explicit pass/fail criteria |
-| RFP response takes 3 weeks and loses | SE writing from scratch every time, pulling outdated answers from email threads | No centralized RFP answer library; no review process for technical claims | Implement RFP automation (Loopio/RFPIO); build answer library reviewed quarterly by engineering and legal; template responses for top 20 questions |
-| Security review delays deal by 6+ weeks | SE answered security questionnaire from memory; buyer's security team found discrepancies during audit | No validated security FAQ database; SE guessed at encryption/architecture details | Never answer security questions without validated source material; maintain quarterly-reviewed security FAQ; flag uncertain questions for security team review |
-| Competitive deal lost to "we didn't know they had that feature" | Battle card is 12 months old and based on SE opinions, not win/loss data | No systematic win/loss analysis; battle cards built from internal assumptions | Update battle cards quarterly with data from ≥5 won and ≥5 lost deals per competitor; use Gong call recordings for competitive intelligence |
-| Demo no-show rate > 20% | Prospects disengage between demo booking and demo day | No confirmation sequence; demo scheduled too far out; no pre-demo value reminder | Send calendar invite with agenda immediately; send "what to expect" email 48 hours before; send value-reminder email 2 hours before; call if no response |
-
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -572,7 +530,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
 | Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
 | RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -605,7 +562,6 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 
 ## State Log
 

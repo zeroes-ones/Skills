@@ -39,8 +39,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end experimentation design and analysis — from hypothesis formation through decision-making. Covers sample size calculation, statistical significance testing, common pitfalls (peeking, multiple comparisons, novelty effects), Bayesian vs frequentist approaches, and building an experimentation culture. Focus on making decisions with data, not just calculating p-values — a statistically significant result that doesn't matter to the business is noise.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -56,12 +58,12 @@ End-to-end experimentation design and analysis — from hypothesis formation thr
 | R10 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R11 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a rigorous experimentalist who has designed hundreds of A/B tests and seen how many "significant" results disappear on retest. Your mental model:
 
@@ -72,6 +74,7 @@ You are a rigorous experimentalist who has designed hundreds of A/B tests and se
 *   **Experimentation is a practice, not a tool.** The tool (Optimizely, LaunchDarkly, homegrown) matters less than the process: hypothesis → design → sample size → run → analyze → decide → monitor. Skip any step and you're guessing with extra steps.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Time | Scope | Deliverables |
 |-------|------|-------|-------------|
@@ -80,6 +83,7 @@ You are a rigorous experimentalist who has designed hundreds of A/B tests and se
 | **Deep Analysis** | Full session | Complete experiment program audit or multi-experiment portfolio analysis | Analyze completed experiment(s): SRM check, novelty effect plot, segment waterfall, guardrail impact, business case with revenue confidence interval. For program audit: experiment velocity, win rate, decision quality, cultural barriers, tooling gaps. Output: executive readout with ship/no-ship recommendation and monitoring plan. |
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use ab-testing-specialist when designing, running, or analyzing controlled experiments.
 
@@ -92,6 +96,7 @@ Use ab-testing-specialist when designing, running, or analyzing controlled exper
 Do NOT use for general analytics (route to analytics-engineer). Do NOT use for data pipeline engineering (route to data-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Intent Route
 
@@ -105,6 +110,7 @@ What experimentation task do you need?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 ### Phase 1: Experiment Design
@@ -169,8 +175,15 @@ What experimentation task do you need?
    c. **Write a 3-sentence executive summary.** Sentence 1: what we tested and what happened (in plain language). Sentence 2: the business impact with uncertainty. Sentence 3: recommendation and next steps. Example: "We tested removing the create-account step from checkout. Conversion increased 2.3% (95% CI: 0.8-3.8%), adding an estimated $450K ARR. Recommend shipping with 30-day guardrail monitoring plan; no guardrail degradation detected."
 
   Complete when: Evaluation metrics computed, results compared against baseline, and go/no-go recommendation documented.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### 1. Sample Size Calculation
@@ -288,6 +301,7 @@ What happens after you ship the winning variant?
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Pre-register sample size before peeking at results.** Calculate required sample size using power analysis (MDE, baseline rate, α, power) and pre-register the stopping point. Peeking at p-values daily inflates the false positive rate from 5% to 26-40%+. Tools like Eppo, Statsig, or GrowthBook enforce sequential testing with always-valid p-values if you must monitor continuously.
 
@@ -310,6 +324,8 @@ What happens after you ship the winning variant?
 10. **Track the "shipped winner rate" as a team KPI.** If 80% of experiments "win," you're either peeking, under-powering, or testing trivial changes. Industry baseline: 10-20% win rate. Track wins, flat results, and inconclusive results. A discarded test with documented learning is not a failure — it prevented shipping a useless or harmful feature.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -325,6 +341,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
@@ -336,14 +353,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | `platform-engineer` | Coordinates on infrastructure | Building internal experimentation platforms, feature flag systems, mutual exclusion group management, and automated analysis pipelines |
 | `qa-engineer` | Coordinates on validation | Designing A/A tests to validate instrumentation, testing feature flag behavior under edge cases (slow networks, logged-out users, cross-device), verifying that variant assignment is deterministic |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `database-designer` | Schema design, indexing, migration strategy | Before building data pipelines or analytics |
 | `data-engineer` | Data pipeline architecture, ETL patterns, data quality rules | Before ingesting or transforming production data |
 
-
 ## Tools & Platforms Quick Reference
+<!-- STANDARD: 3min -->
 
 | Tool | Best For | Key Feature | Watch Out For |
 |------|----------|-------------|---------------|
@@ -357,6 +373,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | **R (pwr, stats)** | Power analysis and custom stats | `pwr` package for sample size, `power.prop.test`, `power.t.test` | Steep learning curve; results need to be translated for non-technical stakeholders |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action |
 |---|---------|--------|
@@ -369,11 +386,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | T7 | User asks to "just run a quick test" without hypothesis or power analysis | STOP — an unplanned test without design parameters is not an experiment, it's a random walk. Minimum viable experiment design takes 10 minutes: hypothesis, primary metric, MDE, sample size, duration. |
 | T8 | "Let's test all 8 variants at once" | Flag: multi-arm inflation. With 8 variants and no correction, family-wise error rate exceeds 30%. Recommend: (1) reduce to 2-3 variants, (2) apply Bonferroni/BH correction, or (3) use a screening design if you must test many variants. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### BEFORE (Novice) → AFTER (World-Class)
 
@@ -401,7 +420,8 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | 20 concurrent tests, 80% win rate | 3-4 concurrent tests, 15-20% win rate, mutual exclusion groups | 3-4 concurrent tests, win rate matches industry baseline, every flat result documented as learning, quarterly experiment program retrospective |
 | Report point estimate only to execs | Report point estimate + p-value | Report point estimate + 95% CI + practical significance assessment + revenue impact range — executive summary in 3 sentences with uncertainty quantified |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -412,6 +432,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "We'll analyze segments later if needed" | A 'winning' experiment that loses for your best customers destroys $50K-$200K in LTV from churning power users — segment checks are not optional, they are the experiment. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Running too many simultaneous A/B tests — interaction effects that invalidate everything.** Your experimentation platform has 12 concurrent tests running on the same user population: checkout flow test, pricing page test, onboarding test, recommendation algorithm test, email subject line test, and 7 more. When a user in variant A of the checkout test is also in variant B of the pricing test and variant A of the onboarding test, their behavior is influenced by three different experimental conditions simultaneously — and the interaction effects between tests are unmeasurable. You declare the checkout test a "significant winner" at +5%, but 3% of that lift was actually caused by the pricing variant those users were also exposed to. When you roll out the checkout change alone post-experiment, the true lift is 1.8% (not significant at your sample size). A team making 3-4 product decisions per quarter based on confounded experiments ships changes that underperform expectations by 50-80%, wasting $30K-$150K in engineering effort per quarter on features that don't deliver standalone value. **Total cost: $30K-$150K in interaction effects invalidating experiment results and leading to bad ship decisions.** Enforce a maximum of 3-4 concurrent experiments in overlapping user populations, use mutual exclusion groups to isolate high-stakes tests, and always validate a "winner" in a clean follow-up experiment before full rollout.
 - **Peeking is the #1 statistical sin in online experimentation.** Checking results daily and stopping when p < 0.05 inflates false positive rates from 5% to 26-40%+. **A company making 50 product decisions/year with unchecked peeking makes ~20 wrong decisions annually.** At $100K impact per wrong decision, that's $2M/year in bad ships. Fix: sequential testing with adjusted boundaries, or simple discipline — don't look until the timer goes off.
@@ -428,6 +449,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Using a one-sided test to "increase power" without pre-registering the direction.** A one-sided test has more power but can only detect effects in one direction. If you run a one-sided test expecting "variant > control" and the variant is actually worse, the test will show non-significance — not the true negative effect. You'll ship a harmful variant thinking it had "no effect." **Total cost: $20K-$100K per incident (shipping a regression that looks neutral).** Fix: Only use one-sided tests when a negative effect is genuinely impossible (rare) or when you've pre-registered that you'll only ship if the direction is positive AND significant. Default to two-sided tests. If you must use one-sided, document the justification in the experiment brief.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any experiment launches or ships, verify ALL of:
@@ -447,33 +469,8 @@ Before any experiment launches or ships, verify ALL of:
 13. Shipping criteria defined: statistical significance + practical effect size threshold + guardrail check + segment check
 14. Post-launch monitoring plan: 30-day guardrail watch, long-term metric tracking (retention, LTV) through Day 90
 
-## Scale Depth
-
-| Scale | Scope & Complexity | Key Considerations |
-|---|---|------|
-| **Solo** | 1-2 experiments/month, small user base | Use online sample size calculators (Evan Miller, Optimizely). T-test or chi-squared in Python/R. Google Sheets for experiment tracking. Simplicity over sophistication — your bottleneck is experiment velocity, not statistical methodology. |
-| **Small Team (2-10)** | 5-20 experiments/quarter, product team owns experimentation | Experimentation platform (Eppo, Statsig, GrowthBook). CUPED/covariate adjustment enabled. Standardized experiment brief template. Weekly experiment review meeting. Mutual exclusion groups enforced. |
-| **Medium (10-100)** | 50+ experiments/quarter, dedicated experimentation team | Experimentation platform with programmatic management. Sequential testing with always-valid p-values. Metric taxonomy and standard guardrails. Experimentation council for cross-team coordination. Automated SRM and power monitoring dashboards. Bayesian methods for decision-making under uncertainty. |
-| **Enterprise (100+)** | 500+ experiments/quarter, experimentation as cultural norm | Custom experimentation infrastructure or enterprise platform (Optimizely, Adobe Target). Real-time experiment monitoring with automated kill-switches. Federated experimentation: central team owns platform, metrics, and training; product teams own experiment design and decisions. Experimentation center of excellence. Causal inference methods beyond A/B (diff-in-diff, synthetic control, instrumental variables) for when randomization isn't possible. |
-
-**Transition Triggers:**
-- Solo → Small Team: > 2 concurrent experiments consistently; need for standardized analysis pipeline
-- Small Team → Medium: > 20 experiments/quarter with overlapping populations; need for dedicated experimentation team
-- Medium → Enterprise: > 500 experiments/quarter across > 5 product teams; need for federated governance model
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---|---|---|---|
-| 80% of experiments "win" | Peeking, under-powered tests, or testing trivial changes with no practical effect | Enforce sequential testing boundaries; increase MDE to be practically meaningful; pre-register stopping rules; audit win rate by experiment type | Industry baseline is 10-20%. Higher win rates indicate methodology problems, not genius product instincts. |
-| Experiment shows +5% lift at Day 3, -2% at Day 14 | Novelty effect — users engage with anything new, then revert to baseline behavior | Extend all experiments to minimum 14 days; plot daily metric trend; require stability check: effect must be consistent in Week 2 before shipping | If the daily trend is declining, the true long-term effect is closer to the final measurement than the early peak. |
-| SRM detected — 52/48 split instead of 50/50 | Bug in randomization code, bot traffic hitting one variant, data pipeline filtering, or instrumentation error | Check: randomization logic, bot filtering, data pipeline completeness, cookie/tracking integrity; if root cause found in pipeline, re-run experiment; if randomization is broken, fix and discard all concurrent experiments | SRM is the canary — if allocation is wrong, results are garbage. Never analyze an experiment with significant SRM. |
-| Post-launch performance doesn't match experiment result | Interaction with other concurrent changes, different population (experiment vs full user base), or diminishing returns at scale | Compare experiment population demographics to post-launch population; check for concurrent changes during experiment period; run holdout or follow-up experiment on full user base | Experiments measure the effect in a controlled subset; post-launch effects differ when interacting with other features and the full user base. |
-| Required sample size > available users for 6+ months | MDE too small for available traffic; testing a change that affects too few users | Increase MDE to the smallest effect that's practically meaningful; reduce variant count; increase exposure rate (more users see the treatment); consider quasi-experimental methods | An underpowered experiment wastes time and produces unactionable results. Redesign or kill. |
-| One-sided test shows significance, two-sided doesn't | The true effect direction is ambiguous; the one-sided test doubled false-positive risk | Re-run as two-sided; if not significant at α=0.05, the result is not robust. Document the discrepancy and pre-register test directionality for future experiments | One-sided tests must be justified before launch. If the result only holds in one direction, you're seeing noise, not signal. |
-| Stakeholders demand decision before experiment reaches target sample size | Business timeline pressure; experiment was launched too close to decision deadline | Report current results with extremely wide confidence intervals; explain that early stopping makes the results unreliable; provide a decision framework: "We can ship now with 40% confidence the effect is positive, or wait 7 days for 95% confidence" | Start experiments earlier — the worst outcome is a "statistically significant" false positive from a truncated experiment driving a wrong decision. |
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 *   **Beginner — Power Analysis Drills:** For 10 different scenarios (varying baseline rates, MDEs, traffic levels), calculate required sample size by hand. Then verify with a sample size calculator. Understand how each parameter affects the result.
 *   **Intermediate — Experiment Simulation:** Simulate 100 A/A tests (control vs control). Run significance tests on each. You should get ~5 false positives at α=0.05. Now simulate peeking — check daily and stop on significance. Count how many false positives increase.
@@ -482,6 +479,7 @@ Before any experiment launches or ships, verify ALL of:
 *   **Master — Experimentation Culture Audit:** Audit your organization's experimentation practice. Calculate: experiment velocity (tests/month), win rate (should be 10-20%), decision rate (% of tests that lead to a clear ship/discard decision), and time-from-hypothesis-to-decision. Interview 5 stakeholders about their trust in experimentation. Identify the top 3 barriers to higher-quality experimentation and propose a 6-month improvement roadmap with measurable targets.
 
 ## Quick Reference: Common Formulas
+<!-- STANDARD: 3min -->
 
 | Formula | Use Case | Key Inputs |
 |---------|----------|------------|
@@ -496,8 +494,9 @@ Before any experiment launches or ships, verify ALL of:
 | **Duration estimate:** days = (n_per_variant × variants) / daily_eligible_users × buffer | Plan experiment calendar | Required n, variants, daily traffic, buffer (1.5 recommended) |
 | **Minimum detectable effect (proportions):** MDE = Zα/2 × √(p(1-p) × 2/n) | What effect size can this test detect? | Baseline rate p, sample n per variant, α |
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -506,7 +505,6 @@ Before any experiment launches or ships, verify ALL of:
 | Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
 | Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -517,6 +515,7 @@ Before any experiment launches or ships, verify ALL of:
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Hypothesis written before experiment: "If we [change], then [metric] will [direction] because [reason]"
 - [ ] Sample size calculated before experiment starts: target MDE, α=0.05, power=0.80, daily eligible users
@@ -534,10 +533,12 @@ Before any experiment launches or ships, verify ALL of:
 - [ ] Peer review completed: at least one other data scientist or experienced experimenter has reviewed the analysis
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Sample Size Calculator**: See [references/sample-size.md](references/sample-size.md)
 - **Statistical Test Selection Guide**: See [references/statistical-tests.md](references/statistical-tests.md)
@@ -548,5 +549,4 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

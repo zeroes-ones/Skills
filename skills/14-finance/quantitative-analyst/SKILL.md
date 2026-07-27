@@ -75,6 +75,7 @@ What are you trying to do?
 └── Not sure? → Start at "Ground Rules" — read before anything else
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -94,7 +95,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and WARN about feature leakage in time-series models.** Including today's VIX close to predict tomorrow's VIX is identity, not alpha. Any R² > 0.7 on financial time series is a bug until proven otherwise. | Trigger: generated model training code joins features on `df['date']` or `pd.merge(df, features, on='date')` without an explicit `features['date'] = features['date'] + pd.Timedelta(days=1)` lag shift OR reports R² > 0.7 | WARN: Insert `# WARNING: Check for feature leakage — all features at time t must use data known at t-1.` Add: `features = features.shift(1)  # Lag features by 1 period`. Add: `assert model.r2_score < 0.7, f'R² {model.r2_score:.3f} suspiciously high — check for future leakage'` |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -233,6 +233,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
       │           │ │       │ │BUY    │ │(gamblers)│ │SELL signal│ │BUY signal  │
       └───────────┘ └───────┘ └───────┘ └───────┘ └───────────┘ └────────────┘
 ```
+
 **Key DTE thresholds**: <7 DTE = lottery/gambler flow (ignore unless extraordinary premium); 7-14 DTE = tactical but high Theta risk; 14-30 DTE = short-term conviction; 30-90 DTE = institutional sweet spot; >90 DTE = strategic positioning.
 
 ### Pricing Model Selection
@@ -269,6 +270,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
             │ convergence      │    │ for American w/ dividends │
             └──────────────────┘    └──────────────────────────┘
 ```
+
 **Black-Scholes formula (European, no dividends):**
 C = S₀·N(d₁) − K·e^(−rT)·N(d₂)
 P = K·e^(−rT)·N(−d₂) − S₀·N(−d₁)
@@ -308,6 +310,7 @@ where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
      └────────────┘  │ premium    │
                      └────────────┘
 ```
+
 **Skew metrics:** 25-delta risk reversal = IV(25Δ call) − IV(25Δ put). Negative = normal skew (puts richer). Widening negative skew = growing fear. Butterfly spread IV = [IV(25Δ call) + IV(25Δ put)]/2 − IV(ATM) measures smile convexity; elevated butterfly = tail-risk pricing.
 
 ## Core Workflow
@@ -348,7 +351,12 @@ where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
-
+  Complete when: Backtest results validated against live trading data with < 5% slippage deviation.
+  Complete when: Risk limits defined (max position size, VaR, drawdown) and enforced via pre-trade checks.
+  Complete when: Data pipeline latency measured and within SLA (market data < 100ms stale).
+  Complete when: Model documentation includes assumptions, limitations, and failure modes.
+  Complete when: Compliance review completed — strategy does not violate market manipulation rules.
+  Complete when: Performance attribution report identifies alpha sources (factor, sector, timing).
 
 ## Error Recovery
 **(STANDARD)**
@@ -419,13 +427,12 @@ Sector-wide anomaly (10+ STRONG BUY in single sector)? → Business Strategist �
 # Market data engineer provides clean options chains.
 # Quantitative analyst detects UOA, computes Greeks, generates signals.
 # Algorithmic trader consumes signals for execution decisions.
-```
 
+```
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | Data architecture, integration patterns, reliability requirements | Before building financial systems — errors cost real money |
-
 
 ## Proactive Triggers
 
@@ -441,7 +448,6 @@ Sector-wide anomaly (10+ STRONG BUY in single sector)? → Business Strategist �
 | Market data pipeline reports >5 minutes of stale quotes during trading session | market-data-engineer + algorithmic-trader | UOA detection degraded — all signals generated during the gap window are unreliable; flag and downgrade affected signals, pause new signal generation until feed recovers |
 | Sector ETF performance diverges >3% from signal direction in same week | algorithmic-trader + business-strategist | Signal is fighting macro tape — downgrade confidence on all counter-trend signals in the sector; sector headwind is a stronger signal than individual option flow |
 | Computed Greeks diverge >10% from provider values on 3+ tickers simultaneously | market-data-engineer | Possible data feed corruption, incorrect dividend assumptions, or rate curve mismatch; halt signal generation until root cause identified — trading on wrong Greeks is worse than not trading |
-
 
 ## State Log
 
@@ -488,7 +494,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -561,16 +567,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Put-call parity: parity validation run on every options chain — violations > bid-ask spread flagged as data errors or arbitrage
 - [ ] Reproducibility: full pipeline runs from raw data to final metrics with single command — random seeds set and documented
 
-### Scale Depth
-
-| Analysis Type | Methodology | Tools | Deliverable |
-|--------------|-------------|-------|-------------|
-| **Single-stock UOA signal** | Black-Scholes pricing, Delta/Gamma/Vega computation, IV rank vs. 1-year history, volume/OI ratio, multi-leg detection within 60s window | `scipy.stats.norm`, `py_vollib`, provider Greeks API, Pandas for time-series | Signal card: ticker, direction, confidence, DTE, IV context, strategy recommendation |
-| **Options chain IV surface** | Implied volatility across strikes/expiries, smile/skew quantification, term structure, SVI or SABR parameterization | `py_vollib`, `scipy.optimize`, `mplfinance` for visualization, `plotly` for interactive | IV surface plot, skew metrics (25-delta risk reversal, butterfly), term structure slope, no-arbitrage validated |
-| **Factor research (cross-sectional)** | Fama-French factors, momentum, quality, low-vol — factor construction, long-short portfolio, IC analysis, decay profile | `pandas`, `statsmodels`, `alphalens` (Quantopian fork), `pyfolio` | Factor performance report: IC mean/t-stats, quintile spread, turnover, capacity estimate |
-| **Strategy backtesting (multi-asset)** | Walk-forward optimization, Monte Carlo simulation, regime-conditional performance, DSR/PBO, transaction cost modeling | `vectorbt`, `bt`, `zipline-reloaded`, `riskfolio-lib` | Backtest report: Sharpe by regime, drawdown distribution, PBO < 0.1, capacity analysis, live readiness score |
-| **Full systematic strategy** | End-to-end: data → signals → portfolio construction → execution model → risk overlay → TCA → live monitoring | Above + `kafka-python`, `Redis`, `PostgreSQL/TimescaleDB`, `Grafana` | Production-ready strategy: signal pipeline, portfolio optimizer, risk limits, execution algo spec, monitoring dashboards |
-
 ## Error Decoder
 
 | Symptom | Root Cause | Fix | Prevention |
@@ -582,7 +578,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | $3M call sweep classified as BULLISH, but volume/OI = 0.2 (closing) | Signal classification ignores OI context; trade was short call being covered, not new bullish position | Check `volume / open_interest` ratio; if < 0.5, classify as POTENTIAL_CLOSING; run multi-leg detection within 60s window | Every signal must include volume/OI ratio and multi-leg detection result before direction classification |
 | Provider Delta = 0.65, Black-Scholes Delta = 0.58 — 7% position sizing error | Different risk-free rate or dividend yield assumptions between provider and internal pricing | Cross-validate: `assert abs(computed_delta - provider_delta) < 0.05`; if discrepancy, investigate rate/div inputs | Maintain own Greeks computation as validation layer; log discrepancies to detect provider methodology changes |
 
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -592,7 +587,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
 | Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
 | Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -625,4 +619,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)

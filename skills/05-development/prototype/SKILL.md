@@ -43,8 +43,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Build the smallest possible working prototype to answer exactly ONE design question, then throw it away. Never ship prototype code. Use git-worktree or temp directory for isolation. Time-box to 20 minutes maximum. The output is not code — it is a decision with empirical evidence.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules prevent prototype code from becoming production code and ensure experiments answer questions rather than create them.
 
@@ -60,12 +62,12 @@ These rules prevent prototype code from becoming production code and ensure expe
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an experimentalist who treats every prototype as a disposable scientific instrument. Your mental model:
 
@@ -81,6 +83,7 @@ You are an experimentalist who treats every prototype as a disposable scientific
 - **When a prototype reveals the question was wrong** — the best prototype outcome is "this approach won't work." It saves you from building the wrong thing. Celebrate negative results — they are more valuable than positive ones because they eliminate paths.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -92,16 +95,8 @@ You are an experimentalist who treats every prototype as a disposable scientific
 
 **Default level for this skill:** L2
 
-### Scale Depth
-**(STANDARD)**
-
-| Depth | Time | Scope | Artifacts |
-|---|---|---|---|
-| **QUICK** | 5-10 min | Single API call or library function test | Working code snippet, yes/no answer to hypothesis |
-| **STANDARD** | 15-20 min | Feature spike or single-hypothesis test | Disposable prototype code, decision document committed to main repo |
-| **DEEP** | 2-3 × 20 min | Multi-component architecture spike, linked prototypes | Comparison matrix, full decision document with evidence quality ratings for each sub-hypothesis |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Two approaches seem equally valid and static analysis cannot decide between them
 - Exploring an unfamiliar API, library, or framework before committing to it in the architecture
@@ -120,6 +115,7 @@ You are an experimentalist who treats every prototype as a disposable scientific
 - Code that will be needed for more than 20 minutes (that's implementation, not prototyping)
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Context
 
@@ -145,6 +141,7 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 ### Phase 1: Form the Hypothesis
@@ -227,8 +224,14 @@ Before writing any code, define what you are testing and why.
 ```
 
   Complete when: A decision document is committed to the main repo (with hypothesis, results, decision, evidence quality rating) AND the prototype directory is fully disposed — no prototype code remains anywhere.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
+  Complete when: Feature flagged behind config — can be enabled/disabled without deployment.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Time-box ruthlessly with a hard stop.** Set a timer for 20 minutes or less per prototype. When the timer ends, stop typing — regardless of how close you are. The extra 3.5 hours of "polishing throwaway code" produces zero new information. Use `timeout` command or a phone timer to enforce the boundary. If the question isn't answered after two 20-minute spikes, the scope is too broad and must be narrowed.
@@ -252,6 +255,7 @@ Before writing any code, define what you are testing and why.
 10. **Feedback from the prototype feeds into the architecture decision, not the codebase.** The prototype output is a decision document (ADR), not production source code. Route findings through the relevant decision-making skill (system-architect for architecture decisions, api-designer for API choices). The prototype is an instrument for measurement, not a draft for implementation.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### Approach Comparison
@@ -406,8 +410,9 @@ Before writing any code, define what you are testing and why.
                                                    └──────────────────┘
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -423,6 +428,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -435,6 +441,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Stakeholder sees the prototype and says "this is great, ship it next sprint" | The prototype UI looks polished because the developer spent 30 minutes making it presentable. Stakeholder perceives a nearly-finished product, not a throwaway spike. The time spent "making it presentable" directly causes the prototype-in-production trap | Show prototypes as ASCII diagrams, CLI output, or rough sketches. Never present a polished prototype UI to a non-technical stakeholder. If UI feedback is needed, use wireframes or Figma mockups — not running code | The visual quality of a prototype is inversely correlated with the likelihood of proper disposal. The uglier the prototype looks, the less likely anyone will ask to ship it. Ship ugly prototypes for internal consumption |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -446,14 +453,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Prototype involves database or data model questions | database-designer | Database behavior (query patterns, indexing, consistency) may need schema expertise |
 | Prototype reveals performance characteristics | performance-engineer | If prototype shows performance concerns, escalate to proper benchmarking — prototype measurements are directional only |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | Architecture decisions, technology constraints, system boundaries | Before implementing features that cross system boundaries |
 | `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -464,11 +470,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | P5 | Prototype code appears in the main source tree | [ISOLATE] "Prototype code detected in main repo. Move to isolated directory immediately. Use git worktree or temp directory." |
 | P6 | User cannot articulate the hypothesis | [REQUIRE] "A prototype without a hypothesis is exploration, not experimentation. State: 'We believe [X] because [Y]. The prototype disproves this if [Z].'" |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 BEFORE (Unstructured Experimentation):
@@ -509,6 +517,7 @@ Total time: 22 minutes. Decision made with evidence.
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Exercise 1: Hypothesis Extraction (5 min)
 Take your last 3 "I was just trying something out" coding sessions. For each, write the hypothesis you were testing. If you cannot write one, you were playing, not prototyping. Repeat until every coding session has a hypothesis.
@@ -525,7 +534,8 @@ Look at a prototype you built recently. Count how many design questions it attem
 ### Exercise 5: Evidence Quality Audit (15 min)
 Review your last 5 prototype-based decisions. Rate each as HIGH/MEDIUM/LOW evidence quality. For LOW-quality decisions: what would a better prototype have looked like? If you made a production decision on LOW-quality evidence, flag it for revisit.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -536,6 +546,7 @@ Review your last 5 prototype-based decisions. Rate each as HIGH/MEDIUM/LOW evide
 | "We can answer two questions with one prototype — it's more efficient." | Mixing use cases confounds results. Streaming success masks request-response failure. You ship both, and the broken pattern requires a $65K rewrite 8 weeks later. Cost: **$30K-$100K** per confounded prototype. One question per prototype. ALWAYS. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: "I'll just clean this up later"
 **What it looks like:** A fintech startup builds a "prototype" payment integration with no idempotency, no retry logic, hardcoded test credentials. PM says "ship it and we'll clean it up next sprint." Next sprint becomes next quarter. Six months later, a network blip causes duplicate charges — $340K in refunds, fines, and lost merchant trust.
@@ -573,6 +584,7 @@ Review your last 5 prototype-based decisions. Rate each as HIGH/MEDIUM/LOW evide
 **Do this instead:** Ground Rule R6 is non-negotiable: NEVER prototype in the main repo. Use `git worktree add`, a separate Codespace, or a directory outside the repo. Isolation forces explicit disposal. The extra 30 seconds to create a separate workspace prevents $50K-$200K in future incident response.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before concluding any prototype session, verify every item. An unchecked item is a future production incident or a wasted spike.
@@ -591,6 +603,8 @@ Before concluding any prototype session, verify every item. An unchecked item is
 - [ ] **No prototype UI shown to non-technical stakeholders:** If a visual prototype existed, it was destroyed before stakeholder demos. Any UI feedback needed was gathered through wireframes, mockups, or static comps — not running code.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -599,6 +613,7 @@ Before concluding any prototype session, verify every item. An unchecked item is
 | Skipping prototype because "docs look perfect" — 2 sprints in, discover API doesn't work for your constraints | $40K-$120K in wasted development | Always run at least one 20-minute prototype even when docs look perfect; docs describe what API CAN do generically, not what it CAN do for YOUR constraints |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **Ground Rules:** All 7 ground rules checked. No prototype code in main repo. No multi-question prototypes.
 - [ ] **Single question:** Prototype addresses exactly ONE design question. Scope document confirms singular focus.
@@ -613,10 +628,12 @@ Before concluding any prototype session, verify every item. An unchecked item is
 If any check fails: return to the corresponding phase, resolve, and restart verification from that item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **(../references/prototype-isolation.md)** — Git worktree setup guide for prototype isolation. Commands, cleanup procedures, and handling nested dependencies. Comparison with temp directory and Docker-based isolation approaches.
 - **(../references/time-boxing.md)** — The 20-minute time box methodology. Timer protocols, 10-minute checkpoint, 18-minute feature freeze. Evidence that prototype value plateaus after 20 minutes and what to do when the timer expires.

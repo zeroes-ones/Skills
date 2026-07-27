@@ -1,5 +1,5 @@
 ---
-name: healthcare-security-architect
+name: healthcare-security
 description: >
   Use when designing healthcare-specific security architectures, performing PHI
   data classification, assessing medical device security risks, architecting
@@ -179,6 +179,100 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ## Decision Trees
 **(QUICK)**
 <!-- STANDARD: 3min -->
+
+### Decision Tree 1: BAA Requirement Decision
+
+```
+        ┌── INPUT: Does this vendor/service need a BAA?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Vendor creates,   Vendor does NOT
+receives,         create, receive,
+maintains, or     maintain, or
+transmits PHI     transmit PHI
+   │                 │
+   ▼                 ▼
+BAA REQUIRED      No BAA needed
+   │              (document
+   ▼              rationale)
+Check vendor:
+├─ HIPAA
+│  compliance
+│  attestation
+├─ Security
+│  posture
+│  (SOC 2,
+│  HITRUST)
+├─ Breach
+│  notification
+│  timeline
+│  (≤60 days)
+└─ Subcontractor
+   BAAs in place
+```
+
+### Decision Tree 2: Medical Device Security Assessment
+
+```
+        ┌── INPUT: Assessing security of connected medical device?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Premarket          Postmarket
+(FDA 510(k)/       (deployed
+PMA submission)    device)
+   │                 │
+   ▼                 ▼
+Address:           Monitor:
+├─ SBOM            ├─ CVE
+│  (Software       │  tracking
+│  Bill of         ├─ Patch
+│  Materials)      │  cadence
+├─ Threat model    ├─ Anomaly
+├─ Cybersecurity   │  detection
+│  risk            ├─ IoMT VLAN
+│  assessment      │  isolation
+├─ Secure          └─ End-of-life
+│  by design       │  plan
+│  controls        │  (replacement
+└─ Postmarket      │  timeline)
+   monitoring
+   plan
+```
+
+### Decision Tree 3: Encryption Posture Enforcement
+
+```
+        ┌── INPUT: Is ePHI properly encrypted?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+At rest           In transit
+   │                 │
+   ▼                 ▼
+├─ AES-256        ├─ TLS 1.2+
+│  or stronger    │  (1.3
+├─ Full disk      │  preferred)
+│  encryption     ├─ HTTPS
+│  on endpoints   │  everywhere
+├─ Database       ├─ Internal
+│  encryption     │  traffic
+│  (TDE or        │  encrypted
+│  column-level)  │  (mTLS or
+├─ Backup         │  VPN)
+│  encryption     ├─ Email
+└─ Key            │  encryption
+   management     │  for PHI
+   separate       │  transmission
+   from data      └─ No plaintext
+   storage           PHI on
+                     public
+                     networks
+```
 
 #
 
@@ -430,7 +524,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Telemedicine platform uses healthcare-specific tier with signed BAA — recording storage, waiting room auth, chat retention verified
 - [ ] Security incident response plan includes clinical downtime procedures — medical device evidence preservation, patient safety assessment, ambulance diversion protocols
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---:|
@@ -509,6 +603,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -520,7 +615,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
@@ -586,20 +683,22 @@ graph LR
 
 ## Verification
 
-- [ ] PHI data stores: All databases, object storage, and file systems containing PHI have encryption at rest enabled (KMS CMK, not default service key)
-- [ ] PHI in transit: All endpoints handling PHI enforce TLS 1.2+ with valid certificates. Database connections use `sslmode=verify-full`
-- [ ] BAA registry: Every vendor processing, storing, or transmitting PHI has a signed, current BAA. Sub-processor lists reviewed within last quarter.
-- [ ] Network segmentation: Clinical, biomed/IoMT, imaging, guest, and corporate VLANs are isolated. No internet access from biomed VLAN without proxy + DPI.
-- [ ] PHI in logs scan: `grep -E '[0-9]{3}-[0-9]{2}-[0-9]{4}\|[A-Z][0-9]{6}\|[0-9]{2}/[0-9]{2}/[0-9]{4}' logs/*.log` returns zero matches in production
-- [ ] Breach notification pipeline: Documented, contact lists current, tested within last 12 months. Pipeline hosted on infrastructure independent from clinical systems.
-- [ ] Medical device inventory: All network-connected medical devices identified, CBOM requested from manufacturers, vulnerability scanning operational, EOL devices have replacement timelines.
-- [ ] FHIR API authorization: SMART on FHIR with OAuth 2.0. Resource-level access control. Psychotherapy notes and 42 CFR Part 2 records require separate authorization.
-- [ ] De-identification: All published/shared datasets have documented de-identification method (Safe Harbor checklist OR Expert Determination certification). Data Use Agreements in place prohibiting re-identification.
-- [ ] HITRUST/HIPAA compliance: Control mapping current, evidence collection automated, quarterly internal reviews completed.
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when PHI data stores: encryption at rest with KMS CMK on all databases, object storage, and file systems | Audit all data stores: KMS key ID, not default service key |
+| ☐ | Complete when PHI in transit: TLS 1.2+ with valid certificates on all endpoints; database uses `sslmode=verify-full` | `nmap --script ssl-enum-ciphers` + connection string audit |
+| ☐ | Complete when BAA registry: every vendor handling PHI has signed, current BAA; sub-processor lists reviewed quarterly | BAA tracker spreadsheet with expiration dates; vendor assessment completed |
+| ☐ | Complete when Network segmentation: clinical, biomed/IoMT, imaging, guest, corporate VLANs isolated | Penetration test: zero routes from guest to clinical VLAN; no biomed internet without proxy+DPI |
+| ☐ | Complete when PHI in logs: zero matches for PHI patterns in production log files | `grep -E '[0-9]{3}-[0-9]{2}-[0-9]{4}' logs/*.log` returns zero |
+| ☐ | Complete when Breach notification: pipeline documented, contacts current, tested within 12 months | Tabletop exercise completed; pipeline hosted independent from clinical systems |
+| ☐ | Complete when Medical device inventory: all network-connected devices identified, CBOM requested, EOL devices have replacement plan | Inventory audit: vulnerability scanning operational; EOL devices flagged with timeline |
+| ☐ | Complete when FHIR API authorization: SMART on FHIR with OAuth 2.0; resource-level access; psychotherapy/42 CFR Part 2 separate auth | Test patient/*.rs scope → psychotherapy notes excluded without explicit consent |
+| ☐ | Complete when De-identification: all shared datasets have documented method (Safe Harbor or Expert Determination) | DUA in place prohibiting re-identification; k-anonymity/l-diversity verified |
+| ☐ | Complete when HITRUST/HIPAA: control mapping current, evidence collection automated, quarterly internal reviews | Control coverage ≥ 95%; evidence freshness ≤ 90 days; findings tracked to remediation |
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.### Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 #### Solo Clinic / Small Practice
 - **Scope:** Single EHR system. 1-5 providers. No dedicated IT/security staff. Cloud-hosted EHR with vendor-managed security.
@@ -651,7 +750,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Clinic → Hospital → Health System → ACO**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 <!-- QUICK: 30s — external regulatory and standards references -->

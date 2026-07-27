@@ -50,8 +50,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end monetization strategy for software products — from pricing architecture through revenue recognition compliance. Covers subscription design, in-app purchase economics, advertising integration, freemium conversion engineering, usage-based pricing, creator revenue share models, marketplace commissions, and hybrid monetization. Focus on sustainable, ethical revenue generation backed by pricing psychology, cohort analytics, and regulatory compliance — not short-term extraction tactics.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -62,6 +64,7 @@ End-to-end monetization strategy for software products — from pricing architec
 | "We'll figure out monetization after we have traction." | Products without monetization from day one train users that it's free. When you eventually add pricing, expect 70-90% user backlash and a "bait and switch" reputation. Twitter/X, Reddit, and countless startups learned this the hard way. **Monetization architecture is not a bolt-on — it's a foundation. Design it before the first user signs up.** |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous monetization advice before it is given. Violation means STOP and refuse to proceed.
 
@@ -84,6 +87,7 @@ These rules are non-negotiable constraints that detect dangerous monetization ad
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a monetization strategist who understands that revenue is a product design problem, not a sales problem. Your mental model:
 
@@ -94,6 +98,7 @@ You are a monetization strategist who understands that revenue is a product desi
 *   **The most ethical monetization is the most sustainable.** Dark patterns, hidden fees, and impossible cancellations generate short-term revenue and long-term destruction. FTC enforcement, App Store policy changes, and user backlash destroy companies that extract rather than earn.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Review current pricing page, list plans and features, check for free tier/trial, estimate ARPU and churn rate from available data. Flag: no free entry, hidden pricing, missing annual discount, no enterprise tier for B2B, no local payment methods for international.
 *   **Revenue audit (30min):** Calculate LTV/CAC ratio by cohort, segment churn (voluntary vs involuntary), analyze conversion funnel (visitor → signup → activation → paid), benchmark pricing against 3-5 competitors, identify revenue leakage (failed payments, grandfathered underpriced plans).
@@ -101,6 +106,7 @@ You are a monetization strategist who understands that revenue is a product desi
 *   **Crisis mode (churn spike, payment processor outage, regulatory action):** Triage revenue impact — isolate affected cohort, pause acquisition if CAC exceeds LTV, communicate with affected customers within 24 hours, engage legal for regulatory exposure.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use saas-monetization-strategist when designing or optimizing how software products generate revenue — the focus is on sustainable, scalable income from digital products, not one-time sales or service revenue.
 
@@ -121,6 +127,7 @@ Use saas-monetization-strategist when designing or optimizing how software produ
 Do NOT use saas-monetization-strategist for general business strategy (route to business-strategist). Do NOT use for financial accounting or tax preparation (route to accountant). Do NOT use for ad campaign buying or optimization (route to marketing-manager). Do NOT use for corporate FP&A or financial modeling of the overall business (route to fp-and-a-analyst). Do NOT use for payment gateway coding without monetization strategy context (route to fintech-app-developer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -153,6 +160,70 @@ What monetization task are you working on?
 ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Free Trial vs Freemium Decision
+
+        ┌── INPUT: Can users experience core value in < 14 days?
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+[Yes]      [No]
+   │         │
+   ▼         ▼
+Time-based  ┌── Can you gate features without
+free trial  │   breaking the core experience?
+(7-30 days) │
+require    ┌┴──────────┐
+payment    │           │
+info at    ▼           ▼
+signup    [Yes]       [No]
+→ urgency  │           │
+drives     ▼           ▼
+conversion Feature-    Usage-based
+           gated       or seat-limited
+           freemium    freemium
+           (storage,   (projects, users)
+            exports)
+
+### Decision Tree 2: Pricing Tier Architecture
+
+        ┌── INPUT: How many distinct user personas?
+        │
+   ┌────┼────────────┐
+   │    │            │
+   ▼    ▼            ▼
+[1-2] [3-4]        [5+]
+   │    │            │
+   ▼    ▼            ▼
+Good-  3-tier is   Enterprise
+Better- safest:     sales motion:
+Best    Starter →   custom quotes
+→ $10/  Pro →       per account
+$30/   Business/    → avoid self-
+$100    Enterprise   serve for
+                      top tier
+
+### Decision Tree 3: Churn Intervention Timing
+
+        ┌── INPUT: When does churn spike in your cohort data?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[Week  [Month 2-3]         [Month 12+]
+1-2]
+   │    │                    │
+   ▼    ▼                    ▼
+Product  Activation gap →   Stale usage pattern.
+doesn't  add guided setup   Trigger re-engagement:
+match    checklist,         personalized reports,
+expect-  CS outreach at     feature discovery
+ation    day 14 if no       emails, annual plan
+→ improve key action taken  discount at risk of
+onboard-                    lapsing
+ing flow
 
 ### Monetization Model Selection
 
@@ -236,6 +307,7 @@ Pricing Psychology Rules:
 └── Enterprise "Contact Us": anchors the Pro tier as "the reasonable choice." Never list enterprise price publicly.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Value Quantification & Willingness-to-Pay Research (~60 min)
 
@@ -342,8 +414,11 @@ Execute in order. Do not skip steps.
 > **Deliverable:** Churn prevention playbook with prediction model design, intervention workflows, win-back campaign templates, monetization dashboard specification, and cohort analysis framework.
 
   Complete when: Churn segmented into voluntary/involuntary/passive with tracking by plan, cohort, segment, geography, and channel; prediction model defines 5+ leading indicators; and monetization dashboard specification tracks MRR, ARR, ARPU, ARPPU, LTV:CAC, churn rate, NRR, and cohort retention at months 1/3/6/12.
+  Complete when: Payment flow tested end-to-end — subscription, one-time, and refund scenarios.
+  Complete when: Revenue recognition rules verified with accounting — compliant with ASC 606.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Annual plans are gold — optimize for them.** Annual subscribers have 40-60% lower churn than monthly. Offer 15-25% discount, display the savings prominently ($9.99/month billed annually saves $36/year vs $12.99/month), and make annual the default selection on the pricing page.
 
@@ -370,6 +445,7 @@ Execute in order. Do not skip steps.
 12. **Revenue recognition is not a year-end problem — it's a transaction-time problem.** Every transaction must record the performance obligation period at the moment of payment. Retroactively reconstructing revenue schedules is a CFO's nightmare and an auditor's dream. Build it into the billing system from day one.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
 
@@ -383,6 +459,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Creator rev share set at 70/30 (creator/platform) — top creators leave for competitor offering 85/15 | Rev share modeling didn't account for creator acquisition cost and lifetime value. Top creators (top 5%) generate 50-70% of platform revenue. Losing one drives a network effect exodus: their audience follows them. A 70/30 split on $100K/year creator revenue = $30K to platform. At 85/15 on the same revenue = $15K to platform. But retaining the creator prevents $100K in lost platform revenue. | Segment creator rev share by tier: emerging creators (70/30 until $10K earnings), established (80/20 up to $100K), top creators (90/10 or 95/5). The platform makes money on volume, not on per-creator take rate. Top creators are marketing — losing them costs more than the rev share difference. | Revenue share is retention, not just monetization. The top 5% of creators subsidize the bottom 95%. If you squeeze the top, they have alternatives. Rev share should be progressive: lower rates as creators grow, rewarding loyalty and platform investment. |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] **[MONETIZE1]** Value quantified per customer segment ($ value delivered per year) with willingness-to-pay research (Van Westendorp or conjoint analysis, 20+ respondents per segment)
 - [ ] **[MONETIZE2]** Monetization model selected: primary (subscription/IAP/ads/usage-based/marketplace/hybrid) + secondary revenue streams with rationale
@@ -401,6 +478,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] **[MONETIZE15]** Regulatory compliance verified: auto-renewal consent (where required), cancellation ease (as easy as signup), tax collection (VAT/GST/sales tax), platform IAP rules (Apple/Google), privacy consent for ad tracking
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -437,6 +515,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 ### Escalation Path
 
 ```
+
 Revenue emergency (payment processing down, churn spike >10%, regulatory enforcement action)
   └── `fintech-app-developer` + `backend-developer` + `legal-advisor`. Incident response within 1 hour.
 
@@ -445,9 +524,11 @@ Unit economics crisis (LTV:CAC < 1:1 sustained, churn accelerating, ARPU declini
 
 Platform policy threat (Apple/Google IAP rule change affecting revenue model)
   └── `product-manager` + `fintech-app-developer` + `legal-advisor`. Compliance plan within 48 hours.
+
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -461,6 +542,7 @@ Platform policy threat (Apple/Google IAP rule change affecting revenue model)
 | P8 🟠 | Creator or marketplace product with flat revenue share — top earners on same terms as newcomers | [INFO] Flat rev share pushes top creators to competitors. Implement progressive rev share: 70/30 up to $10K, 80/20 up to $100K, 90/10 above $100K. The top 5% generate 50-70% of platform revenue — losing them is existential. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **"Free forever with no limits" as a growth strategy — $50K-$500K burned on non-converting users.** Every free user costs infrastructure and support. Without a conversion trigger, you're running a charity, not a SaaS business. A product with 50K free users at $0.50/user/month infrastructure cost = $25K/month burned. After 2 years = $600K. **Total cost: $50K-$500K depending on scale.** Add conversion triggers immediately: storage limits, feature walls, seat caps. Every free tier feature should answer "does this drive conversion or network effects?"
 
@@ -479,8 +561,10 @@ Platform policy threat (Apple/Google IAP rule change affecting revenue model)
 - **"Contact us" enterprise tier with no supporting content — zero enterprise pipeline.** Enterprise buyers research anonymously before contacting sales. A blank "Contact us" page signals "we'll negotiate and you'll overpay." They leave and buy from the competitor who published their enterprise features and ballpark pricing. **Total cost: $50K-$500K/year in lost enterprise deals.** Minimum enterprise page: feature list (SSO, SLA, audit logs, dedicated support), 2-3 case studies with logos, ROI calculator, and "plans starting at $X/month" ballpark.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 New visitor → Pricing page (3 tiers, Most Popular badge, annual default) → Free trial (14-day, no CC)
   → Day 3: Hits aha moment (first value delivered) → Day 10: Hits usage limit at peak engagement
   → Paywall triggers: "You've used 80% of your free plan. Unlock unlimited with Pro."
@@ -488,11 +572,14 @@ New visitor → Pricing page (3 tiers, Most Popular badge, annual default) → F
   → Month 1: Active usage, feature adoption → Month 6: Team invites 3 colleagues → Seat expansion
   → Month 12: Annual renewal at $359.88 → NRR: 125% (seat expansion drove growth)
   → Dashboard: MRR $29.99 → $119.97 (seat expansion) → Churn 2% monthly → LTV:CAC 4.2:1
+
 ```
 
 The monetization engine is humming: churn is low, NRR exceeds 100%, conversion is predictable, and revenue recognition is compliant. The pricing page converts. The free tier feeds the paid tier. Involuntary churn is recovered automatically. International customers pay in local currency with local payment methods. The CFO sleeps at night because deferred revenue is tracked from day one.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -503,6 +590,7 @@ The monetization engine is humming: churn is low, NRR exceeds 100%, conversion i
 | Free trial requiring credit card but no dunning management — 20-40% of trial-to-paid "failures" are actually expired cards, not disinterested users | 1-3% of monthly revenue permanently lost to recoverable payment failures that the customer never intended | Implement smart retry logic: retry failed payments at 1, 3, 5, 7 days with exponential backoff. Enable card account updater services (Visa VAU, Mastercard ABU). Send pre-expiry emails 30 days before card expiration. Recovery of involuntary churn typically pays back implementation cost within 60 days. |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
@@ -515,6 +603,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] Regulatory: auto-renewal compliant, cancellation as easy as signup, tax collection configured, platform IAP rules followed
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best monetization strategists combine pricing psychology with data-driven experimentation. Deliberate practice means running real pricing tests, measuring LTV/CAC, and iterating based on revenue data.
 
@@ -526,6 +615,8 @@ The best monetization strategists combine pricing psychology with data-driven ex
 | **Expert** | Redesign pricing for a product with $1M+ ARR. Implement usage-based + subscription hybrid pricing. Migrate existing customers with grandparenting strategy. Measure net revenue retention improvement | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift. Every pricing decision, experiment result, and monetization strategy change must be recorded.
 
@@ -534,6 +625,8 @@ This skill maintains a **decision ledger** to prevent context drift. Every prici
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -547,6 +640,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every prici
 **Hard failure boundary:** If 3 approaches fail, STOP. Revenue-impacting decisions should never proceed with uncertainty.
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [ProfitWell: SaaS Pricing Strategy Guide](https://www.profitwell.com/recur/all/saas-pricing-strategy) — Data-driven pricing research across 20,000+ SaaS companies
 *   [Price Intelligently: Van Westendorp Price Sensitivity Meter](https://www.priceintelligently.com/van-westendorp-price-sensitivity-meter) — Willingness-to-pay research methodology

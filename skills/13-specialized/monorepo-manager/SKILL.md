@@ -33,6 +33,7 @@ chain:
 Veteran's playbook for designing, configuring, and optimizing monorepo architectures at scale. Covers every major tool in the JS/TS ecosystem — Turborepo, Nx, pnpm workspaces, Bazel, Lerna, and Rush — plus repository structure, build orchestration, dependency governance, CI/CD, versioning, and polyrepo migration.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -66,9 +67,11 @@ What are you trying to do?
 └── Not sure? → Describe your team size, package count, and current pain points
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -79,6 +82,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "Lockfile conflicts are just part of monorepo life — we deal with them." | In a 40-dev monorepo, 3 parallel dependency PRs = 30 lockfile conflicts every Friday afternoon. 5-15 minutes each to resolve. Developers learn to dread dependency updates, delay upgrades, and bypass the lockfile. Cost: $30K-$100K/year in wasted engineering hours. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -96,12 +100,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of monorepo manager don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -122,6 +126,7 @@ Masters of monorepo manager don't just build — they build **the right thing, a
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -137,6 +142,7 @@ Masters of monorepo manager don't just build — they build **the right thing, a
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You are choosing a monorepo tool (Turborepo vs. Nx vs. Bazel vs. pnpm workspaces) and need a comparison matrix
 - You need to configure build orchestration — task pipelines, caching, parallel execution, and affected detection
@@ -160,6 +166,7 @@ Common chains:
 - **Chain**: devops-engineer → monorepo-manager → frontend-developer — DevOps provisions infrastructure; monorepo manager configures the workspace; frontend dev benefits from shared tooling and fast builds.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Monorepo Tool Selection
@@ -188,6 +195,7 @@ Common chains:
   │ paces   │ │ Nx     │                         │ support.        │
   └─────────┘ └────────┘                         └─────────────────┘
 ```
+
 **pnpm workspaces alone:** <15 packages, simple dependency graph, no build orchestration needed.
 **Turborepo:** JS/TS, need parallel task execution + caching. Lighter than Nx.
 **Nx:** JS/TS, need generators, plugin ecosystem, advanced affected detection, or mobile+web.
@@ -222,6 +230,7 @@ Common chains:
                    │ needed.  │
                    └──────────┘
 ```
+
 **Published externally → strict `exports` field, semver, Changesets.**
 **Internal shared code → `"private": true`, no versioning overhead.**
 **Truly independent → separate repo. Don't force into monorepo if it ships independently.**
@@ -249,6 +258,7 @@ Common chains:
                     │ by its own changes. │
                     └─────────────────────┘
 ```
+
 **Fixed/Locked:** All packages share one version. Use when packages are tightly coupled (e.g., React + ReactDOM).
 **Independent with Changesets:** Each package versioned independently. Use when packages have different release cadences.
 
@@ -276,6 +286,7 @@ Common chains:
                    │ merge.  │ │ over weeks.  │
                    └─────────┘ └──────────────┘
 ```
+
 **<5 repos → big-bang over a weekend.** Use subtree merge strategy to preserve history.
 **>5 repos or >500K LOC → gradual adoption.** Start with shared configs and utilities; add one repo at a time.
 
@@ -307,10 +318,12 @@ Common chains:
                   │ ages ││ected│
                   └──────┘└─────┘
 ```
+
 **Root config change (tsconfig/eslint/CI) → build ALL packages.**
 **Package-level change → build only changed + dependents. Dramatically reduces CI time.**
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -357,9 +370,12 @@ Common chains:
 4. Publish to registry: `changeset publish` with `--no-private` to skip non-publishable packages.
 5. Automate changelog: link to PRs, categorize changes (feat/fix/breaking), notify affected teams.
   Complete when: Versioning strategy chosen (independent/fixed), Changesets configured with automated changelog generation, release workflow tested, and publishing pipeline operational.
-
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -374,6 +390,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Monorepo has 15 packages → only 3 are actively maintained. 80% of code is dead packages that "someone might need." Every CI run rebuilds all 15. Dependency updates (Renovate) open PRs against dead packages weekly. Team spends 4 hours/week reviewing and closing bot PRs for code no one owns | No package ownership model. Dead packages remain because "removing a package is risky — someone might import it." No usage analytics — no one knows which packages are actually imported. Renovate configured to scan all packages in the workspace | Implement package ownership: every package has a CODEOWNERS entry. Track package usage: `nx graph` shows which packages depend on which. Remove any package with 0 dependents and 0 recent commits (90+ days). Configure Renovate to skip archived/deprecated packages. Run `depcheck` quarterly to find unused dependencies within active packages | Dead packages are not harmless — they consume CI time, generate noise PRs, and dilute the ownership model. A package with no maintainer and no dependents is just code that costs money to keep. Usage tracking makes removal decisions data-driven instead of fear-driven |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Affected-detection is a hard requirement, not an optimization.** Without `nx affected` or `turbo run --filter`, every commit rebuilds and retests every package. A 20-package monorepo with 40-min test suites burns $50K-$200K/year in wasted CI compute. Implement affected detection before the CI bill forces a polyrepo split.
 2. **Remote caching pays for itself in the first month.** Turborepo Remote Cache or Nx Cloud eliminates redundant builds across CI runners and developer machines. A team of 20 developers rebuilding the same dependency graph 50 times/day saves 200+ hours of compute time per month. The license cost is a rounding error compared to the savings.
@@ -387,6 +404,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Tool version alignment across all packages.** Enforce a single TypeScript/ESLint/Prettier version at the monorepo root. Use `syncpack` to ensure all `devDependencies` match. A package compiling with TS 5.4 generating declarations consumed by a package on TS 4.9 creates silent type mismatches that break external consumers.
 
 ## Error Recovery **(DEEP)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -401,6 +419,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Monorepo management touches every development team. A monorepo tooling change affects everyone's daily workflow — coordination isn't optional.
@@ -448,13 +467,12 @@ Monorepo management touches every development team. A monorepo tooling change af
 | Proposal to split monorepo into polyrepo | **CTO Advisor** + System Architect + All Team Leads | Strategic architecture decision; 3-6 month migration impact |
 | License compliance issue in shared dependency | **Legal Advisor** + Security Reviewer | Legal risk; may require dependency removal or legal review |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
 
@@ -468,17 +486,19 @@ Monorepo management touches every development team. A monorepo tooling change af
 | Orphan package detected (zero consumers, zero imports) | Package Owner, System Architect | Unmaintained code in repo; removal or documentation of purpose required |
 | Monorepo tool migration proposed (Lerna→Nx, Yarn→pnpm) | All Teams, DevOps, DX, CTO Advisor | 2-4 week migration window; training, CI reconfiguration, and workflow changes needed |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 >
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -496,6 +516,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **`git clone` with full history** on a 5-year monorepo with 2M commits takes 45 minutes and 15GB. Every CI runner, every new hire, every `git bisect` pays this cost. Use shallow clones (`--depth=1`), file-system-level clones (reference repos), or `--filter=blob:none` (partial clone).
 - **Turborepo/Nx cache invalidation** — `turbo run build --force` rebuilds everything. But without `--force`, Nx's computation hashing includes `package.json` dependencies and source files but NOT environment variables. If you change `NODE_ENV` from `development` to `production`, the hash doesn't change and stale builds are served from cache.
@@ -512,6 +533,7 @@ graph LR
 - **Tool version drift across packages causing silent inconsistencies** — your monorepo standardizes on TypeScript 5.3, but `packages/legacy-dashboard` uses TypeScript 4.9 (pinned during a migration that was never completed) and `packages/experiments` uses TypeScript 5.4 (a developer updated it locally to use a new feature). The root `tsconfig.json` extends base settings, but each package compiles with its own version. `packages/app` compiles with TS 5.3 and generates declarations that reference features from TS 5.4 (via an import from `packages/experiments`). The declarations work in VSCode (which uses the workspace TS version) but fail when published to npm and consumed by an external project running TS 4.9. An external integration partner's CI breaks, delaying their release by 4 days and triggering a contract escalation clause. **Total cost: $30K-$100K per incident in cross-team debugging and partner relationship damage from inconsistent tool versions.** Fix: Enforce a single TypeScript version at the monorepo root with `package.json` `resolutions` or `overrides`; use `syncpack` to ensure all `devDependencies` match across packages; add a CI check that fails if any package declares a different version of a shared dev tool than the root; use `npx syncpack fix-mismatches` as a pre-commit hook to auto-correct drift.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -521,6 +543,7 @@ graph LR
 | Dead packages consume CI time and generate noise PRs — 80% of packages are unmaintained but "someone might need them." Renovate opens weekly PRs against dead packages that nobody reviews. | $15K-$40K/year in review overhead from bot PRs against dead code, plus $30K-$80K/year in wasted CI compute rebuilding packages no one imports. | Implement package ownership with CODEOWNERS. Track usage with `nx graph`. Remove packages with 0 dependents and 0 recent commits (90+ days). Configure Renovate to skip archived/deprecated packages. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] `git clone --depth=1` — clone completes in < 2 minutes, repo size < 500MB
 - [ ] Affected graph: `turbo run build --filter=[HEAD^1]` or `nx affected:build --base=HEAD~1` — only changed projects build
@@ -530,10 +553,12 @@ graph LR
 - [ ] Lint all: `npm run lint` at root — zero errors, all packages pass
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** Affected-detection operational: `nx affected:build --base=HEAD~1` or `turbo run build --filter=[HEAD^1]` builds only changed packages and their dependents. Verified with a test PR that changes a single package.
 - [ ] **[S2]** Remote caching configured and warmed: main branch builds populate the remote cache. PR builds achieve >80% cache hit rate. Second build with no changes reports FULL TURBO or 100% Nx Cloud cache hit.
@@ -549,6 +574,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[S12]** Strict dependency hoisting: `pnpm` with `hoist: false` or appropriate limits. ESLint `no-extraneous-dependencies` catches phantom imports. Production-mode install + start smoke test in CI.
 
 ## References
+<!-- STANDARD: 3min -->
 - **Build System & CI/CD**: See [build-system-&-ci-cd.md](references/build-system-&-ci-cd.md)
 - **Dependency Management & Package Architecture**: See [dependency-management-&-package-architecture.md](references/dependency-management-&-package-architecture.md)
 - **Repository Structure**: See [repository-structure.md](references/repository-structure.md)

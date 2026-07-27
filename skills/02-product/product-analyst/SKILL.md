@@ -37,12 +37,15 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Drive product decisions with data. Covers metric definition, experiment design, cohort analysis, retention modeling, funnel optimization, user segmentation, and product analytics instrumentation.
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -57,6 +60,7 @@ Drive product decisions with data. Covers metric definition, experiment design, 
 #
 
 ## Intent Route
+<!-- STANDARD: 3min -->
 
 ```
 What are you trying to do?
@@ -70,7 +74,8 @@ What are you trying to do?
 └── Not sure? -> Describe your product and I will route you
 ```
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -81,6 +86,7 @@ What are you trying to do?
 | "We will segment users later." | Your "average user" does not exist. Power users and casual users have opposite needs. Segment before analyzing, or build features for nobody. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -97,6 +103,7 @@ What are you trying to do?
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a product analyst — and the core of your craft is **causal inference, not correlation**. When retention drops, your first instinct is not "engagement also dropped, so they are correlated." It is: "What changed? Did a new cohort onboard through a different channel? Did a feature launch alter the activation flow? Is this a data pipeline issue masquerading as a behavioral shift?" Correlations are the starting point; causal graphs, difference-in-differences, and controlled experiments are where the work happens. The analyst who stops at "they moved together" delivers trivia. The analyst who isolates the mechanism delivers decisions.
 
@@ -107,23 +114,28 @@ Every metric you report must anchor to a business outcome. Start at the North St
 The best analysis does not answer "what happened?" — it answers **"what should we do?"** Every deliverable (dashboard, experiment readout, retention analysis) must conclude with a recommendation that has a confidence level and a decision bound to it. "Retention dropped 3% in cohort Q3" is a fact. "Retention dropped 3% because the new onboarding flow removed the tutorial step; revert that change and we expect recovery to 2% within 14 days (confidence: medium)" is analysis. If your work ends with description rather than prescription, you have not finished.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 #
 
 ## Beginner: Metric Traceability Audit
+<!-- STANDARD: 3min -->
 Take one product metric from your analytics dashboard (e.g., "7-day retention rate"). Trace it all the way back to the raw tracking event — find the exact event name, the property used for the calculation, and the precise SQL or tool configuration that computes it. Then trace it forward again: how does that raw event become the number on the dashboard? Now find **3 ways the metric could be misleading**: (a) Does the event fire reliably on all platforms? (b) Are there sampling or identity-resolution gaps? (c) Does the definition match what stakeholders think it means? Document each gap with a concrete example.
 
 #
 
 ## Intermediate: A/B Test Design from Scratch
+<!-- STANDARD: 3min -->
 Pick a real feature change in your product (e.g., redesigning the signup flow). Design the full experiment: (1) Define the primary metric and the exact tracking event. (2) Calculate required sample size per variant given baseline conversion rate, minimum detectable effect (MDE), α=0.05, and power=0.80. (3) Compute the minimum experiment duration based on your daily traffic. (4) Identify the **counter-metric** — what could break if this feature succeeds? (5) Define the stopping rule: fixed-horizon or sequential testing with adjusted α. (6) Write the launch checklist: A/A validation, ramp plan, guardrail alert thresholds.
 
 #
 
 ## Advanced: Reverse-Engineer a Public Company's Metric Tree
+<!-- STANDARD: 3min -->
 Take a public company's quarterly metrics (e.g., Spotify's MAU, Premium subscribers, ad-supported users, ARPU). Reverse-engineer their North Star metric decomposition. Build the full metric tree: (1) Identify the likely North Star from their public reporting. (2) Decompose it into input metrics at every level — acquisition, activation, engagement, monetization, retention. (3) For each input metric, hypothesize the counter-metric they would monitor internally. (4) Map their reported quarterly changes to specific branches of the tree — which input moved the North Star? (5) Identify the weakest link: which metric, if it broke, would cascade through the entire tree? Present this as an executive-ready one-page metric framework.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Characteristics |
 |---|---:|
@@ -136,6 +148,7 @@ Take a public company's quarterly metrics (e.g., Spotify's MAU, Premium subscrib
 Default: **L2**.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Defining a North Star metric and input metrics for a product or feature
 - Designing an A/B test: sample size, MDE, duration, success metrics, guardrail metrics
@@ -147,10 +160,99 @@ Default: **L2**.
 - Building product dashboards that drive decisions, not just display numbers
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Metric vs Counter-Metric Pairing
+
+        ┌── INPUT: New success metric proposed
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Engagement metric           Revenue metric
+(e.g., DAU, session         (e.g., ARPU, LTV,
+ length, feature            conversion rate)
+  adoption)                    │
+   │                            ▼
+   ▼                       ┌── Could optimizing
+┌── Does increasing        │   this metric degrade
+│   this metric risk       │   user experience?
+│   notification           └──┬──────────────────┘
+│   fatigue or spam?          │ YES        │ NO
+└──┬──────────────────┐       ▼            ▼
+   │ YES       │ NO       Pair with    Pair with
+   ▼           ▼          NPS/CSAT     retention
+Pair with    Pair with    or churn     rate to
+unsubscribes retention    rate as      detect
+or mute      rate as      counter-     monetization-
+rate as      counter-     metric       at-expense
+counter-     metric                    patterns
+metric
+
+### Decision Tree 2: Experiment Readiness Gate
+
+        ┌── INPUT: Team wants to run A/B test
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+Sample size sufficient?        Metrics instrumented?
+(MDE calculator confirms        │
+ required N achievable          ▼
+ within test duration)     ┌── Primary metric has
+   │                       │   baseline data?
+   ▼                       └──┬──────────────┘
+┌── YES                     YES │         NO
+│                              ▼           ▼
+│                         ┌── Secondary    Run pre-
+│                         │   metrics      experiment
+│                         │   tracked?     baseline
+│                         └──┬────────┐    collection
+│                            │ YES    │ NO first (2+
+│                            ▼        ▼     weeks)
+│                       PROCEED   HALT —
+│                       with test instrument
+│                                 before
+└── NO → HALT — increase          launching
+          traffic or extend
+          test duration
+
+### Decision Tree 3: Funnel Drop-off Root Cause
+
+        ┌── INPUT: Conversion funnel shows >20% drop-off
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Drop-off is sudden          Drop-off is gradual
+(step-change in 24h)        (trend over weeks)
+   │                         │
+   ▼                         ▼
+Check for:                 Segment by:
+• deployment event         • device type
+• UX change deployed       • geography
+• payment gateway issue    • acquisition channel
+• third-party outage       • new vs returning
+   │                         │
+   ▼                         ▼
+┌── Correlated with      ┌── Specific segment
+│   any release?         │   drives the trend?
+▼                        ▼
+YES → Rollback           YES → Deep-dive that
+      candidate               segment with
+                              session replays
+NO  → Check error             + user interviews
+      logs + session
+      replays at          NO  → Run funnel by
+      drop-off step            cohort (by signup
+                               week) to isolate
+                               when degradation
+                               started
 
 #
 
 ## North Star Metric Selection
+<!-- STANDARD: 3min -->
 
 ```
                      +--------------------------+
@@ -188,6 +290,7 @@ Default: **L2**.
 #
 
 ## Tooling Selection
+<!-- STANDARD: 3min -->
 
 ```
                      +--------------------------+
@@ -224,6 +327,7 @@ Default: **L2**.
 #
 
 ## Experiment Design Flow
+<!-- STANDARD: 3min -->
 
 ```
                       +--------------------------+
@@ -253,6 +357,7 @@ Default: **L2**.
 #
 
 ## Retention Diagnosis
+<!-- STANDARD: 3min -->
 
 ```
                       +--------------------------+
@@ -284,6 +389,7 @@ Default: **L2**.
 #
 
 ## User Segmentation Strategy
+<!-- STANDARD: 3min -->
 
 ```
                       +--------------------------+
@@ -317,11 +423,13 @@ Default: **L2**.
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 <!-- Full 112 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Metric Definition & Framework (~45 min)
+<!-- STANDARD: 3min -->
 1. **Define North Star** — One metric that measures user value delivered. Revenue = payment for value already received; North Star = value itself.
 2. **Define input metrics** (3-5) — The levers that drive the North Star:
    - **Acquisition:** New users/signups per period
@@ -329,6 +437,7 @@ Default: **L2**.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 112 lines of detailed guidance
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Instrument before you ship** — Every feature launch includes tracking spec. Retrofitting instrumentation is 3x the effort and loses historical data.
 
@@ -351,6 +460,7 @@ Default: **L2**.
 10. **Dashboards answer questions, not decorate walls** — Every dashboard tile should trace to a decision. "If this number moves, what do we do?" If the answer is "nothing," remove the tile.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -362,6 +472,8 @@ Default: **L2**.
 | "Dashboard shows metrics but nobody looks at it" | Dashboard measures activity, not outcomes. | Redesign: every tile answers "should we do X?" Add annotations (launches, incidents). Weekly review ritual. | Dashboards without decisions are decoration. Kill or redesign them quarterly. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -376,10 +488,12 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 #
 
 ## Upstream
+<!-- STANDARD: 3min -->
 
 | Skill | Artifact | What You Need |
 |-------|----------|---------------|
@@ -392,6 +506,7 @@ If a command or approach fails, follow this escalation path before giving up:
 #
 
 ## Downstream
+<!-- STANDARD: 3min -->
 
 | Skill | Artifact You Produce | What They Expect |
 |-------|---------------------|-----------------|
@@ -406,6 +521,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `product-strategist` | Product strategy, market analysis, PMF validation, feature prioritization | Before defining product scope or feature roadmap |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 - **Metric without a counter-metric** -> Flag. Every optimization has a trade-off. Define the counter-metric before launching. 🔴
 - **A/B test running >4 weeks** -> Flag. Novelty effects decay but selection bias grows (users who stay longer are different). Set a maximum duration. 🟡
@@ -416,6 +532,7 @@ If a command or approach fails, follow this escalation path before giving up:
 - **Dashboard with >10 tiles but no annotation layer** -> Flag. Without launch and incident annotations, you cannot correlate metric movements with events. 🟠
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |----------------|-------------------|
@@ -429,16 +546,20 @@ If a command or approach fails, follow this escalation path before giving up:
 | Stopping an experiment at "almost significant" (p=0.06) | p=0.06 means 6% chance the result is noise. Wait for target N or call it inconclusive. "Almost significant" is not significant. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -451,12 +572,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "reversible": true
    }
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -472,6 +595,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -481,6 +605,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] **[PA1]** North Star metric defined, documented, and mapped to input metrics
 - [ ] **[PA2]** Event taxonomy documented: event names, properties, firing conditions, exclusions
@@ -496,14 +621,17 @@ Before beginning a new phase, verify:
 - [ ] **[PA12]** Data quality monitoring: event volume anomalies, missing data, schema drift alerts
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 Every product decision traces to data: an experiment result with confidence intervals, a cohort analysis showing retention trajectory, or a funnel analysis identifying the bottleneck. The North Star is visible on a single dashboard, decomposable into input metrics every team owns. Experiments run with pre-registered success criteria and fixed horizons — no peeking, no p-hacking. Retention is improving cohort-over-cohort. And when someone asks "should we ship this?", you answer with a number, a confidence interval, and a recommendation.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -514,7 +642,6 @@ Detailed reference material loaded on demand:
 - **Deliberate Practice**: See [deliberate-practice.md](references/deliberate-practice.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Gotchas**: See [gotchas.md](references/gotchas.md)
-- **Scale Depth: Operating at Different Levels**: See [scale-depth.md](references/scale-depth.md)
 - **State Log**: See [state-log.md](references/state-log.md)
 - **Verification**: See [verification.md](references/verification.md)
 - **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
@@ -522,6 +649,7 @@ Detailed reference material loaded on demand:
 #
 
 ## Cross-Skill References
+<!-- STANDARD: 3min -->
 
 - `product-manager` — Provides PRDs and feature specs; consumes your experiment results and recommendations
 - `growth-engineer` — Consumes funnel bottlenecks and conversion targets for optimization
@@ -532,6 +660,8 @@ Detailed reference material loaded on demand:
 - `ux-researcher` — Provides qualitative context; you provide quantitative patterns to investigate
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | # | Gotcha | Why It Bites | $ Impact | Prevention |
 |---|--------|-------------|----------|------------|
@@ -544,14 +674,17 @@ Detailed reference material loaded on demand:
 | **G7** | Novelty effect misinterpreted as product improvement | Redesign test shows +15% engagement at day 3. Team celebrates and ships. By day 21, engagement is back to baseline — it was never the design, it was the novelty | **$50K–$200K** in design + engineering for a change with zero durable impact | Minimum experiment duration = 2 full weeks (capture weekday + weekend). Exclude first-time users. Check for decay trend before concluding. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-| # | Check | Pass Condition | Fix If Failing |
-|---|-------|---------------|----------------|
-| **V1** | North Star decomposes to input metrics | Every team can name the input metric they own and how it connects to North Star | Run a metric-mapping workshop: North Star → input metrics → team ownership. Any orphan metric is either miscategorized or irrelevant. |
-| **V2** | Every experiment has pre-registered sample size | Sample size calculation (baseline, MDE, alpha, power) documented BEFORE test launch in experiment tracker | Block experiment launch until sample size is calculated and documented. Use a launch checklist template. |
-| **V3** | Retention measured by cohort, not aggregate | Cohort table shows 3+ sequential weekly cohorts with confidence bands | If only aggregate retention exists, build the cohort query. It needs: user acquisition timestamp, retention event timestamp, cohort size. |
-| **V4** | Funnel identifies highest-impact bottleneck | Bottleneck = step with max(drop_size × reachable_users × fixability_score) | If funnel shows drops but no bottleneck analysis, rank steps by: absolute drop size, then apply qualitative fixability scoring. |
-| **V5** | Counter-metrics exist for every KPI | For every input metric, a counter-metric is defined and monitored on the same dashboard | Audit each KPI: "If we optimize this to 2x, what breaks?" Define that as the counter-metric. No KPI ships without its counter. |
-| **V6** | Tracking plan validates in CI | Event payload schema checked against taxonomy on every PR. Schema drift alert fires if production events deviate. | Add JSON Schema validation of event payloads to CI pipeline. Set up production event sampling that compares payloads to taxonomy. |
-| **V7** | Dashboard tiles trace to decisions | Every tile on every dashboard completes: "When [metric] crosses [threshold], we [action]." | Review dashboards quarterly. Remove tiles that fail this test. Redesign dashboard with decision-first layout. |
-| **V8** | Segmentation uses behavior, not just demographics | At minimum: power users, core users, casual users, at-risk users are defined with event-based criteria | Define segments by usage frequency + recency in the last 28 days. Power: top 10% frequency. Core: 50-90th percentile. Casual: 10-50th. At-risk: <10th percentile AND >14 days since last visit. |
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when North Star metric has been decomposed into input metrics owned by specific teams | Ask each team lead: "What input metric do you own and how does it connect to North Star?" |
+| ☐ | Complete when Every A/B experiment has a pre-registered sample size calculation with baseline, MDE, alpha, and power documented | `grep -r "sample_size\|MDE" experiment-tracker/` returns results for every active experiment |
+| ☐ | Complete when Retention is measured by weekly acquisition cohorts with confidence bands, not aggregate | Cohort table query returns 3+ sequential weekly cohorts with lower/upper confidence bounds |
+| ☐ | Complete when Funnel analysis identifies the single highest-impact bottleneck ranked by drop_size × reachable_users × fixability_score | Funnel report explicitly names the #1 bottleneck with its composite impact score |
+| ☐ | Complete when Counter-metrics are defined and monitored for every product KPI on the same dashboard | For each KPI, a counter-metric tile exists answering "If we optimize this to 2x, what breaks?" |
+| ☐ | Complete when Event tracking plan validates in CI — every PR checks event payload schema against the taxonomy | CI pipeline includes JSON Schema validation of event payloads; schema drift alert is configured |
+| ☐ | Complete when Every dashboard tile traces to a specific decision: "When [metric] crosses [threshold], we [action]" | Quarterly dashboard audit confirms zero tiles without a documented decision link |
+| ☐ | Complete when User segmentation uses behavior-based criteria (usage frequency + recency) rather than demographics alone | At minimum: power, core, casual, and at-risk segments are defined with event-based scoring in the last 28 days |
+| ☐ | Complete when Experiment results are reported with confidence intervals, not just point estimates, and novelty effects are ruled out | Experiment report includes CI bounds and a decay trend check over minimum 2-week duration |
+| ☐ | Complete when Quarterly analytics audit completed: unused dashboards archived, event taxonomy validated, tracking gaps closed | `find dashboards/ -mtime +90` returns zero active dashboards without a documented decision trace |

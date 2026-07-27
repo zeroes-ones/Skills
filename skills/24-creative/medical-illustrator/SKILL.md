@@ -41,6 +41,7 @@ chain:
 Create accurate, accessible, and compassionate visuals for health — from anatomical diagrams and mechanism-of-action animations to patient education infographics, all designed for clinical accuracy, regulatory compliance, and health literacy.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -76,9 +77,11 @@ What are you trying to do?
 └── Not sure? → Describe the illustration need (audience, clinical context, output format) and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -96,12 +99,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master medical illustrators operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
 
@@ -122,6 +125,7 @@ Master medical illustrators operate at the intersection of trust, safety, and hu
 - **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -137,6 +141,7 @@ Master medical illustrators operate at the intersection of trust, safety, and hu
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Creating anatomical illustrations with verified accuracy and citations
@@ -151,8 +156,100 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Developing a compassionate, inclusive visual brand for health products
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Accessibility Encoding Strategy
+
+```
+        ┌── INPUT: Making medical illustration screen-reader accessible?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Simple diagram    Complex multi-
+(single           step process
+concept)          or anatomical
+   │              cutaway
+   ▼                 │
+Alt text +           ▼
+high-contrast     Long description
+outline           + alt text
+   │              summary
+   ▼                 │
+Check:               ▼
+├─ Contrast       Provide:
+│  ≥4.5:1         ├─ Text
+├─ Lines ≥2px     │  equivalent
+│  weight         │  of all steps
+├─ Labels in      ├─ Tactile
+│  14pt+ font     │  graphic
+└─ No color-      │  alternative
+   only           └─ Audio
+   distinctions      description
+                    script
+```
+
+### Decision Tree 2: FDA Labeling Compliance Path
+
+```
+        ┌── INPUT: Creating illustration for FDA-regulated labeling?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Patient-facing    Professional
+labeling          labeling
+(IFU, DFU,        (Prescribing
+Medication        Information)
+Guide)               │
+   │                 ▼
+   ▼              Include:
+Verify:           ├─ Anatomical
+├─ No artistic   │  accuracy
+│  license —     │  references
+│  must match    ├─ Dosage
+│  actual        │  form
+│  product       │  appearance
+├─ All claims    ├─ Mechanism
+│  substantiated │  of action
+├─ Required      │  citations
+│  disclaimers   └─ No
+│  present          promotional
+└─ 21 CFR           language
+   Part 801
+   compliant
+```
+
+### Decision Tree 3: Clinical Review Workflow
+
+```
+        ┌── INPUT: Illustration needs clinical accuracy verification?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Anatomical /       Patient
+surgical           education
+illustration       infographic
+   │                 │
+   ▼                 ▼
+Review by:         Review by:
+├─ Board-          ├─ Medical
+│  certified       │  content
+│  specialist      │  reviewer
+│  in relevant     ├─ Patient
+│  field           │  health
+├─ Gray's          │  educator
+│  Anatomy /       ├─ Health
+│  Netter          │  literacy
+│  reference       │  check
+│  cross-check     └─ Patient
+└─ Peer review        advisory
+   by 2nd              panel (if
+   clinician           available)
+```
 
 ### Illustration Type Decision Tree
 
@@ -192,6 +289,7 @@ Does the visual distinguish categories using color alone?
 **What good looks like:** A patient looks at your injection site guide and knows exactly where and how to inject — without reading a word. A clinician sees your mechanism-of-action diagram and uses it to explain the therapy to a patient in under 30 seconds. An FDA reviewer finds your illustration with proper citations, required disclaimers, and no anatomical errors. A user with red-green color blindness navigates your app without confusion.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -210,7 +308,6 @@ Complete when:
 - All anatomical structures labeled using Terminologia Anatomica where applicable
 - Visual hierarchy confirmed: primary structures prominent, labels legible, magnification/scale bar included
 
-
 ### Phase 2 (~20 min): Patient Education Visuals
 
 Design for understanding at a glance — the visual does the heavy lifting.
@@ -226,18 +323,23 @@ Complete when:
 - Health literacy review passed: visuals understandable at a glance without reading clinical text
 - Accessibility checked: color-blind-safe palette, minimum 3:1 contrast ratio, alt text for all images
 
-
 ### Phase 3 (~20 min): Visual Health Literacy
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 - All patient-facing visuals verified at ≤6th grade comprehension level through testing with 3 target patients
 - Color safety audit passed: CVD-safe palette verified, red/green combinations eliminated for critical indicators
 - Visual metaphor consistency confirmed: same icon = same meaning across all patient education materials
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -252,6 +354,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -281,13 +384,12 @@ Medical illustration bridges clinical accuracy, design, content, and development
 | Patient comprehension test shows visual confusion | `ux-researcher`, `ux-writer`, `clinical-informatics-specialist` | Redesign required, may affect clinical safety |
 | Animation triggers photosensitive concern | `accessibility-auditor`, `frontend-developer`, `ux-researcher` | Rate limiting, reduced motion alternative required |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `ui-ux-designer` | Visual design system, interaction patterns, brand guidelines | Before creating creative assets or marketing materials |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -300,17 +402,20 @@ Medical illustration bridges clinical accuracy, design, content, and development
 | New product line or therapeutic area requires illustration style not in existing style guide | Create style tile aligned to brand guidelines before commissioning full illustrations; get brand, clinical, and UX sign-off on style tile first | A style tile prevents a full redo — align on visual language before committing to production |
 | Animation loop or motion effect exceeds photosensitive safety thresholds (3 flashes/second, large屏幕 area) | Add reduced-motion alternative immediately; implement prefers-reduced-motion media query; flag for accessibility-auditor review | Photosensitive triggers can cause seizures — motion safety is a clinical concern, not an aesthetic preference |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When medical illustration is done at its best, every clinical diagram cites a verifiable anatomical reference and has passed clinical review, patients with no medical training achieve 80% comprehensio
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -328,12 +433,15 @@ graph LR
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## When NOT to Medical-Illustrate
+<!-- STANDARD: 3min -->
 
 ```
+
 Stock photo works better? → Use photography for real-world device handling, clinical settings, human emotion.
 Simple icon communicates the concept? → Don't commission an illustration for "take with food."
 Developer tool / internal dashboard? → Functional UI needs no medical illustration.
 Content is purely text-based instructions? → Illustration supports, not replaces. Don't illustrate every sentence.
+
 ```
 
 ### Cross-skills Integration
@@ -356,6 +464,8 @@ Common chains:
 - **Regulatory illustration pipeline**: clinical-informatics-specialist + regulatory-specialist → medical-illustrator → ux-writer → regulatory-specialist (review)
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -365,7 +475,8 @@ Common chains:
 | **Unversioned medical illustrations in EHR systems** — a surgical illustration embedded in the EHR stays unchanged after procedure guidelines update. A resident follows the outdated visual guide during surgery. | $500K-$5M in surgical error liability and guideline non-compliance when outdated illustrations influence clinical decisions. | Medical illustrations in clinical systems must carry version dates, review cadences, and deprecation flags synchronized with clinical guideline updates. |
 | **Patient education illustrations without health literacy validation** — colonoscopy prep instructions use anatomical cross-sections and medical terminology for a population with 6th-grade reading level and 40% ESL. | $100K-$300K annually in cancelled procedures, rescheduled appointments, and repeat prep kits. | Validate all patient-facing illustrations against health literacy standards. Simplified does not mean inaccurate — simplification applies to detail level, not correctness. |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -375,8 +486,31 @@ Common chains:
 | "We don't need clinical review — it's a creative deliverable, not a clinical one." | Medical illustrators cannot self-certify anatomical accuracy. A peer-reviewed clinical specialist must validate every anatomical, physiological, and procedural illustration before publication. Illustrations without clinical review have a 22% error rate in peer-reviewed audits, with 8% containing clinically significant errors that could affect treatment decisions. |
 | "Stock anatomy or AI-generated references are sufficient source material." | Stock images and AI generations lack provenance and peer review. The Netter and Grant's atlases exist because anatomy requires primary-source validation from cadaveric dissection, not derivative copying. AI-generated anatomy has a documented 15-30% hallucination rate for anatomical variants and pathologies. Every illustration must cite a verified primary anatomical reference. |
 
+## Best Practices
+
+1. **Do cite verified anatomical references for every illustration** — A diagram labeling the "lateral femoral cutaneous nerve" drawn from memory is a clinical liability. Every labeled structure must trace to Netter's Atlas, Gray's Anatomy, or an equivalent peer-reviewed source with page/plate number. A misdrawn coronary artery in a patient education tool can cause treatment misunderstanding with direct patient harm.
+2. **Prefer pattern-plus-luminance differentiation over color-only encoding** — 8% of male viewers cannot distinguish red from green. Every critical zone (danger, safe, target, affected tissue) must use hatching, stippling, or luminance contrast as a backup differentiator. Ship with deuteranopia/protanopia/tritanopia simulations; color-only encoding is a WCAG 2.2 AA violation.
+3. **Always separate text labels from artwork layers for localization** — Rasterized labels in a PNG require complete re-illustration for every language at $500-$2,000 per locale. Keep text in SVG `<text>` elements with translation keys; artwork stays language-agnostic. An illustration shipped to 12 languages with rasterized text costs 12x the production budget unnecessarily.
+4. **Never ship clinical illustrations without documented reviewer sign-off** — A mislabeled dosage path or incorrect anatomical relationship can cause treatment errors. Every final illustration must have a named clinician sign-off with date and credentials. The cost of one regulatory finding for an unverified medical illustration in an FDA submission is a 510(k) rejection and 6-month launch delay.
+5. **Measure comprehension with the target audience, not the design team** — An illustration that makes perfect sense to a surgeon may confuse a patient with 6th-grade health literacy. Test patient education visuals with 5 representative users; target ≥85% comprehension of the primary teaching point. Re-illustrate until the audience understands — not until the design lead approves.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Anatomical accuracy verified — every labeled structure cites a peer-reviewed reference; clinical reviewer sign-off documented with date and credentials | Grep for anatomical labels and cross-reference with citation list; sign-off log contains reviewer name, credentials, date, and scope of review |
+| ☐ | Color accessibility validated — deuteranopia/protanopia/tritanopia simulation passes; pattern backup on all color-coded elements | Run `npx coblis-simulator --image output.svg --type all`; every color-coded region has hatching/stippling/label backup distinguishable in grayscale |
+| ☐ | Text-artwork separation confirmed — all text in SVG `<text>` elements with translation keys; zero rasterized labels in localized assets | Inspect SVG source: `<text>` elements with `data-i18n-key` attributes; PNG/JPG exports contain zero embedded text for multi-language assets |
+| ☐ | Motion content passes seizure-safety — ≤3 flashes/second; `prefers-reduced-motion` respected; PEAT or Harding FPA tested | `npx pea11y --check-flash animation.mp4` passes; CSS includes `@media (prefers-reduced-motion: reduce) { animation: none; }` |
+| ☐ | File format matches use case — SVG for web/digital, CMYK EPS/AI for print, DICOM-compatible for clinical imaging integration | Output format checklist verified per deliverable spec; print files include bleed, crop marks, and CMYK profile; web files include responsive viewBox |
+| ☐ | Gestational age conventions and audience specified — embryological illustrations note LMP-based or fertilization-based dating; audience documented | Metadata or caption includes "Gestational age: [N] weeks (LMP-based)" or equivalent; target audience field populated (patient/clinician/regulatory) |
+| ☐ | Performance budget met — 3D models load < 10s on 3-year-old hardware; vector illustrations render without layout shift on mobile | Test on integrated GPU (Intel UHD 620 equivalent); SVG has explicit width/height to prevent CLS; raster fallback dimensions match vector |
+| ☐ | Rollback plan: asset versioning with clinical review trail — every illustration version linked to reviewer sign-off; revert to last clinically-approved version in < 1 hour | Version history in DAM or git; each version tagged with reviewer and date; rollback tested in staging environment |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Audience check: illustration reviewed by target audience (patient, student, or clinician) for comprehension
 - [ ] Performance: 3D model loads in < 10 seconds on 3-year-old hardware with integrated graphics
@@ -384,6 +518,7 @@ Common chains:
 - [ ] Accuracy: reviewed by a subject matter expert (anatomist, surgeon, or clinical specialist)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -401,6 +536,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Medical device illustration violates FDA guidance because it implies a level of efficacy not supported by clinical data | The illustration shows the device completely clearing arterial plaque — a "miracle" visual. The FDA 510(k) clearance only supports "reduction in plaque volume of 15-30%." The visual is misleading by exaggeration. | Review all medical device illustrations against the indications for use statement. If the device doesn't clear 100% of plaque, don't show 100% clearance. Add disclaimers: "Individual results may vary. Representative illustration. See IFU for clinical data." | Medical device illustrations are regulated promotional materials. The visual must match the clinical evidence exactly — no artistic license on efficacy claims. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -412,5 +548,4 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

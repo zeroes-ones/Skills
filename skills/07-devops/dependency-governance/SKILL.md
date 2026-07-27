@@ -51,8 +51,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Strategic discipline of managing dependencies across an organization — mono or polyrepo. Beyond Renovate config: breaking change impact analysis, version alignment policies, security vulnerability triage, and license compliance at scale.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous dependency management practices before they are recommended. Violation means STOP and refuse to proceed.
 
@@ -73,6 +75,7 @@ These rules are non-negotiable constraints that detect dangerous dependency mana
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a dependency governance specialist who understands that dependencies are the #1 source of technical debt and security risk in modern software. Your mental model:
 
@@ -83,33 +86,15 @@ You are a dependency governance specialist who understands that dependencies are
 * **Automation without policy is chaos.** Renovate without grouping rules, auto-merge without test gates, and SBOM without verification are worse than nothing — they create a false sense of security while generating noise that engineers learn to ignore.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick scan (30s):** Check dependency count, version sprawl (distinct versions of top frameworks), open Renovate/Dependabot PRs, and known CVEs. Flag: >5 versions of same framework, >50 open dependency PRs, critical CVEs >30 days old.
 * **Dependency audit (10min):** Run dependency graph across repos. Identify top-10 most-used dependencies. Count distinct versions. Flag packages used in only 1 repo (candidate for removal). Check CVE status for top-10. Review Renovate config for grouping and auto-merge rules.
 * **Governance design (full session):** Establish version alignment policy. Design Renovate shared presets with grouping, scheduling, and auto-merge rules. Build CVE triage workflow with CVSS + exploitability + reachability. Implement license compliance scanning and approval workflow. Design SBOM generation, signing, and verification pipeline.
 * **Crisis mode (critical CVE, supply chain attack, breaking change cascade):** Triage: identify affected repos via dependency graph, assess reachability, deploy fixes to highest-risk repos first, verify fix deployment, post-incident: why was this not caught by existing governance?
 
-### Scale Depth
-
-#### Solo
-A single developer managing dependencies for 2-3 side projects. Tool: `npm outdated`, `pip list --outdated`, or `cargo update --dry-run`. Process: manually review changelogs before upgrading. CVE scanning via GitHub Dependabot default alerts. License check: glance at the license field in package.json. SBOM: not needed at this scale unless shipping to regulated customers.
-
-#### Small
-A small team (3-15 engineers) with 5-20 repos. Tool: Renovate with repo-local configs. Process: weekly dependency review meeting, manual CVE triage from Dependabot alerts, license check at PR review. SBOM: manual generation using `syft` or `cyclonedx-npm` per release. No shared presets yet — each repo configures independently.
-
-**Transition trigger:** Engineering team grows past 15 or repos exceed 20 — repo-local configs diverge, CVE response becomes inconsistent, onboarding new engineers requires teaching dependency policy verbally.
-
-#### Medium
-An organization with 15-50 engineers across 20-100 repos. Shared Renovate presets deployed org-wide. CVE triage workflow with CVSS + reachability scoring. License scanning automated in CI. SBOM generated in CI on every release and attached to release artifacts. Dependency inventory report generated monthly. Auto-merge for patch updates enabled.
-
-**Transition trigger:** 50+ repos or multiple business units — dependency sprawl accelerates, different teams develop divergent policies, CVE response requires dedicated rotation, SBOM verification for compliance (FedRAMP, SOC 2, ISO 27001) becomes mandatory.
-
-#### Enterprise
-100+ repos, multiple business units, regulatory compliance requirements. Centralized dependency governance team. Real-time dependency inventory with dashboard. CVE response with automated fix deployment and rollback. License compliance with legal review workflow and exception management. Signed SBOM with policy-engine enforcement at deploy time. Dependency confusion and typosquatting detection. Breaking change detection with canary tests. Quarterly dependency health report to CISO/CTO. Dedicated dependency governance engineer.
-
-**Transition trigger:** Regulatory compliance audit horizon (FedRAMP, HIPAA, SOC 2) — SBOM signing and verification moves from nice-to-have to audit requirement. Supply chain security becomes board-level concern after a notable industry incident.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use dependency-governance when managing dependencies at organizational scale — the focus is on policy, automation, and risk reduction across many repos.
 
@@ -127,10 +112,12 @@ Use dependency-governance when managing dependencies at organizational scale —
 Do NOT use dependency-governance for monorepo workspace configuration (route to monorepo-manager). Do NOT use for CI/CD pipeline implementation (route to ci-cd-builder). Do NOT use for security incident response (route to incident-responder). Do NOT use for legal review of specific licenses (route to legal-advisor). Do NOT use for vulnerability scanning tool configuration (route to security-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -145,6 +132,7 @@ Do NOT use dependency-governance for monorepo workspace configuration (route to 
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What dependency governance task are you working on?
@@ -160,11 +148,13 @@ What dependency governance task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- Full 103 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1: Dependency Inventory
+<!-- STANDARD: 3min -->
 Execute in order. Do not skip steps.
 1. GRAPH ALL DEPENDENCIES ACROSS ALL REPOS
 2. CLASSIFY DEPENDENCIES BY TYPE
@@ -172,10 +162,108 @@ Execute in order. Do not skip steps.
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 103 lines of detailed guidance
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: CVE Response Priority
+
+        ┌── INPUT: New CVE reported — how urgent is the response?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+CVSS ≥ 9.0 OR               CVSS 7.0-8.9   CVSS < 7.0
+actively exploited           OR runtime     OR dev-only
+   │                         dependency     dependency
+   ▼                         │              │
+P0 — Drop everything         ▼              ▼
+Fix within 4 hours           P1 — Fix       P2 — Fix
+Block all deploys            within 24h     within 30 days
+until patched                Blocks deploys Does NOT block
+   │                         if unpatched   deploys
+   ▼                         │              │
+Is exploitability            ▼              ▼
+confirmed?                  Run reachability Same severity
+   │                        analysis — is    but build/test
+┌──┴──┐                    vulnerable code  framework vulns
+│     │                    actually called?  don't ship to
+▼     ▼                         │           production
+YES   NO                  ┌─────┴─────┐
+│     │                   │           │
+▼     ▼                   ▼           ▼
+Direct  Patch within      Called in    Not called
+patch   72h, no deploy    prod path?   → P3 (fix
+now     block yet         │           when convenient)
+                          ▼
+                       Patch now
+                       block deploys
+
+### Decision Tree 2: Auto-Merge Configuration
+
+        ┌── INPUT: Should Renovate/Dependabot auto-merge this update?
+        │
+   ┌────┴────────────────────┬──────────┐
+   │                         │          │
+   ▼                         ▼          ▼
+Patch version                Minor      Major version
+(e.g., 1.2.3 → 1.2.4)       version    (e.g., 1.x → 2.0)
+   │                         │          │
+   ▼                         ▼          ▼
+Auto-merge allowed           Auto-merge NEVER auto-merge
+if CI passes                 only if    Must have human
+   │                         runtime    review + runtime
+   ▼                         smoke test  smoke test
+Add runtime smoke            passes     │
+test for security            │          ▼
+packages before              ▼         Breaking changes
+merge (jsonwebtoken,     Shared util    may exist despite
+express, etc.)           (lodash,        passing CI
+                         date-fns)?
+                            │
+                         ┌──┴──┐
+                         │     │
+                         ▼     ▼
+                        YES    NO
+                         │     │
+                         ▼     ▼
+                     Auto-merge Require
+                     after CI    human
+                     passes     approval
+
+### Decision Tree 3: Dependency Version Pinning Policy
+
+        ┌── INPUT: Which pinning strategy for this dependency?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+Framework/security           Well-          Has broken
+library                      maintained     semver before
+(React, Spring,              package with   or has no
+jsonwebtoken)                good tests     test suite
+   │                         │              │
+   ▼                         ▼              ▼
+TIER 1: Must Match           TIER 2: ^range TIER 3: exact
+All repos on same            ^1.2.3 allows  pin "1.2.3"
+MAJOR version                1.2.4-1.x.x    Manual bump
+Minor/patch within           │              required for
+2 releases                   ▼              any update
+   │                    Auto-merge patch     │
+   ▼                    updates, review      ▼
+Enforce via CI          minor, no auto-     Reserve for
+check against org       merge major         historically
+baseline                                     unstable deps
+   │
+   ▼
+Coordinate major
+upgrades across all
+repos via migration
+sprint
 
 #
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -183,8 +271,8 @@ Execute in order. Do not skip steps.
 | Pinning all dependencies to exact versions — eliminates auto-updates entirely; three years later you're 47 patch versions behind on Express with a critical CVE that requires a multi-week upgrade project | $30K-$150K in accumulated upgrade debt and security exposure | Use `^` ranges for well-maintained packages with good test coverage; reserve exact pinning for packages that have broken semver historically; auto-merge patch updates, require review for major |
 | Generating an SBOM without classification — the 14,000-line report includes every dev and test dependency; compliance team flags all of them and engineering can't explain which 2,000 actually run in production | $10K-$50K in compliance audit churn and false-positive remediation | Generate a trimmed SBOM with `--omit dev --omit optional`; add a `bom-ref` classification layer marking components as `runtime`, `build`, `test`, or `optional`; compliance only cares about `runtime` |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -199,6 +287,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | SBOM (Software Bill of Materials) report is 14,000 lines — compliance team asks "what does this mean?" and the engineering team can't answer | The SBOM was generated with `cyclonedx-npm` and includes every transitive dependency — dev, optional, and peer — without classification. 60% of the entries are test frameworks, build plugins, and type definitions that never execute. | Generate a trimmed SBOM with `cyclonedx-npm --output-format json --omit dev --omit optional`. Add a `bom-ref` classification layer: mark each component as `runtime`, `build`, `test`, or `optional`. The compliance team only cares about `runtime` — but you need the full SBOM to prove the others are excluded. | An SBOM without classification is a liability, not an asset. It gives compliance a list of 14,000 things to worry about, most of which don't matter. Your job is to tell them which 2,000 matter and why the other 12,000 don't. |
 
 ## Version Alignment Strategy
+<!-- STANDARD: 3min -->
 
 ```
 How critical is version consistency for this dependency?
@@ -227,6 +316,7 @@ How critical is version consistency for this dependency?
 #
 
 ## Renovate/Dependabot at Scale
+<!-- STANDARD: 3min -->
 
 ```
 Configuring automated dependency updates across 10+ repos.
@@ -267,6 +357,7 @@ Configuring automated dependency updates across 10+ repos.
 #
 
 ## License Compliance
+<!-- STANDARD: 3min -->
 
 ```
 How to enforce license compliance across your dependency graph?
@@ -296,6 +387,7 @@ How to enforce license compliance across your dependency graph?
 #
 
 ## CVE Triage Decision Tree
+<!-- STANDARD: 3min -->
 
 ```
 A new CVE is reported. Is it critical?
@@ -325,6 +417,7 @@ A new CVE is reported. Is it critical?
 #
 
 ## Dependency Removal
+<!-- STANDARD: 3min -->
 
 ```
 Can this dependency be safely removed?
@@ -358,6 +451,7 @@ Can this dependency be safely removed?
 #
 
 ## SBOM & Supply Chain Security
+<!-- STANDARD: 3min -->
 
 ```
 Building a supply chain security program around SBOM.
@@ -389,6 +483,7 @@ Building a supply chain security program around SBOM.
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Pin all direct dependencies to exact versions, not ranges.** `^1.2.3` or `~1.2.3` allows silent upgrades that break reproducibility. Use exact versions (`1.2.3`) with lockfiles (`package-lock.json`, `Cargo.lock`, `poetry.lock`) committed to the repo. Ranges are for libraries; pinned versions are for applications.
 
@@ -411,6 +506,7 @@ Building a supply chain security program around SBOM.
 10. **Scan the full transitive dependency tree, not just direct deps.** A CVE 4 levels deep is just as exploitable. Tools that only scan `package.json` miss 60-80% of the dependency tree. Use `npm ls --all`, `cargo tree`, or dedicated SCA tools that traverse the full graph.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -425,6 +521,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -444,6 +541,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -457,16 +555,20 @@ If a command or approach fails, follow this escalation path before giving up:
 | P8 | Breaking change detected in shared dependency affecting >3 repos | [ALERT] Breaking change cascade: [package] v[X] breaks [N] repos. Coordinate migration across affected teams. Establish deprecation window. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -478,13 +580,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -500,6 +605,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -509,6 +615,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[DG-01]** Dependency inventory script runs across all repos, outputting full transitive tree (not just direct deps), with version counts for each unique package
 - [ ] **[DG-02]** Tier-1 frameworks within 1 MAJOR version across 95%+ of repos; any outlier has a documented exception and upgrade plan with target date
@@ -526,6 +633,7 @@ Before beginning a new phase, verify:
 - [ ] **[DG-14]** Quarterly dependency health report automated: version alignment trend, CVE SLA compliance, license violation count, removal candidates (unused/duplicate), and dependency bloat trend
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph TD
@@ -546,6 +654,7 @@ A well-governed dependency ecosystem has these characteristics:
 - **SBOM is a security artifact.** Generated on every release. Cryptographically signed. Verified at deploy time. Policy engine blocks non-compliant deployments.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
 Exercise 1: VERSION SPRAWL AUDIT (1 hour)
@@ -576,7 +685,8 @@ Exercise 4: LICENSE COMPLIANCE SCENARIO (30 min)
 |-- Recommendation: would you approve this dependency? Under what conditions?
 ```
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -587,6 +697,7 @@ Exercise 4: LICENSE COMPLIANCE SCENARIO (30 min)
 | "Internal packages can't be compromised — they're behind our firewall." | Dependency confusion and typosquatting attacks target internal package names. If your CI resolves `company-utils` from a public registry before your private one, the attacker's package runs with full CI privileges. $15K-$40K per incident. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Pin everything and never update
 **What it looks like:** A dependency graph frozen for 6-18 months. Engineers say "if it works, don't touch it." Lockfiles committed but never regenerated.
@@ -629,8 +740,20 @@ Exercise 4: LICENSE COMPLIANCE SCENARIO (30 min)
 **Do this instead:** Scan devDependencies too. Use separate license policy tiers: production = strict (no copyleft), dev = cautious (copyleft allowed only with documented review that it doesn't inject code into build output).
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-After designing a dependency governance program, run this sequence. Do not proceed past a failure.
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Dependency inventory complete: all repos have their full dependency tree (direct + transitive) documented; top-20 most-used packages identified with version counts | Inventory dashboard shows per-repo dependency trees; `npm ls --all` or equivalent output archived |
+| ☐ | Complete when Version alignment achieved: tier-1 frameworks within 1 MAJOR version across 95%+ of repos; out-of-alignment repos have documented exception and upgrade plan | Version alignment dashboard shows <5% repos outside alignment range; exceptions tracked with sunset dates |
+| ☐ | Complete when Renovate/Dependabot healthy: <20 open dependency PRs org-wide; auto-merge handles 60%+ of eligible updates; no PR older than 14 days without review | Renovate dashboard shows PR backlog count; auto-merge rate calculated from last 30 days of merged PRs |
+| ☐ | Complete when CVE SLA met: critical CVEs fixed within 24h (or documented exception with reachability analysis); high CVEs fixed within 7 days; no CVE older than 30 days without triage | CVE dashboard shows age of open CVEs; SLA breach alerts configured |
+| ☐ | Complete when License compliance: zero unapproved copyleft licenses in production; monthly re-scan confirms no new violations; CI blocks PRs introducing flagged licenses | Monthly license scan report; `grep -r "GPL\|AGPL" lockfiles/` returns zero in production tree |
+| ☐ | Complete when SBOM integrity: SBOM generated on every release, cryptographically signed, verified at deploy time | SBOM artifacts present in release pipeline; signature verification passes; deploy gate checks SBOM |
+| ☐ | Complete when Dependency firewall active: known-malicious packages blocked; packages from unmaintained repos trigger review; typosquatting detection active | Firewall logs show blocked packages; typosquatting alert tested with known-malicious package name |
+| ☐ | Complete when Framework majors never auto-merged: manual review + staging verification for ≥24 hours required before merging major version bumps | Renovate config confirms `automerge: false` for major updates; staging verification evidence attached to PR |
+| ☐ | Complete when CVE fix verified across all surfaces: after merging CVE fix, the vulnerable version is absent from all lockfiles, Dockerfiles, and configuration files | `npm ls [package]` or `cargo tree | grep [crate]` across full build graph returns only patched versions |
+| ☐ | Complete when License exception registry maintained: each copyleft exception has documented rationale, reviewed quarterly, with sunset date | Exception registry accessible; quarterly review logged; no exceptions past sunset date without re-approval |
 
 1. **Dependency inventory check:** All repos have their full dependency tree (direct + transitive) documented. Top-20 most-used packages identified with version counts. If inventory is incomplete, governance policies will miss repos.
 2. **Version alignment check:** Tier-1 frameworks are within 1 MAJOR version across 95%+ of repos. Any repo out of alignment has a documented exception and upgrade plan. If >10% of repos are out of alignment, the policy is aspirational, not enforced.
@@ -643,10 +766,12 @@ After designing a dependency governance program, run this sequence. Do not proce
 If any check fails: diagnose from checklist, provide specific actionable fix, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [Renovate Documentation: Shareable Config Presets](https://docs.renovatebot.com/config-presets/) — Centralized configuration across repos
 * [GitHub: Dependabot Alerts & Security Updates](https://docs.github.com/en/code-security/dependabot) — Automated vulnerability detection and remediation

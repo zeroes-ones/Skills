@@ -44,6 +44,7 @@ chain:
 Ensure every piece of health content in your app is clinically accurate, evidence-based, and legally defensible. This skill covers medical accuracy review workflows, misinformation detection, evidence quality assessment, disclaimer drafting, and adverse event trigger identification — specifically for digital health apps and patient communities.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -62,6 +63,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A8 | `file_exists("*.compliance.*")` OR `file_contains("*", "HIPAA")` OR `file_contains("*", "FDA")` OR `file_contains("*", "regulatory")` | Compliance/regulatory task. Invoke `compliance-officer` skill. |
 
 ### Intent Route (Fallback — When No Auto-Route Matched)
+
 ```
 What are you trying to do?
 ├── REVIEW patient-facing education content for clinical accuracy → Jump to "Core Workflow" — Phase 1
@@ -78,9 +80,11 @@ What are you trying to do?
 ├── Need content policy alignment for misinformation rules? → Invoke `content-policy-manager` for policy enforcement and triage criteria
 └── Not sure where to start? → Start at "Ground Rules" then "When to Use"
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -->
 These rules apply to *every* response this skill produces. Medical content review is a clinical responsibility, not an editorial one.
@@ -96,12 +100,12 @@ These rules apply to *every* response this skill produces. Medical content revie
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master medical content reviewers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -122,6 +126,7 @@ Master medical content reviewers carry a dual responsibility: technical excellen
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -137,6 +142,7 @@ Master medical content reviewers carry a dual responsibility: technical excellen
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -149,8 +155,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Evaluating whether a pharma partner's educational content meets your clinical accuracy standards
 - Auditing existing app content for outdated or inaccurate medical information
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -166,6 +172,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — table of who to talk to when -->
 Medical content review operates at the intersection of clinical accuracy, regulatory compliance, and patient safety. Every content approval carries clinical liability — coordination with clinical, regulatory, and content teams ensures evidence-based content that is legally defensible and medically safe.
@@ -206,13 +213,12 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 - **Regulatory review gate:** Any content making therapeutic claims about prescription drugs, medical devices, or biologic products requires regulatory review before publication. No exceptions.
 - **Clinical accuracy sign-off:** All patient-facing health content requires sign-off from a qualified clinical reviewer before publication. Content without sign-off is held from publication.
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `clinical-informatics-specialist` | Clinical workflows, terminology standards, regulatory context | Before designing healthcare solutions or patient-facing content |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -226,9 +232,80 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 | Reviewer disagreement on content accuracy between two qualified clinicians | Route to third reviewer (medical director or specialist) within 48 hours; document the disagreement and resolution; use as training case for future reviews | Disagreement between qualified reviewers is not failure — it surfaces genuine clinical nuance that patients benefit from understanding |
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Evidence Quality Assessment
+
+        ┌── INPUT: A health claim needs
+        │   evidence grading
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Multiple RCTs            Only observational
+or meta-analyses?        studies or expert
+   │                     opinion available?
+   ▼                         │
+GRADE High/Mod           ┌────┴────┐
+→ Accept claim           │         │
+with confidence          ▼         ▼
+level noted          Consistent    Conflicting
+                     findings?     or anecdotal?
+                        │              │
+                        ▼              ▼
+                   GRADE Low      GRADE Very Low
+                   → Publish      → Flag for SME
+                   with caveat    review; do not
+                                  publish as-is
+
+### Decision Tree 2: Adverse Event Detection
+
+        ┌── INPUT: Content describes a health
+        │   outcome temporally linked to a product
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Outcome is       Outcome is
+SERIOUS?         unexpected given
+(death,          labeling/
+hospitalization, known profile?
+disability)          │
+   │            ┌────┴────┐
+   ▼            │         │
+YES →          YES       NO →
+Report as      → Flag    Likely
+SAE per        for       not an
+protocol       safety    AE; note
+               monitor   for trend
+                         tracking
+
+### Decision Tree 3: Escalation Path
+
+        ┌── INPUT: Reviewer encounters
+        │   ambiguous clinical content
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Involves off-label       Requires specialist
+use or treatment         domain knowledge
+comparison?              (rare disease, etc.)?
+   │                         │
+   ▼                         ▼
+YES → Route to           YES → Route to
+medical director         clinical SME
+for balanced             for targeted
+context + risk           consult within
+assessment               48 hours
+   │                         │
+   ▼                         ▼
+NO → Apply standard      NO → Reviewer
+disclaimer; publish      decides per
+with caveat              standard protocol
 
 ### Community Content Triage
 
@@ -287,6 +364,7 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 **Dangerous claims (remove immediately):** "Stop taking your factor — I switched to herb X and I'm cured." "Here's how to compound your own factor at home." "Children don't need prophylaxis; it's overprescribed." These cause direct harm. **Off-label but not dangerous (flag with context):** "My doctor prescribed X for my chronic synovitis" — off-label but may be legitimate. Add context, don't remove.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -301,7 +379,6 @@ Complete when:
 - No unverified treatment claims remain in published content
 - Review document complete with claim-by-claim classification, source, and action taken
 
-
 ### Phase 2 (~25 min): Misinformation Detection Rules
 **Steps:** 1) Define harm levels: Level 1 (dangerous — immediate removal, possible AE report), Level 2 (misleading — flag with corrective context), Level 3 (unsubstantiated — add "not enough research" note), Level 4 (personal experience — no action beyond threading disclaimer) 2) Build keyword and pattern rules: "cure" + "hemophilia" = Level 2 (no known cure). "Stop taking" + medication name = Level 1. "Natural treatment" + condition = Level 2. 3) Add context-aware rules: "My doctor switched me to X" = personal experience (Level 4) vs "Everyone should try X instead of Y" = medical advice (Level 2) 4) Set up escalation: level 1 → immediate removal + clinical review + AE assessment. Level 2 → 24-hour clinical review. Level 3-4 → flag but no removal. 5) Review and iterate on rules monthly — misinformation tactics evolve faster than your ruleset
 
@@ -311,7 +388,6 @@ Complete when:
 - Misinformation detection rule library with 20+ rules across all four harm levels deployed
 - Auto-triage catching ≥80% of Level 1 content before human review
 - Monthly rule review cadence established with version-controlled rule updates
-
 
 ### Phase 3 (~15 min): Disclaimer and Liability Language
 **Steps:** 1) Primary disclaimer: "This content is for informational purposes only and is not medical advice. Always consult your healthcare provider about your specific condition and treatment." — REQUIRED on every education page 2) Community content disclaimer: "Posts in this community are from people with hemophilia and their caregivers. They reflect personal experiences, not medical advice. Always talk to your doctor before changing your treatment." — REQUIRED at the top of every community thread 3) AI-generated content disclaimer (if applicable): "This content was generated with the assistance of AI and has been reviewed by a clinician for accuracy." — REQUIRED for any AI-assisted health content 4) Adverse event reporting notice: "If you experience a serious side effect or device malfunction, report it to your doctor and to the FDA at MedWatch: 1-800-FDA-1088." — ADD to any page discussing treatment side effects
@@ -323,19 +399,22 @@ Complete when:
 - Legal review completed and signed off on all disclaimer language
 - Consistency audit passed: identical wording and placement across all disclaimers
 
-
 ### Phase 4 (~15 min): Adverse Event Signal Detection
 **Steps:** 1) Define AE triggers: mention of hospitalization, ER visit, serious side effect, device failure, death, or permanent injury related to a treatment 2) When an AE signal is detected in community content, collect: what happened, what product/device was involved, when it happened, was it reported to the manufacturer or FDA? 3) Determine reportability: serious and unexpected AEs may be reportable to FDA within 15 days (if you are a manufacturer or have reporting obligations under your pharma partnership) 4) If reportable: document all available information, send to the appropriate party (FDA MedWatch, manufacturer, your legal team). Do NOT delete the post until the reporting obligation is fulfilled. 5) Non-reportable: document in your AE log for trend analysis. Multiple similar reports may indicate a safety signal.
 
 **What good looks like:** AE detection workflow documented and understood by content moderation team. AE log maintained. Reportable AEs submitted within regulatory timelines. Privacy maintained throughout (no patient identity shared unless required by regulation).
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 - AE detection triggers defined with clinical criteria for severity assessment
 - Detection workflow documented and understood by content moderation team
 - AE log established with trend analysis capability and regulatory timeline compliance
 
-
 ## Cross-Skill Integration
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -349,11 +428,12 @@ Complete when:
 | **After** | `legal-advisor` | Disclaimer language, AE reporting obligations, liability review → legal sign-off |
 | **After** | `product-manager` | Clinical accuracy findings → informs feature decisions (e.g., community Q&A redesign) |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 - **Every piece of health content published in the app has been clinically reviewed** with documented source citations. A user reading "Factor VIII prophylaxis reduces bleeds by 87%" sees a footnote linking to the clinical trial. No unverified claims exist in the app.
 - **A community post claiming "essential oils cured my hemophilia" is detected and removed within 3 minutes** — the misinformation detection rules catch it, a reviewer confirms it's Level 1 dangerous content, and the user who posted it receives a private message explaining why and offering verified information.
@@ -361,6 +441,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **The app's health content passes a legal audit** with no liability gaps. Disclaimers are present where they should be. AI-generated content is clearly labeled. The adverse event reporting workflow is documented and followed. The company is protected against claims of practicing medicine without a license.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -377,7 +458,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -388,6 +470,7 @@ graph LR
 | "We're too small to be targeted — attackers go after hospitals, not us" | 60% of healthcare data breaches target small and mid-sized organizations. They have fewer security resources, weaker detection, and are often the entry point to larger partners' networks (supply chain attacks). Small clinic breaches average 3.5 months to detection vs 15 days at large hospitals. Attackers automate scanning — your size doesn't make you invisible, it makes you an easy target. **Total cost: $500K-$3M per breach for small healthcare orgs — 60% of breached small healthcare orgs close within 6 months.** |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -398,6 +481,7 @@ graph LR
 | Off-label promotion disguised as education — "disease state education" piece mentions only symptoms treatable by your product without naming it. FDA and DOJ treat as off-label promotion with False Claims Act exposure. | $500K-$3B per enforcement action — DOJ settlements range from $50M (single drug) to $3B (systemic practice), plus 5-year Corporate Integrity Agreements | Establish promotional review committee reviewing ALL external communications; create claims matrix mapping every marketing claim to exact clearance language |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Source audit: every claim linked to a specific published, peer-reviewed source — no preprints cited as fact
 - [ ] Statistics: every "X% reduction" claim accompanied by absolute risk and NNT
@@ -406,6 +490,7 @@ graph LR
 - [ ] Date check: all cited sources published within last 5 years (or documented why older source is authoritative)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
@@ -421,6 +506,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 10. **Maintain a living, timestamped audit trail.** Every review decision must be logged with: reviewer identity, review date, claims verified, sources consulted, evidence classification (✅/⚠️/❌/⏳), and action taken. Retain audit trails per regulatory requirements — FDA recommends minimum 2 years for promotional content, EU MDR requires 10+ years for device-related content.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -433,6 +519,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Content flagged as medically inaccurate but left online pending "review cycle" | Remove or gate inaccurate content immediately if it poses clinical risk. The review cycle can wait — patient safety cannot | `grep -r 'flagged\|inaccurate\|pending.review' --include='*.md' \| grep -v 'removed\|gated\|hidden'` | Auto-gate rule: content with `accuracy_risk = high` → immediately set visibility to `clinician_only` until review complete |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -452,32 +539,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | [MC13] | All cited sources are published and peer-reviewed; preprints flagged with disclaimer | `grep -r 'medrxiv\|biorxiv\|preprint' --include='*.md' \| grep -v 'not.yet.peer.reviewed'` | Pre-commit hook: block preprint citations without required disclaimer |
 | [MC14] | Readability verified (Flesch-Kincaid ≤6th grade, SMOG ≤8th grade) for all patient-facing content | `flesch-kincaid --max 6 patient-content/ && smog --max 8 patient-content/` | Pre-commit hook: `readability-check --max-grade 6`; block content exceeding threshold |
 
-### Scale Depth
-
-<!-- DEEP: 10+min -->
-<!-- QUICK: 30s -- how content review evolves as the organization scales -->
-
-#### Solo (0-10 content pieces, 1 reviewer)
-**Approach:** Single clinician reviews all content manually against a checklist. No tooling beyond a spreadsheet for audit trail.
-**When to graduate:** Reviewer becomes bottleneck; content volume exceeds 5 pieces/week; multiple therapeutic areas require specialized knowledge.
-
-#### Small Team (10-100 pieces, 2-5 reviewers)
-**Approach:** Multiple reviewers with documented style guide. Basic content management with version control. Editorial calendar with staggered review cycles.
-**When to graduate:** Review team struggles with specialized content (e.g., cardiology vs. endocrinology); automated first-pass screening becomes necessary for efficiency.
-
-#### Medium Team (100-10K pieces, 5-20 reviewers)
-**Approach:** Specialized reviewers by therapeutic area. Automated first-pass screening for readability, terminology, and source verification. AE signal detection integrated into review workflow. Formal peer review process with medical director oversight for high-risk content.
-**When to graduate:** Regulatory compliance requires formal governance; auditability and institutional credibility become paramount; content volume exceeds manual review capacity.
-
-#### Enterprise (10K+ pieces, 20+ reviewers)
-**Approach:** Clinical review board with medical director. SOPs for every content type. FDA/EMA-compliant review process with full audit trail. Dedicated pharmacovigilance integration. Published content governance with regulatory-grade documentation. Annual external audit of review processes.
-
-#### Transition Triggers
-- **Solo → Small Team:** Single reviewer bottleneck; >5 pieces/week; multiple therapeutic areas
-- **Small Team → Medium Team:** Need for specialized domain reviewers; automated screening ROI positive; first regulatory inquiry received
-- **Medium Team → Enterprise:** Regulatory compliance demands formal governance; institutional credibility at stake; FDA/EMA audit preparedness required
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -489,6 +552,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Community side-effect post goes viral, causing treatment discontinuation spike | No clinical response was provided to contextualize the side-effect report. The post was allowed to stand as the sole narrative | Proactive protocol: when a side-effect post exceeds 1,000 views/24h, auto-escalate to clinical response team. Post a clinician response within 24 hours contextualizing the report. Monitor treatment adherence metrics for 7 days post-response | Community content about side effects is not noise — it is real-world evidence. Ignoring it creates an information vacuum that patient anecdotes fill, often with alarming and inaccurate conclusions |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -498,4 +562,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)

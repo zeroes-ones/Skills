@@ -54,6 +54,7 @@ deployment strategies (rolling, blue-green, canary, feature-flagged), SLSA suppl
 release management (semantic release, changelog, approval workflows), and DORA metrics tracking.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -85,9 +86,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -98,6 +101,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "One big pipeline is simpler — we'll optimize when it gets slow." | A 45-minute monolith pipeline trains developers to bypass CI entirely. Within 2 months, CI discipline collapses, and a broken main branch goes undetected for 6 hours. Cost: $40K-$150K/year in lost productivity before you finally stage and parallelize. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -115,12 +119,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 CI/CD is not about pipelines — it's about **reducing the time and risk between code written and code delivering value**. The best CI/CD systems make deployment so boring and routine that nobody thinks about it — until it saves them from a bad deploy at 4:59 PM on a Friday.
 
@@ -150,6 +154,7 @@ CI/CD is not about pipelines — it's about **reducing the time and risk between
 - **Pipeline speed is a productivity multiplier.** Going from 30 minutes to 5 minutes doesn't just save 25 minutes — it changes developer behavior. Developers run CI before pushing, experiment more, and iterate faster.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 CI/CD skill scales from single-pipeline design to org-wide delivery platform architecture.
 
@@ -163,34 +168,8 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 
 **Usage**: Say "as an L3 CI/CD engineer, design the delivery pipeline for..." Default: **L2** (service-level CI/CD, independent execution).
 
-### Scale Depth
-
-### Solo (1 person, 0-100 users)
-- **What changes**: CI/CD = `git push` to Vercel/Netlify/Railway. No pipeline definition needed. Deploy on push to main. Rollback = `git revert` + push.
-- **What to skip**: Custom CI pipeline, test stages, build caching, environment promotion, secrets management, preview deployments, artifact management.
-- **Coordination**: You push, platform deploys. Done. **Cost**: $0-50/month.
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: GitHub Actions or GitLab CI. Stages: lint → test → build → deploy. Caching for dependencies. Environment separation (staging + production). Secrets via CI secrets manager. Preview deployments per PR. Notifications on failure.
-- **What to skip**: Matrix builds, blue-green/canary deployments, progressive delivery, SLSA provenance, SBOM generation, multi-cloud pipelines.
-- **Coordination**: Pipeline changes reviewed in PR. Deploy announcements in Slack. Weekly pipeline health check. **Cost**: $100-500/month.
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Full pipeline: lint → test → build → scan → deploy → verify. Matrix builds for multi-platform. Blue-green or canary deployments. Security scanning (SAST + dependency + container). Path filters in monorepo. Environment promotion (dev → staging → prod). Artifact promotion (build once, deploy many). Concurrency groups.
-- **What to skip**: Multi-cloud pipelines, progressive delivery (automated canary analysis), full SLSA Level 3, SBOM for every build.
-- **Coordination**: Pipeline team or DevOps owner. Bi-weekly pipeline review. Deploy calendar for coordinated releases. **Cost**: $1,000-5,000/month.
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: Pipeline platform team. Self-service pipeline templates. Multi-cloud deployment pipelines. Progressive delivery with automated rollback. Full security gates (SAST + DAST + SCA + IAC scan + image scan). SLSA Level 3 provenance. SBOM generation. Compliance gates (SOC 2, PCI DSS). Pipeline metrics (DORA). Pipeline cost optimization.
-- **What's full production**: Internal developer platform. Pipeline catalog. Automated canary analysis. Deployment analytics. Pipeline as product.
-- **Coordination**: Pipeline platform team weekly. Monthly pipeline review board. Quarterly DORA metrics review. **Cost**: $10,000-50,000+/month.
-
-### Transition Triggers
-- **Solo → Small**: Second developer joins. Need automated tests before deploy.
-- **Small → Medium**: 3+ teams. Deploy coordination overhead. First security incident from deployed code.
-- **Medium → Enterprise**: 10+ teams. Compliance requirements. >50 deploys/day.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Architecting a CI/CD pipeline from scratch for monorepos, microservices, or polyglot codebases
@@ -204,6 +183,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 - Measuring and improving DORA metrics: deployment frequency, lead time, MTTR, change failure rate
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### CI Platform Selection
@@ -230,6 +210,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                                       └─────────┘ │ legacy      │
                                                   └────────────┘
 ```
+
 **When to choose GitHub Actions:** Code on GitHub, <50 engineers, <100 concurrent jobs, need OIDC to cloud, DORA-focused. **When to choose GitLab CI:** Self-hosted requirement, GitLab ecosystem, >100 concurrent jobs, need integrated container registry. **When to choose Jenkins:** Legacy migration path only — avoid for greenfield.
 
 ### Deployment Strategy Selection
@@ -258,6 +239,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                     │ error spike) │
                     └──────────────┘
 ```
+
 **When to choose Canary:** >1000 concurrent users, need metrics-based rollback, error budget >0.1%, can afford 10 min observation windows. **When to choose Blue-Green:** Instant rollback needed, DB schema compatible with both versions, can afford 2× infrastructure during deploy. **When to choose Rolling:** Standard case — sequential pod replacement, simplest, works for 90% of services.
 
 ### Build Optimization Tactic
@@ -284,6 +266,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                                        │ (2-4×)   │ │            │
                                        └──────────┘ └────────────┘
 ```
+
 **When to cache deps:** Dependencies stable, build time >5 min, cache hit rate >80% expected. **When to shard tests:** >200 test cases, tests CPU-bound, CI runner has 4+ cores. **When to split jobs:** Monorepo with independent modules, build >15 min, multiple teams.
 
 ### Supply Chain Security Depth
@@ -315,6 +298,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                     │  controlled)
                     └──────────────┘
 ```
+
 **When to target SLSA L1:** Internal tools, pre-production, non-critical services. **When to target SLSA L2:** All production services — signed provenance + hosted build platform + SBOM generation. **When to target SLSA L3:** Fintech, healthcare, gov — hermetic builds, isolated environments, policy-controlled deployments.
 
 ### Release Workflow Design
@@ -336,14 +320,17 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                     │ (DORA elite)│   │ single team)    │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose Trunk-based:** >5 engineers, deploy >daily, DORA elite target, feature flag infrastructure in place. **When to choose GitFlow:** <5 engineers, deploy <weekly, no feature flag system, need explicit release stabilization window.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Pipeline Architecture Design
 
 1. **Standard Pipeline Stages**:
+
    ```
    Trigger → Lint → Unit Test → Build → Security Scan → Integration Test → Deploy (Dev) → Deploy (Staging) → Deploy (Prod) → Post-Deploy Verify
                 └───────────┬───────────┘
@@ -353,6 +340,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 **What good looks like:** Pipeline completes in under 15 minutes for a full build-test-deploy cycle. All stages pass on every PR merge. Failed deploys auto-rollback within 2 minutes. Secrets are injected at runtime — zero plaintext in pipeline config.
 
 2. **Pipeline Topology Decision Tree**:
+
    ```
    Monorepo?
    ├─ YES → Path-filtered workflows + fan-out per service
@@ -365,6 +353,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
    ```
 
 3. **Fan-In/Fan-Out Pattern** (GitHub Actions):
+
    ```yaml
    # Fan-out: parallel test across platforms
    test:
@@ -380,9 +369,11 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
      needs: [test, lint, security-scan]
      if: success()
      environment: production
+
    ```
 
 4. **Conditional Execution** — Don't run expensive steps unnecessarily:
+
    ```yaml
    - name: Build Docker image
      if: steps.cache-image.outputs.cache-hit != 'true'
@@ -393,11 +384,13 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
    - name: Deploy to production
      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
    ```
+
   Complete when: pipeline topology is diagrammed with fan-in/fan-out, conditional execution gates are documented, and the pipeline completes a full build-test-deploy cycle in under 15 minutes.
 
 ### Phase 2 (~30 min): GitHub Actions Deep-Dive
 
 1. **Composite Actions** — Bundle reusable steps:
+
    ```yaml
    # .github/actions/setup-node-build/action.yml
    name: Setup Node & Build
@@ -420,9 +413,11 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
          shell: bash
        - run: npm run build
          shell: bash
+
    ```
 
 2. **Reusable Workflows** — Share entire pipeline patterns:
+
    ```yaml
    # .github/workflows/_build-and-push.yml
    name: Build & Push
@@ -437,9 +432,16 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
   Complete when: reusable workflow is published and consumed by at least one downstream repo, composite actions eliminate duplicated steps across 3+ workflows, and OIDC-based auth replaces all static credentials in pipelines.
-
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
+  Complete when: Infrastructure drift detection enabled — Terraform plan shows zero unmanaged changes.
+  Complete when: Runbook documented and tested via game day exercise with < 3 action items.
+  Complete when: Dependency update automation configured with auto-merge for patch releases.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -448,8 +450,8 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 | Deploy step runs without `environment:` protection — no required reviewers, no wait timer, no branch protection; a merged PR goes straight to production with zero gates | $10K-$100K per incident in un-reviewed production changes | Configure GitHub Environments with required reviewers, wait timers, and deployment branch restrictions; never let `deploy:prod` run without an environment gate |
 | Cache poisoning via pull_request_target — the workflow runs in the base repo's context with full secrets access on PRs from forks | $100K-$1M in full repository compromise | Use `pull_request` trigger (not `pull_request_target`) for PR workflows; never check out untrusted code with secrets available; use `github.event.pull_request.head.sha` explicitly |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -464,8 +466,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | SLSA provenance generation fails silently — artifacts deploy but can't be verified | The SLSA generator action requires `id-token: write` permission at the job level but it was only set at the workflow level. The attestation step skips with exit code 0 | Add `permissions: id-token: write, contents: read` at the specific job that generates provenance. Run `slsa-verifier verify-artifact` in the deploy pipeline to catch missing attestations before they reach production | Permissions in GitHub Actions are hierarchical. Job-level permissions override workflow-level settings. Test the failure path — verify attestations exist before deploying. |
 | Matrix build explodes from 16 to 4,096 jobs overnight | Someone added `os: [ubuntu, macos, windows]` to a matrix that already had `node: [14, 16, 18, 20]` and `db: [postgres, mysql]` — the Cartesian product silently multiplies | Use `exclude` to prune impossible combinations. Cap matrix size with a CI check: `if matrix.size > 64, fail`. Split into focused matrices: one for OS × Node version, another for DB integration tests | GitHub Actions matrix is a Cartesian product with no guardrails. Every dimension you add multiplies total jobs. Always calculate: dimensions × variants = total. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Staged pipelines — fast checks first.** Lint → type-check → unit tests (≤5 min) run on every push. Integration → E2E → security scans run after fast checks pass. Path-based filtering skips irrelevant jobs. Developers get feedback in under 5 minutes.
 2. **Cache aggressively, invalidate precisely.** Dependency caches keyed on lockfile hash. Docker BuildKit with `mode=max` for layer caching. Test result caches with selective re-run on changed packages. Cache-warm schedules prevent cold-start slowness.
@@ -478,8 +480,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 9. **Immutable tags with digests.** Pin production deployments by SHA256 digest. `:latest` is a mutable pointer — what runs today isn't what ran yesterday. CI should auto-replace tags with digests in deployment manifests.
 10. **Pipeline metrics drive improvement.** Measure DORA metrics weekly: deployment frequency, lead time for changes, MTTR, change failure rate. If you don't measure it, you won't improve it. Pipeline duration SLA enforced by team agreement.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -494,6 +496,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -512,6 +515,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | CI pipeline config, test stages, artifact storage | Can't build automated pipeline — delivery blocked |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -524,11 +528,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Secrets hardcoded in pipeline YAML or environment variables as plaintext | Propose OIDC-based cloud auth + secret referencing (not value copying); enable GitHub secret scanning on pipeline output logs | Hardcoded secrets in CI configuration are the #1 source of credential leaks; OIDC eliminates static credentials entirely and provides short-lived tokens |
 | Deploy stage has no rollback automation — manual SSH + `kubectl rollout undo` | Propose automated rollback pipeline: one-click trigger, smoke test verification, notify stakeholders; target < 5 minutes from trigger to stable | Manual rollback during an incident doubles MTTR; automated rollback is a reliability feature, not an admission of failure |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 1. [ ] **Pipeline triggers correctly on all expected events** — push to main, pull request open/sync, release tag creation. Scheduled jobs (cron) run on time.
 2. [ ] **Fast checks complete in ≤5 minutes** — lint, type-check, unit tests. Developers get feedback in their PR before context-switching. Path-based filtering skips irrelevant jobs.
@@ -546,17 +552,19 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 14. [ ] **Deploy freeze enforced on error budget exhaustion** — CI/CD queries error budget before promotion to production. Deploy blocked if budget < 10% or critical burn rate detected. Only reliability fixes allowed during freeze.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Pipelines run reliably on every commit, complete in under fifteen minutes, and provide clear, actionable feedback.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 CI/CD mastery comes from building and optimizing pipelines, then observing where they break. The best pipeline engineers have broken pipelines in every possible way.
 
 ```mermaid
+
 graph LR
     A[Build a pipeline for a real project] --> B[Measure: DORA metrics, build time, flakiness]
     B --> C[Optimize the bottleneck — caching, parallelization, sharding]
@@ -575,6 +583,7 @@ graph LR
 **The One Highest-Leverage Activity**: Measure your DORA metrics every week. If you don't know your deployment frequency, lead time, change failure rate, and MTTR, you don't know if your CI/CD investment is working. What gets measured gets improved.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **CI pipeline without caching.** Every CI run downloads dependencies from scratch: `npm ci` pulls 500MB of node_modules, Docker builds start from a cold cache, and test databases are seeded from a 200MB dump every time. A pipeline that should take 3 minutes takes 15. Multiply by 50 PRs per week across 10 developers and you're burning 100+ hours of developer waiting time per month. The CI bill from extra build minutes compounds the waste. **Total cost: $20,000-$100,000 per year in wasted build minutes, idle developer time, and inflated CI infrastructure costs.** Fix: Cache dependencies (node_modules/.cache, pip cache, Go module cache) with a key based on lockfile hash; use Docker layer caching with BuildKit and mode=max; cache test database snapshots; use incremental builds where possible.
 - **Deploying on Friday.** A release goes out at 4:45 PM on Friday. At 6 PM, an error-rate spike triggers PagerDuty — the on-call engineer is at dinner, the author is on a flight, and the team lead is camping with no cell service. The incident drags through the weekend with partial context and limited availability. What would have been a 30-minute rollback on Tuesday becomes a 48-hour degraded service event that customers tweet about. **Total cost: $50,000-$500,000 in weekend outage that could have been a Tuesday morning fix, plus reputational damage from extended downtime.** Fix: Establish a "no Friday deploys" policy; deploy Monday through Thursday before 2 PM local time; if a Friday deploy is unavoidable, ensure the full team is available for the next 48 hours; automate rollback to a single command so any on-call can execute it.
@@ -592,6 +601,7 @@ graph LR
 - **Flaky test accumulation without a quarantine policy** — your test suite has 1,200 E2E tests. Two tests fail intermittently (~5% of runs) due to race conditions in test data setup. The team adopts the habit of re-running failed jobs — "it's just flaky." Over 6 months, 18 more tests become flaky (timing issues, shared state leaks, order dependencies). The CI pass rate drops from 97% to 82%. Developers now expect 2-3 re-runs per PR, and CI queue time balloons from 8 minutes to 35 minutes (average 1.7 re-runs × 20 minutes per run). Real failures are increasingly dismissed as "probably flaky" — a critical null-pointer regression from a refactor is ignored for 3 PR cycles because "that test always fails." **Total cost: $40K-$150K/year in wasted CI compute and developer waiting time, plus $30K-$100K per escaped bug from real failures dismissed as flaky.** Fix: Implement a flaky test quarantine policy — any test that fails > 2% of runs is automatically moved to a quarantine suite (not blocking PRs) and a Jira ticket is created for the owning team; set a CI pass rate SLO (≥ 95%) and page the platform team when it drops; display a "first-time failure" flag on test results so developers distinguish brand-new failures from known flakes; require flaky test fixes to be prioritized in the next sprint — don't let quarantine become a graveyard.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Push to branch — CI pipeline triggers automatically, all jobs pass
 - [ ] Check pipeline duration: end-to-end CI < 10 minutes (or within team SLA)
@@ -601,10 +611,12 @@ graph LR
 - [ ] Verify `fail-fast: false` in matrix builds — one failing job doesn't cancel others
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -615,5 +627,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

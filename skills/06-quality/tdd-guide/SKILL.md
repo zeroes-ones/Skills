@@ -83,7 +83,6 @@ These rules are non-negotiable constraints that detect TDD mistakes before they 
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -174,6 +173,61 @@ TDD skill manifests in the sophistication of test design — from writing tests 
 - API or library design — outside-in TDD produces usable APIs by design
 
 ## Decision Trees **(QUICK)**
+
+### Decision Tree 1: Test Scope Decision
+
+        ┌── INPUT: What are you testing?
+        │
+   ┌────┴──────────┬──────────────┬──────────────┐
+   │               │              │              │
+   ▼               ▼              ▼              ▼
+[Pure Function] [Side Effect] [Integration]   [End-to-End]
+Math, parsing,  DB, HTTP,      Multiple       Full user
+data transform  file I/O      components      flow
+   │               │              │              │
+   ▼               ▼              ▼              ▼
+Unit test       Unit test      Integration    E2E test
+with table-     with mocks     test with      with real
+driven cases    verifying      real or        backend
+                calls +        test DB        (fewest
+                behavior                        tests)
+
+### Decision Tree 2: Mock vs Real Dependency
+
+        ┌── INPUT: What kind of dependency?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[External API]    [Database]         [Filesystem]
+3rd-party,        Own schema,        Temp files,
+rate-limited      migrations         config reads
+   │                 │                  │
+   ▼                 ▼                  ▼
+Mock with         Test container     Real files in
+contract tests    or in-memory DB    temp dir →
+against live      for speed →        cleanup in
+API monthly       migration test     teardown
+                  with real DB
+
+### Decision Tree 3: Test Suite Maintenance
+
+        ┌── INPUT: Why is this test failing?
+        │
+   ┌────┴──────────────┬────────────────┐
+   │                   │                │
+   ▼                   ▼                ▼
+[Code Changed]    [Test is Flaky]   [Test Wrong]
+Expected: test    Passes/fails      Test asserts
+now reflects      non-determin-     incorrect
+new behavior      istically         behavior
+   │                   │                │
+   ▼                   ▼                ▼
+Update test       Identify source:  Fix test
+assertions →      timing? order?    assertions →
+verify GREEN      data cleanup?     verify still
+first → commit    Fix root cause    GREEN → commit
+                  not retry logic
 
 <!-- STANDARD: 3min -->
 
@@ -312,6 +366,11 @@ def transfer(self, to, amount):
 2. **Poor expressiveness** → Code doesn't clearly say what it does. Rename, restructure.
 3. **Test structure smell** → Setup is too long, magic numbers, test name unclear.
   Complete when: Duplication removed, expressiveness improved, and test structure cleaned only when triggered by specific smells.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ### Outside-In TDD (for API/feature development)
 
@@ -377,7 +436,6 @@ def test_transfer_preserves_total_money(amount, initial_balance):
 
 This single test explores thousands of random input combinations. Use for: financial calculations, data transformations, parsers, serializers, any pure function with clear invariants.
 
-
 ## Best Practices
 
 1. **Red-Green-Refactor is a 2-10 minute cycle, not a phase.** Each cycle produces exactly ONE passing test. If you've been in RED for more than 5 minutes, your test is too large — split it. If you've been in GREEN for more than 5 minutes, you're over-engineering — stop, commit, and write the next test. The rhythm matters more than the code: fast cycles build momentum; slow cycles breed doubt.
@@ -441,8 +499,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - **Property-based testing opportunity** → A pure function with clear invariants (serialization, math, parsing) is being tested with individual examples. Suggest property-based approach. 🟠
 - **Outside-in opportunity** → A feature spans FE and BE. Suggest starting with an acceptance test that drives both sides. 🟠
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -473,7 +531,7 @@ graph LR
 
 **The One Highest-Leverage Activity**: Code kata every week. Same kata, different approach. The repetition isn't about the problem — it's about the rhythm. Red. Green. Refactor. Until you don't think about the steps anymore.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -484,6 +542,7 @@ graph LR
 | "Mock everything so tests run fast." | Mock-heavy suites don't catch integration failures. The database returns null for a nullable column your mock assumed was always-present, and production throws NullPointerException. Cost: **$30K-$150K** in false confidence before production failures and eroded trust in the test suite. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 - **Writing tests after implementation.** The feature is built, it "works on my machine," and then tests are written to validate the existing behavior. These tests don't drive design — they ratify it. Bugs in the implementation become bugs in the tests because the test expected the buggy behavior. When a future refactor breaks the bug, the test fails — and the developer "fixes" the test to match the new wrong behavior, entrenching the bug a second time. **Total cost: $20,000-$100,000 per year in tests that validate bugs instead of preventing them, and bugs discovered in production that tests should have caught.** Fix: Write the test first, watch it fail for the expected reason, then implement; if you must test after implementation, deliberately break the implementation to verify the test catches the right thing; review test assertions with the same scrutiny as production code.
 - **Mock-heavy tests that don't catch integration failures.** Every dependency is mocked: the database returns perfect data, the payment API always succeeds, the auth service always returns a valid user. The test suite has 95% coverage and passes in 10 seconds. In production, the database returns null for a nullable column that was mocked as always-present, and the entire request pipeline throws a NullPointerException. The mock didn't simulate real-world data shapes. **Total cost: $30,000-$150,000 in false confidence before production failures, emergency hotfixes, and eroded trust in the test suite itself.** Fix: Reserve mocks for truly external boundaries (payment gateways, third-party APIs); use real or in-memory databases for data layer tests; write contract tests that validate your mocks match real dependency behavior; maintain a "smoke test" suite that runs against real integrated dependencies before deploy.
@@ -561,4 +620,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

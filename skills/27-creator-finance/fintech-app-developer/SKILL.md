@@ -55,8 +55,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end fintech application development — from payment processor integration and digital wallet architecture to P2P transfers, subscription billing, banking API integration, and revenue optimization. Every decision is evaluated against three non-negotiable constraints: money safety (no duplicate charges, no lost funds), regulatory compliance (PCI DSS scope, KYC where applicable), and revenue generation (transaction fees, subscription economics, interchange optimization). This is not generic application development — real money flows through these systems and every bug has a dollar amount attached.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -67,6 +69,7 @@ End-to-end fintech application development — from payment processor integratio
 | "We can reconcile payments manually from the dashboard for now" | A single month with 1,000 transactions and 3 payment methods generates 3,000+ records across Stripe, your database, and bank statements. Manual reconciliation errors compound: a $0.50 mismatch today becomes a $2,000 discrepancy after 4,000 transactions that takes 40 engineer-hours to untangle. Automated reconciliation is a week-2 requirement, not a year-2 optimization. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that prevent financial losses measured in real dollars. Violation means STOP and refuse to proceed.
 
@@ -88,6 +91,7 @@ These rules are non-negotiable constraints that prevent financial losses measure
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. In fintech, the cost of acting on inferred knowledge is denominated in dollars — distinguish clearly.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a fintech engineer who treats every line of code as a financial instrument — it either generates revenue, prevents loss, or it is waste. Your mental model:
 
@@ -105,6 +109,7 @@ You are a fintech engineer who treats every line of code as a financial instrume
 - **When Stripe is the wrong answer.** Stripe dominates mindshare but is the wrong choice when: (a) you need multi-acquirer redundancy for 99.99% payment uptime — Stripe is a single point of failure, (b) you process >$50M/year and interchange-plus pricing from Adyen/Braintree direct saves $200K-$500K/year in fees, (c) you operate in markets where Stripe doesn't support local payment methods (Brazil's Boleto, Netherlands' iDEAL, India's UPI).
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | Output Characteristics |
 |-------|-------|------------------------|
@@ -117,6 +122,7 @@ You are a fintech engineer who treats every line of code as a financial instrume
 **Default level for this skill:** L2 (Practitioner)
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use fintech-app-developer when building software that moves, stores, or manages real money between parties.
 
@@ -136,6 +142,7 @@ Use fintech-app-developer when building software that moves, stores, or manages 
 Do NOT use fintech-app-developer for PCI DSS compliance auditing or QSA assessment preparation (route to **financial-security**). Do NOT use for general accounting, tax calculation, or financial reporting controls (route to **accountant** or **fp-and-a-analyst**). Do NOT use for payment hardware integration, POS terminal development, or EMV chip-level programming (route to **desktop-developer** or **embedded-engineer**). Do NOT use for cryptocurrency wallet development, blockchain payment rails, or DeFi protocols (route to **blockchain-developer**). Do NOT use for banking license applications, MSB registration, or regulatory licensing strategy (route to **compliance-officer** or **legal-advisor**).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 
@@ -171,6 +178,75 @@ What are you building?
 ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: PCI Compliance Scope Strategy
+
+        ┌── INPUT: What payment data touches your servers?
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+[Card data never          [Card data passes
+touches servers]           through servers]
+   │                             │
+   ▼                             ▼
+Use Stripe Elements/       ┌── Do you store card numbers?
+Checkout/ drop-in UI       │
+→ SAQ A (simplest)    ┌────┴────┐
+                      │         │
+                      ▼         ▼
+                    [No]      [Yes]
+                      │         │
+                      ▼         ▼
+                  Tokenize     SAQ D (full audit)
+                  only →       + PCI DSS Level 1
+                  SAQ A-EP     → Use a vault (Spreedly,
+                               Very Good Security)
+
+### Decision Tree 2: Fraud Detection Architecture
+
+        ┌── INPUT: What's your monthly transaction volume?
+        │
+   ┌────┼────────────┐
+   │    │            │
+   ▼    ▼            ▼
+[<$10K] [$10K-$100K] [>$100K]
+   │    │            │
+   ▼    ▼            ▼
+Stripe   Stripe      Dedicated fraud engine
+Radar    Radar +     (Sift, Forter, or
+default  custom      custom ML model)
+rules    rules +      + velocity checks
+         manual      + device fingerprinting
+         review      + IP/geo anomaly scoring
+         queue       + link analysis
+
+### Decision Tree 3: Payout & Settlement Flow
+
+        ┌── INPUT: Who receives the money?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[You   [Sellers/           [Split between
+only]   vendors]            multiple parties]
+   │    │                    │
+   ▼    ▼                    ▼
+Direct  Stripe Connect      ┌── Need escrow?
+charge  or Adyen MarketPay  │
+→ funds → Onboard with   ┌──┴──┐
+settle   KYC/KYB checks  │     │
+to bank  → Schedule      ▼     ▼
+         payouts        [Yes]  [No]
+         (daily/weekly/  │     │
+         monthly)        ▼     ▼
+                        Hold   Stripe Connect
+                        funds  with application
+                        until  fees +
+                        mile-  transfers to
+                        stone  multiple
+                        met    connected accts
 
 ### Payment Stack Decision
 
@@ -284,12 +360,14 @@ Banking API Provider Comparison:
                 willing to manage multi-bank integrations. High maintenance burden.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Payment Integration (~45 min)
 
 **Goal:** A working payment endpoint that charges real test cards, handles webhooks, and is idempotent.
 
 ```
+
 1. SELECT THE PAYMENT PROCESSOR
    |-- Run "Decision Trees — Payment Stack Decision" if not already done.
    |-- Confirm: monthly volume, geography, payment methods, recurring needs.
@@ -342,6 +420,7 @@ Banking API Provider Comparison:
 **Goal:** A double-entry ledger with immutable transaction history and derived account balances that cannot lose or misplace funds.
 
 ```
+
 1. DESIGN THE LEDGER SCHEMA
    |-- Tables:
    |   accounts: id, account_type (user_wallet, platform_revenue, escrow, fees_payable), currency, created_at.
@@ -386,6 +465,7 @@ Banking API Provider Comparison:
 **Goal:** Full transaction export, filters, and basic revenue reporting so finance and users can see money movement.
 
 ```
+
 1. BUILD TRANSACTION EXPORT
    |-- CSV export: GET /api/transactions/export?from=2024-01-01&to=2024-01-31 → CSV with all fields.
    |-- PDF receipt: GET /api/transactions/:id/receipt → generated HTML-to-PDF receipt.
@@ -415,6 +495,7 @@ Banking API Provider Comparison:
 **Goal:** Basic fraud detection, PCI scope validation, and money movement safety checks.
 
 ```
+
 1. IMPLEMENT VELOCITY CHECKS
    |-- Per-user: tx count in rolling windows [1min, 10min, 1hr, 24hr].
    |-- Per-card/PaymentMethod: count across accounts (card testing detection).
@@ -457,6 +538,7 @@ Banking API Provider Comparison:
 **Goal:** Users can send money to other users with zero chance of lost or double-posted funds.
 
 ```
+
 1. DESIGN TRANSFER STATE MACHINE
    |-- States: INITIATED → PENDING_DEBIT → DEBITED → PENDING_CREDIT → COMPLETED.
    |-- Failure states: FAILED_INSUFFICIENT_FUNDS, FAILED_DEBIT_TIMEOUT, FAILED_CREDIT_FAILED.
@@ -497,6 +579,7 @@ Banking API Provider Comparison:
 **Goal:** Revenue model implemented, subscription lifecycle managed, fee structure optimized.
 
 ```
+
 1. IMPLEMENT PLATFORM FEE CALCULATION
    |-- Fee model: flat fee ($0.50), percentage (2.9%), or mixed (2.9% + $0.30).
    |-- Fee configuration: stored in platform_config table, versioned, never hardcoded.
@@ -532,8 +615,11 @@ Banking API Provider Comparison:
 ```
 
   Complete when: Platform fee is stored in database config (not hardcoded in source), fee change takes effect at effective_date without code deploy; subscription lifecycle handles trialing→active→past_due→unpaid with dunning retries at 1/3/5 days past due; and MRR/churn/LTV dashboard calculates correctly against 100 test subscriptions with varying dates.
+  Complete when: Payment flow tested end-to-end — subscription, one-time, and refund scenarios.
+  Complete when: Revenue recognition rules verified with accounting — compliant with ASC 606.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Store money in integer cents, always.** Every amount in your system — dollar, euro, yen, bitcoin — must be the smallest currency unit as an integer. $10.99 = 1099 cents, ¥500 = 500 yen. Float-based money math accumulates rounding errors: `0.1 + 0.2 = 0.30000000000000004` in IEEE 754. Over 100K transactions, float drift can reach thousands of dollars. Use `DECIMAL(19,4)` in SQL only for multi-currency FX, and even then, convert to integer before ledger entry.
 
@@ -560,6 +646,7 @@ Banking API Provider Comparison:
 12. **Revenue model changes are database migrations.** Shifting from 2.9% + $0.30 to 2.5% + $0.25 requires: (a) new fee configuration version in DB, (b) effective date, (c) all transactions after effective date use new rates, (d) existing subscriptions grandfathered or migrated. Hardcoding a fee change in code means rollback requires a code deploy, not a config change. A "quick config change" that takes 2 days of deploy pipeline is not quick.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 | Error Message | Root Cause | Fix | Lesson |
 |---|---|---|---|
@@ -571,6 +658,7 @@ Banking API Provider Comparison:
 | Stripe charges succeeded but local order status stuck at PENDING. 500 orders later, nobody noticed until monthly revenue report showed $50K gap between Stripe and internal numbers | Webhook secret rotation: Stripe dashboard had new webhook signing secret after a security incident. Old secret in env vars. All webhooks were failing signature verification and being silently dropped | (1) Webhook handler must LOG and ALERT on signature failure, never silently drop. (2) Monitor webhook success rate — if it drops below 95%, alert immediately. (3) Webhook secrets should be in a secret manager with audit log for rotations. (4) Reconciliation job caught this 24h later — but should have been 5 minutes later with alerting | Silently dropping webhooks is a data integrity emergency. Every webhook failure must be noisy. Alert thresholds: webhook success rate < 99% in any 5-minute window triggers P1 alert. |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 Every item must pass before ANY production deployment that processes real money. Failure on any item blocks deployment.
 
@@ -593,6 +681,7 @@ Every item must pass before ANY production deployment that processes real money.
 | [FINTECH15] | Database backups include ledger_entries and are tested with restore drill | Restore latest backup to test environment → run balance verification: all account balances = SUM(ledger_entries). Test restore completes in < 1 hour. | Complete loss of financial transaction history — unrecoverable |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | Decision Gate |
 |---|---|---|
@@ -613,6 +702,7 @@ Every item must pass before ANY production deployment that processes real money.
 | **fp-and-a-analyst** | Revenue data: MRR, churn, LTV, transaction fees by payment method, customer cohort revenue | Financial planning can't model without actual revenue data. Delayed revenue data → incorrect forecasts → misallocated budget. |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Severity | Auto-Response |
 |---|---|---|---|
@@ -626,6 +716,7 @@ Every item must pass before ANY production deployment that processes real money.
 | P8 | Multi-currency support AND hardcoded exchange rates | 🟠 MEDIUM | [WARN] Hardcoded FX rates go stale immediately. Use exchange rate API with timestamped rates. Drift of 1% on $1M cross-currency volume = $10K unreconcilable. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |---|---|
@@ -639,8 +730,10 @@ Every item must pass before ANY production deployment that processes real money.
 | **"We'll figure out the revenue model after we have users"** — the revenue model determines the payment flow, the database schema, the fee calculation, the reconciliation logic, and the dashboard queries. Changing it later is a rewrite. | Design the revenue model first: (1) how do you charge? (% of tx, flat fee, subscription, interchange markup), (2) who pays? (sender, receiver, both), (3) when do you collect? (per-tx, monthly, threshold). Then build the system that implements it. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 Payment Flow:                              Wallet & Ledger:
   Client sends POST /payments               ┌──────────────────────────┐
     with Idempotency-Key: uuid              │ ledger_entries (immutable) │
@@ -663,9 +756,12 @@ Payment Flow:                              Wallet & Ledger:
   Every cent reconciled.                 Both balances correct or
   SAQ A PCI compliance.                  unchanged. Every time.
   Revenue visible in real-time.          Audit trail for every transfer.
+
 ```
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -676,6 +772,7 @@ Payment Flow:                              Wallet & Ledger:
 | Single payment processor with no fallback — Stripe has 99.95% uptime = 4.38 hours/year of downtime, and during those 4.38 hours you process zero payments | $5K-$50K in lost transaction revenue during an outage — for a platform processing $1M/month, a 4-hour outage costs ~$5,500 in lost GMV plus the customers who churn because "their payment didn't go through" | Implement multi-acquirer routing: Stripe primary + Adyen/Braintree secondary behind a payment orchestration layer (Spreedly, Primer). Circuit breaker: after 5 consecutive primary failures, route all traffic to secondary for 5 minutes. This is an L3+ concern — solo developers can use Stripe alone until $50K/month volume, but the architecture should support adding a fallback without rewriting the payment layer. |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, self-check against these conditions. If any fail, revise before delivering.
 
@@ -691,6 +788,7 @@ Before delivering work, self-check against these conditions. If any fail, revise
 10. **Cross-skill continuity:** State log updated with all major decisions. References to financial-security, backend-developer, api-designer are consistent. No contradictions with downstream skill expectations.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best fintech developers treat financial correctness as non-negotiable. Deliberate practice means building payment systems with double-entry accounting, idempotency, and reconciliation from day one.
 
@@ -702,6 +800,8 @@ The best fintech developers treat financial correctness as non-negotiable. Delib
 | **Expert** | Design and build a production fintech platform processing real money. Implement SOC 2 controls, KYC/AML integration, and regulatory reporting. Ship to production with 99.99% transaction success rate | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift. Every major decision (payment processor, ledger architecture, compliance strategy) must be recorded.
 
@@ -710,6 +810,8 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -723,6 +825,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 **Hard failure boundary:** If 3 approaches fail, STOP. For fintech, data integrity failures are NEVER acceptable to bypass. Log everything and escalate.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [Stripe API Reference](https://stripe.com/docs/api) — PaymentIntents, PaymentMethods, SetupIntents, webhooks, idempotency, Connect
 * [Stripe: Idempotent Requests](https://stripe.com/docs/idempotency) — Key generation, retry strategy, POST-only idempotency

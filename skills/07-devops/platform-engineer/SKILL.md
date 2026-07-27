@@ -47,6 +47,7 @@ implementation (Backstage, Port, Cortex), scaffolding toolchains, ephemeral envi
 APIs, service catalogs, scorecards, and the platform-as-product operating model.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -82,9 +83,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -102,12 +105,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **NEVER guess platform tool versions — anchor to the runtime.** Backstage, Crossplane, Kubernetes CRD versions, and Docker image tags change between releases. Generating manifests against the wrong API version produces broken or unsupported configurations. | Trigger: writing Backstage catalog entities, Crossplane compositions, Kubernetes CRDs, or Docker Compose files without first running `scripts/runtime-version-detect.sh` on the target project | STOP. Run: `scripts/runtime-version-detect.sh`. Then VERIFY: Backstage version (`cat packages/app/package.json \| jq .version`), Crossplane version (`kubectl get deployment crossplane -n crossplane-system -o jsonpath='{.spec.template.spec.containers[0].image}'`), Kubernetes API (`kubectl version --short`). Prepend to output: "## 🔗 Anchored Versions (source: runtime-version-detect.sh)\n- Backstage: vX.Y.Z\n- Crossplane: vX.Y.Z\n- Kubernetes API: v1.XX" |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Platform engineering is not about building infrastructure — it's about **building products for developers**. The platform is a product, developers are your customers, and adoption is earned, not mandated. The best platforms make the right thing the easy thing.
 
@@ -137,6 +140,7 @@ Platform engineering is not about building infrastructure — it's about **build
 - **Internal platforms compete with public cloud.** If your internal platform is harder to use than just provisioning an EC2 instance directly, developers will bypass it. The bar is: easier than AWS/GCP/Azure console.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Platform engineering scales from building golden paths to designing the internal developer platform strategy for an enterprise.
 
@@ -150,33 +154,8 @@ Platform engineering scales from building golden paths to designing the internal
 
 **Usage**: Say "as an L3 platform engineer, design the golden path for..." Default: **L3** (platform architecture, product-level design).
 
-### Scale Depth
-
-### Solo (1 person, 0-100 users)
-- **What changes**: No IDP needed. Document patterns in a README. Single Terraform repo. Manual onboarding. No platform team — you are the platform.
-- **Overkill**: Backstage, scaffolding tools, ephemeral environments, platform APIs, scorecards, developer portal.
-- **Coordination**: You document patterns, you build them. No coordination overhead. **Cost**: $0 beyond cloud infrastructure.
-- **Transition trigger**: Second developer joins; onboarding friction becomes visible (> 1 week to first deploy).
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: Shared Terraform modules in a monorepo. Templated CI/CD (reusable workflows). `cookiecutter` scaffolding for new services. One shared dev AWS account. Runbooks in a wiki.
-- **Overkill**: Developer portal, Backstage, platform APIs, formal SLAs, NPS surveys, ephemeral per-PR environments (use shared staging).
-- **Coordination**: Platform changes via PR review. Monthly platform sync (30 min). Shared Slack channel. **Cost**: ~$200-500/month. Platform engineer is part-time role (20% of senior engineer).
-- **Transition trigger**: 3+ services with divergent patterns; onboarding > 3 days; first "I didn't know that existed" moment.
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Dedicated platform team (2-4 engineers). Backstage or Port deployed. Golden path templates with policy guards. Ephemeral per-PR environments. Platform CLI. Scorecards. Self-service infrastructure catalog (Terraform modules with JSON Schema validation).
-- **Overkill**: Full platform-as-product with PM, multi-platform-team topology, formal deprecation SLAs, plugin marketplace.
-- **Coordination**: Platform team runs weekly office hours. Quarterly developer NPS survey. Monthly platform review with engineering leadership. **Cost**: $300-500K/year (2-4 engineers) + $1-3K/month hosting.
-- **Transition trigger**: >50 engineers, multiple business units, compliance audit requirements; platform team becomes bottleneck.
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: Multiple platform teams (2-3) with PMs. Platform Product Manager with roadmap. Published platform SLAs (99.9% availability). DevRel function. Plugin marketplace. Automated compliance. Multi-cloud platform. Dedicated platform SRE rotation. Brownfield migration service.
-- **What's full production**: Platform NPS dashboard, adoption rate metrics, cost-per-developer tracking, quarterly platform summit, internal conference talks.
-- **Coordination**: Platform PM runs quarterly planning. Monthly stakeholder review. Weekly platform team standups. Developer advisory board (quarterly). **Cost**: $1.5-3M/year (6-12 engineers + PM + DevRel).
-- **Transition trigger**: Platform team bottleneck for >20% of requests; >3 business units with divergent platform needs; developer NPS declining.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Your organization has 3+ teams and developers are spending >30% of their time on infrastructure setup
 - You are designing a developer portal (Backstage, Port, Cortex) with a service catalog and scorecards
@@ -188,9 +167,11 @@ Platform engineering scales from building golden paths to designing the internal
 - You need to measure developer experience (DX) with metrics like time-to-first-deploy, DORA metrics, and developer NPS
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Should This Be a Golden Path or Let Teams Choose?
+
 ```
 Is this capability required for ALL services?
 ├─ YES → Golden path (mandatory template)
@@ -254,6 +235,7 @@ How many teams and what operating model?
 ```
 
 ### 5. IDP Maturity Model: Where Are You?
+
 ```
 Level 1 (Ad-hoc): Teams provision manually, no shared tooling
   → Pain: onboarding takes 2+ weeks, every service looks different
@@ -271,6 +253,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Platform Discovery and Strategy
@@ -332,9 +315,13 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 4. **Deprecation process**: announce → deprecation warning in tooling → migration guide → removal (minimum 90 days).
    - Output: Deprecation tracker with migration status per team.
   Complete when: platform SLA page is published, NPS survey cadence is on the calendar, changelog is active with last update within 30 days, and deprecation tracker has zero overdue migrations.
-
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -342,8 +329,8 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 | Treating the platform as a project, not a product — after initial launch, the platform team moves to the next project and the platform stagnates with broken templates, stale docs, and zero adoption growth | $100K-$500K in abandoned platform investment and shadow-IT proliferation | Staff a permanent platform product team (not a temporary tiger team); maintain a public roadmap; run quarterly NPS surveys; treat deprecation as a first-class feature with 90-day migration windows |
 | Designing golden paths that work for the platform team but not for service teams — template requires 8 manual steps after scaffolding because the platform team "just knows" them | $50K-$200K in onboarding friction and developer frustration | Dogfood every golden path by having a platform engineer join a service team for a sprint and use the path end-to-end; time-to-10th-PR is the metric; if it's over 1 hour, the path is broken |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -358,8 +345,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Ephemeral environment provisioning fails because the naming convention produces names that exceed the 63-character Kubernetes limit | The naming convention: `pr-{repo-name}-{branch-name}-{env-type}`. A repo named `customer-experience-platform-backend` with a branch `feature/add-authentication-provider-integration` produces `pr-customer-experience-platform-backend-feature-add-authentication-provider-integration-dev` = 107 characters. Kubernetes resources are limited to 63 characters | Truncate with a hash suffix: `${repo}-${pr-number}-${hash}` → `ce-platform-142-a3f2b`. Enforce this in the scaffolding tool with a validation step. Add a Helm `fullnameOverride` that truncates to 63 characters: `{{ .Release.Name | trunc 63 }}`. Document naming constraints on the developer portal | Naming conventions that combine unbounded inputs (repo names, branch names) produce unbounded outputs. Kubernetes 63-char limit is strict — names over the limit are rejected at admission. Always hash or truncate with collision-safety. |
 | Developers bypass the platform entirely and deploy directly to AWS — the platform team finds 14 manually-provisioned EC2 instances during a cost audit | The platform's golden path requires a Jira ticket → architecture review → Terraform module approval → deployment (7 days). The developer needs a test instance TODAY. They `aws ec2 run-instances` manually and it works — now they have a working pattern that bypasses the platform | Make the paved road faster than the bypass: self-service instant provisioning with TTL. Reduce platform friction to < 30 minutes: no tickets, no reviews for standard cases with guardrailed defaults. Test the "time to first deploy" metric monthly and target < 30 minutes for standard scaffolding | Developers optimize for speed. If the platform takes 7 days and a manual `aws ec2 run-instances` takes 60 seconds, the platform loses every time. Friction drives shadow IT. The paved road must be the fastest road — guardrails, not gates. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Treat the platform as a product, not a project.** Assign a platform product manager with a public roadmap, measure developer NPS, and prioritize by developer-hours-saved. A platform without product management is an infrastructure team that takes tickets.
 2. **Golden paths with escape hatches.** Mandate golden paths for compliance-critical capabilities (security, audit, data residency). For everything else, provide paved roads with full support and gravel roads (documented escape hatches) for teams with legitimate exceptions.
@@ -372,8 +359,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 9. **Scorecards validate content, not just file existence.** A scorecard checking for `CODEOWNERS` file existence will be gamed with empty files. Validate that the owner is a valid team with an active Slack channel and PagerDuty escalation. Automated checks must be cheat-proof.
 10. **Run the platform team with SLOs and support rotations.** Publish SLOs for critical platform services (CI pipeline availability ≥ 99.5%, scaffolding ≤ 15 min, provisioning ≤ 30 min). Dedicated on-call rotation with at least 2 engineers. If you can't support it 24/7, don't promise it.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -388,6 +375,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -405,6 +393,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | Platform APIs, internal tooling, developer experience config | Platform can't be automated — dev velocity blocked |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -417,11 +406,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Platform team has no product manager — roadmap is a Jira backlog sorted by who shouts loudest | Propose platform-as-product: hire or designate a platform PM, run developer NPS survey, maintain public roadmap, prioritize by developer-hours-saved | A platform without product management is an infrastructure team that takes tickets; PM turns reactive ops into strategic product development |
 | No ephemeral environments — every PR waits for a shared staging environment, merge conflicts in staging | Propose per-PR ephemeral environments: namespace isolation, automated DNS, data seeding, TTL auto-cleanup; PR gets its own full-stack environment | Shared staging is a bottleneck; ephemeral environments eliminate "works on my machine" and staging merge conflicts simultaneously |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 1. [ ] **Service catalog has automated discovery** — Backstage `GithubEntityProvider`/`KubernetesEntityProvider` populates the catalog. Zero entities require manual `catalog-info.yaml` creation for standard services.
 2. [ ] **Golden path templates are versioned** — every scaffolded service records the template version in its metadata. Migration guide exists for each major version bump. Drift detection (OPA/Kyverno) blocks non-compliant services after migration window.
@@ -439,12 +430,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 14. [ ] **Brownfield migration path exists** — not every service can adopt the golden path immediately. Documented migration guide, migration support office hours, incrementally adoptable components (start with observability, then CI/CD, then infrastructure).
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Developers self-serve infrastructure through golden paths and never open a ticket for routine tasks like provisioning a service, adding a database, or deploying to staging.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Platform engineering mastery comes from treating the platform as a product — measuring adoption, gathering feedback, and iterating. The best platform engineers obsess over developer experience metrics.
 
@@ -466,7 +459,8 @@ graph LR
 
 **The One Highest-Leverage Activity**: Once a month, onboard a new hire yourself using only your platform. Time every step. The friction you feel is what every developer feels every day.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -477,6 +471,7 @@ graph LR
 | "Self-service infrastructure doesn't need quotas — engineers are cost-conscious." | One developer clicks "Create RDS" and gets a `db.r5.24xlarge` at $6,000/month because the Terraform module has no instance family constraints. $20K-$80K/year in surprise bills from unconstrained self-service. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **IDP without developer adoption — the platform tombstone** — you invest 18 months and $1.2M building an Internal Developer Platform with golden paths, self-service infrastructure, and automated CI/CD. At launch, only 2 of 12 engineering teams adopt it. The other 10 teams cite "our existing workflow works fine" and "the platform team doesn't understand our requirements." Without treating the IDP as a product with internal marketing, user research, and adoption metrics, the platform becomes shelfware — the $1.2M investment generates zero ROI, and engineers continue duplicating infrastructure setup across teams at 3x the cost of a shared platform. **Total cost: $500K-$2M in wasted platform investment plus ongoing fragmentation costs.** Treat the IDP as an internal product: interview developer users before building, measure NPS and monthly active teams, and staff a developer advocate to drive adoption with onboarding workshops and migration support.
 - **Backstage `catalog-info.yaml` auto-discovery** via `GithubEntityProvider` discovers ALL YAML files in ALL repos. A `catalog-info.yaml` with `spec.type: website` in a docs-only repo creates a Component entity that appears in the service catalog, confusing teams who now think "website" is a maintained service.
@@ -493,6 +488,7 @@ graph LR
 - **Platform cost allocation tags not enforced at provisioning time** — your platform provisions resources via Terraform modules that require a `cost_center` tag. But the tag validation is in the developer portal UI, not in the Terraform module. A developer uses the Terraform module directly with `terraform apply -var 'cost_center='` (empty string), and the resource is created with `cost_center: ""`. Finance's cost allocation report shows 14% of cloud spend under "Unknown" — $280K of a $2M annual bill that can't be attributed to any team. Your FP&A team can't close the books and your department's cloud budget is frozen until every untagged resource is manually identified. **Total cost: $200K-$500K in budget freezes and manual cost attribution labor from untagged/unallocable resources.** Fix: Enforce required tags through Terraform validation blocks with non-empty string checks; use AWS SCP (Service Control Policy) or Azure Policy to deny resource creation without mandatory tags; implement nightly compliance scanning that auto-terminates resources missing required tags after 48 hours of non-compliance warnings.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Scaffold a service from golden path template: `npx create-service` or Backstage scaffolder — service boots, health check passes
 - [ ] Verify template version: deployed service `catalog-info.yaml` references the correct template version
@@ -502,10 +498,12 @@ graph LR
 - [ ] Verify upgrade path: document steps to upgrade from template v1.0 to v1.1 — procedure tested on a sample service
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -514,5 +512,4 @@ Detailed reference material loaded on demand:
 - **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

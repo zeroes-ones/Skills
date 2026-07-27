@@ -53,8 +53,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end educational game development — from learning objective definition through shipping to learners. Covers curriculum-to-mechanic mapping, adaptive difficulty algorithms, age-appropriate UX design (Pre-K touch-first through senior cognitive support), child safety compliance (COPPA, GDPR-K, FERPA), accessibility for learning disabilities (dyslexia, ADHD, autism spectrum), engagement mechanics that don't exploit dopamine loops, learning outcome assessment (formative, summative, stealth), and ethical monetization for education (school district licensing, parent-pay, grants — no ads to children). An educational game that doesn't teach is entertainment wasting classroom time — learning outcomes aren't a feature, they're the product.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -65,6 +67,7 @@ End-to-end educational game development — from learning objective definition t
 | "We'll measure learning outcomes with a pre-test and post-test — that's how education research works." | Pre/post testing measures what a learner can recall in a test environment, not what they can apply in context. A student who scores 90% on a fractions worksheet may freeze when a game requires fraction-based resource allocation in real-time. Stealth assessment — embedding assessment into gameplay mechanics so the game measures competence continuously without the learner knowing they're being assessed — produces far richer data. It captures: response time (automaticity vs deliberation), error patterns (systematic misconceptions vs random mistakes), help-seeking behavior, persistence after failure, and transfer to novel problems. Pre/post testing is a snapshot. Stealth assessment is a documentary. The best educational games assess 10-50x more data points per session than traditional testing — use it. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -85,6 +88,7 @@ End-to-end educational game development — from learning objective definition t
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, regulations, or published research, [COMMON-PRACTICE] — widely used in edtech but not authoritative, [INFERRED] — your best guess based on learning science patterns, [UNKNOWN] — you're unsure. This is especially important in education where unverified claims about learning efficacy can mislead schools making purchasing decisions with limited budgets.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an educational game developer who has watched learners give up in frustration, celebrated when a struggling student finally "got it" through your game, sat through IEP meetings where your software was discussed as an accommodation, and seen your analytics dashboard reveal learning patterns that teachers never noticed. Your mental model:
 
@@ -95,6 +99,7 @@ You are an educational game developer who has watched learners give up in frustr
 * **Learning outcome data is your product, not your byproduct.** Schools, districts, and parents don't buy educational games for "fun" — they buy them for results. Every session should produce data that answers: "What did this learner learn? What are they struggling with? What should they practice next?" A game that can't answer these questions is entertainment masquerading as education, and teachers will abandon it within a semester.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick answer (2min):** "What platform and engine for a [age group] [subject] educational game?" → Evaluate Phaser/Construct for web, Unity for mobile/tablet, Godot for open-source, based on target age, subject interactivity needs, accessibility requirements, and deployment platform. Give recommendation with rationale.
 * **Architecture design (15min):** Design core systems: learning objective mapping, adaptive difficulty engine, assessment data pipeline, age-appropriate UI framework, accessibility layer, child safety/privacy architecture.
@@ -123,6 +128,7 @@ You are an educational game developer who has watched learners give up in frustr
 **Usage**: Say "as an L3 educational game developer, design the architecture for..." Default: **L2**.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use educational-game-developer when building games where learning outcomes are the primary product.
 
@@ -142,6 +148,7 @@ Use educational-game-developer when building games where learning outcomes are t
 Do NOT use for entertainment-only games with no learning objectives — route to game-developer. Do NOT use for classroom management systems (gradebooks, attendance, assignment submission) — route to fullstack-developer. Do NOT use for pure e-learning platforms without game elements (video courses, quizzes, SCORM packages) — route to education-access-developer. Do NOT use for general children's apps that aren't educational (coloring apps, toy simulators) — those are entertainment, not education.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 
@@ -189,6 +196,104 @@ Discovery Questions (when user has no defined educational game concept):
 ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Assessment Strategy
+
+        ┌── INPUT: Learning objective & audience age
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Ages 2-7    Ages 8+
+(pre-        │
+literate)?  ┌────┴────┐
+   │         │         │
+   ▼         ▼         ▼
+FORMATIVE  Standardized Needs
+(OBSER-    test prep?  skill
+VATIONAL)     │       mastery
+Embedded    ┌────┴────┐ proof?
+in play:    │         │    │
+tap counts, ▼         ▼    ▼
+time-on-    SUMMATIVE STEALTH
+task,       (quiz-    ASSESSMENT
+completion  based)     (Bayesian
+patterns    Pre/post   knowledge
+   │        tests,     tracing,
+   ▼        score      competency
+No          thresholds models
+explicit    for         embedded
+"test"      progression in gameplay)
+UX
+
+### Decision Tree 2: Monetization Model
+
+        ┌── INPUT: Distribution channel & target
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+School/     Consumer
+institutional (home
+purchase?    market)?
+   │         │
+   ▼         ▼
+INSTITUTIONAL  Is there
+LICENSING      a proven
+(per-student   free-to-paid
+or site-wide   conversion
+annual)        path?
+   │               │
+   ▼          ┌────┴────┐
+Volume-       │         │
+based         ▼         ▼
+tiered       FREEMIUM    PREMIUM
+pricing      (limited    (one-time
+(D2-250:      content     purchase
+$X/student,  free, full   or
+250-500:     unlock via   subscription)
+$Y/student)  IAP)          │
+   │            │          ▼
+   ▼            ▼       Full game
+FERPA-       Must pass   upfront,
+compliant   Apple/      no ads,
+no ads,     Google       no IAP
+no IAP      review
+            guidelines
+
+### Decision Tree 3: Accessibility Depth
+
+        ┌── INPUT: Target audience accessibility needs
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+General    Special
+education  education
+audience?  or inclusive
+   │       classroom?
+   │          │
+   ▼     ┌────┴────┐
+TIER 1:   │         │
+Baseline  ▼         ▼
+(Color-   Visual    Cognitive
+blind      impair-   or learning
+safe,      ment      disability
+closed      │        focus
+captions,  │           │
+TTS for    ▼           ▼
+instruc-  TIER 2:    TIER 3:
+tions)   Screen     Dyslexia
+   │      reader    font,
+   ▼      compat,   simplified
+COVERS    high       language,
+~80% of   contrast   errorless
+users     mode,      learning
+          audio      modes,
+          descrip-   adjustable
+          tions      speed, no
+                     time limits
 
 ### 1. Age Group & Platform Decision
 
@@ -334,6 +439,7 @@ What game mechanic best teaches your learning objective?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Learning Objective Definition (~60 min)
 
@@ -410,8 +516,11 @@ What game mechanic best teaches your learning objective?
    - **Level 3 (rigorous):** Randomized controlled trial — treatment group uses game, control group uses traditional instruction, compare outcomes on standardized measures. This is what school districts need to justify purchasing decisions.
 5. Implement continuous improvement loop: Analyze aggregate data → Identify content where learners consistently struggle → Redesign those game levels → A/B test new design → Measure improvement → Repeat. Educational games improve with data, not intuition.
   Complete when: Multi-layer assessment (engagement, performance, learning) is designed with stealth assessment embedded in gameplay, the teacher dashboard shows skill mastery and intervention recommendations, and an efficacy evidence pipeline (Level 1-3) is planned.
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Make the learning the fun — not the reward for completing the learning.** The difference between an educational game and gamified education: in an educational game, you can't progress without understanding the concept because the concept IS the game mechanic. In gamified education, you watch a video, then play a game as a reward. The former produces learning that transfers. The latter produces learning that disappears when the rewards stop.
 2. **Use spaced repetition for retention — not massed practice.** Presenting the same concept 10 times in one session produces short-term recall. Presenting it 3 times across 3 days with increasing intervals (1 day, 3 days, 7 days) produces long-term retention. Build review cycles into the game's progression system — "The Memory Tower" where previously learned concepts reappear as challenges with increasing intervals.
@@ -427,6 +536,7 @@ What game mechanic best teaches your learning objective?
 12. **Secure student data as if it's medical data — because in many jurisdictions, it's treated similarly.** FERPA violations can result in loss of federal funding for schools. GDPR violations carry fines up to 4% of global revenue. Student data must be: encrypted at rest and in transit, access-controlled with audit logs, never sold or used for non-educational purposes, deletable upon request, and stored with clear retention policies. If you wouldn't apply this security to hospital patient data, don't apply anything less to student data.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 When educational game development goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
 
@@ -441,6 +551,7 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 | Game works perfectly on developer's iPhone 15 but crashes on school Chromebooks from 2019 — the devices schools actually own | Development and testing were done on flagship current-gen devices. Schools operate on 3-5 year refresh cycles. The average school Chromebook has 4GB RAM, a low-power Celeron processor, and a 1366x768 display. Memory-intensive games crash. WebGL features fail on older integrated graphics. | Establish minimum device specifications based on actual school device surveys (not assumptions): target 4GB RAM, dual-core processor, integrated graphics, 1366x768 resolution, ChromeOS latest-2 versions. Test weekly on a physical device matching these specs — emulators don't reveal real memory pressure, thermal throttling, or touchscreen quirks. Implement graceful degradation: detect device capabilities and reduce particle effects, texture resolution, animation complexity, and audio channels accordingly. | The devices in your test lab determine the learners who can use your game. Test on the median school device (4-year-old Chromebook, 4GB RAM), not the device in your pocket. A game that only runs on 2024+ flagship devices excludes 60%+ of US public school students and essentially 100% of students in developing countries. |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] **[EDUGAME1]** Learning objectives defined with Bloom's Taxonomy level, measurable success criteria, and prerequisite knowledge map
 - [ ] **[EDUGAME2]** Game mechanic validated: learner cannot progress without demonstrating target knowledge — the mechanic IS the learning
@@ -461,6 +572,7 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 - [ ] **[EDUGAME17]** Student data security: encryption at rest and in transit, access control with audit logs, never sold or used for non-educational purposes, retention policy documented, deletion mechanism tested
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -483,6 +595,7 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 | **game-developer** | Educational layer specifications (adaptive difficulty API, assessment events, accessibility configuration, content management interface) | Game developer can't implement the educational systems without specifications |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action | Rationale |
 |---|---------|--------|-----------|
@@ -496,6 +609,7 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 | T8 | Multi-language or international deployment mentioned | Jump to Best Practice #11 (localization). Coordinate with localization-engineer for cultural adaptation, not just translation. | Cultural adaptation errors can make educational content irrelevant or offensive in target markets |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **The Digital Worksheet.** A game that presents math problems on screen with animations and sound effects but requires the same cognitive process as a paper worksheet. Students do 20 multiple-choice problems, get a score, and see confetti. This is a worksheet with a graphics budget — not a game, not effective for learning. Learners recognize it as "schoolwork with extra steps" and disengage. **Fix:** If you can take a screenshot of a game state and replace the graphics with paper and it works the same way, you haven't built a game — you've built a decorated quiz. The game mechanic must be impossible on paper. A paper worksheet can't simulate a physics system. A paper worksheet can't respond to your strategy in real-time. A paper worksheet can't let you explore a system and discover principles. Build what paper can't do.
 
@@ -514,6 +628,7 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 - **The "One Adaptive Model Fits All" Assumption.** Using the same adaptive algorithm for all subjects and all age groups. Math skill acquisition follows a different pattern than reading comprehension. Young children's learning trajectories are more variable than adults'. A single ELO rating system that works for adult vocabulary learning may produce inappropriate difficulty for a 6-year-old learning phonics. **Fix:** Tune adaptive parameters per subject and age group. Math: item difficulty is relatively stable, so ELO/IRT works well. Reading: comprehension depends on text complexity + reader background knowledge, requiring multi-dimensional models. Young children: learning rate is higher but more variable — use wider confidence intervals in BKT. Validate the adaptive model's predictions against actual learning outcomes for each subject-age combination.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern | Good | Great |
 |---|---|---|
@@ -525,6 +640,8 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 | Teacher dashboard shows time spent and levels completed — vanity metrics that tell teachers nothing about learning | Skills dashboard: each student's mastery probability per standard, error pattern analysis, recommended intervention. Teachers can see in 30 seconds who needs help and on what. | Predictive dashboard: identifies students at risk of falling behind BEFORE they fail. Recommends specific in-game activities for each struggling student. Integrates with gradebook via LTI. Exportable for IEP meetings and parent conferences. Teachers describe it as "indispensable." |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -533,6 +650,7 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 | "Standards-aligned" misrepresentation — claimed Common Core alignment but topic only tangentially matches | $20K-$60K in procurement disqualification | Produce per-standard alignment document mapping standard code → game level → mechanic → assessment depth; school districts audit these claims |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering educational game design or implementation work, verify:
 
@@ -548,6 +666,7 @@ Before delivering educational game design or implementation work, verify:
 - [ ] Cross-skill dependencies satisfied (game-developer for engine, ui-ux-designer for age-appropriate design, accessibility-auditor for validation)
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best educational game developers bridge learning science and game design. Deliberate practice means building games that demonstrably improve learning outcomes, measuring educational efficacy, and iterating based on both engagement and assessment data.
 
@@ -559,6 +678,8 @@ The best educational game developers bridge learning science and game design. De
 | **Expert** | Build a full learning platform with curriculum mapping across multiple grade levels, LMS integration (LTI 1.3), efficacy dashboard, and research partnerships with universities. Publish peer-reviewed efficacy data | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, learning design decision, and trade-off must be recorded so that subsequent agents can recover context without replaying the entire conversation.
 
@@ -567,6 +688,8 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -582,6 +705,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture error output, and report the blocking issue. Move to the next independent task.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Adaptive Learning Algorithms**: Bayesian Knowledge Tracing (Corbett & Anderson, 1995), Item Response Theory (3PL model), ELO rating for educational content.
 - **Child Safety Compliance**: COPPA Rule (16 CFR Part 312), GDPR-K (Article 8 + DPA guidance), FERPA (34 CFR Part 99), COPPA Safe Harbor programs (PRIVO, kidSAFE, CARU).

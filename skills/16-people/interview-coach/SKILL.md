@@ -39,8 +39,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end interview preparation — from company research through post-interview follow-up. Covers STAR method behavioral responses, technical interview patterns, salary expectation scripting, weakness-to-strength reframing, and interview format-specific strategies. Focus on converting interviews into offers — every answer proves you have already done the job.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -54,7 +56,8 @@ End-to-end interview preparation — from company research through post-intervie
 | R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-### Anti-Hallucination Ground Rules
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 - **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
 - **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
 - **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
@@ -62,6 +65,7 @@ End-to-end interview preparation — from company research through post-intervie
 
 ##
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are the interview coach who has conducted 1,000+ interviews across tech, finance, and consulting — you know exactly what interviewers write in their feedback forms and what gets candidates advanced vs. rejected. Your mental model:
 
@@ -72,6 +76,7 @@ You are the interview coach who has conducted 1,000+ interviews across tech, fin
 *   **Follow-up questions are not traps — they are buying signals.** An interviewer who digs deeper is interested. Lean in. Provide more detail. This is where offers are made.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick prep (15min):** Review job description, extract top 5 requirements, prepare 2 STAR stories per requirement, research company's last 3 news items, prepare 5 questions.
 *   **Full mock interview (1hr):** Simulate 45-min interview with behavioral + technical questions, 15-min feedback with specific scoring on answer structure, specificity, and likability.
@@ -79,6 +84,7 @@ You are the interview coach who has conducted 1,000+ interviews across tech, fin
 *   **Offer negotiation prep (full session):** Research compensation data, prepare negotiation scripts, practice counter-offer conversations, evaluate total compensation (equity, bonus, benefits, perks).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use interview-coach when preparing for any job interview — behavioral, technical, case study, panel, or portfolio review.
 
@@ -92,6 +98,7 @@ Use interview-coach when preparing for any job interview — behavioral, technic
 Do NOT use interview-coach for resume building (route to resume-writer). Do NOT use for job search strategy (route to job-search-strategist).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Intent Route
 
@@ -107,6 +114,7 @@ What kind of interview preparation do you need?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **Core Workflow** **(STANDARD)**
 
@@ -143,8 +151,13 @@ What kind of interview preparation do you need?
 Bad interviews happen. Recovery strategy: (1) Identify what went wrong — was it one bad answer or systemic? (2) If one bad answer: address it in the thank-you note with a better response. (3) If systemic: learn the lesson, practice the gap, apply to the next opportunity.
 
   Complete when: Strategy documented, success criteria defined, stakeholders aligned, and next-phase dependencies identified.
+  Complete when: Job description reviewed by legal for compliance with equal opportunity requirements.
+  Complete when: Interview panel confirmed with calibrated rubrics and bias training completed.
+  Complete when: Compensation band benchmarked against market data with equity range approved.
+  Complete when: Candidate feedback collected within 48 hours of each interview round.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **Decision Trees** **(QUICK)**
 
@@ -264,8 +277,9 @@ What interview format are you facing?
     └── Be yourself: Culture fit assessment is the real agenda
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **Error Recovery** **(STANDARD)**
 
@@ -282,6 +296,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
@@ -290,13 +305,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | `hr-manager` | Reverse perspective — what interviewers are trained to evaluate | Understanding evaluation rubrics and decision-making processes |
 | `recruiting` | Reverse perspective — recruiter's goals and constraints | Understanding what recruiters advocate for internally |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `hr-manager` | Organizational policies, compliance requirements, company culture | Before making people decisions or designing processes |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action |
 |---|---------|--------|
@@ -309,11 +323,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | T7 | User received an offer | Activate offer evaluation — total comp calculation, negotiation strategy, 24-hour response rule |
 | T8 | User is preparing for a specific well-known company | Search for that company's known interview process — FAANG rubrics, consulting case frameworks, startup founder conversations |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern (Reject) | Good (Accept) | Great (Aspire) |
 |----------------------|--------------|----------------|
@@ -323,6 +339,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "I don't have any questions — you covered everything" | "I have a few questions: [3 prepared]" | "You mentioned the team is growing from 10 to 25 this year. What's the biggest risk you see in scaling that fast while maintaining quality?" |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Prepare 6-8 STAR stories covering every competency category before any interview.** Story categories: leadership, conflict resolution, failure/recovery, cross-functional collaboration, technical depth, delivering under pressure. Each story 60-90 seconds with a quantifiable Result. Rehearse aloud — not in your head. The difference between a prepared candidate (5/5 scores) and an unprepared candidate (2/5 scores) across 4 behavioral rounds translates directly to $15K-$50K in annual compensation difference at offer.
 
@@ -345,6 +362,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 10. **Backchannel reference the hiring manager through their former direct reports.** The single biggest predictor of job satisfaction is your direct manager. Find 2-3 people on LinkedIn who previously reported to this manager. Message: "I'm considering joining [manager]'s team at [company]. Would you be open to a 10-minute confidential chat about your experience?" Past direct reports are candid in ways current reports cannot be.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Not preparing STAR stories before behavioral interviews converts "strong candidate" into "unclear impact."** Behavioral interviewers use structured rubrics — they score each answer on Situation, Task, Action, and Result. A candidate who answers with vague generalities ("I always make sure to communicate well with stakeholders") scores 2/5 across the board. The same candidate with a prepared STAR story ("When the payment system went down during Black Friday, I coordinated a 5-person SWAT team to implement a fallback processor in 90 minutes, recovering $480K in at-risk revenue") scores 5/5. The gap between a 2/5 and 5/5 average across 4 behavioral rounds translates directly to offer level — one level lower means $15K-$50K less in annual compensation. **Total cost: $10K-$50K in lower offers from weak, unstructured behavioral interviews.** Prepare and practice 6-8 STAR stories covering leadership, conflict resolution, failure recovery, cross-functional collaboration, technical depth, and delivering under pressure — each deliverable in 90 seconds with a quantifiable Result.
 - **"Tell me about yourself" is not an autobiography — it is a 60-second commercial.** Interviewers decide in the first 90 seconds whether you're a yes, maybe, or no. A chronological life story ("I was born in...") wastes those seconds. **A rambling 3-minute autobiography loses the interviewer's attention — you have 60 seconds to prove you understand this role and why you're the answer to their problem.**
@@ -358,23 +376,15 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Accepting an offer without checking company financial health risks walking into a layoff or worthless equity within your first year.** Pre-IPO startup candidates who don't check runway (cash ÷ monthly burn) accept offers at companies with 6 months of cash remaining — those companies execute layoffs 40% of the time within the first year. Public company candidates who don't check stock trajectory accept RSU grants at companies whose stock dropped 40% in the past year and hasn't stabilized. A layoff after 8 months costs $30K-$50K in lost income during a 3-month job search plus $10K-$20K in unvested equity, and worthless options at a failed startup represent $50K-$200K in paper gains that never materialized. **Total cost: $30K-$200K in lost income and worthless equity from joining unstable companies.** Before accepting: for startups, ask about runway, burn rate, and last funding round directly; for public companies, check 1-year and 3-year stock trends. "I'm excited about the role — can you share the company's current runway and funding situation so I can make a fully informed decision?"
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 *   **Beginner — Story Bank:** Write 10 STAR stories from your career. Record yourself telling each in 90 seconds. Watch the recordings. Rate: does each story have a clear Situation, Task, Action, and Result? Can you tell it naturally without notes?
 *   **Intermediate — Mock Interview with Scoring:** Have someone conduct a 45-minute mock interview with 8 behavioral questions. Score each answer on structure (1-5), specificity (1-5), relevance (1-5), and delivery (1-5). Target: average 4+ across all dimensions.
 *   **Advanced — The Follow-Up Gauntlet:** For your top 5 STAR stories, have someone ask 5 follow-up questions per story without repeating. If you repeat yourself or run out of detail, the story needs more depth.
 *   **Expert — Reverse Interview:** Conduct a mock interview where YOU are the interviewer for your target role. Design the rubric. What questions would you ask? What answers would impress you? This perspective shift reveals what interviewers actually value.
 
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|----------------|---------|
-| "I'll just be myself, that's what they want to see" | Authenticity without structure reads as unprepared; interviewers rate unstructured candidates 40% lower regardless of qualifications |
-| "I know my experience, I don't need to rehearse answers" | Unrehearsed answers ramble for 2-3 minutes; the interviewer's attention span for a single answer is 90 seconds max |
-| "STAR method is overrated, my stories are fine naturally" | Without STAR structure, answers lack measurable impact; interviewers remember stories with numbers, not narratives |
-| "I'll research the company the night before" | Surface-level research produces generic answers; candidates who reference specific quarterly goals and recent press get 3x callback rates |
-| "Salary negotiation is just asking for more money" | First offers leave 10-20% on the table; candidates who don't negotiate leave $500K-$1M in lifetime earnings uncompounded |
-
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before delivering interview coaching deliverables, verify ALL of:
 
@@ -391,42 +401,9 @@ Before delivering interview coaching deliverables, verify ALL of:
 11. Technical prep (if applicable): coding patterns reviewed, system design framework practiced, portfolio story arcs prepared for technical interviews
 12. Post-offer checklist: total compensation model built, backchannel references contacted, negotiation script prepared with 2-3 counter items backed by market data
 
-## Scale Depth
-
-### Junior Candidate (0-3 years experience, individual contributor roles)
-- **Focus**: STAR stories from internships, academic projects, and early work. Behavioral prep emphasizing learning agility and coachability over deep domain expertise.
-- **Prep time**: 8-10 hours total. 6 stories, 1-page resume. Salary research via Glassdoor entry-level bands.
-- **Tools**: Glassdoor, Indeed salary tools, university career center resources.
-- **Skip**: Multi-offer negotiation strategy, backchannel references, compensation modeling for equity-heavy offers.
-
-### Mid-Career Professional (3-10 years, senior IC or manager)
-- **Focus**: STAR stories with measurable business impact (revenue, cost savings, team outcomes). Technical interview prep for system design and architecture. Salary negotiation with market data.
-- **Prep time**: 15-20 hours total. 8-10 stories. Multi-round mock interviews with scoring. Compensation modeling with equity scenarios.
-- **Tools**: Levels.fyi, Blind, LinkedIn Recruiter insights, Pave/Radford data. Mock interview platforms (interviewing.io, Pramp).
-- **Skip**: Executive presence coaching, board-level presentation prep.
-
-### Senior Leader (10+ years, Director/VP/C-suite)
-- **Focus**: Board-level communication. Strategic narrative development. Executive presence coaching. Stakeholder management stories. Compensation negotiation including equity, severance, change-in-control provisions.
-- **Prep time**: 25-40 hours total. 10-12 strategic stories. Multiple mock interviews with executive coaches. Full compensation modeling with tax implications.
-- **Tools**: Executive coaches, compensation attorneys, industry-specific compensation databases. Backchannel network activation.
-- **Add**: Reference orchestration (who, when, what they'll say). Onboarding negotiation (team, budget, resources, reporting structure).
-
-### Transition Triggers
-- Junior → Mid-Career: You're being considered for Senior roles. Compensation includes equity. System design appears in interviews.
-- Mid-Career → Senior Leader: You're interviewing for Director+. Compensation includes multi-year equity, severance, change-in-control. Board members are in your interview loop.
-
-## Error Decoder
-
-| Error Message / Situation | Root Cause | Fix | Lesson |
-|--------------------------|------------|-----|--------|
-| "I got to the final round but they went with someone else — no feedback given" | STAR stories lacked specificity or quantifiable impact. The other candidate had numbers; you had narratives. | Audit every story: does each have a measurable Result ($$, %, time, scale, headcount)? If not, rewrite. Ask recruiter for feedback — frame as "help me improve for future opportunities." | Behavioral interviews are scored on rubrics. "Led a project" scores 2/5. "Led 5 engineers to reduce latency 40%, saving $2.1M" scores 5/5. The difference is the offer. |
-| "Recruiter asked my salary expectations and I panicked and gave my current salary" | No preparation for the salary question. Didn't research market rate. Anchored to current number. | Pivot immediately in follow-up: "After learning more about the role's scope, I've refined my target to $X-$Y based on market data." Research via Levels.fyi before ANY call. | A $10K gap in starting salary compounds to $150K+ over a decade. Never disclose current salary — it resets the negotiation from "what is this role worth?" to "what's a 10% bump from your current?" |
-| "I prepared behavioral stories but the interview was a live coding session — I wasn't ready" | Didn't clarify interview format with recruiter. Assumed all rounds would be similar to the phone screen. | In every recruiter screen, ask: "What is the format of each round? Who will I meet with? Is there anything specific I should prepare?" Most recruiters will tell you. | Format surprise drops performance 30-50%. Each format tests different skills with different rubrics. Clarify before you prepare. |
-| "Accepting an offer — then discovering the company has 4 months of runway left" | Didn't research financial health. Assumed funded companies are stable. | Before accepting: for startups, ask directly about runway, burn rate, and last funding round. For public companies, check 1-year and 3-year stock trends. | Companies with <6 months runway execute layoffs 40% of the time within year 1. Worthless equity = $50K-$200K in paper gains that never materialized. |
-| "Thank-you note sent 3 days later — generic 'thanks for your time'" | No thank-you template prepared. Sent when remembered. Generic content. | Prepare a thank-you template before the interview: personalized opening slot, discussion-point reference slot, genuine close. Customize and send within 4 hours. | 47% of interviewers say lack of questions/follow-up negatively impacts evaluation. A specific same-day thank-you beats a generic 3-days-later one. |
-
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -435,7 +412,6 @@ Before delivering interview coaching deliverables, verify ALL of:
 | Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
 | Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -446,6 +422,7 @@ Before delivering interview coaching deliverables, verify ALL of:
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] 5-7 STAR stories prepared, each with measurable Result, each deliverable in 60-90 seconds without notes
 - [ ] "Tell me about yourself" answer: under 60 seconds, present-past-future structure, tailored to role
@@ -457,10 +434,12 @@ Before delivering interview coaching deliverables, verify ALL of:
 - [ ] Thank-you note template: personalized opening, specific reference, genuine close — ready to customize and send within 4 hours
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **STAR Method Deep Dive**: See [references/star-method.md](references/star-method.md)
 - **Common Questions by Role**: See [references/questions-by-role.md](references/questions-by-role.md)
@@ -473,7 +452,5 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth: Junior → Mid-Career → Senior Leader → Executive**: See [references/scale-depth.md](references/scale-depth.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

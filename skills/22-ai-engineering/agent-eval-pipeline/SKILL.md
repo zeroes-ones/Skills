@@ -33,6 +33,14 @@ chain:
 ---
 # Agent Evaluation Pipeline
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
+<!-- QUICK: 30s -->
+
+## Anti-Hallucination
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
 
 ## Ground Rules — Read Before Anything Else
 
@@ -76,20 +84,6 @@ This skill operates differently depending on your evaluation maturity. Read the 
 **Level 3 — Automated eval with LLM judge:** Add statistical evaluation (Phase 3). Replace binary pass/fail with SPRT. Add CI/CD gates (Phase 4). Goal: deployment decisions based on statistical evidence, not gut feel.
 
 **Level 4 — Production eval pipeline:** Add behavioral drift detection (Phase 5) and canary monitoring. Goal: detect silent degradation before users notice it.
-
-### Scale Depth
-
-#### Solo (1 engineer, 1 agent)
-Single agent, manual evals. Run L1 tool correctness tests locally before every push. No CI/CD gate — human judgment on deployment. Focus: get deterministic tests passing before touching LLM-as-judge. Budget: $0/month (use open-source eval tools).
-
-#### Small (2-5 engineers, 2-3 agents)
-L1+L2 automated in CI. One LLM judge (GPT-4o-mini for cost). Weekly calibration checks. Manual drift review when UI complains. Focus: establish baseline, automate the common path. Budget: $100-$300/month on eval API calls.
-
-#### Medium (5-20 engineers, 5-15 agents)
-Full L1+L2+L3 pipeline with CI/CD gates. SPRT-based deployment decisions. Daily drift detection against frozen baselines. Dedicated eval harness infra. Monthly judge recalibration. Focus: statistical rigor, preventing regressions at scale. Budget: $300-$500/month.
-
-#### Enterprise (20+ engineers, 15+ agents)
-Multi-model judge panel (3+ models voting). Canary-based gradual rollout with auto-rollback. Eval scenario diversity monitoring with embedding-based coverage tracking. Weekly drift reports to eng leadership. Cross-team eval standards enforced by platform team. Focus: organizational quality standards, cost optimization at scale. Budget: $500-$2,000/month.
 
 ## When to Use
 
@@ -135,6 +129,13 @@ Build the three-tier testing pyramid adapted for stochastic AI agents.
 > 📎 **Full content (302 lines):** [references/core-workflow.md](references/core-workflow.md)
 
   Complete when: L1/L2/L3 eval harness produces results for baseline agent; statistical method (SPRT) returns decision within expected test count; drift detection runs clean against golden baseline.
+  Complete when: Model evaluation results documented — accuracy, latency, and cost metrics vs. baseline.
+  Complete when: Prompt version controlled with changelog and rollback capability.
+  Complete when: Guardrails tested against adversarial inputs — no jailbreak in test suite.
+  Complete when: Token usage and cost tracking dashboard operational with budget alerts.
+  Complete when: A/B test framework configured with statistical significance calculator.
+  Complete when: Model card published with intended use, limitations, and fairness evaluation.
+  Complete when: Fallback behavior defined when model is unavailable — graceful degradation tested.
 
 ## Decision Trees
 **(QUICK)**
@@ -335,6 +336,7 @@ Monthly eval spend hits $400 (80% warn threshold)
 | "CI/CD eval gate takes 45 minutes — PRs are blocked waiting" | L3 E2E evals run against a full containerized environment with 50 scenarios and multi-model judging. This is the most expensive eval tier and shouldn't run on every PR. | Move L3 to post-merge (blocking) and daily cron (monitoring). Run L1+L2 on PR (pre-merge, blocking). Non-blocking L3 can run on PR as advisory. Optimize L2: use cheaper judge model, reduce scenario count with SPRT early stopping. | Not every eval tier belongs on the PR critical path. Triage by cost and detection value. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -394,6 +396,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | ! | `eval_pipeline/l3_canary_unstable` — Canary deployment variance > threshold | `scripts/slack_alert.sh --channel #agent-eng --message "Canary eval unstable (cv=${CV})"` |
 
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -422,6 +425,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ```mermaid
 graph LR
     A[Build eval<br/>pipeline] --> B[Run statistical<br/>evaluation] --> C[Find detection<br/>gaps] --> D[Harden eval<br/>for gap coverage] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -521,20 +525,8 @@ Before any production agent deployment, verify ALL of:
 **Estimated waste: $12,000 - $30,000 per incident** (full-outage cost vs canary-contained cost).
 **Fix:** Deploy to 5% canary first. Monitor agent quality for 10 minutes. Auto-rollback on quality degradation. Only then proceed to 100%.
 
-## Anti-Rationalization Table
-
-<!-- STANDARD: Section XIII — table of what you'll want to believe vs why it's wrong. See CODE-REVIEW-DEAD-CODE-CHECKLIST.md for format. -->
-
-| You'll Want to Believe | Why It's Wrong |
-|------------------------|----------------|
-| "L2 pass rate dropped from 95% to 93% — that's just noise, ship it" | A 2pp drop with n=50 scenarios has SPRT likelihood ratio of 3.2 — it's real regression, not noise. AgentAssay would confirm p<0.05. |
-| "GPT-4o-mini is almost as good as GPT-4o for judging — just swap it in" | Judge calibration is model-specific. GPT-4o-mini has lower agreement with human raters on correctness (kappa 0.62 vs 0.74 for GPT-4o). Calibrate before switching. |
-| "We don't need drift detection — we'd notice if the agent got worse" | Behavioral drift is often invisible to humans. A 15% token increase over 3 weeks looks like "the agent is being thorough" until your API bill doubles. |
-| "Just run all 50 scenarios at temperature=0 — that's good enough" | Temperature=0 eliminates stochastic variation but also masks real-world variance. Agents behave differently at temperature=0.7 (production). Run at production temperature. |
-| "The eval is slow and expensive — let's cut it to 10 scenarios" | With 10 scenarios, you'd need d>0.6 effect to reach statistical significance. A d=0.3 regression (common) will pass undetected. Minimum viable: 20 scenarios for L3 SPRT. |
-| "Our judge has kappa=0.72 on correctness — that dimension is solid forever" | Judge kappa drifts. Model updates, prompt changes, and distribution shift all degrade agreement. Monthly recalibration is not optional. |
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|

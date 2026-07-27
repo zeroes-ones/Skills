@@ -32,8 +32,10 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
 # Codebase Design
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -46,6 +48,7 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 A vocabulary-driven approach to designing deep modules — units of code where a lot of behavior hides behind a small interface, placed at a clean seam, testable through that interface. Based on John Ousterhout's philosophy: complexity is the enemy, and the best way to fight it is through deep modules.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---------------------|--------------------|--------------------|
@@ -63,6 +66,7 @@ A vocabulary-driven approach to designing deep modules — units of code where a
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of codebase design don't think in terms of "clean code" or "SOLID" alone. They think in terms of **depth**: the ratio of behavior provided to interface cost. A deep module does a lot with a little — think of the `fopen()` call in C: one function that handles disk I/O, buffering, encoding, permissions, and error reporting. Its interface is one function; its behavior spans thousands of lines of kernel and driver code.
 
@@ -79,6 +83,7 @@ The expert also thinks in terms of **seams**: places where one module can be sep
 | **Co-location inertia** — keeping related code apart because "that's how it's always been" | Run locality analysis quarterly. Co-locate code that changes together. |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | Actions |
 |-------|-------|---------|
@@ -87,21 +92,8 @@ The expert also thinks in terms of **seams**: places where one module can be sep
 | **L3 — Package/Domain** | 5-50 modules forming a bounded context or package | Reorganize by locality score, establish interface contracts at domain boundaries, apply anti-corruption layers. |
 | **L4 — Codebase-wide** | Entire repository or monorepo | Complexity budget allocation, depth scoring across all modules, architectural seam validation, locality heatmap generation. |
 
-### Scale Depth — Codebase Size Context
-
-#### Solo (1 engineer, 1-5K LOC)
-Focus on deep module design fundamentals: every new class gets depth-scored before merge. Interface minimization is manual — review each public method. Run the deletion test weekly. Complexity budget is implicit: if a module has >7 public methods, it's too big. No formal seam documentation needed; the engineer holds the architecture in their head.
-
-#### Small (2-5 engineers, 5-50K LOC)
-Depth scorecard tracked in a spreadsheet or CI check. Module inventory documented with depth classifications. Seams identified at package boundaries. Adapters placed where external dependencies meet domain code. Complexity budget: 15% of modules allowed to be shallow (thin controllers, DTOs). Locality violations flagged in code review. Pass-through detection automated via static analysis.
-
-#### Medium (5-20 engineers, 50-200K LOC)
-Depth scoring automated in CI with gates: no module <0.5 depth allowed to merge. Interface contracts documented at domain boundaries (packages, bounded contexts). Anti-corruption layers mandatory for all third-party integrations. Complexity budget allocated per bounded context: core domains get 20% budget, supporting domains 10%, generic subdomains 5%. Seam registry maintained as architecture documentation. Locality heatmaps generated quarterly.
-
-#### Enterprise (20+ engineers, 200K+ LOC, multi-team)
-Depth governance embedded in architecture review board. Every module has a depth SLA. Interface versioning for cross-team contracts. Complexity budget allocated at portfolio level: each team gets a budget, traded in architecture decision records (ADRs). Automated deletion test runs monthly — modules with zero production callers flagged for removal. Seam placement requires architecture board approval for cross-team boundaries. Locality analysis runs continuously — violations generate Jira tickets.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use this skill when:
 - Designing a new module and want it to be deep from day one
@@ -120,10 +112,12 @@ Use this skill when:
 - Build system or dependency graph optimization
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -136,6 +130,7 @@ Use this skill when:
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What are you trying to do?
@@ -158,6 +153,7 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -169,16 +165,84 @@ DESIGN → MINIMIZE → SEAM → ADAPT → VERIFY
 #
 
 ## Phase 1: Module Inventory
+<!-- STANDARD: 3min -->
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 177 lines of detailed guidance
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
+
+### Decision Tree 4: How Do I Apply the Deletion Test?
+
+        ┌── INPUT: Module or class under evaluation
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Delete the         Delete one         Delete all
+entire module      public method      internal state
+   │                 │                  │
+   ▼                 ▼                  ▼
+Does anything      Does any caller    Does any method
+break that can't   break that can't   break that can't
+be fixed in <1hr?  be fixed in <30min? be fixed in <15min?
+   │                 │                  │
+   ▼                 ▼                  ▼
+YES: Module is     YES: Method is     YES: State is
+essential. Keep.   essential. Keep.   essential. Keep.
+   │                 │                  │
+   ▼                 ▼                  ▼
+NO: Module is      NO: Delete method. NO: Delete state.
+dead code. Remove. Reduce interface.  Simplify internals.
+
+### Decision Tree 5: How Do I Allocate Complexity Budget?
+
+        ┌── INPUT: New feature requires complexity trade-off
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Complexity in      Complexity in      Complexity in
+interface          implementation     dependencies
+(exposed API)      (internal logic)   (external coupling)
+   │                 │                  │
+   ▼                 ▼                  ▼
+Worst place.       Acceptable if      Moderate risk.
+Every caller       hidden behind      Prefer zero-cost
+pays its cost      simple interface   abstractions.
+forever.
+   │                 │                  │
+   ▼                 ▼                  ▼
+REDUCE:            MONITOR:           QUESTION:
+Can you make the   Does depth justify  Can you inline,
+surface smaller?   the complexity?     vendor, or remove?
+
+### Decision Tree 6: How Do I Place a Seam Between Modules?
+
+        ┌── INPUT: Two modules need a boundary decision
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Modules change      Modules have       Modules share
+at different rates  different owners   tight coupling
+   │                 │                  │
+   ▼                 ▼                  ▼
+Strong seam:        Strong seam:       Weak seam:
+split now.          split by team.     keep together
+Natural boundary.   Conway's Law.      or refactor first.
+   │                 │                  │
+   ▼                 ▼                  ▼
+Use adapter         Use API contract   Inline and
+pattern at          with versioning    redesign before
+the seam            at the seam        extracting
 
 #
 
 ## Module Depth Classification
+<!-- STANDARD: 3min -->
 
 ```
 Module under evaluation
@@ -205,6 +269,7 @@ Module under evaluation
 #
 
 ## Interface Minimization Strategy
+<!-- STANDARD: 3min -->
 
 ```
 Module with N public methods
@@ -232,6 +297,7 @@ Module with N public methods
 #
 
 ## Seam Placement Decision
+<!-- STANDARD: 3min -->
 
 ```
 Candidate boundary between Module A and Module B
@@ -258,6 +324,7 @@ Candidate boundary between Module A and Module B
 #
 
 ## Adapter Pattern Selection
+<!-- STANDARD: 3min -->
 
 ```
 Seam characteristics → Adapter type
@@ -285,6 +352,7 @@ Seam characteristics → Adapter type
 #
 
 ## Refactoring Priority Matrix
+<!-- STANDARD: 3min -->
 
 ```
 Priority = (CouplingDamage × ChangeFrequency) / RefactoringCost
@@ -314,6 +382,8 @@ IGNORE
 ```
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -330,6 +400,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design deep modules from day one — don't refactor into depth later.** A module with 3 public methods and 150 lines of behavior is easier to maintain than one with 12 public methods and 15 lines of behavior. Write the implementation first, then extract the minimal interface. The interface is a cost to every caller; the implementation is a benefit to every caller. Maximize the benefit/cost ratio before the first commit.
 
@@ -352,6 +423,7 @@ If a command or approach fails, follow this escalation path before giving up:
 10. **Never add a public method "for future use."** YAGNI applies doubly to interfaces. A public method added speculatively costs every future reader the cognitive load of understanding it, every future maintainer the risk of breaking callers when changing it, and every newcomer the confusion of "who calls this and why?" Add public methods only when a real caller exists, and only the methods that caller actually needs.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Direction | Skill | What's Exchanged | Decision Gate |
 |-----------|-------|------------------|---------------|
@@ -367,6 +439,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | System design, C4 models, ADRs, scalability patterns | Before making architectural decisions that impact multiple systems |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|-------------------|---------------|
@@ -379,16 +452,20 @@ If a command or approach fails, follow this escalation path before giving up:
 | T7 | Git diff shows 3+ files in different directories changing together | "Locality alert: these files co-change but live apart. Should they be co-located?" |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -400,13 +477,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -422,6 +502,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -431,8 +512,10 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 BEFORE (Shallow Module)                    AFTER (Deep Module)
 ┌─────────────────────┐                   ┌─────────────────────┐
 │ UserService          │                   │ UserService          │
@@ -456,36 +539,44 @@ Metrics improvement:
   Behavior:        15 → 120 (8x increase — moved logic from callers into module)
   Depth:           1.2 → 40 (33x improvement)
   Caller LoC:      ~200 → ~30 (behavior consolidated into the module)
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 #
 
 ## Exercise 1: Depth Scoring (15 min)
+<!-- STANDARD: 3min -->
 Take any module in your current codebase. Count its public methods. Count its lines of actual behavior (not delegation, not getters/setters). Compute depth. Classify it. If shallow, identify the 3 most important changes to increase depth. Timebox: 15 minutes.
 
 #
 
 ## Exercise 2: Deletion Test Sprint (20 min)
+<!-- STANDARD: 3min -->
 Take a package or directory. Run the deletion test on every file in it. For each file, answer: "If I delete this, what breaks?" Create a list: files to delete, files to keep, files to refactor. Timebox: 20 minutes.
 
 #
 
 ## Exercise 3: Interface Minimization Kata (25 min)
+<!-- STANDARD: 3min -->
 Choose a module with 8+ public methods. Apply Phase 2's three questions to every method. Combine, hide, or delete until the interface is ≤5 methods. Re-compute depth. Compare before/after. Timebox: 25 minutes.
 
 #
 
 ## Exercise 4: Seam Mapping (20 min)
+<!-- STANDARD: 3min -->
 Pick a feature that spans 3+ files. Draw the dependency graph. Identify where changes propagate. Score each boundary using the seam checklist. Mark natural seams. Propose adapter placements. Timebox: 20 minutes.
 
 #
 
 ## Exercise 5: Locality Heatmap (30 min)
+<!-- STANDARD: 3min -->
 Run `git log --name-only` on your repo for the last 50 commits. Group files that co-change. For each group, compute spatial distance (directory tree distance). Identify files with high co-change frequency but high spatial distance — these are locality violations. Propose a reorganization. Timebox: 30 minutes.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 **Total cost: $15,000-$45,000 in developer productivity per year.** A shallow module with 12 public methods and 15 lines of behavior forces 10 developers to read 12 method signatures every time they touch related code. Over a year, that's hundreds of wasted cognitive cycles. Each wasted minute compounds: reading the interface, tracing to the implementation, discovering there's nothing there, and going back. At $150/hour blended rate, a team of 10 loses $15K-$45K annually on a single shallow module.
 
@@ -500,6 +591,8 @@ Run `git log --name-only` on your repo for the last 50 commits. Group files that
 **Total cost: $5,000-$15,000 in interface creep per ungoverned module per year.** Without active minimization, modules gain 1-2 public methods per quarter. After 2 years, a module that started with 5 methods has 13-21. Each addition seemed harmless at the time, but the cumulative depth erosion makes the module progressively harder to understand and change.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -509,33 +602,28 @@ Run `git log --name-only` on your repo for the last 50 commits. Group files that
 | Module locality violations causing circular dependencies | $200K-$500K in refactoring costs to untangle cyclic module graphs | Enforce strict dependency direction with architecture tests. Use dependency-cruiser or similar to fail CI on cycles |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-```bash
-# 1. Depth scorecard: every module should have depth > 1.0
-grep -rn "public " src/ | wc -l  # Count public surface area
-# For each module, compute depth = behavior_lines / public_methods
-
-# 2. Pass-through detection: methods that are single delegation calls
-grep -rn "return .*\." src/ | grep -v "return this" | head -20
-
-# 3. Locality co-change check (last 30 days)
-git log --since="30 days ago" --name-only --oneline | sort | uniq -c | sort -rn | head -20
-
-# 4. Interface bloat: files with >10 public methods
-grep -c "public " src/**/*.java | awk -F: '$2 > 10 {print}'
-
-# 5. Verify all adapters are at verified natural seams
-# Manual: score each adapter boundary against seam checklist (Phase 3)
-
-# 6. Deletion test: confirm no dead modules exist
-# For each module, verify at least one production caller exists
-```
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Depth scorecard generated for every module in scope — zero modules with depth < 0.5 without documented justification | `grep -rn "public " src/ | wc -l`; compute depth = behavior_lines / public_methods per module |
+| ☐ | Complete when Deletion test run on all modules — every surviving module has at least one production caller with nontrivial dependency | For each module, verify at least one production caller exists; document any intentional pass-throughs |
+| ☐ | Complete when Pass-through methods identified and resolved: each delegation-only method either inlined, enriched with behavior, or documented as intentional facade | `grep -rn "return .*\." src/ | grep -v "return this"` produces zero delegation-only methods |
+| ☐ | Complete when All seams scored ≥4/6 on the seam checklist (co-change frequency, test isolation, caller independence, swappability, different change rates, different caller types) | Seam scorecard documented for every adapter boundary with scores per criterion |
+| ☐ | Complete when Anti-corruption layers (ACLs) in place for every third-party dependency, external API, and legacy system integration | No direct vendor imports outside designated ACL modules; lint rule catches violations |
+| ☐ | Complete when Interface minimization complete: every public method justified by an actual external caller, convenience overloads removed, getters/setters exposing internal state eliminated | No module has >7 public methods for core business logic; every method has a named production caller |
+| ☐ | Complete when Complexity budget defined and enforced: ≤20% shallow modules for core domain, ≤10% for supporting, ≤5% for generic subdomains | Module inventory classifies all modules as Deep/Moderate/Shallow/Critically Shallow with refactoring priority scores |
+| ☐ | Complete when Locality heatmap generated from last 90 days of git history — zero files with high co-change frequency spanning >2 directory levels | `git log --since="90 days ago" --name-only --oneline | sort | uniq -c | sort -rn` produces no cross-directory clusters |
+| ☐ | Complete when Adapter type correctly selected per seam (Translation, Facade, ACL, or Bridge) — no adapter-less seam at external dependency boundaries | Each adapter boundary has a documented adapter type and rationale matching the seam checklist score |
+| ☐ | Complete when No module has gained >2 public methods per quarter without corresponding behavior growth — depth trend is stable or improving | Track depth in CI; alert when depth drops >20% quarter-over-quarter |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -553,6 +641,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[CD12]** Complexity budget trend monitored: depth scores not declining quarter-over-quarter, shallow module count not increasing
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -568,6 +657,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Module depth declining: was 8.0 six months ago, now 1.5 | Interface creep — 1-2 public methods added per quarter without corresponding behavior growth. Each addition seemed harmless | Freeze the interface. Audit every public method: who calls it, what behavior does it add? Remove convenience methods, inline pass-throughs, merge thin methods | Track depth in CI. Alert when depth drops >20% quarter-over-quarter. Require architecture review for modules that cross the shallow threshold (depth < 1.0) |
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [Depth Vocabulary](references/depth-vocabulary.md) — Definitions: depth, shallow module, deep module, interface cost, behavior value, seam, leverage, locality
 - [Deletion Test](references/deletion-test.md) — Step-by-step deletion test protocol with pass-through and trivial wrapper examples

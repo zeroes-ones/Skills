@@ -42,7 +42,8 @@ chain:
 # Data Scientist
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -61,6 +62,7 @@ scores), regression analysis, time series forecasting, survival analysis, featur
 interpretability (SHAP, LIME, partial dependence), Bayesian approaches, and ethical data science.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -97,6 +99,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -114,12 +117,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of data scientist don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -140,6 +143,7 @@ Masters of data scientist don't just build — they build **the right thing, at 
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -155,6 +159,7 @@ Masters of data scientist don't just build — they build **the right thing, at 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You need to choose the right statistical test (t-test, chi-square, ANOVA, non-parametric) for a hypothesis
 - You are designing an A/B test — sample size calculation, minimum detectable effect, peeking corrections
@@ -166,9 +171,84 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are setting up an experiment design with proper randomization, control groups, and statistical power
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Data Quality Assessment
+
+        ┌── INPUT: New dataset received
+        │   for analysis
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Missing values             Distribution check:
+> 15% in any column?       unexpected skew or
+   │                         outliers?
+   │                         │
+   ▼                    ┌────┴────────────┐
+YES → Investigate       │                 │
+cause: MCAR/MAR/MNAR?   ▼                 ▼
+Impute or exclude     Skewed?            Outliers in
+based on mechanism;   Transform (log,    target variable?
+document decisions    Box-Cox) or use       │
+                      non-parametric        ▼
+                      tests instead    Winsorize or
+                                       investigate if
+                                       data entry errors;
+                                       never silently drop
+
+### Decision Tree 2: Model Complexity Decision
+
+        ┌── INPUT: Model selection for
+        │   a business problem
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Stakeholders need          Predictive accuracy
+explainability?            is primary goal;
+(regulatory, clinical,     black-box OK?
+hiring decisions)              │
+   │                    ┌────┴────────────┐
+   ▼                    │                 │
+Linear/logistic         ▼                 ▼
+regression,          Sample size        Sample size
+decision trees,      < 10K rows?       > 100K rows?
+GAMs; SHAP for           │                 │
+interpretability         ▼                 ▼
+                    XGBoost/           Deep learning
+                    LightGBM with      or ensemble;
+                    cross-validation;  monitor for
+                    tune with Optuna   overfitting
+                                       via holdout
+
+### Decision Tree 3: Result Communication Strategy
+
+        ┌── INPUT: Analysis complete;
+        │   who is the audience?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Executive / non-technical   Technical / peer
+stakeholder?                data scientist?
+   │                         │
+   ▼                         ▼
+Lead with business          ┌────┴────────────┐
+impact: "This change        │                 │
+is expected to increase     ▼                 ▼
+revenue by X%" — then      Decision-focused?  Exploratory?
+one chart, one number,          │                 │
+confidence interval             ▼                 ▼
+                            Effect size +      Full methodology:
+                            CI + practical     assumptions,
+                            significance;      diagnostics,
+                            not just p-value   limitations,
+                                               code appendix
+
 ### Choosing the Right Statistical Test
 
 ```
@@ -229,6 +309,7 @@ What question are you answering?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -291,8 +372,14 @@ What question are you answering?
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Experiment results analyzed with confidence intervals, guardrail checks passed, and ship/iterate/discard recommendation documented.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Frame before you analyze.** Write down hypothesis, null, alternative, and decision criteria before opening the dataset. Prevents p-hacking and confirmation bias. A pre-registered analysis plan is the single best defense against fooling yourself with data.
 
@@ -314,8 +401,8 @@ What question are you answering?
 
 10. **Reproducibility through fixed seeds — but different seeds for different sources.** `random_state=42` everywhere couples train/test split, model init, and data shuffling to one seed, producing unrealistically consistent results. Use different seeds for different randomness sources and report variance across seeds.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -331,6 +418,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -346,6 +434,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `analytics-engineer` | Metric definitions, experiment frameworks, statistical function specifications | Analytics can't build trusted metrics — dashboards unreliable |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -358,11 +447,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Chronological leakage detected: future data leaking into training set | Re-split by strict time boundaries; audit every feature for temporal dependency; use expanding window backtest | Random train/test splits on temporal data leak the future into the past — time-based splits are non-negotiable |
 | Analysis code produces different results when re-run 6 months later | Pin dependencies, set random seeds, version datasets with hashes, log git commit — reproducibility requires discipline, not luck | An unreproducible experiment result is an anecdote, not evidence — science requires reproducibility |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every experiment begins with a pre-registered hypothesis, a power analysis, and a peer-reviewed design before the first user is bucketed.
 
@@ -379,6 +469,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -396,6 +487,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Train/test leak through scaling**: If you call `StandardScaler.fit_transform(X)` before `train_test_split`, the scaler has "seen" test data mean and variance. Predictions look better during evaluation but fail in production. Always `train_test_split` FIRST, then `fit_transform` on train, `transform` (only) on test. **Total cost: $10,000-$100,000 in model retraining, production rollback, and lost trust when a model that scored 0.95 AUC in validation degrades to 0.70 in production due to data leakage.**
 - **Imbalanced classification accuracy is misleading**: A model that predicts "not fraud" 100% of the time has 99.9% accuracy if fraud rate is 0.1%. Use precision-recall AUC or F1, not accuracy, for imbalanced datasets. **Total cost: $50,000-$500,000 in undetected fraud, churn, or failures — a model with 99.9% accuracy that misses all positive cases costs real money when those positives are fraudulent transactions or at-risk customers.**
@@ -405,6 +497,7 @@ graph LR
 - **`random_state=42` everywhere** means your cross-validation folds, model initialization, AND data shuffling all use the same seed. This produces unrealistically consistent results. Use different random seeds for different sources of randomness. **Total cost: $15,000-$75,000 in overconfident model deployment — a model that appeared stable in validation (CV std < 0.01) shows 5%+ variance in production because all randomness sources were coupled to one seed.**
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] **Analysis plan pre-registered:** Hypothesis, null/alternative, decision criteria, and primary metric documented before data access
@@ -421,51 +514,8 @@ graph LR
 - [ ] **Model card documented:** Intended use, limitations, evaluation metrics, training data characteristics, and ethical considerations
 - [ ] **Code version controlled:** Analysis scripts and notebook committed with clear commit messages; environment pinned (requirements.txt/conda.yml)
 
-## Scale Depth
-
-### Solo (1 person, 0-100 analyses/year)
-- **Stack:** Jupyter + pandas/scikit-learn. CSV/Parquet files. Git for version control.
-- **Workflow:** Notebook-based exploration → manual report generation. No automated pipelines.
-- **Validation:** Manual spot checks. Cross-validation within notebook.
-- **Key constraint:** Reproducibility is entirely on you. Document every decision and assumption inline.
-
-### Small Team (2-10 people, 100-1K analyses/year)
-- **Stack:** JupyterHub/Colab Enterprise + MLflow for experiment tracking. Feature store (Feast/Tecton) for reusable features.
-- **Workflow:** Notebook-driven with experiment tracking. Model registry with staging/production lifecycle.
-- **Validation:** Automated data validation (Great Expectations). Scheduled model retraining with drift detection.
-- **Key constraint:** Multiple data scientists overwriting each other's experiments. MLflow experiment naming conventions become critical.
-
-### Medium Team (10-50 people, 1K-10K analyses/year)
-- **Stack:** Kubeflow/SageMaker + feature store + model registry. CI/CD for model training pipelines.
-- **Workflow:** Pipeline-driven model development. Peer review required before production deployment.
-- **Validation:** Automated bias/fairness evaluation. A/B testing framework for model comparison. Data drift monitoring.
-- **Key constraint:** Model governance — who approved this model for production? Implement model cards and approval workflows.
-
-### Enterprise (50+ people, 10K+ analyses/year)
-- **Stack:** Multi-cloud ML platform with centralized feature store, model registry, and monitoring. Federated learning where privacy requires.
-- **Workflow:** Platform team provides self-serve infrastructure. Data scientists focus on modeling, not infra.
-- **Validation:** Real-time model monitoring with automated rollback. Continuous evaluation pipelines. Regulatory compliance automation.
-- **Key constraint:** AI risk management — model inventory, bias audits, explainability requirements, and regulatory reporting (EU AI Act, NYC Local Law 144).
-
-### Transition Triggers
-- Solo → Small: You've overwritten your own results more than once. Stakeholders ask for reproducibility.
-- Small → Medium: Model deployment is a bottleneck. Two models in production have conflicting predictions.
-- Medium → Enterprise: Regulatory inquiry about model decisions. Model incident affects revenue or users.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Validation AUC 0.95, production AUC 0.70 | Train/test leakage: scaler fit on full dataset before split, leaking test distribution into training | Always split first: `train_test_split` → `scaler.fit(X_train)` → `scaler.transform(X_test)`. Never call `fit_transform` on full X. | Leakage is invisible in validation because the model legitimately learned the leaked information. Only production reveals the cheat. |
-| p-value < 0.05 but effect size is 0.01% | Large sample size makes trivial effects statistically significant. A 0.01% lift with N=10M has p<0.001 but zero business value. | Always report effect size with confidence interval. Ask: "Is this effect large enough to matter?" before asking if it's significant. | Statistical significance ≠ practical significance. Large N inflates significance. |
-| "Significant" A/B test winner regresses post-launch | Peeking: checked results daily and stopped when p<0.05. Actual false positive rate is 26-40%, not 5%. | Pre-register sample size and duration. Use sequential testing with adjusted boundaries. Or: don't look until the timer goes off. | The p-value assumes you look exactly once. Every additional peek compounds the false positive risk. |
-| Model with 99.9% accuracy predicts nothing useful | Imbalanced classification: 99.9% of samples are negative. Model achieves 99.9% by always predicting negative. | Use precision-recall AUC, F1, or Cohen's Kappa. Set `class_weight='balanced'` or use SMOTE. | Accuracy on imbalanced data measures class distribution, not model skill. |
-| SHAP says feature X is most important, but removing it doesn't change predictions | Correlated features: SHAP splits importance between X and its correlated proxy Y. Individually both look moderate, together they're critical. | Use permutation importance as sanity check. Group correlated features and report group-level importance. | SHAP explains prediction, not causation. Correlated features create attribution ambiguity. |
-| Notebook cell [3] output doesn't match when re-run | Out-of-order execution: cell [5] ran first, defined a variable, then cell [3] used it. State persists but execution order is invisible. | Kernel → Restart & Run All before sharing. Use `%autoreload` for external modules. | Notebook state is a hidden dependency. The only reliable notebook is one that runs top-to-bottom from a fresh kernel. |
-| Time series model perfect on test but fails in production | Random train/test split leaked future into past. Model learned to predict tomorrow from tomorrow's features. | Use `TimeSeriesSplit` or manual chronological split. Never `shuffle=True` for temporal data. | Temporal leakage is subtler than feature leakage because the split "looks" random but the time index carries information. |
-
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -474,7 +524,6 @@ graph LR
 | Notebook results unreproducible due to kernel state and cell execution order | $20K-$100K per incident | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
 | Data leakage through improper train/test split before preprocessing | $10K-$100K in production model failures | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -485,6 +534,7 @@ graph LR
 | Dashboard loading >5s erodes executive trust | $15K-$50K in lost stakeholder confidence | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Train/test split before any preprocessing: `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)`
 - [ ] Feature scaling: `scaler.fit(X_train)`, then `scaler.transform(X_test)` — scaler never sees test data
@@ -494,10 +544,12 @@ graph LR
 - [ ] Notebook: "Restart kernel & Run All" — all cells execute in order, no hidden state dependencies
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -508,5 +560,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

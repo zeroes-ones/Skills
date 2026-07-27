@@ -41,6 +41,7 @@ chain:
 Build, nurture, and scale patient communities that deliver measurable health outcomes and sustainable engagement. This skill covers the full community operations lifecycle — from peer mentorship program design and community health metrics to patient events, cultural competency, and the delicate balance between patient privacy and community connection — designed for health communities serving patients with chronic and rare conditions.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -77,9 +78,11 @@ What are you trying to do?
 └── Don't know where to start? → Describe your community (size, condition, maturity) and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -97,12 +100,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master community operations managers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -123,6 +126,7 @@ Master community operations managers carry a dual responsibility: technical exce
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -138,6 +142,7 @@ Master community operations managers carry a dual responsibility: technical exce
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a peer mentorship program for newly diagnosed patients matched with experienced patients
@@ -150,9 +155,111 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building cultural competency into community operations for diverse patient populations
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Peer Mentorship Matching
+
+```
+        ┌── INPUT: Matching newly diagnosed patient with a mentor?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Match by           Match by
+condition +        life stage /
+treatment          experience
+regimen               │
+   │                 ▼
+   ▼              ├─ Age group
+├─ Same           │  (young adult,
+│  diagnosis      │  parent of
+│  subtype        │  child with
+├─ Similar        │  condition)
+│  treatment      ├─ Time since
+│  (prophylaxis   │  diagnosis
+│  vs on-demand)  │  (>1 year
+├─ Comorbidities  │  preferred)
+│  considered     ├─ Shared
+└─ Clinical       │  language
+   validation        or cultural
+                     background
+                  └─ Mentor
+                     training
+                     completed +
+                     availability
+                     confirmed
+```
+
+### Decision Tree 2: Event Format Selection
+
+```
+        ┌── INPUT: Planning a patient community event?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Education-         Connection-
+focused            focused
+   │                 │
+   ▼                 ▼
+Virtual            In-person
+webinar or         meetup or
+roundtable         conference
+   │              gathering
+   ▼                 │
+Best for:            ▼
+├─ Expert Q&A     Best for:
+├─ New treatment  ├─ Peer support
+│  education      ├─ Social
+├─ Large            connection
+│  geographic     ├─ Conference
+│  reach             satellite
+└─ Recorded          events
+   for on-demand  └─ Local HTC /
+   library           chapter
+                     gatherings
+   │                 │
+   ▼                 ▼
+Hybrid option:   Virtual option:
+Keynote live +   regional
+breakout rooms   Zoom circles
+```
+
+### Decision Tree 3: Moderation Escalation Path
+
+```
+        ┌── INPUT: Community post flagged — how to escalate?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+Safety risk        Content policy
+(self-harm,        violation
+threats, AE)       (misinformation,
+   │               harassment)
+   ▼                   │
+IMMEDIATE:             ▼
+├─ Remove post     ├─ Minor:
+├─ Escalate to     │  warning +
+│  crisis-         │  content
+│  response-       │  removal
+│  manager         ├─ Moderate:
+├─ Notify          │  temporary
+│  clinical        │  suspension
+│  safety lead     ├─ Severe:
+└─ Document        │  permanent
+   per safety      │  ban
+   protocol        └─ Escalate
+                      to content-
+                      policy-
+                      manager if
+                      pattern
+                      emerges
+```
+
 ### Community Growth Strategy
 
 ```
@@ -180,6 +287,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     │ team champion   │   │ HFA, WFH)│ │ SEO, content │
                     └─────────────────┘   └──────────┘ └──────────────┘
 ```
+
 **When to use clinical referral:** Established HTC/clinic relationships, care team willing to recommend community, HIPAA-compliant referral mechanism (opt-in, not automatic). Best for condition-specific communities where clinical endorsement drives trust. **When to use advocacy partnerships:** National/global patient organizations (NHF, HFA, WFH for hemophilia). Co-branded events, cross-promotion, shared resources. **When to use organic growth:** Early-stage community without clinical partnerships. Social media patient groups, condition-specific hashtags, SEO-optimized content, patient-to-patient invites.
 
 ### Community Segmentation Matrix
@@ -210,9 +318,11 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     │ patient, aging)  │
                     └──────────────────┘
 ```
+
 **Primary segmentation by condition:** Hemophilia A, Hemophilia B, VWD, inhibitors, carriers — different medical journeys, different community needs. **Primary segmentation by treatment:** Prophylaxis (infusion fatigue, adherence), on-demand (bleed recognition, treatment delay), gene therapy (expectation management, long-term uncertainty), clinical trial (hope + anxiety). **Secondary always includes:** age cohort (parent of young child vs adult self-infuser vs aging with hemophilia) and caregiver status.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -228,7 +338,6 @@ Complete when:
 - Mentor training curriculum created covering boundaries, crisis recognition, and confidentiality
 - Matching algorithm specified with primary/secondary/tertiary criteria and evaluation metrics
 
-
 ### Phase 2 (~25 min): Community Health Metrics and Segmentation
 1. Define community health KPIs: engagement rate (DAU/MAU, target >30%), weekly active posters (>15% of members), reply rate (>3 replies per thread average), time-to-first-response (<1 hour median), sentiment score (net positive), member retention (30-day, 90-day, annual).
 2. Track clinical outcome correlations (where consented): does community engagement correlate with treatment adherence, PRO scores, HTC visit attendance, or reduced ER visits? This is the holy grail of health community metrics — it justifies clinical referral partnerships and payer interest.
@@ -240,7 +349,6 @@ Complete when:
 - Community health KPI dashboard built with engagement, retention, and sentiment metrics
 - Churn prediction rules implemented for 14-day and 30-day inactivity thresholds
 - Member segmentation definitions approved by clinical and product stakeholders
-
 
 ### Phase 3 (~20 min): Patient Events and Programming
 1. Design the event calendar: weekly (themed discussion threads, "Tuesday Treatment Talk"), monthly (Ask-Me-Anything with hematologist, peer support circle, caregiver coffee hour), quarterly (virtual roundtable with 3-5 patients sharing experiences, research update webinar), annual (in-person HTC meetup, conference gathering at NHF/ASH/ISTH).
@@ -254,7 +362,6 @@ Complete when:
 - Accessibility plan documented for virtual and in-person events (captions, interpreter, venue)
 - Event success metrics defined: attendance rate, satisfaction ≥4/5, NPS, returning attendee rate
 
-
 ### Phase 4 (~20 min): Community Growth and Advocacy Partnerships
 1. Build clinical referral partnerships: approach HTC social workers and nurse coordinators (they are the gatekeepers of patient resources), provide referral cards and digital assets, train care teams on what the community offers (and what it does not — it is not medical advice), track referral source for attribution.
 2. Partner with patient advocacy organizations: National Hemophilia Foundation (NHF), Hemophilia Federation of America (HFA), World Federation of Hemophilia (WFH), local chapters. Co-host events, cross-promote content, share research opportunities, coordinate advocacy campaigns.
@@ -262,13 +369,16 @@ Complete when:
 4. Monitor growth health: are new members representative of the patient population? Track demographic diversity of new members vs target population. Growth that only reaches highly engaged, English-speaking, urban patients is not sustainable — it leaves behind the patients who need community most.
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 - Clinical referral partnership pipeline documented with 5+ HTC contacts and referral materials
 - Advocacy organization partnership agreements drafted (NHF, HFA, WFH, local chapters)
 - Growth diversity dashboard monitoring demographic representation vs target population
 
-
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -284,6 +394,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Community operations bridges patients, clinical teams, product, and content. Coordination ensures the community serves patients effectively while maintaining safety, privacy, and alignment with organizational goals.
@@ -336,13 +447,12 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 - **Cultural competency gate:** Non-English communities require dedicated moderators from those communities. Translated content ≠ culturally competent content. Artifact: Cultural competency assessment per language/region.
 - **Ambassador compensation gate:** Peer mentors compensated at fair market rates (honoraria, stipends, conference sponsorship). Uncompensated mentorship = exploitation. Artifact: Ambassador compensation policy with rate schedule.
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `clinical-informatics-specialist` | Clinical workflows, terminology standards, regulatory context | Before designing healthcare solutions or patient-facing content |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -355,15 +465,17 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 | Cultural competency gap identified: non-English segment has <50% engagement of English segments | Assess: dedicated moderators from that community? Culturally adapted content? Language barriers in platform UI? Address gaps within 30 days | Non-English communities that feel like "translations" rather than authentic communities will fail — cultural competency is a growth and safety requirement |
 | Ambassador departs publicly with criticism of community leadership | Acknowledge the departure respectfully (no defensiveness); reach out privately to understand concerns; review ambassador program for systemic issues | How you handle a departing ambassador is witnessed by every active member — it's the ultimate community trust test |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 The community feels alive and safe. Members support each other without staff intervention 80% of the time. Ambassador programs run themselves. Events calendar is full and attended. Community health metrics trend upward. Pharma partners see the community as a model of patient engagement.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -381,6 +493,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -390,7 +503,8 @@ graph LR
 | Missing crisis escalation protocol — member posts suicidal ideation at 11 PM Friday. No moderator sees it until Monday morning. The 48-hour gap between crisis post and response can be fatal. | $1M-$10M per incident in liability — failure to act on suicidal content where platform has constructive knowledge can trigger wrongful death lawsuits and regulatory action | Implement 24/7 crisis escalation with automated keyword detection, immediate escalation to trained crisis responders, and documented response SLA within 30 minutes |
 | Health misinformation outpaces fact-checking — viral post claiming "vitamin C cures cancer" gets 50,000 shares before moderation flags it. Correction reaches only 5,000 of the 500,000 exposed. | $300K-$2M per viral incident — each health misinformation event erodes institutional trust with remediation cost far exceeding the moderation budget | Deploy proactive content screening with automated medical claim detection before publishing; pre-approve high-risk topics; build rapid-response fact-check workflow under 2-hour SLA |
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -401,6 +515,7 @@ graph LR
 | "Volunteer moderators are free — we just need more of them" | Volunteer moderators carry hidden costs: burnout-driven turnover, inconsistency in enforcement, and legal liability from untrained moderation decisions; under-investing in paid moderation infrastructure costs 3-5x more in crisis cleanup and member churn. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Content safety: medical claims in community posts flagged and reviewed within SLA — misinformation rate < 1%
 - [ ] Engagement quality: supportive-to-argumentative comment ratio tracked — trend stable or improving
@@ -409,6 +524,7 @@ graph LR
 - [ ] Guidelines: community guidelines reviewed within last 6 months — updated for emerging health topics
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
@@ -424,6 +540,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 10. **Apply safety protocols for in-person and virtual events.** In-person: venue accessibility (wheelchair accessible, near transit), health safety (infusion-friendly spaces, factor refrigeration, emergency bleed plan), cost (free for patients, travel stipends for hardship), consent for photography. Virtual: platform with closed captioning, sign language interpreter availability, time zone rotation for global members, recording with consent (available 30 days). Events that are inaccessible to the sickest patients serve only the healthiest members.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -436,6 +553,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Gamification that rewards volume over value — "Top Contributor" badge goes to member who posts 50 low-quality comments/day | Design recognition for quality: "Most Helpful Response" (voted by community), "Welcomed 50 New Members," "1-Year Support Milestone." Volume badges without quality gates incentivize spam | `grep -r 'badge\|leaderboard\|gamification\|top.contributor' --include='*.md' \| grep -v 'quality\|helpful\|voted\|peer.reviewed'` | Badge audit: flag recognition systems based solely on post count or time; require quality dimension |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -455,32 +573,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | [CO13] | Community growth tracked for demographic representativeness — growth that only reaches English-speaking, urban patients is not sustainable | `grep -r 'growth\|demographic\|representative\|diversity\|underserved' community-metrics/` | Growth audit: flag growth reports without demographic diversity breakdown |
 | [CO14] | 24/7 crisis coverage or automated escalation — no gap between community activity hours and crisis response capacity | `grep -r '24.7\|after.hours\|coverage\|weekend\|holiday' crisis-protocols/ \| grep 'escalation\|response'` | Coverage audit: test escalation paths at off-hours; alert if response SLA exceeds threshold |
 
-### Scale Depth
-
-<!-- DEEP: 10+min -->
-<!-- QUICK: 30s -- how community operations evolve with member scale -->
-
-#### Solo (0-100 members, 1 community manager)
-**Approach:** Single manager handles all moderation, programming, and member support. Manual processes. Community guidelines published but enforced ad-hoc. No formal metrics beyond member count.
-**When to graduate:** >100 members; moderation volume exceeds one person; first crisis event exposes lack of escalation protocol.
-
-#### Small Team (100-1K members, 2-5 people)
-**Approach:** Dedicated community manager + volunteer moderators. Documented moderation workflows. Basic community health metrics (engagement, retention). Monthly events. Peer mentorship program pilot.
-**When to graduate:** >1K members; need for 24/7 moderation coverage; multiple condition communities; formal crisis escalation protocol required.
-
-#### Medium Team (1K-50K members, 5-15 people)
-**Approach:** Professional moderation team with shift coverage. Automated pre-screening for crisis content. Formal community health dashboard with clinical outcome correlations. Dedicated events coordinator. Multi-condition community segmentation. Advocacy partnerships. Moderator wellness program.
-**When to graduate:** >50K members; community data used in regulatory submissions; multi-language communities; value-based care contracts tie community engagement to reimbursement.
-
-#### Enterprise (50K+ members, 15+ people)
-**Approach:** Community operations department. 24/7 global moderation with multi-language coverage. Published community health research. Community integrated into clinical workflow (provider-prescribed peer support). FDA-compliant adverse event surveillance from community data. Enterprise-grade community platform. External community advisory board.
-
-#### Transition Triggers
-- **Solo → Small Team:** >100 members; moderation bottleneck; first crisis event
-- **Small Team → Medium Team:** >1K members; 24/7 coverage needed; multi-condition programming
-- **Medium Team → Enterprise:** >50K members; regulatory-grade operations; global deployment
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -492,6 +586,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Gamification program increases post volume 300% but decreases post quality — "Top Contributor" posts 50 low-effort comments/day | Recognition system rewarded volume alone. No quality dimension. Badge was earned by posting frequency, incentivizing quantity over value | Redesign recognition for quality: "Most Helpful Response" (community-voted), "Welcomed 50 New Members," "Shared a Helpful Resource" (moderator-verified). Remove or gate volume-only badges | Recognition systems teach members what the community values. A volume-only system teaches: "Post as much as possible." A quality-weighted system teaches: "Help as meaningfully as possible." The design of the incentive IS the community culture |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -501,4 +596,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

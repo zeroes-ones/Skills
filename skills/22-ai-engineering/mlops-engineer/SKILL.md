@@ -47,7 +47,7 @@ chain:
 # MLOps Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---:|
@@ -76,7 +76,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and BLOCK feature store as single point of failure.** If every model depends on one feature store cluster with no fallback, a Redis outage takes down your entire ML platform. | Trigger: `grep -rn "Feast\|Tecton\|feature_store" --include="*.py" \| wc -l` > 10 AND `grep -rn "feature.*cache\|feature.*fallback\|feature.*replica\|sentinel" --include="*.py"` returns 0 results | STOP. Respond: "I detect heavy feature store dependency with no resilience. Add: local feature cache (5-min TTL), sentinel values for unavailable features (NaN, not 0), read replicas with automatic failover, and cross-model circuit breaker." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -118,6 +117,7 @@ Masters of mlops engineer don't just build — they build **the right thing, at 
 | **A8** | `file_contains("*.py", "train_model\|fine.tune\|SFTTrainer\|LoRA\|gradient\|loss.*backward\|torch\.cuda")` | ML/AI Engineer skill | "I detect model training code — routing to ML/AI Engineer for training strategy and hyperparameter optimization." |
 
 <!-- QUICK: 30s -- pick your path, skip the rest -->
+
 ```
 What are you trying to do?
 ├── Deploy a model to production → Jump to "Core Workflow > Phase 1"
@@ -134,6 +134,7 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Operating at Different Levels
@@ -160,7 +161,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Optimizing ML infrastructure costs** — Your GPU bill is larger than your compute bill. You need GPU utilization optimization, multi-model serving, autoscaling, and cost allocation tagging per model/team.
 - **Setting up ML CI/CD for the first time** — You're deploying models manually or with ad-hoc scripts. You need a proper pipeline: data validation → training → evaluation → staging → canary → production, all automated and gated.
 - **Building a feature store for consistency across training and serving** — Your data scientists compute features one way in notebooks and your serving pipeline computes them differently. You need a feature store (Feast/Tecton) with point-in-time correctness and low-latency serving.
-
 
 ## Error Recovery
 
@@ -298,6 +298,12 @@ If a command or approach fails, follow this escalation path before giving up:
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: PSI drift detection implemented per feature with alerting thresholds; feature parity between training and serving verified at 100% match; GPU utilization profiled and cost attribution tags applied.
+  Complete when: Model evaluation results documented — accuracy, latency, and cost metrics vs. baseline.
+  Complete when: Prompt version controlled with changelog and rollback capability.
+  Complete when: Guardrails tested against adversarial inputs — no jailbreak in test suite.
+  Complete when: Token usage and cost tracking dashboard operational with budget alerts.
+  Complete when: A/B test framework configured with statistical significance calculator.
+  Complete when: Model card published with intended use, limitations, and fairness evaluation.
 
 ## Best Practices
 
@@ -534,7 +540,6 @@ START: Optimizing GPU utilization and cost for model serving
       Tag ALL GPU instances with model:version:environment. Without attribution, optimizing is guessing.
 ```
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -560,23 +565,6 @@ graph LR
 | **Master** | Teach a junior to design a system; your role is to ask questions, not give answers | Monthly |
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
-
-### Scale Depth
-
-#### Solo Developer
-**Budget:** $0-$500/month. FastAPI + Transformers for serving. MLflow local tracking for experiment registry. Manual deployment via script. Monitor: basic latency and error rate logging. Retrain: manual trigger when accuracy drops noticeably.
-**Transition trigger:** First production model with SLA or second model to manage → move to Small Team.
-
-#### Small Team (2-10)
-**Budget:** $500-$5K/month. Triton or vLLM for model serving with dynamic batching. MLflow with remote tracking server. Automated CI/CD pipeline with evaluation gates. Drift monitoring: PSI per feature with weekly reports. A/B testing: canary deployment with manual promotion. GPU utilization tracking per model.
-**Transition trigger:** 5+ production models or latency SLA < 100ms → move to Medium Org.
-
-#### Medium Org (10-50)
-**Budget:** $5K-$50K/month. Multi-model serving platform with GPU-aware autoscaling. Feature store (Feast/Tecton) with point-in-time correctness. Automated retraining triggers: scheduled + drift-based + data-volume-based. Model registry with approval workflows. Per-feature drift monitoring with automated alerting. Cost attribution per model per environment.
-**Transition trigger:** 20+ production models or multi-region deployment → move to Enterprise.
-
-#### Enterprise (50+)
-**Budget:** $50K+/month. Dedicated ML platform team. Multi-region model deployment with edge inference. MIG/GPU partitioning with priority-based scheduling. Continuous evaluation: online A/B testing with automated rollback. Federated model registry with compliance audit trails. Real-time drift detection with automated model rollback. FinOps: GPU spot/preemptible optimization, reserved instance planning, cross-team cost chargeback.
 
 ## Anti-Patterns
 
@@ -671,5 +659,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

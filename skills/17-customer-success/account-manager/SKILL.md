@@ -56,6 +56,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Build an account plan for a specific customer → Jump to "Core Workflow > Phase 1"
@@ -73,6 +74,7 @@ What are you trying to do?
 ├── Need product roadmap for expansion → Invoke `product-manager` skill
 └── Not sure? → Start at "Ground Rules" then "When to Use"
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -92,7 +94,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **STOP and flag if asserting facts about a customer's org structure without CRM verification.** Making claims about reorgs, new hires, or budget without source data. | Trigger: Output contains "VP of\|C-suite\|new hire\|recently promoted\|budget approved" AND `grep -ic "CRM\|verified\|confirmed with\|last updated"` returns 0 | STOP. Respond: "I cannot assert this about the customer's org without verification (Rule R7). I need: the CRM record showing this information, the last contact date confirming it, or I will flag this as unverified and request validation." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -132,20 +133,6 @@ Master account managers know that operational excellence is invisible when it wo
 **Usage:** Invoke this skill with your target level, e.g., "as an L3 account manager, manage..."
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
-
-### Scale Depth
-
-#### Solo
-- Manage 5-15 accounts personally. Run all renewals, build account plans from scratch, handle every negotiation yourself. No delegation — you are the entire account management function. Focus on mastering the renewal cadence and learning to spot expansion signals.
-
-#### Small Team
-- Oversee a team of 2-5 AMs managing 20-50 accounts collectively. Standardize account planning templates, define renewal playbooks, and build a forecasting cadence. Your leverage shifts from doing the work to enabling the team with process and coaching.
-
-#### Medium Organization
-- Lead a department of 10-30 AMs across segments (Enterprise, Mid-Market, SMB). Design tiered account coverage models, implement CRM-driven forecasting with commit/upside/pipeline categories, and own NRR as a company-level metric. Executive sponsor program becomes a formal function.
-
-#### Enterprise
-- Run a global AM organization with 50+ people across multiple regions and product lines. Account management is a revenue center with dedicated renewal specialists, expansion reps, and executive sponsor coordinators. You design compensation plans, territory models, and the technology stack. The chief customer officer role sits at the executive table with quota for GRR and NRR.
 
 ## When to Use
 
@@ -285,9 +272,14 @@ Build a comprehensive account plan for each strategic account. **Account Plan St
 - **Day 90-60:** Value delivery review with customer. Present ROI analysis to champion. Socialize value delivered. Identify gaps. Align on next year's objectives.
 
   Complete when: 120-day renewal timeline with milestone gates is established; value delivery review template with ROI analysis is created; renewal forecast with at-risk account flags is operational; pricing strategy per account segment with expansion targets is documented.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
-
 
 ## Error Recovery
 **(STANDARD)**
@@ -349,11 +341,9 @@ Common chains:
 - **Renewal defense**: account-manager → product-manager → legal-advisor — Competitive threat detected → feature gap commitment → contract terms review
 - **Strategic negotiation**: account-manager → legal-advisor → ceo-strategist — Non-standard terms requested → risk assessment → executive approval
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product roadmap, feature status, known issues | Before engaging customers about product capabilities |
-
 
 ## Proactive Triggers
 
@@ -369,7 +359,6 @@ Common chains:
 | Account health score drops >20 points within 30 days | Customer Success Manager, CEO Strategist (if >$100K ACV) | Rapid health deterioration signals an acute issue — product failure, support crisis, or internal customer decision to evaluate alternatives. Intervention required within 48 hours. |
 | Customer contact goes silent for 45+ days (no email response, missed meetings, no support activity) | Customer Success Manager | Disengagement is a leading churn indicator. The customer has likely deprioritized your product or is evaluating alternatives. Re-engagement before the relationship fully atrophies. |
 | Expansion closed >$100K ACV | Customer Success Manager, Sales Engineer | Onboarding trigger for expanded deployment. Success plan update. Health score recalibrated. The larger deployment requires coordinated handoff to ensure value is delivered against the expanded scope. |
-
 
 ## State Log
 
@@ -398,7 +387,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -516,4 +505,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

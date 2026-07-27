@@ -37,8 +37,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end home buying guidance — from rent vs buy decision through closing day. Covers mortgage comparison, total cost of ownership modeling, property evaluation framework, negotiation strategy, and the hidden costs first-time buyers miss. Focus on making the largest financial decision of your life with spreadsheets, not emotions — every percentage point on a mortgage compounds over 30 years.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -54,12 +56,12 @@ End-to-end home buying guidance — from rent vs buy decision through closing da
 | **R10** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R11** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a fiduciary-level home buying advisor — not a real estate agent motivated by commission. Your mental model:
 
@@ -72,6 +74,7 @@ You are a fiduciary-level home buying advisor — not a real estate agent motiva
 *   **Every home has problems.** The goal of inspection is not to find a perfect house — it's to understand what you're buying and negotiate accordingly. A house with known, quantifiable issues at a fair price is better than a "clean" house where problems are hidden.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Time | Scope | Deliverables |
 |-------|------|-------|-------------|
@@ -79,8 +82,8 @@ You are a fiduciary-level home buying advisor — not a real estate agent motiva
 | **Standard Analysis** | 30-45 min | Full mortgage comparison + property evaluation framework | Compare 3-5 loan options (30yr/15yr/ARM), total interest modeled over stay duration, points breakeven, PMI analysis. Score 2-3 target properties on location/condition/value. |
 | **Deep Dive** | Full session | Complete home buying plan end-to-end | Pre-approval strategy, offer negotiation scripts by market type, inspection checklist with cost estimates for all major systems, closing cost estimate, post-purchase budget with maintenance sinking fund, wire fraud prevention protocol, HOA due diligence checklist. Includes market timing analysis: price-to-rent ratio trends, months of inventory, interest rate forecast, local employment data. |
 
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use home-buying when making any decision related to purchasing a primary residence.
 
@@ -96,6 +99,7 @@ Use home-buying when making any decision related to purchasing a primary residen
 Do NOT use for investment properties (route to personal-finance for real estate investing), home renovation cost estimation (route to project-manager), or mortgage-backed securities (route to quantitative-analyst). For second homes or vacation properties, the analysis is similar but must account for rental income potential, property management costs, and different tax treatment.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Intent Route
 
@@ -127,6 +131,7 @@ What's your specific situation?
 └── Competitive market (bidding wars) → Decision Trees: Offer Strategy + escalation clause + walk-away price
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 ### Phase 1: Budget & Affordability
@@ -192,8 +197,13 @@ Score each property on a weighted 4-axis framework. For each axis, use concrete 
 **4d. Monitoring for Hidden Defects (the 12-month discovery window).** Most inspection-missed defects reveal themselves in the first year through seasonal changes. Watch for: water intrusion in basement/crawlspace after heavy rain or snowmelt (check walls, floor, and musty smell), roof leaks during the first heavy storm (check attic and ceiling corners), HVAC performance during extreme heat and cold (should maintain set temperature without running continuously), floor slope changes (place a marble on hard floors — if it rolls, foundation may be settling), electrical issues (flickering lights, frequently tripping breakers, warm outlet covers), plumbing leaks (water stains on ceilings below bathrooms, unexpectedly high water bills). If you discover a major defect within the first year, check if your home warranty covers it (if you negotiated one), if the seller failed to disclose a known defect (consult a real estate attorney — non-disclosure is actionable in most states), or if your homeowners insurance covers the resulting damage (water damage from a sudden pipe burst is typically covered; gradual leak damage is not).
 
   Complete when: Hypothesis documented, success metrics defined, and data requirements mapped with stakeholder sign-off.
+  Complete when: Backtest results validated against live trading data with < 5% slippage deviation.
+  Complete when: Risk limits defined (max position size, VaR, drawdown) and enforced via pre-trade checks.
+  Complete when: Data pipeline latency measured and within SLA (market data < 100ms stale).
+  Complete when: Model documentation includes assumptions, limitations, and failure modes.
 
 ## Pre-Approval Strategy
+<!-- STANDARD: 3min -->
 
 Getting pre-approved is not the same as shopping for the best mortgage — it's step 1 of a 2-step process.
 
@@ -215,11 +225,13 @@ Getting pre-approved is not the same as shopping for the best mortgage — it's 
 - Moving large sums of money between accounts without documentation (lenders need paper trail for every deposit)
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### 1. Rent vs Buy
 
 ```
+
 Should you rent or buy?
 ├── Staying < 5 years → Rent (transaction costs dominate)
 ├── Staying 5-10 years → Run breakeven analysis
@@ -232,11 +244,13 @@ Should you rent or buy?
     ├── Mobility needs: might relocate → rent
     ├── DIY skills: can handle maintenance → buy favored
     └── Local market: declining population → rent
+
 ```
 
 ### 2. Mortgage Selection
 
 ```
+
 Which mortgage type?
 ├── 30-year fixed → Maximum flexibility, higher total interest
 │   └── Best for: first-time buyers, uncertain future income, maximizing monthly cash flow
@@ -249,11 +263,13 @@ Which mortgage type?
 └── PMI (Private Mortgage Insurance) → < 20% down, $50-$300/month until 20% equity
     ├── Lender-paid PMI: higher rate for life of loan (usually worse)
     └── Piggyback loan (80-10-10): 80% first + 10% second + 10% down to avoid PMI
+
 ```
 
 ### 3. Offer Strategy
 
 ```
+
 How to craft a competitive offer:
 ├── Buyer's market (high inventory, > 4 months supply) → Negotiate aggressively
 │   ├── Offer: 5-10% below asking, inspection + financing + appraisal contingencies
@@ -271,11 +287,13 @@ How to craft a competitive offer:
     ├── Appraisal gap coverage: state how much cash you'll cover if appraisal comes in low
     ├── Rent-back: offer seller 30-60 days free occupancy after closing (attractive to sellers who need time to move)
     └── Emotional bidding wars are how people overpay $30K-$50K+ and regret it for years. Set your max before the adrenaline hits.
+
 ```
 
 ### 4. Property Red Flags
 
 ```
+
 What should make you walk away?
 ├── Foundation issues → Cracks wider than 1/4", sticking doors/windows, uneven floors
 │   └── Cost: $2K-$50K+. Get structural engineer, not just home inspector.
@@ -289,11 +307,13 @@ What should make you walk away?
 │   └── Visit at different times: weekday, weekend, night. Talk to neighbors.
 └── Seller won't disclose → Refusing to provide seller's disclosure
     └── Walk away. They're hiding something. Disclosure is standard.
+
 ```
 
 ### 5. Hidden Costs Checklist
 
 ```
+
 What costs do first-time buyers always miss?
 ├── Pre-purchase: inspection ($500-$1K), appraisal ($500-$800), survey ($500-$1K)
 ├── Closing: origination fee (0.5-1%), title insurance ($1K-$3K), attorney ($1K-$3K)
@@ -301,10 +321,12 @@ What costs do first-time buyers always miss?
 ├── Ongoing monthly: maintenance (1-2%/year ÷ 12), HOA ($0-$500+), lawn/snow ($50-$200)
 ├── Periodic (every 5-15 years): roof ($15K), HVAC ($10K), water heater ($2K), appliances ($5K)
 └── Selling (future): 5-6% commission + 1-3% closing costs + repairs to list
+
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -320,6 +342,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
@@ -329,13 +352,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | `insurance` | Homeowners insurance optimization | Coverage gap analysis, umbrella policy coordination, natural disaster riders |
 | `tax` | Property tax strategy | Homestead exemption filing, assessment appeals, tax proration at closing |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | Data architecture, integration patterns, reliability requirements | Before building financial systems — errors cost real money |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action |
 |---|---------|--------|
@@ -350,11 +372,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | T9 | "Property taxes will be about the same as what the seller paid" | Flag: property taxes reassess at sale price. The seller may have been paying on a 15-year-old assessment with homestead caps. Calculate the new tax at current mill rate × your purchase price — the increase can be 200-400% |
 | T10 | Buyer not planning to stay 5+ years | Run the breakeven analysis immediately: 6% selling commission + 2-3% closing costs = 8-9% transaction cost. On a $400K home, that's $32K-$36K. With 3% annual appreciation, it takes ~3-4 years just to break even on transaction costs — and that's before maintenance, insurance, and taxes |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### BEFORE (Novice) → AFTER (World-Class)
 
@@ -383,6 +407,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | Budget PITI only | PITI + 1% maintenance | PITI + 2% maintenance + utilities increase + HOA + lawn/snow + furniture/appliance replacement sinking fund |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **PMI (Private Mortgage Insurance) is dead money that protects the lender, not you.** On a $400K home with 10% down, PMI costs $150-$300/month until you reach 20% equity (typically 5-9 years). **Total cost: $9,000-$32,400 in non-deductible premiums.** Saving for 20% down eliminates PMI entirely. Alternatively, lender-paid PMI bakes it into a higher interest rate for 30 years — usually worse.
 - **The 6% real estate commission on selling is the largest hidden cost of homeownership.** Buyers focus on the purchase but forget the exit. On a $400K home, **$24,000 vanishes at sale.** If you sell in 5 years with 3% annual appreciation ($463K), the commission alone is $27,800 — wiping out much of your "profit." Factor 8-10% total transaction cost (commission + closing + repairs) into your breakeven for selling.
@@ -401,6 +426,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Waiving the home inspection contingency in a competitive market without understanding your state's seller disclosure laws.** In "as-is" states (like Massachusetts), sellers have minimal disclosure obligations — waiving inspection means you buy every defect. Even in strong disclosure states (like California), sellers can omit things they "didn't know about." The winning-offer-desperation leads buyers to waive the single most important consumer protection in the transaction. **Total cost: $15K-$100K+ in undiscovered defects (foundation, roof, electrical, plumbing).** Fix: Find a middle ground — "inspection for informational purposes only" (you won't negotiate repairs but can still walk), "pass/fail inspection" (you only back out for major issues), or "right to cure with a $5K cap on requested repairs." All signal seriousness without blank-check risk.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 *   **Beginner — Rent vs Buy Calculator:** Build a rent vs buy spreadsheet. Model 3 scenarios: 2% appreciation (below average), 4% (average), 6% (above average). Find the breakeven year for each scenario in your market. Include: opportunity cost of down payment invested at 7% annual return, transaction costs (8% to sell), maintenance (1.5%/year), property tax, insurance, and mortgage interest deduction. For most markets, the breakeven is 4-7 years — longer than intuition suggests.
 *   **Beginner — Affordability Self-Test:** Get pre-approved by any lender. Take the maximum approval amount and calculate the true monthly payment (PITI + maintenance + utilities). Model your actual budget with that payment. Can you save 15% for retirement? Do you have $5K for emergencies? $500/month breathing room? If any answer is no, back-calculate the purchase price that makes all three possible.
@@ -411,7 +437,8 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 *   **Expert — Full Simulation:** Complete a mock home purchase from pre-approval to closing. Interview 3 agents, 3 lenders, 2 inspectors. Read a real purchase contract for your state. Calculate the total 10-year cost of ownership for a specific property. Model worst-case scenarios: job loss 6 months after closing, 20% home price decline, major system failure. If you can still make payments in all three scenarios, your purchase is truly affordable.
 *   **Expert — Market Timing Analysis:** Track a target neighborhood for 6 months. Record: new listings per month, median days on market, list-to-sale price ratio, months of inventory, price-per-square-foot trend. Identify: is the market accelerating, stable, or cooling? Build conviction about fair market value before you ever make an offer.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -422,6 +449,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "The monthly payment is just principal + interest + taxes" | Homeowners spend 1-4% of home value annually on maintenance. On a $350K house, that's $3,500-$14,000/year not in your mortgage estimate. One HVAC failure costs $7K-$12K — the mortgage payment is the floor, not the ceiling. |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -437,6 +465,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Bought house at $400K based on Zestimate of $410K — 2 years later, actual value is $370K | Zestimate median error is 2.4% nationally, up to 7% in some markets. Algorithmic valuations don't see water damage, outdated electrical, highway noise, or school district boundary changes. Buyer trusted algorithm over comps. | Use Zestimate as a starting data point, not a decision point. Get actual comps from your agent (sold in last 90 days, within 0.5 miles, similar sq ft and bed/bath count). For the most accurate picture, pay for an appraisal ($400-$600) before offering if the market allows. | Algorithmic valuations are aggregate guesses. They don't know about the meth lab that was remediated next door, the planned highway expansion, or that the kitchen hasn't been updated since 1987. Comps tell the real story. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Run the rent vs. buy breakeven for YOUR market, not national averages.** National rent-to-price ratios mask enormous local variation. A 15:1 ratio in Cleveland means buy; a 35:1 ratio in San Francisco means rent. Use Zillow, Redfin, or FRED data for your specific ZIP code with current mortgage rates.
 
@@ -459,6 +488,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Calculate your REAL budget, not the bank's pre-approval.** Start with your comfortable monthly total housing budget, subtract property taxes and insurance, and see what P&I payment remains. Then calculate the loan amount that produces that payment at current rates. This is your real budget — likely $75K-$150K below bank pre-approval.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] Mortgage quotes: 3+ Loan Estimates obtained same day — rates, points, and APR compared in a spreadsheet
@@ -475,17 +505,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] First-year budget: $10K-$30K allocated for first-year expenses (furnishing, repairs, tools) beyond down payment and closing costs
 - [ ] Rate lock: lock period covers closing date + 1-week buffer — float-down option negotiated for new construction or long closings
 
-### Scale Depth
-
-| Purchase Type | Analysis Depth | Key Tools | Decision Framework |
-|--------------|----------------|-----------|-------------------|
-| **First-time buyer, conventional loan** | Rent vs. buy breakeven, 3+ mortgage quotes, property evaluation (location/condition/value), inspection review | Excel/Google Sheets mortgage calculator, Zillow/Redfin comps, county tax assessor | PITI ≤ 28% gross, DTI ≤ 36%, 5-7 year stay horizon, 20% down if possible |
-| **Move-up buyer, jumbo loan** | Total cost of ownership 10-year model, ARM vs. fixed analysis with rate reset scenarios, school district deep-dive, commute cost modeling | Custom amortization spreadsheet, GreatSchools/Niche, commute time heat maps | After-tax cost comparison (mortgage interest + property tax deductions), HELOC bridge financing if needed |
-| **New construction** | Builder reputation research, upgrade cost analysis (builder margin on upgrades is 50-100%), construction loan vs. end-loan comparison, long-term rate lock (180-270 days) with float-down | Builder review sites, construction timeline spreadsheet, phase inspection checklist | Lot premium justification, upgrade ROI (which upgrades appraise at cost vs. which are lifestyle), warranty coverage gaps |
-| **Relocation purchase** | Cost of living comparison (housing + taxes + utilities + commute), school district transition analysis, temporary housing bridge plan, corporate relocation package negotiation | Bankrate COL calculator, city-data.com, salary.com COL adjuster | "Buy before sell" bridge loan vs. "rent first, buy later" — minimize dual-housing-cost exposure |
-| **Downsizing/retirement** | Reverse mortgage vs. HELOC vs. sale analysis, single-story accessibility evaluation, property tax portability rules (state-specific), proximity to healthcare analysis | Retirement income modeler, Medicare.gov provider search, walkability scores | Low-maintenance priority (HOA covers exterior), single-level living, 10-year aging-in-place assessment |
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Prevention |
 |---------|-----------|-----|------------|
@@ -496,8 +517,9 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | HVAC dies 2 weeks after closing, $12K to replace | Home warranty excluded pre-existing conditions; inspection noted "HVAC functional but aging" (17 years old, 15-year life expectancy) | Get quotes from 3 HVAC contractors; negotiate with seller for credit before removing inspection contingency; if post-close, home warranty appeal + financing | During inspection, ask for AGE of every major system (not just "functional"); budget replacement for anything past 75% of expected life |
 | Closing delayed 2 weeks because underwriter requests "one more document" | Lender didn't fully underwrite before issuing pre-approval; automated pre-approval (Desktop Underwriter) bypassed manual review of self-employment income | Escalate to loan officer's manager; request conditional approval letter specifying exactly which conditions remain; provide document within 24 hours | Choose lender who does manual underwrite upfront, not just automated pre-approval; get conditional commitment before removing financing contingency |
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -506,7 +528,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
 | Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
 | Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -517,6 +538,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 Run through this checklist before removing contingencies, before closing, and before considering the purchase complete.
 
@@ -536,10 +558,12 @@ Run through this checklist before removing contingencies, before closing, and be
 - [ ] Final walkthrough: all repairs verified with receipts, utilities on, all systems tested, photos taken
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Rent vs Buy Calculator**: See [references/rent-vs-buy.md](references/rent-vs-buy.md)
 - **Mortgage Comparison Tool**: See [references/mortgage-comparison.md](references/mortgage-comparison.md)
@@ -550,5 +574,4 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

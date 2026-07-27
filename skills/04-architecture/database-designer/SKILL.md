@@ -41,7 +41,8 @@ chain:
 # Database Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -54,6 +55,7 @@ chain:
 Design efficient, scalable, and maintainable database schemas across relational and NoSQL paradigms. This skill covers logical and physical data modeling, normalization levels, indexing strategies, migration management, query performance optimization, and database technology selection based on access patterns and consistency requirements.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -97,6 +99,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -113,12 +116,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **NEVER guess database version capabilities — anchor to the runtime.** PostgreSQL 14 vs 16 have different SQL features (MERGE, SQL/JSON, window function improvements). MySQL 5.7 vs 8.0 vs 8.4 have different default collations, authentication, and SQL modes. Prisma 4 vs 5 have different migration engines and relation syntax. Generating DDL against the wrong version produces syntax errors or silently wrong behavior. | Trigger: writing SQL DDL, Prisma schema, Alembic migration, or query without first running `scripts/runtime-version-detect.sh` on the target project | STOP. Run: `scripts/runtime-version-detect.sh`. Then VERIFY: PostgreSQL (`psql -c "SELECT version();"`), MySQL (`mysql -e "SELECT VERSION();"`), Prisma (`npx prisma --version`), Alembic (`alembic --version`). Prepend to output: "## 🔗 Anchored Versions (source: runtime-version-detect.sh)\n- Database: PostgreSQL X.Y (feature baseline: [list key features available at this version])\n- ORM: Prisma X.Y.Z (migration engine: [type])\n- Migration tool: Alembic X.Y.Z" |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -142,6 +145,7 @@ Competent database designers model the data. Masters model **how the data will b
 - **Skip foreign keys in a high-write append-only table.** Foreign keys validate on every INSERT. For an event log or audit table receiving 10K writes/sec, FK validation becomes the bottleneck. Enforce referential integrity at the application layer for these extreme cases — document the tradeoff explicitly.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Database design skill scales from single-table decisions to org-wide data strategy. The cost of a wrong decision scales with the data volume.
 
@@ -156,6 +160,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 **Usage**: Say "as an L3 database designer, design the schema for..." Default: **L2** (service-level schema design, independent execution).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new database schema for a greenfield application
@@ -168,6 +173,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 - Designing sharding, partitioning, or replication topologies
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -196,6 +202,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                                       │         │ │ DynamoDB)  │
                                       └─────────┘ └────────────┘
 ```
+
 **When to choose PostgreSQL:** Structured data, complex JOINs/aggregations, >90% of use cases — start here unless a specific NoSQL advantage is clear. **When to choose MongoDB:** Rapidly evolving schema, deeply nested JSON documents, no cross-document JOINs needed. **When to choose Key-Value:** Simple GET/SET access patterns, p99 latency <5ms required, caching/session store.
 
 ### When to Add an Index
@@ -224,6 +231,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                     │  Index Scan) │
                     └──────────────┘
 ```
+
 **When to add index:** Seq Scan on >10K rows, query runs >100× per minute, filtered column cardinality >100 distinct values. **When NOT to add index:** Table <1K rows, write-heavy table (>100 writes/sec) where read:write ratio <10:1, column with <10 distinct values.
 
 ### Normalize to 3NF vs Denormalize
@@ -245,6 +253,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                     │ column(s)   │   │ integrity first │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to denormalize:** Read:write >100:1, read p95 >20ms, denormalized column is small (<100 bytes), <1% of writes trigger the denormalized update. **When to keep 3NF:** Read:write <10:1, write correctness critical (financial data), data changes must propagate instantly.
 
 ### Online vs Maintenance-Window Migration
@@ -272,6 +281,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                                        │ step)    │ └────────────┘
                                        └──────────┘
 ```
+
 **When to use Expand-Contract:** NOT NULL + DEFAULT on >1M rows, column rename/drop, type change. Steps: add nullable → backfill → set NOT NULL → add DEFAULT → drop old. **When maintenance window is acceptable:** Off-peak traffic <10% of peak, RTO <1hr acceptable, table <1M rows.
 
 ### Sharding Decision
@@ -300,9 +310,11 @@ Database design skill scales from single-table decisions to org-wide data strate
                     │ DBREs        │
                     └──────────────┘
 ```
+
 **When to shard:** Data >10TB, writes >10K/sec sustained, read replicas maxed out (5+), vertical scaling ceiling hit (r6i.8xlarge). **When NOT to shard:** <1TB data, <5K writes/sec, can add read replicas, team <5 engineers — sharding costs $500K+/year.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -377,6 +389,9 @@ Complete when:
 5. **Read replicas**: Route read queries to replicas; accept replication lag for non-critical reads.
 
 Complete when:
+  Complete when: Architecture decision record (ADR) created with context, options, and rationale.
+  Complete when: Non-functional requirements documented — performance, security, scalability targets.
+  Complete when: Dependency graph reviewed — no circular dependencies between bounded contexts.
 - EXPLAIN ANALYZE run on all slow queries with execution plans documented
 - Query rewrites applied: correlated subqueries → JOINs, SELECT * eliminated, LIMIT added where appropriate
 - Connection pooling configured and read replica routing strategy documented
@@ -393,8 +408,8 @@ Common chains:
 - **Greenfield data model**: system-architect → database-designer → backend-developer — Architecture defines data boundaries, DB design creates the schema, backend codes the access layer
 - **API-driven schema**: api-designer → database-designer → database-reliability-engineer — API resources define data shape, DB designs for those access patterns, DBRE ensures reliability at scale
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Default to PostgreSQL unless a specific NoSQL advantage is clear.** PostgreSQL handles 90% of use cases: ACID transactions, complex JOINs, JSONB for semi-structured data, full-text search with GIN indexes, and PostGIS for geospatial.
 
@@ -416,8 +431,8 @@ Common chains:
 
 10. **Backup and practice restore quarterly.** A backup you haven't restored is not a backup — it's a wish. RPO and RTO are measured from restore drills, not from backup configuration. Automate restore testing in a sandbox environment.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -434,6 +449,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -464,6 +480,7 @@ Routine schema change (new column, index addition, non-breaking type change)
 **What good looks like:** ERD covers all entities with named relationships and cardinalities. The 10 most expensive query patterns each have an EXPLAIN plan showing sequential scans eliminated by the chosen index strategy. Migration scripts have both up and down paths tested in CI. The schema survives a production load test at 2x peak QPS without connection pool exhaustion or lock contention.
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -475,11 +492,12 @@ Routine schema change (new column, index addition, non-breaking type change)
 | Using Redis/Memcached as a cache layer in front of the database | Before adding cache, propose a read-through or write-through pattern with TTL based on data freshness requirements. Discuss cache invalidation strategy: TTL-based (simple), event-driven (accurate but complex), or write-through (consistent but higher write latency). Propose cache-hit-rate monitoring with stale-data alerts | A cache without an invalidation strategy serves stale data silently. `SETEX user:123 3600 {...}` works until a profile update happens and users see old names for an hour. Write-through ensures consistency; TTL-only accepts staleness — pick deliberately, not by accident |
 | Designing a multi-tenant database schema | Before choosing shared-table vs schema-per-tenant vs database-per-tenant, propose evaluating: (a) tenant count (10 vs 10K), (b) isolation requirements (GDPR/HIPAA), (c) noisy-neighbor risk. Discuss connection pool routing — if database-per-tenant, how does the app route to the right pool? Discuss tenant-level backup/restore expectations | Row-level tenancy (`tenant_id` column + RLS) is simple but one tenant's heavy queries degrade all others. Database-per-tenant isolates perfectly but explodes connection counts (200 tenants × 10 connections = 2000 connections). The choice between "simple and shared" vs "isolated and complex" is a business decision masked as a technical one |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -498,12 +516,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[DB13]** Multi-tenant isolation strategy documented: database-per-tenant, schema-per-tenant, or RLS with `tenant_id`
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every query in the application is backed by an index that makes it run in single-digit milliseconds, and `EXPLAIN ANALYZE` output confirms index-only scans on every critical path — no sequential scans
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
@@ -524,6 +544,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 **Restore last night's production backup to a staging server and run your application against it.** Not a synthetic dataset. Not a truncated copy. The real data, real volume, real distribution. Your queries that ran in 2ms on dev will show their true colors on 500GB of production data.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Missing indexes on production queries.** A query that should return in 2ms with an index instead performs a full table scan on a 50M-row table, consuming 100-500x more I/O and CPU. On cloud databases (RDS, Cloud SQL, Azure DB) where you pay for IOPS and compute, one missing index on a frequently-called endpoint can inflate your monthly bill by $1K-$50K. **Total cost: $1K-$50K/month in excess cloud database spend from sequential scans that indexes would eliminate.** Fix: run `EXPLAIN ANALYZE` on every query in production traffic (via pg_stat_statements or slow query log). Create indexes on every column used in `WHERE`, `JOIN`, and `ORDER BY` clauses of queries appearing more than 100x/day.
 - **ORM without query review.** ORMs like Hibernate, SQLAlchemy, and ActiveRecord mask the generated SQL — developers call `user.posts` in a loop and don't see the N+1 queries exploding behind the scenes. A single page load that should be 3 queries becomes 3,003 queries (1 parent + 1,000 children × 3 associations). **Total cost: $5K-$50K in inflated database tier costs, degraded user experience, and engineering time debugging "why is this page slow" — often 1,000x excess queries vs. a hand-written JOIN.** Fix: enable ORM query logging in development. Use `assert(num_queries < N)` in tests. Review every PR for N+1 patterns. Use `select_related`/`prefetch_related`/`eager_load` for associations.
@@ -541,6 +562,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Migration that renames a column** deployed after the app code update: the old code references the old column name on the new schema, producing `column does not exist` errors during the deploy window. Always deploy schema changes first, then code.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -550,6 +572,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | NULL handling surprises in unique constraints causing duplicate rows | $30K-$100K in data corruption from unexpected duplicate rows | Document NULL behavior per constraint. Use partial unique indexes for soft-delete patterns |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run migration forward: `npm run migrate up` — all tables created without errors
 - [ ] Run migration rollback: `npm run migrate down` — all tables dropped cleanly (or rollback to previous state)
@@ -559,6 +582,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Load test with expected production volume — p99 query time within SLO
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -576,6 +600,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Connection pool exhausted — `FATAL: too many connections` — app servers crash-loop under load spike | Default `max_connections = 100`, each app server opens 20 connections, 10 app servers = 200 connections attempted. No connection pooling middleware | Add PgBouncer in transaction mode between app and database. Set pool size to `(max_connections * 0.8) / app_server_count`. App connects to PgBouncer with 5-10 connections each | Every database can handle exactly `max_connections` concurrent sessions. Exceed it and everyone is rejected. Connection pooling is not optional in production — it's infrastructure, not a nice-to-have. |
 
 ## References
+<!-- STANDARD: 3min -->
 - **Denormalization ROI Calculator**: See [denormalization-roi-calculator.md](references/denormalization-roi-calculator.md)
 - **Sharding Cost Analysis**: See [sharding-cost-analysis.md](references/sharding-cost-analysis.md)
 - **When Postgres is All You Need**: See [when-postgres-is-all-you-need.md](references/when-postgres-is-all-you-need.md)

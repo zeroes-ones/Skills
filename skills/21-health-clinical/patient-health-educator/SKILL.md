@@ -47,6 +47,7 @@ chain:
 Design health education content that patients can understand, act on, and retain. This skill covers instructional design for health literacy, treatment adherence programming, disease-specific education (hemophilia, rare diseases), behavior change frameworks, and outcome measurement for patient community apps.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -65,6 +66,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A8 | `file_contains("*", "peer.story")` OR `file_contains("*", "patient.story")` OR `file_contains("*", "testimonial")` OR `file_contains("*", "peer.educator")` | Peer education / patient stories task. Jump to **Best Practices > Peer Education**. |
 
 ### Intent Route (Fallback — When No Auto-Route Matched)
+
 ```
 What are you trying to do?
 ├── DESIGN a patient education module (e.g., "Understanding Hemophilia") → Jump to "Core Workflow" — Phase 1
@@ -82,9 +84,11 @@ What are you trying to do?
 ├── Need education outcomes analytics? → Invoke `data-scientist` for behavior change measurement and content effectiveness modeling
 └── Not sure where to start? → Start at "Ground Rules" then "When to Use"
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -->
 These rules apply to *every* response this skill produces. Patient education is clinical intervention — bad education causes harm, not confusion.
@@ -100,12 +104,12 @@ These rules apply to *every* response this skill produces. Patient education is 
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master patient health educators carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -126,6 +130,7 @@ Master patient health educators carry a dual responsibility: technical excellenc
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -141,6 +146,7 @@ Master patient health educators carry a dual responsibility: technical excellenc
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -154,8 +160,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Writing content for parents/caregivers of children with bleeding disorders
 - Creating culturally competent health education for diverse patient populations
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -171,6 +177,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — table of who to talk to when -->
 Patient health education bridges clinical content, instructional design, and patient experience. Every piece of educational content must be clinically accurate, health-literate, and behaviorally effective. Coordination ensures content is medically sound, readable, and drives real behavior change.
@@ -213,13 +220,12 @@ Regulatory concern about education content? → compliance-officer + legal-advis
 - **"When to call your doctor" gate:** Every education module must include specific warning signs and emergency contact information relevant to the topic. Missing this section blocks publication.
 - **Behavior change validation gate:** Education programs must demonstrate measurable behavior change (adherence improvement, knowledge gain, skill acquisition) within 90 days. Programs not meeting targets trigger redesign.
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `clinical-informatics-specialist` | Clinical workflows, terminology standards, regulatory context | Before designing healthcare solutions or patient-facing content |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -233,9 +239,75 @@ Regulatory concern about education content? → compliance-officer + legal-advis
 | Peer educator reports uncertainty about how to answer a clinical question from a patient | Provide immediate clinical backup: connect peer educator with medical content reviewer; document the question and response for future training | Peer educators are not clinicians — they need rapid access to clinical support to avoid giving incorrect medical advice |
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Educational Format Selection
+
+        ┌── INPUT: What type of content
+        │   is being taught?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Procedural skill        Conceptual knowledge
+(e.g., injection,       (e.g., disease mechanism,
+wound care)?            why treatment matters)?
+   │                         │
+   ▼                         ▼
+Video demonstration      ┌────┴────────────┐
++ step-by-step           │                 │
+printable guide          ▼                 ▼
+                    Newly diagnosed?   Experienced patient?
+                         │                 │
+                         ▼                 ▼
+                    Animated explainer  Infographic or
+                    (3 min max) +       interactive module
+                    glossary of terms   + peer testimonial
+
+### Decision Tree 2: Behavior Change Framework Selection
+
+        ┌── INPUT: What behavior change
+        │   is the education targeting?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Starting a new           Maintaining an
+treatment routine?       existing habit?
+   │                         │
+   ▼                         ▼
+COM-B model:             Health Belief Model:
+Capability → teach       Perceived severity +
+skill; Opportunity →     benefits → reinforce
+reduce barriers;         why adherence matters;
+Motivation → connect     Cues to action →
+to personal values       habit stacking
+
+### Decision Tree 3: Education Outcome Measurement
+
+        ┌── INPUT: What defines success
+        │   for this education piece?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Knowledge transfer?      Behavior change?
+   │                         │
+   ▼                         ▼
+Pre/post quiz            ┌────┴────────────┐
+or teach-back            │                 │
+demonstration            ▼                 ▼
+                    Short-term          Long-term
+                    (30-day refill,     (A1c, bleed rate,
+                    app engagement)     prophylaxis
+                        │              adherence at 6mo)
+                        ▼                 │
+                    Track via            ▼
+                    app analytics    EHR/lab integration
+                    or self-report   or clinician report
 
 ### Adherence Intervention Selection
 
@@ -306,6 +378,7 @@ Content is for which audience?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -320,7 +393,6 @@ Complete when:
 - Patient comprehension validated: 3/3 correct on teach-back assessment questions
 - Clinician reviewer confirmed no clinical inaccuracies and safety boundaries included
 
-
 ### Phase 2 (~20 min): Adherence Program Design
 **Steps:** 1) Diagnose the adherence barrier using the decision tree above — use a short patient questionnaire (3-5 questions about their specific barriers) 2) Select intervention type: reminders (forgetfulness), skills training (anxiety), financial navigation (cost), peer support (isolation/denial), or behavioral activation (depression/lack of motivation) 3) Design the behavior change loop: cue → routine → reward (habit loop from Duhigg's framework). The cue is the notification; the routine is the injection; the reward must feel real (a streak, a badge, a message from a peer who also just dosed) 4) Build feedback loops: "You've taken your factor every day for 7 days. Your joint pain scores have decreased 30% compared to last month. Keep going!" — patients need to see their own data 5) Set up failing gracefully: if a patient misses 3 doses, trigger a different intervention (nudge from a peer, call from a nurse, simplified plan — not just another notification)
 
@@ -330,7 +402,6 @@ Complete when:
 - Adherence barrier diagnosed via patient questionnaire with documented root cause
 - Behavior change framework selected (habit loop, motivational interviewing, or peer support) with feedback loop designed
 - Graceful degradation path defined for non-responders: 3 missed doses → alternative intervention trigger
-
 
 ### Phase 3 (~20 min): Skills Training Content (Injection, Self-Care)
 **Steps:** 1) Deconstruct the skill into teachable steps using task analysis: reconstitute factor → draw up → choose site → clean → inject → dispose → document 2) Create step-by-step content for each subtask with: video demonstration (gold standard), photo series with callouts (acceptable), text-only (last resort) 3) Include troubleshooting: "What if it burns during injection? What if blood appears in the syringe? What if I miss the vein?" 4) Add a practice/assessment mode: patient ticks off each completed step, app logs which steps they found difficult 5) Include safety boundaries: "Never inject into an area where you have a bleed. Never use a needle that's already been used. Dispose of all sharps in a puncture-proof container."
@@ -342,19 +413,22 @@ Complete when:
 - Video demonstration or photo series guide created for each skill step
 - Troubleshooting FAQ written covering top 5 common issues with actionable guidance
 
-
 ### Phase 4 (~15 min): Outcome Measurement
 **Steps:** 1) Measure health literacy: use Brief Health Literacy Screening Tool (BRIEF) or Single Item Literacy Screener (SILS) at onboarding and at 3 months — track improvement 2) Measure adherence: patient-reported doses vs prescribed doses (app tracking), pharmacy refill data (if available), factor VIII trough levels (if EHR-integrated) 3) Measure knowledge retention: quiz patients at 1 day, 1 week, 1 month after education module — identify which concepts degrade fastest 4) Measure behavior change: have they adopted the target behavior? How consistently? 5) Report: patient education outcomes to clinical team, pharma partners (aggregate, de-identified), and IRB if part of a research study
 
 **What good looks like:** Outcome dashboard showing: health literacy score improvement (pre/post), adherence rate by patient, knowledge retention curve, and behavior adoption rate. Data used to iterate on education content — modules with poor retention get redesigned.
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 - Health literacy measurement instrument selected (BRIEF or SILS) with pre/post administration plan
 - Outcome dashboard design: adherence rate, knowledge retention curve, behavior adoption rate
 - Reporting plan: patient education outcomes to clinical team, aggregate de-identified data to pharma partners
 
-
 ## Cross-Skill Integration
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -367,11 +441,12 @@ Complete when:
 | **After** | `ux-writer` | Patient-facing copy in app (notifications, tooltips, consent language) that matches tone with education content |
 | **After** | `data-scientist` | Education outcome data (adherence, knowledge retention, behavior change) → program effectiveness analysis |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 - **A newly diagnosed patient completes the onboarding module** and can correctly explain what hemophilia is, what a bleed feels like, and when to call their doctor. They're connected to a peer mentor within the app.
 - **Adherence improves from 45% to 78% over 12 weeks** after the right barrier is diagnosed and the right intervention deployed. Patients report feeling "more in control" of their condition.
@@ -379,6 +454,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **The education team iterates based on outcome data** — modules with low knowledge retention are redesigned every quarter. The adherence program is tested against a control group. Patient outcomes improve measurably over time.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -395,7 +471,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -406,6 +483,7 @@ graph LR
 | "We're too small to be targeted — attackers go after hospitals, not us" | 60% of healthcare data breaches target small and mid-sized organizations. They have fewer security resources, weaker detection, and are often the entry point to larger partners' networks (supply chain attacks). Small clinic breaches average 3.5 months to detection vs 15 days at large hospitals. Attackers automate scanning — your size doesn't make you invisible, it makes you an easy target. **Total cost: $500K-$3M per breach for small healthcare orgs — 60% of breached small healthcare orgs close within 6 months.** |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -416,6 +494,7 @@ graph LR
 | Low health literacy screening omission — same education delivered to all patients regardless of literacy level. Low-literacy patient receives complex medication schedule they can't follow. | $100K-$300K per year in adverse drug events — low health literacy patients have 50% higher rates of preventable ADEs at $3K-$10K per event | Screen all patients for health literacy using validated tools (BRIEF, SILS, or PAM); segment education by activation level; Level 1 patients receive single daily action; Level 4 get comprehensive tools |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Readability: all patient materials at ≤ 6th grade reading level (SMOG or Flesch-Kincaid verified)
 - [ ] Teach-back: education protocol includes teach-back step — patient explains care plan in own words
@@ -424,6 +503,7 @@ graph LR
 - [ ] Outcomes: education effectiveness measured — readmission rate, medication adherence, and self-management confidence
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
@@ -439,6 +519,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 10. **Measure education outcomes, not just content delivery.** Track: health literacy improvement (pre/post BRIEF or SILS), knowledge retention at 1 day, 1 week, and 1 month post-module (identify which concepts degrade fastest), behavior adoption rate (are patients actually doing the target behavior?), and clinical outcomes (adherence rate, readmission rate, self-management confidence). Modules with poor retention get redesigned — the data tells you what needs fixing.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -451,6 +532,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Same education delivered to all patients regardless of health literacy level — low-literacy patients receive complex medication schedules they cannot follow | Segment by literacy level at onboarding. Tier content: Level 1 gets single daily action; Level 4 gets comprehensive tools. Adapt as literacy changes | `grep -r 'one.size.fits.all\|universal\|every.patient' --include='*.md'` in education design docs | Design review gate: block education programs without literacy-tiered content strategy |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -470,32 +552,8 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | [PE13] | Medication instructions include religious and cultural accommodation guidance (e.g., Ramadan fasting adjustments, dietary restrictions) | `grep -r 'medication\|dosing\|schedule' --include='*.md' \| grep -v 'Ramadan\|fasting\|religious\|cultural\|dietary'` | Content gate: flag medication instructions without cultural accommodation section |
 | [PE14] | Education modules tested with 3-5 patients from target population before full deployment; comprehension verified | `grep -r 'pilot.test\|patient.test\|usability.test' education-modules/` | Pre-deployment gate: block untested modules |
 
-### Scale Depth
-
-<!-- DEEP: 10+min -->
-<!-- QUICK: 30s -- how patient education evolves with organizational scale -->
-
-#### Solo (1 educator, single condition focus)
-**Approach:** Single educator designs all content for one condition. Manual readability checks. Basic outcome tracking (completion rates). No formal behavior change framework — intuition-driven design.
-**When to graduate:** Content volume exceeds one person's capacity; need for multiple conditions or languages; first adverse event traced to education gap.
-
-#### Small Team (2-5 educators, 2-5 conditions)
-**Approach:** Team with condition-specific expertise. Documented style guide and plain language standards. Automated readability checking. Basic learning management system (LMS) for content delivery. Formal behavior change framework selection.
-**When to graduate:** Need for multimedia (video, animation) production; outcome measurement becomes formal requirement; multiple language/cultural adaptations needed.
-
-#### Medium Team (5-15 educators, 5-20 conditions)
-**Approach:** Specialized by therapeutic area and content type (written, video, interactive). Dedicated health literacy and cultural adaptation specialists. Integrated outcome measurement with clinical data. A/B testing of education interventions. Patient advisory board reviews content.
-**When to graduate:** Education content is regulated (FDA-reviewed patient labeling); need for formal instructional design methodology; education outcomes tied to value-based care contracts.
-
-#### Enterprise (15+ educators, 20+ conditions)
-**Approach:** Education institute with instructional design, multimedia production, health literacy, cultural adaptation, and outcomes research functions. FDA-compliant content development process. Published education research. Education integrated into clinical workflow (prescribed by providers). Global content with local cultural adaptation.
-
-#### Transition Triggers
-- **Solo → Small Team:** >1 condition; content volume bottleneck; first education-gap adverse event
-- **Small Team → Medium Team:** Multimedia production needed; formal outcome measurement required; multi-language demand
-- **Medium Team → Enterprise:** FDA-reviewed content; value-based care contracts tie reimbursement to education outcomes; global deployment
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -507,6 +565,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Injection training module used by patient leads to infection at injection site | Text-only instructions did not adequately convey sterile technique. Patient missed a critical step that video demonstration would have made visually obvious | Convert all skills training to video-first format. Text-only is last resort. Include troubleshooting: "What if it burns? What if blood appears? What if the site becomes red/swollen?" Add practice mode where patient demonstrates steps | Skills training without demonstration is malpractice. A patient who learns injection technique from text alone is being set up for failure. Video is not a nice-to-have — it is the minimum viable format for procedural education |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -516,4 +575,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)

@@ -73,6 +73,7 @@ What are you trying to do?
 └── Not sure? → Describe your market data problem and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -92,7 +93,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and WARN about Parquet partitions keyed by `ticker/year/month/day`.** Query engines prune left-to-right. With ticker first, querying "AAPL on 2024-06-14" still scans every month under AAPL. Date-first partitioning eliminates 99.7% of data in a single pass. | Trigger: generated code or config contains `partition_by=['ticker', 'year'` or `PARTITIONED BY (ticker, year` — ticker before date in partition order | WARN: Replace with `partition_by=['year', 'month', 'day', 'ticker']`. Add comment: `# Date-first partitioning: a single-day single-ticker query hits exactly one partition. Always put highest-cardinality filter last.` |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -174,6 +174,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     +---------+            |$29-199/m   |       +--------------+
                            +------------+
 ```
+
 **When to choose Unusual Whales:** Real-time flow detection, dark pool prints, sweep detection, unusual-activity alerts. Free tier: 250 requests/month. Pro: $99/mo for REST + WebSocket premium flow. Enterprise: custom pricing for raw firehose.
 **When to choose Polygon.io:** Historical options chains for backtesting, Greeks data, snapshots. Free tier: 5 req/min, 15-min delayed. Paid tiers from $29/mo (Stocks Starter) to $199/mo (Stocks Advanced with full options chain + Greeks).
 **When to choose CBOE LiveVol/Bloomberg:** Market-making models, HFT signal generation, full OPRA depth-of-book. CBOE LiveVol ~$500/mo for professional. Bloomberg Terminal ~$2,000/mo with blpapi access.
@@ -204,6 +205,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     |aggregates |          |views        |       |format        |
     +-----------+          +-------------+       +--------------+
 ```
+
 **When to choose TimescaleDB:** Hot storage (0-30 days). Chunk interval = 1 day per ticker. Continuous aggregates precompute 1-min, 5-min, 1-hour OHLCV. Automatic compression after 7 days (90%+ space savings). Use `time_bucket()` for aggregations. Max recommended hypertable size: 10 TB per node.
 **When to choose ClickHouse:** Analytics layer. Store 30-365 days of tick data. `MergeTree` engine with `ORDER BY (ticker, timestamp)`. Materialized views for pre-aggregated options analytics (Greeks distributions, IV surfaces, volume profiles). Query 1B rows in < 1 second with vectorized execution.
 **When to choose Parquet/S3:** Cold archive (30 days to 7 years). Partition: `s3://market-data/options/year=YYYY/month=MM/day=DD/ticker=SYM/`. ZSTD compression level 9 (30-40% smaller than Snappy). Queryable via AWS Athena, DuckDB, or Spark without deserializing entire dataset. S3 Intelligent-Tiering for automatic cost optimization.
@@ -225,6 +227,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                    | manual review    |     | IV surfaces       |
                                                    +------------------+     +------------------+
 ```
+
 **Pipeline topology decisions:**
 - Partitions = number of tickers × 2 for consumer parallelism. For 500 actively traded tickers, use 10 partitions (not 1000 — partition overhead dominates).
 - Retention: 7 days on raw topic (debug window), 90 days on enriched topic (backfill window). Compacted topic for corporate actions (retain latest per ticker).
@@ -272,6 +275,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    - **Bloomberg Terminal**: `BDH()` / `BDP()` functions via blpapi Python library — real-time + historical with field codes (e.g., `OPT_CHAIN`, `OPT_GREEKS`).
 
 2. **Core Schema — Options Flow Table (TimescaleDB hypertable)**:
+
 ```sql
 CREATE TABLE options_flow (
     flow_id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -313,9 +317,11 @@ SELECT create_hypertable('options_flow', 'trade_timestamp',
 CREATE INDEX idx_flow_ticker_ts ON options_flow (ticker, trade_timestamp DESC);
 CREATE INDEX idx_flow_underlying_expiry ON options_flow (underlying, expiry);
 CREATE INDEX idx_flow_source ON options_flow (source, trade_timestamp DESC);
+
 ```
 
 3. **Corporate Actions Schema**:
+
 ```sql
 CREATE TABLE corporate_actions (
     action_id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -327,6 +333,13 @@ CREATE TABLE corporate_actions (
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
+  Complete when: Backtest results validated against live trading data with < 5% slippage deviation.
+  Complete when: Risk limits defined (max position size, VaR, drawdown) and enforced via pre-trade checks.
+  Complete when: Data pipeline latency measured and within SLA (market data < 100ms stale).
+  Complete when: Model documentation includes assumptions, limitations, and failure modes.
+  Complete when: Compliance review completed — strategy does not violate market manipulation rules.
+  Complete when: Performance attribution report identifies alpha sources (factor, sector, timing).
+  Complete when: Disaster recovery plan tested — can fail over to backup data source within RTO.
 
 ## Cross-skills Integration
 
@@ -337,6 +350,7 @@ Market data engineering feeds every quantitative and analytical downstream syste
 ### Predecessor → This Skill → Successor
 
 ```
+
 data-engineer                  market-data-engineer            quantitative-analyst
 (general ETL patterns)  ──►  (options flow, tick storage,  ──► (Greeks analysis,
                               corporate actions, Parquet        IV surface modeling,
@@ -351,12 +365,14 @@ operations, backup)                                              strategy backte
                               (Parquet/S3 data lake,         (REST API serving
                               Athena-queryable archives) ──►  options data to
                                                               trading dashboard)
+
 ```
 
 ### Concrete Integration Commands
 
 **Chain 1: Flow Ingestion → Adjustment → Quant Analysis**
 ```bash
+
 # Phase 1: Market data engineer ingests and normalizes
 python ingest_flow.py --date 2024-06-14 --tickers AAPL,SPY,TSLA
 python apply_corporate_actions.py --as-of 2024-06-14
@@ -369,7 +385,9 @@ python build_iv_surface.py --date 2024-06-14 --output signals/iv_skew.csv
 ```
 
 **Chain 2: Streaming → TimescaleDB → UOA Detection**
+
 ```bash
+
 # Market data engineer sets up streaming
 docker compose up -d kafka timescaledb
 python stream_processor.py --topics options.flow.raw,options.flow.enriched
@@ -381,7 +399,9 @@ python uoa_detector.py --lookback 24h --threshold 3.0 --output alerts/uoa_signal
 ```
 
 **Chain 3: Corporate Actions → Database Reliability → Backtesting**
+
 ```bash
+
 # Market data engineer processes corporate action
 python process_daily_corporate_actions.py --as-of 2024-06-10
 
@@ -391,6 +411,7 @@ python verify_compression.py --table options_flow --older-than 7d
 
 # Quantitative analyst runs backtest on adjusted data
 python run_backtest.py --strategy covered_call --start 2020-01-01 --end 2024-06-01
+
 ```
 
 ### Coordination Table
@@ -407,7 +428,6 @@ python run_backtest.py --strategy covered_call --start 2020-01-01 --end 2024-06-
 | **finops-engineer** | API cost monitoring, S3 storage cost optimization, Kafka cluster cost allocation | Per-vendor daily spend, S3 storage by tier (hot/warm/cold), data transfer costs, cost per query metrics |
 | **algorithmic-trader** | Live trading execution, order management, broker connectivity | Data freshness for trade signals — stale data means bad entries. **Decision gate:** Is pipeline latency < 500ms? → live trading OK. **Artifact:** data freshness SLA report per venue. |
 | **backend-developer** | API gateway, query service, caching layer for data access | API design for data consumption patterns. **Decision gate:** Can query serve 100 concurrent requests at < 3s p99? → API is production-ready. **Artifact:** load test report + API schema docs. |
-
 
 ## Error Recovery
 **(STANDARD)**
@@ -446,6 +466,7 @@ Market data engineers sit at the intersection of infrastructure, quantitative re
 ### Escalation Path
 
 ```
+
 Market data pipeline down (production)? → devops-engineer → site-reliability-engineer (if SEV2+)
 Options data quality breach (widespread stale/corrupt data)? → quantitative-analyst → data-scientist
 API cost overrun > 200% daily budget? → finops-engineer → cto-advisor
@@ -454,11 +475,9 @@ PII discovered in raw market data feed? → security-engineer → compliance-off
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | Data architecture, integration patterns, reliability requirements | Before building financial systems — errors cost real money |
-
 
 ## Proactive Triggers
 
@@ -474,7 +493,6 @@ PII discovered in raw market data feed? → security-engineer → compliance-off
 | Cross-source reconciliation shows >15% volume discrepancy between vendors | quantitative-analyst + data-scientist | One data source is reporting incorrect volume; backtests and signals consuming the bad source are invalid; identify source of truth and quarantine the bad feed |
 | Parquet export integrity check fails (row count mismatch or nulls in required columns) | quantitative-analyst + data-scientist | Historical archive has gaps; affected date range must be excluded from backtesting until re-export completes and passes integrity check |
 | Primary vendor API returns 503 for 3+ consecutive requests | devops-engineer + quantitative-analyst | Vendor outage confirmed; initiate failover to backup data source; estimate data gap duration and notify all downstream consumers of recovery ETA |
-
 
 ## State Log
 
@@ -496,7 +514,9 @@ A production-quality market data pipeline that passes all 25 production checklis
 **Consumability:** Parquet archives queryable in < 3 seconds via Athena for any single-ticker single-day query. ClickHouse materialized views refresh within 5 minutes. Data dictionary documents every column with business meaning, type, and source. Downstream skills (quantitative-analyst, data-scientist) can consume data without market-data-domain expertise.
 
 **What you should see when it works:**
+
 ```bash
+
 # Verify pipeline health
 $ curl <https://monitoring.internal/api/v1/pipeline-health>
 {"status":"healthy","lag_ms":120,"rows_ingested_24h":43200000,"dlq_size":47,"cost_today":78.50}
@@ -507,11 +527,13 @@ $ psql -c "SELECT COUNT(*), SUM(premium) FROM options_flow
  count  |   sum
 --------+----------
  184723 | 4521000.50
+
 ```
 
 ## Deliberate Practice
 
 ```mermaid
+
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
 
@@ -536,7 +558,7 @@ graph LR
 - **Dividend adjustment sign errors in total return calculations** — your data pipeline subtracts dividends from prices instead of adding them back when computing total return. Over a 10-year backtest of a dividend-heavy strategy (REITs yielding 4%), this produces a 40% cumulative understatement of returns. A quantitative fund allocates $100M based on the flawed data, and the strategy underperforms its benchmark by 350bps annually. The error is discovered during an investor due diligence review, causing a $50M redemption. **Total cost: $5M-$50M in misallocated capital and reputational damage from dividend adjustment errors.** Fix: Implement automated reconciliation — compare your computed total return index against a trusted source (e.g., CRSP total return series) monthly; any divergence > 0.05% triggers an alert and pipeline halt.
 - **Corporate action data arriving days after the effective date** — a stock executes a 3:2 stock split on Monday. Your data vendor delivers the split factor on Thursday. For three days, your risk system computes position sizes, P&L, and margin requirements using pre-split prices against post-split positions — overstating exposure by 50% and triggering erroneous margin calls. On a $200M portfolio, a single erroneous margin call costs $15K in unnecessary liquidation and re-establishment. **Total cost: $20K-$150K per missed/delayed corporate action from erroneous margin calls, mispriced fills, and compliance reporting failures.** Fix: Subscribe to multiple corporate action feeds with different delivery schedules; implement a reconciliation process that flags any security where your position × price ≠ total value as expected; maintain a manual override for known corporate actions that haven't yet arrived via automated feeds.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -600,15 +622,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Multi-feed redundancy: at least 2 independent data feeds for critical symbols — failover tested quarterly
 - [ ] Backup: daily snapshots to S3/Parquet — point-in-time recovery tested within RPO of 24 hours
 
-### Scale Depth
-
-| Scale | Data Volume | Architecture | Storage |
-|-------|------------|-------------|---------|
-| **< 100 symbols, EOD** | < 10MB/day | Single Python script, CSV/Parquet output, cron scheduling | Local Parquet files, duckdb/Polars for queries |
-| **100-1K symbols, 1-min bars** | 100MB-1GB/day | Docker Compose (ingest + store + API), PostgreSQL/TimescaleDB, REST API ingestion | TimescaleDB (hot, 30 days), S3/Parquet (cold, partitioned year/month/day) |
-| **1K-10K symbols, tick-level** | 10-100GB/day | Kafka/Redpanda streaming, Avro schemas, Schema Registry, stream processing (Kafka Streams/Flink) | ClickHouse (analytics), TimescaleDB (operational), S3/Parquet (data lake), Iceberg/Delta Lake catalog |
-| **10K+ symbols, tick + options chains** | 100GB-1TB/day | Kubernetes, multi-DC Kafka clusters, FIX engine ingestion, real-time feature computation, market-hours-aware scheduling | ClickHouse cluster (hot, 7 days), S3/Iceberg (warm, 90 days), Glacier (cold archive), multi-region replication |
-
 ## Error Decoder
 
 | Symptom | Root Cause | Fix | Prevention |
@@ -620,7 +633,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | "Adjusted close" prices don't match between data sources | Yahoo adjusts for splits + dividends, Google for splits only, Bloomberg for everything; models trained on one, tested on another | Document adjustment methodology per source; reconcile total return calculations monthly against CRSP | Store raw prices and adjustments separately; compute total returns from raw data, not vendor adjusted close |
 | Ingestion pipeline misses 17% of data during pre-market window | Hardcoded `time.sleep(60)` in API polling loop; 30-minute window → 30 API calls, but 500 symbols require 150 calls | Replace with token-bucket: `rate=5/sec, burst=10` with deadline `if remaining_time < (remaining_symbols / rate): alert()` | Load-test ingestion with historical market data replay including highest-volume days; validate 100% symbol coverage |
 
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -630,7 +642,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Position sizing error due to unhandled edge case (corporate action, split, dividend) | $5K-$100K in unintended exposure | Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily |
 | Personal finance plan excludes emergency fund leading to forced asset liquidation | $5K-$50K in opportunity cost and tax penalties | Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan |
 | Home purchase decision based on pre-approval max without accounting for hidden costs | $20K-$100K in financial strain over first year | Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -663,4 +674,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)

@@ -1,5 +1,5 @@
 ---
-name: data-security-engineer
+name: data-security
 description: >
   Use when designing data classification schemas, implementing DLP, configuring encryption at
   rest/transit/use, building data masking and tokenization pipelines, securing databases and data
@@ -77,7 +77,7 @@ Design, implement, and validate data protection controls across structured and u
 This skill covers data classification, DLP architecture, encryption strategy, data masking and tokenization,
 database hardening, cross-border data transfer compliance, and sensitive data discovery.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -203,102 +203,109 @@ Execute these phases in order. Each phase gates the next.
 
 ## Decision Trees
 
-<!-- QUICK: 30s -->
+### Decision Tree 1: Data Classification
 
-#
+        ┌── INPUT: What type of data is this?
+        │
+   ┌────┴────────────┬────────────────┐
+   │                 │                │
+   ▼                 ▼                ▼
+Public data      Internal data    Restricted data
+(no controls)    (access logged)  (encrypt + audit)
+   │                 │                │
+   ├─ blog posts     ├─ employee info ├─ PII (SSN, DOB, passport)
+   ├─ marketing      ├─ source code   ├─ PHI (medical records)
+   ├─ press releases ├─ Jira tickets  ├─ PCI (card numbers, CVV)
+   └─ public docs    └─ Slack/Teams   └─ credentials, API keys
 
-## Decision Trees — Quick Index
-<!-- 199 lines extracted to references/decision-trees.md -->
+                    │
+                    ▼
+            ┌── Classification done?
+            │
+       ┌────┴────┐
+       │         │
+       ▼         ▼
+      YES       NO →
+   Apply        ┌─ Run discovery scan
+  controls      ├─ Tag all columns/tables/files
+                └─ Reclassify quarterly
 
-| Decision Tree | Key Question |
-|---------------|-------------|
-| Data Classification | Public → Internal → Confidential → Restricted? |
-| Encryption Strategy | At-rest + in-transit + in-use? |
-| DLP Architecture | Network-based vs endpoint vs cloud-native? |
-| Data Masking | Static vs dynamic vs on-the-fly? |
-| Cross-Border Transfer | Adequacy decision, SCCs, BCRs? |
-| Retention & Disposal | Legal hold, expiration, secure deletion? |
+### Decision Tree 2: Data Retention & Disposal
 
-> 📎 **Full decision trees (199 lines):** [references/decision-trees.md](references/decision-trees.md)
+        ┌── INPUT: Should this data be retained or deleted?
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+Retain (legal req.)           Delete (no requirement)
+   │                             │
+   ├─ Financial: 7 years         ├─ Is there a litigation hold?
+   ├─ Healthcare: 6+ years       │  ├─ YES → FREEZE, flag legal_hold=true
+   ├─ Employment: 3-7 years      │  └─ NO → Continue
+   ├─ Tax records: 7 years       │
+   └─ Telecom: 1-2 years         ├─ Is this a DSAR deletion request?
+                                 │  ├─ YES → Cascade: DB→Replicas→Backups→Logs→CDN→Analytics
+                                 │  │         SLA: GDPR 30d, CCPA 45d, LGPD 15d
+                                 │  └─ NO → Apply standard TTL
+                                 │
+                                 ▼
+                          Disposal method:
+                          ├─ Cloud: crypto-shredding (delete DEK)
+                          ├─ DB: DELETE with verified vacuum/reclaim
+                          ├─ Backups: expire naturally from retention policy
+                          └─ Physical: NIST 800-88 Clear/Purge/Destroy
 
-```
-Data retention decision
-│
-├─ Is this data subject to a legal/regulatory retention requirement?
-│  ├─ YES → Define minimum retention
-│  │        ├─ Financial records: 7 years (SEC 17a-4, IRS, SOX)
-│  │        ├─ Healthcare: varies by state (HIPAA: 6 years from creation or last effective date)
-│  │        ├─ Employment records: 3-7 years (by jurisdiction)
-│  │        ├─ Tax records: 7 years (IRS)
-│  │        └─ Telecom metadata: 1-2 years (by jurisdiction, e.g., EU Data Retention Directive)
-│  └─ NO → Apply data minimization → retain only as long as needed for business purpose
-│
-├─ Is this data subject to a litigation hold?
-│  ├─ YES → FREEZE DELETION
-│  │        ├─ Flag in database: `legal_hold = true`
-│  │        ├─ TTL deletion job MUST check this flag BEFORE every delete
-│  │        ├─ Automate: if legal_hold column changes, notify legal team
-│  │        └─ Quarterly reconciliation: compare legal hold spreadsheet to database flags
-│  └─ NO → Continue to disposal
-│
-├─ Is this a DSAR deletion request?
-│  ├─ YES → Apply cascade deletion
-│  │        ├─ Primary database → Replicas → Backups → Logs → CDN caches → Analytics
-│  │        ├─ Verify: query every system that ingested this user's data
-│  │        └─ SLA: GDPR 30 days, CCPA 45 days, LGPD 15 days
-│  └─ NO → Apply standard retention TTL
-│
-└─ Disposal method selection
-   ├─ Cloud: crypto-shredding (delete DEK → data irrecoverable) preferred over physical destruction
-   ├─ Database: DELETE with verified vacuum/reclaim
-   ├─ Backups: expire from retention policy naturally (do NOT manually delete from backup chain)
-   └─ Physical media: NIST 800-88 Clear (logical overwrite), Purge (degauss/block erase), Destroy (shred)
-```
+### Decision Tree 3: Database Hardening
 
-#
+        ┌── INPUT: Database security assessment needed?
+        │
+   ┌────┴─────────────────────────────┐
+   │                                  │
+   ▼                                  ▼
+Authentication & AuthZ              Network Security
+   │                                  │
+   ├─ Disable default accounts        ├─ Bind localhost/private subnet only
+   ├─ Enforce 12+ char passwords      ├─ Enforce TLS 1.2+ for all connections
+   ├─ RBAC: no direct user grants     ├─ Firewall: app server IPs only
+   └─ Service accounts: min perms     └─ Disable unused protocols (NetBIOS)
+   │                                  │
+   ▼                                  ▼
+Encryption                          Auditing & Logging
+   │                                  │
+   ├─ TDE for data at rest            ├─ Audit DDL + privileged ops
+   ├─ Column-level for PII/PHI/PCI   ├─ Forward logs to SIEM (1-min)
+   ├─ Encrypt all backups             ├─ Immutable audit log storage
+   └─ Rotate keys annually min        └─ Alert: >5 failed logins/min
+                                     │
+                                     ▼
+                              Dangerous Features:
+                              ├─ Disable COPY TO, LOAD DATA INFILE, xp_cmdshell
+                              ├─ Remove default stored procs, test DBs
+                              └─ Sandbox PL/SQL execution
 
-## Database Hardening Checklist
+### Decision Tree 4: Encryption Strategy
 
-```
-Database hardening per CIS Benchmarks
-│
-├─ Authentication & Authorization
-│  ├─ Disable default accounts (postgres, sa, root, sys, system)
-│  ├─ Enforce strong password policy (12+ chars, complexity, rotation)
-│  ├─ Implement role-based access control (RBAC) — no direct user-table grants
-│  └─ Application service accounts: minimum required permissions, no DDL rights
-│
-├─ Network Security
-│  ├─ Bind to localhost or private subnet only — no public database endpoints
-│  ├─ Enforce TLS 1.2+ for all client connections
-│  ├─ Firewall: restrict to application servers' IP ranges only
-│  └─ Disable unused network protocols (IPv6 if not needed, NetBIOS, named pipes)
-│
-├─ Encryption
-│  ├─ Enable Transparent Data Encryption (TDE) for data at rest
-│  ├─ Configure column-level encryption for PII/PHI/PCI fields
-│  ├─ Encrypt backups — backup without encryption violates PCI DSS 4.0 Req 3
-│  └─ Rotate database encryption keys annually minimum
-│
-├─ Auditing & Logging
-│  ├─ Enable audit logging for all DDL, privileged operations, and sensitive data access
-│  ├─ Forward logs to SIEM with 1-minute granularity
-│  ├─ Protect audit logs from tampering (immutable storage, append-only)
-│  └─ Alert on: failed logins > 5/min, privilege escalation, mass data exports
-│
-├─ Dangerous Feature Hardening
-│  ├─ Disable: `COPY TO` (PostgreSQL), `LOAD DATA INFILE` (MySQL), `xp_cmdshell` (SQL Server)
-│  ├─ Restrict: dynamic SQL execution, file system access, network access from database
-│  ├─ Remove: default stored procedures, sample schemas, test databases
-│  └─ Sandbox: PL/SQL execution to prevent OS command injection
-│
-└─ Backup & Recovery
-   ├─ Encrypt all backups: AES-256-GCM with KMS-managed keys
-   ├─ Test restoration quarterly — untested backups are theoretical
-   └─ Offsite backup with geo-redundancy: minimum 2 regions
-```
+        ┌── INPUT: What encryption layer is needed?
+        │
+   ┌────┴────────────┬─────────────────┐
+   │                 │                 │
+   ▼                 ▼                 ▼
+Data at rest      Data in transit   Data in use
+   │                 │                 │
+   ├─ TDE            ├─ TLS 1.3        ├─ Confidential computing
+   ├─ Column-level   ├─ mTLS (svc-svc) ├─ TEE / enclave
+   ├─ File-level     ├─ VPN/WireGuard  ├─ Memory encryption
+   └─ Backup enc.    └─ SSH tunneling   └─ Homomorphic (limited)
+   │                 │                 │
+   ▼                 ▼                 ▼
+Key management:    Cert management:   Attestation:
+├─ KMS central     ├─ Auto-renew      ├─ Verify TEE quote
+├─ HSM for root    ├─ Short-lived     └─ Remote attestation
+├─ Rotation: 90d   └─ Revocation list
+└─ Separation of duties
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 <!-- STANDARD: 3min -->
 
@@ -350,6 +357,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | **P10** | Audit log gap detected (no logging on sensitive table for > 24h) | Auto-enable audit logging; alert security team; flag as compliance incident | Audit gap means any data exfiltration during the gap is undetectable and uncontainable | Undetected data breach during gap; cannot determine scope of exposure; regulatory finding of inadequate monitoring |
 
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
@@ -360,6 +368,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -371,7 +380,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
@@ -491,8 +502,8 @@ Before beginning a new phase, verify:
 
 **Dynamic data masking can be bypassed by privileged users.** Most database-native dynamic masking solutions (SQL Server DDM, PostgreSQL RLS) can be bypassed by users with elevated privileges (db_owner, superuser). The application layer may show masked data, but a DBA connecting directly with full privileges sees plaintext. **Total cost: $200K–$1M in insider threat data exposure when a DBA with plaintext access exfiltrates data thought to be universally masked.** Fix: Defense-in-depth — apply masking at multiple layers (database + application + API gateway). Use column-level encryption with application-layer decryption so even DBAs cannot access plaintext.
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -501,7 +512,6 @@ Before beginning a new phase, verify:
 | Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
 | Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
 | Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -513,20 +523,20 @@ Before beginning a new phase, verify:
 
 ## Verification
 
-| # | Verification Step | Expected Result |
-|---|-------------------|-----------------|
-| 1 | Run data discovery scan across all data stores | All sensitive data fields identified and classified |
-| 2 | Verify encryption at rest on all database connections | TLS 1.3 active on all database connections |
-| 3 | Check column-level encryption on PII columns | Encryption key ID returned for all PII columns |
-| 4 | Test DLP blocking rule with sample credit card number | Request blocked with DLP violation (HTTP 403), alert generated |
-| 5 | Verify key rotation status for data encryption keys | Key rotation enabled, last rotation within 90 days |
-| 6 | Check audit logging for PII table accesses | All PII table accesses logged with user identity and timestamp |
-| 7 | Validate non-prod data masking on staging database | All sensitive values match mask pattern, no real data found |
-| 8 | Test database hardening on public role | PUBLIC role has no access to dangerous functions |
-| 9 | Verify retention policy enforcement on deleted records | Zero records beyond retention period remain in database |
-| 10 | Check cross-border transfer documentation | SCC executed for each cross-border transfer, TIA signed within 12 months |
-| 11 | Test backup encryption by restoring without KMS key | Restoration fails, backup requires KMS key |
-| 12 | Verify access control for read-only users | Read-only role has no access to PII-containing tables |
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Data discovery scan across all data stores complete | All sensitive data fields identified and classified; run automated scan, verify classification coverage |
+| ☐ | Complete when Encryption at rest active on all database connections | TLS 1.3 active on all database connections; verify with `openssl s_client -tls1_3` |
+| ☐ | Complete when Column-level encryption on all PII columns | Encryption key ID returned for all PII columns; query column metadata for encryption status |
+| ☐ | Complete when DLP blocking rule blocks sensitive data exfiltration attempts | Submit sample credit card number → HTTP 403 with DLP violation; alert generated in SIEM |
+| ☐ | Complete when Key rotation status verified for data encryption keys | Key rotation enabled, last rotation within 90 days; check KMS rotation policy |
+| ☐ | Complete when Audit logging enabled for all PII table accesses | All PII table accesses logged with user identity and timestamp; verify in audit log stream |
+| ☐ | Complete when Non-prod data masking verified on staging database | All sensitive values match mask pattern; no real data found via sampling query |
+| ☐ | Complete when Database hardening: PUBLIC role has no dangerous function access | Test PUBLIC role → cannot execute dangerous functions; verify CIS benchmark compliance |
+| ☐ | Complete when Retention policy enforced: zero records beyond retention period | Query for records with timestamps beyond retention → zero results; TTL deletion job confirmed |
+| ☐ | Complete when Cross-border transfer documentation complete for all jurisdictions | SCC executed for each transfer; TIA signed within 12 months; DPA in place |
+| ☐ | Complete when Backup encryption verified: restoration without KMS key fails | Attempt restore without KMS key → fails; restore with key → succeeds |
+| ☐ | Complete when Access control for read-only users: no PII table access | Login as read-only role → PII tables return permission denied; verify no accidental grants |
 
 ## References
 
@@ -559,30 +569,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | 13 | Backup restoration tested — encryption verified, KMS key required, deletion registry checked | HIGH | Attempt backup restore without KMS key; verify failure. Restore with key; verify deletion registry excludes deleted user data |
 | 14 | Database hardening applied — PUBLIC role has no access to dangerous functions, default accounts removed | HIGH | Query database roles/permissions; verify PUBLIC role grants are minimal |
 | 15 | No hardcoded encryption keys, passwords, or secrets in source code, config files, or environment variables | CRITICAL | Run secret scanner (trufflehog, git-secrets) on entire repo; verify zero findings |
-
-## Scale Depth
-
-<!-- STANDARD: 2min -->
-
-#### Solo Developer
-- **Minimum:** Classify data manually with a spreadsheet. Enable provider-managed encryption at rest. Use TLS for all connections. Implement basic audit logging to a structured store.
-- **Cost:** ~$0-50/month (cloud provider defaults + basic logging).
-- **Risk:** No automated classification, no CMK, no DLP, no cross-border transfer documentation.
-
-#### Small Team (2-10 engineers)
-- **Add:** Automated sensitive data discovery (Macie/Purview). CMK with 90-day rotation. Static data masking for non-prod. Basic DLP in monitor-only mode. Cross-border SCCs documented.
-- **Cost:** ~$500-3000/month (KMS API costs + DLP licensing + classification tooling).
-- **Coverage:** PCI DSS/HIPAA baseline compliance, GDPR Article 32 security requirements met.
-
-#### Medium Org (10-50 engineers)
-- **Add:** Full DLP with blocking for external transfers. Column-level encryption for all PII/PHI. Database activity monitoring (Guardium/Imperva). Automated retention enforcement. Formal TIA process. SOC 2 Type II coverage for data protection controls.
-- **Cost:** ~$5000-20000/month (enterprise DLP + DAM + KMS at scale + compliance overhead).
-- **Coverage:** Multi-framework compliance (PCI DSS, HIPAA, GDPR, SOC 2), automated enforcement, audit-ready.
-
-#### Enterprise (50+ engineers)
-- **Add:** Multi-cloud KMS with HSM backing. Real-time data access anomaly detection. Cryptographic shredding for lifecycle management. Privacy-preserving analytics (differential privacy on query interface). Global data residency automation. AI-driven classification with continuous learning. Dedicated data security engineering team.
-- **Cost:** ~$50000-200000+/month (global KMS infrastructure + ML classification + dedicated team).
-- **Coverage:** Zero-trust data protection, regulatory compliance automation across 50+ jurisdictions, real-time breach prevention.
 
 ## Error Decoder
 

@@ -40,6 +40,7 @@ chain:
 Design and execute developer relations programs that turn developers into champions, products into platforms, and documentation into onboarding. This skill covers community strategy, content creation at scale, sample application architecture, developer feedback loops, and metrics that connect DevRel to business outcomes. Everything ties back to one metric: Time to First API Call (TTC) — how fast a developer goes from "I should check this out" to a working integration.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately to the indicated section.
@@ -82,6 +83,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -97,12 +99,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R7** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master devrel advocates understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -123,6 +125,7 @@ Master devrel advocates understand that strategy is not about predicting the fut
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -138,6 +141,7 @@ Master devrel advocates understand that strategy is not about predicting the fut
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Your company is launching a developer-facing API or SDK and you need to build an onboarding funnel
 - You need to decide whether (and when) to hire a DevRel team based on your developer ecosystem size
@@ -149,9 +153,67 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You need to build a developer champion or MVP program that rewards and amplifies your most active community members
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Developer Onboarding Funnel Optimization
+
+        ┌── INPUT: What's your Time to First API Call (TTC)?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[<5min] [5-30min]          [>30min]
+   │    │                    │
+   ▼    ▼                    ▼
+Great!   Optimize:           Redesign quickstart:
+Focus on 1. Add copy-paste   1. Interactive sandbox
+deepening snippets               (CodeSandbox/Replit)
+→ advanced 2. Reduce signup  2. Pre-filled API keys
+tutorials    friction        3. SDK wrappers for
+→ use cases 3. Auto-detect   top 3 languages
+             user's stack    → target: < 5 min
+
+### Decision Tree 2: Hackathon Design & Execution
+
+        ┌── INPUT: What's the primary goal of this hackathon?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[Acquire  [Deepen usage:   [Hire developers]
+new devs]  existing users]
+   │    │                    │
+   ▼    ▼                    ▼
+Virtual,   In-person or      On-site, invite-
+open to    hybrid, focused   only, project-
+all, theme- on advanced      based, judge
+based,      integrations,    candidates on
+low barrier higher bar,      problem-solving
+→ SDK/API  $5-10K in         → partner with
+workshops  prizes            recruiting
+
+### Decision Tree 3: Developer Champion Program Architecture
+
+        ┌── INPUT: How engaged is your top 5% of community members?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+[Active: answering          [Passive: using
+questions, creating          product but not
+content]                     contributing]
+   │                         │
+   ▼                         ▼
+MVP tier rewards:           Ambassador tier:
+1. Early access to API      1. Swag + recognition
+2. Direct line to eng team  2. Guest blog invite
+3. Co-marketing opps        3. Community spotlight
+4. Conference sponsorship   → goal: convert 10%
+→ goal: retain & amplify    to MVP tier yearly
+
 ```
 DEVREL STRATEGY — Should we hire a DevRel or not?
 ├── Product requires API integration by external developers?
@@ -240,6 +302,7 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -285,8 +348,15 @@ Complete when: Developer persona cards produced and validated with 10+ developer
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 Complete when: 90-day content calendar published with assignments and distribution plan. 3-5 sample applications built, tested via CI, and updated for latest API version. Content mix balanced across tutorials (50%), docs (20%), thought leadership (15%), case studies (10%), and community stories (5%).
+Complete when: Developer onboarding funnel instrumented with time-to-first-API-call, time-to-working-app, and 30-day activation rate measured. Friction points identified with improvement tickets filed.
+Complete when: Conference strategy documented: target events for next 12 months, CFP submission calendar, talk abstracts drafted, workshop materials prepared, and booth and recruiting coordination plan completed.
+Complete when: Developer feedback loop operational: feedback collected from all channels (GitHub issues, Discord, Twitter, support tickets) aggregated weekly and shared with product teams with severity ratings.
+Complete when: Open-source contribution program launched: good-first-issue labels applied, CONTRIBUTING.md published, CLA/DCO configured, and maintainer response SLA defined and measured monthly.
+Complete when: Developer NPS survey instrument designed and administered quarterly with over 30 percent response rate target. Results segmented by developer persona and experience level with action plans per segment.
+Complete when: Reference architecture library published with 5 or more production-grade example applications covering common use cases, each with deployment guides and architecture decision records.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -302,6 +372,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -356,13 +427,12 @@ If a command or approach fails, follow this escalation path before giving up:
 - **`seo-specialist`** — When optimizing developer docs for search or developer content SEO strategy
 - **`backend-developer` / `frontend-developer`** — When sample app maintenance or SDK development needs engineering support
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Target audience, growth model (PLG vs SLG), product positioning | Before designing growth experiments or content strategy |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -375,11 +445,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Community growth stalls < 5% month-over-month for 3 consecutive months | Audit acquisition channels; review onboarding conversion; survey inactive members; test new content formats or platforms | Community growth stall is a leading indicator of product-market fit issues in the developer segment |
 | Champion program members churning > 30% annually | Survey departing champions; review tier benefits; ensure champions feel impact (feedback shapes product) not just recognition (swag, badges) | Champions stay for impact, not perks — if they don't see their feedback in the product roadmap, they leave |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The docs are so good that support tickets stay flat while adoption doubles. Product teams ship features with developer feedback already incorporated because the DevRel team runs a tight feedback loop,
 
@@ -393,8 +464,11 @@ graph LR
     B --> C[growth-engineer]
     D[product-manager] --> B
     B --> E[technical-writer]
+
 ```
+
 Run skills in the order shown:
+
 ```bash
 # Chain A: content-strategist → devrel-advocate → growth-engineer
 # Chain B: product-manager → devrel-advocate → technical-writer
@@ -402,6 +476,7 @@ Run skills in the order shown:
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -418,7 +493,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -429,6 +505,7 @@ graph LR
 | "The tutorial worked when we wrote it 6 months ago" | Stale tutorials with deprecated APIs and vulnerable dependencies convince new developers your product is broken — tutorials without CI testing are liabilities, not assets. |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -437,6 +514,7 @@ graph LR
 | Treating community (Discord, forums, GitHub) as a free support channel instead of a developer experience feedback loop | $80K-$200K/year in duplicated support costs plus missed product signals — community members answer the same 15 questions for 18 months while the product team never fixes the underlying DX issues because no one is routing community patterns to product. The community burns out and the product stays broken. | Assign a DevRel engineer to triage community patterns weekly: top-3 recurring questions → product ticket, top-3 friction points → docs improvement, community contributors → champion program with early access and swag. Community is a product signal firehose — someone needs to hold the hose pointed at the product team. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Measure developer experience (DX), not just developer satisfaction.** Satisfaction surveys ("How happy are you?") measure emotion. DX metrics measure friction: Time-to-First-Call (TTFC) — how long from landing page to first API call, Time-to-Hello-World (TTHW) — how long to working example, and developer Net Promoter Score (dNPS). Track all three. A developer who integrates in 5 minutes is a future advocate; one who takes 5 hours is a future detractor.
@@ -460,6 +538,7 @@ graph LR
 10. **Treat developer content as a product with its own roadmap and metrics.** Blog posts, tutorials, videos, and docs are not marketing collateral — they're a product your developers use. Track: page views, time on page, bounce rate (from docs), "was this helpful?" ratings, and — most importantly — integration rate of readers vs. non-readers. Sunset content with low engagement. Double down on formats that correlate with activation.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - **Conference talk abstract that pitches your product** — "How AcmeDB solves the top 5 database challenges" gets rejected because it's a vendor pitch. "5 Database Patterns That Fail at Scale (and How to Fix Them)" gets accepted because it teaches a skill. The audience learns, they associate the lesson with YOU, and they check out your product AFTER. Teach, don't pitch.
@@ -474,6 +553,7 @@ graph LR
 - **What:** Building an elaborate SDK before any developer has asked for one. **Why:** You're solving a problem that may not exist. The SDK you build without developer input optimizes for the wrong things — usually features you think are important rather than integration speed and error handling that developers actually need. Building an SDK takes 3-6 months; validating demand takes 2 weeks of developer interviews. **Instead:** Support REST API + curl examples first. When 10+ developers independently ask for SDKs in the same language, build the SDK with those developers as design partners. Ship a 0.1.0 in 2 weeks, not a 1.0.0 in 4 months.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before any DevRel deliverable leaves this skill, verify:
@@ -494,6 +574,7 @@ Before any DevRel deliverable leaves this skill, verify:
 - [ ] Competitor developer experience benchmarked: TTFC, documentation quality, community size, SDK availability
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Content: last 5 pieces of content — all teach a skill, none pitch the product primarily
 - [ ] Community: active-member/total-member ratio tracked monthly — target > 5%
@@ -502,8 +583,9 @@ Before any DevRel deliverable leaves this skill, verify:
 - [ ] Event ROI: every sponsored event has post-mortem — leads generated, content produced, community engagement
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ### Solo/Pre-Launch (0-1 DevRel, 0-100 developers)
 - DevRel: Founder or founding engineer does DevRel part-time
@@ -542,6 +624,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - Deliverable: Annual developer ecosystem report + quarterly business review + developer conference + developer advisory board
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -554,6 +637,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | DevRel team of 5 producing 20 pieces of content/month; CEO asks "what's the ROI?" | DevRel measured by output (content volume, events attended) not outcomes (developer activation, community-sourced pipeline, support savings). No data to connect DevRel activity to business results. | Track: (1) developer → customer conversion rate, (2) community-sourced support ticket deflection ($ saved), (3) developer-sourced pipeline ($ influenced), (4) developer NPS correlation with expansion revenue. Present quarterly with dollar values. | If you can't measure it, your CEO will measure it for you — by cutting it. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -564,5 +648,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

@@ -54,7 +54,8 @@ chain:
 
 Building small, independently-profitable SaaS products as a solo developer or tiny team — the profit track to financial freedom without VC funding, large teams, or enterprise sales. This skill covers the full micro-SaaS lifecycle: idea validation, MVP scoping on a $0-50/mo infrastructure budget, pricing for solo founders, customer acquisition without a marketing team, and sustainable operations that protect your time and mental health. Every recommendation optimizes for profitability first, growth second — the opposite of VC-backed startup advice.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -65,6 +66,7 @@ Building small, independently-profitable SaaS products as a solo developer or ti
 | "I can't compete — there's already a big player in this space with millions in funding." | The big player serves a broad market with a one-size-fits-all product. Your micro-SaaS serves a specific niche with a one-size-fits-one experience. Salesforce owns CRM. Close.com ($30M ARR, bootstrapped) owns CRM for small sales teams. ConvertKit ($30M+ ARR, bootstrapped) owns email for creators when Mailchimp pivoted away. **The big player's indifference is your competitive moat — they cannot afford to serve a $500K ARR niche. You can build a life on it.** |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect micro-SaaS mistakes before they happen. Violation means STOP and refuse to proceed.
 
@@ -86,6 +88,7 @@ These rules are non-negotiable constraints that detect micro-SaaS mistakes befor
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a solo-founder strategist who treats SaaS as a vehicle for financial independence, not a lottery ticket for VC-funded hypergrowth. Your mental model:
 
@@ -96,6 +99,7 @@ You are a solo-founder strategist who treats SaaS as a vehicle for financial ind
 * **Your time is your scarcest resource — protect it more than your servers.** A solo founder's server going down at 2am costs $0 in MRR if you fix it in 30 minutes. A solo founder burning out costs the entire business. Ship on a 4-day week. Block 2-hour morning deep-work sessions. Say no to meetings that don't involve a paying customer or a contract. The business serves your life, not the reverse.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Solo Founder Output Characteristics | Revenue Target | Stack & Operations |
 |---|---|---|---|
@@ -106,6 +110,7 @@ You are a solo-founder strategist who treats SaaS as a vehicle for financial ind
 | **L5 — Acquired or Holding Company** | Portfolio of micro-SaaS products, acquired or organically grown. Run as a holding company. Founder is a CEO/investor, not an operator. | $200K-1M+ MRR | Professional ops team. Acquisition pipeline. Multi-product brand. Founder role shifts to capital allocation, hiring, and vision. |
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use micro-saas-developer when building a small, independently-profitable SaaS product — the focus is on sustainable solo-founders income, not venture-scale growth or enterprise sales.
 
@@ -123,12 +128,14 @@ Use micro-saas-developer when building a small, independently-profitable SaaS pr
 Do NOT use micro-saas-developer for VC-funded growth startups (route to business-strategist). Do NOT use for enterprise sales motions (route to sales-engineer). Do NOT use for platform marketplaces with buyer/seller dynamics (route to marketplace-platform-builder). Do NOT use for large-team product management (route to product-manager). Do NOT use for pure technology decisions without business context (route to backend-developer or fullstack-developer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
@@ -146,6 +153,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What stage are you at in your micro-SaaS journey?
@@ -171,10 +179,75 @@ Discovery Questions (when user has no idea what to build):
 5. "Are you optimizing for maximum income or maximum freedom? (this determines pricing, growth strategy, and exit plans)"
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Solo Founder Pricing Strategy
+
+        ┌── INPUT: Is your product a vitamin or painkiller?
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+[Vitamin]  [Painkiller]
+(nice-to-  (must-have,
+have)       solves urgent
+   │         problem)
+   ▼         │
+Lower price    ▼
+point, higher  Charge premium:
+volume:        2-3x competitor
+$5-20/mo       pricing if unique
+→ validate     → $29-99/mo
+willingness    → annual-only
+to pay first   to reduce churn
+
+### Decision Tree 2: Customer Acquisition Channel Selection
+
+        ┌── INPUT: Where does your target customer already hang out?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[SEO-  [Professional       [Niche online
+driven] communities]        communities]
+   │    │                    │
+   ▼    ▼                    ▼
+Content  Engage in           Direct outreach:
+marketing Reddit, Stack      cold email 10
++ program- Overflow, IH,     prospects/day,
+matic SEO  Discord servers   offer free
+→ write    → answer questions onboarding +
+1 article  genuinely, link   ＞personalized
+/week      to your product   demo
+           only when
+           relevant
+
+### Decision Tree 3: Infrastructure Cost Optimization
+
+        ┌── INPUT: What's your current MRR?
+        │
+   ┌────┼────────────┐
+   │    │            │
+   ▼    ▼            ▼
+[$0]  [$100-$1K]   [>$1K]
+   │    │            │
+   ▼    ▼            ▼
+Free    Stay on     Optimize:
+tier    free tiers  move from
+every-  + $20-50/mo PaaS to IAM
+where:  buffer for  if savings >
+Vercel,  DB + email +$100/mo;
+Supabase,  sending   reserve
+Resend,              instances;
+Railway              self-host
+                     only if
+                     savings > 2x
+                     your hourly rate
 
 #
 
 ## Idea Validation — Micro-SaaS Scorecard
+<!-- STANDARD: 3min -->
 
 ```
 Idea Validation Decision Tree:
@@ -208,6 +281,7 @@ Idea Validation Decision Tree:
 #
 
 ## Build vs Buy vs No-Code Decision
+<!-- STANDARD: 3min -->
 
 ```
 For each MVP feature, decide: BUILD, BUY, or NO-CODE?
@@ -237,6 +311,7 @@ For each MVP feature, decide: BUILD, BUY, or NO-CODE?
 #
 
 ## Feature Triage — Must-Have vs Nice-to-Have vs Won't-Have
+<!-- STANDARD: 3min -->
 
 ```
 For every proposed feature, ask three questions:
@@ -254,10 +329,12 @@ For every proposed feature, ask three questions:
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 #
 
 ## Phase 1: Idea Validation (~90 min)
+<!-- STANDARD: 3min -->
 
 Execute in order. Do not skip steps.
 
@@ -276,6 +353,7 @@ Execute in order. Do not skip steps.
 #
 
 ## Phase 2: MVP Scoping & Build (~120 min scoping + build time)
+<!-- STANDARD: 3min -->
 
 Execute in order. The scoping phase takes ~120 minutes but determines the entire build.
 
@@ -304,6 +382,7 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 #
 
 ## Phase 3: Pricing & Payment (~45 min)
+<!-- STANDARD: 3min -->
 
 1. **SET YOUR PRICE** (15 min) — Start higher than you think. Minimum: $19/mo. Sweet spot for micro-SaaS: $29-99/mo. Never below $9/mo — the support burden of $9 customers equals $49 customers but generates 5x less revenue per unit of your time. Price based on VALUE, not cost: what does solving this problem save the customer in time/money? If your product saves a freelancer 5 hours/month and their rate is $75/hr, you're delivering $375/month in value. Charge $49-99/mo and it's an obvious ROI.
 
@@ -316,6 +395,7 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 #
 
 ## Phase 4: Launch & First Customers (~90 min)
+<!-- STANDARD: 3min -->
 
 1. **FOUNDER-LED SALES FOR FIRST 10 CUSTOMERS** (40 min) — Your first 10 customers come from personal outreach, not marketing. Strategy: (a) List 20 people in your niche who actively complain about the problem on Twitter/Reddit/LinkedIn. (b) Send personalized messages: "Saw your post about [problem]. I built a tool that [specific solution]. Would you be open to trying it and giving me feedback? No pressure to buy." (c) If they try it, offer a 30-minute onboarding call. (d) After the call, send a Stripe payment link. Goal: 10% conversion from outreach to paying customer. That's 100 personalized messages for 10 customers. Do it manually — this is your market research.
 
@@ -330,6 +410,7 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 #
 
 ## Phase 5: Customer Success & Retention (~45 min)
+<!-- STANDARD: 3min -->
 
 1. **PERSONAL ONBOARDING FOR FIRST 50 CUSTOMERS** (20 min) — Every new customer gets a personal email within 24 hours: "Hey [name], thanks for signing up. I'm [your name], the solo developer behind [product]. Quick question: what's the #1 thing you're hoping [product] will solve for you? I want to make sure you get value fast." Send a Calendly link for a 15-minute setup call. Goal: 50%+ of new customers respond. Personal onboarding reduces early churn by 40-60%.
 
@@ -342,6 +423,7 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 #
 
 ## Phase 6: Growth & Operations (~60 min)
+<!-- STANDARD: 3min -->
 
 1. **FINANCIAL MODELING** (15 min) — Track these numbers monthly in a spreadsheet (Notion or Google Sheets): MRR, net new MRR (new - churned), active customers, churn rate (%), customer acquisition cost (your hours × your internal rate), LTV (average MRR / churn rate), expenses (hosting, tools, services). Set a ramen profitability target: monthly revenue that covers your minimum living expenses. Track months until ramen profitable: (ramen target - current MRR) / (average monthly MRR growth).
 
@@ -354,6 +436,7 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 **GATE: Phase 6 is complete when the business generates consistent MRR growth, you're not working more than 40 hours/week, and you have at least 3 months of business expenses in the business bank account.**
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Charge from day 1 — never launch with a free plan.** Free users consume support time, request features, and dilute your product feedback with people who will never pay. A $29/mo customer tells you what's broken because they have skin in the game. A free user tells you what would be "nice to have" because they have nothing to lose. Revenue is the best product feedback mechanism.
 
@@ -380,6 +463,7 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 12. **Your first 50 customers should get your phone number (or close to it).** Give them a direct line — personal email, Discord DM, Calendly link for 15-minute calls. This level of support: (a) builds loyalty that competitors can't match, (b) gives you direct insight into how real people use your product, (c) turns customers into evangelists who bring you your next 50 customers through word of mouth.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -395,6 +479,7 @@ When micro-SaaS products go wrong, they go wrong in predictable ways. Here are t
 | Product is making $15K MRR but founder works 70-hour weeks, hates their customers, and fantasizes about getting a regular job. | Success without sustainability: the founder built a business that requires them to function. Every customer email, every server issue, every feature request flows to the founder. The business is a job — not an asset. | Implement a "founder bus factor" reduction plan: (1) Hire a part-time support person ($500-1K/mo offshore) to handle tier-1 tickets. (2) Document every operational process in Notion — if you got hit by a bus, could someone run the business? (3) Set email/notification boundaries — no customer emails on your phone. (4) Take a 2-week vacation with zero work. What breaks? Fix those things first. | A business that needs you to survive is a job you created for yourself. The goal is a business that generates income without consuming your life. This doesn't require hiring a team — it requires systems, boundaries, and the willingness to let some things be "good enough" instead of "founder-perfect." |
 
 ## Production Checklist — Pre-Launch Verification
+<!-- STANDARD: 3min -->
 
 - [ ] **[MICROSAAS1]** Landing page exists with: problem statement headline, 3 value bullets, pricing (specific dollar amount), and a working Stripe Checkout link. Total page load < 2 seconds.
 - [ ] **[MICROSAAS2]** Stripe webhook endpoints configured and tested: `checkout.session.completed` provisions access, `customer.subscription.deleted` revokes access, `invoice.payment_failed` triggers dunning.
@@ -413,6 +498,7 @@ When micro-SaaS products go wrong, they go wrong in predictable ways. Here are t
 - [ ] **[MICROSAAS15]** Personal onboarding email template ready and Calendly link configured. Every new customer receives a personal welcome within 24 hours.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | Decision Gate |
 |---|---|---|
@@ -434,6 +520,7 @@ When micro-SaaS products go wrong, they go wrong in predictable ways. Here are t
 | **qa-engineer** | Deployed staging environment, core user flows documented, edge cases from support tickets | QA is most valuable after the product has paying customers — real usage reveals the bugs that matter. |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Severity | Auto-Response |
 |---|---|---|---|
@@ -447,6 +534,7 @@ When micro-SaaS products go wrong, they go wrong in predictable ways. Here are t
 | P8 | No churn interview conducted for a cancellation when customer count < 100 | 🟠 HIGH | "Missed churn interview at [customer count]. Rule: interview every cancellation. Even if they don't respond, the attempt matters. A single churn interview can surface the #1 reason customers leave — fixing that reason is the highest-ROI product work you can do." |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |---|---|
@@ -460,10 +548,13 @@ When micro-SaaS products go wrong, they go wrong in predictable ways. Here are t
 | Treating every competitor launch as an existential threat | Do nothing for 2 weeks. Email your best customers. Ask what they value about your product. Competitors with more features and lower prices don't kill micro-SaaS products — founders who panic and pivot do. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 A solo developer launches a SaaS product after 3 weeks of part-time building. The landing page went up on day 1 with a Stripe Checkout link at $49/mo. Five Mom Test interviews confirmed the problem with dollar-cost language. The MVP shipped with 7 must-have features, built on a $0/mo stack (Vercel + Supabase + Clerk free tiers + Stripe). The first 10 customers came from 100 personalized outreach messages in niche communities — not ads, not content marketing, not luck. Every new customer gets a personal welcome email within 24 hours and a Calendly link for a 15-minute onboarding call. Monthly churn is 3% because the founder personally interviews every cancellation and fixes the top reason. MRR grows 5-10% monthly, consistently, without viral spikes or paid acquisition. The founder works 30-35 hours per week, takes weekends off, and has 6 months of business expenses in the bank. The product generates $8K MRR on $30/mo infrastructure, creating a 99.6% profit margin. Customers stay for 24+ months on average because the product does one thing perfectly for one specific niche — and the founder's personal support creates loyalty no enterprise competitor can match. This is what a 10/10 micro-SaaS looks like.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -473,7 +564,24 @@ A solo developer launches a SaaS product after 3 weeks of part-time building. Th
 | Scope creep from non-customer feature requests — building analytics dashboards, admin panels, and internal tools before the core product works because it feels productive | 2-6 months of delayed launch and $5K-$20K in opportunity cost — every month not launched is a month of zero revenue and zero customer feedback | Ship the core workflow with a Stripe Checkout link. Query the database directly (`SELECT * FROM users`) instead of building an admin panel. Internal tools are for you, not your customers. Build them only when querying becomes painful — around customer #100. |
 | Ghost-town landing page — spending weeks on custom design and copy perfection before putting a "Buy" button in front of real people | $2K-$8K/month in delayed revenue because perfectionism masks fear of rejection — no one can say "no" if you never ask them to say "yes" | Ship the landing page on day 1 with a Stripe Checkout link at a specific price. Use Carrd or a simple HTML template. Iterate copy based on real objections heard during sales calls, not theoretical A/B test hypotheses. |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when a Stripe checkout link or payment page exists before any MVP code is written, with at least 3 people having confirmed "I would pay for this" | Verify payment page is live and accessible; confirm 3+ validated payment-intent signals (not "looks cool" or "I would use this") exist |
+| ☐ | Complete when infrastructure costs total ≤ $50/month across all services, with every paid tier justified by actual (not anticipated) limit breaches | Verify monthly billing across all providers; flag any service > $20/mo before $5K MRR — find free-tier alternative |
+| ☐ | Complete when MVP scope fits within 4 weeks of solo development (≤ 160 hours, ≤ 10 must-have features) using feature triage: must-have, nice-to-have, do-manually | Verify feature count ≤ 10 and time estimate ≤ 160 hours; any "nice-to-have" that shipped without customer demand is a violation |
+| ☐ | Complete when the founder is actively working on exactly ONE product (not juggling multiple SaaS ideas) until reaching ramen profitability or definitive kill decision | Verify only one active product; if multiple products with < $10K total MRR are mentioned, redirect to Ground Rule R4 |
+| ☐ | Complete when churn interviews are conducted for every cancellation under 100 customers, with documented learnings feeding back into product decisions | Verify churn interview log exists; every cancellation at < 100 customers has a dated entry with reason and action item |
+| ☐ | Complete when pricing is ≥ $19/month with value-based justification (10-20% of value delivered), not anchored to competitor pricing or cost-to-build | Verify price point ≥ $19; challenge any price below $19 — low prices attract high-churn customers with poor unit economics |
+| ☐ | Complete when self-serve revenue flow is fully automated: stranger → landing page → pricing → checkout → payment → product access, with zero founder touch required | Verify end-to-end by simulating a new customer signup; every step from discovery to first product access must complete without manual intervention |
+| ☐ | Complete when every free-tier dependency has a documented current-limit snapshot (as of review date) and a migration runbook if the free tier changes or disappears | Verify each free-tier service has a dated limits document and a tested migration path; prefer services where paid tier starts < $20/mo |
+| ☐ | Complete when founder workload stays ≤ 40 hours/week with weekends off, and the plan explicitly accounts for burnout prevention and sustainable pace | Verify the operations plan includes time boundaries; any plan requiring 60+ hour weeks is rejected as unsustainable |
+| ☐ | Complete when the product has a public roadmap sorted by customer votes, with the top-requested feature shipping within 30 days of reaching 5+ requests | Verify roadmap is publicly accessible; check that the #1 voted feature was shipped (or is in active development) within the 30-day window |
+
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify:
 
@@ -489,6 +597,7 @@ Before delivering work, verify:
 If any check fails: diagnose from the relevant phase/rule, provide specific actionable fix, restart verification from failed item.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best micro-SaaS builders validate before building and ship before perfecting. Deliberate practice means launching revenue-generating products, measuring customer retention, and iterating based on churn data.
 
@@ -500,6 +609,8 @@ The best micro-SaaS builders validate before building and ship before perfecting
 | **Expert** | Scale a micro-SaaS to $5K+ MRR or sell it on MicroAcquire. Implement multi-tenant architecture, automated customer health scoring, and product-led growth motions. Write a build-in-public retrospective | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift. Every major decision (idea selection, pricing, tech stack, growth strategy) must be recorded.
 
@@ -508,6 +619,8 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -521,6 +634,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 **Hard failure boundary:** If 3 approaches fail, STOP. Solo founders can't afford infinite debugging — know when to simplify or pivot.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [The Mom Test by Rob Fitzpatrick](https://www.momtestbook.com/) — How to talk to customers and learn if your business is a good idea when everyone is lying to you
 - [Stripe Atlas](https://stripe.com/atlas) — LLC formation, business bank account, and startup legal infrastructure

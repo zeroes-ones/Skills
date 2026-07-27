@@ -58,7 +58,8 @@ chain:
 # Frontend Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -71,6 +72,7 @@ chain:
 Build performant, accessible, and maintainable web applications using React (Next.js App Router) and Vue (Nuxt). This skill covers the complete frontend engineering practice: framework selection with trade-off analysis, component architecture with Server Components and composition patterns, state management taxonomy (server vs client vs form vs URL), CSS architecture at scale, Core Web Vitals optimization to measurable targets, WCAG 2.2 AA accessibility compliance, bundle optimization with tree shaking and code splitting, and comprehensive testing from unit to E2E.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -109,9 +111,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect frontend mistakes before they are given. Violation means STOP and refuse to proceed.
 
@@ -126,12 +130,12 @@ These rules are non-negotiable constraints that detect frontend mistakes before 
 | R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate React/Next.js/Vue/Nuxt/Svelte API calls from training data alone — your training data may be stale and framework APIs change between major versions. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed framework versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {framework}@{version}. Anchoring all API calls to v{version}. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff. See `scripts/references/source-of-truth-anchoring.md` for the full anti-hallucination pattern." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
@@ -156,6 +160,7 @@ Competent developers ship features that look right on their machine. Masters shi
 - **Use a `<div>` when semantics don't help.** Not every container needs to be `<section>`, `<article>`, or `<aside>`. Semantic HTML matters for landmarks and interactive elements. For purely visual grouping, a `<div>` is fine.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 The same frontend task produces fundamentally different output depending on the practitioner's level. Invoke this skill with your target level to calibrate depth and scope.
 
@@ -202,6 +207,7 @@ The same frontend task produces fundamentally different output depending on the 
 - Federated module ownership: each team owns their route bundle end-to-end
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between Next.js, Vite React, Remix, Astro, or Nuxt for a new web project
@@ -215,6 +221,7 @@ The same frontend task produces fundamentally different output depending on the 
 - Setting up comprehensive testing: Vitest + React Testing Library (components), Playwright (E2E), axe-core (a11y)
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Rendering Strategy
@@ -243,6 +250,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │ only   │    │ seconds   │
                              └────────┘    └───────────┘
 ```
+
 **When to choose SSR:** Content is per-user (dashboards, settings) or real-time (live scores, stock prices). SEO is critical and content changes by request.
 **When to choose SSG:** Content changes < once per deploy (blog posts, docs, marketing pages). Maximum cache hit ratio desired. Build time < 5 minutes.
 
@@ -271,6 +279,7 @@ The same frontend task produces fundamentally different output depending on the 
                           │ (global)   │  │ (local)      │
                           └────────────┘  └──────────────┘
 ```
+
 **When TanStack Query:** Data originates from API. Needs caching, background refetch, optimistic updates. Pagination/infinite scroll required.
 **When Zustand:** Client-only global state (theme, auth status, UI preferences). Cross-component shared state not tied to server. Avoids prop drilling across > 3 levels.
 
@@ -300,6 +309,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │        │    │components │
                              └────────┘    └───────────┘
 ```
+
 **When Tailwind + tokens:** Team with design system. Design tokens (colors, spacing, typography) defined once. Rapid iteration with constraints.
 **When CSS Modules:** Scoped styles per component. No utility-class learning curve. Complex pseudo-selectors or animations that don't map well to utilities.
 
@@ -331,10 +341,12 @@ The same frontend task produces fundamentally different output depending on the 
                              │assert  │    └───────────┘
                              └────────┘
 ```
+
 **When Testing Library + MSW:** Component fetches data, handles form submission, or manages async state. Need to test loading → success → error states.
 **When snapshot test:** Presentational component with stable output. No dynamic data. Quick regression detector. Avoid for large component trees.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 0 (~15 min): Framework Selection — Decision Tree
@@ -377,9 +389,16 @@ Is SEO critical OR do you need server-side rendering?
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
   Complete when: Framework is selected and justified against SEO, dynamic-content, and team-skill criteria. The scaffolded app renders a component with Storybook running and Lighthouse ≥95 baseline.
-
+  Complete when: All tests pass — unit, integration, and E2E with > 80% coverage on new code.
+  Complete when: Accessibility audit passes — WCAG 2.1 AA compliance with automated and manual checks.
+  Complete when: Performance benchmarks within budget — LCP < 2.5s, TBT < 200ms, CLS < 0.1.
+  Complete when: Code review completed by at least 2 reviewers with all threads resolved.
+  Complete when: Feature flagged behind config — can be enabled/disabled without deployment.
+  Complete when: Error tracking configured — all unhandled exceptions routed to on-call.
+  Complete when: Documentation PR merged — README, API docs, and changelog updated.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Co-locate data fetching with the component that needs it.** In Next.js App Router, fetch data in Server Components using `async`/`await` directly — no `useEffect` waterfalls. For Client Components, use TanStack Query with `staleTime` and `gcTime` tuned to your data's freshness profile. Never fetch in a parent and drill through 4 layers of props — it couples unrelated components and causes unnecessary re-renders.
 
@@ -401,8 +420,8 @@ Is SEO critical OR do you need server-side rendering?
 
 10. **Hydration is a performance budget, not a free operation.** Every kilobyte of JS shipped to the client must be parsed, compiled, and executed before the page is interactive. Server Components ship zero JS. Client Components ship their bundle. Interactive islands (Astro) ship only the interactive parts. For every new dependency, ask: "Does this need to be on the client, or can it run at build time or on the server?"
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -417,6 +436,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -454,6 +474,7 @@ Accessibility compliance gap? → QA Engineer → Compliance Officer
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -466,11 +487,12 @@ Accessibility compliance gap? → QA Engineer → Compliance Officer
 | Lighthouse Accessibility score drops below 95 — new component uses `<div onClick={handler}>` instead of a native interactive element | Replace with `<button onClick={handler}>` or `<a href={url}>`. Native elements handle keyboard focus, Enter/Space activation, screen reader announcements, and form submission out of the box. Add axe-core to CI with a zero-violation policy | `<div onClick>` is invisible to screen readers and impossible to reach via keyboard alone. Semantic HTML before ARIA — native elements provide behavior that ARIA roles only describe (you'd need 6+ additional handlers to replicate `<button>` behavior) |
 | "Why is this product page loading 2.3MB?" — all product images are original-resolution 4000x3000 PNGs served at full size, scaled down via CSS | Implement `next/image` or Nuxt Image with: automatic WebP/AVIF conversion, responsive `sizes` attribute, lazy loading below the fold, and explicit width/height to prevent CLS. Preload the LCP (hero) image with `fetchpriority="high"`. Audit all `<img>` tags | Unoptimized images are the #1 cause of poor LCP scores. A 2MB hero image displayed at 400px wide is 95% wasted bytes. Image optimization tooling is free in modern frameworks — not using it costs real users 2-5 seconds on every page load |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before any production deployment, verify ALL of:
 
@@ -490,6 +512,7 @@ Before any production deployment, verify ALL of:
 14. Environment variables: `NEXT_PUBLIC_` prefix only on intentional client-exposed values — secrets never bundled
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every page loads with a Lighthouse score of 95+, Core Web Vitals all green, and a JavaScript bundle under 150KB gzipped per route.
 
@@ -508,6 +531,7 @@ Common chains:
 - **API to UI**: api-designer → frontend-developer → qa-engineer — API contract defines data shapes, frontend renders the experience, QA tests the integration
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 <!-- DEEP: 10+min — how to improve, not just what to do -->
 
@@ -528,6 +552,7 @@ Common chains:
 **Rebuild a component you built 6 months ago without looking at the original code.** Compare: is the new version simpler? More accessible? Smaller bundle impact? If it's not better, you haven't grown. If it's worse (over-engineered), you've learned the wrong lessons. Your own code, given 6 months of distance, is the best mirror of your growth.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### 1. No Bundle Size Budget
 **What it looks like:** JavaScript bundles grow incrementally — an extra dependency here, an un-tree-shaken import there — until the homepage loads 2MB of JS. At 3G speeds, that's a 6-second Time to Interactive. Every second beyond 3s drops conversion rates ~2-4%.
@@ -583,6 +608,7 @@ Common chains:
 **Fix:** Use zero-runtime CSS (Tailwind, vanilla-extract, CSS Modules) for animation-heavy components. Reserve runtime CSS-in-JS for static styles. Profile with React DevTools "Highlight updates."
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -598,6 +624,7 @@ When frontend apps go wrong, they go wrong in predictable ways. Here are the mos
 | Async `useEffect` sets state after component unmounts — `Warning: Can't perform a React state update on an unmounted component` | `useEffect` fires an async fetch, user navigates away before it resolves, `setData()` is called on an unmounted component. Memory leak: the promise holds a reference to the component's closure | Use `AbortController`: `const controller = new AbortController(); fetch(url, { signal: controller.signal }); return () => controller.abort()`. Or use a `mounted` ref: `if (!isMountedRef.current) return` before `setData()`. Prefer React Query/TanStack Query which handles this automatically | Every async operation in a component is a potential memory leak. The component lifecycle and the promise lifecycle are independent — navigation can destroy the component while the promise is still in-flight |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -608,6 +635,7 @@ When frontend apps go wrong, they go wrong in predictable ways. Here are the mos
 | Using `<div onclick>` instead of `<button>` — keyboard navigation broken, screen readers skip the element, form behavior fails | $8K-$20K in accessibility remediation and potential ADA lawsuits | Use semantic HTML first: `<button>` for actions, `<nav>` for navigation, `<main>` for content. WCAG 2.2 AA compliance starts with correct element choice, not ARIA patching bad markup. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `npm run build` — zero build errors, bundle size within budget (< 20% increase)
 - [ ] Run `npm test` — all tests pass, no snapshot regressions without review
@@ -617,10 +645,12 @@ When frontend apps go wrong, they go wrong in predictable ways. Here are the mos
 - [ ] Manual: test at 320px, 768px, 1024px, and 1440px widths — no horizontal scroll, no overlapping content
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -631,5 +661,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

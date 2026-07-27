@@ -32,8 +32,18 @@ Keep mobile test fixtures in sync with backend API schemas and TypeScript types
 in a monorepo. When a database column changes, the Pydantic schema shifts, the
 mobile `lib/types.ts` is updated — and mock factories must follow automatically.
 This skill enforces that chain.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+**Admit uncertainty.** If a mock factory parameter or schema field is ambiguous, say so. Do not guess the shape of API responses — stale mocks cost $5K-$50K in debugging hours and production bugs.
+
+**Flag your knowledge cutoff.** Mock data has an expiration date. If the schema was last synced > 2 weeks ago, flag it. Schema drift accumulates silently — every day a mock is stale, it drifts further from the truth.
+
+**Never guess security.** Mock factories must never guess auth tokens, session secrets, or PII patterns. Use deterministic fake data. A mock with a hardcoded production token that leaks into test output is a $10K-$250K security incident.
+
+**[VERIFIED]** Every mock factory must pass `pnpm validate:mocks` before commit. No stale fields, no missing required properties, no "close enough" mock data.
 
 | Rationalization | Reality |
 |---|---|
@@ -46,6 +56,7 @@ This skill enforces that chain.
 Every mock factory must produce objects that satisfy the current TypeScript type. No stale fields. No missing required properties. No "close enough" mock data.
 
 ## Architecture & File Locations
+<!-- STANDARD: 3min -->
 
 ```
 
@@ -71,6 +82,7 @@ backend/schemas/*.py ──(manual sync)──▶ mobile/lib/types.ts
 | `package.json` | Script: `validate:mocks` runs the type-check |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---|---|---|
@@ -83,29 +95,8 @@ backend/schemas/*.py ──(manual sync)──▶ mobile/lib/types.ts
 | 7 | Never bypass the `DeepPartial<Type>` override pattern — all factory signatures must accept `overrides: DeepPartial<Type> = {}` | `grep -A1 "export function createMock" __tests__/__fixtures__/api-mocks.ts | grep -v "DeepPartial"` finds factories without the override parameter | Add the `DeepPartial<Type>` parameter. Factories without overrides force every test to post-modify mock objects, which breaks the single-source-of-truth contract |
 | 8 | **RUN `pnpm validate:mocks` before every push.** The pre-push hook exists to catch drift, but the developer must configure it. Until then, manual validation is the only guardrail. | Trigger: `git push` is attempted; `git diff --cached --name-only` intersects with `backend/app/schemas/**`, `mobile/lib/types.ts`, or `__tests__/__fixtures__/**` | STOP. Respond: "Staged changes include schema, type, or mock files. Running `pnpm validate:mocks` before push. If validation fails, fix the drift before pushing." |
 
-## Anti-Hallucination Guardrails
-
-- **Admit uncertainty — never fabricate.** If you are not certain about a type
-  definition, schema field, or OpenAPI generator behavior, say so explicitly:
-  "I am not certain this field exists in the current schema. Verify against
-  `backend/app/schemas/`."
-
-- **Flag your knowledge cutoff.** If your knowledge predates the latest framework
-  or tool version, state your cutoff date and recommend verifying against current
-  documentation.
-
-- **Never guess security.** Do not provide authentication tokens, API keys, or
-  security-sensitive configurations without explicit user instruction. Say:
-  "Security configurations must be verified against current best practices."
-
-- **Distinguish certainty levels.** Mark statements as:
-  [VERIFIED] — from official docs or schema files,
-  [COMMON-PRACTICE] — widely used but not authoritative,
-  [INFERRED] — best guess based on patterns,
-  [UNKNOWN] — unsure and needs verification.
-
-
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 ### Cognitive Biases That Destroy Mock-Data Hygiene
 
@@ -126,27 +117,10 @@ backend/schemas/*.py ──(manual sync)──▶ mobile/lib/types.ts
 ---
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
-### Scale Depth
-
-| Depth | Time | Scope | Artifacts |
-|-------|------|-------|-----------|
-| **Quick Scan** | ~30s | Run `pnpm validate:mocks`, read the first type error, fix the mismatched field | One corrected factory field |
-| **Standard Engagement** | ~5-10min | Full DETECT→VALIDATE→SYNC→VERIFY cycle: check which schemas changed, update types, update factories, run validation | Updated api-mocks.ts, passing validate:mocks, commit with all 3 files |
-| **Deep Dive** | ~30min+ | New endpoint integration: design factory defaults, add to validate-mocks.ts, wire up CI pre-push hook, verify all existing tests still pass | New factory + validate-mocks entry + CI config + test audit |
-| **Enterprise Audit** | Multi-session | Full mock-sync health check: audit all factories against types, measure CI coverage, configure OpenAPI generator, eliminate all `as` assertions | Mock health report, OpenAPI pipeline config, factory coverage matrix |
-
-### Quick Scan (~30s)
-For known schema changes where the scope is clear (e.g., "added `bio` field to User"). Run `pnpm validate:mocks`, read the error, add the missing field to the factory, re-run validation. Commit the factory change alongside the schema change.
-
-### Standard Engagement (~5-10min)
-For new endpoints or multi-field schema changes. Trace the change from backend schema → mobile type → mock factory → validate-mocks.ts. Update all touchpoints, run validation, verify tests pass, commit atomically.
-
-### Deep Dive (~30min+)
-For new API surface areas (new resource, new endpoint family). Design factory defaults that exercise edge cases (empty arrays, null optional fields, boundary values). Add comprehensive validate-mocks.ts coverage. Configure CI pre-push hook if not present. Audit existing tests for inline mocks that should migrate to factories.
-
----
 ## When to Use
+<!-- STANDARD: 3min -->
 
 **Trigger conditions:**
 - A backend Pydantic schema gains, loses, or renames a field
@@ -169,6 +143,7 @@ For new API surface areas (new resource, new endpoint family). Design factory de
 ---
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 | Trigger | Route to Workflow |
 |---|---|
@@ -181,6 +156,7 @@ For new API surface areas (new resource, new endpoint family). Design factory de
 ---
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **DETECT** — Identify what changed: backend schema, mobile types, or CI failure. Determine scope.
@@ -192,6 +168,7 @@ For new API surface areas (new resource, new endpoint family). Design factory de
 7. **VERIFY** — CI passes (validate:mocks + jest), no drift, done.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Every `lib/types.ts` type gets a factory.** No type should exist without a `createMock*()` function.
 
@@ -237,6 +214,7 @@ const _checkUser: any = createMockUser();   // ❌ erases validation
 10. **Isolate `as Type` to the bottom of each factory.** Goal is `satisfies Type`, not `as Type`.
 
 ## Validation Pipeline
+<!-- STANDARD: 3min -->
 
 ### Local (pre-push hook)
 The pre-push hook (`scripts/pre-push-check.sh`) automatically runs mock-sync validation when staged changes touch:
@@ -257,6 +235,7 @@ cd mobile && npx tsc --project tsconfig.validate-mocks.json --noEmit
 ```
 
 ## Adding a New Mock Factory
+<!-- STANDARD: 3min -->
 
 1. Define the factory in `__tests__/__fixtures__/api-mocks.ts`:
 
@@ -284,6 +263,7 @@ void _checkNewThing; // suppress unused warning
 4. Run `pnpm validate:mocks` to confirm.
 
 ## Backend Schema Change Checklist
+<!-- STANDARD: 3min -->
 
 When adding/removing/renaming a field in a Pydantic schema:
 
@@ -295,6 +275,7 @@ When adding/removing/renaming a field in a Pydantic schema:
 6. [ ] Commit all three files together
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 ### Schema Change → Validate
@@ -342,6 +323,7 @@ Spec complete? → YES: Full generation. NO: Partial for documented endpoints on
 ```
 
 ## OpenAPI Generator (Future)
+<!-- STANDARD: 3min -->
 
 `openapitools.json` is configured with TypeScript/Python/Swift/Kotlin generators targeting `specs/api-spec.yaml`. When wired up:
 
@@ -360,6 +342,8 @@ specs/api-spec.yaml  ──openapi-generator──▶  mobile/lib/types.ts (auto
 Until then, manual sync between Pydantic schemas and `lib/types.ts` is required.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -376,6 +360,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -388,6 +373,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `createMock* is not a function` | Factory was not exported or the import path is wrong | Check the export in api-mocks.ts and the import in validate-mocks.ts | validate-mocks.ts imports are the canary — if they fail, test files will too |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 This skill operates at the intersection of backend schema design, mobile development, and CI quality gates. Invoke complementary skills when:
 
@@ -410,6 +396,7 @@ This skill operates at the intersection of backend schema design, mobile develop
 | `domain-modeling` | Domain entity definitions, relationship mappings | When new domain objects need mock factories |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger Condition | Automatic Action |
 |---|---|
@@ -424,10 +411,13 @@ This skill operates at the intersection of backend schema design, mobile develop
 ---
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every mock factory addition, type validation decision, and schema sync strategy choice must be recorded so subsequent agents (or future sessions) can recover context without replaying the entire conversation. Log decisions in `files/state-log.md` within the session context.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### Before: Stale Factory → After: Synced Factory
 
@@ -465,6 +455,7 @@ const user = createMockUser({ verification_tier: "unverified" });
 ---
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 | Exercise | Time | What You Do |
 |---|---|---|
@@ -477,6 +468,7 @@ const user = createMockUser({ verification_tier: "unverified" });
 ---
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern | Why It Fails | Do This Instead |
 |---|---|---|
@@ -491,6 +483,8 @@ const user = createMockUser({ verification_tier: "unverified" });
 ---
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -502,7 +496,23 @@ const user = createMockUser({ verification_tier: "unverified" });
 | OpenAPI generator idle 3 months — 47 type mismatches surface, blocking all work for 2 days | $12K-$25K in integration debt (full-team type reconciliation, 47 factories audited) | Run generator on every spec change or remove config until ready |
 | Factory overrides break after field rename: `role` → `user_role` — override silently becomes extra property, factory returns object with no role | $5K-$20K in silent test breakage (admin features appear broken in tests, team chases phantom bug) | Add override validation test: `expect(createMockUser({ user_role: "admin" }).user_role).toBe("admin")` |
 
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | `pnpm validate:mocks` exits 0 with zero tsc errors across all typed assignments | `cd mobile && pnpm validate:mocks` — must exit 0; any tsc error is a blocking failure |
+| ☐ | Every factory in `api-mocks.ts` has a corresponding typed assignment in `validate-mocks.ts` | `grep -c "createMock" __tests__/__fixtures__/api-mocks.ts` equals assignment count in `scripts/validate-mocks.ts` |
+| ☐ | Schema change, type update, and mock factory update are in the same atomic commit — no split-state windows | `git diff --name-only HEAD~1` includes files from `backend/app/schemas/`, `mobile/lib/types.ts`, and `__tests__/__fixtures__/api-mocks.ts` in one commit |
+| ☐ | No inline mock data in test files — all test data imported from `api-mocks.ts` factories | `grep -rn ": {[^}]*id:" --include="*.test.*" mobile/` — must return empty; inline mocks bypass `validate-mocks.ts` |
+| ☐ | No `as Type` assertions suppress factory type errors (except the single return-statement cast per factory) | `grep -c " as " __tests__/__fixtures__/api-mocks.ts` ≤ factory count; any excess `as` indicates suppressed type errors |
+| ☐ | CI pipeline includes `validate:mocks` step that blocks PR merge on failure | Verify `.github/workflows/*.yml` or equivalent contains `pnpm validate:mocks` in the jobs list with `if: failure()` handling |
+| ☐ | Pre-push hook configured to run `pnpm validate:mocks` when schema/type files change — manual bypass with `--no-verify` is audited | `.git/hooks/pre-push` exists and references `validate:mocks`; `git config core.hooksPath` is not set to bypass |
+| ☐ | Rollback plan is documented and tested | Verify: if a mock-breaking schema change is reverted, `pnpm validate:mocks` passes again at the previous commit; document the revert-then-fix workflow |
+
 ## Verification Checklist
+<!-- STANDARD: 3min -->
 
 Before merging any code that touches mock data or validation:
 
@@ -521,9 +531,11 @@ Before merging any code that touches mock data or validation:
 ---
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: all mock factories match current TypeScript types (`pnpm validate:mocks` passes), no broken references to non-existent types, the CI validation workflow is correctly configured, new factories follow naming conventions (`createMock*`, `createMock*Array`), all backend schema change checklist items are completed, and cross-skill dependencies (backend schemas → types → mocks) are satisfied. If any check fails, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - [Reference Index](references/README.md) — Consolidated index of all reference materials for mock-data synchronization workflows

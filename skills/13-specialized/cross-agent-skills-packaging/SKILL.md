@@ -46,7 +46,16 @@ Common chains:
 - **Chain**: platform-engineer → cross-agent-skills-packaging → agent-eval-pipeline — Platform provisions `~/.agents/skills/`; packaging normalizes and deploys skills; eval pipeline verifies runtime behavior across agents.
 - **Chain**: devops-engineer → cross-agent-skills-packaging → ci-cd-builder — DevOps sets up deployment infra; packaging handles skill transformations; CI/CD builder automates publishing to agent registries.
 
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -84,6 +93,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -105,6 +115,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of cross-agent skills packaging don't just deploy — they build **resilient distribution pipelines that survive agent upgrades, format changes, and ecosystem fragmentation**. They think in systems, not one-off symlinks.
 
@@ -125,6 +136,7 @@ Masters of cross-agent skills packaging don't just deploy — they build **resil
 - **Copy instead of symlink for rapid iteration.** During active skill development, copy to avoid chasing symlink resolution bugs. Re-symlink when stable.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -139,6 +151,7 @@ Masters of cross-agent skills packaging don't just deploy — they build **resil
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Setting up `~/.agents/skills/` as a shared skill directory for multiple AI agent terminals
@@ -153,6 +166,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building tooling that normalizes skill frontmatter for each agent's expected format
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -401,6 +415,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Incremental mode:** If `skills-manifest.lock` exists, only regenerate entries for skills whose SHA-256 differs. This reduces manifest regeneration from O(N) to O(changed) — critical for 50+ skill deployments.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -415,6 +430,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -473,6 +489,7 @@ Cross-agent skills packaging sits at the intersection of platform engineering, D
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
 
@@ -487,6 +504,7 @@ Cross-agent skills packaging sits at the intersection of platform engineering, D
 | Copilot CLI frontmatter rejection rate exceeds 10% of deployed skills | Skill Authors | Frontmatter normalization pipeline failing; vendor-specific field leakage |
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 60 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -497,8 +515,16 @@ Cross-agent skills packaging sits at the intersection of platform engineering, D
 ...
 > 📎 **Full content (60 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: Audit report generated covering symlink health, manifest freshness, frontmatter validation, PROCESS_TREE.md coverage, and compatibility test matrix for all target agents.
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
+  Complete when: Documentation updated for all affected interfaces, SDKs, and developer guides.
+  Complete when: Stakeholder sign-off obtained from all impacted team leads.
+  Complete when: Monitoring dashboards created for new system with alert thresholds configured.
+  Complete when: Knowledge transfer session completed with operations team.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -514,9 +540,11 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Agent-specific override file (`~/.copilot/skills/code-reviewer/override.md`) conflicts with core skill from `~/.agents/skills/core/code-reviewer/SKILL.md`. Agent loads both, applies conflicting rules, produces inconsistent output | Merge strategy undefined: does the override supplement or replace? If both specify ground rules, which takes precedence? The agent sees two conflicting instructions and picks one arbitrarily — usually the most recent or the longest, creating non-deterministic behavior | Define explicit merge strategy: overrides always REPLACE their section, never supplement. Document the strategy in `skills-manifest.json`. Validate at load time: if an override and core skill specify the same section, warn the user. Provide an audit command: `skill-diff code-reviewer` shows the effective merged skill vs. core | Override semantics must be explicit and deterministic. "Both apply" with conflicting rules is the worst possible outcome — the agent resolves the conflict randomly, and the user gets different results on different runs. REPLACE semantics (override wins) is the only predictable strategy |
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When cross-agent skills packaging is fully realized, every skill deploys identically across 15+ agent terminals from a single source of truth. The manifest is always current. Symlinks are always healthy. Frontmatter is always agent-validated. And when a new agent terminal emerges, adding it to the deployment is one config change and one pipeline run.
 
@@ -543,10 +571,12 @@ Ask these three questions about your packaging deployment. If any answer is "no,
 3. **"Can a new engineer deploy their first cross-agent skill in under 15 minutes by following the documented workflow?"**
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
     A[Package] --> B[Test across<br/>all agents] --> C[Fix<br/>compatibility<br/>gaps] --> D[Re-package<br/>with new<br/>agent support] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -558,21 +588,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every month, take a skill deployed 3+ months ago and run the full compatibility test matrix. Document every failure mode — these are the edges the normalization pipeline missed.
 
-## Anti-Rationalization
-
-<!-- CRITICAL: These are the lies we tell ourselves. Read them. Internalize them. Catch yourself. -->
-
-| Rationalization | Reality |
-|-----------------|---------|
-| "It loads in Claude Code, so it's cross-agent compatible." | Claude Code silently ignores unrecognized frontmatter fields. Copilot CLI REJECTS them. A skill that loads in Claude Code may be completely invisible in Copilot CLI. Load ≠ load everywhere. |
-| "We'll add the other agents later — just deploy to Claude Code for now." | Retrofitting cross-agent support after 50+ skills are deployed Claude-only requires touching every SKILL.md, every frontmatter, every symlink. The per-agent normalization rules that should have been designed upfront now require a migration. Cost: 3-5x more than building cross-agent from the start. |
-| "Symlinks are permanent — set them once and forget them." | Agent upgrades change directory structures. Claude Code issue #31005 could deprecate PROCESS_TREE.md. A symlink that worked yesterday may be broken today — and no agent reports the breakage. Symlinks are infrastructure that requires monitoring. |
-| "The portability field is self-reported — if the author says it works, it works." | The portability field is a claim, not a warranty. The only proof of compatibility is a passing compatibility test matrix. Trust but verify: every `portability` entry should be backed by a test report. |
-| "We don't need a manifest — agents can scan the filesystem." | Filesystem scanning is O(N) per agent startup. Manifest-based discovery is O(1). For 50+ skills across 6+ agents, the difference is 2 seconds vs 30+ seconds of startup time. Plus, the manifest detects conflicts, tracks versions, and validates integrity — scanning doesn't. |
-| "Frontmatter normalization is a one-time setup." | Every new agent terminal, every agent version upgrade, every new frontmatter field — all require normalization pipeline updates. The normalization rules are living code, not config. Treat them as part of the deployment pipeline, not a setup script. |
-| "Copy is safer than symlink — let's just copy everything." | Copying creates N independent copies of every skill. A bug fix to the core skill must be manually propagated to N copies. With 15 agents and 50 skills, that's 750 files to keep in sync. Symlink is the default; copy is the exception for agent-specific overrides only. |
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **Symlink breaking on agent upgrade changing directory structure.** When an agent terminal releases a new major version that reorganizes its config directory (e.g., Claude Code moving skills from `~/.claude/skills/` to `~/.claude/agents/skills/`, or Copilot CLI changing from `~/.copilot/skills/` to `~/.config/copilot/skills/`), every symlink breaks silently. No agent reports "I can't find my skills" — skills simply disappear from the available list. Engineers waste hours debugging "why did my skills stop working?" before discovering the directory change. **Total cost: $10K-$50K in engineering time debugging broken skill references across teams of 10-50 engineers. An organization with 30 engineers losing 2 hours each to broken symlink debugging after an agent upgrade burns $15K-$30K in a single incident.** Fix: Run symlink health checks in CI daily: `find ~/.claude/skills/ ~/.copilot/skills/ -type l ! -exec test -e {} \; -print`. Store agent base paths in variables (not hardcoded). Pin agent versions and test symlink paths before upgrading.
 
@@ -588,7 +605,33 @@ graph LR
 
 - **Relative path references in SKILL.md break when symlinks resolve to different locations.** A skill at `~/.agents/skills/core/code-reviewer/SKILL.md` references `references/checklist.md`. When symlinked to `~/.claude/skills/code-reviewer/SKILL.md`, some agents resolve the symlink first (reading from the core path) while others read from the symlink location. Agents that read from the symlink location try to find `~/.claude/skills/code-reviewer/references/checklist.md` — which doesn't exist because `references/` is only at the core path. **Total cost: $3K-$12K in broken reference debugging. References that work in one agent but 404 in another create "it works on my agent" support tickets. A skill with 8 reference files seeing 30% broken reference rate on 2 agents means 5 broken references × 2 agents = 10 manual fixes.** Fix: Test reference link resolution on every target agent, not just the primary development agent. Use the symlink health check to verify all paths resolve. See `references/symbolic-link-strategy.md` for the full resolution guide.
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do use symlinks for cross-agent skill sharing, not copies** — Copying skills to each agent's directory creates version drift within hours of the next update. A single symlink tree from `~/.agents/skills/core/` into each agent's skills directory ensures all agents load identical skill content atomically. Copy-based deployment costs 3-5 person-hours/month in drift reconciliation at $150/hour — $5,400-$9,000/year for a medium-sized skill library of 20-50 skills across 5+ agents.
+2. **Prefer manifest-driven discovery over directory scanning** — Each agent implementing its own file-walk logic produces inconsistent skill availability: a skill that loads in Claude Code may silently fail in Copilot CLI because of different glob patterns or file filter rules. A `skills-manifest.json` with name, version, sha256, routing metadata, and invocation triggers provides O(1) guaranteed-consistent discovery. Manifest-driven discovery eliminates the "skill works in agent A but not agent B" class of bugs that costs 2-4 hours per incident to triage.
+3. **Always normalize frontmatter before publishing to any target agent** — Vendor-specific frontmatter fields (cursorRules, geminiDirectives, codexOpenAPI, opencodeTOML) leak agent-specific configuration into other agents, causing parse errors or silent misbehavior. A normalization pipeline that strips vendor fields and validates against the portable spec spec prevents cross-agent contamination. One leaked vendor field can silently break skill loading on 3+ agents simultaneously — diagnosis requires checking each agent's logs individually.
+4. **Never deploy a skill without cross-agent compatibility testing on every target** — Each agent terminal has unique quirks: YAML parsing differences, token budget interpretation, reference resolution behavior, and invocation pattern matching. A skill that passes tests in Claude Code may fail silently in Copilot CLI. Skipping compatibility testing means skills break in production on half the agent fleet — cost: $2K-$10K per broken deployment in triage, hotfix cycles, and lost productivity while skills are unavailable.
+5. **Measure manifest drift frequency as a health metric** — Track how often `skills-manifest.lock` computed hashes diverge from the actual symlink tree contents. Drift >0% for more than 5 minutes after a skill update means your publishing pipeline has a race condition or incomplete update path. Undetected manifest drift causes "I updated the skill but the agent still uses old behavior" support tickets — each costs 30-60 minutes to diagnose. Alert on any drift within 5 minutes of a publish event.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Symlinks healthy across all agent directories: zero broken symlinks in any agent's skills directory | `find ~/.claude/skills/ ~/.copilot/skills/ ~/.cursor/skills/ -type l ! -exec test -e {} \; -print` returns empty |
+| ☐ | Manifest current with zero drift: `skills-manifest.lock` SHA256 hashes match actual file tree hashes for every skill | `diff <(jq -r '.skills[] | "\(.name) \(.sha256)"' manifest.lock) <(compute-tree-hashes)` returns empty output |
+| ☐ | No vendor-specific field leakage: zero occurrences of agent-specific frontmatter fields in portable skill YAML | `grep -rE "cursorRules|geminiDirectives|codexOpenAPI|opencodeTOML" ~/.agents/skills/core/` returns empty |
+| ☐ | PROCESS_TREE.md present for every Claude Code skill operating in portability mode | `for d in ~/.agents/skills/core/*/; do test -f "$d/PROCESS_TREE.md" || echo "MISSING: $d"; done` returns empty |
+| ☐ | All reference links resolve: no broken internal links, missing reference files, or dangling cross-skill references | `scripts/verify-skill.sh --check-references` exits 0; no warnings about unresolved paths |
+| ☐ | Compatibility test passes on every portability target agent: `compatibility-report-*.json` shows `overall: "COMPATIBLE"` for each declared agent | Verify report files for each agent (claude-code, copilot-cli, cursor, codex, gemini-cli); all show COMPATIBLE status |
+| ☐ | Frontmatter validates per agent spec: normalization pipeline `--validate-only` flag passes on each target without errors | Run normalization with `--validate-only` per agent; zero validation errors; frontmatter conforms to each agent's expected schema |
+| ☐ | Rollback plan is documented and tested | Manifest version history tracked in git; tested rollback to previous manifest version and verified all agents return to prior behavior; rollback time <2 minutes |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Symlinks healthy: `find ~/.claude/skills/ ~/.copilot/skills/ ~/.cursor/skills/ -type l ! -exec test -e {} \; -print` returns empty (zero broken symlinks)
 - [ ] Manifest current: `diff <(jq -r '.skills[] | "\(.name) \(.sha256)"' ~/.agents/skills/skills-manifest.lock) <(for d in ~/.agents/skills/core/*/; do name=$(basename "$d"); hash=$(find "$d" -type f -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1); echo "$name $hash"; done)` returns empty (no drift)
@@ -599,10 +642,12 @@ graph LR
 - [ ] Frontmatter valid per agent: run normalization pipeline with `--validate-only` flag on each target agent
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Cross-Agent Directory Standard**: See [cross-agent-directory-standard.md](references/cross-agent-directory-standard.md)
 - **Per-Agent Directory Mapping**: See [per-agent-directory-mapping.md](references/per-agent-directory-mapping.md)

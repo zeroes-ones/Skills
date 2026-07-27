@@ -46,6 +46,7 @@ Reserved Instances/Savings Plans, Kubernetes cost optimization, spot instance st
 tiering, data transfer optimization, anomaly detection, and carbon-aware cost reduction.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -80,9 +81,11 @@ What are you trying to do?
 └── Not sure? → Start with visibility: you can't optimize what you can't measure
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -101,12 +104,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R9** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R10** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of finops engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -127,6 +130,7 @@ Masters of finops engineer don't just build — they build **the right thing, at
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -141,21 +145,8 @@ Masters of finops engineer don't just build — they build **the right thing, at
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-#### Solo ($1K-$10K/month cloud spend)
-Identify the top-3 cost drivers in your bill. Implement mandatory tags on new resources. Set one budget alert at 80%. Enable anomaly detection. Right-size the 3 most expensive underutilized instances. **Time to value: 2-4 hours.**
-
-#### Small Team ($10K-$100K/month spend, 5-20 engineers)
-Full tagging strategy with enforcement via SCP/Azure Policy. Budget alerts per team/environment at 50/80/100%. Savings Plan commitment analysis and purchase. Non-production auto-shutdown scheduler. Monthly cost report shared with all teams. **Time to value: 2-4 weeks.**
-
-#### Medium Org ($100K-$1M/month spend, 50-200 engineers)
-Dedicated FinOps practitioner (at least 0.5 FTE). RI/SP portfolio management with marketplace optimization. Unit economics dashboards (cost per customer, per transaction). Kubernetes cost allocation via kubecost. Cost gates in CI/CD pipeline. Quarterly FinOps review with finance and CTO. **Transition trigger:** When monthly spend crosses $100K, the noise from untagged spend exceeds one person's ability to triage — hire a dedicated FinOps practitioner.
-
-#### Enterprise ($1M+/month spend, 500+ engineers)
-Full FinOps team with dedicated tooling budget. Cloud provider EDP/private pricing negotiations. Multi-cloud cost aggregation and normalization. Chargeback/showback model with automated billing. Carbon-aware workload scheduling. FinOps embedded in architecture review board for all new services. Continuous optimization pipeline with automated right-sizing and commitment purchasing. **Transition trigger:** When cloud spend becomes a material line item on the P&L (>2% of revenue), FinOps needs executive sponsorship and a dedicated team with procurement authority.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Your monthly cloud bill (AWS/Azure/GCP) has spiked and you need to identify the root cause
 - You need to implement a tagging strategy to allocate cloud costs to teams, projects, and environments
@@ -167,6 +158,7 @@ Full FinOps team with dedicated tooling budget. Cloud provider EDP/private prici
 - You need to reduce data transfer costs between regions, availability zones, or out to the public internet
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Reserved Instance vs. Savings Plan vs. On-Demand
@@ -331,6 +323,7 @@ Code change detected — what kind?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -413,9 +406,13 @@ Code change detected — what kind?
 3. **Optimize for carbon**: schedule batch workloads during low-carbon-intensity hours; right-size reduces carbon proportionally.
    - Output: Carbon optimization playbook integrated into standard FinOps practices.
   Complete when: carbon baseline is measured, carbon-aware region selection policy is adopted for new workloads, and carbon optimization playbook is integrated into the standard FinOps review.
-
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -424,8 +421,8 @@ Code change detected — what kind?
 | Leaving NAT Gateways in dev/staging environments running 24/7 — a $32/month NAT Gateway × 3 environments × 12 months = $1,152/year for traffic that never leaves the VPC | $1K-$5K per year per environment in idle NAT Gateway costs | Schedule non-production NAT Gateways to shut down during off-hours (nights/weekends); use VPC endpoints for S3/DynamoDB to avoid NAT Gateway charges entirely; monitor NAT Gateway data transfer costs weekly |
 | Not setting billing alerts on new accounts — a misconfigured autoscaling group spins up 500 instances overnight; the bill arrives at $15,000 before anyone notices | $10K-$50K in a single-month billing spike | Set budget alerts at 50%, 80%, 100%, and 120% on every account; configure hard spending limits where the cloud provider supports them; use AWS Budget Actions to auto-apply SCP deny policies at the hard limit |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -440,8 +437,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Anomaly detection alert fires at 3 AM for a $1.2K spike — the team wakes up but it's a scheduled 6-hour spot instance price surge | EC2 spot prices surged from $0.07/hr to $2.10/hr (30×) during a capacity crunch in us-east-1a. The cluster gracefully shifted to on-demand, but the cost anomaly detector doesn't differentiate between spot price volatility and genuine spending anomalies | Configure anomaly alerts with a 24-hour rolling window (not hourly). Set separate thresholds: spot cost > 3× baseline = informational; on-demand + RI cost > 1.5× baseline = P1 alert. Use diversified spot instance pools (multiple instance families + multiple AZs) so a single-family surge doesn't spike costs | Spot price surges are normal, not anomalous. Anomaly detection on per-hour granularity generates false alarms for any workload that uses spot. Use daily aggregation with separate thresholds for interruptible vs committed spend. |
 | Teams provision `db.r5.24xlarge` in dev "just for testing" — the $15K/month instance runs for 6 weeks before FinOps catches it | Self-service IaC modules have no size constraints. A developer copies a production Terraform module, changes the name, and provisions a 96-vCPU database for a 100-row test dataset. No approval gate catches it because dev environments bypass the production change management process | Add JSON Schema `maximum` constraints on instance sizes in Terraform module variables. Implement OPA policies: `deny[msg] { input.instance_class == "db.r5.24xlarge"; not input.environment == "prod" }`. Set budget alerts on dev accounts at $500/month with hard stops at $1,000 | Self-service without guardrails is self-inflicted cost. Developers pick the instance size they know (production's), not the one they need (dev's). Enforce size ceilings per environment in IaC modules — a budget alert arrives 24 hours too late. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Enforce mandatory tagging at provisioning time.** Use SCPs (AWS), Azure Policy, or GCP Org Policy to block resource creation without `Environment`, `Service`, `Team`, `CostCenter` tags. Retroactive tagging is 10x more expensive than prevention.
 
@@ -464,6 +461,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Run monthly FinOps reviews with cross-functional attendance.** Engineering, finance, and product must be in the room. Review spend vs. budget, optimization wins, commitment coverage gaps, and unit cost trends. Without regular reviews, FinOps decays into a once-per-quarter panic.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -478,6 +476,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -492,6 +491,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `fp-and-a-analyst` | Cost forecasts, commitment purchase ROI, provider discount analysis, unit economics data | Financial planning can't model cloud spend accurately — budget surprises |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -504,11 +504,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Kubernetes clusters running at 15% average CPU utilization — nodes over-provisioned 6:1 | Propose right-sizing: Vertical Pod Autoscaler in recommend mode, resource requests = P50 usage, limits = P95; bin-packing with cluster autoscaler; spot instances for non-production | Kubernetes waste is invisible without kubecost or similar; over-provisioned clusters are the norm, not the exception — right-sizing typically saves 40-60% |
 | Carbon footprint not tracked — sustainability goals exist but no measurement | Propose GreenOps integration: carbon-aware region selection (lower-carbon regions are often cheaper), spot instance preference, nightly non-production shutdown, carbon dashboard alongside cost dashboard | Carbon optimization and cost optimization are 80% aligned; tracking carbon alongside cost future-proofs for regulation and ESG reporting |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[FC1]** Tagging policy enforced via SCP/Azure Policy/Org Policy — `Environment`, `Service`, `Team`, `CostCenter` mandatory on every resource, >95% compliance within 60 days
 - [ ] **[FC2]** Cost allocation rules defined for untagged spend — every dollar mapped to a team via proportional allocation or account-level defaults
@@ -526,12 +528,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[FC14]** Carbon footprint tracked — cloud provider carbon dashboard enabled, monthly carbon report alongside cost report, low-carbon region preference for new workloads
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Commitment discounts cover at least 80% of predictable workloads, and idle or over-provisioned resources are automatically identified and right-sized weekly.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -548,7 +552,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -559,6 +564,7 @@ graph LR
 | "AWS Budget alerts will catch cost spikes — we're covered." | Budget alerts fire AFTER spend exceeds the threshold, not before. A cryptomining compromise can rack up $50K in 24 hours before the first email arrives. Anomaly detection and spend velocity alerts must complement budgets. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Savings Plan + Reserved Instance Double-Purchase
 **What it looks like:** Team buys a 1-year EC2 Savings Plan ($0.10/hr) AND a Reserved Instance for the same instance type, expecting additive discounts.
@@ -596,6 +602,7 @@ graph LR
 **Do this instead:** Map ALL data flows (not just S3 replication) before enabling cross-region features. Use VPC Flow Logs to identify unexpected data movement. Only use cross-region replication for true DR requirements with explicit cost justification.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Cost allocation: every cloud resource has `cost_center` / `team` / `environment` tag — 100% tagging coverage
 - [ ] Budget alerts: every account/project has budget alert with threshold < 80% of actual budget — test alert fires when threshold exceeded
@@ -605,10 +612,12 @@ graph LR
 - [ ] Monthly report: cost per team, cost per feature, cost per customer — trend line shows cost/unit decreasing or stable
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -618,5 +627,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

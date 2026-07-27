@@ -1,5 +1,5 @@
 ---
-name: threat-intelligence-analyst
+name: threat-intelligence
 description: >
   Use when producing strategic, operational, or tactical threat intelligence reports, profiling threat
   actors (APTs, cybercriminals, hacktivists, insiders), mapping TTPs to MITRE ATT&CK, managing IOC/IOA
@@ -53,7 +53,8 @@ chain:
 
 Produce and operationalize threat intelligence across the full intelligence lifecycle — from collection planning through finished intelligence dissemination. This skill covers threat actor profiling (APT groups, cybercriminals, hacktivists, insider threats), TTP mapping to MITRE ATT&CK, IOC and IOA management, threat intelligence platform operations (MISP, OpenCTI, ThreatConnect, Anomali), structured threat sharing via STIX 2.1/TAXII 2.1, intelligence-driven threat hunting, dark web and ransomware group monitoring, ISAC/ISAO participation, the Diamond Model of Intrusion Analysis, and the intelligence-driven SOC.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -64,6 +65,7 @@ Produce and operationalize threat intelligence across the full intelligence life
 | "Our MSSP handles threat intelligence for us." | MSSPs aggregate and redistribute commodity threat intel — they're not modeling your specific threat landscape, your crown jewels, or your unique attack surface. Your threat model is yours to build. |
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
 | # | Detect Condition | Route To | Intent Route Fallback |
@@ -78,6 +80,7 @@ Produce and operationalize threat intelligence across the full intelligence life
 | **A8** | `file_contains("*.md","Diamond.Model\\|intrusion.analysis\\|Campbell")` or `file_exists("diamond-models/")` | Core Workflow → Phase 1 (Actor Profiling) | "I detect Diamond Model references — routing to Actor Profiling phase for intrusion analysis." |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -95,12 +98,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R9** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R10** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master threat intelligence analysts don't collect indicators — they model adversaries. They understand that every intrusion is a human decision made by an adversary with objectives, constraints, and a budget. Intelligence is the art of understanding that adversary well enough to predict their next move — and deny them the opportunity to make it.
 
@@ -121,6 +124,7 @@ Master threat intelligence analysts don't collect indicators — they model adve
 - **Accept a known intelligence gap when the collection cost exceeds the decision value.** If collecting intelligence on a low-capability threat actor costs $50K in tooling and analyst time, and your existing controls already mitigate that threat, document the gap, accept the risk, and redirect resources.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -341,6 +345,7 @@ Who needs to receive your intelligence?
 4. Execute the hunt: query SIEM/EDR/data lake for the expected artifacts. Document results — both findings (potential intrusions that need escalation) and non-findings (absence of evidence, which updates your risk posture).
 5. Feed hunt findings back into intelligence: if the hunt discovers new IOCs, TTPs, or infrastructure, these become new intelligence that enriches the adversary profile and potentially triggers new PIRs.
   Complete when: Hunt hypotheses converted from finished intelligence, hunts prioritized by adversary relevance and data availability, hunt packages designed with expected artifacts and false positive scenarios, hunts executed with documented findings/non-findings, and hunt results feeding back into intelligence enrichment.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
 
 ### Cross-skills Integration
 
@@ -354,6 +359,7 @@ Who needs to receive your intelligence?
 ```
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -369,6 +375,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | "Threat actor group APT41 targeting logistics sector" report shared with board. Board asks: "Are we patched? Are we protected?" Security team has no answer because the report is about TTPs, not specific CVEs | Threat intelligence report shared at wrong abstraction level. Board needs: "Here's the business risk, here's what we've done, here's the residual risk." Instead they got: "APT41 uses T1059.001 for initial access." Translation gap between intel and business impact | Produce tiered intelligence products: Strategic (board) = business impact, risk posture, resource asks. Operational (CISO) = campaign overview, affected systems, mitigation status. Tactical (SOC) = IOCs, detection rules, hunt queries. Before sharing any intel upward, translate it: "APT41 targets logistics — our logistics platform has X controls, Y gaps, and we need Z resources to close them" | Intelligence that can't be acted on is indistinguishable from noise. The board doesn't need ATT&CK technique IDs — they need to know if the organization is protected against the threat and what it would cost to close the gap. Translation is the most important skill in threat intelligence |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **IOC lifecycle management: every indicator has an expiration date and a confidence score.** Network IOCs (IPs, domains): expire in 14 days unless revalidated. Host IOCs (file paths, registry keys): 30 days. File hashes: 90 days. Confidence scores: High (multiple corroborating sources, consistent over time), Moderate (partially corroborated, plausible), Low (single source, uncorroborated — treat as a lead). Expired IOCs still have forensic value but should not generate active alerts.
 
@@ -391,9 +398,11 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Internal telemetry is your highest-fidelity intelligence source — integrate TI platform with SIEM/EDR.** External threat feeds tell you what's happening globally. Internal telemetry tells you what's happening in YOUR environment. Correlate external intelligence with EDR telemetry, firewall/proxy logs, DNS logs, and cloud audit trails. A C2 IP from a threat feed that's never been contacted by any internal system is low-priority. That same IP appearing in DNS query logs from a development server at 3 AM is a critical incident.
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before a threat intelligence program goes operational, validate every item. Intelligence failures during an active intrusion are catastrophic — the SOC is blind without current, relevant intelligence.
 
@@ -424,38 +433,14 @@ Before a threat intelligence program goes operational, validate every item. Inte
 If any checklist item fails: STOP. Intelligence gaps during an active threat campaign cause the SOC to operate blind. Document the gap, its operational impact, and resolve before the program goes operational.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every Priority Intelligence Requirement has a named consumer, a decision it informs, and a collection-to-dissemination pipeline that delivers intelligence before the decision deadline. Every IOC in the platform has an adversary context, a confidence score, an expiration date, and an automated path to operationalization in the SOC detection pipeline. Intelligence consumers receive products in their preferred format at their required cadence — SOC analysts get STIX and SIGMA rules in near-real-time, threat hunters get hypothesis packages weekly, the board gets a risk-focused strategic brief quarterly. The intelligence lifecycle is a continuous feedback loop: consumer feedback shapes the next iteration of PIRs, intelligence gaps are documented and managed as risk decisions, and every intelligence finding that warrants action produces at least one detection rule, prevention control, hunt hypothesis, or risk acceptance within 48 hours.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-### Scale Depth
-
-#### Solo
-
-**Threat intelligence for a solo security practitioner or small SOC (1-3 analysts).** Use free/open-source tools: MISP (community edition), OpenCTI (community), abuse.ch feeds (URLhaus, ThreatFox, SSL Blacklist), CISA KEV feed. Subscribe to sector-specific ISAC (free for small orgs). Focus: ingest high-confidence IOCs from vetted free feeds, deploy to firewall/proxy blocklists, and monitor for matches. No dedicated CTI analyst — intelligence is a SOC analyst side responsibility. Biggest risk: free feeds without validation produce 40-60% noise. Mitigation: only ingest feeds with documented false positive rates and community vetting.
-
-**Transition trigger:** Dedicated CTI analyst hired, or >100 employees with regulatory requirements → move to Small.
-
-#### Small
-
-**Small security team (3-10 people) with a dedicated CTI function.** Commercial TI feed: Recorded Future, Mandiant, or CrowdStrike Falcon Intelligence (base tier). OpenCTI for intelligence management with STIX 2.1 normalization. Integration: push IOCs to SIEM (Splunk/Elastic) and EDR (CrowdStrike/SentinelOne) via API. PIRs defined for SOC and vulnerability management consumers. Weekly intelligence summaries for security leadership. ISAC/ISAO membership active with two-way sharing. Biggest risk: treating CTI as a research function instead of an operational function — intelligence must drive detection rules, not just reports.
-
-**Transition trigger:** Multiple business units, >500 employees, or 24/7 SOC requiring real-time intelligence feeds → move to Medium.
-
-#### Medium
-
-**Mid-size enterprise (500-2000 employees), dedicated CTI team (3-5 analysts).** Commercial TI platform: Anomali ThreatStream, ThreatConnect, or EclecticIQ for multi-source intelligence management. Multiple TI feeds correlated: commercial (Recorded Future, Mandiant Advantage), open-source (MISP communities), government (CISA AIS, sector ISACs). Threat hunting integration: automated hunt hypothesis generation from adversary TTPs. Dark web monitoring: Recorded Future/Flashpoint/ZeroFox for brand monitoring and credential exposure. Strategic intelligence products: quarterly threat landscape brief for board. Metrics dashboard: prevention rate, detection rate, time-to-operationalize, accuracy.
-
-**Transition trigger:** Global operations, >2000 employees, or critical infrastructure designation → move to Enterprise.
-
-#### Enterprise
-
-**Fortune 500, global enterprise, government agency, or MSSP.** Full-scale TI program: dedicated strategic, operational, and tactical intelligence teams. Multi-source intelligence fusion: HUMINT (human intelligence via industry relationships), SIGINT (dark web/Telegram monitoring), OSINT (automated scraping of 100+ sources), TECHINT (malware reverse engineering). AI/ML: NLP-based threat report ingestion and automatic adversary profiling, anomaly detection in internal telemetry correlated with external intelligence. Red team/CTI feedback loop: CTI drives adversary emulation scenarios, red team findings feed back into adversary profiles. Global threat landscape: region-specific intelligence for APAC, EMEA, Americas. Government partnerships: CISA JCDC, NCSC CiSP, ENISA. Intelligence sharing: ISAC board membership, bi-directional STIX/TAXII with government CERTs.
-
-**Transition triggers:** National security responsibilities, operating critical infrastructure across 3+ continents, or threat intelligence as a revenue-generating service offering.
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -470,6 +455,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream — What You Consume
 
@@ -495,6 +481,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `compliance-officer` | Threat-based evidence for control prioritization: which controls actually stop real-world adversaries vs. which are checkbox exercises | Compliance frameworks treat all controls as equal. Threat intelligence tells you which controls bear the weight of actual adversary activity — invest audit preparation time there. |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -508,6 +495,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Board or executive leadership requests a threat briefing for an upcoming strategic decision (M&A, market entry, major product launch) | Produce a strategic intelligence assessment: threat landscape for the target market/company, relevant adversary groups, intellectual property theft risk, regulatory threat environment. Deliver within the decision timeline — not after. | Strategic decisions without threat context are blind risks. An acquisition target with undetected APT access is a liability purchase. Market entry into a region with active nation-state targeting of your sector is a risk that should be priced into the decision. |
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -524,6 +512,7 @@ graph LR
 **The One Highest-Leverage Activity:** Maintain an "intelligence accuracy journal." For every key judgment you produce, record: what you assessed, your confidence level, the basis for that confidence, and the date. Review quarterly against what actually happened. Track your accuracy rate, calibration (does "high confidence" actually mean high accuracy?), and specific biases (do you overestimate APT activity? underestimate cybercriminal innovation?). This journal is your personal calibration instrument — in 12 months, you'll know exactly which types of judgments you're good at and which you consistently get wrong.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Treating MITRE ATT&CK technique coverage as a scorecard rather than an analysis framework.** "We have detection for 85% of techniques!" — but the 15% you're missing are the specific techniques used by the two APT groups actively targeting your sector. Coverage percentage without adversary context is a vanity metric. ATT&CK is a map for navigating adversary behavior, not a compliance checklist. **Total cost: $100K-$500K in undetected intrusions — an APT operating entirely within your coverage gap for 6+ months, exfiltrating intellectual property and customer data through techniques you don't monitor because the dashboard showed 85% green.** Fix: Overlay your ATT&CK coverage map with the specific techniques used by your top 5 relevant threat actors. Prioritize detection engineering for techniques where adversary usage AND your coverage gap overlap. Those are the techniques actively being used against you that you can't see.
 
@@ -539,8 +528,8 @@ graph LR
 
 - **Treating all intelligence sources as equally reliable — a tweet, a vendor report, a government advisory, and a forum post all feeding into the same pipeline with no source reliability rating.** The adversary knows this. They plant false IOCs in open-source feeds to waste analyst time and pollute detection pipelines. A single unverified IOC from an anonymous paste that makes it into your SIEM watchlist triggers false alerts for weeks. **Total cost: $80K-$300K in alert fatigue — analysts spend 40% of their time investigating false positives from low-reliability IOCs. Real intrusions are missed because the SOC has been desensitized. Plus the operational cost of blocking legitimate traffic from false positive IOCs (customer-facing services blocked because an adversary planted your partner's IP in an OSINT feed).** Fix: Every intelligence source needs a reliability rating (Admiralty Code A-F or equivalent). Low-reliability IOCs (single source, unverified, anonymous) never auto-deploy to blocking controls — they go to analyst review. Auto-deployment to SIEM/EDR only for high-confidence IOCs from rated sources. False-positive-prone IOCs (IPs shared by CDNs, cloud providers, major services) get additional validation before operationalization.
 
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -549,6 +538,7 @@ graph LR
 | Threat intelligence analysts producing reports in isolation without embedding with the SOC for a week per quarter — intelligence products answer questions the SOC isn't asking, while the questions the SOC desperately needs answered go unaddressed. | $150K-$500K in misdirected CTI resources producing unused intelligence | Rotate CTI analysts through SOC embedding for one week per quarter. Every intelligence product must be co-designed with a consumer. Measure intelligence utilization rate: what percentage of intelligence products were acted upon? |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Priority Intelligence Requirements (PIRs) documented with named consumers, decision points, and refresh cadence (quarterly review minimum)
 - [ ] Every IOC in the TI platform has: adversary tag, campaign tag, confidence score, source attribution, and expiration date — run `scripts/ioc-health-check.py` to verify
@@ -562,10 +552,12 @@ graph LR
 - [ ] Feedback loop operational: all intelligence consumer groups provide structured feedback at their consumption cadence, feedback informs PIR revision
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -576,7 +568,6 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 ### External Threat Intelligence Resources

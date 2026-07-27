@@ -41,7 +41,8 @@ chain:
 
 Regulatory compliance framework for medical device software (SaMD), health tech, and life sciences. Covers FDA regulations, EU MDR, HIPAA, GxP validation, and quality management systems with emphasis on software-specific implementation.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -52,6 +53,7 @@ Regulatory compliance framework for medical device software (SaMD), health tech,
 | "That 72-hour GDPR notification window is flexible while we investigate." | GDPR requires notification within 72 hours of becoming aware — not 72 hours after leadership reaches consensus. A 19-hour delay triggers a separate violation with fines up to €10M or 2% of global annual turnover, independent of any penalty for the breach itself. Start the clock at detection, pre-draft notification templates, and maintain 24/7 escalation. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -69,12 +71,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master regulatory specialists understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -95,6 +97,7 @@ Master regulatory specialists understand that strategy is not about predicting t
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
@@ -110,6 +113,7 @@ Master regulatory specialists understand that strategy is not about predicting t
 | **A8** | `file_contains("*.{md,py,js,ts}", "software.as.medical\|SaMD\|medical.device.software\|clinical.decision\|image.processing\|IEC.62304")` | Decision Trees → SaMD Classification | "I detect SaMD/medical device software patterns — routing to SaMD Classification decision tree." |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -124,21 +128,8 @@ Master regulatory specialists understand that strategy is not about predicting t
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-#### Solo
-- Classify your SaMD product, identify the correct regulatory pathway (510(k)/De Novo/PMA or CE marking route), and implement foundational QMS documentation — get the classification right before investing in infrastructure
-
-#### Small Team
-- Deploy an eQMS with document control, CAPA, and training tracking; implement Part 11 compliant electronic records and signatures; establish design controls with traceability from user needs to verification
-
-#### Medium Organization
-- Run multi-jurisdiction regulatory programs (FDA + EU MDR + international), maintain full ISO 13485 certified QMS, manage notified body relationships with ongoing surveillance audits, and implement post-market surveillance with clinical evaluation reporting
-
-#### Enterprise
-- Operate global regulatory affairs across all major markets, manage PMA and Class III device portfolios, run clinical investigation programs (IDE), maintain multiple QMS certifications (ISO 13485, MDSAP, QSR), and drive regulatory intelligence with 24-36 month horizon scanning across 20+ agencies
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Classifying a Software as a Medical Device (SaMD) under FDA risk categories (Class I, II, III) or EU MDR (Class I, IIa, IIb, III)
@@ -151,10 +142,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Preparing for FDA inspection or notified body audit — mock audit, CAPA review, documentation readiness
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### SaMD Classification (FDA)
+
 ```
                      ┌──────────────────────────────┐
                      │ START: FDA SaMD risk class?    │
@@ -185,6 +178,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        └─────────┘ │reminder app  │
                                                     └──────────────┘
 ```
+
 **When Class III (PMA):** Life-sustaining/life-supporting, or failure could cause serious injury/death — AI stroke detection, closed-loop insulin delivery, cardiac monitoring. PMA required.
 **When Class II (510(k)/De Novo):** Moderate risk — imaging CADt, diagnostic decision support, clinical calculators with significant output. Clearance via substantial equivalence or novel De Novo.
 **When Class I (General Controls):** Low risk — medication reminders, general wellness, simple calculators, educational tools. No premarket submission; register + list + QSR compliance.
@@ -233,6 +227,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                 │IIb    │ │or lower │
                                                 └───────┘ └────────┘
 ```
+
 **When Class III:** Highest risk — active therapeutic with critical function, central circulatory/nervous system, or Rule 21 software driving clinical decisions where death/irreversible deterioration possible.
 **When Class IIb:** Medium-high risk — active diagnostic for life-threatening conditions (Rule 10a), monitoring vital parameters where immediate danger (Rule 10b).
 **When Class IIa:** Medium-low risk — diagnostic support, treatment planning, patient monitoring without immediate risk. Most clinical decision support software.
@@ -269,11 +264,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     │   training    │  └─────────┘ │practices.   │
                     └───────────────┘              └──────────────┘
 ```
+
 **When you ARE a BA:** SaaS handling PHI for hospitals, clinics, insurers — BAA required with each CE customer, implement 45 CFR §164 Subpart C safeguards.
 **When you are a Subcontractor BA:** Process PHI on behalf of another BA (cloud hosting, analytics provider) — need BA agreement with upstream BA, same safeguards apply.
 **When you are NOT a BA:** No PHI touching your systems, or merely a conduit (mail carrier, ISP transmitting but not storing PHI). HIPAA not applicable but security best practices encouraged.
 
 ### Validation Approach (GxP/GAMP 5)
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Computer system          │
@@ -301,11 +298,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        │+ reports│ │validation   │
                                        └─────────┘ └─────────────┘
 ```
+
 **When GAMP Category 3:** Off-the-shelf, no customization — MS Office, standard OS, commercial DB. Leverage vendor QMS; validate that it works in your environment.
 **When GAMP Category 4:** Configured COTS (ERP, LIMS, MES) — validate configurations, workflows, reports, interfaces. Test that configs meet requirements.
 **When GAMP Category 5:** Custom-built — full SDLC validation: URS → FS → DS → IQ → OQ → PQ. Traceability matrix, code review, unit testing, integration testing.
 
 ### Data Integrity Issue Response (ALCOA+)
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Data integrity issue     │
@@ -331,11 +330,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     └───────────────┘  │fix       │ │edge case    │
                                        └──────────┘ └─────────────┘
 ```
+
 **When to halt operations + engage Legal:** Deliberate fabrication/deletion of GxP data — possible criminal liability (FDA 704(a)(3) authority), regulatory disclosure may be required.
 **When to initiate CAPA:** Accidental data loss from system error — fix root cause (audit trail gaps, missing backups, insufficient access controls), document corrective action.
 **When to invest more:** Unexplained issue — could be one-off or systemic. Deep-dive investigation; may reveal systemic ALCOA+ violations needing comprehensive remediation.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -372,8 +373,15 @@ Complete when: Device classification determined with documented rationale per FD
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 Complete when: QMS subsystems designed per ISO 13485 and 21 CFR Part 820 (document control, design controls, CAPA, risk management). Document hierarchy established (Quality Manual → SOPs → Work Instructions → Forms). Design control procedures defined covering inputs, outputs, review, verification, and validation. Supplier management and internal audit procedures documented.
+  Complete when: Legal review completed and all required disclosures documented.
+  Complete when: Data retention policy defined with automated enforcement and audit trail.
+  Complete when: Cross-border data transfer impact assessment completed and documented.
+  Complete when: Third-party vendor compliance verified — DPA signed and security review passed.
+  Complete when: Incident response plan updated to include regulatory notification procedures.
+  Complete when: Employee training materials updated and delivery scheduled within quarter.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -389,6 +397,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Regulatory compliance in healthcare, finance, and safety-critical domains requires deep cross-functional coordination. Engineering, quality, and legal all own pieces of the compliance puzzle.
@@ -451,13 +460,12 @@ Regulatory compliance in healthcare, finance, and safety-critical domains requir
 | ISO 13485 / MDR certification at risk (major nonconformity) | **Notified Body** + CEO Strategist + QA Lead | CE marking at risk; EU market access may be suspended |
 | Whistleblower allegation of data integrity fraud (GxP) | **External Counsel** + Board + FDA (if required) | Criminal liability potential; DOJ/FDA investigation risk |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `compliance-officer` | Regulatory requirements, audit frameworks, control mappings | Before providing legal or privacy advice |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -471,12 +479,14 @@ Regulatory compliance in healthcare, finance, and safety-critical domains requir
 | HIPAA BAA missing for a vendor processing PHI | Halt PHI sharing; execute BAA; add verification to vendor onboarding; audit all vendor relationships quarterly | Processing PHI without BAA exposes both entities — the most common HIPAA violation after misconfiguration |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When regulatory strategy is executed flawlessly, product roadmaps account for regulatory pathways from ideation, submission packages are complete on first review with zero major deficiencies, multi-ju
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -494,6 +504,7 @@ graph LR
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **"Check the box" compliance** — you implement every control on the checklist, collect evidence that the control exists (policy document, screenshot, configuration file), and declare compliance. But the control doesn't actually work. The firewall rule exists but allows 0.0.0.0/0. Compliance theater creates paper security.
 - **Monitoring regulatory changes via news headlines** — "FDA Issues New Guidance on AI/ML Devices" — but the headline doesn't tell you effective date, transition period, enforcement discretion, or impact on your specific device class. Regulatory monitoring requires primary sources: Federal Register, EUR-Lex, agency guidance documents, not news aggregation.
@@ -502,6 +513,7 @@ graph LR
 - **Assuming international regulations don't apply because "we're US-based"** — GDPR applies to any company processing EU residents' data. EU MDR applies to any medical device sold in the EU. PIPL (China) applies to processing Chinese citizens' data. Territorial reach of modern regulations is global.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -510,8 +522,8 @@ graph LR
 | "Notified Body suspends CE certificate" | This is a MAJOR nonconformity triggered by unaddressed minor nonconformities, post-market surveillance safety issues, or serious QMS failures found in unannounced audit | Remediate immediately: CE suspension means you cannot sell in the EU; address all audit findings, implement corrective actions with effectiveness evidence, and expect remediation measured in weeks, not months | Minor nonconformities that go unaddressed compound into certificate suspension — every audit finding must be closed with objective evidence before the next surveillance audit |
 | "Warning Letter posted on FDA website" | The FDA publishes Warning Letters publicly — investors, customers, and competitors all see it simultaneously | Respond within 15 business days with root cause analysis, corrective action plan, and timeline; simultaneously activate pre-drafted crisis communications for investors, customers, and media | Regulatory actions carry reputational impact equal to their compliance impact — crisis communication planning must be part of regulatory readiness, not an afterthought |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Classify before you build — SaMD classification determines the entire development pathway.** FDA Class I/II/III and EU MDR Class I/IIa/IIb/III have fundamentally different requirements for premarket submission, QMS, and clinical evidence. A wrong classification decision made early cascades into years of rework. Document the classification rationale with intended use, indications for use, and the specific classification rule applied.
 
@@ -533,11 +545,12 @@ graph LR
 
 10. **Separate validated from non-validated environments with enforced segregation.** GxP systems require distinct DEV, VAL (validation), and PROD environments with controlled promotion paths. Development activity in a validated production environment invalidates the validated state and requires re-validation — environment segregation is the first thing auditors check in computerized system validation.
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] Regulatory intelligence: monitoring sources cover ALL jurisdictions you operate in. A known recent regulatory change verified to appear in your monitoring feed.
@@ -549,6 +562,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Post-market: adverse event reporting process tested. Complaint handling procedure current. Vigilance reporting timelines verified.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **Regulatory gap analysis that maps requirements to controls** but doesn't test whether the controls ACTUALLY WORK — you have a policy that says "access reviewed quarterly." The control is the policy document. The auditor asks "show me the last 4 quarterly reviews." You have 1. The control existed on paper, not in practice. Every mapped control needs evidence of OPERATION, not just design. **Total cost: $500K-$5M in regulatory penalties, consent decree costs, and remediation when an inspection reveals controls exist only on paper — the FDA, MHRA, and other regulators treat undocumented or non-operational controls as if they never existed, triggering systemic findings that multiply per-control penalties and can result in manufacturing shutdowns or market-access revocation.**
 - **"Compliance with [Regulation] is our top priority"** in a public statement — that statement is now evidence in every investigation, lawsuit, and regulatory action against you. If you fall short (and everyone falls short somewhere), opposing counsel opens with: "You said this was your top priority. Was that a lie, or were you incompetent?" Never claim compliance is your "top priority" — claim it's a "core commitment." **Total cost: $1M-$50M+ in adverse judgments, settlement premiums, and regulatory fines when your own public statements are used as the standard of care against you — opposing counsel and regulators frame every gap as either fraud or gross negligence, and settlement leverage shifts dramatically because a jury will hear your own words as the benchmark for what you promised.**
@@ -560,6 +574,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Data breach notification deadlines missed by hours — not days.** GDPR requires notification to the supervisory authority within 72 hours of becoming aware of a personal data breach. A SaaS company detects unauthorized database access on Friday at 4 PM, leadership debates severity over the weekend, and legal counsel files the notification Tuesday at 11 AM — 91 hours after detection. The 19-hour delay triggers a separate GDPR violation with fines up to €10M or 2% of global annual turnover, whichever is higher, independent of any penalty for the breach itself. **Total cost: €500K-€20M in regulatory fines for late notification, plus reputational damage and potential civil litigation from affected data subjects.** Pre-draft breach notification templates for common scenarios, maintain a 24/7 incident response team with clear escalation triggers, and automate the 72-hour countdown clock from the moment of detection — not from when leadership reaches consensus.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Control evidence: for each regulatory control, can you produce the last 4 periods of operational evidence?
 - [ ] Regulatory calendar: all filing deadlines, renewal dates, and transition period end-dates tracked with 90-day pre-alerts
@@ -568,10 +583,12 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Audit readiness: mock audit conducted within last 12 months — findings tracked to remediation
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -585,7 +602,6 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

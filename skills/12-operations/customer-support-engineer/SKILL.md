@@ -39,6 +39,7 @@ Customer Support Engineering — the technical bridge between customers and engi
 debugging, reproduction, and resolution of customer-reported issues. This role spans L1 triage through L3 escalation, knowledge base ownership, bug reporting, feature request triage, and proactive customer health monitoring.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -79,6 +80,7 @@ What are you trying to do?
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -96,12 +98,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master customer support engineers know that operational excellence is invisible when it works — and catastrophically visible when it doesn't. They design for the 99th percentile, not the average.
 
@@ -122,6 +124,7 @@ Master customer support engineers know that operational excellence is invisible 
 - **Over-communicate during ambiguity.** When the path is unclear, silence is worse than wrong information.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -136,22 +139,8 @@ Master customer support engineers know that operational excellence is invisible 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 support person, early-stage startup)
-Single queue. Founder does support. Priority: ticket triage discipline, SLA definition, KB article creation from every resolved ticket, auto-responders. Tools: Gmail/Help Scout, Notion for KB, Linear for bug tracking. No escalation tiers — one person resolves everything. Focus on building the KB as you go.
-
-#### Small (2-5 support engineers, Series A startup)
-L1/L2 split emerges. Dedicated support tooling. Priority: escalation paths, SLA dashboards, KB with full-text search, on-call rotation, ticket deflection metrics. Tools: Zendesk/Intercom, Datadog/Sentry for monitoring, Slack Connect for enterprise customers. Focus: reduce L1-to-L2 escalation rate through KB and training.
-
-#### Medium (5-20 support engineers, growth-stage company)
-L1/L2/L3 tiers with clear escalation criteria. Dedicated support ops role. Priority: support engineering (build internal tools), proactive monitoring (ticket creation from error spikes), customer health scoring, multi-channel support (chat, email, phone, social). Tools: Zendesk Enterprise, Jira Service Management, PagerDuty, Grafana. Focus: proactive support — detect issues before customers report.
-
-#### Enterprise (20+ support engineers, public company)
-Global support org with follow-the-sun coverage. Dedicated roles: support engineer, support ops, KB manager, escalation manager, customer success engineer. Priority: enterprise SLAs (sub-15-min SEV1), customer health dashboards, churn prediction models, self-service portal with AI chatbot, multi-language support. Tools: ServiceNow, Salesforce Service Cloud, Zendesk Suite, custom internal tooling. Focus: support as a competitive advantage — customers stay because support is world-class.
-
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - A customer reports a production issue and you need to triage it — determine severity, reproduce, and find root cause
 - You are designing a multi-tier support structure (L1/L2/L3) with clear escalation paths and SLAs
@@ -163,10 +152,68 @@ Global support org with follow-the-sun coverage. Dedicated roles: support engine
 - You are building a proactive support strategy — monitoring error rates, reaching out before customers report
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Escalation Ownership Decision
+
+        ┌── INPUT: Issue cannot be resolved
+        │   at current tier level
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Requires code change        Requires infra or
+or deep architecture        system config
+knowledge?                  changes?
+   │                         │
+   ▼                         ▼
+L3 Engineering →            DevOps/SRE →
+file bug with repro         escalate with
+steps, logs, affected       impact radius and
+versions; assign severity   affected services
+
+### Decision Tree 2: Knowledge Base Article Decision
+
+        ┌── INPUT: A new issue pattern
+        │   or gap has been identified
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Issue seen 3+ times         Documentation gap:
+in past 30 days?            "how do I?" with
+   │                         no existing article
+   ▼                         │
+CREATE article:              ▼
+title = error message +     CREATE or UPDATE
+resolution; tag with        article; link from
+product + version;          related articles;
+add to known-issue list     flag for docs team
+                            to integrate
+
+### Decision Tree 3: Proactive Support Trigger
+
+        ┌── INPUT: Monitoring signals
+        │   indicate potential issues
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Error rate spike for        Customer health
+specific customer/          score dropping
+tenant?                     (low engagement)?
+   │                         │
+   ▼                         ▼
+Reach out within 1 hour;    Reach out within
+check: recent config        24 hours; share
+change, deploy, quota       tips, training, or
+exhaustion; offer help      offer health check
+before they report it       before churn risk
+
 ```
 WHAT TYPE OF ISSUE IS THIS?
 ├── "How do I...?" → Documentation gap. Answer + flag for KB article or docs update.
@@ -202,6 +249,7 @@ IS THIS A KNOWN ISSUE?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -236,11 +284,16 @@ Debugging & Root Cause Analysis
 2. **Reproduction**: Set up matching environment. Follow exact steps. If cannot reproduce → ask customer for screen recording or live session. Output: reproduction confirmed or docum
 
   Complete when: Debug information gathering checklist is documented; reproduction environment setup guide is created; root cause analysis template with timeline and fix classification is available; KB article template for reusable resolutions is established.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Classify every ticket by severity AND impact before responding.** SEV1 (service down, data loss) gets immediate escalation; SEV4 (cosmetic, low-impact) can wait. A misclassified SEV1 treated as SEV3 costs $50K/hour in downtime. Classification rubric: how many customers affected × business criticality × data integrity risk. For B2B SaaS, define SEV1 as "revenue-blocking for any paying customer." **Tool:** Zendesk triggers that auto-classify by keyword (outage, 500 error, data loss) and route to on-call for manual confirmation.
 
@@ -262,8 +315,8 @@ Debugging & Root Cause Analysis
 
 10. **Use the "5 Whys" on every recurring issue until you reach the system fix.** A recurring "login failed" issue resolved with "cleared cache" 50 times = 50 tickets, not 1. Each resolution treats the symptom, not the cause. Ask "why" 5 times: Why login failed? Token expired. Why token expired? No refresh logic. Why no refresh? Never implemented. Why never implemented? Not in roadmap. Why not in roadmap? Product doesn't see support data. Root cause: support-to-product feedback loop is broken. Fix the loop, not the token. **Tool:** Jira root cause analysis template, Confluence RCA with linked tickets, monthly "top 5 recurring issues" review with Product.
 
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -274,8 +327,8 @@ Debugging & Root Cause Analysis
 | SEV1 ticket acknowledged at 4 hours — SLA was 15 minutes | No real-time SLA monitoring. Weekly report discovered breach 3 days too late. Agent assumed someone else picked it up. | Real-time dashboards that flash red at 80% of SLA window. Auto-escalation if unacknowledged at 50% of window. Visible team monitor showing tickets approaching breach. | SLAs enforced retrospectively are not enforced at all. Real-time visibility with auto-escalation prevents silent breaches. |
 | Escalation to engineering: "Customer reports slow API" — no other context | Incomplete escalation. Agent escalated ticket title verbatim without investigation. Engineering spent 75 min gathering context across Slack threads. | Mandatory escalation template: account ID, affected endpoint, error message, reproduction steps, HAR/API trace, recent deploy timeline, 1-line hypothesis. Reject escalations missing template fields. | Complete escalations save 50-75 engineering minutes each. Template enforcement is cheaper than wasted engineering hours. |
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**, follow this escalation path before giving up:
 
@@ -290,6 +343,7 @@ Debugging & Root Cause Analysis
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 The Support Engineer is the frontline technical contact. Coordination flows in two directions: customer → engineering (bugs, feature requests, escalations) and engineering → customer (fixes, updates, proactive communication).
@@ -360,13 +414,12 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 | Regression bug (feature that worked now broken) | `qa-engineer` | Test gap identification; regression test suite update |
 | Monitoring gap (issue not caught by alerts) | `observability-engineer` | Dashboard, alert, or logging improvement needed |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- trigger-action table for autonomous support workflow -->
 
@@ -395,11 +448,12 @@ The Support-Engineer-to-Backend-Developer handoff is the most critical quality g
 | **Performance degradation report** | Before/after timing (page load, API response, query time), the specific endpoint or query that degraded, whether it's consistent or intermittent, correlated deployment | Query EXPLAIN plan, recent schema changes, index usage changes, connection pool metrics, cache hit rate changes |
 | **Customer communication loop** | Customer's verbatim description of the problem, their technical sophistication level, their business impact statement, whether they found a workaround | Context for prioritizing: is this a power user who will debug with you, or a frustrated customer about to churn? The developer's fix approach may differ based on customer relationship |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -419,12 +473,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[CS14]** Data integrity handling procedure: SEV1 immediate escalation, legal-advisor + security-engineer notification, no data modification without approval, scope assessment (one customer vs many)
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When customer support engineering operates at its best, every inbound ticket is triaged and routed within minutes, root causes are identified through systematic reproduction rather than guesswork, kno
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -441,7 +497,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -452,6 +509,7 @@ graph LR
 | "First response within a few hours is fine for critical tickets" | B2B customers waiting >60 min show 50% higher churn within 90 days — $10K-$100K/month in lost recurring revenue because slow response signals unreliability. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **"Me too" bug reports** — a customer reports a bug, you log it, 10 more customers report the same bug, you merge them as duplicates. But the FIRST report has the freshest details (browser version, exact steps, timestamp) and merging buries it. Always preserve the first report as the canonical source.
 - **Debug symbols in production** — `node --inspect-brk` or `DEBUG=*` in a support debugging session exposes environment variables, secrets, and internal API paths. If you enable debug mode for one customer, ALL customers on that instance get debug output. Use per-request debug flags, not global debug modes.
@@ -464,6 +522,7 @@ graph LR
 - **Major incidents without proactive customer communication.** A payment processing outage takes down checkout for 4 hours on Black Friday — engineering is scrambling in a war room, but nobody updates the status page, sends a customer email, or posts to the in-app notification banner. Customers flood support with duplicate tickets, tweet about the outage, and open chargebacks. By the time the incident resolves, 200 enterprise tickets are filed, 40% of affected customers haven't heard a single word from the company, and 15 accounts cite "poor communication during outages" as their cancellation reason within 90 days. **Total cost: $50K-$500K in lost annual contract value from churning accounts that might have stayed if they'd received even one status update during the incident.** Implement an incident communication playbook that triggers a status page update within 5 minutes of incident declaration, a customer-facing update within 15 minutes, and follow-up communication within 24 hours of resolution — even if the update says "we're still investigating."
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -472,6 +531,7 @@ graph LR
 | Failing to communicate proactively during incidents | $50K-$200K in reputation damage and churn | Trigger status page update within 5 min of incident declaration, customer update within 15 min |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Response time SLA: tickets acknowledged within SLA window (e.g., 1 hour for critical, 4 hours for normal)
 - [ ] Investigation template: every escalated ticket has a shared investigation document accumulating context across tiers
@@ -481,10 +541,12 @@ graph LR
 - [ ] Duplicate detection: "me too" reports linked to canonical first report as source of truth
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -495,5 +557,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

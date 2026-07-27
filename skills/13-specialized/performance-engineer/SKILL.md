@@ -54,6 +54,7 @@ Common chains:
 - **Chain**: backend-developer → performance-engineer → site-reliability-engineer — Backend code gets profiled and optimized; SRE enforces performance SLOs in production.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -85,9 +86,11 @@ What are you trying to do?
 └── Not sure? → Describe the performance problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -105,12 +108,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of performance engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
 
@@ -131,6 +134,7 @@ Masters of performance engineer don't just build — they build **the right thin
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -146,6 +150,7 @@ Masters of performance engineer don't just build — they build **the right thin
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Diagnosing high P95/P99 latency in a production service with unclear root cause
@@ -158,6 +163,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building performance budgets into CI to prevent regressions
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What to Optimize First
@@ -184,6 +190,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ rewrite    │       │ tune, heap   │       │ image optimize  │
     └────────────┘       └──────────────┘       └─────────────────┘
 ```
+
 **DB time >50% → optimize queries and indexes.**
 **App CPU >80% or GC pauses >100ms → profile CPU/memory.**
 **Frontend LCP >2.5s → bundle analysis and rendering path optimization.**
@@ -212,6 +219,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
         │             │  │ 300s)       │  │ if read-heavy   │
         └─────────────┘  └─────────────┘  └─────────────────┘
 ```
+
 **Shared data → CDN with long TTL + stale-while-revalidate.**
 **User-specific → application cache (Redis) with TTL 30-300s.**
 **Volatile data → don't cache; scale reads with replicas.**
@@ -242,6 +250,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
   └─────────────┘     └───────────────┘        │ regression  │
                                                └─────────────┘
 ```
+
 **Capacity planning → stress test (ramp until failure).**
 **Pre-launch → load test at expected peak for 5-10 min.**
 **Per-change → benchmark 60s, compare P95 against baseline.**
@@ -274,6 +283,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                           │ tuning   │ │ → flame graph  │
                           └──────────┘ └────────────────┘
 ```
+
 **No APM → install APM before profiling. You need to know WHERE to look.**
 **DB is slow → EXPLAIN ANALYZE before CPU profiling. 80% of slowness is queries.**
 **App is slow → flame graph to find the specific function burning CPU.**
@@ -307,13 +317,14 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
   │ stateless services.    │
   └────────────────────────┘
 ```
+
 **Vertical scaling → always try first. Cheaper, simpler, 5 minutes.**
 **Query/index fix → second line of defense. One dev-hour for 10x improvement.**
 **Caching → third option. Add targeted cache, measure hit rate.**
 **Horizontal → only when all simpler options are exhausted.**
 
-
 ## Error Recovery **(DEEP)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -328,6 +339,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Performance is not a solo activity — it requires instrumentation from developers, infrastructure from DevOps, data from DBAs, and prioritization from product. A performance engineer without coordination is optimizing in a vacuum.
@@ -385,13 +397,12 @@ Performance is not a solo activity — it requires instrumentation from develope
 | CDN, caching layers, auto-scaling, resource allocation | `devops-engineer` |
 | SLO enforcement, capacity planning, incident response for perf regressions | `site-reliability-engineer` |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
 
@@ -407,6 +418,7 @@ Performance is not a solo activity — it requires instrumentation from develope
 | N+1 query pattern discovered on endpoint with >1K RPM | Backend Developers | Low-hanging optimization; batch loading or eager loading fix with high impact/effort ratio |
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -443,9 +455,12 @@ Performance is not a solo activity — it requires instrumentation from develope
 **Steps:** 1) Run stress test to determine breaking point (max TPS, failure mode) 2) Calculate headroom: (ceiling − peak) / ceiling × 100 3) If headroom <50%, create scaling plan (vertical first, then horizontal) 4) Schedule next capacity review based on growth rate
 **Output:** Capacity plan with headroom percentage, scaling triggers, and timeline
   Complete when: Stress test identifies breaking point (max TPS, failure mode), headroom calculated as percentage, scaling plan created if headroom <50%, and next capacity review scheduled.
-
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -461,6 +476,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Performance budget gates builds: "fail if p95 latency >500ms." Team reduces sample size from 1,000 requests to 10 requests. P95 now always passes — with 10 samples, the 95th percentile is the second-slowest request, which is never the outlier. Budget is "green" while production p95 is 800ms | Statistical insignificance: P95 calculated from 10 samples is meaningless noise. With 10 samples, the 95th percentile = max(samples) or second-max — it can't capture the distribution tail. Team optimized the metric, not the performance. Builds pass, users complain | Require minimum sample size for percentile calculations: 100 samples for P95, 1,000 for P99, 10,000 for P99.9. Use statistical confidence: "P95 < 500ms with 95% confidence" requires enough samples to make the confidence interval meaningful. Dashboard must show both the metric AND the sample count — if sample count drops below minimum, the budget is "unknown," not "passing" | Metrics that can be gamed will be gamed. Reducing sample size to pass a performance budget is the performance equivalent of deleting failing tests. The budget must define minimum sample sizes and reject builds with insufficient data. A "passing" budget with 10 samples is worse than a failing budget with 10,000 — it creates false confidence |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Profile before optimizing, always.** `timeit` tells you "this function took 2.3 seconds." It doesn't tell you it spent 2.1s in `json.loads()`. Use `cProfile`, `py-spy`, `pprof`, or `async-profiler` to identify the actual bottleneck. Engineers waste $40K+ per misdiagnosed bottleneck optimizing the wrong code path. The bottleneck is never where you think it is.
 2. **Benchmark stability requires statistical rigor.** Run benchmarks for at least 60 seconds under steady load. Discard the first 10 seconds (JIT warmup, cache population). Report median ± standard deviation across 5+ runs. A single run showing "30% improvement" is noise — verify with Student's t-test or Mann-Whitney U for significance.
@@ -474,15 +490,18 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Memory leaks are found in the heap, not the logs.** A 10MB/hour memory leak won't show in request logs. Run 30-minute soak tests under load with `memray` (Python), `pprof` `-alloc_space` (Go), or heap dumps (JVM/Node.js). Memory should plateau, not grow monotonically. If it doesn't plateau, you have a leak — find it before the OOM kill at 3 AM.
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When performance engineering is embedded in the development lifecycle, every PR includes a 60-second benchmark that gates on regression, SLOs are defined with burn-rate alerts that wake someone up bef
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -500,6 +519,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **`timeit` vs profiling** — `timeit` tells you "this function took 2.3 seconds." It doesn't tell you it spent 2.1 seconds in `json.loads()` and 0.2 seconds doing actual work. Always use `cProfile` or `py-spy` before optimizing — the bottleneck is never where you think it is. **Total cost: $100,000-$500,000 per year** in wasted optimization effort — engineers spend weeks optimizing the wrong code path, equivalent to $40,000+ in salary per misdiagnosed bottleneck.
 - **Database N+1 with ORMs** — `User.objects.all()` then `for user in users: print(user.profile.bio)` executes 1 query for users + N queries for profiles. ORMs don't warn you. In development (10 users, SQLite on localhost), it's 11ms. In production (10K users, remote Postgres), it's 11,000ms. **Total cost: $200,000-$1,000,000 per year** in infrastructure overprovisioning — teams add $5,000-$15,000/month in database capacity to compensate for N+1 queries instead of fixing the queries themselves.
@@ -508,7 +528,8 @@ graph LR
 - **Caching that hurts** — caching a frequently-written value with a 60-second TTL. If the value changes 100x/second and you cache for 60s, you're serving stale data 99.999% of the time. Cache frequently-read, rarely-written data; don't cache fast-changing data without understanding staleness tolerance. **Total cost: $100,000-$400,000 per year** in data inconsistency incidents — stale cache causing wrong balances, incorrect inventory, or phantom stock each cost $5,000-$50,000 per incident in customer compensation and engineering time.
 - **`gc.pause()` in Go** at 50ms looks fine on a dashboard. But if your request timeout is 100ms and GC pause is 50ms, 50% of your request budget is GC. P99 request latency will show sawtooth patterns aligned with GC cycles. Use `GOMEMLIMIT` and `GOGC` tuning. **Total cost: $50,000-$200,000 per year** in timeout-related incidents and retry storms — every GC-induced timeout triggers client retries that double or triple load, creating a death spiral during peak traffic.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -519,6 +540,7 @@ graph LR
 | "The database is fast in dev" | Dev databases have 100 rows, zero concurrency, and run on localhost. Production has 100M rows, 50+ concurrent connections, connection pool exhaustion, and lock contention under write load. Query plans that take 2ms in dev take 12 seconds in production. |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -528,6 +550,7 @@ graph LR
 | Connection pool starvation from synchronous I/O in async context — a developer adds a blocking database call inside an async handler. Under load, all event loop threads block on DB queries, queuing requests pile up, and latency climbs to timeout thresholds. | $25K-$100K in outage costs when the service appears "down" but is just out of connections. On-call engineers waste hours checking database health when the problem is in the application layer. | Enforce connection pool monitoring with alerts on pool utilization >80%. Add `asyncio_mode=auto` (Python) or `BlockHound` (Java/Reactor) in CI to detect blocking calls in async contexts. Set connection pool timeouts lower than request timeouts to fail fast. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Profile before optimizing: `cProfile` / `py-spy` / `pprof` output confirms the bottleneck location
 - [ ] Baseline measurement: p50/p95/p99 latency collected for 5 minutes under representative load
@@ -537,10 +560,12 @@ graph LR
 - [ ] Memory profile: `heapdump` or `memray` — memory usage stable over 30 minutes under load (no leaks)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** APM/RUM/Distributed tracing active and verified: dashboards show P50/P95/P99 latency, throughput, and error rate per endpoint. DB slow query logging and GC logging enabled.
 - [ ] **[S2]** Profiling completed before any optimization: `cProfile`, `py-spy`, `pprof`, or `async-profiler` output confirms the specific bottleneck location with function-level granularity. Flame graph generated and reviewed.
@@ -556,6 +581,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[S12]** Capacity plan current: headroom calculated ((ceiling − peak) / ceiling × 100). If <50%, scaling plan exists with triggers and timeline. Next capacity review scheduled based on growth rate.
 
 ## References
+<!-- STANDARD: 3min -->
 - **API Performance**: See [api-performance.md](references/api-performance.md)
 - **Concurrency & Async Patterns**: See [concurrency-&-async-patterns.md](references/concurrency-&-async-patterns.md)
 - **Database Performance**: See [database-performance.md](references/database-performance.md)

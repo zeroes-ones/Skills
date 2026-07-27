@@ -63,7 +63,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -124,9 +123,91 @@ What are you trying to do?
 └── Not sure? → Describe the platform type, user base, and harm vectors — I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Decision Trees
+
+### Decision Tree 1: Account Takeover Detection Path
+
+        ┌── INPUT: Suspicious login event detected
+        │
+   ┌────┴────────────────────────┐
+   │                             │
+   ▼                             ▼
+Impossible travel              Credential stuffing
+detected?                      pattern? (100+
+   │                           logins from same IP
+   ▼                           in < 5 min)
+YES → LOCK account                │
+      immediately                  ▼
+      + force MFA              BLOCK IP + rate-limit
+      + notify user            + force password reset
+                                   │
+   ┌── Unknown device             │
+   │   + new location?            │
+   ▼                              ▼
+YES → Step-up auth           ┌── Single failed
+      (MFA challenge)        │   login from known
+                             │   device?
+NO  → Log for anomaly        └──┬──────────────┘
+      scoring                    │ YES        │ NO
+                                 ▼            ▼
+                            Monitor for    Normal
+                            velocity       auth flow
+                            threshold
+
+### Decision Tree 2: Moderation Action Tier Selection
+
+        ┌── INPUT: Content flagged for review
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+First offense?            Repeat offender?
+   │                         │
+   ▼                         ▼
+┌── Is harm severity    ┌── Prior violations
+│   Tier 1 (CSAM,       │   in same category?
+│   violent extremism)? │
+└──┬──────────────────┐ └──┬──────────────────┐
+   │ YES       │ NO       │ YES        │ NO
+   ▼           ▼           ▼            ▼
+Permanent   ┌── Tier 2?  Escalate     Apply next
+ban +       │            tier:        strike level
+report to   ▼            temporary →  per policy
+authorities Warning      permanent    ladder
+            + content
+            removal
+            + education
+
+### Decision Tree 3: Bot Behavior Classification
+
+        ┌── INPUT: Account exhibits automated behavior
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Request pattern             Content pattern
+analysis                    analysis
+   │                         │
+   ▼                         ▼
+┌── > 100 req/sec?       ┌── Identical content
+│                         │   posted to 50+
+└── YES → Rate-limit     │   threads?
+      + CAPTCHA          └──┬──────────────┘
+                            │ YES        │ NO
+                            ▼            ▼
+   ┌── Headless browser    Shadowban   ┌── Inauthentic
+   │   fingerprint?         + flag     │   coordination
+   ▼                        for review │   with known
+YES → Block + log                     │   ring?
+      for pattern                     └──┬──────────┘
+      analysis                           │ YES  │ NO
+NO  → Apply risk                        ▼      ▼
+      score threshold              Network   Monitor
+                                   takedown  for
+                                             threshold
 
 <!-- STANDARD: 3min -->
 
@@ -249,8 +330,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Implementing evidence preservation workflows (content freeze, chain of custody, legal hold)
 - Building moderation tooling with automated flagging, bulk actions, and reviewer safety
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 <!-- STANDARD: 3min -->
 
@@ -307,12 +388,10 @@ If a command or approach fails, follow this escalation path before giving up:
 4. Moderation tooling changes that affect reviewer workflow → coordinate with `community-operations-manager` BEFORE deploying (don't surprise moderators with new tools mid-shift)
 5. Regulatory inquiry about content moderation practices → route to `compliance-officer` with supporting evidence from T&S systems; do not respond to regulators directly
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `security-engineer` | Threat model, attack surface, security boundaries | Before implementing safety controls |
 | `compliance-officer` | Regulatory requirements, audit expectations, data handling rules | Before designing trust systems |
-
 
 ## Proactive Triggers
 
@@ -396,6 +475,12 @@ Layer 2: ML Classification (async, post-write, 100-500ms)
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Data pipeline validated, quality checks passing, and downstream consumers confirmed data readiness.
+  Complete when: Content moderation accuracy validated — false positive rate < 1% on test set.
+  Complete when: Appeals process documented with SLA for human review (< 24 hours).
+  Complete when: Safety classifier evaluated on adversarial examples — no bypasses found.
+  Complete when: User reporting flow tested end-to-end with confirmation and status tracking.
+  Complete when: Moderation latency measured — 95th percentile < 500ms for automated decisions.
+  Complete when: Policy update communication plan created with rollout timeline and stakeholder review.
 
 ## What Good Looks Like
 
@@ -418,6 +503,7 @@ Layer 2: ML Classification (async, post-write, 100-500ms)
 ## Deliberate Practice
 
 ```mermaid
+
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
 
@@ -464,7 +550,7 @@ graph LR
 - **CSAM detection that accidentally flags medical images** — a dermatology app's user-submitted photos of skin conditions get flagged by perceptual hashing because they match patterns in the CSAM database. The user is a doctor, the image is a rash, but the auto-ban triggers and the doctor's account is suspended. Medical imagery exclusions must be configured. **Total cost: $100K-$1M in legal exposure, regulatory investigation, and defamation claims per false-positive CSAM flag on a professional user.**
 - **Moderation latency that kills virality** — a creator posts a time-sensitive video (reaction to a live event). The moderation queue has a 45-minute backlog. By the time the post is approved, the event is over and the content is stale. Creators learn to post elsewhere and never return. **Total cost: $200K-$1M monthly in creator churn and lost ad revenue when moderation latency exceeds content shelf life for time-sensitive formats.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -474,8 +560,8 @@ graph LR
 | "Appeals are edge cases — we'll handle them when volume justifies it" | The EU Digital Services Act mandates that ALL content moderation decisions be appealable with a "statement of reasons." Launching without an appeals pipeline means every action is legally non-compliant — fines start at 6% of global annual turnover. |
 | "Child safety is the legal team's problem, not engineering's" | PhotoDNA, CSAI Match, and NCMEC CyberTipline reporting are technical integrations engineering must implement. Failure to detect and report CSAM is criminal liability in most jurisdictions, not a policy oversight — the CTO shares legal exposure with the GC. |
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -484,7 +570,6 @@ graph LR
 | Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
 | Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
 | Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -528,51 +613,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | 14 | Child safety: age verification where required, COPPA-compliant data handling for under-13, CSAM detection pipeline active on all user-generated content surfaces | 🟢 Low | Age gate tested; COPPA data handling verified; CSAM pipeline coverage ≥ 99% of UGC surfaces |
 | 15 | Incident response: trust & safety incident playbook with on-call rotation, 24/7 escalation, and regulatory notification process (NCMEC, data protection authority) | 🟢 Low | Incident drill conducted quarterly; on-call rotation tested; regulatory notification templates pre-reviewed |
 
-## Scale Depth
-
-<!-- STANDARD: 2min -->
-
-#### Solo Developer
-- **Safety**: Basic keyword-based content filtering with manual review for appeals; platform with < 5,000 users
-- **Minimum**: Pre-built moderation API (Hive, TwoHat, Spectrum), basic account verification (email + CAPTCHA), manual appeal email process
-- **Add**: CSAM scanning API integration, per-content-type classifier selection, basic transparency page
-- **Cost**: ~$200-1,000/mo (moderation API pay-per-use + basic tooling)
-- **Coverage**: Single locale, single content type — sufficient for indie platform with < 5,000 users
-
-#### Small Team (2-10)
-- **Safety**: Hybrid automated + human moderation with per-locale classifier calibration; platform growing to 50K users
-- **Minimum**: Multi-locale classifiers with native training data, human review queue with SLA tracking, appeal pipeline with statement of reasons, layered account integrity
-- **Add**: CSAM detection pipeline (PhotoDNA integration), transparency reports, threat intelligence sharing membership
-- **Cost**: ~$3,000-10,000/mo (moderation API + human review team of 2-4 + classifier hosting)
-- **Risk**: Without per-locale calibration, non-English moderation accuracy degrades to 40-60% F1 — regulatory exposure under DSA
-
-#### Medium Org (10-100)
-- **Priority**: In-house trust & safety engineering team — moderation is core infrastructure, not a vendor integration
-- **Minimum**: Custom classifiers with continuous retraining pipeline, real-time moderation with priority queues, NCMEC CyberTipline integration, per-locale FPR monitoring, creator fast-track
-- **Add**: Medical imagery exclusion pipeline, behavioral signal-based account integrity, cross-platform threat intelligence automation, adversarial robustness testing
-- **Cost**: ~$15,000-50,000/mo (in-house T&S engineering team of 2-5 + ML infrastructure + human review ops)
-- **Coverage**: Multi-locale, multi-content-type — regulated platform scale under DSA/DMA
-
-#### Enterprise (100+)
-- **Organization**: Dedicated trust & safety organization with engineering, policy, operations, and legal functions; T&S embedded in product development
-- **Minimum**: Federated ML across all content surfaces, real-time threat detection with automated takedown, adversarial ML team for classifier robustness, multi-modal detection (text + image + video + audio), regulatory-grade transparency infrastructure
-- **Add**: Predictive abuse detection (identifying coordinated inauthentic behavior before content is posted), cross-platform identity graph, published safety research, industry standards leadership
-- **Cost**: $50,000-200,000+/mo (dedicated T&S org of 10-30 + enterprise ML infrastructure + legal/policy team)
-- **Focus**: Setting industry standards for content safety — publish detection techniques, lead cross-platform threat intelligence, shape platform regulation
-
-## Error Decoder
-
-<!-- QUICK: 30s -->
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Moderation classifier at 99.9% accuracy generates 500 support tickets/day from wrongful removals — support team overwhelmed | Accuracy metric reported as percentage, hiding 1M daily false positives at 1B posts/day scale | Convert all moderation metrics to absolute counts: false positives per locale per content type per action. Dashboard shows "1,000 false positives in Hindi video comments today" not "99.9% accuracy." Staff support team proportional to absolute false positive volume, not percentage | Percentages lie at scale. 99.9% accuracy at 1B posts/day = 1M wrongful actions daily. Absolute counts are the only honest metric |
-| Hindi-language hate speech classifier at 40% F1 — policy violations go undetected while innocuous cultural terms are flagged | Classifier trained on US English data, applied to Hindi without locale-specific training or native-speaking moderators for ground truth labeling | Train separate classifier per locale with native training data and native-speaking moderators for ground truth. Cultural context mapping: terms that are innocuous in one culture but flagged in another must be explicitly whitelisted per locale | Language ≠ locale. Hindi as spoken in India, Fiji, and Mauritius have different hate speech patterns. Every locale needs its own training data |
-| CSAM detection pipeline flags a dermatologist's skin condition photo — doctor's account suspended, legal threat received | Perceptual hashing has no medical imagery exclusion; all images matching CSAM hash patterns are treated identically | Implement medical imagery whitelist: hash medical image databases, exclude from CSAM pipeline, add second-layer review for medical-platform content. Dermatology/radiology platforms must have medical exclusion configured before CSAM pipeline activation | Medical imagery and CSAM share visual patterns. Without exclusion lists, false-positive CSAM flags on professional users are defamation and regulatory exposure |
-| Creator with 2M followers leaves platform after 3rd wrongful content takedown — posts go viral on competitor platform | All users get identical moderation treatment; creator's content value and violation history ignored | Implement creator fast-track: verified creators with low violation rates get escalating friction (warning → delayed post → manual review → suspension). Priority queue for creator content with ≤ 90-second moderation SLA | Creator churn is measured in ad revenue. A single wrongful takedown on a creator with 2M followers costs more than 10,000 correct removals on throwaway accounts |
-| Supplement scammer banned on your platform appears 48 hours later on 3 peer platforms with identical behavior pattern | No cross-platform threat intelligence sharing — each platform detects the same bad actor independently, each time from scratch | Join cross-platform threat intelligence group. Share hashed identifiers (email, device fingerprint), behavioral patterns, and content signatures. Proactively monitor inbound threat intel for accounts matching known-bad-actor patterns before they post | Bad actors operate across platforms. Solo detection is playing whack-a-mole while peers are building a surveillance network |
-| EU DSA compliance audit fails because appeals are handled by the same automated system that made the original decision | Appeals treated as edge case — "statement of reasons" not generated, no human review, no independent decision-maker | Implement independent appeals pipeline: every automated decision → appealable → human reviewer (not same system) → statement of reasons generated → decision communicated. Track appeal overturn rate as primary classifier quality metric | DSA Article 17 requires human-reviewable appeals with stated reasons. Automated appeals of automated decisions are non-compliant — fines at 6% of global annual turnover |
-
 ## References
 
 Detailed reference material loaded on demand:
@@ -584,10 +624,10 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 ## State Log
+<!-- DEEP: 10+min -->
 
 This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
 

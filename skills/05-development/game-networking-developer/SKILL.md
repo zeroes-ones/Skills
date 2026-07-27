@@ -25,12 +25,15 @@ chain:
 # Game Networking Developer — Multiplayer Netcode & Real-Time Synchronization
 
 Game networking is the difference between a game feeling crisp at 200ms ping and unplayable at 30ms. This skill covers the full stack: transport protocols, client-server architecture, prediction & reconciliation, lag compensation, snapshot interpolation, NAT traversal, matchmaking, and dedicated server operations. Every decision made here directly impacts player retention — bad netcode is the #2 reason players quit multiplayer games (after cheating).
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 | # | Condition | Action |
 |---|-----------|--------|
 | A1 | `file_contains("*.cs", "NetworkManager|UNetTransport|NetcodeForGameObjects")` OR `file_contains("*.cpp", "UNetDriver|ReplicationGraph|FNetworkPrediction")` | This is your skill. Jump to **Decision Trees** for architecture selection. |
@@ -42,10 +45,12 @@ Game networking is the difference between a game feeling crisp at 200ms ping and
 | A7 | User mentions "NAT", "STUN", "TURN", "relay", "hole punching" | NAT traversal. Jump to **Decision Trees > NAT Traversal Strategy**. |
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a senior netcode engineer who has shipped multiplayer games serving 100K+ concurrent users. You've debugged desync at 3 AM before launch, rewritten prediction algorithms during beta, and optimized bandwidth to fit within mobile carrier limits. You know that every millisecond of added latency costs player retention — a 10ms increase in perceived lag reduces session time by 7%. You default to server authority for competitive integrity, client prediction for responsiveness, and bandwidth budgets measured in *bytes per second per player*, not megabytes. You've memorized Glenn Fiedler's "Gaffer On Games" articles and can recite the differences between snapshot interpolation, state synchronization, and deterministic lockstep from memory.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | Deliverable |
 |-------|-------|-------------|
@@ -54,16 +59,8 @@ You are a senior netcode engineer who has shipped multiplayer games serving 100K
 | **L4 (Staff)** | Cross-project networking standards, custom transport layer, backend service mesh for game servers | Netcode SDK. Automated load testing framework. Latency budgets across all game systems |
 | **L5 (Principal)** | Novel networking paradigms (e.g., deterministic rollback for fighting games, mesh networking for AR), industry contributions | Published papers or GDC talks. Reference implementations that shift industry practice |
 
-### Scale Depth
-**(STANDARD)**
-
-| Depth | Time | Scope | Artifacts |
-|---|---|---|---|
-| **QUICK** | 15-30 min | Single RPC implementation, transport comparison, bandwidth profile | Working replication code, bandwidth measurement, transport selection rationale |
-| **STANDARD** | 2-4 hr | Full game mode netcode, prediction + reconciliation, interest management | Replication architecture, bandwidth budget, prediction error measurements |
-| **DEEP** | 2-5 days | Cross-project netcode SDK, custom transport layer, server mesh architecture | Netcode SDK, automated load testing framework, latency budget doc, GDC-style writeup |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Implementing multiplayer game networking: client-server, peer-to-peer, or hybrid architectures
 - Designing client-side prediction with server reconciliation for responsive gameplay
@@ -76,6 +73,7 @@ You are a senior netcode engineer who has shipped multiplayer games serving 100K
 - Implementing anti-cheat at the network layer (server validation, replay verification)
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- Full 22 lines extracted to references/core-workflow.md -->
@@ -84,14 +82,17 @@ Game networking follows a 6-phase pipeline. Each phase builds on the previous �
 #
 
 ## Phase 1 (~15 min): Transport & Protocol Selection
+<!-- STANDARD: 3min -->
 Choose UDP for real-time gameplay (FPS, fighting, racing), TCP for turn-based or slow-state games. Implement reliability layers: reliable-ordered for critical events (scoring, kills), unreliable for transient state (positions every frame < 50ms). Use flatbuffers or bit-packed custom serialization — never JSON/XML for runtime gameplay state.
 #
 
 ## Phase 2 (~20 min): Server-Authoritative Architecture
+<!-- STANDARD: 3min -->
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 22 lines of detailed guidance
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 1. **Server-authoritative by default — never trust the client.** Every game state mutation that affects fairness or economy must be validated server-side. The client sends intent ("I want to fire"); the server validates cooldowns, ammo counts, line-of-sight, and applies damage. One client with Cheat Engine bypassing client-only validation ruins the experience for 1,000+ legitimate players. The cost of retrofitting server authority into a trust-based architecture is a full netcode rewrite.
@@ -115,6 +116,8 @@ Choose UDP for real-time gameplay (FPS, fighting, racing), TCP for turn-based or
 10. **Implement deterministic rollback for fighting games and RTS.** GGPO-style rollback networking: simulate ahead with predicted inputs, roll back and re-simulate when remote inputs arrive. This requires full game state serialization/deserialization every frame and deterministic simulation. The result is zero perceived input latency regardless of ping — essential for frame-perfect inputs in fighting games. The implementation cost is high but the player experience difference is transformative.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -130,6 +133,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -142,6 +146,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | 2% packet loss causes massive desync in "reliable" TCP game — players see diverging game states | TCP head-of-line blocking. A single dropped packet stalls the receive buffer. The game processes no new state for 200ms+ while TCP retransmits. During this stall, clients continue rendering from stale data. When the packet finally arrives, the state jump is massive — "desync" | Switch real-time state replication to UDP with a custom reliability layer. Use ENet or GameNetworkingSockets for reliable-ordered channels (kill confirmations, score changes) and unreliable channels (position updates). TCP remains for non-realtime concerns: chat, lobbies, matchmaking | TCP is not "more reliable" — it's differently reliable. It guarantees ordered delivery at the cost of timeliness. Real-time games need timeliness guarantees more than delivery guarantees for most state |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -152,6 +158,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Implementing client-side hit detection without server reconciliation — "ghost bullets" and rage-quits | $40K-$120K in lost players and competitive integrity damage | Server-authoritative hit detection with backward reconciliation. Rewind target position to shooter's latency. VALVe's Source Engine approach is the gold standard. |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Run these checks before declaring work complete. ALL must pass.
 
@@ -167,6 +174,7 @@ Run these checks before declaring work complete. ALL must pass.
 | V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When |
 |---|---|---|
@@ -181,16 +189,20 @@ Run these checks before declaring work complete. ALL must pass.
 | `security-reviewer` | Server-authoritative validation points, anti-cheat architecture | After anti-cheat design for security audit |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -202,13 +214,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -224,6 +239,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -233,10 +249,12 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Players on 100ms connections report the game "feels local" — client prediction hides latency, server reconciliation is imperceptible. Bandwidth per player stays under 8KB/s even in 64-player matches. Zero desync bugs in the last 100K game sessions. Server CPU for netcode stays under 15% per core at full load. Matchmaking finds games in under 30 seconds at any hour. Dedicated servers auto-scale from 0 to 1000 instances in under 2 minutes. Anti-cheat catches 99% of speed hacks and teleport hacks before they affect other players.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 | Exercise | Skill Targeted | Success Metric |
 |----------|---------------|----------------|
@@ -247,6 +265,7 @@ Before beginning a new phase, verify:
 | Implement NAT traversal with relay fallback for a peer-to-peer game | STUN/TURN, ICE, hole punching, relay server selection | 95% of player pairs connect via direct peer; relay latency < 50ms additional |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Rationale |
 |---|---|---|
@@ -257,10 +276,12 @@ Before beginning a new phase, verify:
 | Single point of failure in dedicated server region | Escalate — if one region's server fleet goes down, players must be redirected within 5 seconds | Regional outages during peak hours (launch day) cause review bombing. Automated failover is not optional for production multiplayer |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 #
 
 ## Non-Negotiable Rules
+<!-- STANDARD: 3min -->
 
 **Rule 1: NEVER trust the client — client-side hit detection without server validation is the #1 cause of cheating, costing $100K+ in lost players.** The server is the sole authority for hit registration, damage application, inventory changes, score updates, and any state that affects competitive fairness. Client input is a *suggestion* the server validates.
 
@@ -285,13 +306,116 @@ Before beginning a new phase, verify:
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
+
+### Decision Tree 1: Interest Management Strategy
+
+        ┌── INPUT: 50+ entities in game world
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Open-world, Fixed-size
+large map?  arenas or
+   │         rooms?
+   │            │
+   ▼       ┌────┴────┐
+Spatial    │         │
+Hashing    ▼         ▼
+or Quad-  <16       >16
+tree      players   players
+   │         │         │
+   ▼         ▼         ▼
+Players   Distance-  Grid-based
+only get   based     with cell
+updates    interest  visibility
+for near   (AoI      (only send
+neighbors  radius)   updates for
+    │                entities in
+    ▼                same/adjacent
+Consider             cells)
+relevance
+layers:
+position
+always, HP
+only when
+in combat
+
+### Decision Tree 2: Packet Prioritization
+
+        ┌── INPUT: Network message M ready to send
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+M affects  M is
+gameplay   cosmetic/
+correct-   optional?
+ness?          │
+   │      ┌────┴────┐
+   ▼      │         │
+RELIABLE  ▼         ▼
+channel   State      Visual
+(TCP-like updates    flare,
+over UDP) that are    weather
+   │      frequent    effects
+   ▼      (position,  │
+Player   animation)   ▼
+input,      │       UNRELIABLE
+score,      ▼       (fire-and-
+hit detec-  UNRELIABLE forget,
+tion, item  but       no resend)
+pickup      SEQUENCED
+            (drop stale,
+            keep latest)
+
+### Decision Tree 3: Matchmaking Algorithm
+
+        ┌── INPUT: Player queueing for match
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Ranked/    Casual or
+competitive co-op
+mode?       mode?
+   │         │
+   ▼         ▼
+SKILL-     CONNECTION-
+BASED      BASED
+   │         │
+   ▼         ▼
+Use MMR/   Group by
+Elo with   ping/region
+tight      first, then
+tolerance  loose skill
+window     matching
+   │         │
+   ▼         ▼
+Expand     Is this
+tolerance  cross-play?
+over time     │
+(30s → 60s  ┌────┴────┐
+→ 120s)     │         │
+            ▼         ▼
+           YES        NO
+            │         │
+            ▼         ▼
+         INPUT-     Same
+         BASED      platform
+         matching   only
+         first,
+         skill
+         second
 
 #
 
 ## Decision Tree 1: Server-Authoritative vs P2P vs Client-Hosted
+<!-- STANDARD: 3min -->
 
 ```
+
 Is this a competitive/ranked game?
 ├── YES → Server-authoritative (dedicated server)
 │         └── Sub-decision: Player count?
@@ -306,13 +430,16 @@ Is this a competitive/ranked game?
     │
     └── NO → Client-hosted (listen server)
               └── MUST implement host migration
+
 ```
 
 #
 
 ## Decision Tree 2: UDP vs TCP vs WebRTC
+<!-- STANDARD: 3min -->
 
 ```
+
 Is this real-time gameplay (FPS, racing, fighting, action)?
 ├── YES → UDP
 │         └── Sub-decision: Need reliability for some messages?
@@ -328,13 +455,16 @@ Is this real-time gameplay (FPS, racing, fighting, action)?
 └── Is this browser-based real-time?
     └── YES → WebRTC (DataChannel, unordered/unreliable mode)
               └── Fallback: WebSocket with aggressive interpolation
+
 ```
 
 #
 
 ## Decision Tree 3: Rollback vs Delay-Based Netcode
+<!-- STANDARD: 3min -->
 
 ```
+
 Game genre?
 ├── Fighting game → Rollback (mandatory)
 │   └── Frame window: 2-8 frames rollback, 0-3 frame input delay
@@ -346,13 +476,16 @@ Game genre?
 ├── MOBA, Battle Royale → Delay-based (rollback too expensive with 10+ entities)
 │
 └── Racing → Delay-based with aggressive prediction
+
 ```
 
 #
 
 ## Decision Tree 4: Dedicated Server vs Listen Server
+<!-- STANDARD: 3min -->
 
 ```
+
 Budget for server infrastructure?
 ├── ZERO → Listen server
 │         └── MANDATORY: host migration, anti-cheat for host
@@ -365,13 +498,16 @@ Budget for server infrastructure?
     └── Sub-decision: Build vs buy orchestration?
         ├── Custom requirements → Agones on Kubernetes
         └── Standard needs, AWS shop → GameLift
+
 ```
 
 #
 
 ## Decision Tree 5: Snapshot Interpolation vs Extrapolation
+<!-- STANDARD: 3min -->
 
 ```
+
 What to render between server snapshots?
 ├── Local player → Extrapolate (prediction)
 │   └── Reconcile on server correction
@@ -387,13 +523,16 @@ What to render between server snapshots?
 │
 └── Critical targets (crosshair)?
     └── Use latest snapshot directly (no interpolation delay)
+
 ```
 
 #
 
 ## Decision Tree 6: Lockstep vs State Sync
+<!-- STANDARD: 3min -->
 
 ```
+
 Game has <100 entities AND full determinism possible?
 ├── YES → Lockstep
 │   └── Bandwidth: ~1-5 KB/s regardless of entity count
@@ -404,108 +543,133 @@ Game has <100 entities AND full determinism possible?
 │       └── Regular updates → Delta (changed fields only)
 │
 └── Hybrid → State sync for most entities, lockstep for critical physics
+
 ```
 
 ## 3. Gotchas
+<!-- STANDARD: 3min -->
 
 #
 
 ## Gotcha 1: Client-side authority for game state ($100K+)
+<!-- STANDARD: 3min -->
 
 Assigning authority for game-critical state (health, position, score) to the client without server validation. Memory editors and packet injectors can modify any client-side value. Within 48 hours of launch, cheat tools will exist. **Fix:** Server validates every state mutation. Client sends *intent* ("I want to move here"), server sends *results* ("You are now here"). Never: client says "I have 100 HP" and server accepts it.
 
 #
 
 ## Gotcha 2: TCP for real-time game communication ($75K+)
+<!-- STANDARD: 3min -->
 
 Using TCP for gameplay packets. On packet loss, TCP stalls ALL subsequent data until retransmission — the dreaded "head-of-line blocking." At 1% packet loss (common on WiFi), TCP throughput drops 50-80%. Players experience sudden freezes followed by teleportation. **Fix:** Use UDP with a custom reliability layer where needed. Send movement/aim as unreliable-sequenced (drop old, use newest). Send events (fire, reload) as reliable-ordered.
 
 #
 
 ## Gotcha 3: Interpolation delay set to zero ($50K+)
+<!-- STANDARD: 3min -->
 
 Attempting to render entities at the exact moment a snapshot arrives, with no buffer against jitter. Network jitter of ±10ms at 60 tick produces visible stuttering. Players perceive "laggy servers" even when ping is low. **Fix:** Always interpolate with a buffer of at least 2× the expected tick interval (33ms at 60Hz, 16ms at 128Hz). Smooth jitter with an adaptive buffer that grows during jitter spikes.
 
 #
 
 ## Gotcha 4: No server reconciliation after prediction ($60K+)
+<!-- STANDARD: 3min -->
 
 Implementing client-side prediction without server reconciliation. The predicted position drifts from the authoritative position by 1-5cm per tick due to floating-point differences, physics divergence, and other players' interference. After 60 ticks (1 second at 60Hz), the player is 60-300cm from where the server says they are. Next server snapshot snaps them back — "rubber banding." **Fix:** Store pending input commands. On server snapshot, remove acknowledged commands, re-apply unacknowledged commands from the server position.
 
 #
 
 ## Gotcha 5: Rewinding all entities for lag compensation on every shot ($40K+ infrastructure)
+<!-- STANDARD: 3min -->
 
 Naively deep-copying all entity states for lag compensation on every hitscan shot. With 64 players, 100 physics objects, and 10 shots/second per player, this is 64,000 deep copies/second. **Fix:** Use a fixed-size ring buffer of entity snapshots per tick. On shot processing, rewind only entities along the raycast path. Use copy-on-write for static geometry. Budget ~0.05ms per shot, not 2ms.
 
 #
 
 ## Gotcha 6: Ignoring NAT traversal for P2P games ($30K+ support tickets)
+<!-- STANDARD: 3min -->
 
 Shipping a P2P game without STUN/TURN/ICE. 90% of home users are behind NAT. 8-15% have symmetric NAT that STUN cannot traverse. These players simply cannot connect. Support tickets pile up: "Can't join friend's game." **Fix:** Implement ICE with STUN server(s) and TURN relay fallback. Budget TURN bandwidth for 5-15% of peak concurrent players. Use WebRTC/DataChannel for browser games.
 
 #
 
 ## Gotcha 7: No backfill for casual matchmaking ($25K+ player churn)
+<!-- STANDARD: 3min -->
 
 One player leaves a casual match, and the remaining 9-99 players suffer through an imbalanced game or disconnect. Without backfill, a single leaver cascades into the lobby emptying. **Fix:** Implement priority backfill queue. Relax skill constraints for backfill (shorter expected match duration makes skill less important). Target <10 second fill time.
 
 ## 4. Domain-Specific Anti-Patterns
+<!-- STANDARD: 3min -->
 
-| The temptation | Why it sounds right | Why it's wrong | What to do instead |
-|---|---|---|---|
-| "TCP is simpler, we'll just use that for everything" | One connection, automatic reliability, fewer lines of code | Head-of-line blocking destroys real-time feel at any packet loss. Games feel laggy on WiFi/LTE even at 30ms ping | UDP with sequenced channels. Reliable for events, unreliable-sequenced for movement/aim |
-| "We don't need prediction, our game targets low ping only" | Simpler code, no reconciliation bugs, no rubber-banding | "Low ping" is relative. Even 20ms = 1 frame at 60fps. Perception of input lag starts at ~50ms round-trip | Always predict local player. Keep prediction simple — just movement. Omit for abilities if complex |
-| "The client can handle hit detection, we'll add server validation later" | Faster to implement, feels instant, server code is simpler | "Later" never comes. Cheat tools ship in week one. Every kill by a cheater costs ~10 player-hours of engagement | Start with server-authoritative hit detection. Client shows blood/sparks predictively but server confirms damage |
-| "We'll use the same tick rate for everything" | Simple to implement and reason about, uniform code path | 60-tick projectile updates waste bandwidth when 30-tick would suffice. 20-tick movement in a fighting game is unplayable. Different game aspects need different update frequencies | Variable update rate: position at 60Hz, inventory at 5Hz, chat at event-driven. Interest-manage per-entity |
-| "P2P lockstep works for our fighting game, no need for rollback" | Deterministic, low bandwidth, no server costs | 100ms ping means 100ms input delay in lockstep. Fighting game inputs require sub-50ms response. Players across regions can't play each other | Implement GGPO-style rollback netcode. 0-frame input delay. ~3 frames rollback. Save/restore state every frame |
-| "We'll just spin up EC2 instances manually for launch" | Quick to set up, familiar workflow, no K8s complexity | Manual scaling during launch spike = servers full → players can't play → launch day disaster. Player count oscillates 5-10x daily | Use Agones Fleet with buffer autoscaling or GameLift. Pre-warm capacity. Practice 5x scale-up drill before launch |
+| The temptation | Why it sounds right | Why it's wrong | What to do instead | Mechanical Trigger (detect before executing) | Violation Response |
+|---|---|---|---|---|
+| "TCP is simpler, we'll just use that for everything" | One connection, automatic reliability, fewer lines of code | Head-of-line blocking destroys real-time feel at any packet loss. Games feel laggy on WiFi/LTE even at 30ms ping | UDP with sequenced channels. Reliable for events, unreliable-sequenced for movement/aim | | |
+
+| "We don't need prediction, our game targets low ping only" | Simpler code, no reconciliation bugs, no rubber-banding | "Low ping" is relative. Even 20ms = 1 frame at 60fps. Perception of input lag starts at ~50ms round-trip | Always predict local player. Keep prediction simple — just movement. Omit for abilities if complex | | |
+
+| "The client can handle hit detection, we'll add server validation later" | Faster to implement, feels instant, server code is simpler | "Later" never comes. Cheat tools ship in week one. Every kill by a cheater costs ~10 player-hours of engagement | Start with server-authoritative hit detection. Client shows blood/sparks predictively but server confirms damage | | |
+
+| "We'll use the same tick rate for everything" | Simple to implement and reason about, uniform code path | 60-tick projectile updates waste bandwidth when 30-tick would suffice. 20-tick movement in a fighting game is unplayable. Different game aspects need different update frequencies | Variable update rate: position at 60Hz, inventory at 5Hz, chat at event-driven. Interest-manage per-entity | | |
+
+| "P2P lockstep works for our fighting game, no need for rollback" | Deterministic, low bandwidth, no server costs | 100ms ping means 100ms input delay in lockstep. Fighting game inputs require sub-50ms response. Players across regions can't play each other | Implement GGPO-style rollback netcode. 0-frame input delay. ~3 frames rollback. Save/restore state every frame | | |
+
+| "We'll just spin up EC2 instances manually for launch" | Quick to set up, familiar workflow, no K8s complexity | Manual scaling during launch spike = servers full → players can't play → launch day disaster. Player count oscillates 5-10x daily | Use Agones Fleet with buffer autoscaling or GameLift. Pre-warm capacity. Practice 5x scale-up drill before launch | | |
 
 ## 5. Core Architecture Models
+<!-- STANDARD: 3min -->
 <!-- Full 43 lines extracted to references/5-core-architecture-models.md -->
 
 The three fundamental multiplayer topologies, each with distinct tradeoffs in cheat resistance, cost, latency, and complexity.
 #
 
 ## Server-Authoritative (Dedicated Server)
+<!-- STANDARD: 3min -->
 The industry standard for competitive multiplayer. A headless game process runs on cloud infrastructure, accepting client inputs, simulating game state, and broadcasting authoritative snapshots.
 **Reference:** [client-server-architecture-games.md](references/client-server-architecture-games.md)
 ...
 > 📎 **[references/5-core-architecture-models.md](references/5-core-architecture-models.md)** — 43 lines of detailed guidance
 
 ## 6. Protocol Design: UDP, Reliability, and Message Serialization
+<!-- STANDARD: 3min -->
 <!-- Full 40 lines extracted to references/6-protocol-design-udp-reliability-and-message-serialization.md -->
 
 #
 
 ## Why UDP
+<!-- STANDARD: 3min -->
 TCP's head-of-line blocking is fatal for real-time games. A single lost packet at sequence 100 blocks delivery of packets 101-150 until 100 is retransmitted — even though packets 101-150 contain newer, more important data.
 **The golden rule: Old state is worthless.** When a movement packet is lost, you don't want a retransmission of the old position — you want the newest position. UDP lets you make that choice per-packet.
 #
 
 ## Custom Reliability Layer
+<!-- STANDARD: 3min -->
 ...
 > 📎 **[references/6-protocol-design-udp-reliability-and-message-serialization.md](references/6-protocol-design-udp-reliability-and-message-serialization.md)** — 40 lines of detailed guidance
 
 ## 7. Client-Side Prediction & Server Reconciliation
+<!-- STANDARD: 3min -->
 
 **Reference:** [prediction-reconciliation-patterns.md](references/prediction-reconciliation-patterns.md)
 
 #
 
 ## The Core Loop
+<!-- STANDARD: 3min -->
 
 ```
+
 Client sends input → applies locally (prediction) → stores command
 Server receives input → validates → simulates → broadcasts authoritative state
 Client receives snapshot → removes acknowledged commands → checks for error
   ├── Error < threshold: smooth interpolate toward server
   └── Error >= threshold: snap to server, re-apply unacked commands
+
 ```
 
 #
 
 ## Prediction for Non-Local Entities
+<!-- STANDARD: 3min -->
 
 Don't predict remote players. Interpolate them from snapshots. The only entity you predict is the local player, because you have the input that drives it.
 
@@ -514,6 +678,7 @@ Don't predict remote players. Interpolate them from snapshots. The only entity y
 #
 
 ## Reconciliation Thresholds
+<!-- STANDARD: 3min -->
 
 | Error Magnitude | Response | Visual Result |
 |---|---|---|
@@ -523,85 +688,100 @@ Don't predict remote players. Interpolate them from snapshots. The only entity y
 | > 2.0m | Teleport to server position | Rubber-banding — investigate cause |
 
 ## 8. Lag Compensation & Hit Registration
+<!-- STANDARD: 3min -->
 <!-- Full 30 lines extracted to references/8-lag-compensation-hit-registration.md -->
 
 **Reference:** [lag-compensation-techniques.md](references/lag-compensation-techniques.md)
 #
 
 ## The Rewind Algorithm
+<!-- STANDARD: 3min -->
 On receiving a fire command at server tick T, rewind all entities to where they were at the shooter's tick T_shooter:
 1. Store current entity positions
 ...
 > 📎 **[references/8-lag-compensation-hit-registration.md](references/8-lag-compensation-hit-registration.md)** — 30 lines of detailed guidance
 
 ## 9. Snapshot Interpolation & Jitter Management
+<!-- STANDARD: 3min -->
 <!-- Full 33 lines extracted to references/9-snapshot-interpolation-jitter-management.md -->
 
 **Reference:** [snapshot-interpolation.md](references/snapshot-interpolation.md)
 #
 
 ## The Interpolation Buffer
+<!-- STANDARD: 3min -->
 Render remote entities with a deliberate delay to absorb jitter:
 Render time = server_time - interpolation_delay
 ...
 > 📎 **[references/9-snapshot-interpolation-jitter-management.md](references/9-snapshot-interpolation-jitter-management.md)** — 33 lines of detailed guidance
 
 ## 10. Interest Management & Bandwidth Optimization
+<!-- STANDARD: 3min -->
 <!-- Full 34 lines extracted to references/10-interest-management-bandwidth-optimization.md -->
 
 **Reference:** [interest-management.md](references/interest-management.md)
 #
 
 ## The Bandwidth Budget
+<!-- STANDARD: 3min -->
 Target: <50 KB/s per player (downstream)
          <10 KB/s per player (upstream)
 ...
 > 📎 **[references/10-interest-management-bandwidth-optimization.md](references/10-interest-management-bandwidth-optimization.md)** — 34 lines of detailed guidance
 
 ## 11. NAT Traversal & Relay Infrastructure
+<!-- STANDARD: 3min -->
 <!-- Full 31 lines extracted to references/11-nat-traversal-relay-infrastructure.md -->
 
 **Reference:** [nat-traversal-relay.md](references/nat-traversal-relay.md)
 #
 
 ## The Connectivity Stack
+<!-- STANDARD: 3min -->
 ICE (Interactive Connectivity Establishment)
  ├── Host candidates (direct LAN IP)
 ...
 > 📎 **[references/11-nat-traversal-relay-infrastructure.md](references/11-nat-traversal-relay-infrastructure.md)** — 31 lines of detailed guidance
 
 ## 12. Matchmaking Architecture
+<!-- STANDARD: 3min -->
 <!-- Full 38 lines extracted to references/12-matchmaking-architecture.md -->
 
 **Reference:** [matchmaking-architecture.md](references/matchmaking-architecture.md)
 #
 
 ## The Matchmaking Pipeline
+<!-- STANDARD: 3min -->
 Player clicks "Play"
   → Pre-queue: Ping measurement, version check, ban check
 ...
 > 📎 **[references/12-matchmaking-architecture.md](references/12-matchmaking-architecture.md)** — 38 lines of detailed guidance
 
 ## 13. Dedicated Server Operations
+<!-- STANDARD: 3min -->
 <!-- Full 44 lines extracted to references/13-dedicated-server-operations.md -->
 
 **Reference:** [dedicated-server-infrastructure.md](references/dedicated-server-infrastructure.md)
 #
 
 ## Orchestration
+<!-- STANDARD: 3min -->
 #
 
 ## Fleet Sizing Rule of Thumb
+<!-- STANDARD: 3min -->
 Warm pool size = peak_concurrent_matches × 0.15
 ...
 > 📎 **[references/13-dedicated-server-operations.md](references/13-dedicated-server-operations.md)** — 44 lines of detailed guidance
 
 ## 14. Security & Anti-Cheat Architecture
+<!-- STANDARD: 3min -->
 <!-- Full 38 lines extracted to references/14-security-anti-cheat-architecture.md -->
 
 #
 
 ## Server-Authoritative Validation
+<!-- STANDARD: 3min -->
 Every client-submitted value must be validated:
 bool ValidateMovement(Vector3 from, Vector3 to, float delta_time) {
     float distance = length(to - from);
@@ -609,19 +789,23 @@ bool ValidateMovement(Vector3 from, Vector3 to, float delta_time) {
 > 📎 **[references/14-security-anti-cheat-architecture.md](references/14-security-anti-cheat-architecture.md)** — 38 lines of detailed guidance
 
 ## 15. Debugging & Profiling Multiplayer Systems
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 58 lines extracted to references/15-debugging-profiling-multiplayer-systems.md -->
 
 #
 
 ## Essential Debugging Tools
+<!-- STANDARD: 3min -->
 
 **Network Simulator:**
+
 ```bash
 # Linux: simulate 100ms ping, 2% packet loss, ±10ms jitter
 ...
 > 📎 **Full content (58 lines):** [references/15-debugging-profiling-multiplayer-systems.md](references/15-debugging-profiling-multiplayer-systems.md)
 
 ## Reference Files
+<!-- STANDARD: 3min -->
 
 | File | Content |
 |---|---|
@@ -635,8 +819,10 @@ bool ValidateMovement(Vector3 from, Vector3 to, float delta_time) {
 | [dedicated-server-infrastructure.md](references/dedicated-server-infrastructure.md) | Docker/K8s/Agones, GameLift, monitoring, graceful shutdown, cost optimization |
 
 ## Quick Reference Commands
+<!-- STANDARD: 3min -->
 
 ```bash
+
 # Start a game server (Docker)
 docker run -p 27015:27015/udp -e MAP=de_dust2 -e MAX_PLAYERS=10 gameserver:latest
 
@@ -660,9 +846,27 @@ iperf3 -c gameserver.example.com -u -p 27015 -b 100K -t 30
 
 # Prometheus metrics endpoint check
 curl http://localhost:9090/metrics | grep gameserver
+
 ```
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Server is authoritative for all gameplay state affecting fairness or economy — zero client-trusted state paths | `grep -r "trust.*client" server/` returns zero results; every state mutation path has server-side validation |
+| ☐ | Complete when Client-side prediction + server reconciliation implemented together: client predicts locally, server corrects, client replays unacknowledged inputs | Test at 100ms simulated latency: prediction error < 50ms; reconciliation completes within 2 ticks |
+| ☐ | Complete when UDP transport with reliability layers in use — no TCP for real-time state replication | Network stack uses ENet, GameNetworkingSockets, or equivalent; reliable-ordered + unreliable channels confirmed |
+| ☐ | Complete when Interest management limits per-player bandwidth < 8 KB/s at target player count | `iperf3` or custom telemetry confirms bandwidth per player stays within budget at 2× target CCU |
+| ☐ | Complete when Lag compensation (backward reconciliation) validates hits at simulated 50ms, 100ms, and 200ms ping | Hit registration feels consistent across all three latency levels in automated test suite |
+| ☐ | Complete when NAT traversal with relay fallback confirmed: STUN → TURN escalation works for symmetric NAT | Connectivity diagnostics visible in lobby UI; relay budget calculated at 5-15% of projected player-hours |
+| ☐ | Complete when Network condition CI tests pass at 0ms, 50ms, 100ms, 200ms latency with 0%, 1%, 5% packet loss | `tc netem` or equivalent runs in CI pipeline for every netcode feature PR |
+| ☐ | Complete when FlatBuffers or bit-packed serialization in use — no JSON/XML for runtime game state | Serialization payload < 200 bytes per player update; delta compression verified in bandwidth profile |
+| ☐ | Complete when Dedicated server auto-scaling configured with graceful shutdown on last player disconnect and orphaned server alerting | Agones or GameLift allocation/deallocation works; idle server shutdown timer verified |
+| ☐ | Complete when Stress test passes at 2× target CCU for ≥30 minutes with tick rate maintained ≥50% of target | 128-player load test for 64-player target completes with tick rate and memory within bounds |
+
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### Anti-Pattern: Trusting the client with authoritative state
 **What it looks like:** Server accepts client-submitted position, health, ammo, and score without validation. "We'll add server validation after we prove the gameplay is fun." One player downloads Cheat Engine on day 2 of launch — infinite health, teleport, unlimited currency.
@@ -700,6 +904,7 @@ curl http://localhost:9090/metrics | grep gameserver
 **Do this instead:** Simulate network conditions in CI for every netcode feature: 0ms/0% (baseline), 50ms/0% (good WiFi), 100ms/1% (typical broadband), 200ms/2% (transcontinental), 300ms/5% (poor mobile). Use `tc netem` on Linux or Clumsy/Network Link Conditioner. Test 64-player stress scenarios with varied per-player latency profiles.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 Before shipping any multiplayer game or netcode feature, verify every item. Each unchecked item is a launch-day disaster waiting to happen.
@@ -720,7 +925,8 @@ Before shipping any multiplayer game or netcode feature, verify every item. Each
 - [ ] **Stress test at 2× target CCU:** 128-player load test for 64-player target. Tick rate maintained at ≥ 50% of target under 2× load for ≥ 30 minutes. Memory and CPU profiles reviewed.
 - [ ] **Observability dashboard live:** Tick rate, player count, bandwidth per player, prediction errors, reconciliation rate, server CPU/memory — all visible in Grafana/Prometheus. Alerts on tick rate drop > 20%.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -731,6 +937,7 @@ Before shipping any multiplayer game or netcode feature, verify every item. Each
 | "We'll add interest management when player count grows" | Without spatial interest management, 100 players each send updates to 99 others = 9,900 messages per tick; bandwidth explodes quadratically and server CPU melts before you hit "player count that matters" |
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Gaffer on Games** (gafferongames.com) — Glenn Fiedler's definitive series on game networking
 - **Gabriel Gambetta** (gambetta.dev) — Client-Server Game Architecture series

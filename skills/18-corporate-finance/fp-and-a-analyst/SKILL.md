@@ -62,7 +62,6 @@ Financial planning and analysis for venture-backed startups. Build models that r
 | **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -186,6 +185,70 @@ Common chains:
 
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
+### Decision Tree 1: Fundraising Scenario Modeling
+
+        ┌── INPUT: What's your current cash runway (months)?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[<6]  [6-12]               [>12]
+   │    │                    │
+   ▼    ▼                    ▼
+Model   Model 3 scenarios:  Model growth:
+bridge  1. Flat round       1. Best case
+round   ($0 raise, cut      2. Base case
+immedi-  burn to extend)    3. Conservative
+ately:  2. Down round       → raise when
+$1-3M    (30-50% lower      metrics peak,
+SAFE     valuation)         not when cash
+         3. Insider bridge   is low
+         → prepare all 3
+         decks now
+
+### Decision Tree 2: Headcount Planning Approach
+
+        ┌── INPUT: Is revenue growing > 50% YoY?
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+[Yes]      [No]
+   │         │
+   ▼         ▼
+Growth     Efficiency
+mode:      mode:
+hire ahead freeze non-
+of revenue essential
+→ plan      hires
+headcount  → backfill
+by function only critical
+with        roles
+productivity → reallocate
+ratios       existing
+(revenue/    headcount
+head)
+
+### Decision Tree 3: Cash Runway Analysis
+
+        ┌── INPUT: What's your monthly net burn?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+[Burn is increasing        [Burn is stable
+month-over-month]           or decreasing]
+   │                         │
+   ▼                         ▼
+Flag immediately:           Calculate runway:
+runway < 12 months          cash / net burn
+→ categorize spend          → if < 18 months,
+by must-have vs             model 3 scenarios
+nice-to-have                with 20% revenue
+→ prepare reduction         miss + 10% cost
+scenarios of 10%,           overrun
+20%, 30%
+
 ### Budgeting Method Selection
 
 ```
@@ -264,9 +327,11 @@ ARR growth < 30% YoY?
 3. **Burn analysis:** Gross burn (total cash out), net burn (cash out - cash in), runway (cash / net burn). Highlight date when cash runs out in each scenario.
 4. **Ask slide:** If fundraising, include: amount raising, use of funds (% hiring, % marketing, % buffer), milestones achieved with this round, dilution at different valuations.
   Complete when: Board package includes one-page dashboard, cohort retention view, burn waterfall chart, and fundraising ask slide (if applicable). All numbers verified against model outputs.
+  Complete when: Financial statements reconciled — balance sheet balances, P&L ties to trial balance.
+  Complete when: Variance analysis completed — actuals vs. budget explained with < 5% unexplained.
+  Complete when: Audit trail documented — all journal entries have supporting documentation attached.
 
 <!-- QUICK: 30s — key numbers that matter -->
-
 
 ## Error Recovery
 
@@ -335,7 +400,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | Cash runway drops below 9 months without fundraising process active | Immediate alert to CEO and board — model 3 scenarios (best/mid/worst case cash-out dates); prepare bridge-round materials | 9 months is the minimum safe runway to run a process; below 6 months, options narrow dramatically |
 | Department exceeds quarterly budget by >15% with 6+ weeks remaining | Schedule budget review with department head within 3 business days; identify root cause (overspend vs. timing vs. scope change); reforecast remaining period | Early intervention prevents a single department's overspend from consuming the entire contingency reserve |
 | Board slides reference metrics without documented methodology | Pause presentation prep; write and circulate methodology appendix for all KPI definitions before any board materials are finalized | Board trust is built on consistent, documented metrics — if methodology changes, explain why before they ask |
-
 
 ## State Log
 
@@ -408,7 +472,7 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 
 **DEEP: 10+min — War story:** A founder modeled their Series A at $40M pre-money with $10M raise. Their revenue was $2M ARR — 20x multiple. They didn't model the "comp" scenario: what comparable companies actually raised at. VCs offered $20M pre-money. The model had no downside case, so the founder couldn't negotiate from data. They took the term sheet from a position of weakness. Always model: "what multiple do I need to justify my valuation to an investor who's seen 500 deals this year?"
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -490,15 +554,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Cap table: fully diluted shares outstanding updated — option pool, warrants, convertibles all modeled
 - [ ] Consistency check: cross-tab totals verified — revenue sheet total = P&L summary = board slide = cash flow input
 
-### Scale Depth
-
-| Company Stage | Model Complexity | Key Metrics | Cadence |
-|--------------|-----------------|-------------|---------|
-| **Pre-revenue/Seed** | Simple P&L + cash runway model, headcount plan, burn multiple | Months of runway, burn rate, cash-out date | Weekly cash update, monthly burn review |
-| **Series A ($1-5M ARR)** | 3-statement model, SaaS metrics dashboard, pipeline-weighted revenue forecast, headcount by department | ARR, NRR, gross margin, CAC payback, burn multiple, runway | Monthly close review, quarterly rolling forecast, monthly board update |
-| **Series B/C ($5-50M ARR)** | Full 3-statement + scenario planning, cohort-based revenue model, department-level budgeting, cap table + dilution modeling | Rule of 40, LTV/CAC, magic number, NRR by cohort, EBITDA margin, ARR per employee | Monthly close + reforecast, quarterly board, annual strategic plan |
-| **Pre-IPO ($50M+ ARR)** | Multi-entity consolidation, segment reporting, SOX-compliant forecasting, investor-grade guidance model | GAAP revenue, operating income, free cash flow, ARR + NRR, remaining performance obligations, fully diluted EPS | Monthly close + guidance update, quarterly earnings prep, annual budget + long-range plan |
-
 ## Error Decoder
 
 | Symptom | Root Cause | Fix | Prevention |
@@ -532,4 +587,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

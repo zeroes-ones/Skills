@@ -70,6 +70,7 @@ optimization (FinOps), disaster recovery (RPO/RTO design, 3-2-1 backup, failover
 mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flags).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -101,9 +102,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -114,6 +117,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "We don't need OIDC — managing long-lived IAM users is simpler." | Long-lived credentials are a single point of compromise. If leaked, attacker has permanent access until you notice and rotate — average detection time: 207 days. OIDC gives you short-lived tokens scoped per step. Simplicity today is a breach tomorrow. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -131,12 +135,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **NEVER guess infrastructure tool versions — anchor to the runtime.** Terraform providers, Kubernetes API versions, Docker engine, and Helm chart API versions change between releases. Generating code against the wrong version produces broken manifests. | Trigger: writing Terraform HCL, Helm charts, Kubernetes manifests, or Dockerfiles without first running `scripts/runtime-version-detect.sh` on the target project | STOP. Run: `scripts/runtime-version-detect.sh`. Then VERIFY: terraform version (`terraform version`), kubectl server version (`kubectl version --short`), docker version (`docker version --format '{{.Server.Version}}'`), helm version (`helm version --short`). Prepend to output: "## 🔗 Anchored Versions (source: runtime-version-detect.sh)\n- Terraform: X.Y.Z (state snapshot version: A.B)\n- Kubernetes API: v1.XX\n- Helm: vX.Y.Z\n- Docker Engine: XX.Y.Z" |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 DevOps is not about tools — it's about **reducing the time and friction between code written and code delivering value, safely**. The best infrastructure is boring, predictable, and uneventful. If your infrastructure is exciting, something is wrong.
 
@@ -172,6 +176,7 @@ DevOps is not about tools — it's about **reducing the time and friction betwee
 - **Skip the full GitOps pipeline for internal tools.** The rigor needed for customer-facing production is not always needed for internal dashboards. Match process rigor to blast radius.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 DevOps skill manifests in the scope of infrastructure you own and the blast radius of your decisions.
 
@@ -185,34 +190,8 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 
 **Usage**: Say "as an L3 DevOps engineer, design the deployment pipeline for..." Default: **L3** (product-level infrastructure, independent design).
 
-### Scale Depth
-
-### Solo (1 person, 0-100 users)
-- **What changes**: DevOps = PaaS (Vercel/Railway/Render). No IaC. No containers. No CI/CD pipeline. Manual `git push` deploy. Monitoring = built-in PaaS dashboard. Secrets in platform env vars.
-- **What to skip**: Terraform/Pulumi, Docker, Kubernetes, CI/CD pipelines, GitOps, observability stack (Prometheus/Grafana), secrets management (Vault), infrastructure monitoring.
-- **Coordination**: You are ops + dev. No coordination needed. **Cost**: $0-100/month.
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: IaC for infrastructure (Terraform). Docker for consistent environments. CI/CD with test + deploy. Managed services for database, cache, queue. Basic monitoring (logs + uptime + basic metrics). Secrets in CI/CD secrets manager. Staging environment.
-- **What to skip**: Kubernetes, GitOps, service mesh, full observability (just logs + uptime + basic metrics), multi-region, self-hosted anything.
-- **Coordination**: DevOps tasks shared among developers. Weekly infra review. PagerDuty for production alerts (rotating). **Cost**: $200-1,000/month.
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Dedicated DevOps/SRE (1-2 people). Kubernetes or ECS. GitOps (Argo CD/Flux). Full observability (Prometheus + Grafana + Loki + Tempo). IaC per environment with state isolation. Secrets management (Vault or cloud KMS). CI/CD with security scanning. Auto-scaling. Blue-green deployments. SLOs defined.
-- **What to skip**: Multi-cloud, service mesh, chaos engineering, dedicated platform team.
-- **Coordination**: DevOps weekly planning. Monthly infrastructure review. On-call rotation (follow-the-sun if needed). **Cost**: $5,000-20,000/month.
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: Platform engineering team (3+ engineers). Internal developer platform (Backstage). Multi-cloud infrastructure. Service mesh (Istio/Linkerd). Full GitOps. Secrets management with rotation. Chaos engineering. Multi-region active-active. SLOs with error budgets. FinOps practice. Compliance automation. Capacity planning.
-- **What's full production**: Developer platform as a product. Self-service infrastructure. Automated compliance. Cost optimization dashboard. Platform engineering metrics (DORA + platform adoption).
-- **Coordination**: Platform team weekly. Monthly infrastructure review. Quarterly capacity planning. On-call with escalation paths. **Cost**: $50,000-200,000+/month.
-
-### Transition Triggers
-- **Solo → Small**: Second developer joins. PaaS limitations hit (cost or features).
-- **Small → Medium**: 3+ services. Manual deploys causing issues. First production incident at 3 AM.
-- **Medium → Enterprise**: 10+ services with cross-team ownership. Multi-region or compliance required. >50 engineers.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Provisioning or refactoring cloud infrastructure with Terraform or Pulumi across multi-account architectures
@@ -226,6 +205,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 - Migrating from click-ops → IaC, or push-based CD → GitOps pull-based reconciliation
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### IaC Tool: Terraform vs Pulumi vs CDK
@@ -253,6 +233,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
                     │  cloud)  │
                     └──────────┘
 ```
+
 **When to choose Terraform:** Largest community, HCL acceptable, multi-cloud or AWS-dominant, >3 team members. **When to choose Pulumi:** Multi-cloud + real programming languages needed, team already writes TypeScript/Python, need unit-testable infra code. **When to choose CDK:** AWS-only, TypeScript/Python shop, want high-level constructs, CloudFormation under the hood acceptable.
 
 ### GitOps vs Push-Based CD
@@ -274,6 +255,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
                     │             │   │ AWS CodeDeploy) │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose GitOps:** K8s-native, >3 services, need drift detection and auto-remediation, >5 engineers deploying independently. **When to choose Push-Based:** Non-K8s workloads (Lambda, ECS), <3 services, simpler pipeline, don't need drift detection.
 
 ### Secrets Management Approach
@@ -297,6 +279,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
                     │  secrets)   │   └────────────────┘
                     └─────────────┘
 ```
+
 **When to choose Vault:** >50 secrets, dynamic database credentials needed, multi-cloud, auto-rotation with TTL, audit logging required. **When to choose Cloud-Native:** <50 secrets, single cloud, no dynamic secrets needed, simpler operational model, rotation via Lambda/Cloud Functions.
 
 ### Progressive Delivery Strategy
@@ -319,6 +302,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
                     │ Flagger     │   │ verification    │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose Canary:** Error budget >0.1%, need gradual traffic shift (5%→50%→100%), metrics-based rollback, >10 deploys/week. **When to choose Blue-Green:** Instant rollback required (<1 min), simpler to reason about, can afford 2× infrastructure, <5 deploys/week.
 
 ### Disaster Recovery Topology
@@ -341,9 +325,11 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
                     │ cost)       │   └────────────────┘
                     └─────────────┘
 ```
+
 **When to choose Active-Active:** RPO <1 min, >$1M/month revenue at risk, 99.99% SLA, budget for 3-5× cost. **When to choose Backup & Restore:** RPO 1-24hr acceptable, <$100K/month revenue at risk, cost-sensitive, 99.5% SLA adequate.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Discovery & Infrastructure Audit
@@ -365,19 +351,23 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
    | **Best when** | Broad multi-cloud, ops teams | Developer-owned infra, complex logic | Single-cloud, AWS/Azure-native shops |
 
 2. **Repository Structure** — Separate repos per bounded context; never monolithic "infra" repo:
+
    ```
    infra-networking/     # VPCs, subnets, peering, transit gateway, DNS
    infra-security/       # IAM, KMS, SCPs, security groups, WAF
    infra-compute/        # EKS, ECS, Lambda, ASGs
    infra-data/           # RDS, DynamoDB, ElastiCache, S3 policies
    ```
+
    Within each repo: `modules/`, `environments/{dev,staging,prod}/`, `global/`
 
 3. **Remote State** — Per-environment, per-component state with locking:
+
    ```
    s3://org-terraform-state/prod/us-east-1/networking/terraform.tfstate
    s3://org-terraform-state/prod/us-east-1/compute/terraform.tfstate
    ```
+
    State encryption via KMS; access logged via CloudTrail; alerts on unauthorized reads.
 
 4. **Module Design** — Small, composable, single-purpose. Versioned by git tag (never `main` branch). Every module exports: ARN/ID, endpoint, security group.
@@ -390,9 +380,16 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
   Complete when: Terraform/Pulumi/CDK tool selection is documented with trade-offs, repository structure follows bounded-context separation, remote state is configured with encryption and locking, and modules are versioned by git tag.
-
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
+  Complete when: Infrastructure drift detection enabled — Terraform plan shows zero unmanaged changes.
+  Complete when: Runbook documented and tested via game day exercise with < 3 action items.
+  Complete when: Dependency update automation configured with auto-merge for patch releases.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -401,8 +398,8 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 | Refactoring a Terraform module without incrementing the version — 14 downstream environments pick up the breaking change on their next `terraform init -upgrade` and all fail to plan | $30K-$150K in cascading plan failures across the org | Always tag module releases with semantic versions; downstream consumers pin to a specific version, not `main`; run `terraform plan` in a canary environment before rolling out module updates broadly |
 | Destroying infrastructure with `terraform destroy` without checking `prevent_destroy` lifecycle rules — the production database is deleted because the RDS module didn't have deletion protection enabled | $100K-$500K in data loss and recovery | Enable `prevent_destroy = true` on all stateful resources (RDS, S3 buckets, DynamoDB tables); add `deletion_protection = true` at the cloud provider level; require manual approval for any destroy plan targeting production |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -417,8 +414,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Pulumi preview succeeds but `pulumi up` fails mid-deploy — resources partially created with no rollback | Pulumi creates 5 resources in dependency order. Resource 3 fails on a validation error (name too long for AWS API). Resources 1 and 2 are created and stay created. There's no atomic rollback — you now have orphaned resources | Use `pulumi up --target` for high-risk resource groups. Wrap resource creation in `pulumi.all([])` with explicit `dependsOn` to make groups fail atomically. Run `pulumi destroy --target <URN>` for orphan cleanup. Pre-validate with CloudFormation Guard or OPA policies before pulumi up | Pulumi (and Terraform) are eventually consistent — they don't roll back on partial failure. The provider creates what it can, fails on what it can't. Always have a cleanup plan for partial deployments. |
 | HashiCorp Vault sealed itself during a routine node restart and no one had the unseal keys | Vault was deployed on a single node with auto-unseal via cloud KMS, but the IAM role for KMS access was on an EC2 instance profile that was accidentally detached during a security group audit. The standby node couldn't auto-unseal because it had the same detached profile | Use `recovery_keys` with Shamir's Secret Sharing, store at least 3 key shares across 3 different custody holders in separate physical locations. Test the unseal procedure quarterly — timed and documented. Deploy Vault in HA with 3 nodes across 3 AZs, each with independent KMS access via resource-based policy | Auto-unseal is a single point of failure if all nodes share the same KMS authentication. The unseal procedure isn't tested until it's needed — and by then, the keys are unreachable. HA + independent auth paths + regular unseal drills. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Codify everything — no ClickOps.** Every resource from VPC to DNS record lives in Terraform/Pulumi/Crossplane. Manual console changes must be synced to IaC within 24 hours or auto-reverted by drift detection.
 2. **Use remote state with locking.** Store Terraform state in S3/GCS/Azure Storage with DynamoDB/Blob lease locking. Never commit state files to Git. Co-locate the lock mechanism with the state bucket.
@@ -431,8 +428,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 9. **Immutable infrastructure — never patch in place.** Replace AMIs, container images, and server configs; don't SSH in to fix. Immutability eliminates configuration drift and snowflake servers, and makes rollback a redeploy of the previous artifact.
 10. **Run disaster recovery drills, not just DR plans.** Quarterly failover to DR region with production traffic. Measure RPO (actual data freshness) and RTO (time to fully operational). A DR plan that hasn't been tested in 6 months doesn't exist.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -447,6 +444,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -465,6 +463,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `platform-engineer` | Infrastructure building blocks, IaC modules, cluster templates for golden paths | Platform has no foundation — developers can't self-serve |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -477,11 +476,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Terraform state file grows beyond 100MB or `terraform plan` takes >10 minutes | Refactor state into smaller scoped workspaces — split by component (network, compute, data) or by service team. Large state files slow every plan/apply cycle and increase blast radius on state corruption. | State file bloat is a gradual degradation that silently erodes deployment velocity. A 200MB state file can turn a 30-second plan into a 10-minute blocking operation. |
 | DNS TTL for critical endpoints is ≥300 seconds during a planned failover test | Reduce TTL to ≤60 seconds at least 1 TTL period before the failover window. DNS propagation delay with high TTL means clients cache stale IPs and can't reach the new endpoint during DR. | High DNS TTL is the silent killer of fast failover. A 300-second TTL means up to 5 minutes of client downtime even if your infrastructure fails over in 30 seconds. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 1. [ ] **Terraform state is remote with locking** — S3 + DynamoDB, GCS + object lock, or TFC/E — and state bucket has versioning enabled with MFA delete.
 2. [ ] **Terraform plan runs clean** — zero unexpected creates/destroys/drifts on `terraform plan` from a clean checkout against every environment.
@@ -499,12 +500,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 14. [ ] **Access to production infrastructure requires MFA** — IAM policies enforce MFA for console access. AssumeRole requires MFA context key. Break-glass procedures documented for MFA device loss.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Infrastructure is fully codified, versioned, and reproducible — nothing is created by hand and nothing drifts. Deployments are zero-downtime with automated rollback on health check failure.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 DevOps skill is built in the crucible of failure — incident response, recovery drills, and chaos engineering. The engineer who has recovered from 50 failures is calm during the 51st.
 
@@ -531,6 +534,7 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 **Do a "walk the floor" tour of your infrastructure monthly.** Pick a random service. Can you find its: runbook? dashboards? recent deployment history? on-call rotation? If any of these takes more than 60 seconds, that's your next improvement.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Manual infrastructure changes (ClickOps) outside of IaC** — an on-call engineer manually increases an RDS instance size via the AWS console during a 2 AM incident to restore service, then forgets to update the Terraform config. The next `terraform apply` reverts the instance back to the smaller size, re-triggering the exact same outage during business hours when customer traffic is 10x higher. The resulting 4-hour production outage costs $50K in SLA credits, $30K in engineering firefighting time, and $120K in customer trust erosion. **Total cost: $50K-$200K per drift-related outage from manual infrastructure changes.** Immediately after any emergency manual change, create a Jira ticket to sync the change back into IaC within 24 hours, and enable AWS Config rules or drift detection to alert on infrastructure-state mismatches.
 - **Terraform `count` vs `for_each`**: When you remove an item from the MIDDLE of a count-based list, Terraform shifts all subsequent resource indices. The resource at index 3 gets destroyed and recreated as index 2 — potentially destructive. `for_each` with stable keys prevents index shifting.
@@ -548,6 +552,7 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 - **Git branch protection without requiring pull requests on the default branch** — you enable branch protection on `main` requiring status checks and CODEOWNERS reviews, but leave "Require a pull request before merging" unchecked. A developer force-pushes directly to `main` during a late-night incident while "fixing a typo." The force-push overwrites three merged PRs from the previous day, reverting critical security patches. The overwritten commits are unreferenced and garbage-collected after 90 days, making recovery impossible from Git alone. The security patches were for an authentication bypass vulnerability — the revert goes undetected for 3 weeks until a penetration test finds the vulnerability live in production. **Total cost: $100K-$1M in security incident response, customer notification, and regulatory fines from force-pushed security patches.** Fix: Enable "Require a pull request before merging" on all protected branches; enable "Do not allow bypassing the above settings" including administrators; implement repository-level force-push blocking via `receive.denyNonFastForwards` server-side hook; use GitHub push protection or pre-receive hooks to prevent direct pushes to protected branches even by admins.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `terraform validate` — configuration is valid
 - [ ] Run `terraform plan` — plan is clean (no unexpected creates/destroys)
@@ -557,10 +562,12 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 - [ ] Deploy to staging, verify health, then promote to production — GitOps workflow is end-to-end functional
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -573,6 +580,5 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **When Managed Services Save Money**: See [managed-services.md](references/managed-services.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Self-Hosting Breakeven Calculator**: See [self-hosting.md](references/self-hosting.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

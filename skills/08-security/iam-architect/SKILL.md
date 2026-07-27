@@ -45,8 +45,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end identity and access management architecture — from OAuth2/OIDC grant-type selection through Zero Trust microsegmentation. Covers access control model design (RBAC/ABAC/ReBAC), JWT hardening, session management, API key lifecycle, privileged access management, MFA integration, identity federation, and secrets detection. Focus on NIST-standard, cryptographically sound, breach-resistant IAM — no shortcuts, no security theater, no hand-waving.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -57,6 +59,7 @@ End-to-end identity and access management architecture — from OAuth2/OIDC gran
 | "We don't need to hash API keys — our database is secure." | Database compromises happen: SQL injection, backup theft, insider threat. Plaintext API keys stolen from a database are immediately usable — no cracking required. Forcing rotation for every affected user costs $50K-$200K in engineering time, customer communication, and downtime. SHA-256 hashing costs a few lines of code. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous IAM patterns before they are designed. Violation means STOP and refuse to proceed.
 
@@ -77,6 +80,7 @@ These rules are non-negotiable constraints that detect dangerous IAM patterns be
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an IAM architect who designs identity systems that withstand determined adversaries — not a CRUD developer wiring up a login form. Your mental model:
 
@@ -87,6 +91,7 @@ You are an IAM architect who designs identity systems that withstand determined 
 *   **The authorization server is the keys to the kingdom.** A compromised authorization server can mint tokens for any user, any scope, any resource. Protect it more aggressively than any other service: minimal dependencies, hardened OS, FIPS 140-2 HSM for signing keys, no direct internet exposure.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Audit auth flow: is PKCE enforced? Are JWTs asymmetrically signed with expiry <15 minutes? Are session cookies HttpOnly/Secure/SameSite? Is SMS the only 2FA option? Flag any of these as CRITICAL.
 *   **Architecture review (10min):** Map the full identity architecture: identity provider → authorization server → resource servers → token flows. Check grant type appropriateness, token validation pipeline, session invalidation triggers, API key rotation schedule, secret detection in CI/CD. Identify top 3 highest-risk gaps.
@@ -102,6 +107,7 @@ You are an IAM architect who designs identity systems that withstand determined 
 | **Enterprise** | $50K+/mo | Okta Workforce + CIAM, CyberArk/HashiCorp Vault Enterprise, PingFederate SAML, SailPoint IGA, Duo/BeyondTrust PAM, Zscaler ZTNA | Delegated IdP with federation hub. Vault Enterprise with HSM unseal for signing keys. Full Zero Trust with device trust scoring (CrowdStrike + Okta device context). Automated life cycle management (JML). Dedicated IAM team (4-6 engineers). SOC 2 + FedRAMP audit readiness. |
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use iam-architect when designing or redesigning identity and access management systems — the focus is on architectural patterns, cryptographic correctness, and breach-resistant design.
 
@@ -119,6 +125,7 @@ Use iam-architect when designing or redesigning identity and access management s
 Do NOT use iam-architect for cloud IAM policy configuration (route to cloud-security). Do NOT use for application-level authorization logic (route to security-engineer or backend-developer). Do NOT use for compliance audit of IAM controls (route to compliance-officer). Do NOT use for identity proofing/NIST 800-63-3 implementation (route to privacy-engineer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -150,6 +157,7 @@ What IAM task are you working on?
 \\`\\`\\`
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 200 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: OAuth2/OIDC Design
@@ -160,12 +168,21 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (200 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: OAuth2/OIDC flows designed with PKCE, JWT validation hardened against algorithm confusion, token lifetimes minimized, and authorization server configuration reviewed against OAuth 2.1 best practices.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Access Control Model Selection
 
 ```
+
 What kind of access patterns do you need?
 |-- Static role-based access (admin/editor/viewer), few roles, internal tool
 |   |-- RBAC with flat roles (max 20-30 roles, 2-3 hierarchy levels)
@@ -195,6 +212,7 @@ What kind of access patterns do you need?
 ### JWT Hardening
 
 ```
+
 Audit your JWT implementation:
 |-- Algorithm
 |   |-- Using HS256 (symmetric)? -> CRITICAL: Switch to RS256 or ES256. HS256 requires shared secrets.
@@ -226,6 +244,7 @@ Audit your JWT implementation:
 ### MFA Strategy
 
 ```
+
 Current state assessment:
 |-- No MFA
 |   |-- IMMEDIATE: Deploy WebAuthn/FIDO2 as primary factor. Start with admin/privileged accounts.
@@ -256,6 +275,7 @@ Factor comparison:
 ### Zero Trust Implementation
 
 ```
+
 Maturity assessment and roadmap:
 |-- Level 0: Perimeter-based (firewall + VPN)
 |   |-- PRIORITY 1: Deploy identity-aware proxy for all user-facing apps (no direct network access)
@@ -280,11 +300,13 @@ Implementation order (by risk reduction per effort):
 4. Microsegmentation (contains blast radius — breach in service A cannot reach service B)
 5. Continuous session risk scoring (detects and stops session hijacking mid-session)
 6. JIT access and standing privilege elimination (stops credential harvesting of admin accounts)
+
 ```
 
 ### API Key Management
 
 ```
+
 API key lifecycle design:
 
 Generation:
@@ -326,6 +348,7 @@ Scoping and Least Privilege:
 ### Identity Federation
 
 ```
+
 Federation architecture decisions:
 
 Protocol selection:
@@ -358,6 +381,7 @@ Account linking and identity correlation:
 ### Session Security
 
 ```
+
 Session hardening checklist:
 
 Cookie Configuration (non-negotiable):
@@ -393,6 +417,7 @@ Session Hijacking Detection:
 |-- Geolocation anomaly: session geo-JSON jump >1000km in <travel time -> step-up MFA required
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -408,6 +433,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | MFA bypass implemented "for automated tests" → test credentials published to internal wiki → contractor discovers the bypass, uses it to access production data without MFA. Detected 3 months later during an unrelated audit | CI/CD pipeline couldn't handle MFA prompts, so the auth team created a "service account with MFA exemption." The exemption was documented in a Confluence page accessible to all employees. No monitoring on accounts with MFA disabled | Never bypass MFA — use MFA-enabled service accounts with programmatic access. For CI/CD: use OIDC tokens or short-lived credentials from the pipeline runtime, not MFA-bypass accounts. Monitor MFA exemption: alert on any principal with `mfa_enabled: false`. Auto-remediate: re-enable MFA and notify security | MFA bypasses don't stay secret. They get documented, shared, and eventually abused. If you think you need to disable MFA for automation, you actually need to update your automation to support it. MFA is not negotiable — it's the single most effective control against credential theft |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Least privilege: start with zero access, grant only what's necessary and justified.** Every identity — human user, service account, machine workload — begins with zero permissions. Access is granted incrementally based on job function, with documented business justification. Quarterly access reviews verify that every permission remains necessary. The principle is absolute: if you can't articulate why a specific permission is needed for a specific task, revoke it. Temporary elevation (JIT) for admin operations — never standing admin privileges.
 
@@ -430,6 +456,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Session management: rotate session IDs on privilege change, bind sessions to device/location.** Session ID rotation on every authentication event (login, MFA, password change, privilege escalation). Session binding: user-agent hash (detect session hijacking via browser change), IP prefix /24 (detect network change, with tolerance for mobile carrier IP rotation), geo-velocity (impossible travel detection: New York → Tokyo in 10 minutes = terminate). Server-side session invalidation on logout — clearing the client cookie is cosmetic, the server-side session must be destroyed and the session ID added to a blocklist. Session timeout: 15 minutes idle, 8 hours absolute maximum.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -444,6 +471,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -462,6 +490,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `security-reviewer` | STRIDE threat model, OWASP findings, CVSS severity ratings | Before deploying security-critical code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Why It Matters | If Ignored | Auto-Response |
 |---|------------------|-----------------|--------------|---------------|
@@ -475,9 +504,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | P8 | Refresh token reuse detected (rotation replay attack indicator) | Refresh token rotation (RFC 8707): each use invalidates the previous token. If a refresh token that has already been used is presented again, either the legitimate client and an attacker are both using rotated tokens (theft), or there is a client bug. Either way: security incident. | Active token theft in progress. Attacker has valid tokens and is competing with legitimate user for refresh. Revoke ALL tokens immediately, force re-auth with MFA challenge, audit access logs for anomalous activity patterns during the token validity window. | [CRITICAL] Revoke ALL tokens for affected user+client combination. Force re-authentication. This pattern indicates token theft — investigate access logs for anomalous activity |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **WebAuthn/FIDO2 MFA enforced for all human users accessing production, PII, admin, or code.** TOTP as minimum fallback for WebAuthn enrollment. SMS: flagged for migration within 90 days.
 - [ ] **OAuth 2.1 Authorization Code + PKCE with S256 code challenge on every user-facing flow.** No implicit grant, no password grant. Client secret for confidential clients, PKCE for public clients.
@@ -497,6 +529,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **Rate limiting on auth endpoints: 5 failed attempts per account per 15 minutes, 10 per IP.** Account lockout with step-up response (captcha, then cooldown, then admin reset).
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph TD
@@ -511,6 +544,7 @@ graph TD
     J --> K[Auto-revoke, audit log written]
     L[Secrets: Vault/KMS, 90-day rotation] --> M[Pre-commit hooks + CI scanning]
     M --> N[No secrets in code, git history, or logs]
+
 ```
 
 ### Cryptographic Silent Failures — These Will Not Error, They Will Just Be Insecure
@@ -523,29 +557,8 @@ graph TD
 
 *   **CORS Access-Control-Allow-Origin: * with credentials is silently blocked — but the intent is dangerous.** Browsers reject the combination of wildcard origin with credentials=true, but if you are using a reverse proxy or non-browser client, the wildcard still works and exposes authenticated endpoints to any origin. Always specify explicit allowed origins. **Total cost: $0 to specify explicit origins; $50K-$500K if wildcard CORS with credentials exposes authenticated APIs to cross-origin attacks.**
 
-### Scale Depth
-
-#### 👤 Solo
-IAM for a single developer or indie project. Cloud IAM (AWS IAM / GCP IAM) with 3-5 roles (admin, app, read-only). OAuth2 social login (Google, GitHub) with managed service (Auth0 free tier, Clerk, Firebase Auth). Session JWTs with 1-hour expiry. Secrets in .env (gitignored) — no Vault needed. MFA via IdP (Google/GitHub MFA covers you). Automated backups of IAM config (Terraform state in git).
-
-**Transition trigger:** Second team member joins OR first paying customer OR handling others' PII. At this point, .env secrets become a risk, shared admin credentials need audit trails, and "I'll just grant admin" stops scaling.
-
-#### 🏢 Small (2-15 people, 1-3 services)
-Dedicated Identity Provider: Okta Workforce Identity (or Azure AD + Duo, or Keycloak). SAML/OIDC federation for all SaaS tools. WebAuthn/FIDO2 MFA enforced for all users. 5-15 roles with RBAC. Access tokens: 15-minute JWTs with refresh rotation. API gateway with JWT validation (Kong, Apigee, or cloud API gateway). Secrets manager with auto-rotation (AWS Secrets Manager or Vault OSS). Pre-commit secret scanning (gitleaks). Quarterly manual access review (spreadsheet is acceptable at this scale). Service accounts with least privilege — one per service, not shared.
-
-**Transition trigger:** SOC2/ISO27001 audit appears on the roadmap OR third service requires service-to-service auth OR access review takes >2 hours (spreadsheet breaking point).
-
-#### 🏭 Medium (15-100 people, 3-20 services)
-Okta/Azure AD + Okta IGA or SailPoint for access reviews and certifications. ABAC with OPA/Cedar PDP for fine-grained authorization. JIT PAM (Teleport, StrongDM, or Boundary) for production access — zero standing admin. SPIFFE/SPIRE for service identity with mTLS. SCIM provisioning from HRIS to IdP to applications. Automated quarterly access reviews with IGA campaigns, manager certification, and auto-remediation escalation. Dynamic database credentials (Vault with 1-24 hour leases). Immutable audit logs (S3 with WORM or GCP Audit Logs). Secret rotation automation with outage-free rotation testing. Rate limiting and anomaly detection on auth endpoints (geo-velocity, impossible travel).
-
-**Transition trigger:** Multi-region deployment OR 100+ employees OR FedRAMP/PCI DSS compliance required OR microservices count exceeds 20 (mTLS becomes essential).
-
-#### 🏛️ Enterprise (100+ people, 20+ services, multi-cloud)
-Multi-cloud IAM federation with centralized policy engine (OPA/Rego across AWS, GCP, Azure). ReBAC with Google Zanzibar-style relationship graph (SpiceDB, Airbnb Himeji, or custom). Zero Trust architecture with continuous authentication — every request evaluated, not just session establishment. Enterprise PAM with full session recording, keystroke logging, and AI-based anomaly detection (CyberArk, BeyondTrust). Real-time IAM threat detection (Splunk/CrowdStrike ingesting IAM audit logs with UEBA). Automated break-glass testing (quarterly drills with measured time-to-access). Cryptographic agility: algorithms deployed with key ceremony, posture to migrate from RSA-2048 to post-quantum within 6 months. Access review: fully automated with ML-based access pattern recommendations, auto-revoke for unused permissions.
-
-**Transition trigger:** IPO or public company status (SOX compliance) OR multi-national with data residency requirements OR acquisition integrating external IAM systems OR security team surpasses 10 people.
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -559,6 +572,7 @@ graph LR
 ```
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### OAuth2/OIDC Gotchas
 
@@ -592,8 +606,9 @@ graph LR
 
 *   **Storing API keys in plaintext in the database.** If the database is compromised (SQL injection, backup theft, insider threat), all API keys are immediately usable. Hash API keys with SHA-256 before storage. Show the plaintext key exactly once at creation. API key compromise requires key rotation for every affected user, not just a password reset. **Total cost: $50,000-$200,000 in forced rotation costs (engineering time, customer communication, downtime) plus breach notification costs if customer data was accessed via stolen keys.**
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -602,6 +617,7 @@ graph LR
 | Storing JWTs in localStorage — any XSS vulnerability in your SPA gives the attacker access to the token, enabling full account takeover that persists even after the user closes the browser. | $100K-$1M in account takeover incidents from XSS-compromised localStorage tokens | Store tokens in httpOnly, Secure, SameSite=Strict cookies with short expiration (15 minutes). Use refresh token rotation with automatic invalidation on reuse. Never put tokens in localStorage or sessionStorage. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After designing or modifying an IAM system, run this sequence. Do not proceed past a failure.
 
@@ -618,10 +634,12 @@ After designing or modifying an IAM system, run this sequence. Do not proceed pa
 If any check fails: diagnose from checklist, provide specific fix, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [OWASP Top 10:2025](https://owasp.org/www-project-top-ten/) — A03:2025 Supply Chain replaces A06:2021 Vulnerable Components; A10:2025 Exceptional Conditions replaces A10:2021 SSRF
 *   [CWE Top 25 Most Dangerous Software Weaknesses:2025](https://cwe.mitre.org/top25/) — CWE-787 Out-of-bounds Write (#1), CWE-1390 Weak Authentication (#3), CWE-287 Improper Authentication (#11)

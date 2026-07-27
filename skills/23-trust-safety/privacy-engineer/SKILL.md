@@ -64,7 +64,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -125,9 +124,105 @@ What are you trying to do?
 └── Not sure? → Describe the data types, regulatory regime, and processing activities — I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Decision Trees
+
+### Decision Tree 1: De-Identification Method Selection
+
+        ┌── INPUT: What level of de-identification is required?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+HIPAA Safe Harbor            Expert          Public release
+(regulatory minimum)         Determination   or analytics
+   │                         │              │
+   ▼                         ▼              ▼
+Remove 18 identifiers        Statistical     k-anonymity
+(names, dates, SSN,          expert certifies (k ≥ 5) +
+device IDs, biometrics,      re-identification l-diversity
+full-face photos, etc.)      risk is "very   (l ≥ 2) +
+   │                         small"          t-closeness
+   ▼                         │              │
+Adequate for internal        ▼              ▼
+use, research with           Required for    Strongest
+BAAs in place                public datasets guarantee —
+   │                         under HIPAA     use when data
+   ▼                         │              is truly public
+CAUTION: still                ▼              │
+re-identifiable with         Higher bar      ▼
+auxiliary data               than Safe       Differential
+                             Harbor          privacy (ε < 1)
+                                             for statistical
+                                             releases
+
+### Decision Tree 2: Consent Model Architecture
+
+        ┌── INPUT: What consent model fits your data processing?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+GDPR/CCPA                    Healthcare      Analytics-only
+marketing/tracking           treatment       (no PII)
+   │                         │              │
+   ▼                         ▼              ▼
+Granular opt-in              Treatment =     Legitimate
+per purpose                  implied consent interest OR
+   │                         (no opt-in for  consent-lite
+   ▼                         care delivery)  │
+Cookie consent                │              ▼
+banner + preference          ▼              Cookie banner
+center                      BUT separate    for analytics
+   │                         consent for     cookies only
+   ▼                         research,       (functional
+Separate consent             marketing,      cookies exempt
+for each processing          data sharing    under ePrivacy)
+purpose (marketing           │
+≠ analytics ≠                ▼
+personalization)             BAAs required
+   │                         for all
+   ▼                         sub-processors
+Consent withdrawal            │
+must be as easy               ▼
+as giving consent            Consent
+(1-click revoke)             withdrawal ≠
+                             deletion of
+                             treatment records
+
+### Decision Tree 3: Audit Trail Design
+
+        ┌── INPUT: What audit trail depth is needed for compliance?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+HIPAA-covered                GDPR/CCPA      Internal-only
+entity                       data access    system
+   │                         │              │
+   ▼                         ▼              ▼
+Full access logs             Purpose-of-    Change logs
+Who accessed, when,          access logging (who changed
+what PHI, why                Why was data   what, when)
+   │                         accessed +     │
+   ▼                         legal basis    ▼
+Tamper-proof storage         │              30-day retention
+(append-only, WORM)          ▼              for debugging
+   │                         Per-request     │
+   ▼                         audit records   ▼
+6-year retention             │              No regulatory
+minimum                      ▼              requirement
+   │                         3-year          but good
+   ▼                         retention       engineering
+Monitor for unusual          │              practice
+access patterns              ▼
+(patient not in care         Immutable
+team, off-hours access,      storage with
+bulk downloads)              cryptographic
+                             integrity
+                             verification
 
 <!-- STANDARD: 3min -->
 
@@ -240,8 +335,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Applying de-identification techniques (Safe Harbor, expert determination, k-anonymity)
 - Implementing cookie and tracking consent (GDPR, CCPA, health-data restrictions)
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 <!-- STANDARD: 3min -->
 
@@ -297,12 +392,10 @@ If a command or approach fails, follow this escalation path before giving up:
 3. New data pipelines or ETL jobs → notify `data-engineer` to register in data catalog BEFORE data flows (retroactive data flow mapping is 10x harder)
 4. Legal holds or deletion requests that conflict → escalate to `legal-advisor` with both requirements documented; do not independently resolve conflicts between legal obligations
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `security-engineer` | Threat model, attack surface, security boundaries | Before implementing safety controls |
 | `compliance-officer` | Regulatory requirements, audit expectations, data handling rules | Before designing trust systems |
-
 
 ## Proactive Triggers
 
@@ -369,9 +462,15 @@ If a command or approach fails, follow this escalation path before giving up:
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
-
+  Complete when: Content moderation accuracy validated — false positive rate < 1% on test set.
+  Complete when: Appeals process documented with SLA for human review (< 24 hours).
+  Complete when: Safety classifier evaluated on adversarial examples — no bypasses found.
+  Complete when: User reporting flow tested end-to-end with confirmation and status tracking.
+  Complete when: Moderation latency measured — 95th percentile < 500ms for automated decisions.
+  Complete when: Policy update communication plan created with rollout timeline and stakeholder review.
 
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -441,7 +540,7 @@ graph LR
 - **Data deletion request** executes `DELETE FROM users WHERE id = 123` — but the user's data also exists in: analytics events (Mixpanel), email logs (SendGrid), support tickets (Zendesk), database backups (28-day retention), and 6 other services. "Deleted from primary DB" ≠ deleted everywhere. **Total cost: $100K-$500K per incident in DSAR non-compliance fines, plus the cost of retroactive data scrubbing across all downstream systems.**
 - **Privacy policy that promises more than the engineering team delivers** — the policy says "we never share your data with third parties" but the analytics SDK embedded in the mobile app sends device IDs to a third-party attribution provider. The FTC treats privacy policy violations as deceptive trade practices under Section 5 of the FTC Act, separate from any GDPR/CCPA penalties. **Total cost: $500K-$5M in FTC fines, consent decree monitoring costs, and mandated third-party audits for privacy policy misrepresentation.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -451,8 +550,8 @@ graph LR
 | "Differential privacy is academic, not practical for production" | Apple, Google, and Microsoft deploy differential privacy in production across billions of devices. The US Census Bureau used it for the 2020 Census. Failing to ε-bound query responses on user telemetry exposes raw individual data in aggregate reports. |
 | "We'll add privacy review to the launch checklist" | Privacy-by-design under GDPR Article 25 requires Data Protection Impact Assessments BEFORE processing begins. Retrofitting privacy after the data model is designed costs 10x more and may require schema migrations that break production systems. |
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -461,7 +560,6 @@ graph LR
 | Guardrails configured too permissively, allowing harmful content through | $25K-$250K in trust erosion and moderation costs | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
 | Sub-processor added without updating DPAs and BAAs | $50K-$500K in compliance violations | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
 | Incident response playbook outdated when real incident occurs | $100K-$1M in extended downtime and regulatory penalties | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -510,30 +608,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | 13 | De-identification method documented per dataset with quantified re-identification risk score | HIGH | For each shared dataset: verify method (Safe Harbor/Expert Determination/DP), k value, risk score |
 | 14 | Privacy-by-design review completed before processing begins — not at launch checklist | HIGH | Verify PIA/DPIA triggered at design phase, not pre-launch; check CI/CD integration |
 
-## Scale Depth
-
-<!-- STANDARD: 2min -->
-
-#### Solo Developer
-- **Minimum:** Manual consent tracking (event-sourced ledger). DSAR handled via email with manual data export. Soft-delete with 30-day window. BAA for any third-party services.
-- **Cost:** ~$0-100/month (manual processes + basic infrastructure).
-- **Risk:** No automated DSAR, no DP budget tracking, no automated retention, manual consent withdrawal propagation.
-
-#### Small Team (2-10 engineers)
-- **Add:** Automated DSAR pipeline with data catalog covering primary DB + common services. Consent management platform with proof chain. Automated retention with TTL columns. k-anonymity analysis on shared datasets. BAA inventory with quarterly review.
-- **Cost:** ~$1000-5000/month (DSAR automation + consent platform + retention tooling).
-- **Coverage:** GDPR/CCPA DSAR compliance, consent audit readiness, basic de-identification.
-
-#### Medium Org (10-50 engineers)
-- **Add:** Full data catalog with automated discovery across all data stores. End-to-end deletion pipeline with reconciliation. Differential privacy on analytics query interface. Automated consent withdrawal propagation with reconciliation. SOC 2 Type II coverage for privacy controls. Monthly privacy-by-design reviews.
-- **Cost:** ~$5000-20000/month (data catalog + DP infrastructure + compliance overhead).
-- **Coverage:** Multi-regulation compliance (GDPR, CCPA, CPRA, VCDPA), privacy-by-design integrated into SDLC.
-
-#### Enterprise (50+ engineers)
-- **Add:** Global data residency automation with per-jurisdiction policy enforcement. Real-time consent propagation across 100+ downstream systems. Privacy-preserving ML (federated learning, SMPC). Automated re-identification risk scoring on all data exports. Dedicated privacy engineering team. EU AI Act readiness with transparency documentation.
-- **Cost:** ~$20000-100000+/month (global infrastructure + dedicated team + advanced privacy tech).
-- **Coverage:** Zero-trust privacy, automated compliance across 50+ jurisdictions, privacy-preserving innovation.
-
 ## Error Decoder
 
 <!-- QUICK: 30s -->
@@ -556,5 +630,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

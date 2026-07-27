@@ -46,6 +46,7 @@ chain:
 Define, govern, and deliver a cohesive design language that scales across products. Bridge the gap between visual design and production code through rigorous component specifications, design tokens, and structured developer handoff.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -85,6 +86,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These are hard-gate constraints. Violate any one and the output is invalid.
 
@@ -99,12 +101,12 @@ These are hard-gate constraints. Violate any one and the output is invalid.
 | R1 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R2 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 UI/UX design is not about making things pretty — it's about **making things understandable**. Every screen is a conversation between the system and the human. The designer's job is to make that conversation clear, efficient, and respectful of the human's cognitive load.
 
@@ -140,6 +142,7 @@ UI/UX design is not about making things pretty — it's about **making things un
 - **Break consistency when the inconsistency improves clarity.** A red "Delete account" button that looks different from other buttons is worth the inconsistency. Use sparingly.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Design skill scales from individual components to org-wide design systems to company-defining design philosophy.
 
@@ -154,6 +157,7 @@ Design skill scales from individual components to org-wide design systems to com
 **Usage**: Say "as an L3 designer, create the component spec for..." Default: **L2** (feature-level design, independent execution).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product needs a design system built or extended with new components
@@ -165,6 +169,64 @@ Design skill scales from individual components to org-wide design systems to com
 - A prototype is needed for stakeholder review or usability testing
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Component Specification Depth
+
+        ┌── INPUT: What is the component's complexity?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Atomic]         [Composite]        [Template]
+(button,         (form group,       (page shell,
+icon, input)     card, modal)       dashboard)
+   │                 │                  │
+   ▼                 ▼                  ▼
+Spec: props,      Spec: props,      Spec: slots,
+states, ARIA,     composition       layout zones,
+animation         rules, child      responsive
+variants only     component API     breakpoints
+
+### Decision Tree 2: Handoff Format Selection
+
+        ┌── INPUT: What does the developer need?
+        │
+   ┌────┴──────────┬──────────────┐
+   │               │              │
+   ▼               ▼              ▼
+[Visual Spec]  [Token Spec]   [Interaction]
+(Figma link,   (Style Dict,   (video/GIF,
+redlines,      CSS vars,      frame-by-frame
+annotated      JSON tokens)   state flow)
+screenshots)
+   │               │              │
+   ▼               ▼              ▼
+Best for: new   Best for:     Best for:
+screens &       existing      animations,
+layouts         system        transitions,
+                integration   micro-interactions
+
+### Decision Tree 3: Design Token Architecture
+
+        ┌── INPUT: How many platforms/products?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Single Product]  [Multi-Product]   [Multi-Brand]
+One platform,     Multiple apps,    White-label,
+one theme         one brand         theming needed
+   │                 │                  │
+   ▼                 ▼                  ▼
+Flat token JSON   Tiered tokens:    Three-tier:
+in design tool    core → semantic   base → brand
+→ direct export   → component      → product tokens
+                                        │
+                                   ┌────┴────┐
+                                   ▼         ▼
+                              Token       CI/CD
+                              pipeline    validation
 
 **(QUICK)**
 
@@ -198,6 +260,7 @@ Target audience?
 **What good looks like:** Figma file with every screen annotated with design tokens (spacing, color, typography tokens, not hardcoded values), responsive breakpoints for mobile/tablet/desktop, dark mode variants, and developer notes for every interactive state (hover, focus, active, pressed, disabled, loading, error, empty). A frontend developer can open the file and start coding without asking a single clarifying question.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -238,11 +301,16 @@ Complete when:
 Package the handoff with: Figma file with dev-mode annotations, token JSON export, component API documentation (props table, slots, events), icon set in SVG sprite or icon font with names, illustration/asset library with sizing guidelines, and a changelog since the last handoff. Include a "gotchas" section: common implementation pitfalls for each component. Schedule a walkthrough with the engineering team; record it for async reference. Define the feedback loop: how developers request design changes or flag spec gaps.
 
 Complete when:
+Complete when: Responsive design verified across all breakpoints (mobile 320px, tablet 768px, desktop 1024px, wide 1440px) with no horizontal scroll, readable text without zoom, and touch targets over 44x44px on mobile.
+Complete when: Interaction states documented for all components: default, hover, focus, active, disabled, loading, empty, error, and success states with visual specifications and animation parameters.
+Complete when: Design system audit completed: component inventory reconciled against Figma library, token-to-code mapping verified for all design tokens, and breaking changes documented with migration guide.
 - Developer handoff package assembled: annotated Figma, token JSON, component API docs, icon set, asset library
 - Changelog and "gotchas" document with common implementation pitfalls per component included
 - Handoff walkthrough scheduled with engineering team and feedback loop process defined
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -259,6 +327,8 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -267,6 +337,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Designing in isolation without engineering feasibility check — months of pixel-perfect Figma work presented to engineering 2 days before sprint planning. The hero animation requires a 2MB WebGL library that adds 30% to the bundle, the custom cascading dropdown needs 3 weeks of bespoke accessible JavaScript, and the drag-and-drop kanban conflicts with the existing virtualized list library. Half the designs are descoped; the sprint is replanned from scratch. | $50K-$200K in rework — designs that took 3 months are reduced to a 2-week MVP, sprint commitments are broken, and the shipped product looks nothing like the approved mockups | Engineering review at wireframe stage, not final design review. For every new interaction pattern: "Can this be built with existing components? What's the rough LOE? Are there technical constraints that should shape the design?" Co-design sessions with engineers before high-fidelity work begins reduce the spec-to-sprint gap from weeks to hours. Ship a working prototype, not a perfect mockup — the best design decisions happen in code, not in Figma. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design system governance — adoption is a product metric, not a hope.** Track: component reuse rate (what % of UI is built from design system components vs. one-off implementations), design-to-code drift score (how many pixels/values differ between Figma specs and production), developer satisfaction (quarterly survey with NPS methodology), and time-to-ship for new components (from request to production). Set adoption targets: 80%+ component reuse within 6 months of system launch. Governance without metrics is theater — you'll think adoption is high until you audit production and discover teams rebuilt every component from scratch. Publish adoption dashboards publicly within the organization; transparency drives accountability.
 2. **Component specification — all 8 states must be defined before handoff. Every component ships with: default (resting state), hover (desktop pointer entry), focus (keyboard focus ring, WCAG-visible), active/pressed (mouse down/tap), disabled (grayed out, non-interactive, with explanatory tooltip), loading/skeleton (placeholder during async operations), empty (zero data state with guidance), and error (validation failure, network error, with recovery action). A component spec that only shows the default happy path forces every developer to invent the other 7 states independently — producing 5 different loading spinners, 4 different error messages, and 3 different empty states for the same component type. Defining all 8 states in Figma takes 30 minutes per component; developers guessing takes 3 hours and produces permanently inconsistent UI.
@@ -280,6 +351,7 @@ If a command or approach fails, follow this escalation path before giving up:
 10. **Usability testing integration — 5 users, 1 hour each, before every major feature ships.** Jakob Nielsen's research shows 5 users catch 85% of usability problems; 15 users catch nearly all. Run moderated tests (facilitator observes user attempting core tasks, asks follow-up questions) for new features and major redesigns. Run unmoderated tests (Maze, UserTesting, UserZoom) for iterative validation between moderated rounds. Document findings with: observed behavior (not interpretation), severity rating (critical blocks task / major causes significant delay / minor annoyance), video timestamp, and recommended fix. Track whether findings result in design changes — if usability testing never changes the design, you're either not testing the right things or not listening to the results.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -291,6 +363,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Handoff missing 7 interaction states — developer receives pixel-perfect screens for default state only; has to invent hover, focus, active, disabled, loading, empty, and error states independently | Design handoff treated as "final screens" delivery rather than "complete component specification." The design process focused on the ideal path; edge cases and interaction states were deferred to "we'll figure it out in development" | Before marking any screen ready for handoff, verify all 8 states exist for every interactive component: default, hover, focus, active/pressed, disabled, loading/skeleton, empty, error. Document each state with: visual spec (what changes), behavior spec (what triggers it), and copy spec (what text appears — error messages, empty state guidance, loading labels). If a state isn't designed, the developer invents it — and across 5 developers on 3 platforms, you get 15 different implementations | The happy path is 12.5% of the design. The other 87.5% — all the states users actually encounter when things aren't perfect — is where products earn or lose trust. A beautifully designed default state with a jarring, inconsistent error state tells users the polish is a facade. Handoff is not complete until every state is specified |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 UI/UX design is the bridge between strategy, product, and engineering. Designs that live only in Figma deliver zero value — coordination ensures designs ship to production intact.
@@ -323,6 +396,7 @@ UI/UX design is the bridge between strategy, product, and engineering. Designs t
 ### Escalation Path
 
 ```
+
 Design system conflict (two teams need incompatible versions of same component)
   └── `ui-ux-designer` + `frontend-developer` + `system-architect`. Component variant design, API extension or new component.
 
@@ -334,9 +408,8 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 
 ```
 
-
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -348,24 +421,27 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 | Animation spec exceeds performance budget or lacks `prefers-reduced-motion` fallback | Flag: simplify animation to use GPU-accelerated properties (transform, opacity). Add `prefers-reduced-motion` media query with a static alternative. Test on a low-end device, not just the designer's M3 Max. Every animation must answer: "What does this movement communicate?" — if the answer is "it looks nice," remove it | Motion is the most dangerous design tool — it can cause dizziness, nausea, and seizures in users with vestibular disorders. Every animation without a reduced-motion fallback is an accessibility violation waiting to happen |
 | Design-to-dev handoff: are all Figma frames annotated and ready for engineering? | Before sending to engineering, verify every frame has: spacing tokens, color tokens, typography tokens, responsive behavior, interaction states, ARIA annotations, and character limits. Schedule a recorded walkthrough with the developer. If the developer has to guess any measurement, state, or behavior, the handoff is incomplete | An unannotated Figma file is a Rorschach test — every developer sees something different. The cost of annotating a hover state is 30 seconds; the cost of rebuilding a component that doesn't match the design is 3 hours |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every component spec covers loading, empty, error, and edge-case states before a single line of code is written.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Design skill is built through iteration with real users, not through polishing pixels in isolation. The designer who tests with 5 users weekly improves 10x faster than the designer who tests with 0.
 
 ### The Design Improvement Loop
 
 ```
+
 DESIGN → TEST WITH USERS → OBSERVE CONFUSION → REFINE → repeat
 
 ```
@@ -385,7 +461,8 @@ The key: you are not your user. Every time you're surprised by what a user does,
 
 **Watch a user use your design in silence.** Don't explain. Don't justify. Don't help. Just watch where they hesitate, where they click wrong, where they say "huh." One session of silent observation is worth 10 design critiques.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -396,6 +473,7 @@ The key: you are not your user. Every time you're surprised by what a user does,
 | "No need for usability testing — we know our users." | You ship, and discover that CTAs are below the fold, forms ask for unnecessary info, and the primary flow takes 4 steps instead of 2. Fixing post-launch costs 10x more than fixing in design. Five users in a moderated test would have caught all of it. Cost: **$50K-$300K** in post-launch redesign and lost conversions. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Design system without developer adoption.** A beautifully crafted Figma design system with 200+ components that developers ignore because tokens aren't in code, component APIs don't match code patterns, or documentation is design-only. Teams rebuild the same components independently, diverging in behavior and appearance. Every duplicate component is engineering time burned. **Total cost: $100,000-$500,000 per year in duplicated component work across teams.** Fix: Embed a frontend engineer in the design system team; ship design tokens as code packages (npm/SPM/CocoaPods); treat developer adoption as a product metric with onboarding and support.
 - **Skipping usability testing.** Designing in Figma and shipping to production without watching a single real user attempt core tasks. Navigation that makes sense to designers but not users, CTAs placed below the fold, forms that ask for unnecessary information — all discovered post-launch when the cost to fix is 10x higher than in design. **Total cost: $50,000-$300,000 in post-launch redesign and lost conversions during the broken period.** Fix: Run 5-user moderated usability tests on every major feature before development starts; unmoderated testing with Maze/UserTesting for iterative validation.
@@ -409,6 +487,7 @@ The key: you are not your user. Every time you're surprised by what a user does,
 - **No interaction design specification in handoff.** Handoff includes static pixel-perfect screens but zero documentation on animation duration, easing curves, transition triggers, or gesture behavior. Each platform (iOS, Android, web) implements its own interpretation — swipe gestures behave differently, modals animate at different speeds, hover states diverge. The product feels unpolished and fragmented across platforms despite identical visual design. **Total cost: $20,000-$60,000 per year in platform inconsistency fixes and diminished perceived product quality impacting retention.** Fix: Define interaction patterns as design tokens: easing-curve tokens (ease-out, ease-in-out, spring), duration tokens (75ms micro-interaction, 200ms standard, 400ms emphasis); specify gesture behavior per component (swipe threshold, long-press timing, pull-to-refresh distance); document motion alongside static specs with video or prototype embeds.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Design tokens: exported as JSON/CSS/SCSS and imported by all platforms without manual conversion
 - [ ] Component states: every component has defined states for default, hover, focus, active, disabled, loading, empty, error
@@ -418,10 +497,12 @@ The key: you are not your user. Every time you're surprised by what a user does,
 - [ ] Handoff: Figma/Zepkin link reviewed by developer — all spacing, colors, and typography match design tokens
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -439,6 +520,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[UX12]** Developer feedback loop active: monthly design system office hours scheduled, component request triage process defined (SLA by severity: critical 48h, standard 1 sprint, nice-to-have backlog), design QA checklist embedded in pull request template
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -448,5 +530,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

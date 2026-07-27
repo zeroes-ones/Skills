@@ -42,6 +42,7 @@ chain:
 Generate evidence-based user understanding that drives product and design decisions. Move teams from opinion-based to insight-based development through rigorous qualitative and quantitative research methods.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -75,7 +76,8 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -86,6 +88,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | ""Try clicking the blue button" is a perfectly clear test task" | That's not a test task — it's a leading instruction that handed the user the answer. You just proved users can follow directions. Task-based scenarios reveal behavior; directive prompts reveal obedience. Your test proved nothing. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These are hard-gate constraints. Violate any one and the output is invalid.
 
@@ -102,12 +105,12 @@ These are hard-gate constraints. Violate any one and the output is invalid.
 | R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 UX research is not about confirming what you already believe — it's about **discovering what you don't know about your users, systematically and with rigor**. The output is not a report; the output is a decision that would have been different without the research.
 
@@ -133,6 +136,7 @@ UX research is not about confirming what you already believe — it's about **di
 | **Survivorship bias** | Only studying users who stayed — missing the insights from users who churned, abandoned onboarding, or never signed up | Proactively recruit lapsed users and churned customers. Exit surveys and cancellation flows are goldmines. Every churned user carries an insight about your product that active users can't provide. |
 
 ## Research Operations
+<!-- STANDARD: 3min -->
 
 ### Participant Recruitment & Session Management
 
@@ -153,6 +157,7 @@ UX research is not about confirming what you already believe — it's about **di
 - **Triangulation is the difference between science and storytelling.** Never make a product recommendation from a single method. At least two methods should point in the same direction before you recommend action.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 UX research skill manifests in the complexity of research questions tackled and strategic influence of findings.
 
@@ -167,6 +172,7 @@ UX research skill manifests in the complexity of research questions tackled and 
 **Usage**: Say "as an L3 UX researcher, design a study for..." Default: **L2** (feature-area research, independent execution).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product lacks validated personas and the team builds for themselves
@@ -177,6 +183,7 @@ UX research skill manifests in the complexity of research questions tackled and 
 - A feature is high-risk and needs moderated usability testing before launch
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -261,6 +268,7 @@ How should you communicate research findings to maximize impact?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -289,8 +297,12 @@ Create task scenarios that are realistic, specific, and avoid leading language. 
 Cluster observations into themes using affinity diagramming. For each theme: state the insight, the evidence (quotes, clips, metrics), the severity/impact, and a design recommendation. Structure the final report as: Executive Summary, Methodology, Key Insights (top 3), Detailed Findings (by theme), Recommendations (prioritized), Appendix (raw data, session recordings, recruitment screener). Socialize findings with a highlights reel (3 minutes max) before the written report — stakeholders consume video faster than documents.
 
   Complete when: Prioritized backlog documented, RICE scores calculated, roadmap communicated to stakeholders, and dependencies mapped.
+  Complete when: PRD reviewed by engineering lead and feasibility confirmed within sprint capacity.
+  Complete when: Success metrics defined with baseline measurement and target thresholds.
+  Complete when: User testing completed with at least 5 participants — findings documented.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Match method to question, not convenience.** "Should we do a survey?" is the wrong starting point. Start with: "What do we need to learn?" If you need to understand mental models → semi-structured interviews. If you need to measure preference at scale → survey. If you need to find interaction flaws → moderated usability test. Method follows question, not the other way around.
 
@@ -313,6 +325,7 @@ Cluster observations into themes using affinity diagramming. For each theme: sta
 10. **Triangulate: never ship on one data source.** Behavioral analytics tell you WHAT. Usability testing tells you WHY. Surveys tell you WHAT USERS THINK. One source alone produces half the answer. When analytics say "drop-off at step 3," usability reveals the confusing label, and interviews reveal the mental model mismatch. Use all three.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -324,6 +337,8 @@ Cluster observations into themes using affinity diagramming. For each theme: sta
 | Moderator asks "Would you say the navigation is confusing?" and participant agrees | Leading question. The participant agrees to avoid conflict, not because the navigation is confusing. The unbiased version: "Tell me about your experience finding the settings page." | Audit discussion guides for leading language. Replace "Would you say X is [negative adjective]?" with "Walk me through the last time you [task]." Let the participant surface the problem organically. | Leading questions prime agreement. Open-ended questions surface reality. |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -340,6 +355,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 UX research findings are useless if they don't change what gets built. Coordination ensures insights flow from research into design, product, and engineering — not into a PDF that nobody reads.
@@ -383,6 +399,7 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -398,11 +415,13 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 | Fintech usability test shows users don't understand fees | Flag to `fintech-ui-designer`: fee disclosure clarity failure. Redesign review step to itemize all fees before confirm. Test with financial literacy spectrum. | Hidden or confusing fees are the #1 cause of fintech churn and regulatory complaints. |
 | Clinical usability test shows medication error risk | Flag to `healthcare-ui-designer` and `hipaa-technical-implementation`: medication display safety risk. Implement Tall Man lettering, barcode confirmation, interaction checking. Pause feature rollout. | Medication errors in UI design can cause patient harm. This is an ethical stop-work trigger. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### BEFORE (Novice) → AFTER (World-Class)
 
@@ -427,6 +446,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 UX research mastery comes from observing real users, repeatedly, until pattern recognition becomes instinct. There is no substitute for watching users struggle.
 
@@ -440,6 +460,7 @@ UX research mastery comes from observing real users, repeatedly, until pattern r
 **The One Highest-Leverage Activity:** Watch one user session recording every day. Not a highlight reel — a raw, unedited session. 15 minutes. You'll learn more about your product than from any dashboard. Do this for 30 days and you'll have more user empathy than 90% of product teams.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Recruiting the wrong participants wastes the entire study budget.** Testing a developer tool with non-technical participants, or an enterprise SaaS with students, produces data that looks real but points in wrong directions. A study with 8 wrong participants costs $5K-$15K in incentives, facilitation time, and analysis — with $0 in valid insights. Even worse: acting on those wrong insights can send $100K+ in engineering in the wrong direction. **Total cost: $5K-$15K per wasted study; $50K-$150K if acted upon.** Define screening criteria with behavioral triggers (e.g., "has deployed to production in the last 30 days") and screen every participant before scheduling.
 - **Confirmation bias turns research into validation theater.** When you frame questions to hear what you want ("You'd prefer a simpler dashboard, right?"), you get agreement — not truth. Teams then spend $50K-$300K building features that validated their assumptions instead of testing them. **Total cost: $50K-$300K building validated wrong assumptions.** Use neutral, open-ended questions ("Walk me through the last time you used a dashboard. What worked? What didn't?") and pre-register your hypotheses before data collection so you can distinguish learning from confirmation.
@@ -455,8 +476,9 @@ UX research mastery comes from observing real users, repeatedly, until pattern r
 - **A/B test that reaches significance at 7 days** — you stop it and declare the variant winner. But if you had run it for 14 days, the effect reversed (novelty effect wore off). Always pre-register test duration AND sample size. Peeking and stopping early inflates false positive rate to ~30%.
 - **"Users said they wanted X"** — what users SAY in interviews and what they DO in a live product correlate at ~0.3 (weak). Users said they wanted folders in Google Inbox; they actually needed search and archiving. Observe behavior; don't just ask for wishlists.
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -465,7 +487,6 @@ UX research mastery comes from observing real users, repeatedly, until pattern r
 | Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | $25K-$100K in rework when hidden objections surface | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
 | User research participants recruited from convenience sample biasing all findings | $30K-$150K in product decisions built on wrong user data | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -476,6 +497,7 @@ UX research mastery comes from observing real users, repeatedly, until pattern r
 | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | $50K-$250K in lost confidence and deprioritized initiatives | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Research plan: objectives, methodology, participant criteria, and sample size documented BEFORE data collection
 - [ ] Interview guide: questions are open-ended, non-leading, and pilot-tested with 1-2 participants
@@ -485,6 +507,7 @@ UX research mastery comes from observing real users, repeatedly, until pattern r
 - [ ] Share-out: findings presented to stakeholders, decisions documented, follow-up research planned for open questions
 
 ## Research Tools Quick Reference
+<!-- STANDARD: 3min -->
 
 | Tool | Best For | Pricing Model |
 |---|---|---|
@@ -496,10 +519,12 @@ UX research mastery comes from observing real users, repeatedly, until pattern r
 | **Hotjar / FullStory** | Session replay, heatmaps, feedback widgets | Freemium → per-session |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -517,6 +542,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[UX12]** Insights repository maintained: tags by persona, journey stage, severity, date; insights re-validated or retired after 6 months
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -526,5 +552,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

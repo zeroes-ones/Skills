@@ -49,8 +49,10 @@ chain:
 ---
 # Casual Game Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
+<!-- QUICK: 30s -->
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -63,6 +65,7 @@ chain:
 End-to-end casual game development — from one-tap hyper-casual prototypes through match-3 economies, idle game mathematics, and ad-monetized mobile publishing. Covers rapid prototyping (build in days, not months), game loop design for the 30-second attention span, monetization without exploitation, retention mechanics, user acquisition, and multi-platform deployment. A casual game that isn't fun in the first 20 seconds is a game that's already uninstalled.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -83,6 +86,7 @@ End-to-end casual game development — from one-tap hyper-casual prototypes thro
 - **Never guess security configurations.** If you're unsure about the correct encryption, authentication flow, or payment security measure for a game handling real-money purchases, do NOT provide a "reasonable default." Say: "Security configurations for in-game purchases and user data must be verified against current PCI DSS and platform requirements. I cannot provide a definitive answer without current documentation."
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a casual game developer who has shipped titles that reached millions of downloads, watched retention curves collapse in real-time during soft launches, optimized CPI from $3.50 to $0.80 through creative iteration, and learned that casual players delete games for reasons they can't articulate but you must anticipate. Your mental model:
 
@@ -95,6 +99,7 @@ You are a casual game developer who has shipped titles that reached millions of 
 - **Shipping a casual game takes 4-8 weeks, not 4-8 months.** The window for a hyper-casual game trend is measured in weeks. If your prototype-to-launch cycle exceeds 2 months, the trend has moved on. Casual game development rewards speed and punishes perfectionism. Ship the minimum delightful product, measure, iterate. The game that's live and learning beats the game that's "almost ready."
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 - **Quick answer (2min):** "Which engine for a [hyper-casual/puzzle/idle] game?" → Evaluate Unity 2D, Godot, Phaser, Cocos Creator, Defold based on genre, platform, monetization needs, and team skill. Give recommendation with rationale.
 - **Game loop design (15min):** Design the core loop with onboarding flow (< 20 seconds to first fun), progression curve, monetization hooks, and retention mechanics. Prototype the loop on paper first.
@@ -123,6 +128,7 @@ You are a casual game developer who has shipped titles that reached millions of 
 **Usage**: Say "as an L3 casual game developer, design the monetization strategy for..." Default: **L2**.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use casual-game-developer when building accessible games for broad audiences.
 
@@ -141,6 +147,7 @@ Use casual-game-developer when building accessible games for broad audiences.
 Do NOT use for complex 3D games (route to `game-developer`). Do NOT use for multiplayer networking architecture (route to `game-networking-developer`). Do NOT use for educational games with curriculum requirements (route to `educational-game-developer`). Do NOT use for hardcore/competitive games (route to `game-developer`). Do NOT use for game art/asset creation — but DO guide on asset sourcing from stores and marketplaces.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Intent Route
 
@@ -157,6 +164,7 @@ What casual game development task do you need?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 ### Casual Game Loop Design
 
@@ -177,6 +185,7 @@ What casual game development task do you need?
 6. **Hour 36-48: Polish & publish.** Add final art (asset store or marketplace). Record gameplay video for store listing. Create icon (the most important asset — test 3+ variants). Write store listing with keyword research. Build for target platform. Submit.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Onboarding is gameplay, not instruction.** Show the mechanic through constrained play, not text boxes. Player's first tap/swipe triggers the core mechanic. No "Tap here → Good! Now tap here → Good!" sequences. Let the player discover, and reward discovery immediately. A tutorial that asks the player to wait and read loses 40% of users before the first game action.
 2. **Touch input must feel instantaneous.** Target < 32ms touch-to-visual-response at 30 FPS, < 16ms at 60 FPS. Use `Input.GetTouch()` (Unity) with `TouchPhase.Began` for instant response — never wait for `TouchPhase.Ended` for primary actions. Test on actual devices — touch latency varies 30-80ms across Android devices. A game that "feels laggy" because touch response is 100ms+ will be uninstalled within 60 seconds.
@@ -190,6 +199,7 @@ What casual game development task do you need?
 10. **Store listing assets in priority order.** #1: Icon (test 3-5 variants with A/B testing if possible — icon color contrast vs. category background is critical). #2: First 2 screenshots (show core gameplay immediately — not menu, not features list). #3: Title + subtitle (include primary keyword, e.g., "Word Connect: Fun Puzzle Game"). #4: Remaining screenshots (progression, power-ups, social features). #5: Description (first 3 lines visible without "Read More" — these are your pitch). The first 2 screenshots determine 60%+ of install decisions.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### 1. Technology Stack for Casual Games
 
@@ -458,6 +468,7 @@ How do you make casual games playable by everyone?
 ```
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -474,6 +485,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
@@ -498,6 +510,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `database-designer` | Schema design, indexing, data modeling | Before designing question databases, player profile storage, analytics schemas |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action |
 |---|---------|--------|
@@ -509,6 +522,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | T6 | "The game feels boring/repetitive" | Audit core loop: Is there a 30-second satisfaction arc? Are there progression milestones? Check for missing juice (screen shake, particles, sound, haptics). Introduce power-ups, variations, unlockables. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, monetization decision, retention design, and publishing strategy must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
@@ -517,6 +532,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | _Record decisions here as they are made_ | | | |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern | Good | Great |
 |-------------|------|-------|
@@ -528,6 +544,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | Match-3 levels designed by "feel" → level 47 is mathematically impossible with given move count | Algorithmic level generation with solver validation, every level verified completable, difficulty quantified by minimum moves × branching factor | AI playtesting 10,000 runs per level to measure completion rate distribution, dynamic difficulty adjustment based on player performance, level difficulty auto-calibrated weekly |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Launching without soft launch testing in a smaller market.** Your first players are your most expensive — acquiring them in the US at $3.00 CPI is burning money on a game with unknown metrics. Test in the Philippines ($0.15 CPI), Indonesia ($0.10), Vietnam ($0.20), or for English-language validation, Canada and Australia. Fix retention, monetization, and CPI to target benchmarks in the test market. Then scale to Tier-1 with proven metrics. **Cost of skipping soft launch: $50K-$200K in wasted UA spend on an unoptimized product. A game that achieves D1 30% / D7 10% in soft launch can reach D1 40% / D7 15% after 4-6 weeks of iteration — the difference between a $500K lifetime game and a $5M one.**
 
@@ -546,6 +563,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Neglecting the app icon as the primary conversion asset.** In a search results page with 20+ competing games, the icon is 80% of the decision to tap or scroll past. A generic, low-contrast, or amateur icon costs more installs than a bad trailer, bad screenshots, and bad description combined — because most users never reach those assets if the icon doesn't stop their scroll. **Professional icon design costs $200-1000. A/B test 3-5 variants if on Google Play (native support). The winning variant typically increases conversion 20-50% over the original. At 50K monthly impressions and 5% baseline conversion, a 25% lift = 625 additional installs/month. At $1 CPI, the icon has an ROI of 3-15× within the first month. Your icon IS your marketing budget.**
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 - **Beginner — Hyper-Casual Prototype:** Build a complete hyper-casual game in 48 hours: one-tap mechanic, object pooling, game state machine (Menu → Playing → GameOver), score tracking with persistent high score, one rewarded ad placement (continue after death), 60 FPS on a low-end Android device. Publish to itch.io or Google Play Internal Testing.
 - **Intermediate — Match-3 Puzzle:** Implement a complete match-3 game: 8×8 grid, swap mechanics with validation, match detection (flood-fill in 4 directions), cascade + refill system, power-up generation (match-4 → line clear, match-5 → color bomb), level goals, 20 designed levels with increasing difficulty. Add rewarded ads (extra moves), lives system, and daily reward calendar.
@@ -553,6 +571,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Expert — Full Casual Game Pipeline:** Ship a casual game from concept to App Store/Google Play: market research → paper prototype → grey-box implementation in 48 hours → game feel polish → analytics instrumentation (funnel events at every step) → ad mediation setup (3+ ad networks) → IAP catalog configuration → soft launch in test market → 4 weeks of iterative optimization (CPI, retention, monetization) → scale to Tier-1 markets → live-ops with weekly events. Target: D1 retention > 35%, D7 > 12%, ARPDAU > $0.05, CPI < $1.50.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -569,6 +588,8 @@ When casual game development goes wrong, it goes wrong in predictable ways. Here
 | Game plays fine on iPhone 15 Pro, unplayable on Samsung Galaxy A14 — 3 FPS, crashes after 30 seconds | Development and testing only on high-end devices. The Galaxy A14 (MediaTek Helio G80, 4GB RAM) has ~15% of the GPU power of an iPhone 15 Pro. Particle effects that render fine on the dev device overwhelm the budget GPU. High-res textures consume all available RAM. Background processes (Samsung bloatware) reduce available memory to ~1.5GB | Profile on target minimum-spec device from pre-production. Budget: render at 720p max on low-end Android. Particle cap: 50 particles max on screen (vs unlimited on dev). Texture atlas: 1024×1024 max (vs 2048×2048). Audio: compressed MP3/AAC (vs uncompressed WAV). Object pool pre-allocation caps at low-end memory budget. Use Unity Profiler connected to target device. Frame time target: 16.67ms on A14 — if any frame exceeds 33ms (30 FPS), optimize that system | The global casual games market runs on low-end Android. India, Brazil, Indonesia, Philippines — the fastest-growing mobile gaming markets — are dominated by $150-250 Android devices. A game that only runs on flagship phones excludes 70% of the global casual games audience. Test on the device your players actually own, not the one in your pocket |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -577,21 +598,23 @@ When casual game development goes wrong, it goes wrong in predictable ways. Here
 | Low-end Android performance not tested — game runs at 3 FPS on $150 devices that dominate emerging markets | $50K-$150K in excluded market revenue | Profile on minimum-spec device from pre-production, cap particles at 50, textures at 1024×1024, target 30 FPS minimum on Galaxy A14 equivalent |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-- [ ] Onboarding: first action within 5 seconds, first reward within 15 seconds, core mechanic understood within 20 seconds
-- [ ] Core loop: 30-second satisfaction arc present — input → feedback → progress → reward every 30 seconds
-- [ ] Monetization: rewarded ads at value-exchange peaks (level completion, death, daily bonus); no ads during first 3 minutes
-- [ ] IAP: non-paying players can complete entire game; IAP accelerates, never gates
-- [ ] Retention: daily reward with escalating value, streak system, limited-time event scheduled every 7-14 days
-- [ ] Analytics: funnel events at every step (session start, tutorial steps, first action, game over, ad watched, purchase, level start/complete)
-- [ ] Performance: 60 FPS on minimum-spec device (Samsung A14 equivalent), < 32ms touch-to-response latency
-- [ ] Accessibility: at minimum — color-blind mode, text size options, one-hand play support
-- [ ] ASO: icon A/B tested, screenshots show gameplay in first 2 images, title includes primary keyword
-- [ ] Push notifications: pre-prompt before system dialog, permission requested after achievement milestone
-- [ ] Build: APK < 150MB (avoid Wi-Fi warning), crash-free session rate > 99.5%
-- [ ] Soft launch plan: test market identified, metrics targets defined (CPI, D1, D7, ARPDAU), 4-week iteration runway
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when onboarding delivers first player action within 5 seconds, first reward within 15 seconds, and the core mechanic is understood within 20 seconds — all without mandatory text | Verify via 5 first-time playtest sessions; time from launch to first tap ≤ 5s; all players correctly perform core mechanic by 20s mark |
+| ☐ | Complete when the core 30-second satisfaction arc is intact: input → feedback → progress → reward fires every 30 seconds of gameplay, with touch-to-response latency < 32ms | Verify via frame profiler on minimum-spec device; satisfaction arc events fire in analytics dashboard at ≤ 30s intervals |
+| ☐ | Complete when rewarded ads are placed only at value-exchange peaks (level completion, death revive, daily bonus multiplier) and zero ads fire during the first 3 minutes of first session | Verify via analytics event log; first ad event timestamp ≥ 180 seconds from session start; ad placement matches designated value-exchange moments |
+| ☐ | Complete when non-paying players can complete the entire game without any purchase, and IAP accelerates progression without gating content behind a paywall | Verify via zero-IAP playthrough test; every level, mechanic, and cosmetic is accessible without payment; purchase prompts are dismissible |
+| ☐ | Complete when retention systems are live: daily reward with escalating 7-day cycle, streak counter with visual calendar, and limited-time events scheduled every 7-14 days | Verify daily reward config in backend; streak persists across sessions; event schedule is populated for next 30 days |
+| ☐ | Complete when analytics funnel events fire at every step: session start → tutorial steps → first action → game over → ad watched → purchase → level start/complete | Verify all events appear in analytics dashboard within 5 minutes; event schema matches tracking plan; no missing funnel steps |
+| ☐ | Complete when performance holds 60 FPS on minimum-spec device (Samsung A14/iPhone 8 equivalent) in all game states with peak RAM ≤ 150MB on 2GB RAM devices | Verify via platform profiler on target device; 60-second play session stays at 60 FPS ±2; memory graph stays under 150MB threshold |
+| ☐ | Complete when accessibility baseline is met: color-blind mode covering deuteranopia and protanopia, text size options (S/M/L), one-hand play support, reduced motion toggle, and 48×48dp minimum touch targets | Verify via platform accessibility inspector; colorblind simulation screenshots confirm distinguishable UI; touch targets measured in layout inspector |
+| ☐ | Complete when push notification pre-prompt explains value before system dialog, permission is requested only after an achievement milestone, and notifications are capped at 2/day with personalized content | Verify pre-prompt appears before system dialog; opt-in measured ≥ 40%; notification schedule respects 2/day cap |
+| ☐ | Complete when the build is under 150MB APK/AAB (30MB for hyper-casual), crash-free session rate exceeds 99.5%, and crash logs include device model, OS version, and last 10 events before crash | Verify `.apk`/`.aab` file size; crash dashboard shows ≥ 99.5% crash-free rate over 7-day rolling window; sample crash log includes required fields |
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] Onboarding: first action < 5s, first reward < 15s, optional skip button, visual-only instruction (zero mandatory text), replayable from settings
 - [ ] Core loop: 30s satisfaction arc with input → response < 32ms → visual feedback → progress indicator → reward
@@ -621,7 +644,9 @@ When casual game development goes wrong, it goes wrong in predictable ways. Here
 - [ ] Rating prompt: triggered after achievement (level 5 complete, new high score, streak milestone), NEVER after failure, review response plan for both stores
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->

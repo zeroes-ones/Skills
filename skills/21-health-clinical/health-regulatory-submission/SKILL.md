@@ -73,6 +73,7 @@ Request: "Is my health app regulated by FDA?"
 └── Not sure?
     → The "Is This a Medical Device?" decision tree is always the first step.
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -92,7 +93,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and WARN about enforcement discretion treated as permanent exemption.** FDA enforcement discretion can change with new guidance. Plan for regulation even if currently exempt. | Trigger: generated output contains `enforcement.discretion\|not.currently.enforced\|FDA.doesn't.regulate` AND NOT `contingency.plan\|if.regulated\|regulatory.pathway.reserve` | WARN: "Enforcement discretion is not a legal exemption. FDA can change guidance at any time. Add contingency: 'If enforcement discretion ends, our regulatory pathway will be [510(k)/De Novo]. Estimated timeline: 12 months. Budget reserve: $150K.' Plan for regulation even while exempt." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -221,7 +221,6 @@ Document your software's intended use and indications for use. This is the most 
 
 ```markdown
 
-
 ## Error Decoder — War Stories from the Trenches
 
 **(STANDARD)**
@@ -261,6 +260,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Plan for post-market surveillance (PMS) from Day 1 of commercialization, not after launch.** FDA requires PMS for PMA devices; EU MDR requires PMS for all classes. Define PMS data sources (complaints, literature, registries, social media monitoring), analysis frequency (PSUR/PMSR schedule), and signal detection thresholds. PMS is not passive monitoring — it's an active system for detecting safety signals before they become recalls.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -306,8 +306,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - **Pharma partnership discussion** → Pharma will require regulatory strategy before signing. They won't touch an unclassified device. 🟠
 - **Competitor received FDA clearance** → If a similar product got 510(k) clearance, you likely need one too. Flag for competitive analysis. 🟠
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -319,6 +319,7 @@ You have a dated, signed intended use statement that clearly defines what your s
 ## Deliberate Practice
 
 ```mermaid
+
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
 
@@ -356,6 +357,7 @@ that are NOT intended to diagnose, treat, cure, mitigate, or prevent any disease
 - Does it connect to a medical device for control? → definitely medical device
 
 ```
+
   Complete when: Intended use statement documented, dated, and reviewed by regulatory counsel.
 
 ### Phase 2: Classification (~2 weeks)
@@ -386,6 +388,7 @@ open https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/denovo.cfm
 If 510(k) pathway (most common for health apps):
 
 ```
+
 1. Identify predicate device(s) — legally marketed device with same intended use
 2. Prepare substantial equivalence comparison table
 3. Software documentation (per IEC 62304):
@@ -405,7 +408,9 @@ If 510(k) pathway (most common for health apps):
    - Patient labeling (if applicable)
 6. Submit via eSTAR (electronic submission template)
 7. FDA review: 90 days (may extend with additional information requests)
+
 ```
+
   Complete when: 510(k) submission package complete with predicate comparison table, IEC 62304 documentation, and verification and validation testing results.
 
 ### Phase 4: De Novo (~12-18 months)
@@ -413,6 +418,7 @@ If 510(k) pathway (most common for health apps):
 If no predicate device exists:
 
 ```
+
 1. Confirm no legally marketed predicate exists
 2. Prepare De Novo classification request:
    - Detailed device description
@@ -426,6 +432,7 @@ If no predicate device exists:
 6. If granted: device is now reclassified, becomes a predicate for future 510(k)s
 
 ```
+
   Complete when: De Novo classification request prepared with device description, testing summary, proposed special controls, and benefit-risk analysis.
 
 ### Phase 5: EU MDR / IVDR (~12-24 months)
@@ -462,6 +469,7 @@ Is your health software...
 6. Notified Body audit → CE Mark → Register in EUDAMED
 
 ```
+
   Complete when: EU MDR/IVDR classification determined per Annex VIII, Notified Body engaged with confirmed scope and capacity, technical documentation prepared.
 
 ### Phase 6: Breakthrough Device Designation (~3 months)
@@ -487,7 +495,10 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - Reduced PMA/De Novo review times
 
 ```
+
   Complete when: Breakthrough Device Designation criteria confirmed and application submitted, or documentation that criteria were not met.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
 
 ## Anti-Patterns
 **(STANDARD)**
@@ -521,7 +532,7 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - [ ] Promotional review committee established — claims matrix mapped to cleared indications, training completed for sales and marketing
 - [ ] Post-market surveillance plan documented: data sources, analysis cadence, signal detection thresholds, PSUR/PMSR schedule
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -532,6 +543,7 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 | "We don't need a pre-submission meeting — we know what the division wants." | Skipping a Type B pre-NDA meeting is the #1 cause of RTF decisions for first-time sponsors. The meeting costs $50K and takes 60 days; the RTF costs $2M+ and 6 months. Sponsors who skip pre-submission meetings have a 3x higher RTF rate. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -551,7 +563,7 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.### Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 #### Solo / Startup (Pre-Seed)
 - **Scope:** Device determination only. Is this regulated? Classification guess. Regulatory budget estimate.
@@ -604,4 +616,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

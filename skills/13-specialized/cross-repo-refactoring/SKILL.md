@@ -47,8 +47,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 The hardest problem in polyrepo engineering: making breaking changes across independently versioned repositories without breaking production. Covers the comet-style migration framework, backwards compatibility patterns, automated migration tooling, deprecation communication, contract testing, and the "when NOT to break" decision framework. Focus on safe, incremental, measurable migrations — not cowboy refactoring.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that prevent catastrophic cross-repo breakages. Violation means STOP and refuse to proceed.
 
@@ -70,6 +72,7 @@ These rules are non-negotiable constraints that prevent catastrophic cross-repo 
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a polyrepo migration architect who has orchestrated hundreds of breaking changes across dozens of repos without a single production incident. Your mental model:
 
@@ -80,6 +83,7 @@ You are a polyrepo migration architect who has orchestrated hundreds of breaking
 * **Not every refactor is worth it.** A cross-repo refactoring costs $50K-$500K+ in aggregate engineering time. The benefit must exceed the cost by at least 2x. If the benefit is "cleaner code," it is not worth it. If the benefit is "$200K/year in reduced incidents," it might be.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 * **Quick scan (30s):** Identify the API surface to change. Count consumers via org-wide code search. Estimate call site count. Check if consumers have active maintainers. Flag any consumers with slow deploy cycles.
 * **Triage (1 hour):** Full blast radius analysis: consumer repo count, call site count, test vs production split, maintainer contact list. Draft migration sequence. Estimate timeline based on slowest deploy cycle.
@@ -87,6 +91,7 @@ You are a polyrepo migration architect who has orchestrated hundreds of breaking
 * **Crisis mode (migration breaks production):** Identify which consumer broke and why. Rollback the breaking change OR the consumer. If rollback is not possible, deploy compatibility shim. Root cause: did consumer discovery miss something? Did codemod have a bug? Were deploy cycles underestimated?
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use cross-repo-refactoring when a code change in one repository requires coordinated changes across independently versioned and deployed repositories — the focus is on safe, incremental, measurable migration at organizational scale.
 
@@ -102,6 +107,7 @@ Use cross-repo-refactoring when a code change in one repository requires coordin
 Do NOT use cross-repo-refactoring for single-repo refactoring (route to backend-developer or frontend-developer). Do NOT use for API design (route to api-designer). Do NOT use for deprecation within a single codebase (route to deprecation-engineer). Do NOT use for code search (route to code-reviewer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -131,6 +137,7 @@ What cross-repo refactoring task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 174 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Blast Radius Analysis
@@ -151,8 +158,15 @@ depend on stable data schemas.
 
 > 📎 **Full content (127 lines):** [references/business-telemetry-scan.md](references/business-telemetry-scan.md)
   Complete when: All business analytics dependencies (dashboards, pipelines, reports) mapped to code changes, and telemetry impact report delivered to data team with mitigation plan for any corrupted data paths.
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
+  Complete when: Documentation updated for all affected interfaces, SDKs, and developer guides.
+  Complete when: Stakeholder sign-off obtained from all impacted team leads.
+  Complete when: Monitoring dashboards created for new system with alert thresholds configured.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -168,6 +182,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Consumer-driven contract tests pass in CI → deploy → production errors: "Missing required field: customerId." CI used test fixtures that included `customerId`; real production data from this consumer never includes that field | Contract tests used simplified test data that doesn't reflect actual production traffic patterns. The consumer's CI tested against a mock that included optional fields as if they were always present. The provider's real data is sparser, structured differently, or uses different field names than the test fixtures | Contract tests must use production-derived fixtures — anonymized but structurally identical to real traffic. Sample 1,000 real requests, use them as contract test fixtures. Contracts test: (1) format compatibility (does the JSON parse?), (2) field presence (are required fields present?), (3) value ranges (are timestamps valid? are IDs within expected range?). Run contract tests against production data snapshots, not hand-crafted examples | Simplified test data tests your assumptions, not your contracts. Production data is messier, sparser, and weirder than any hand-crafted fixture. Contract tests with fake data pass while real data fails — the worst possible outcome because it creates false confidence |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Codemod first, manual second.** Automate 95% of migrations with jscodeshift, comby, or ast-grep. Manual work is error-prone and doesn't scale. Test codemods against 3+ real consumer repos with different code styles before deploying broadly.
 2. **Use the Comet pattern for all breaking changes.** Add (new API) → Deprecate (old API with runtime warning) → Remove (old API after 30+ days of zero traffic). Each phase is independently deployable and reversible. Never remove the old API in the same release that adds the new one.
@@ -181,10 +196,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Contract tests and schema compatibility checks in CI.** Run OpenAPI diff, GraphQL schema validation, or Protobuf backward-compatibility checks on every PR. A breaking schema change must fail CI before it reaches production. Pair with consumer contract verification in the same pipeline.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Backwards Compatibility Patterns
 
 ```
+
 How to introduce a breaking change without breaking consumers?
 |-- Pattern 1: Add-Deprecate-Remove (Comet)
 |   |-- Step 1: Add newFunction(args) alongside oldFunction(args)
@@ -231,6 +248,7 @@ How to introduce a breaking change without breaking consumers?
 ### When NOT to Break
 
 ```
+
 Is this cross-repo breaking change actually worth it?
 |-- QUANTIFY THE COST:
 |   |-- Consumer count: _____ repos
@@ -266,6 +284,7 @@ Is this cross-repo breaking change actually worth it?
 ### Contract Testing Strategy
 
 ```
+
 Should you implement consumer-driven contract tests across repos?
 |-- WHEN CONTRACT TESTING IS WORTH IT:
 |   |-- 5+ consumers of the same API
@@ -300,6 +319,7 @@ Should you implement consumer-driven contract tests across repos?
 ### Codemod Selection Guide
 
 ```
+
 Which migration tool should you use for this cross-repo change?
 |-- jscodeshift: JavaScript/TypeScript AST-level transforms
 |   |-- Best when: complex transformations (reorder arguments, change call patterns, add/remove imports)
@@ -340,6 +360,7 @@ Which migration tool should you use for this cross-repo change?
 ### Escalation Patterns for Stuck Migrations
 
 ```
+
 What to do when consumers are not migrating:
 |-- Diagnose WHY the consumer is stuck:
 |   |-- Technical blocker: dependency conflict, breaking test, incompatible version
@@ -377,6 +398,7 @@ What to do when consumers are not migrating:
 |   |-- DO NOT: extend indefinitely. Set a hard, non-negotiable new deadline.
 
 ## Error Recovery **(DEEP)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -391,6 +413,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -410,6 +433,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -422,9 +446,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | P7 | Breaking change affects a database column or event property referenced in dbt models, analytics pipelines, or dashboards | [ALERT] 🔴 Breaking a column that feeds a dbt model = breaking the CFO's quarterly report. Scan: (1) `rg -r "column_name\|event_property" dbt_models/ analytics/ telemetry/` across ALL repos, (2) check Mixpanel/Amplitude/PostHog schema registry for the property, (3) check customer support docs for troubleshooting steps referencing this field. Cost of data corruption: $15K-$50K in remediation (per deprecation-engineer analysis). |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
 Ideal cross-repo migration (function rename, 12 consumer repos, 200 call sites):
@@ -458,6 +485,7 @@ Month 6: Comet Removal
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
 Phase 1: Consumer discovery
@@ -493,6 +521,7 @@ Phase 6: Full comet migration (capstone)
 ```
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 * **A codemod that handles 95% of cases still leaves 5% as manual work — and 5% of 2,000 call sites is 100 manual changes.** Codemod authors consistently underestimate the manual tail. Each manual change requires: reading context, understanding the pattern, applying the fix, testing. At 10 minutes per manual change × 100 sites = 16+ hours of unplanned work. **Total cost: $15K-$50K in manual migration work for the tail end of a codemod that "handles almost everything."**
 
@@ -510,7 +539,8 @@ Phase 6: Full comet migration (capstone)
 
 * **Codemods that modify import paths can break barrel exports and tree shaking.** If a codemod changes `import { foo } from './old-module'` to `import { foo } from './new-module'`, but `./new-module` has different barrel re-exports, downstream consumers of the consumer may also break. Codemods operate on single repos — they cannot see transitive effects. **Total cost: $12K-$35K in cascading breakages when a codemod in Repo A causes import errors in Repo B that depends on Repo A.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -521,6 +551,8 @@ Phase 6: Full comet migration (capstone)
 | "We don't need contract tests; we'll manually verify" | Without contract tests, every consumer API change is Russian roulette — you discover breakage when consumers deploy to production, not when you make the change |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -530,6 +562,7 @@ Phase 6: Full comet migration (capstone)
 | Migration timeline set by the deprecating team's velocity, not the slowest consumer's — a consumer on a 90-day release cycle gets a 30-day deprecation window covering a third of their cycle. | $25K-$75K in emergency hotfix costs when the slowest consumer is forced to patch on a Friday, plus potential breach-of-contract penalties if the consumer is an external paying customer. | Timeline = max(slowest_consumer_release_cycle × 3, 90 days for internal, 180 days for external). Announce deprecation before writing migration code — the clock starts when consumers are notified. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After planning or executing a cross-repo refactoring, run this sequence. Do not proceed past a failure.
 
@@ -544,10 +577,12 @@ After planning or executing a cross-repo refactoring, run this sequence. Do not 
 If any check fails: diagnose from verification item, provide specific actionable fix, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[S1]** Consumer inventory is exhaustive: GitHub org-wide search with variants (import styles, aliases, dynamic invocations) returns zero additional call sites not in the migration plan. Cross-referenced with runtime telemetry.
 - [ ] **[S2]** Codemod test fixtures cover: simple case, nested usage, edge cases (null, undefined, empty), negative cases (should NOT change), async/await variants. Tested against 3+ real consumer repos with manual diff review.
@@ -563,6 +598,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[S12]** Retrospective completed: what went smoothly, what surprised us, were migration tools adequate, was the timeline realistic. Lessons documented and fed back into the deprecation playbook.
 
 ## References
+<!-- STANDARD: 3min -->
 
 * [jscodeshift Documentation](https://github.com/facebook/jscodeshift) — JavaScript/TypeScript codemod toolkit
 * [comby Documentation](https://comby.dev/) — Structural code search and replace

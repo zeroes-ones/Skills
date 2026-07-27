@@ -39,8 +39,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design event-driven systems that decouple producers from consumers. Covers broker selection, event schema design, delivery guarantees, idempotency patterns, event sourcing, CQRS, and debugging distributed consistency problems.
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins.
@@ -56,6 +58,7 @@ Evaluate these file-system conditions in order. First match wins.
 | A7 | No event infrastructure, no schemas | Jump to "Core Workflow > Phase 1" |
 
 ### Intent Route
+
 ```
 What are you trying to do?
 ├── Choose a message broker (Kafka, RabbitMQ, SQS, NATS, Pulsar)
@@ -70,7 +73,8 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -81,6 +85,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "Schema registry is overhead — events are internal." | Internal today, external tomorrow. That stream gets consumed by analytics, then a partner integration. Without registry, breaking changes hit consumers who never agreed to your contract. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -92,12 +97,12 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | **R6** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R7** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an event-driven architect — and the foundational distinction you live by is: **events are facts, not commands**. An event records something that already happened ("OrderPlaced", "PaymentCaptured") in past tense — it is immutable history. A command requests something to happen ("PlaceOrder", "CapturePayment") — it may be rejected. This is not semantic pedantry; it is the difference between event sourcing (state is the projection of the event log) and event notification (events are side effects of state changes). Know which you are building. Event sourcing gives you audit, replay, and temporal queries. Event notification gives you decoupled workflows. Confusing them produces systems that are neither auditable nor decoupled.
 
@@ -108,6 +113,7 @@ You are an event-driven architect — and the foundational distinction you live 
 Every event-driven decision is a trade-off — there are no free lunches. **Partitioning by `order_id` gives you per-order ordering but risks hot partitions; partitioning by `user_id` spreads load evenly but scatters order events across partitions. Choreography gives you decoupled services but makes end-to-end visibility harder; orchestration centralizes the workflow but introduces a single point of coupling. At-least-once with idempotency gives you simpler producers but requires every consumer to be idempotent; exactly-once semantics (transactions) simplify consumers but add latency and broker dependency.** Your job is not to pick the "best" option — it is to articulate the trade-offs clearly and match them to the business requirements.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ### Beginner: Synchronous-to-Event-Driven Redesign
 Take a synchronous REST API flow you know well (e.g., user signup: POST /signup → create user row → send welcome email → create trial subscription). Redesign it as event-driven: (1) Identify every event that occurs — name them in past tense. (2) Define the topic structure — one topic per domain or one per event type? (3) Map each producer and consumer. (4) Identify which step in the original sync flow becomes which event handler. (5) Find the failure mode: if the welcome email handler fails, what happens to the trial subscription? Write the full flow as an event chain diagram.
@@ -119,6 +125,7 @@ Design an event schema for `OrderPlaced` in Avro. Include: order ID, customer ID
 Design a full CQRS + event sourcing architecture for an e-commerce checkout flow (add to cart → apply discount → calculate shipping → place order → capture payment). Address these hard problems: (1) **Out-of-order events**: a `PaymentCaptured` event arrives before `OrderPlaced` — design the consumer's handling strategy (buffer? reject? reorder buffer with timeout?). (2) **Duplicate events**: `OrderPlaced` delivered twice due to producer retry — implement idempotency at the aggregate level using the order ID. (3) **Read-model rebuilding**: the read-side database is corrupted — design the replay mechanism. How do you rebuild 2 years of order history from the event store? How long does it take? Where do you serve traffic during the rebuild? (4) **Snapshots**: at what event count do you introduce aggregate snapshots to bound replay time? Design the snapshot strategy and recovery from a corrupted snapshot.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Characteristics |
 |---|---:|
@@ -131,6 +138,7 @@ Design a full CQRS + event sourcing architecture for an e-commerce checkout flow
 Default: **L2**.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Choosing between Kafka, RabbitMQ, SQS/SNS, EventBridge, NATS, or Pulsar
 - Designing event schemas with Avro, Protobuf, or JSON Schema + schema registry
@@ -141,6 +149,7 @@ Default: **L2**.
 - Setting up event versioning, compatibility modes, and deprecation workflows
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 ### Broker Selection
 
@@ -319,6 +328,7 @@ Default: **L2**.
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Event Storming & Discovery (~45 min)
 
@@ -334,6 +344,7 @@ Default: **L2**.
 
 1. **Choose serialization:** Avro (schema registry, compact, Kafka/Java) | Protobuf (typed, codegen, gRPC) | JSON Schema (human-readable, webhooks)
 2. **Define event envelope:**
+
 ```json
 {
   "event_id": "uuid-v7",
@@ -345,7 +356,9 @@ Default: **L2**.
   "idempotency_key": "order-12345-v1",
   "payload": {}
 }
+
 ```
+
 3. **Design payload** — Only data consumers need. Semantic types (`Money {amount, currency}`), not primitives. No leaked DB IDs.
 4. **Register in schema registry** — Before any producer deploys. Compatibility: BACKWARD (default), FORWARD, or FULL.
 
@@ -369,6 +382,7 @@ Default: **L2**.
    - **Exactly-once:** Idempotent producer + transactional consumer. Financial transactions.
 
 2. **Implement idempotency:**
+
 ```python
 if redis.setnx(f"processed:{event.idempotency_key}", "1", ex=86400):
     process_event(event)
@@ -382,8 +396,13 @@ else:
 
 **Verify:** Inject malformed event -> lands in DLQ after N retries -> alert fires -> consumer continues.
   Complete when: Delivery semantics chosen per event type, idempotency implemented with deduplication, DLQ configured with max retries and alerting, circuit breaker tested with failure injection.
+  Complete when: Architecture decision record (ADR) created with context, options, and rationale.
+  Complete when: Non-functional requirements documented — performance, security, scalability targets.
+  Complete when: Dependency graph reviewed — no circular dependencies between bounded contexts.
+  Complete when: Capacity planning estimates validated with load testing at 2x expected peak.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **One event type per topic/queue** — Mixing forces filtering, breaks ordering.
 2. **Partition by business key** — `order_id` ensures ordering. RabbitMQ: consistent hash exchange.
@@ -396,8 +415,9 @@ else:
 9. **Correlation ID propagation** — Trace user request across services through correlation IDs.
 10. **Time-bound consistency** — Define p95 staleness. <200ms = users won't notice. >5s = they will.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -412,6 +432,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream
 
@@ -433,13 +454,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | `ci-cd-builder` | Schema registry deploy order, compat checks | Schema validation in CI, canary deploy order |
 | `performance-engineer` | Throughput targets, partition counts | Load test scenarios, expected message rates |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System design, C4 models, ADRs, scalability patterns | Before making architectural decisions that impact multiple systems |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 - **Event without correlation ID** -> Flag. Untraceable across services. Add `correlation_id`. 🔴
 - **Event publish inside DB transaction without outbox** -> Flag. Rollback after publish = ghost event. Use transactional outbox pattern. 🔴
@@ -449,6 +469,7 @@ If a command or approach fails, follow this escalation path before giving up:
 - **Single consumer group for all environments** -> Flag. Staging consumes production events. Separate groups. 🟠
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |----------------|-------------------|
@@ -461,11 +482,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Same schema for internal + external events | External events get separate, stable, documented schemas. |
 | Hard-deleting events from event store for GDPR | Crypto-shred: encrypt PII with per-user key, delete the key. History preserved, PII unrecoverable. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] **[ED1]** Schema registry deployed, all types registered with BACKWARD compatibility before producers deploy
 - [ ] **[ED2]** DLQ configured per consumer, max 3 retries, alert on DLQ depth > 0
@@ -483,10 +506,12 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[ED14]** Chaos testing: poison message injection, partition failure, network partition quarterly
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 Every event has a registered schema with version. Consumers are idempotent and DLQ-backed. Consumer lag <200ms p95. Correlation IDs trace a user action across 10+ services. Replay 6 months of events -> reconstruct any read model in <15 min. Poisoned message lands in DLQ within 3 retries, alert fires, healthy consumers never stop.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -504,6 +529,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Consumer group lag grows 50K/hour after adding a slow downstream API call to the consumer | Consumer processes 100 msg/sec before change. New code adds 200ms external API call per message — throughput drops to 5 msg/sec. Lag compounds exponentially | Offload slow work: consumer validates and acknowledges quickly, then publishes to an internal "work" topic. Separate worker pool processes slow operations with its own scaling and retry logic. Never block the consumer's poll loop | Consumer throughput is determined by the slowest operation in the handler. Block the poll loop and lag grows linearly. Offload slow work to a separate worker pool that can scale independently. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -514,7 +540,6 @@ Detailed reference material loaded on demand:
 - **Deliberate Practice**: See [deliberate-practice.md](references/deliberate-practice.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Gotchas**: See [gotchas.md](references/gotchas.md)
-- **Scale Depth: Operating at Different Levels**: See [scale-depth.md](references/scale-depth.md)
 - **State Log**: See [state-log.md](references/state-log.md)
 - **Verification**: See [verification.md](references/verification.md)
 - **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
@@ -530,6 +555,8 @@ Detailed reference material loaded on demand:
 - `domain-modeling` — Bounded context map determining event ownership boundaries
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | # | Gotcha | Why It Bites | $ Impact | Prevention |
 |---|--------|-------------|----------|------------|
@@ -542,6 +569,7 @@ Detailed reference material loaded on demand:
 | **G7** | Event sourcing without snapshots in production | Event store has 1.2M events for a single aggregate after 3 years. Read-model rebuild takes 47 minutes. Deploy happens, read-model needs rebuild, system is effectively down for the duration | **$80K–$200K** in downtime + incident response + customer impact | Snapshot aggregates every N events (N=100-1000 depending on event size). Rebuild from latest snapshot + replay events since snapshot. Target rebuild time < 30 seconds. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 | # | Check | Pass Condition | Fix If Failing |
 |---|-------|---------------|----------------|

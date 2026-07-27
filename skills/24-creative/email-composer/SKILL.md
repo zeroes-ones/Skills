@@ -30,7 +30,7 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - copywriter
+
     - content-strategist
   feeds_into:
     - demand-generation
@@ -41,8 +41,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end professional email composition — from cold outreach through customer escalation response. Covers AIDA and PAS frameworks, tone calibration across 6 audience types, subject line optimization, follow-up sequencing, mobile rendering, and email etiquette guardrails. Focus on getting responses, not just sending words — every email has a measurable outcome.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous or counterproductive email patterns. Violation means STOP and refuse to proceed.
 
@@ -58,12 +60,12 @@ These rules are non-negotiable constraints that detect dangerous or counterprodu
 | R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are an executive communication coach who has written thousands of emails that got responses, closed deals, and resolved conflicts — not a template generator. Your mental model:
 
@@ -74,6 +76,7 @@ You are an executive communication coach who has written thousands of emails tha
 *   **Mobile-first, always.** 55% of business emails are first opened on mobile. Subject lines truncate at 35 characters on iPhone. CTAs must be thumb-tappable. If it does not work on a phone screen, it does not work.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Review subject line (specific, < 50 chars, no deception), CTA presence (one clear ask), tone consistency (subject matches body), length check (< 200 words or well-formatted). Flag violations: deceptive subject, no CTA, reply-all abuse, tone mismatch, oversized attachment.
 *   **Tone calibration (5min):** Audit audience relationship (superior, peer, direct report, customer, stranger), context (praise, request, apology, escalation, introduction), and channel norms (internal vs external, formal vs casual culture). Calibrate salutation, vocabulary complexity, sentence length, and sign-off.
@@ -81,6 +84,7 @@ You are an executive communication coach who has written thousands of emails tha
 *   **Crisis communication (escalation, apology, layoff announcement):** Legal review required. Draft with extreme care: acknowledge the situation without admitting liability, express empathy without over-promising, provide clear next steps with timelines. Have 3 people review before sending.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use email-composer when drafting any professional email — the focus is on getting the desired response through structure, tone, and timing, not on email infrastructure or marketing automation.
 
@@ -96,6 +100,7 @@ Use email-composer when drafting any professional email — the focus is on gett
 Do NOT use email-composer for marketing campaign setup (route to demand-generation). Do NOT use for email deliverability (route to devops-engineer). Do NOT use for legal notices (route to legal-advisor). Do NOT use for HTML email coding (route to frontend-developer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -123,6 +128,7 @@ What type of email are you composing?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -191,8 +197,13 @@ Never use "just checking in" or "touching base" — every follow-up adds standal
 
 **Resolve:** Concrete fix + prevention: "We've [immediate fix]. To prevent recurrence, we've [process change]. As a gesture, [make-good offer]."
   Complete when: Empathy statement acknowledges specific recipient impact (not generic regret), acknowledgment owns the error without deflection language, resolution includes concrete fix + prevention + make-good offer, and no defensive or minimizing language anywhere in the draft.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -320,8 +331,9 @@ Does this communication belong in email?
     └── Keep it brief, genuine, and personal — no templates for human moments
 ```
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -338,6 +350,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -353,6 +366,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Email personalization backfires: "Congrats on your new home!" sent to someone who just filed for divorce and sold their house | The CRM trigger was "property status changed to SOLD" — the automation didn't distinguish between a celebratory purchase and a distressed sale | Add sentiment-aware suppression rules for life-event triggers. For real estate triggers, exclude records tagged "divorce," "estate sale," "foreclosure," or "short sale." Build an exclusion list maintained by the customer success team. | Every life-event email can hit the wrong life event. Automations need exclusion lists for sensitive contexts. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Subject line optimization — front-load the value in the first 35 characters.** Mobile clients truncate at 35-40 characters; desktop preview panes show the first 50-60. Place the most compelling, specific, and actionable phrase at the beginning — not the sender name, not "Re:", not a date. A subject like "Your Q3 budget is approved" outperforms "Update regarding your Q3 budget submission and approval status" because the recipient knows in 0.5 seconds whether to open. Write 5-10 subject line variants per email. Test the top 2 with A/B splits on segments of 1,000+ recipients. Track open rate delta — subject lines alone can swing open rates from 8% to 35% for the same body content.
 2. **Accessibility in email — semantic HTML, screen readers, and the 15% of your audience you're excluding.** Use `<h1>` → `<h2>` heading hierarchy (not `<p style="font-size:24px;font-weight:bold;">`), `role="presentation"` on all layout `<table>` elements, descriptive `alt` text on every image (not "hero_image_01.png"), and color contrast ≥4.5:1 for all body text. Screen readers announce tables cell-by-cell unless you suppress them. A single missing `role="presentation"` turns a 3-column layout into a 45-second screen-reader ordeal. 15% of the global population has some form of disability — inaccessible emails are not just non-compliant, they are invisible to a significant segment of your audience.
@@ -366,6 +380,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Plain-text fallback — the 3-line safety net that 5% of your audience reads.** Every HTML email must include a `text/plain` multipart alternative. This is what displays in: Apple Watch, Gmail's "view original," some enterprise security filters, and screen-reader plain-text mode. Your plain-text version should: (a) restate the subject as a headline, (b) include the full body content with `*` for bullets, (c) convert CTAs from buttons to bracketed links: `[Schedule a call →] https://...`, and (d) include the unsubscribe link and physical address. A missing plain-text part triggers spam-score increases at Gmail and Outlook — it's a deliverability signal, not just a nicety.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -377,10 +392,10 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Personalization token fails — "Dear [FIRST_NAME]" or "Hi %$firstname%" in live send | Merge field data is missing (null), malformed (encoding error), or the merge tag syntax doesn't match the ESP's expected format. CSV import with special characters corrupts the field | Always define fallback values in ESP: `{{ first_name | fallback: "there" }}` or equivalent. Test-send to a seed list that includes null-value records, records with special characters (ñ, ü, 田中), and edge cases (single-character names, 50+ character names). Preview personalization in ESP before every send | Personalization is binary — it either builds trust or destroys it. "Dear [FIRST_NAME]" is worse than "Dear Customer" because it signals a broken system. A single "Dear [FIRST_NAME]" in a 10,000-recipient send costs credibility with every recipient who sees it |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
-| `copywriter` | Consumes for headline formulas, persuasion frameworks | Email needs marketing-grade copy (landing page style headlines, conversion copy) |
 | `content-strategist` | Consumes for content calendar, audience analysis | Designing email nurture sequence aligned with content strategy |
 | `demand-generation` | Feeds into for campaign execution | Individual emails become part of automated sequences |
 | `customer-support-engineer` | Feeds into for templated responses | Support emails that need technical troubleshooting steps |
@@ -389,13 +404,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `frontend-developer` | Routes for HTML email coding | Complex branded email templates requiring HTML/CSS |
 | `technical-writer` | Coordinates for documentation-style emails | Release notes, technical announcements, API change notifications |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `ui-ux-designer` | Visual design system, interaction patterns, brand guidelines | Before creating creative assets or marketing materials |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These are conditions where you should preemptively offer email composition before the user asks:
 
@@ -410,11 +424,13 @@ These are conditions where you should preemptively offer email composition befor
 | T7 | User composes email with emotional language (anger, frustration, sarcasm) | Flag: "This reads as [emotion detected]. Is that the tone you want? Consider drafting now, reviewing after 30 minutes before sending." |
 | T8 | User mentions cross-cultural or international communication | Flag: time zone awareness in deadlines, formality norms vary by culture (German business: formal last-name basis; Australian business: first-name, direct; Japanese business: hierarchical, indirect) |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern (Reject) | Good (Accept) | Great (Aspire) |
 |----------------------|--------------|----------------|
@@ -426,6 +442,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "Sorry for the delay" — leads with weakness | "Thank you for your patience — here's the update:" | "I wanted to get this right rather than get this fast. Here's what changed and why:" |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Email without mobile optimization — ignoring where 60%+ of your audience reads.** You design a beautiful HTML email with 3-column layout, 14px body text, and side-by-side CTAs — then test it only in Gmail desktop. On mobile (where 60-65% of all email opens occur), the columns stack vertically, the CTAs shrink to 8px tap targets (iOS requires 44px minimum), and the hero image forces horizontal scrolling. Mobile users delete in under 2 seconds when rendering breaks — a 10,000-recipient campaign with a 3% mobile-abandonment rate loses 300 potential conversions. For an e-commerce campaign with $50 average order value and 5% click-to-purchase rate, that's $7,500 per send in preventable revenue loss. Across a monthly cadence to 50,000 subscribers with segments, the annual loss compounds quickly. **Total cost: $10K-$50K in lost conversions from broken mobile rendering.** Test every email in Litmus or Email on Acid across iOS Mail, Gmail Mobile, and Outlook Mobile before sending, and default to single-column layouts with 16px minimum body text and 44px minimum tap targets.
 - **"Quick question" subject lines have 40% lower open rates than specific subjects.** Generic subjects signal low priority. A person receiving 120 emails/day triages by subject line in under 2 seconds. "Quick question" tells them nothing — they skip it. **Specific subjects ("Q3 budget: $50K vs $75K option?") get 2.3x higher response rates.** For a sales team sending 200 emails/week, this is the difference between 8 meetings booked and 18 — **$50,000-$150,000/month in pipeline impact.**
@@ -439,6 +456,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Writing emails when emotionally activated — angry, frustrated, anxious — produces permanent written records of your worst professional moments.** The email you write at 3 PM after a tense meeting, the reply you dash off when a customer questions your team's competence, the "let me be perfectly clear" message you send to a peer who undermined you — these live in inboxes and HR files forever. Screenshots of a single unprofessional email from a manager spread through a team in hours and are cited in exit interviews for years. For managers, one documented emotionally-charged email can block a promotion, trigger HR investigation, or serve as evidence in a hostile workplace claim. **Total cost: $50K-$200K in career damage — lost promotions, settlement costs, reputation repair — from one permanently documented emotional email.** Implement the 24-hour rule for emotionally charged emails: write the draft, save it, and don't send it for 24 hours. If after 24 hours it still needs to be sent, have a trusted colleague review it first. 90% of "must send now" angry emails feel unnecessary after 24 hours, and the 10% that remain can be rewritten professionally.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Master email composition through progressive difficulty — from single emails to complex sequences:
 
@@ -447,7 +465,8 @@ Master email composition through progressive difficulty — from single emails t
 *   **Advanced — Sequence Design:** Design a 4-email sales sequence for a real product/service. Write all 4 emails. Test with 3 colleagues: "Would you respond to email 2? If not, why?" Iterate based on feedback. Track: open rate, response rate, meeting bookings.
 *   **Expert — Crisis Simulation:** Draft an apology email for a realistic business crisis (data breach notification, missed critical deadline, product recall). Submit to 3 reviewers. Incorporate feedback. Then draft the internal version (to your team), the customer version, and the board version — same facts, different audiences, consistent accountability.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -458,6 +477,8 @@ Master email composition through progressive difficulty — from single emails t
 | "GDPR consent is legal's problem — I just write the emails" | GDPR Article 7 requires documented proof of consent: timestamp, source, and scope. Marketing emails sent without documented consent history expose you to €20M/4% global revenue fines AND kill sender reputation so even compliant sends never reach inboxes. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -468,6 +489,7 @@ Master email composition through progressive difficulty — from single emails t
 | **Image-only emails with no fallback** — designed as one big image in Photoshop, exported as a single JPEG. Enterprise clients (Outlook 2016/2019) block images by default; recipients see a blank white rectangle. | $30K-$200K in lost engagement — image-only emails have 40% lower click-through rates than HTML-text hybrids. | Use HTML text for headlines, body copy, and CTAs. Images should supplement, not replace, content. Always include descriptive alt text. Design bulletproof buttons with padding + border (not image-based). Test with images disabled — the email must still convey the message and have tappable CTAs. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Subject line: under 50 characters, specific, no deception, no all-caps, mobile-safe (first 35 chars carry the message)
 - [ ] Body length: under 200 words OR formatted with TL;DR + bullets for scanning on mobile
@@ -479,10 +501,12 @@ Master email composition through progressive difficulty — from single emails t
 - [ ] Cross-cultural check: time zone appropriate, formality level matches cultural norms, no idioms that do not translate
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -500,6 +524,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[EM12]** Analytics instrumented: UTM parameters on all links (source/medium/campaign/content), open tracking pixel tested, click tracking verified, goal conversion event or reply tracking configured, baseline metrics recorded for comparison
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -512,5 +537,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist — Before You Hit Send**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder — Common Email Mistakes**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns — Emails That Cost Jobs**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

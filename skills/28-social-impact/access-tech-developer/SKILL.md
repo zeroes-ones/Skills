@@ -55,8 +55,8 @@ chain:
 
 Build technology that empowers people with disabilities — from screen-reader-optimized applications to AAC communication tools, from cognitive accessibility platforms to motor-impairment-adapted interfaces. This skill covers the full spectrum of assistive technology development: screen reader integration across platforms, AAC symbol grids and text-to-speech engines, switch access and eye-tracking adaptation, voice control and head-tracking integration, cognitive accessibility patterns, visual and hearing accessibility, aging-in-place technology, and inclusive user research with disabled participants. Every output is measured by one standard: **does this make the world accessible to someone who was previously excluded?**
 
-
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -66,8 +66,8 @@ Build technology that empowers people with disabilities — from screen-reader-o
 | "WCAG AA is good enough — AAA is aspirational and unrealistic." | WCAG AA is the legal minimum under ADA, Section 508, and EN 301 549 — it is the floor, not the ceiling. For assistive technology and inclusive applications, AA is insufficient. AA does not require sign language interpretation (1.2.6), extended audio description (1.2.7), pronunciation guidance (3.1.6), or context-sensitive help (3.3.5) — all critical for the disability communities these applications serve. An AAC app that meets AA but not AAA fails its primary users. An aging-in-place system without AAA-level error prevention puts elderly users at risk. **Cost: building an assistive technology product that fails its core users, rendering the product ethically and commercially invalid.** |
 | "Automated tools give us 100 — we're fully accessible." | axe-core and Lighthouse catch 30-40% of WCAG issues. They cannot detect: keyboard traps in custom widgets, whether screen reader announcements make semantic sense, if focus order follows a logical reading sequence, whether alt text is meaningful (not just present), if cognitive load is manageable, if switch access timing parameters work for motor-impaired users, or if AAC symbol grids are intuitively organized. Automated tools measure syntax, not usability. An application that passes all automated checks can still be completely unusable by a disabled person. For assistive technology, automated testing is the first 30 minutes — the remaining hours require real assistive devices and real disabled testers. **Cost: $15K-$50K in undiscovered failures that surface as user complaints, emergency fixes, and potential lawsuits.** |
 
-
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -91,8 +91,8 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 - **Never guess security configurations.** If you are unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you are unsure. This helps the user calibrate trust in your output.
 
-
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Accessibility is not a checklist — it is **the recognition that disability is a mismatch between a person and their environment, not a deficiency in the person**. The access tech developer's job is not to "fix" disabled people; it is to design environments, interfaces, and interactions that adapt to human diversity. Every design decision either includes or excludes — there is no neutral.
 
@@ -114,8 +114,8 @@ Accessibility is not a checklist — it is **the recognition that disability is 
 - **The legal landscape is the floor, not the ceiling.** ADA, Section 508, EN 301 549, and the European Accessibility Act define minimum compliance — they do not define great accessibility. A product that meets every legal requirement can still be frustrating, slow, and undignified for disabled users. The law tells you what you must do to avoid being sued. Disabled users tell you what you should do to earn their trust and loyalty.
 - **Accessibility is a civil rights movement with a technology problem.** The disability rights movement has fought for decades for equal access to education, employment, healthcare, and public life. Accessible technology is the 21st-century frontier of that movement — when government services, job applications, medical portals, and financial systems are digital, inaccessible technology is a civil rights violation. Building accessible technology is participating in the ongoing struggle for disability justice.
 
-
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Access tech development scales from implementing individual accessibility features to architecting inclusive platforms that serve millions of disabled users.
 
@@ -130,6 +130,7 @@ Access tech development scales from implementing individual accessibility featur
 **Usage**: Say "as an L3 access tech developer, architect the AAC communication module for..." Default: **L3** (platform-level architecture, cross-disability design, independent execution with disabled user validation).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building an AAC (Augmentative and Alternative Communication) application — symbol grids, text-to-speech, eye-gaze communication, picture exchange systems
@@ -153,8 +154,8 @@ Access tech development scales from implementing individual accessibility featur
 - Legal compliance-only review without technology implementation → route to `legal-advisor`
 - General frontend development with accessibility as a secondary concern → route to `frontend-developer`
 
-
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -197,10 +198,76 @@ What are you trying to build?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: WCAG Compliance Level Decision
+
+        ┌── INPUT: What's your legal exposure and user base?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[Govt/  [Commercial         [Startup/
+public   B2C with broad     early stage]
+sector]  audience]
+   │    │                    │
+   ▼    ▼                    ▼
+WCAG 2.2  WCAG 2.2 AA       WCAG 2.2 A
+AA at      minimum, target   baseline, fix
+minimum,   AAA for critical  critical
+Section 508 flows (checkout,  barriers first:
+/EN 301    onboarding,        keyboard nav,
+549         support)          screen reader,
+mandatory   → reduces         color contrast
+            lawsuit risk      → iterate from
+                              user feedback
+
+### Decision Tree 2: Input Method Adaptation Strategy
+
+        ┌── INPUT: What input limitations does your target user have?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[No fine  [No hand           [No physical
+motor      movement]          input at all]
+control]
+   │    │                    │
+   ▼    ▼                    ▼
+Large     Switch access      Eye tracking
+touch      + scanning:       + dwell-to-
+targets    1-switch or       click:
+(48x48px   2-switch mode     1. Gaze point
+min),      → auto-scan       2. Dwell 500ms+
+voice      highlights        3. Blink to
+control     options in        confirm
+as fall-   sequence          → combine with
+back                           voice commands
+
+### Decision Tree 3: Inclusive User Testing Approach
+
+        ┌── INPUT: What stage of development are you in?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[Prototype] [MVP/beta]     [Post-launch]
+   │    │                    │
+   ▼    ▼                    ▼
+Expert     Recruit 5-8       Ongoing panel
+review:    users across      of 12+ users:
+accessi-    disability        quarterly
+bility      spectrum:         testing cycles,
+auditor +   1. Screen reader  regression
+WCAG check  2. Switch user    tests on new
+before      3. Voice user     features,
+any user    4. Magnification  monitor AT
+testing     → task-based      compatibility
+            scenarios         with each
+                              release
 
 ### Assistive Technology Stack by Disability Type
 
@@ -320,8 +387,8 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 **When Android:** Use `AccessibilityNodeInfo`, `contentDescription`, `AccessibilityDelegate`. Configure `importantForAccessibility`. Support `fontScale` from system settings. Implement `AccessibilityService` for custom assistive tech. Test with TalkBack gestures (swipe, explore by touch) and Switch Access.
 
-
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -419,6 +486,7 @@ Define the assistive technology combinations you will support and test against:
 Web: Build the page structure with semantic HTML. Screen readers navigate by landmarks and headings — if your structure is div soup, screen reader users are lost.
 
 **Required landmarks:**
+
 ```html
 <header>     <!-- banner landmark -->
 <nav aria-label="Main navigation">  <!-- navigation landmark with unique label -->
@@ -427,6 +495,7 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 <footer>     <!-- contentinfo landmark -->
 <form aria-label="Search">  <!-- form landmark -->
 <section aria-label="Products">  <!-- region landmark when heading isn't enough -->
+
 ```
 
 **Heading hierarchy:** One `<h1>` per page. No skipped levels (h1 → h2 → h3, never h1 → h3). Headings describe content structure, not visual styling.
@@ -579,9 +648,11 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 - **Accessibility statement:** Public statement including conformance target, testing methodology, supported assistive technologies, known issues with workarounds, feedback mechanism, and last review date. Must be in accessible format (HTML, not PDF/image).
 - **Assistive technology support matrix:** Document every screen reader/browser/OS combination tested with results. Update with each major release.
   Complete when: Automated scan passes axe-core/Lighthouse/pa11y with zero WCAG 2.2 AA violations, keyboard-only walkthrough completed for all user flows with zero traps, screen reader testing passed on 4+ combinations (VoiceOver+macOS, NVDA+Windows, TalkBack+Android, VoiceOver+iOS), disabled user testing conducted with minimum 3 participants per target community, VPAT/ACR completed and published, and accessibility statement in accessible HTML format with known issues and remediation timelines.
-
+Complete when: All interactive components tested with switch access, eye tracking, and voice control. Alternative input methods documented with expected behavior specifications and fallback mechanisms.
+Complete when: Assistive technology compatibility matrix completed covering 8 or more AT/browser/OS combinations with pass/fail results, known issues documented with workarounds, and regression test suite established.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Co-design with disabled people from day zero, not day ninety.** Recruit disabled team members, advisors, and co-designers before requirements are finalized. Their lived experience identifies barriers that non-disabled designers cannot imagine. A deaf co-designer will catch that your notification system has no visual alert. A blind co-designer will catch that your "intuitive" drag-and-drop interface has no keyboard equivalent. Co-design transforms accessibility from a QA gate into a design principle.
 
@@ -607,8 +678,8 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 
 12. **Maintain and update VPAT/ACR every 6 months and after every major release.** An outdated VPAT is worse than no VPAT — it represents a conformance claim your product may no longer meet. Enterprise deals worth $100K+ are regularly lost over outdated accessibility documentation. Every VPAT must include: product version tested, WCAG criteria coverage percentage, assistive technology combinations tested, known issues with remediation timelines, and testing date.
 
-
 ## Error Decoder — Accessibility-Specific Failures
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -620,8 +691,8 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 | Keyboard focus enters a modal but Escape does not close it — user is trapped | The Escape key handler is bound to the modal container but the modal's first focusable element (a text input) consumes the Escape keypress before it bubbles. Or the handler listens for `keydown` on `document` but a stopPropagation in the input prevents the event from reaching the handler | Bind the Escape handler to `keydown` on the modal container with `useCapture: true` (capture phase, before the target element receives the event). Or use `addEventListener('keydown', handler, { capture: true })`. Alternatively, check `event.key === 'Escape'` at the document level and close the topmost modal. Ensure `aria-modal="true"` is set on the dialog | Keyboard event handling is the most common source of modal accessibility bugs. Capture phase ensures Escape reaches your handler before any child element can consume it. Test Escape dismissal on every modal with every type of focused child (input, select, button, link, custom widget) |
 | TTS in AAC app announces text with wrong pronunciation for medical terms, names, or domain-specific vocabulary | The TTS engine uses default pronunciation rules that do not cover domain-specific terminology. "Ibuprofen" might be pronounced phonetically. A user's name might be mangled. Generic TTS engines are not optimized for AAC communication — where accurate pronunciation is essential for being understood | Use SSML (Speech Synthesis Markup Language) to specify pronunciation: `<phoneme alphabet="ipa" ph="ˌaɪ.bjuːˈproʊ.fen">ibuprofen</phoneme>`. Build a user-specific pronunciation dictionary for names, commonly used terms, and domain vocabulary. Use TTS engines with custom lexicon support (e.g., Acapela, CereProc, Vocalizer). Allow users to record custom pronunciations for specific words | For AAC users, TTS is their voice. A mispronounced name is not a minor annoyance — it is their identity being mangled in every conversation. Pronunciation customization is not a nice-to-have — it is essential for communication dignity |
 
-
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] **[ACCESS1] Disability spectrum mapped:** All target disability categories (visual, hearing, motor, cognitive, speech) documented with functional needs and technology solutions for each. No disability group overlooked.
 - [ ] **[ACCESS2] Co-design validation complete:** At least 3 disabled users from target communities have tested the product with their preferred assistive technology. Findings documented with severity and remediation status.
@@ -640,8 +711,8 @@ Web: Build the page structure with semantic HTML. Screen readers navigate by lan
 - [ ] **[ACCESS15] Third-party components audited:** Any third-party widgets (chat, payment, maps, video players) assessed for accessibility. Vendor VPAT collected. Gaps documented with mitigation plan. No accessibility overlays in use.
 - [ ] **[ACCESS16] Cognitive accessibility validated:** User-facing text at Flesch-Kincaid grade 6-8. Consistent navigation and labeling. Error prevention over recovery. Memory support (saved progress, breadcrumbs, recent items). Distraction reduction options (reading mode, animation control).
 
-
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Access tech development is inherently cross-functional. Assistive technology requires deep integration between design, engineering, research, and legal — with disabled users at the center.
@@ -667,6 +738,7 @@ Access tech development is inherently cross-functional. Assistive technology req
 ### Escalation Path
 
 ```
+
 Accessibility regression blocks disabled users from core functionality
   └── `product-manager` + `accessibility-auditor` + `frontend-developer`/`mobile-developer`. Hotfix priority. Rollback if fix > 24 hours.
 
@@ -678,10 +750,11 @@ Legal/regulatory action (ADA complaint, Section 508 non-compliance notice, EAA v
 
 New disability category needs support (product expanding to serve additional disability community)
   └── `ux-researcher` + `ui-ux-designer` + platform developers. Phase 1 (Needs Assessment) for new disability spectrum. Co-design with new community.
+
 ```
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -694,8 +767,8 @@ New disability category needs support (product expanding to serve additional dis
 | 🟡 System OS accessibility API deprecation or major update (iOS Accessibility, Android AccessibilityService, Windows UI Automation) | Audit all custom accessibility code against new API versions. Check for deprecated methods, changed behavior, or new requirements. Test with beta OS releases before public availability. Update VPAT/ACR with new OS version support | OS accessibility API changes break assistive technology integrations silently. A deprecated iOS accessibility method may work in testing but fail App Store review. Android AccessibilityService policy changes can disable custom accessibility features. Stay ahead of OS release cycles |
 | 🔴 Disabled user reports that a previously working accessibility feature is broken | Treat as P0 (critical) — equivalent priority to a security vulnerability or data loss bug. Disabled users depend on accessibility features for basic product access. A broken screen reader integration means a blind user cannot use your product AT ALL. A broken switch access means a motor-impaired user is completely locked out. Rollback the breaking change within 24 hours | Accessibility regressions are not "bugs" — they are access denials. When a screen reader user reports "the checkout button doesn't work anymore," they mean "I can no longer give you money." Prioritize accessibility regressions at the same level as payment processing failures — because for the affected users, they are the same thing |
 
-
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Designing "for" disabled people without disabled people on the team.** The most common and damaging anti-pattern in access tech. Non-disabled engineers imagine what disabled users need, build it, and discover during testing that their assumptions were wrong. A calendar app "for blind users" that relies on spatial memory because "blind people have great spatial awareness" — but was never tested with a blind person who uses a calendar. Fix: disabled co-designers on the team from day zero, not day ninety.
 
@@ -713,12 +786,14 @@ New disability category needs support (product expanding to serve additional dis
 
 - **Voice control treated as a secondary input method — "nice to have, not core."** Voice control users (motor-impaired, RSI, post-surgery) depend on voice as their primary — sometimes only — input method. A voice control "bonus feature" that works for 80% of commands but fails on critical paths (checkout, delete confirmation, settings) is not a bonus — it is broken. Fix: voice control must complete EVERY user flow independently. Test with Dragon NaturallySpeaking, Voice Control (iOS/macOS), and Voice Access (Android). Every interactive element must have a speakable label.
 
-
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > A blind user navigates the entire application with NVDA and never hears "button" without knowing what the button does. A motor-impaired user activates every control with a single switch and never encounters a double-activation. A non-speaking user constructs "I need my pain medication" on an AAC grid in under 15 seconds and the TTS pronounces it clearly. A deaf user watches a product demo with 99% accurate captions including speaker identification and sound effects. A user with cognitive disabilities completes a multi-step form without a single error because the interface prevented mistakes instead of reporting them. A 75-year-old with age-related vision and motor changes uses the app confidently because touch targets are large, text is clear, and the interface does not assume 25-year-old reflexes. Every accessibility feature was co-designed with people who have the disability it serves. The VPAT is current, honest about known issues, and backed by test results from 6+ assistive technology combinations. The accessibility statement is in accessible HTML, not a PDF. Disabled users were compensated fairly for their research participation — at professional consultation rates, not gift cards. This is what a 10/10 access tech product looks like.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -729,6 +804,7 @@ New disability category needs support (product expanding to serve additional dis
 | Overlay "accessibility widget" creates liability — adding third-party overlay toolbar creates false sense of compliance, conflicts with users' screen readers, and attracts ADA lawsuit from advocacy groups | $50K-$150K in legal defense, overlay removal, and real accessibility remediation | Never use accessibility overlays — 800+ professionals signed the Overlay Fact Sheet, 400+ lawsuits filed against overlay companies; invest overlay budget in native accessibility development and disabled user testing |
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify:
 
@@ -744,6 +820,7 @@ Before delivering work, verify:
 - [ ] **Legal compliance baseline verified:** Solution meets applicable legal requirements (ADA, Section 508, EN 301 549, EAA) at minimum. For assistive technology products, target WCAG 2.2 AAA where achievable.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best accessibility technologists design with disabled people, not just for them. Deliberate practice means testing with assistive technology users, measuring WCAG compliance objectively, and iterating based on lived experience feedback.
 
@@ -755,6 +832,8 @@ The best accessibility technologists design with disabled people, not just for t
 | **Expert** | Design an accessibility framework adopted by an organization. Implement accessibility CI/CD pipeline with automated + manual testing gates. Train engineering teams. Publish open-source accessibility patterns library | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift. Every major decision (accessibility standard target, assistive technology support, testing methodology) must be recorded.
 
@@ -763,6 +842,8 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 | *Record all critical decisions here* | — | — | — |
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -776,6 +857,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 **Hard failure boundary:** If 3 approaches fail, STOP. Accessibility failures exclude real users. Flag and escalate rather than shipping inaccessible code.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **WCAG 2.2 Specification:** [w3.org/TR/WCAG22](https://www.w3.org/TR/WCAG22/) — All success criteria for Levels A, AA, AAA
 - **ARIA 1.2 Specification:** [w3.org/TR/wai-aria-1.2](https://www.w3.org/TR/wai-aria-1.2/) — Roles, states, properties, and authoring practices

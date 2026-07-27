@@ -44,8 +44,10 @@ chain:
 > **Portability target:** Spec-level with tooling (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). Ships `scripts/md3_checker.py` (stdlib-only Python compliance checker). **Research-first architecture:** design guidelines verified against live documentation before output.
 
 Design and audit apps against [Material Design 3](https://m3.material.io) — Google's open-source design system for Android, web, and beyond. Covers phones, tablets, foldables, Wear OS, Android TV, Android Auto, and ChromeOS. This skill treats Material Design as an evolving ecosystem, not a static specbook.
+<!-- QUICK: 30s -->
 
 ## Research Gate — Read Before Any Design Work
+<!-- STANDARD: 3min -->
 
 **Material Design is a living system.** Google updates guidelines between OS releases, adds new components, deprecates patterns, and refines accessibility requirements. Your training data may not reflect the current state.
 
@@ -71,6 +73,7 @@ Every design claim must carry one of these tags:
 - `[UNKNOWN]` — Requires manual verification against current guidelines
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 
@@ -87,6 +90,7 @@ Evaluate these conditions in order. First match wins.
 ### Intent Route (Ask the User)
 
 If no auto-route matched:
+
 ```
 What are you trying to do?
 ├── Design a new Android screen/feature with Material Design 3 → Mode 1: Design from scratch
@@ -102,6 +106,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These are hard-gate constraints. Violate any one and the output is invalid.
 
@@ -119,6 +124,7 @@ These are hard-gate constraints. Violate any one and the output is invalid.
 - **The gap between spec and reality.** Samsung One UI, Xiaomi MIUI, and other manufacturer skins layer on top of your MD3 design. Your design is a baseline — it will be modified by the device manufacturer. Design defensively.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Material Design is not a pixel-perfect spec to be replicated — it's a **design language for fragmentation**. Android runs on thousands of device configurations: $50 phones with 3" screens and $1,500 foldables with 8" displays. Your design must degrade gracefully across all of them.
 
@@ -157,6 +163,7 @@ Material Design is not a pixel-perfect spec to be replicated — it's a **design
 - **Break the component spec when the spec doesn't fit the context.** A 40dp button height works for most cases. A 56dp button might be needed in a driving context (Android Auto requires 76dp minimum). Document every intentional deviation and why.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | User | Scope | What Changes |
 |-------|------|-------|-------------|
@@ -177,7 +184,67 @@ Material Design is not a pixel-perfect spec to be replicated — it's a **design
 
 **Transition Triggers:** When 2+ designers produce inconsistent component specs → shared component library. When crash-free rate differs >2% between manufacturers → manufacturer skin testing. When accessibility compliance drops below 95% → automated a11y CI gates.
 
+## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: MD3 Migration vs Greenfield
+
+        ┌── INPUT: What is the starting point?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Greenfield]      [MD2 Migration]    [Mixed Codebase]
+New app, no       Existing MD2       Some MD2, some
+design system     app, full          custom, legacy
+                  migration planned  components
+   │                 │                  │
+   ▼                 ▼                  ▼
+Start with        Run migration      Phase approach:
+MaterialTheme     tooling → map      migrate one
++ MD3 defaults    MD2 tokens to      screen at a time
+→ customize       MD3 → update       → validate with
+from baseline     components batch   md3_checker.py
+
+### Decision Tree 2: Dynamic Color Strategy
+
+        ┌── INPUT: What is the app's personalization need?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Brand-Led]       [User-Led]         [Content-Led]
+Strong brand      User wallpaper     Content drives
+identity must     drives theme       palette (e.g.,
+be consistent     (personalization)  media, reading)
+   │                 │                  │
+   ▼                 ▼                  ▼
+Static color      Dynamic Color      Content-based
+scheme (fixed     with fallback      color extraction
+seed color) →     static scheme      → muted for
+no Dynamic Color  for no-wallpaper   readability
+                  devices
+
+### Decision Tree 3: Form Factor Adaptation
+
+        ┌── INPUT: What devices are targeted?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Phone Only]      [Phone + Tablet]   [All Android]
+Compact window    Compact + Medium   Phone, tablet,
+size class        + Expanded         watch, TV, auto
+   │                 │                  │
+   ▼                 ▼                  ▼
+Single layout     Adaptive layouts   Canonical layouts
+with bottom nav   per size class:    per device type
+→ test on 3       compact=bottom     → read platform-
+screen sizes      nav, medium=rail   specifics.md for
+                  expanded=drawer    each form factor
+
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Mode 1: Design from Scratch
 
@@ -239,8 +306,10 @@ Material Design is not a pixel-perfect spec to be replicated — it's a **design
 4. Execute Research Gate if guidelines may have changed since the design was created
 
 **Phase 2 — Automated Check (2 min)**
+
 ```bash
 python3 scripts/md3_checker.py batch audit.json
+
 ```
 
 **Phase 3 — Manual Review (15 min)**
@@ -261,6 +330,7 @@ For each screen, verify what the tool cannot measure:
 4. Deliver report: bottom line first, fixes organized by effort
 
 ## Run the Compliance Tool
+<!-- STANDARD: 3min -->
 
 `scripts/md3_checker.py` (stdlib-only, no dependencies):
 
@@ -287,6 +357,7 @@ python3 scripts/md3_checker.py batch audit.json --compact
 ```
 
 Batch input shape (`audit.json`):
+
 ```json
 {
   "checks": [
@@ -297,6 +368,7 @@ Batch input shape (`audit.json`):
     {"type": "component", "name": "dialog-corners", "element": "dialog", "property": "corner-radius", "actual": 12}
   ]
 }
+
 ```
 
 **Scorecard rubric:**
@@ -315,6 +387,7 @@ Checks the tool **cannot** measure (assessed manually):
 - Reduce-motion animation fallback
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 Surface these WITHOUT being asked:
 
@@ -328,11 +401,12 @@ Surface these WITHOUT being asked:
 | `file_contains(code, "AnimatedVisibility\|animate\|animation")` AND NOT `file_contains(code, "reducedMotion\|AnimationConstants\|LookaheadScope")` | Flag: animation without reduced-motion fallback. | 12% of users have motion sensitivity. Must disable or reduce animations when system setting is enabled. |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 ### Upstream (Consumes From)
 
-| Skill | What We Need | When |
-|-------|-------------|------|
+| Upstream Skill | What We Need | When |
+|----------------|-------------|------|
 | `ui-ux-designer` | Design system tokens, component specs, interaction patterns | Before designing any component — use the existing design system as foundation |
 | `accessibility-auditor` | WCAG 2.2 audit results, accessibility baseline | Before an MD3 audit — incorporate existing accessibility findings |
 | `brand-guidelines` | Brand colors, typography preferences, Dynamic Color override strategy | Before designing — determine whether to adopt, override, or reject Dynamic Color |
@@ -349,6 +423,7 @@ Surface these WITHOUT being asked:
 | `game-ui-designer` | TV UI patterns, D-pad navigation, 10-foot design principles | When designing game menus for Android TV / console-style interfaces |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > **MD3 score 100/100 — all checks pass.**
 >
@@ -364,6 +439,7 @@ Surface these WITHOUT being asked:
 > 10. Design tested on at least one non-Pixel device (Samsung One UI or budget device). 🟡 device-tested.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 1. **Design the same screen for 3 form factors.** Take a feature (e.g., "search results") and design it for Compact (phone), Medium (tablet portrait), and Expanded (tablet landscape/desktop). How does the canonical layout change? What becomes visible in the supporting pane that was hidden behind navigation?
 2. **Test Dynamic Color with extreme wallpapers.** Generate 5 color schemes from wallpapers: sunset (warm oranges), forest (deep greens), snow (white/blue), neon (saturated pink/cyan), and monochrome (grayscale). Does your design maintain hierarchy and contrast across all five?
@@ -371,6 +447,7 @@ Surface these WITHOUT being asked:
 4. **Shrink and stretch.** Take a phone screen and stretch it to 840dp wide. Does the layout gracefully adapt or does it break? Take a tablet layout and compress it to 360dp. Does content become unreachable?
 
 ## References
+<!-- STANDARD: 3min -->
 
 - `references/platform-specifics.md` — Form-factor-specific patterns: phone, tablet/foldable, Wear OS, Android TV, Android Auto, ChromeOS
 - `references/dynamic-color.md` — Material You pipeline, HCT color space, tonal palette generation, implementation patterns
@@ -381,7 +458,39 @@ Surface these WITHOUT being asked:
 - [Material Design Components (Android)](https://m3.material.io/develop/android)
 - [Android Accessibility](https://developer.android.com/guide/topics/ui/accessibility)
 
+## When to Use
+<!-- STANDARD: 3min -->
+
+| Condition | Use This Skill | Use Instead |
+|-----------|---------------|-------------|
+| Designing Android app UI with Material Design 3 | ✅ Apply MD3 component specs, Dynamic Color, window size classes | — |
+| Auditing existing Android app for MD3 compliance | ✅ Run `md3_checker.py` automated audit with research gate | — |
+| Implementing Dynamic Color / Material You | ✅ HCT color space, tonal palette generation, wallpaper-based theming | — |
+| Designing for Wear OS, Android TV, or Android Auto | ✅ Platform-specific MD3 patterns and component adaptations | — |
+| Designing for large screens (tablets, foldables, ChromeOS) | ✅ Window size classes, canonical layouts (List-Detail, Supporting Pane) | — |
+| Auditing iOS app for HIG compliance | ❌ | `apple-hig-expert` |
+| General WCAG 2.2 accessibility audit (non-Android) | ❌ | `accessibility-auditor` |
+| Web frontend UI design (non-Material Web) | ❌ | `ui-ux-designer` or `frontend-developer` |
+| Game UI design for Android TV | ✅ D-pad navigation, 10-foot design principles, TV layout patterns | — |
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Design looks correct on Pixel but broken on Samsung — One UI overrides shape, font, and color | $25K-$75K in device-specific bug fixes; 34% of Android users are on Samsung devices — a broken Samsung experience alienates 1/3 of users | Use system components (`MaterialTheme`) exclusively. Never custom-draw elements that bypass the theme engine. Test on at least one non-Pixel device (Samsung, OnePlus, Xiaomi) before release |
+| Missing window size class handling — single-column layout stretched to 10-inch tablet looks broken | $30K-$100K in tablet/foldable redesign; Google Play may feature-reject apps without large-screen optimization | Add `WindowWidthSizeClass` checks. Canonical layouts: List-Detail for Expanded, Supporting Pane for Medium. Test at 360dp, 600dp, and 840dp widths |
+| Dynamic Color adoption without brand color override — brand colors become unrecognizable on certain wallpapers | $20K-$60K in brand identity erosion; marketing team escalates when app icon/launch screen doesn't match in-app colors | Override `primary` role with brand color. Keep Dynamic Color for containers and surfaces. Declare strategy explicitly: adopt/override/reject with documented rationale |
+| Content unreachable at 200% text scale — TalkBack and Switch Access users cannot complete workflows | $30K-$150K in accessibility lawsuit exposure; Google Play Store accessibility filtering may reduce discoverability | Test typography at 85% and 200% system font scale. No text truncation, overlap, or layout breakage. Scrollable containers for content that exceeds viewport |
+| D-pad/Keyboard navigation landing on invisible or off-screen elements — TV and ChromeOS users stuck | $25K-$80K in TV app rejection or refund request rate; Wear OS rotary input and TV D-pad are primary interaction methods | Focus must never land on invisible or off-screen elements. Set `focusable = false` on hidden items. Test non-touch navigation on all target form factors |
+| Predictive back gesture shows blank screen — app feels unpolished on Android 14+ | $15K-$50K in UX rework; back gesture is the most-used navigation action — a blank screen breaks user trust | Implement `OnBackInvokedCallback` with destination preview. Register during `onViewCreated`. Test with predictive back enabled in Developer Options |
+| TalkBack reads content in wrong order — Compose layout order ≠ semantic order | $20K-$60K in accessibility remediation; screen reader users abandon apps with broken navigation | Use `Modifier.semantics { isTraversalGroup = true }` on containers. Explicit `contentDescription` ordering. Test with TalkBack gesture navigation through every screen |
+| Touch targets below 48×48dp — users with motor impairments cannot reliably tap controls | $25K-$75K in accessibility remediation; regulatory non-compliance under EN 301 549 in EU markets | Minimum 48×48dp hit area on every interactive element. Use `.padding()` or `Modifier.size()` to expand small icon tap regions. Verify via `md3_checker.py --touch-targets` |
+
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix |
 |---------|-----------|-----|
@@ -393,14 +502,54 @@ Surface these WITHOUT being asked:
 | Predictive back shows blank screen | App intercepts back without implementing `OnBackInvokedCallback` | Implement `OnBackInvokedDispatcher` with destination preview. Register the callback during `onViewCreated`. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Decision | Status | Timestamp |
 |----------|--------|-----------|
 | (none yet) | — | — |
 
-## Verification Guardrails
+## Best Practices
 
-Before delivering any MD3 audit report or design spec, verify:
+1. **Do pin your Material Design version and run the research gate before every design session** — MD3 is a living spec that changes between Android releases. A component API valid in October 2025 may be deprecated by April 2026. Run `web_fetch("https://m3.material.io/components")` before producing output, and tag every claim with a confidence level: `[VERIFIED]`, `[SPEC-VERSION]`, `[INFERRED]`. Shipping a design built on stale training data costs $15,000-$40,000 in rework when developers discover the component doesn't exist in the current library.
+2. **Prefer Dynamic Color adoption with explicit brand overrides over static color schemes** — Material You's tonal palette system generates accessible, harmonious color schemes automatically from a single seed color. Rejecting Dynamic Color means manually maintaining 40+ color tokens across light and dark themes — a $5,000-$10,000/year maintenance burden. If brand colors are non-negotiable, declare explicit overrides for specific roles (primary, secondary) while letting Dynamic Color handle neutral, surface, and error tones.
+3. **Always test typography at 85% and 200% system font scale** — Android's font scale setting ranges from 0.85x to 2.0x. Text truncation, overlap, or layout breakage at either extreme means your layout is not truly adaptive. A screen that works at 100% but breaks at 200% fails WCAG 1.4.4 (Resize Text) and excludes users with visual impairments. Test by toggling font scale in Settings → Accessibility → Font size on a real device — emulators lie about text rendering.
+4. **Never use fixed-pixel layouts for Android — design with window size classes (Compact, Medium, Expanded)** — Android runs on phones (360dp), foldables (600-840dp), tablets (840+dp), ChromeOS (1200+dp), and desktop mode. A layout designed at 360dp that breaks at 840dp means your app gets a 2-star Play Store rating on tablets. Cost of retrofitting large-screen support post-launch: $20,000-$60,000 vs. $3,000-$8,000 if designed upfront with adaptive layouts.
+5. **Measure TalkBack completion rate** — Can a blind user navigate every screen and complete the primary task (e.g., book a flight, send a message) using only TalkBack? Target: 100% task completion on critical paths. Instrument user testing with screen-reader users; every `contentDescription` gap, missing `semantics { isTraversalGroup = true }`, or incorrect traversal order is a regression. An inaccessible critical path costs $50,000-$250,000 in ADA litigation and Play Store delisting risk.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Research Gate executed — all design claims verified against current m3.material.io documentation; output carries confidence tags | Run `web_fetch("https://m3.material.io/components")`; grep output for `[VERIFIED]`, `[SPEC-VERSION]`, `[INFERRED]` tags on every design assertion |
+| ☐ | All interactive elements meet MD3 minimum touch target (48×48dp) with adequate spacing between tappable regions | Run `md3_checker.py` or Layout Inspector; flag any touch target below 48dp in either dimension |
+| ☐ | Window size class behavior specified for Compact, Medium, and Expanded breakpoints with canonical layouts per class | Verify each screen renders correctly at all three size classes on physical devices or emulator; List-Detail for Expanded, single-column for Compact |
+| ☐ | Dynamic Color strategy explicitly declared (adopt/reject/override) with brand color handling and rationale documented | Check that `dynamicColorScheme` is used OR a documented override strategy explains why brand colors deviate |
+| ☐ | Color contrast meets WCAG AA minimums (4.5:1 normal text, 3:1 large text) across all color roles in both light and dark themes | Run `md3_checker.py --contrast` or Android Accessibility Scanner; flag every ratio below threshold |
+| ☐ | Typography tested at 85% and 200% system font scale — no text truncation, overlap, or layout breakage | Toggle font scale in Settings → Accessibility → Font size on physical device; every screen must remain usable at both extremes |
+| ☐ | TalkBack announces every meaningful element with correct `contentDescription`; traversal order matches visual order; `semantics { isTraversalGroup = true }` set on containers | Navigate every screen via TalkBack gesture navigation; verify `contentDescription` on all interactive and informative elements |
+| ☐ | Rollback plan is documented and tested | Verify: APK/AAB rollback to previous version doesn't corrupt user data; Dynamic Color tokens persist across rollback; Play Store staged rollout at 10% with rollback trigger on crash rate > 0.5% |
+
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when all interactive elements meet MD3 minimum touch target (48×48dp) with adequate spacing between tappable regions | Verify via `md3_checker.py` or layout inspector; flag any touch target below 48dp in either dimension |
+| ☐ | Complete when window size class behavior is specified for Compact, Medium, and Expanded breakpoints with canonical layouts per class | Verify each screen renders correctly at all three size classes; List-Detail for Expanded, single-column for Compact |
+| ☐ | Complete when Dynamic Color strategy is explicitly declared (adopt/reject/override) with brand color handling documented | Verify that either `dynamicColorScheme` is used OR a documented override strategy explains why brand colors cannot be dynamic |
+| ☐ | Complete when all component dimensions match MD3 spec tolerances (or deviations are explicitly documented with rationale) | Verify via `md3_checker.py --components` that padding, corner radii, and elevation values match the spec for each component type |
+| ☐ | Complete when color contrast meets WCAG AA minimums (4.5:1 normal text, 3:1 large text) across all color roles and both light/dark themes | Verify via `md3_checker.py --contrast` or Android Accessibility Scanner; flag every ratio below threshold |
+| ☐ | Complete when typography is tested at 85% and 200% system font scale with no text truncation, overlap, or layout breakage | Verify by toggling font scale in Android Settings → Accessibility → Font size; every screen must remain usable at both extremes |
+| ☐ | Complete when TalkBack announces every meaningful element with correct contentDescription, traversal order matches visual order | Verify via TalkBack gesture navigation through every screen; check that `semantics { isTraversalGroup = true }` is set on containers |
+| ☐ | Complete when non-touch navigation is fully defined: D-pad for TV, rotary for Wear OS, keyboard for ChromeOS, switch access for accessibility | Verify by testing directional navigation on each target form factor; focus must never land on invisible or off-screen elements |
+| ☐ | Complete when predictive back gesture compatibility is confirmed: OnBackInvokedCallback registered, destination preview renders for in-app navigation | Verify by enabling predictive back in Developer Options and performing back gesture from every screen edge |
+| ☐ | Complete when all MD3 claims carry confidence tags: [VERIFIED], [SPEC-VERSION], [COMMON-PRACTICE], [INFERRED], or [UNKNOWN] | Verify via grep that every design assertion in output has exactly one confidence tag adjacent to it |
+
+## Verification Guardrails
+<!-- STANDARD: 3min -->
 - [ ] Research Gate executed against current m3.material.io documentation
 - [ ] All contrast ratios verified by `md3_checker.py` or manual WCAG calculation
 - [ ] All interactive elements ≥48x48 dp
@@ -415,7 +564,9 @@ Before delivering any MD3 audit report or design spec, verify:
 - [ ] Confidence tagged on every claim: `[VERIFIED]` / `[SPEC-VERSION]` / `[COMMON-PRACTICE]` / `[INFERRED]` / `[UNKNOWN]`
 
 ## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 This skill covers Material Design 3 guidelines that evolve independently of Android OS releases. MD3 updates are published continuously at m3.material.io. Never treat training data as current — always execute the Research Gate.
 
 - `[VERIFIED]` — Confirmed against live m3.material.io or developer.android.com/design

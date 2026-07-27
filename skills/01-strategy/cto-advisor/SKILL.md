@@ -68,7 +68,7 @@ What are you trying to do?
 ├── Make a build-vs-buy decision → Jump to "Decision Trees > Build vs Buy"
 ├── Design an engineering org
 │   ├── Team structure → Go to "Core Workflow > Phase 2: Engineering Org Design"
-│   └── Career ladders & hiring → Go to "Phase 2" + "Scale Depth"
+│   └── Career ladders & hiring → Go to "Phase 2" + "Operating at Different Levels"
 ├── Set architecture governance → Start at "Core Workflow > Phase 3: Architecture Governance"
 ├── Choose an architecture pattern → Jump to "Decision Trees > Architecture Pattern Selection"
 ├── Prioritize tech debt → Jump to "Decision Trees > Tech Debt Prioritization"
@@ -84,7 +84,7 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---:|
@@ -110,7 +110,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN when build-vs-buy analysis lacks TCO comparison.** Building in-house always looks cheaper in Year 1 and more expensive by Year 3. TCO must span 3-5 years including maintenance, onboarding, and opportunity cost. | Trigger: build-vs-buy recommendation is made without a 3-5 year TCO model covering: development cost, maintenance cost, onboarding cost for new hires, opportunity cost of engineers building commodity features | WARN. Append: "**TCO note:** In-house build likely costs [estimate] over 3 years (dev + maintenance + onboarding + opportunity cost). The vendor costs [estimate] over the same period. The crossover point is typically Year [N]. Verify these estimates with your actual engineering costs before deciding." |
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -200,6 +199,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
       │        │ │wrapper   │ │      │    │  vendor)   │
       └────────┘ └──────────┘ └──────┘    └───────────┘
 ```
+
 **When to BUILD:** It's core IP that creates competitive moat. Team has domain expertise. Time-to-market > 6 months is acceptable. Total cost of build < 3x annual license cost over 3 years.
 **When to BUY:** Commodity infrastructure (auth, payments, monitoring, CI/CD). Vendor switching cost is manageable (< 3 months migration). Build would divert > 30% of engineering from product work.
 
@@ -229,6 +229,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
     └────────────┘ │ packages     │
                    └──────────────┘
 ```
+
 **When to choose Microservices:** 3+ teams with independent release cycles. Different scaling requirements per component. Polyglot persistence is needed.
 **When to choose Modular Monolith:** < 20 engineers. Single deployment pipeline is adequate. Data consistency across domains is critical. Premature distribution adds latency and <!-- DEEP: 10+min -->
 debugging complexity.
@@ -258,6 +259,7 @@ debugging complexity.
                             │ weeks      │  │ file anyway  │
                             └────────────┘  └──────────────┘
 ```
+
 **When to fix immediately (P0):** Security vulnerability with known exploit. Data corruption risk. Prevents shipping revenue-generating feature.
 **When to defer (P2):** Legacy code that works reliably. Module slated for replacement within 6 months. No customer-facing impact.
 
@@ -294,6 +296,7 @@ debugging complexity.
   │         │        │ find alt     │
   └─────────┘        └──────────────┘
 ```
+
 **When to proceed:** Vendor passes security review, POC succeeds on critical path, pricing fits budget, and data migration OUT is feasible.
 **When to reject:** Vendor < 2 years old with < 50 customers. No SOC 2 or equivalent. Proprietary data format with no export API. Key-person dependency (single maintainer).
 
@@ -344,12 +347,18 @@ Maintain a living document that classifies technologies into four rings:
 - **Hold**: proceed with caution — legacy, deprecated, or over-hyped (e.g., MongoDB for relational data, hand-rolled auth)
 
 Complete when:
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 - Technology radar document with Adopt/Trial/Assess/Hold ratings and written rationale for every major dependency
 - Last 3 build-vs-buy decisions documented with 5-year TCO, alternatives considered, and accepted tradeoffs
 - Technology strategy memo that a new CTO can read and understand all technology choices within an afternoon
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
-
 
 ## Error Recovery
 **(STANDARD)**
@@ -424,7 +433,6 @@ Tactical technical decision (tooling, framework version, CI pipeline change)
 | Company evaluating 5+ SaaS tools without a vendor evaluation framework | Intervene: "Ad-hoc vendor selection leads to tool sprawl, integration nightmares, and budget overruns. Implement a weighted scorecard: (1) functional fit [30%], (2) TCO over 5 years [25%], (3) integration complexity with existing stack [20%], (4) vendor viability/roadmap [15%], (5) security/compliance posture [10%]. Every vendor over $10K/year must pass this gate" | Without a framework, vendor selection becomes a beauty contest won by the best sales team. Engineering teams end up maintaining 15 different SaaS integrations, each with its own auth, webhooks, and SLA — creating a fragile dependency chain that fails in unpredictable ways |
 | No RFC process exists and architecture decisions are made in Slack threads that disappear | Flag: "Architecture decisions made in ephemeral communication channels are undiscoverable, unreviewable, and unaccountable. Implement: (1) RFC template with context, decision, alternatives considered, consequences, (2) async review period (3-5 days), (3) decision recorded as ADR in the repo. The process should be lightweight — a 2-page document, not a 20-page treatise" | The cost of a bad architecture decision isn't felt until 6-12 months later, when the person who made it may have left the company. ADRs create institutional memory. Without them, every new hire asks "why did we build it this way?" and nobody has the answer |
 | Production incident occurs and there's no incident commander or escalation path | Intervene immediately: "Define: (1) incident severity levels (SEV1: customer data loss, SEV2: degraded service, SEV3: minor), (2) incident commander role rotates weekly, (3) escalation: 15min without resolution → CTO, 1hr → CEO, (4) post-mortem within 48hrs (blameless). Write this as incidents.md and share with the entire engineering team today" | Without an incident process, every outage becomes a scramble where the loudest person directs the response. Blameless post-mortems separate system failures from individual mistakes. Companies without incident processes either over-escalate (CEO paged for a partial CDN outage) or under-escalate (data breach goes unreported for 72 hours) |
-
 
 ## State Log
 
@@ -537,7 +545,7 @@ Before any CTO-level deliverable leaves this skill, verify:
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Scale Depth
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ### Solo/Pre-Seed (Founder-CTO, 1-5 engineers)
 - Tech strategy: Pragmatic — choose what gets you to market fastest. One language, one framework, one database

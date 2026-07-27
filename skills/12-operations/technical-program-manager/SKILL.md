@@ -40,6 +40,7 @@ chain:
 Technical Program Manager (TPM) — the role that bridges engineering execution across multiple teams. Unlike a PM (single project, single team) or Scrum Master (team process), the TPM owns **cross-team technical initiatives**: programs that span 3+ teams, have complex technical dependencies, and require architectural alignment. Think API migrations, platform launches, multi-team feature rollouts, deprecation programs, and infrastructure modernization.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -78,6 +79,7 @@ What are you trying to do?
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -95,12 +97,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master technical program managers know that operational excellence is invisible when it works — and catastrophically visible when it doesn't. They design for the 99th percentile, not the average.
 
@@ -121,6 +123,7 @@ Master technical program managers know that operational excellence is invisible 
 - **Over-communicate during ambiguity.** When the path is unclear, silence is worse than wrong information.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -135,21 +138,8 @@ Master technical program managers know that operational excellence is invisible 
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 TPM, 1 program, 3-5 teams)
-Single program charter, dependency matrix in a spreadsheet, milestone plan in Notion. Weekly status email to sponsor and team leads. ADRs written in `docs/adr/` with PR review. Focus: disciplined charter writing, dependency mapping, and milestone exit criteria. Tools: Notion, Google Sheets, GitHub for ADRs.
-
-#### Small (2-3 TPMs, 3-5 programs, 5-15 teams)
-Standardized program templates (charter, dependency matrix, status report). Program portfolio view with cross-program dependency visibility. Bi-weekly program review with sponsors. PERT estimation on all programs with external deadlines. Focus: cross-program resource allocation, program risk aggregation, stakeholder communication cadence. Tools: Jira Advanced Roadmaps + Confluence, Linear + Notion.
-
-#### Medium (3-8 TPMs, 5-15 programs, 15-50 teams)
-TPM practice with methodology standards and tooling governance. Program portfolio dashboard with composite health scores. Quarterly program reviews with executive steering committee. Focus: program prioritization (which programs get resources?), dependency management at scale, TPM career ladder and mentoring, program ROI tracking. Tools: Jira Align, Planview, ServiceNow SPM, Airtable for program portfolio.
-
-#### Enterprise (8+ TPMs, 15+ programs, 50+ teams, multi-business-unit)
-Enterprise TPM organization with chief of staff or VP-level program leadership. Strategic program portfolio aligned to company OKRs. Stage-gate governance with executive steering committees. Focus: strategic alignment (do programs map to company strategy?), benefits realization (did programs deliver projected ROI?), TPM competency framework, program management platform standardization. Tools: Jira Align, Planview Enterprise, ServiceNow SPM, Clarity PPM.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You are launching a cross-team initiative that spans 3+ engineering teams with interdependent deliverables
 - You need to map dependencies across teams, identify blockers, and build a program timeline with critical path
@@ -161,10 +151,76 @@ Enterprise TPM organization with chief of staff or VP-level program leadership. 
 - An external deadline (regulatory, contractual, market) is approaching and you need to assess the feasibility of the date
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+
+### Decision Tree 1: Stakeholder Communication Cadence
+
+        ┌── INPUT: Who needs updates
+        │   and at what frequency?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Executive sponsor /         Engineering leads /
+VP level?                   key contributors?
+   │                         │
+   ▼                         ▼
+Bi-weekly 1-pager:          Weekly sync:
+status (RAG), top 3         dependency status,
+risks, key decisions        blockers, milestone
+needed, budget/schedule     progress; 15-min
+variance highlights         standup format
+
+### Decision Tree 2: Risk Response Strategy
+
+        ┌── INPUT: A program risk has
+        │   been identified and scored
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+Can we eliminate             Impact × probability
+the root cause?              is manageable?
+   │                         │
+   ▼                    ┌────┴────────────┐
+MITIGATE: add           │                 │
+checkpoint, increase    ▼                 ▼
+test coverage, or    ACCEPT: log in     TRANSFER: move
+add buffer to        risk register;     ownership to
+critical path;       monitor trigger    another team or
+re-assess monthly    conditions         vendor; define
+                                        handoff SLA
+
+### Decision Tree 3: Program Health RAG Assessment
+
+        ┌── INPUT: Weekly program
+        │   health check
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+All milestones on            Any milestone delayed
+track; dependencies          2+ weeks OR critical
+resolved; buffer > 20%?      dependency at risk?
+   │                         │
+   ▼                    ┌────┴────────────┐
+GREEN – continue        │                 │
+as planned; standard    ▼                 ▼
+weekly reporting    Delay recoverable   Buffer exhausted
+                    with buffer?        + sponsor action
+                        │              needed?
+                        ▼                 │
+                   AMBER – execute       ▼
+                   recovery plan;    RED – escalate
+                   increase sync     to sponsor with
+                   to twice weekly   options: cut scope,
+                                     add resources, or
+                                     push date
+
 ```
 WHAT SCOPE IS THIS INITIATIVE?
 ├── Single team, well-defined deliverable → This is a PROJECT. Hand off to Project Manager.
@@ -200,6 +256,7 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -267,9 +324,11 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 4. **Metrics Retrospective** — Planned vs actual: timeline, resources, quality. Output: metrics summary for future estimation.
 
   Complete when: Closure checklist is signed with all success criteria met; postmortem document with action items is published; knowledge transfer artifacts (ADRs, runbooks, ops docs) are handed to owning teams; metrics retrospective comparing planned vs actual timeline/resources/quality is complete.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Start every program with a one-page charter signed by the sponsor.** Before dependency mapping, before ADRs, before timeline estimates — write the problem statement, success criteria, scope boundaries (what's IN and OUT), timeline estimate (P50/P90 range), resource ask, and named sponsor. Circulate for sign-off within the first week. Programs without charters drift because "everyone knows what we're building" — except everyone has a different version. **Tool:** Confluence program charter template, Notion program hub, or Google Docs with e-signature.
 
@@ -291,8 +350,8 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 
 10. **Quantify program health with a composite score, not a single RAG.** A simple GREEN/AMBER/RED masks what's actually happening. Compute: milestone completion rate (actual vs planned milestones), dependency health (on-track / total dependencies), schedule variance (actual vs baseline), risk score (weighted sum of probability × impact for active risks), and team health (self-reported across teams). Weight and combine into a single program health index. A program with 80% milestones on track but 40% dependencies at risk is not "green" — the composite score surfaces the truth. **Tool:** Jira dashboard with calculated fields, Notion formula properties, or a Power BI/Google Data Studio dashboard pulling from multiple sources.
 
-
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -303,8 +362,8 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 | Risk register has 20 MEDIUM risks, zero HIGH, zero closed — for 3 months | Risk inflation without triage. The TPM added every risk as MEDIUM to avoid the hard conversation of what's truly HIGH. | Force triage: each MEDIUM risk is either downgraded to LOW, upgraded to HIGH (immediate mitigation activation), or closed. Target ≤ 10 active risks at any time with a clear distribution across severity levels. | A register with 10 decision-ready risks is more valuable than 45 T-shirt-sized worries. |
 | ADR was "agreed" in a meeting but 6 months later nobody remembers why | Verbal architectural decisions don't survive team turnover. No ADR was written because "everyone was in the room." | Write the ADR within 48 hours of the decision: context, decision, alternatives, consequences. Store in `docs/adr/` with sequential numbering. Circulate for review before marking "Accepted." | If it's not written down, it didn't happen. ADRs are the program's technical memory. |
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**, follow this escalation path before giving up:
 
@@ -319,6 +378,7 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 The TPM is the central coordination point for multi-team technical programs. Unlike the PM (who coordinates within a project), the TPM coordinates *across* projects, teams, and sometimes organizations.
@@ -389,13 +449,12 @@ The TPM is the central coordination point for multi-team technical programs. Unl
 | Cross-team API contract definition | `api-designer` | API contracts need formal specification before teams implement |
 | Executive strategy and portfolio-level prioritization | `vp-engineering` or `director-engineering` | Strategic decisions beyond program scope |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `project-manager` | Timeline, resource allocation, stakeholder map, risk register | Before operational planning or execution |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- trigger-action table for autonomous TPM workflow -->
 
@@ -425,6 +484,7 @@ The TPM-to-System-Architect relationship is the bridge between program execution
 | **Architecture change management** | Change impact analysis (schedule delta, team reallocation, cost of delay); sponsor escalation | Why the change is necessary (new constraint, discovered limitation, better approach); what the migration path looks like; what breaks if we don't change |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -444,12 +504,14 @@ The TPM-to-System-Architect relationship is the bridge between program execution
 - [ ] **[TPM14]** Program closure checklist: all success criteria met, migrations complete, old systems decommissioned, knowledge transferred, postmortem published, metrics retrospective completed
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When technical program management is done right, cross-team dependencies are mapped and tracked so that no team is blocked waiting on another, architectural decisions are documented as ADRs with clear
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -467,6 +529,7 @@ graph LR
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Program Gantt chart with 100% dependency chaining** — if task B depends on A, C depends on B, ... Z depends on Y, any delay to A delays the entire program by the same amount. Every dependency is a single point of failure. Design programs with parallel tracks that merge only at integration milestones. **Total cost: $500,000-$3,000,000 per delayed quarter** — a single critical-path slip cascades to entire program delay, costing $2M+/month in 50-person engineering orgs.
 - **"On track" status report** based on milestones that are 3 weeks out — everything is "on track" until the day before the milestone. Status reports should project forward: "given current velocity and remaining work, will we hit the date?" not "are we past the date yet?". **Total cost: $300,000-$1,500,000 per surprise miss** — discovering a 4-week slip 3 days before launch forces crash resourcing, weekend war-rooms, and missed market windows.
@@ -474,7 +537,8 @@ graph LR
 - **OKRs set at the program level** that cascade to teams — a program OKR of "99.9% availability" splits across 5 teams. All 5 teams hit 99.9%, but the COMBINED system has 99.5% because you multiplied availabilities (99.9%^5 = 99.5%). System-level OKRs can't be decomposed by simple division. **Total cost: $400,000-$2,000,000 per year** in unplanned downtime — 99.5% availability means 44 hours of outage/year vs the 8.8 hours leadership expected, costing $45,000+/hour in revenue for mid-market SaaS.
 - **Program without a single source of truth** — schedule in Jira, risks in a spreadsheet, decisions in Slack threads, and action items in meeting notes. Status syncs consume 40% of the TPM's week just reconciling data. **Total cost: $100,000-$250,000 per year** in TPM overhead and delayed decisions from fragmented program data.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -485,6 +549,7 @@ graph LR
 | "We don't need a formal risk register — everyone knows the risks" | Unrecorded risks are unmanaged risks; risks that aren't written down, assigned owners with mitigation plans, and reviewed bi-weekly become fires at the worst possible moment — 90% of program crises were identified as risks 6 weeks earlier but never tracked. |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -493,6 +558,7 @@ graph LR
 | Risk register that is created but never reviewed | $100K-$500K in unplanned firefighting | Review the top 5 program risks every two weeks — stale risks are as dangerous as unidentified ones |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Program schedule: critical path identified — any delay to critical path tasks escalates within 24 hours
 - [ ] Cross-team dependencies: all inter-team handoffs have: API contract, SLA, integration test suite, and named owners on both sides
@@ -502,10 +568,12 @@ graph LR
 - [ ] Retrospective: program-level retrospective conducted at major milestones — findings tracked to process changes
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -515,10 +583,10 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
 

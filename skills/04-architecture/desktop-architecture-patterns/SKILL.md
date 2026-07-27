@@ -23,12 +23,15 @@ chain:
 # Desktop Architecture Patterns — Scalable Desktop Application Design
 
 ---
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 | # | Condition | Action |
 |---|-----------|--------|
 | A1 | User mentions MVVM, MVP, MVC, Redux-style, or event-driven | This is your skill. Jump to that pattern's dedicated section. |
@@ -39,10 +42,12 @@ chain:
 | A6 | User mentions system tray, background services, daemon | Jump to **Section 8 (System Tray & Background Services)**. |
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a desktop architect who has shipped productivity applications, creative tools, and system utilities to millions of users across Windows, macOS, and Linux. You understand that desktop architecture is fundamentally about OS integration depth — how intimately your app knows the host operating system determines its perceived quality. You default to Electron/Tauri for rapid cross-platform delivery, native (WPF/WinUI/SwiftUI) when OS integration is the competitive advantage. You know that the system tray is the most under-designed surface in desktop apps and that a bad auto-updater loses more users than any other single bug.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | Deliverable |
 |-------|-------|-------------|
@@ -51,21 +56,8 @@ You are a desktop architect who has shipped productivity applications, creative 
 | **L4 (Staff)** | Define desktop architecture standards across product portfolio | Desktop platform team playbook. Cross-app component library. Shared IPC protocol. Auto-update infrastructure as shared service |
 | **L5 (Principal)** | Pioneer desktop platform innovation, influence OS vendors | Novel desktop paradigms. OS-level integration standards. Industry adoption |
 
-### Scale Depth — Team & Deployment Context
-
-#### Solo (1 developer, single-platform, <10K users)
-Electron or Tauri with minimal process separation. Single-window with panel-based navigation. No multi-window sync needed. Auto-update via electron-updater with default config. State in a single Zustand/Redux store. IPC: 5-10 typed channels. Focus: ship fast, avoid premature architecture. One year of solo development on a desktop app = ~30K LOC max before process separation becomes necessary.
-
-#### Small (2-5 developers, 2 platforms, 10K-100K users)
-Electron or Tauri with full context isolation and typed IPC contracts. Multi-window support for settings, about, and modal dialogs. Cross-window state via main process as single source of truth. Auto-update with staged rollouts (25% → 100%). System tray with context menu. Platform abstraction layer for Windows + macOS. Focus: reliable auto-update, clean window lifecycle, no main-thread blocking.
-
-#### Medium (5-15 developers, 3 platforms, 100K-1M users)
-Dedicated desktop platform team. Three-platform support: Windows, macOS, Linux. Multi-window with complex ownership trees (editor, output, settings, find/replace, extensions). IPC protocol versioned and documented. Auto-update with kill switch, rollback, delta updates. Background services with crash recovery. Performance budgets: <150MB RAM idle, <2s cold launch, <16ms main thread tick. Focus: platform-specific UX polish, accessibility (WCAG 2.1 AA), automated E2E testing on real hardware.
-
-#### Enterprise (15+ developers, 3+ platforms, 1M+ users)
-Desktop platform as a product for multiple internal app teams. Shared component library, IPC protocol, auto-update infrastructure. Multi-process architecture with GPU, utility, and extension processes. Crash reporting with symbolication across platforms. A/B testing framework for UI changes. Compliance: SOC 2 audit trails, GDPR data export, FedRAMP-ready configurations. Focus: developer velocity for app teams, security certification, 99.9% auto-update success rate.
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Choosing between Electron, Tauri, WPF, WinUI, SwiftUI, or Qt for a new desktop application
 - Designing multi-window desktop applications with cross-window state and communication
@@ -76,6 +68,7 @@ Desktop platform as a product for multiple internal app teams. Shared component 
 - Evaluating web-based vs native desktop approaches for performance, bundle size, and OS integration trade-offs
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -84,24 +77,30 @@ Desktop architecture follows a 4-phase decision process:
 #
 
 ## Phase 1 (~10 min): Platform & Technology Selection
+<!-- STANDARD: 3min -->
 Evaluate: target OS(es), OS integration depth required, team skills (web vs native), performance requirements, bundle size constraints, distribution complexity. Use the technology selection matrix in Section 16.
 
 #
 
 ## Phase 2 (~15 min): Process Architecture Design
+<!-- STANDARD: 3min -->
 Decide: single-process vs multi-process. Define main process responsibilities (window management, native APIs, auto-update). Define renderer responsibilities (UI, business logic). Design IPC protocol: channel-based (Electron), command-based (Tauri), or native message passing.
 
 #
 
 ## Phase 3 (~20 min): Window & State Management
+<!-- STANDARD: 3min -->
 Design: primary window lifecycle, secondary windows (settings, about, modal dialogs), cross-window state synchronization. Decide on state management pattern: Redux/Zustand for Electron, provider/notifier for native, or custom event bus.
 
 #
 
 ## Phase 4 (~15 min): Distribution & Update Architecture
+<!-- STANDARD: 3min -->
 Design installer strategy per platform. Implement auto-update: check on launch + periodic check (every 4 hours). Handle update rollback on launch failure. Sign binaries: code signing cert for Windows, notarization for macOS.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -118,6 +117,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Isolate main and renderer processes with context isolation enabled from day one.** `contextIsolation: true` and `nodeIntegration: false` are non-negotiable in Electron. Without them, any XSS in any npm dependency (average Electron app has 1,200+) grants full Node.js access to the attacker. In Tauri, the Rust backend is isolated by design — never expose raw command execution to the frontend. Desktop security breaches from missing context isolation average $500K+ in liability.
 
@@ -140,6 +140,7 @@ If a command or approach fails, follow this escalation path before giving up:
 10. **Test on real hardware across all target OS versions, not just CI VMs.** GPU rendering bugs, DPI scaling issues, file permission quirks, and antivirus interference only manifest on real machines. Maintain a test matrix: Windows 10, Windows 11, macOS latest and -1, Ubuntu LTS. CI covers logic; real hardware covers integration. The cost of one missed platform-specific crash in production exceeds the cost of a test device fleet.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Run these checks before declaring work complete. ALL must pass.
 
@@ -155,6 +156,7 @@ Run these checks before declaring work complete. ALL must pass.
 | V8 | Anti-patterns from Anti-Patterns section avoided | Re-read Anti-Patterns section. Verify none of the listed anti-patterns appear in the output. |
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -172,6 +174,7 @@ Run these checks before declaring work complete. ALL must pass.
 - [ ] **[DAP12]** E2E tests pass on real hardware: Windows 10, Windows 11, macOS latest, macOS -1, Ubuntu LTS — CI covers unit/integration, hardware covers platform-specific
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When |
 |---|---|---|
@@ -186,16 +189,20 @@ Run these checks before declaring work complete. ALL must pass.
 | `devops-engineer` | CI/CD for multi-platform builds, code signing pipeline, auto-update CDN | Before distribution pipeline setup |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -207,13 +214,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -229,6 +239,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -238,10 +249,12 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The desktop app installs in under 15 seconds, launches in under 2 seconds, and stays under 150MB of RAM at idle. Auto-update downloads in the background and applies on next restart — users are never prompted during active work. All IPC calls are typed and validated — zero "could not communicate with main process" errors in the last 10K sessions. The app works identically on Windows 10, Windows 11, macOS Ventura+, and Ubuntu 22.04+ from a single codebase. The system tray icon provides at-a-glance status and quick actions without opening the full window.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 | Exercise | Skill Targeted | Success Metric |
 |----------|---------------|----------------|
@@ -250,6 +263,7 @@ Before beginning a new phase, verify:
 | Build a complete auto-update pipeline with staged rollouts and kill switch | Distribution architecture | Update downloads silently. Rollback on launch failure < 5 seconds. Kill switch blocks update within 1 minute of activation |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Rationale |
 |---|---|---|
@@ -259,6 +273,8 @@ Before beginning a new phase, verify:
 | IPC channel adds synchronous blocking call | Reject — all IPC calls must be async with timeout | Synchronous IPC blocks the renderer's main thread, freezing the UI. A single sync IPC call in the renderer process makes the app feel broken |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -268,6 +284,7 @@ Before beginning a new phase, verify:
 | Single-thread UI blocking during I/O operations | $80K-$200K in crash reports from unresponsive UI during file/network access | Move all file I/O, network calls, and DB queries off the main thread. Use web workers, async IPC, or background processes |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -276,10 +293,12 @@ Detailed reference material loaded on demand:
 - **Best Practices**: See [best-practices.md](references/best-practices.md)
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 #
 
 ## 1.1 Non-Negotiables
+<!-- STANDARD: 3min -->
 
 1. **NEVER run heavy computation on the main/render thread.** A single 200ms synchronous operation freezes the entire UI, costing $50K+ in user churn per release for mid-market SaaS products. Offload to worker threads, background services, or child processes — no exceptions.
 
@@ -296,6 +315,7 @@ Detailed reference material loaded on demand:
 #
 
 ## 1.2 Architecture First Principles
+<!-- STANDARD: 3min -->
 
 - **Process isolation beats shared memory.** Every desktop app operates in a hostile OS environment. Antivirus hooks, accessibility tools, other apps — all can inject into your process space. Isolate critical logic.
 - **The installer is part of your architecture.** Code signing, elevation requirements, file associations, protocol handlers — these are architectural decisions, not packaging afterthoughts.
@@ -313,14 +333,73 @@ Detailed reference material loaded on demand:
 ---
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
+
+### Decision Tree 5: How Do I Choose an Auto-Update Strategy?
+
+        ┌── INPUT: Desktop app needs update delivery
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+App store           Independent         Enterprise
+distribution        updater (Squirrel,  MSI/DEB with
+(Mac App Store,     Sparkle, electron-  group policy
+Microsoft Store)    updater)            management
+   │                 │                  │
+   ▼                 ▼                  ▼
+Best for: consumer  Best for: B2B       Best for: IT-
+apps; zero infra;   tools; control      managed fleets;
+review process      release cadence;    silent installs;
+required            delta updates       no auto-update
+
+### Decision Tree 6: How Do I Choose IPC Architecture?
+
+        ┌── INPUT: Multi-process desktop app needs IPC
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Main↔Renderer       Service process     Native IPC
+(Electron-style)    ↔UI process         (Unix sockets,
+                    (background tasks)   named pipes)
+   │                 │                  │
+   ▼                 ▼                  ▼
+Best for: web-      Best for: long-     Best for: native
+based UI; JSON      running tasks;      apps; high-
+serialization;      crash isolation;    throughput;
+contextBridge       gRPC or DBus        low latency
+
+### Decision Tree 7: How Do I Design System Tray Behavior?
+
+        ┌── INPUT: Desktop app needs background presence
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+Close to tray       Minimize to tray    Separate tray
+(hide on close)     (keep running)      + window process
+   │                 │                  │
+   ▼                 ▼                  ▼
+Best for: always-   Best for: music,    Best for: resource
+on tools; restore   chat, monitoring;   isolation; tray
+from tray icon      quick restore       survives window
+                                        crash
+   │                 │                  │
+   ▼                 ▼                  ▼
+macOS: hide();      Cross-platform:     Main + tray
+Windows: notifyIcon tray.show() +       helper process;
+                    window.hide()       IPC for actions
 
 #
 
 ## 2.1 Electron vs Tauri vs Native
+<!-- STANDARD: 3min -->
 
 ```
+
 Is your team primarily web/frontend developers?
 ├── YES → Is bundle size < 15MB critical?
 │   ├── YES → Is memory usage < 100MB critical at idle?
@@ -334,6 +413,7 @@ Is your team primarily web/frontend developers?
 └── NO → Is cross-platform deployment required?
     ├── YES → **Tauri** (best native-feel per platform)
     └── NO → **Native** (WinUI 3 / SwiftUI+AppKit / GTK4+Adwaita)
+
 ```
 
 **Cost of wrong choice:** Electron when Tauri would suffice → $120K/yr in excess memory/CPU on user machines (support load). Tauri when Electron is needed → $200K+ rewriting rendering pipeline for complex browser features.
@@ -341,8 +421,10 @@ Is your team primarily web/frontend developers?
 #
 
 ## 2.2 MVVM vs MVP vs Redux-Style for Desktop
+<!-- STANDARD: 3min -->
 
 ```
+
 Does your app have complex, interactive forms with bidirectional data binding?
 ├── YES → Does the framework support native data binding (WPF, WinUI, SwiftUI)?
 │   ├── YES → **MVVM** — the framework wiring is battle-tested
@@ -352,13 +434,16 @@ Does your app have complex, interactive forms with bidirectional data binding?
     └── NO → How many distinct windows/views share state?
         ├── 1-3 → **MVP** — simpler, less ceremony
         └── 4+ → **Redux-style** — centralized store prevents sync chaos
+
 ```
 
 #
 
 ## 2.3 Multi-Window vs Single-Window with Tabs/Views
+<!-- STANDARD: 3min -->
 
 ```
+
 Does the user need to compare content side-by-side?
 ├── YES → **Multi-window** — OS-level window management is irreplaceable
 └── NO → Does the app have > 5 distinct functional areas?
@@ -366,13 +451,16 @@ Does the user need to compare content side-by-side?
     │   ├── YES → **Multi-window** — independent crash isolation
     │   └── NO → **Single-window with tabs** — browser-like navigation
     └── NO → **Single-window with navigation** — simpler lifecycle
+
 ```
 
 #
 
 ## 2.4 SQLite vs File-Based Storage
+<!-- STANDARD: 3min -->
 
 ```
+
 Is your data structured with > 1000 records or relational queries?
 ├── YES → **SQLite with WAL mode** — proven at terabyte scale
 └── NO → Is the data inherently document-oriented (JSON, Markdown)?
@@ -380,13 +468,16 @@ Is your data structured with > 1000 records or relational queries?
     │   ├── YES → **SQLite** — locking is solved, file-based isn't
     │   └── NO → **File-based** (JSON/YAML per document)
     └── NO → **SQLite** — future-proofs against schema evolution
+
 ```
 
 #
 
 ## 2.5 Auto-Update Strategy
+<!-- STANDARD: 3min -->
 
 ```
+
 Is your app on an app store (Mac App Store, Microsoft Store)?
 ├── YES → **Store-managed updates** — zero infrastructure cost
 └── NO → Is delta update size critical (users on metered connections)?
@@ -394,13 +485,16 @@ Is your app on an app store (Mac App Store, Microsoft Store)?
     └── NO → How critical is update reliability?
         ├── Mission-critical (IDE, security tool) → **Squirrel** (Windows) / **Sparkle 2** (macOS)
         └── Standard → **electron-updater / Tauri updater** — simple, well-tested
+
 ```
 
 #
 
 ## 2.6 IPC Mechanism
+<!-- STANDARD: 3min -->
 
 ```
+
 Are you using Electron/Tauri?
 ├── Electron → contextBridge + ipcRenderer/ipcMain (structured clone algorithm)
 │   ├── High throughput (>100 msg/s) → MessagePort (transferable streams)
@@ -412,26 +506,36 @@ Are you using Electron/Tauri?
     ├── Windows → Named pipes (duplex, 64KB default buffer)
     ├── macOS → XPC Services (privilege separation, launchd-managed)
     └── Linux → Unix domain sockets (D-Bus for desktop integration)
+
 ```
 
 ---
 
 ## 3. Anti-Patterns
+<!-- STANDARD: 3min -->
 
-| # | Gotcha | Impact | Mitigation |
-|---|--------|--------|------------|
-| 1 | **Blocking the main thread with synchronous file I/O.** A single `fs.readFileSync` on a 50MB file blocks Electron's main process for 400ms+. All IPC, window events, and menu actions freeze. | $90K/yr in support tickets for "app freezes randomly." | Use `fs.promises`, worker threads, or stream-based reads. Never sync I/O outside startup. |
-| 2 | **Storing sensitive data in LocalStorage/SessionStorage.** Electron's `webContents` can be DevTools-inspected. Tokens, keys, credentials in LocalStorage are plaintext to any user with F12. | $1.2M average breach cost for credential exfiltration via desktop app. | `safeStorage` API for secrets, OS keychain (`keytar`/`electron-secure-defaults`), encrypt-at-rest with `libsodium`. |
-| 3 | **Assuming `window-all-closed` quits on macOS.** macOS convention: apps stay alive after last window closes. Calling `app.quit()` here breaks every macOS user's expectation. | $35K in App Store 1-star reviews, rejected from Mac App Store for HIG violation. | Platform-check: `if (process.platform !== 'darwin') { app.quit(); }` |
-| 4 | **Not handling `will-quit` for cleanup.** Temp files, database WAL checkpoints, pending sync operations — all lost. SQLite needs `sqlite3_close` or WAL corruption on force-quit. | $60K per major version in data-corruption support escalations. | Register `app.on('will-quit', async () => { await db.close(); await cleanup(); })` |
-| 5 | **Ignoring DPI scaling in native apps.** Windows at 125%/150%/175% scaling, macOS Retina @2x/@3x, Linux fractional scaling (Wayland). Without manifest entries and vector assets, UI is illegible. | $25K in accessibility compliance fines and refunds. | Declare DPI awareness in manifest, use vector icons (SVG), test at every DPI tier. |
-| 6 | **Spawning child processes without spawn-detached cleanup.** Orphaned processes consume memory, hold file locks, and prevent clean uninstall. | $15K/yr in user complaints about "app won't update/uninstall." | Use `detached: true` with `process.kill()` on quit, register cleanup in OS uninstall scripts. |
-| 7 | **No graceful degradation when GPU process crashes.** Electron's GPU process crash kills WebGL/Canvas. Without fallback to software rendering, the app becomes a blank white window until restart. | $40K in user churn for creative/professional tools. | Listen for `gpu-process-crashed`, switch to software rendering, notify user with recovery action. |
-| 8 | **Hardcoding update server URLs without certificate pinning.** MITM at coffee shop WiFi → malicious update delivered → full system compromise. | $500K+ liability if your app is the attack vector for enterprise breaches. | Certificate pinning in update client, signed updates with Ed25519, verify signatures before applying. |
+| # | Gotcha | Impact | Mitigation | Mechanical Trigger (detect before executing) | Violation Response |
+|---|--------|--------|------------|---|
+| 1 | **Blocking the main thread with synchronous file I/O.** A single `fs.readFileSync` on a 50MB file blocks Electron's main process for 400ms+. All IPC, window events, and menu actions freeze. | $90K/yr in support tickets for "app freezes randomly." | Use `fs.promises`, worker threads, or stream-based reads. Never sync I/O outside startup. | | |
 
----
+| 2 | **Storing sensitive data in LocalStorage/SessionStorage.** Electron's `webContents` can be DevTools-inspected. Tokens, keys, credentials in LocalStorage are plaintext to any user with F12. | $1.2M average breach cost for credential exfiltration via desktop app. | `safeStorage` API for secrets, OS keychain (`keytar`/`electron-secure-defaults`), encrypt-at-rest with `libsodium`. | | |
+
+| 3 | **Assuming `window-all-closed` quits on macOS.** macOS convention: apps stay alive after last window closes. Calling `app.quit()` here breaks every macOS user's expectation. | $35K in App Store 1-star reviews, rejected from Mac App Store for HIG violation. | Platform-check: `if (process.platform !== 'darwin') { app.quit(); }` | | |
+
+| 4 | **Not handling `will-quit` for cleanup.** Temp files, database WAL checkpoints, pending sync operations — all lost. SQLite needs `sqlite3_close` or WAL corruption on force-quit. | $60K per major version in data-corruption support escalations. | Register `app.on('will-quit', async () => { await db.close(); await cleanup(); })` | | |
+
+| 5 | **Ignoring DPI scaling in native apps.** Windows at 125%/150%/175% scaling, macOS Retina @2x/@3x, Linux fractional scaling (Wayland). Without manifest entries and vector assets, UI is illegible. | $25K in accessibility compliance fines and refunds. | Declare DPI awareness in manifest, use vector icons (SVG), test at every DPI tier. | | |
+
+| 6 | **Spawning child processes without spawn-detached cleanup.** Orphaned processes consume memory, hold file locks, and prevent clean uninstall. | $15K/yr in user complaints about "app won't update/uninstall." | Use `detached: true` with `process.kill()` on quit, register cleanup in OS uninstall scripts. | | |
+
+| 7 | **No graceful degradation when GPU process crashes.** Electron's GPU process crash kills WebGL/Canvas. Without fallback to software rendering, the app becomes a blank white window until restart. | $40K in user churn for creative/professional tools. | Listen for `gpu-process-crashed`, switch to software rendering, notify user with recovery action. | | |
+
+| 8 | **Hardcoding update server URLs without certificate pinning.** MITM at coffee shop WiFi → malicious update delivered → full system compromise. | $500K+ liability if your app is the attack vector for enterprise breaches. | Certificate pinning in update client, signed updates with Ed25519, verify signatures before applying. | | |
+
+--- | |
 
 ## 4. Anti-Rationalization
+<!-- STANDARD: 3min -->
 
 This table lists the excuses teams give for skipping architectural rigor — and why those excuses don't survive scrutiny.
 
@@ -446,25 +550,31 @@ This table lists the excuses teams give for skipping architectural rigor — and
 ---
 
 ## 5. Core Desktop Architecture Patterns
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 91 lines extracted to references/5-core-desktop-architecture-patterns.md -->
 
 #
 
 ## 5.1 MVVM (Model-View-ViewModel)
+<!-- STANDARD: 3min -->
 
 The dominant pattern for data-binding-native frameworks (WPF, WinUI 3, SwiftUI, Avalonia).
 
 ```
+
 ...
 > 📎 **Full content (91 lines):** [references/5-core-desktop-architecture-patterns.md](references/5-core-desktop-architecture-patterns.md)
 
 ## 6. Multi-Window Architecture
+<!-- STANDARD: 3min -->
 
 #
 
 ## 6.1 Window Ownership Model
+<!-- STANDARD: 3min -->
 
 ```
+
 ┌──────────────────────────────────────────┐
 │              MAIN PROCESS                 │
 │  ┌────────┐  ┌────────┐  ┌────────────┐ │
@@ -475,6 +585,7 @@ The dominant pattern for data-binding-native frameworks (WPF, WinUI 3, SwiftUI, 
 │      │  IPC sync │                       │
 │      └───────────┘                       │
 └──────────────────────────────────────────┘
+
 ```
 
 **Critical rules:**
@@ -488,8 +599,10 @@ See: [reference/multi-window-architecture.md](reference/multi-window-architectur
 ---
 
 ## 7. IPC Architecture
+<!-- STANDARD: 3min -->
 
 ```
+
 ┌──────────────────────────────────────────────────┐
 │                  MAIN PROCESS                     │
 │  ┌─────────────┐  ┌──────────┐  ┌──────────────┐│
@@ -508,6 +621,7 @@ See: [reference/multi-window-architecture.md](reference/multi-window-architectur
 │  │             │  │  Svelte)       │            │
 │  └─────────────┘  └────────────────┘            │
 └──────────────────────────────────────────────────┘
+
 ```
 
 See: [reference/desktop-ipc-architecture.md](reference/desktop-ipc-architecture.md)
@@ -515,6 +629,7 @@ See: [reference/desktop-ipc-architecture.md](reference/desktop-ipc-architecture.
 ---
 
 ## 8. System Tray & Background Services
+<!-- STANDARD: 3min -->
 <!-- Full 31 lines extracted to references/8-system-tray-background-services.md -->
 
 ┌─────────────────────────────────────────┐
@@ -525,8 +640,10 @@ See: [reference/desktop-ipc-architecture.md](reference/desktop-ipc-architecture.
 > 📎 **[references/8-system-tray-background-services.md](references/8-system-tray-background-services.md)** — 31 lines of detailed guidance
 
 ## 9. Auto-Update Architecture
+<!-- STANDARD: 3min -->
 
 ```
+
 ┌──────────┐   check   ┌─────────────┐   fetch   ┌──────────────┐
 │   App    │──────────►│ Update      │──────────►│ CDN / S3 /   │
 │ (current │           │ Client      │           │ Update Server│
@@ -539,6 +656,7 @@ See: [reference/desktop-ipc-architecture.md](reference/desktop-ipc-architecture.
 │  Updated │◄───────────┤  Staged      │
 │   App    │            │  Update      │
 └──────────┘            └──────────────┘
+
 ```
 
 **Required security properties:**
@@ -553,12 +671,15 @@ See: [reference/desktop-auto-update-patterns.md](reference/desktop-auto-update-p
 ---
 
 ## 10. Desktop Security Architecture
+<!-- STANDARD: 3min -->
 
 #
 
 ## 10.1 Threat Model
+<!-- STANDARD: 3min -->
 
 ```
+
 ┌──────────────────────────────────────────────┐
 │               THREAT SURFACE                  │
 │  ┌────────────┐  ┌──────────┐  ┌───────────┐ │
@@ -568,6 +689,7 @@ See: [reference/desktop-auto-update-patterns.md](reference/desktop-auto-update-p
 │  │  pollution)│  │  reentry)│  │  symlink) │ │
 │  └────────────┘  └──────────┘  └───────────┘ │
 └──────────────────────────────────────────────┘
+
 ```
 
 See: [reference/desktop-security-architecture.md](reference/desktop-security-architecture.md)
@@ -575,12 +697,15 @@ See: [reference/desktop-security-architecture.md](reference/desktop-security-arc
 ---
 
 ## 11. Cross-Platform Desktop Strategies
+<!-- STANDARD: 3min -->
 
 #
 
 ## 11.1 Platform Abstraction Layer
+<!-- STANDARD: 3min -->
 
 ```
+
 ┌──────────────────────────────────────┐
 │        APPLICATION LOGIC              │
 │  (framework-agnostic, pure business)  │
@@ -593,6 +718,7 @@ See: [reference/desktop-security-architecture.md](reference/desktop-security-arc
 ├──────────────────────────────────────┤
 │         OS NATIVE APIs               │
 └──────────────────────────────────────┘
+
 ```
 
 See: [reference/cross-platform-desktop-strategies.md](reference/cross-platform-desktop-strategies.md)
@@ -600,10 +726,12 @@ See: [reference/cross-platform-desktop-strategies.md](reference/cross-platform-d
 ---
 
 ## 12. Desktop State Management
+<!-- STANDARD: 3min -->
 
 #
 
 ## 12.1 State Categories
+<!-- STANDARD: 3min -->
 
 | Category | Location | Persistence | Sync Strategy |
 |----------|----------|-------------|---------------|
@@ -618,11 +746,13 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 ---
 
 ## 13. Performance Architecture
+<!-- STANDARD: 3min -->
 <!-- Full 34 lines extracted to references/13-performance-architecture.md -->
 
 #
 
 ## 13.1 Thread/Process Model
+<!-- STANDARD: 3min -->
 ┌────────────────────────────────────────────────┐
 │                  MAIN PROCESS                   │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────┐ │
@@ -630,10 +760,12 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 > 📎 **[references/13-performance-architecture.md](references/13-performance-architecture.md)** — 34 lines of detailed guidance
 
 ## 14. Installer & Distribution Architecture
+<!-- STANDARD: 3min -->
 
 #
 
 ## 14.1 Platform Matrix
+<!-- STANDARD: 3min -->
 
 | Platform | Format | Code Signing | Store Option |
 |----------|--------|--------------|--------------|
@@ -644,6 +776,7 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 #
 
 ## 14.2 Installation Concerns
+<!-- STANDARD: 3min -->
 - Per-user vs per-machine installation
 - File associations and protocol handlers (registry on Windows, plist on macOS, `.desktop` on Linux)
 - Auto-start registration (respect user choice, easy to disable)
@@ -652,12 +785,15 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 ---
 
 ## 15. Testing Architecture
+<!-- STANDARD: 3min -->
 
 #
 
 ## 15.1 Testing Pyramid for Desktop Apps
+<!-- STANDARD: 3min -->
 
 ```
+
          ┌──────┐
          │ E2E  │  Playwright/Spectron (5%)
         ┌┴──────┴┐
@@ -665,11 +801,13 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
        ┌┴────────┴┐
        │  Unit    │  Business logic, reducers, presenters (80%)
        └──────────┘
+
 ```
 
 #
 
 ## 15.2 Desktop-Specific Test Concerns
+<!-- STANDARD: 3min -->
 - Multi-window interaction tests
 - System tray click → window show/hide
 - Auto-update download → apply → restart cycle
@@ -681,6 +819,7 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 ---
 
 ## 16. Quick Reference: Technology Selection Matrix
+<!-- STANDARD: 3min -->
 
 | Requirement | Recommended Stack | Why |
 |-------------|-------------------|-----|
@@ -695,7 +834,8 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 
 ---
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -706,6 +846,7 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 | "System tray and background services can wait" | Users expect desktop apps to minimize to tray, show notifications, and run in the background; shipping without these means your app feels like a web page, not a desktop app |
 
 ## 17. Reference Files
+<!-- STANDARD: 3min -->
 
 | File | Content | Lines |
 |------|---------|-------|
@@ -717,24 +858,21 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 | [desktop-state-management.md](reference/desktop-state-management.md) | Redux, Zustand, multi-window sync, persistence | ~350 |
 | [cross-platform-desktop-strategies.md](reference/cross-platform-desktop-strategies.md) | Platform abstraction, build matrix, platform-specific code | ~350 |
 | [desktop-security-architecture.md](reference/desktop-security-architecture.md) | Threat model, sandboxing, CSP, code signing | ~350 |
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 
 ---
 
-## Error Decoder — War Stories from the Trenches
+## Verification
+<!-- STANDARD: 3min -->
 
-**(STANDARD)**
-
-When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
-
-| Symptom | Root Cause | Fix | Lesson |
-|----------|-----------|------|------------|
-| "Cannot read properties of undefined" in renderer after IPC call | Main process returned undefined or threw unhandled error. IPC bridge didn't catch and serialize the error into a structured response | Wrap every `ipcMain.handle` in try/catch: `try { return { data: result }; } catch (e) { return { error: e.message, code: e.code }; }`. Renderer checks `response.error` before accessing `response.data` | Add IPC response type: `type IPCResponse<T> = { data?: T; error?: string }`. Lint rule: no `ipcMain.handle` without error wrapping |
-| White/blank window after launch on Windows with dedicated GPU | GPU process crash (WebGL/Canvas). Electron falls back to software rendering but some apps don't handle the `gpu-process-crashed` event | Listen for `app.on('gpu-process-crashed', () => { app.disableHardwareAcceleration(); app.relaunch(); app.exit(); })`. Also catch `app.on('render-process-gone')` | CI test on machines with both integrated and dedicated GPUs. Add `--disable-gpu` flag as recovery option |
-| App works on dev machine but crashes on startup for users on different Windows version | Missing VC++ redistributables or platform-specific DLL. The app was built with dynamic linking but the redist isn't bundled | Bundle VC++ redist with installer. Use `app.isPackaged` flag to load correct DLL paths. Test on clean Windows VM (no dev tools) | CI matrix includes clean OS installs. Dependency walker scan in CI catches missing DLLs |
-| Auto-update downloads but never applies — users stuck on old version | Update downloaded to temp directory but app can't access it after restart due to permissions or path changes. Squirrel.Windows requires specific temp path handling | Verify update path is writable after restart: use `app.getPath('userData')` for update staging. Check `autoUpdater.on('error')` logs in production — this is silent by default | Production error monitoring on `autoUpdater` events. Dashboard tracking update download → apply success rate. Alert if <95% |
-| Window position/size not restoring on macOS after system restart | macOS state restoration (NSWindowRestoration) uses a different mechanism than manual frame saving. The manual save overwrites or conflicts with system restoration | Use `win.getBounds()` on `close` event, save to store, restore on `ready-to-show`. On macOS, set `win.setVisibleOnAllWorkspaces(true)` and handle `app.on('activate')` for dock click restoration | Test window restoration on macOS with: app quit, logout/login, system restart, external display disconnect |
-| "Not allowed to load local resource" error for file:// protocol in production | `webSecurity: false` was set in development for local file access and wasn't re-enabled in production. Or CSP `default-src` blocks file:// without explicit allow | Never ship `webSecurity: false`. Register custom protocol for local file access: `protocol.registerFileProtocol('app', (request, callback) => { callback({ path: resolvedPath }) })` | CI check: `grep -r "webSecurity.*false"` must return empty in production configs. CSP validator in CI |
-| High memory usage (500MB+) for app that should use <150MB | Memory leak in renderer from: unsubscribed IPC listeners, detached DOM nodes, or large data kept in Redux/Zustand store indefinitely | Profile with `webContents.getProcessMemoryInfo()`. Check IPC listener count: `ipcRenderer.eventNames()`. Paginate large data in store. Use WeakMap for caches. Force garbage collection in dev tools heap snapshot | Memory budget in CI: <150MB after 1 hour idle. Weekly memory profiling. Alert on >20% memory growth per release |
-
-*This skill is part of the Cline Skills Library. See [system-architect](../system-architect/SKILL.md) and [desktop-developer](../../01-engineering/desktop-developer/SKILL.md) for complementary skills.*
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Every `ipcMain.handle` is wrapped in try/catch returning structured `{ data?, error? }` responses | `grep -r "ipcMain.handle" src/` — all handlers must have error wrapping; lint rule enforced in CI |
+| ☐ | Complete when GPU crash recovery is implemented: `gpu-process-crashed` and `render-process-gone` events are handled with fallback to software rendering | Trigger GPU crash in test: verify app relaunches with `--disable-gpu` and renders correctly |
+| ☐ | Complete when Auto-update pipeline tested end-to-end: download → staging → apply → restart cycle works on clean OS installs | Production dashboard tracks update success rate; alert fires if <95% of users successfully update |
+| ☐ | Complete when Multi-window state is synchronized: window open/close lifecycle tested with no zombie windows or leaked IPC listeners | Open/close 10 windows in rapid sequence; verify `ipcRenderer.eventNames()` returns zero unexpected listeners |
+| ☐ | Complete when Web security is enforced in production: `webSecurity: false` is absent from all production configs | `grep -r "webSecurity.*false"` returns empty in production builds; CSP validator passes in CI |
+| ☐ | Complete when Memory budget enforced: app uses <150MB after 1 hour idle with no memory growth trend across releases | Profile with `webContents.getProcessMemoryInfo()` weekly; CI blocks releases with >20% memory growth |
+| ☐ | Complete when Window state restoration works across: app quit, logout/login, system restart, and external display disconnect | Test matrix covers all four restoration scenarios on each target platform |
+| ☐ | Complete when VC++ redistributables (Windows) or equivalent runtime dependencies are bundled with the installer | Test on clean OS VM (no dev tools); dependency walker scan in CI catches missing DLLs |
+| ☐ | Complete when IPC response types are enforced: all main→renderer communication uses typed `IPCResponse<T>` with error checking on the renderer side | TypeScript compiler enforces response type; lint rule prevents destructuring without error check |
+| ☐ | Complete when System tray and background service lifecycle is tested: minimize-to-tray, notification delivery, and wake-from-sleep all work correctly | Test matrix covers: tray minimize/restore, notification click, system sleep/wake, OS dark mode toggle |

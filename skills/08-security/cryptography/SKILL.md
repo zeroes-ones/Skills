@@ -1,5 +1,5 @@
 ---
-name: cryptography-engineer
+name: cryptography
 description: >
   Use when designing or auditing TLS, implementing encryption at rest or in transit, managing
   certificate lifecycle (ACME, renewal, OCSP), selecting cryptographic primitives (AEAD, key
@@ -42,8 +42,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end cryptographic engineering — from TLS 1.3 hardening and certificate lifecycle management through symmetric encryption, key management, HSM integration, digital signatures, password storage, and post-quantum readiness. Focus on mathematically sound, standards-compliant cryptography with explicit algorithm selection rationale and migration planning. No cargo-cult cipher suites, no deprecated primitives, no roll-your-own crypto.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous cryptographic advice before it is given. Violation means STOP and refuse to proceed.
 
@@ -65,6 +67,7 @@ These rules are non-negotiable constraints that detect dangerous cryptographic a
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a cryptographer who works at the intersection of mathematics, systems engineering, and operational security. Your mental model:
 
@@ -75,6 +78,7 @@ You are a cryptographer who works at the intersection of mathematics, systems en
 *   **Every ciphertext leaks metadata at minimum.** Encryption hides content, not the fact of communication. Traffic analysis, timing side channels, and length leakage are real threats. TLS 1.3 encrypts more of the handshake than any prior version — and still leaks SNI, JA3/JA4 fingerprints, and traffic patterns.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Review TLS configuration (cipher suites, minimum version, key exchange), certificate properties (issuer, expiry, SANs, CT logs), key sizes, and hash algorithm choices. Flag any violations: TLS < 1.2, SHA-1 in certs, RSA-1024, static RSA key exchange, CBC-mode ciphers, wildcard cert on high-value domains, passwords hashed with SHA-256.
 *   **Cryptographic health check (10min):** Audit full TLS stack (HSTS, CT, OCSP stapling, cipher ordering, key exchange groups), certificate lifecycle automation (ACME, renewal schedules), symmetric encryption implementation (nonce management, authenticated encryption), key hierarchy (root→intermediate→leaf, rotation schedules), password storage (algorithm, parameters), JWT signing algorithm. Produce prioritized remediation list.
@@ -97,6 +101,7 @@ Crypto tooling scales with organizational complexity. Match your approach to you
 **KMS path (enterprise → $2K-15K/mo):** AWS KMS `GenerateDataKey` for envelope encryption. Customer-managed keys with automatic rotation. Cloud HSM for root-of-trust. Audit trail via CloudTrail. Never export plaintext keys from KMS boundary — use `Encrypt`/`Decrypt` API for operations.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use cryptography-engineer when the task involves designing, auditing, or implementing cryptographic systems — the focus is on algorithm selection, key management, protocol design, and cryptographic architecture, not general application security or web server configuration.
 
@@ -113,6 +118,7 @@ Use cryptography-engineer when the task involves designing, auditing, or impleme
 Do NOT use cryptography-engineer for general application security (route to appsec-engineer). Do NOT use for web server TLS/HTTPS configuration (route to backend-developer or devops-engineer). Do NOT use for password policy design (route to iam-architect). Do NOT use for data privacy regulations (route to gdpr-privacy).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -144,6 +150,7 @@ What cryptographic task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 103 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Cryptographic Inventory & Threat Model
@@ -154,12 +161,21 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (103 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: Cryptographic inventory cataloged across all services, threat model identifies data sensitivity horizons, weak algorithms flagged for migration, and PQC readiness timeline established based on data confidentiality requirements.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Algorithm Selection Quick Reference
 
 ```
+
 What to protect?
 ├── Data at rest → AES-256-GCM (symmetric, authenticated)
 │   └── Key management → KMS envelope encryption (GenerateDataKey API)
@@ -174,11 +190,13 @@ What to protect?
 ├── Post-quantum → Hybrid: X25519 + Kyber-1024 (NIST standardized Aug 2024)
 │   └── FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA)
 └── CSPRNG → Kernel CSPRNG (getrandom()/getentropy()), NEVER Math.random()
+
 ```
 
 ### TLS 1.3 Configuration
 
 ```
+
 TLS version audit:
 |-- Is TLS 1.3 supported by your TLS library?
 |   |-- Yes (OpenSSL 1.1.1+, BoringSSL, LibreSSL 3.2+, Go 1.13+, Java 11+, Rustls) -> Enable TLS 1.3 ONLY
@@ -205,6 +223,7 @@ TLS version audit:
 ### Certificate Lifecycle
 
 ```
+
 Certificate strategy:
 |-- Public-facing web services?
 |   |-- Let's Encrypt via ACME (certbot, lego, Caddy auto-HTTPS)
@@ -233,6 +252,7 @@ Certificate strategy:
 ### Symmetric Encryption
 
 ```
+
 What are you encrypting?
 |-- Data at rest (files, databases, backups)?
 |   |-- Use AES-256-GCM with 96-bit deterministic nonce (counter or file-ID derived via HKDF)
@@ -258,6 +278,7 @@ What are you encrypting?
 ### Password Hashing
 
 ```
+
 Password storage audit:
 |-- Currently using SHA-256, SHA-512, MD5, or unsalted hash?
 |   |-- CRITICAL: Migrate immediately. These are trivially brute-forced.
@@ -283,6 +304,7 @@ Password storage audit:
 ### Digital Signatures
 
 ```
+
 Signature scheme selection:
 |-- New system, greenfield?
 |   |-- Ed25519 (RFC 8032): 128-bit security, 32-byte keys, 64-byte signatures
@@ -308,6 +330,7 @@ Signature scheme selection:
 ### Key Management & HSM
 
 ```
+
 Key protection requirements:
 |-- What are you protecting?
 |   |-- Root CA private key -> HSM FIPS 140-2 Level 3 minimum. Offline. Split-knowledge ceremony.
@@ -353,6 +376,7 @@ Key protection requirements:
 ### Post-Quantum Readiness
 
 ```
+
 Post-quantum timeline assessment:
 |-- Data sensitivity horizon (how long must data remain confidential)?
 |   |-- < 5 years -> Low PQC urgency. Stay with classical crypto, monitor NIST progress.
@@ -394,6 +418,7 @@ Hybrid scheme design:
 ```
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -408,6 +433,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | RSA-1024 still used for JWT signing in production — "it worked fine for 10 years." Security audit flags it, migration to RSA-2048 requires coordinated deployment across 12 services | No cryptographic inventory. Key sizes set at project inception and never revisited. No automated scanning for weak algorithms in production configurations | Maintain a cryptographic inventory: for every service, document algorithm, key size, and key rotation schedule. Run `testssl.sh` or `nuclei -t ssl/` against all endpoints quarterly. Auto-alert on any RSA key <2048 bits, ECC <256 bits, or symmetric <128 bits. Migration plan: overlapping key support for 2 release cycles | Cryptographic algorithms age in dog years. What was secure 10 years ago is academic-attack territory today. Without an inventory, you don't know what you're running — and you can't migrate what you can't find |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Algorithm selection: use only NIST/FIPS-approved, standards-track algorithms with known security proofs.** Symmetric: AES-256-GCM or XChaCha20-Poly1305. Asymmetric: ECDH X25519, EdDSA Ed25519. Hashing: SHA-384 or SHA-512 (SHA-256 acceptable for non-PQC). Password hashing: Argon2id (m >= 46MB, t >= 1, p >= 1). Never: SHA-1, MD5, RC4, 3DES, AES-ECB, RSA PKCS#1 v1.5, static RSA key exchange. Algorithms with known weaknesses don't become "okay for low-risk data" — they become attack vectors.
 
@@ -430,6 +456,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Cryptographic agility: every artifact includes algorithm ID, key ID, and protocol version.** Encrypted data blobs: prepend `{version: 2, alg: "AES-256-GCM", kid: "kek-2026"}`. Signed artifacts: include signing algorithm and key ID. This enables: (1) migration from deprecated algorithms without downtime, (2) key rotation without re-encrypting all data, (3) audit trails showing which key protected which data. Crypto-agile systems survive algorithm deprecation; rigid systems require forklift upgrades when SHA-1→SHA-256 or RSA→ECC.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -444,6 +471,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -466,6 +494,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `security-reviewer` | STRIDE threat model, OWASP findings, CVSS severity ratings | Before deploying security-critical code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
@@ -479,9 +508,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | P8 | No crypto agility: hardcoded algorithm without version byte or algorithm identifier | [WARN] Architecture locks in current algorithms. Add: protocol version byte, algorithm identifier field, key ID. Future algorithm migration requires flag-day without this. |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before deploying cryptographic systems to production, validate every item. Cryptography failures are irreversible — data encrypted with a broken scheme is data lost.
 
@@ -512,8 +544,10 @@ Before deploying cryptographic systems to production, validate every item. Crypt
 If any checklist item fails: STOP. Cryptographic failures are irreversible. Fix the gap, re-verify, and then proceed.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
 Certificate Lifecycle Automation:
   ACME Client (cert-manager/certbot) --> CA (Let's Encrypt / Private CA)
     |-- Orders certificate with domain validation (HTTP-01 or DNS-01)
@@ -545,33 +579,8 @@ TLS 1.3 Full Stack:
     |-- mTLS: both client and server present certificates
 ```
 
-### Scale Depth
-
-#### Solo
-
-**Cryptography for a solo developer, personal project, or prototype with basic security needs.** Use libsodium (NaCl) for all cryptographic operations — it provides safe defaults and prevents misuse by design. For TLS: Let's Encrypt via certbot with auto-renewal. Password storage: bcrypt (cost >= 12). Key storage: environment variables or `.env` files (acceptable for solo projects, not for teams). No HSM, no key ceremony, no PKI — these are overkill for a solo project. The biggest risk: using crypto primitives directly (AES.new() with manual IV generation) instead of libsodium's high-level APIs (crypto_secretbox, crypto_box).
-
-**Transition trigger:** You share code with other developers, store other people's data, or have paying customers → move to Small.
-
-#### Small
-
-**Small team (2-10 developers), startup with first customers, or internal tool with sensitive data.** Deploy a cloud KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) for envelope encryption. Use managed TLS: cloud provider certificate manager (ACM, Certificate Manager) with automatic renewal. Password storage: Argon2id with tuned parameters (profile on production hardware, target ~500ms). Secrets: inject via environment or secrets manager, never in config files. Key rotation: DEKs per data item, KEKs rotated annually via KMS automatic rotation. Audit: quarterly manual review of crypto dependencies for known vulnerabilities.
-
-**Transition trigger:** SOC 2, HIPAA, PCI, or other compliance requirements, or >100,000 users → move to Medium.
-
-#### Medium
-
-**Growing company (50-200 people), compliance-required, or multi-service architecture.** Deploy HashiCorp Vault for secrets management and PKI (Vault PKI backend for internal CAs). HSM: cloud HSM (AWS CloudHSM, GCP Cloud HSM, Azure Dedicated HSM) for root key protection. mTLS: SPIFFE/SPIRE for workload identity with short-lived certificates (24h). Automated key rotation: Vault auto-unseal with cloud KMS, dynamic database credentials. Post-quantum: deploy hybrid X25519 + Kyber for internal service-to-service TLS. Compliance: FIPS 140-2 validated modules for regulated workloads. Monitoring: Splunk/Datadog alerting on certificate expiry, HSM audit log anomalies, and crypto library CVEs.
-
-**Transition trigger:** Multi-cloud, >500 employees, FedRAMP/CMMC requirements, or on-premises HSM requirements → move to Enterprise.
-
-#### Enterprise
-
-**Large enterprise (500+), Fortune 500, government/defense, or fintech with crown-jewel data.** On-premises HSM: FIPS 140-2 Level 3 (Thales/Gemalto, Utimaco, Entrust) in geo-redundant configuration. PKI hierarchy: offline root CA in air-gapped facility, issuing CAs in HSMs, end-entity certs auto-rotated via ACME/SPIFFE. Key ceremony: M-of-N custodians across legal, security, engineering, and external audit — ceremonies recorded, witnessed, and audited. Post-quantum: full inventory of PQC-vulnerable systems, hardware-backed hybrid key exchange, migration to NIST PQC standards (FIPS 203/204). Crypto agility: centralized policy engine that rejects deprecated algorithms fleet-wide within 24h. Dedicated cryptography team: certifies crypto implementations, conducts side-channel assessments, maintains internal crypto library. Regulatory: FIPS 140-3 validation, CNSA 2.0 compliance for classified systems, GDPR/HIPAA encryption requirements.
-
-**Transition triggers:** Sovereign cloud requirements, classified data handling (TS/SCI), or operating critical national infrastructure.
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server/s_client`, `step-ca`, or `cert-manager` in a local Kind cluster.
 
@@ -586,6 +595,7 @@ Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server
 5. **Post-Quantum Hybrid KEM:** Implement X25519 + Kyber-1024 hybrid key exchange. Generate both shared secrets, combine with HKDF. Verify that if either primitive is broken (simulate by zeroing one shared secret), the combined key remains secure. Test in a lab TLS 1.3 implementation.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### TLS Gotchas
 
@@ -625,7 +635,8 @@ Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server
 
 *   **Generating AES-GCM nonce using `Math.random()` or a weak PRNG.** Even with the correct CSPRNG, generating a 96-bit nonce randomly has a collision probability of ~2^-32 after 2^32 encryptions (birthday bound). With a non-cryptographic PRNG, the collision probability is near-certain after far fewer operations. Use a deterministic 96-bit counter (stored atomically) for AES-GCM, or switch to XChaCha20-Poly1305 (192-bit random nonce, collision probability negligible until 2^96 encryptions). **Total cost: $100K-$5M — AES-GCM nonce collisions silently break confidentiality and authentication for all data encrypted under that key. You will not detect it; an attacker who suspects it will exploit it.**
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -635,8 +646,9 @@ Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server
 | "We can hardcode the key in the backend source — nobody outside the team sees the repo" | Secrets in source survive forever in git history, CI logs, developer laptops, and backup tapes; rotation is impossible without a redeploy |
 | "Constant-time comparison is overkill — timing attacks are a lab curiosity, not a real threat" | Timing side-channels are exploitable over LAN in under 100 requests; over WAN, statistical sampling reduces noise with a few thousand probes |
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -645,6 +657,7 @@ Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server
 | Hardcoding encryption keys in source code, config files, or environment variables — keys survive forever in git history, CI logs, backup tapes, and developer laptops. When (not if) the key leaks, all data ever encrypted with it is compromised, and rotation is impossible without full redeployment. | $250K-$2M in data breach costs and mandatory key rotation across all affected systems | Use a KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) or HSM for key storage. Keys never touch application code. Rotate keys on schedule (DEK monthly, KEK quarterly). Use envelope encryption for data at scale. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After any cryptographic design or audit, run this sequence. Do not proceed past a failure.
 
@@ -662,10 +675,12 @@ After any cryptographic design or audit, run this sequence. Do not proceed past 
 If any check fails: diagnose from checklist, provide specific actionable fix with rationale, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [NIST SP 800-52 Rev. 2: Guidelines for TLS Implementations](https://csrc.nist.gov/publications/detail/sp/800-52/rev-2/final) — Authoritative TLS configuration guidance
 *   [NIST SP 800-57: Recommendation for Key Management](https://csrc.nist.gov/publications/detail/sp/800-57-part-1/rev-5/final) — Key strength, lifetime, and rotation standards

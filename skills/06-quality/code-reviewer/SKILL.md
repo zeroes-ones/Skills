@@ -44,6 +44,7 @@ chain:
 Perform rigorous, structured code reviews across six dimensions: security, performance, code quality, error handling, testing, and documentation. Each finding is graded by severity (Critical, High, Medium, Low, Info) with specific, actionable recommendations. This skill goes beyond linting — it identifies logic errors, architectural concerns, security vulnerabilities, performance bottlenecks, and test gaps that automated tools miss.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- TWO-TIER ROUTING: Auto-Route table (machine) → Intent Route tree (human fallback) -->
 
@@ -75,9 +76,11 @@ What are you trying to do?
 └── Not sure where to start? → "Core Workflow > Phase 1" (Context Gathering) — understand intent first
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -88,6 +91,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "I trust this developer — they know what they're doing." | Authority bias kills reviews. Senior developers ship bugs too — especially at 11 PM before a deadline, when judgment is compromised. Review the code blind to the name. Every developer, every PR, same standard. Trust is not a review dimension. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect code review mistakes before they are given. Violation means STOP and refuse to proceed.
 
@@ -103,12 +107,12 @@ These rules are non-negotiable constraints that detect code review mistakes befo
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Code review is not gatekeeping — it's **the highest-leverage quality practice in software engineering**. A review that catches a bug saves 10x the cost of fixing it in QA and 100x in production. But the real value is not bug catching: it's **shared understanding, knowledge transfer, and collective ownership**.
 
@@ -144,6 +148,7 @@ Code review is not gatekeeping — it's **the highest-leverage quality practice 
 - **Approve with nits when the author is more expert in the domain than you.** Flag style and clarity issues (nits) but don't block on correctness you can't fully evaluate.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Code review quality scales with the reviewer's ability to spot patterns — from local bugs to systemic risks.
 
@@ -186,6 +191,7 @@ Code review quality scales with the reviewer's ability to spot patterns — from
 - Centralized review analytics dashboard tracking throughput, quality, and bottleneck patterns across teams
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Reviewing pull requests before merge
@@ -195,6 +201,62 @@ Code review quality scales with the reviewer's ability to spot patterns — from
 - Mentoring developers through constructive code review feedback
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Finding Severity Classification
+
+        ┌── INPUT: What is the impact of this finding?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Critical]        [High]             [Medium]
+Security vuln,    Bug with clear     Code smell
+data loss,        user impact        that will
+production        but workaround     cause issues
+outage risk       exists             later
+   │                 │                  │
+   ▼                 ▼                  ▼
+BLOCK merge.      BLOCK merge.       REQUEST fix.
+Must fix before   Must fix or        Strongly
+deploy. Escalate  document           recommend.
+to security       exception.         Not blocking.
+
+### Decision Tree 2: Blocking vs Non-Blocking Feedback
+
+        ┌── INPUT: Can this wait until after merge?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Must Fix Now]    [Should Fix]       [Nice to Have]
+Security,         Performance        Naming,
+correctness,      regression,        formatting
+test gap          missing edge       preference
+   │              case                 │
+   ▼                 │                  ▼
+Request changes  ┌──┴──┐            Approve with
+→ re-review      ▼      ▼           comment only
+required      Approve  Request
+              with     changes
+              comment  (non-block)
+
+### Decision Tree 3: Follow-Up Action After Review
+
+        ┌── INPUT: What was the review outcome?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Approved]        [Changes           [Critical
+                  Requested]         Issues Found]
+   │                 │                  │
+   ▼                 ▼                  ▼
+Merge. Monitor    Author fixes →    Pair with
+deploy metrics    re-review        author on fix
+for regressions   specific files   → security
+                  only. Approve    specialist
+                  when resolved.   review required.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Review Depth Decision
@@ -223,6 +285,7 @@ Change type?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~5 min): Context Gathering
@@ -266,9 +329,12 @@ Change type?
 5. Request specific changes on Critical/High items.
 **Output:** Published review — actionable, specific, respectful, and timely.
   Complete when: Review published with severity-graded findings, concrete fix suggestions, and positive feedback.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Define review scope before starting.** Agree what's in-scope (logic, security, performance) and out-of-scope (naming preferences if a linter handles it, formatting if Prettier/go fmt covers it). Scope creep turns a 30-minute review into a 2-hour yak shave.
 2. **Security-first review on every CRITICAL path change.** Auth, payments, PII handling, data migrations, and input validation get reviewed FIRST — before logic, before style. A missed SQL injection costs more than every other review finding combined. Apply the Six-Dimension Framework with security as the lead dimension.
@@ -282,6 +348,7 @@ Change type?
 10. **Review test files with the same severity as production code.** Hardcoded API keys in `test/setup.ts`, test-only workarounds that mask bugs, and brittle mocks that validate implementation instead of behavior all fail review. A security issue in a test file is still a security issue when it's committed.
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -296,6 +363,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -330,6 +398,7 @@ CI infrastructure issues? → DevOps Engineer
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Rationale |
 |---|---|---|
@@ -351,17 +420,20 @@ CI infrastructure issues? → DevOps Engineer
 | Code Review ↔ Frontend | Accessibility and bundle-size checks run as part of review gates. Semantic HTML and ARIA patterns validated via automated checks before human review. Visual regression diffs included in PR for UI changes. |
 | Code Review ↔ DevOps | IaC changes (Dockerfile, Terraform, K8s manifests) get specialized review path. Container image scanning results posted to PR. Secret detection (truffleHog/gitleaks) blocks PRs containing credentials. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Every code review catches structural bugs, security flaws, and performance regressions before they reach production.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Reviewing is a skill separate from coding — it requires different mental muscles (pattern matching for bugs, empathy for the author, calibration of severity). The best reviewers practice deliberately.
 
@@ -388,6 +460,7 @@ After every review cycle: ask the author which comments were most and least valu
 **Do a self-review before assigning reviewers.** Comment on your own PR explaining non-obvious choices, flagging areas you're unsure about, and noting what you'd change if you had more time. This catches 50% of issues and makes you a better reviewer of others.
 
 ## Six-Dimension Review Framework
+<!-- STANDARD: 3min -->
 
 ### 1. Security
 - **Injection risks**: SQL injection (raw queries, string interpolation), NoSQL injection, command injection (`exec`, `subprocess` without sanitization), LDAP/XML injection.
@@ -429,6 +502,7 @@ After every review cycle: ask the author which comments were most and least valu
 - **Architecture**: Complex systems without README/architecture docs, onboarding friction for new team members, tribal knowledge not codified.
 
 ## Severity Grading
+<!-- STANDARD: 3min -->
 
 | Grade | Criteria | Response Required |
 |-------|----------|-------------------|
@@ -439,6 +513,8 @@ After every review cycle: ask the author which comments were most and least valu
 | **Info** | Educational note, alternative approach suggestion | No action required |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 - **Rubber-stamping large PRs (>400 lines).** Reviewer attention quality degrades sharply after ~400 lines of diff. A 1,200-line PR gets a 45-second glance, an "LGTM 👍" comment, and a merge. The buried SQL injection in line 847, the missing authorization check in line 312, and the N+1 query on line 523 all ship to production. Large PRs correlate directly with production incidents — studies show defects increase 40%+ beyond 400 lines. **Total cost: $50,000-$500,000 per year in production bugs that thorough review of smaller changes would have caught.** Fix: Break PRs into logical chunks under 400 lines; enforce a PR size limit in CI (reject >500 lines); require multi-session reviews for unavoidably large changes; review in 45-minute focused sessions with breaks between.
 - **Security issues missed in review.** A code reviewer focuses on logic, naming, and patterns — but skips over hardcoded API keys, missing input sanitization, and broken authorization checks because "security review is someone else's job." The average data breach costs $4.45M (IBM 2023), and a significant percentage originate from vulnerabilities that a trained reviewer would have caught. One missed SQL injection or exposed secret is all it takes. **Total cost: $100,000-$1,000,000+ average breach cost from security issues that slip through review.** Fix: Add a security checklist to every code review (OWASP Top 10 quick-scan); use automated SAST tools (semgrep, CodeQL) as a pre-review filter; train reviewers to recognize common vulnerability patterns; flag security findings at BLOCKER severity in review.
@@ -452,6 +528,7 @@ After every review cycle: ask the author which comments were most and least valu
 - **Large PRs (>400 lines)** get rubber-stamped. The reviewer's attention degrades significantly after ~400 lines. Break large PRs or review in multiple sittings with fresh context. **Total cost: $50,000-$200,000 per year in bugs missed due to review fatigue on oversized PRs.**
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |----------------|-------------------|
@@ -464,6 +541,7 @@ After every review cycle: ask the author which comments were most and least valu
 | Single bottleneck reviewer — all code must pass through one senior engineer who is also the tech lead, architect, and on-call | Distribute review responsibility with a rotation. Use CODEOWNERS to auto-assign by code area. Pair junior reviewers with domain experts for training. Establish a review SLA (all PRs reviewed within 4 business hours). |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] All identified issues have severity grading (blocker/critical/major/minor/nit) and specific file:line references
 - [ ] Every issue has a concrete fix suggestion, not just "this is wrong"
@@ -472,10 +550,12 @@ After every review cycle: ask the author which comments were most and least valu
 - [ ] No style-only comments (leave formatting to automated formatters)
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[CR1]** Six-dimension review completed: security, performance, code quality, error handling, testing, documentation — no dimension skipped
 - [ ] **[CR2]** All Critical and High findings resolved before merge — no deferral, no "will fix in follow-up" on security or data-loss risks
@@ -493,6 +573,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[CR14]** Review recorded in state log with PR number, findings count, severity distribution, and reviewer name
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -508,6 +589,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Review catches 14 "nit: trailing whitespace" issues, misses the authentication bypass in middleware | Review tool displays lint issues inline with the diff. Reviewer's attention consumed by 14 style nits — the 1 security issue on line 83 blends into the noise | Auto-fix style issues: pre-commit hooks run Prettier, ESLint fix, and gofmt. Reviewer sees a clean diff — style violations never reach the PR. CI blocks merge if style checks fail. Reviewer focuses on logic | Every style nit a reviewer catches is one less brain cycle available for security and logic. Style should be automated. The reviewer's job is to find bugs that tools can't. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -517,5 +599,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

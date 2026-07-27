@@ -55,6 +55,7 @@ coverage of OpenTelemetry instrumentation, Prometheus recording/alerting rules, 
 provisioning, Loki log aggregation, and Tempo distributed tracing.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -90,9 +91,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -103,6 +106,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "More dashboards = better observability — let's create one for everything." | Dashboard sprawl: 50 dashboards, nobody looks at any of them. During a P1 incident, the on-call scrolls through 40 panels searching for the one that explains why P99 latency spiked to 8 seconds. Every dashboard must answer exactly one question. Delete the rest. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -120,12 +124,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Observability is not about dashboards — it's about **being able to answer any question about your system's behavior without having to ship new code to ask it**. The best observability systems make the unknown known before users notice.
 
@@ -155,6 +159,7 @@ Observability is not about dashboards — it's about **being able to answer any 
 - **Observability is a culture, not a tool.** The best tooling is worthless if engineers don't instrument their code, look at dashboards before deploying, and review SLOs in every incident postmortem. Build the culture, then buy the tools.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Observability scales from instrumenting a single service to org-wide observability strategy and culture.
 
@@ -168,21 +173,8 @@ Observability scales from instrumenting a single service to org-wide observabili
 
 **Usage**: Say "as an L3 observability engineer, design the monitoring for..." Default: **L3** (product-level observability, independent design).
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 engineer, 1-2 services)
-Prometheus + Grafana + Loki in Docker Compose. Single Grafana dashboard with RED metrics per endpoint. Alertmanager → personal email/Slack. Focus: instrument with OpenTelemetry SDK, learn PromQL, set up basic RED dashboards. Structured JSON logs from day one. No distributed tracing needed yet.
-
-#### Small (2-10 engineers, 5-15 services)
-Grafana LGTM stack (Loki, Grafana, Tempo, Mimir) on Kubernetes or Grafana Cloud free tier. SLOs defined for critical user journeys with burn-rate alerts. USE dashboards for infrastructure, RED for services. Alert routing: PagerDuty for SEV-1, Slack for SEV-2. Focus: end-to-end trace context propagation, dashboard-as-code in Git, alert review to eliminate noise monthly.
-
-#### Medium (10-50 engineers, 15-50 services)
-Grafana Mimir for HA metrics, Tempo for distributed tracing, Loki for centralized logs. OpenTelemetry Collector with tail-based sampling. SLO-based error budget policies enforced at deploy gates. Tiered alert routing with escalation chains. Focus: observability cost management (cardinality limits, retention policies, sampling rates), runbook automation, cross-service correlation dashboards. Observability platform as a product for the engineering org.
-
-#### Enterprise (50+ engineers, 50+ services, multi-cluster)
-Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming alert evaluation for sub-minute detection. Centralized OpenTelemetry Collector fleet with intelligent sampling and PII redaction. Observability as a platform: self-service dashboard provisioning, alert template library, automated runbook generation. Focus: observability data lake for long-term trend analysis, anomaly detection with ML, cost attribution per team, compliance retention (SOC 2, PCI-DSS audit trails). "This is how we observe everything — every team instruments with this SDK, ships to this pipeline, and alerts through this system."
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Instrumenting services with OpenTelemetry SDKs for unified metrics, traces, and structured logs
@@ -195,6 +187,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
 - Establishing observability as code: dashboards, alerts, recording rules in Git
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Metrics Backend: Prometheus vs SaaS
@@ -222,6 +215,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
                                       │ Cloud)  │ │ scale      │
                                       └─────────┘ └────────────┘
 ```
+
 **When to choose Self-Hosted Prometheus:** Budget <$500/month, <500 nodes, <10M active series, team has ops capacity (2-4 hrs/week). **When to choose SaaS:** >500 nodes, >10M series, no ops capacity, need integrated APM + logs + traces, budget >$2K/month. **When to choose Prometheus+Thanos:** Scale beyond single Prometheus but budget-constrained, 10M-100M series, team can manage distributed TSDB.
 
 ### Log Aggregation: Loki vs Elasticsearch
@@ -243,6 +237,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
                     │  higher ops) │   │  lower ops)     │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose Loki:** K8s-native, label-based indexing sufficient, want S3-backed storage, budget <$1K/month, already using Grafana. **When to choose Elasticsearch:** Full-text log search required, complex aggregations (e.g., business analytics on logs), team has ES expertise, budget >$2K/month.
 
 ### Alert Severity Classification
@@ -270,6 +265,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
                                       │ hours)  │ │ no page)    │
                                       └─────────┘ └────────────┘
 ```
+
 **When to set CRITICAL:** User-facing broken, error budget burning >10% in 1hr, revenue impact, page on-call with <5min ack SLA. **When to set WARNING:** Error budget burning >5% in 6hr, approaching threshold, page during business hours only. **When to set INFO:** Trend anomaly, no immediate user impact, dashboard-only, auto-generate ticket.
 
 ### Dashboard Design: RED vs USE vs Golden Signals
@@ -294,6 +290,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
                     │ Signals     │   │ (CPU, mem, disk)│
                     └─────────────┘   └────────────────┘
 ```
+
 **When to use RED:** Every service endpoint — Rate (req/sec), Errors (5xx %), Duration (p50/p95/p99 latency). Add Golden Signals: traffic, latency, errors, saturation. **When to use USE:** Infrastructure — CPU utilization, memory saturation (OOM risk), disk I/O errors, network packet drops.
 
 ### Tracing Sampling Strategy
@@ -317,9 +314,11 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
                     │  traces)    │   └────────────────┘
                     └─────────────┘
 ```
+
 **When to choose Tail-Based:** >10K spans/sec, need 100% error/slow traces, budget-constrained, can deploy OpenTelemetry Collector with tail sampling processor. **When to choose Head-Based:** <10K spans/sec, simpler to implement, 10-50% sampling rate sufficient, no Collector deployment desired.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Observability Strategy & SLO Framework
@@ -348,6 +347,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
    **Anti-patterns**: 100% SLO (impossible), SLO = current performance (no improvement), one SLO per service (undifferentiated), no error budget policy (wish, not commitment).
 
 4. **Error Budget Policy** — Define what happens when budget depletes:
+
    ```
    Budget ≥ 50%: Normal operations, feature deploys allowed
    Budget 20-50%: Riskier deploys blocked, prioritize reliability
@@ -358,6 +358,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
 **What good looks like:** Every service emits structured logs, metrics, and traces. Grafana dashboard shows RED metrics (Rate/Errors/Duration) per service. Alert fires within 60 seconds of SLO violation. p99 latency tracked and trended weekly.
 
 5. **Stack Selection Decision**:
+
    ```
    Self-managed?
    ├─ YES → Prometheus + Grafana + Loki + Tempo (OSS Grafana stack)
@@ -367,6 +368,7 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
        ├─ Grafana Cloud, Datadog, Honeycomb, New Relic
        └─ Best for: Small team, rapid onboarding, reduced ops burden
    ```
+
   Complete when: SLIs are defined for all critical user journeys, Prometheus recording rules compute SLIs over 7d/30d rolling windows, error budget policy is documented with burn rate thresholds, and stack selection decision is documented with rationale.
 
 ### Phase 2 (~30 min): Metrics & Dashboard Design
@@ -377,9 +379,16 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
   Complete when: USE dashboards exist for every infrastructure resource type, RED dashboards exist for every service endpoint, and dashboards are stored as code in git with CI validation.
-
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
+  Complete when: Infrastructure drift detection enabled — Terraform plan shows zero unmanaged changes.
+  Complete when: Runbook documented and tested via game day exercise with < 3 action items.
+  Complete when: Dependency update automation configured with auto-merge for patch releases.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -387,8 +396,8 @@ Multi-cluster Prometheus federation or Grafana Mimir with global view. Streaming
 | High-cardinality labels in Prometheus — adding `user_id` or `request_id` as a label creates a new time series per unique value; 1M users = 1M time series = Prometheus OOM | $10K-$50K in Prometheus outage and metric data loss | Never put unbounded values in metric labels; use structured logging for request-level detail; limit label values to low-cardinality dimensions (<100 unique values); monitor `prometheus_tsdb_head_series` and alert if > 1M series |
 | No log retention policy — keeping DEBUG logs for 6 months costs $20K/month in storage; when you actually need debug logs for an incident, they've been purged by the 7-day retention default | $5K-$50K in unnecessary storage costs or missing forensic data | Ship INFO-and-above to central platform with 30-day retention; keep DEBUG/TRACE locally with 24-hour rotation; use cold storage (S3 Glacier) for compliance logs; tier retention by severity |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -403,8 +412,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Loki returns `max entries limit reached: 5000` for every query — only shows the first 15 seconds of any log search | Loki's default `max_entries_limit_per_query: 5000` was designed for interactive use. A service logging at 10K lines/second hits the limit in 0.5 seconds. The production debugging workflow needs to see 5 minutes of logs, but Loki truncates after 15 seconds with no indication that data was dropped | Increase `max_entries_limit_per_query` to 50000 for the production tenant. Set per-tenant limits in `overrides.yaml` — give the SRE team higher limits than developers. Add `--limit=10000` to `logcli` queries. Deploy a label-based filtering strategy: `{app="api", level="error"}` before expanding to `level=~"error|warn"` | Log volume scaling is multiplicative per label combination. A `{app="api"}` query at 10K lines/s is 36M lines/hour. Every query needs explicit limits, and dashboards must communicate truncation. `max_entries_limit` is a safety valve, not a filter — when you hit it, data is lost silently. |
 | SLO dashboard shows 99.95% availability — but the error budget burned 80% in 6 hours because the measurement window is wrong | The SLI is calculated over a 30-day rolling window, but the error budget burn rate shows a 1-hour window. A 15-minute outage consumed 0.1% of the 30-day budget (invisible at monthly granularity) but consumed 80% of the 1-hour budget. The 30-day SLO looks healthy; the 1-hour window shows the service is on fire | Use multi-window burn-rate alerts: 1h window at 14.4× burn rate (2% of monthly budget consumed in 1 hour) for critical pages, 6h window at 6× burn rate for warnings. Display both the 30-day SLO gauge AND the 1-hour burn rate on the same dashboard. Budget consumed is a cumulative metric; burn rate is instantaneous | SLOs compress time. A 30-day window obscures sub-day outages. A 99.9% SLO allows 43 minutes of downtime per month — consumed in a single 43-minute incident or a thousand 2.6-second blips. Without multi-window burn alerts, you don't know the difference until the budget is gone. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **SLOs before alerts — define the target, then instrument the signal.** A 99.9% availability SLO with a 43-minute monthly error budget is concrete. "The service should be reliable" is wishful thinking. Every alert must tie to an SLO burn rate. Alerts without SLOs are noise.
 
@@ -426,8 +435,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Runbook automation: dashboards link to runbooks, runbooks link to dashboards.** Every alert annotation includes a direct link to the relevant runbook. Every dashboard panel has a "troubleshooting guide" link. During an incident, the on-call engineer should click from alert → dashboard → runbook → root cause without typing a single grep command.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -442,6 +451,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -459,6 +469,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | Pipeline metrics, deploy frequency, DORA data | Can't measure delivery performance |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -471,11 +482,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | Log retention set to "forever" with no sampling — costs growing 40% month-over-month | Propose log tiering: hot (7 days, full-text search), warm (30 days, indexed), cold (1 year, compressed S3); sample debug logs at 10% in production | Logs are the fastest-growing observability cost; tiered retention with sampling cuts costs 50-70% without losing incident investigation capability |
 | Observability stack manually configured — Grafana dashboards created via click-ops | Propose observability-as-code: Terraform Grafana provider, Grafonnet JSON dashboards in Git, Prometheus recording rules in version control; PR review for all changes | Click-ops observability is unreproducible and unversioned; observability-as-code ensures dashboards survive platform migrations and team changes |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[OBS1]** SLOs defined for all critical user journeys (availability, latency, throughput, freshness, durability) — not just one SLO per service
 - [ ] **[OBS2]** SLIs instrumented with OpenTelemetry SDKs across all services — metrics, logs, and traces emitting from the same instrumentation library
@@ -493,12 +506,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[OBS14]** Capacity planning dashboards: disk usage forecasts, metric cardinality trends, log ingestion rate, query performance — reviewed weekly
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Dashboards answer the golden signals for every service: latency, traffic, errors, and saturation.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Observability mastery comes from using your own dashboards during real incidents. The gap between what you designed on a whiteboard and what you actually need at 3am is where mastery lives.
 
@@ -521,6 +536,7 @@ graph LR
 **The One Highest-Leverage Activity**: During every incident, write down every question you asked that you couldn't answer with your current dashboards. After the incident, make those questions answerable. Over time, your dashboards evolve from "what looks nice" to "what actually saves time."
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Alert fatigue causing missed critical incidents** — when on-call engineers receive 40+ alerts per day where 90% are false positives or non-actionable (e.g., CPU spikes from batch jobs, disk usage at 75% of a non-critical threshold), they train themselves to ignore or snooze everything. A genuine database corruption alert gets buried in the noise, the incident festers for 4 hours, and by the time someone notices, the customer-facing outage has impacted 50,000 users. Average cost of a major incident is $150K-$300K in revenue loss, SLA penalties, and engineering heroics; a prolonged undetected incident can exceed $1M in churn and brand damage. **Total cost: $150K-$1M per missed critical incident due to alert fatigue.** Mandate that every alert must require immediate human action — if automation handles it or it's informational, route it to a dashboard notification channel, not the pager.
 - **Prometheus `rate()` vs `irate()`**: `rate()` calculates the per-second average over the full range window. `irate()` uses only the last TWO samples. On a 5-minute window, `rate()` smooths spikes; `irate()` amplifies them. Dashboard spikes that appear in `irate()` but not `rate()` are often just two consecutive data points, not real spikes.
@@ -534,6 +550,7 @@ graph LR
 - **Building dashboards that answer "what happened" but not "why it happened."** Your Grafana dashboard has 40 panels — CPU by pod, memory by namespace, request rate by endpoint, error count by status code, latency percentiles — all displayed as line charts over the last 6 hours. An incident fires at 2 AM: P99 latency spiked from 200ms to 8 seconds. The on-call engineer stares at the dashboard for 25 minutes correlating CPU (flat), memory (flat), request rate (flat), and error count (spiking — confirming what they already know). None of these panels explain WHY latency spiked. The actual cause — a downstream payment provider timing out — isn't surfaced because there's no panel showing dependency health. **Total cost: $50K-$150K per incident in prolonged MTTR from dashboards that don't accelerate diagnosis, adding 20-40 minutes to every major incident.** Design dashboards using the USE method (Utilization, Saturation, Errors) for infrastructure and the RED method (Rate, Errors, Duration) for services. Every service dashboard must include a dependency health row showing latency and error rate to every downstream service, database, and external API. Link every dashboard panel to related logs and traces with one click.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Prometheus config: `promtool check config prometheus.yml` — syntax valid, no rule conflicts
 - [ ] Grafana dashboard: JSON model validates — all panels render, no "Template variables not found" errors
@@ -543,10 +560,12 @@ graph LR
 - [ ] Test alert routing: trigger a test alert — arrives at correct channel (Slack/PagerDuty) within 60 seconds
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -556,5 +575,4 @@ Detailed reference material loaded on demand:
 - **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

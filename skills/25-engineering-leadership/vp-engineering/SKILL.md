@@ -110,7 +110,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -158,20 +157,6 @@ VP of Engineering effectiveness is measured by organizational outcomes — veloc
 
 **Usage**: Say "as a VP managing 200 engineers, help me structure the engineering strategy for..." Default: **L1 (First-time VP)** — managing directors, executive leadership.
 
-### Scale Depth — Organizational Span
-
-#### Startup VP (15-50 engineers, $5-20M revenue)
-Scope: VP Eng or Head of Engineering. Manage 2-4 tech leads or first-line managers. Own all of engineering: hiring, architecture, process, culture. Still hands-on in architecture decisions. Key artifact: first engineering hiring plan and lightweight development process. Key risk: over-investing in process too early — process should enable speed, not replace judgment.
-
-#### Growth VP (50-150 engineers, $20-100M revenue)
-Scope: VP of Engineering with 3-5 directors. Own: engineering strategy, budget, organizational design, executive team membership. Manage through directors; span of 50-80 indirect reports. Key artifact: 18-month engineering strategy, quarterly board update, annual budget model. Key risk: under-delegating — still reviewing code or making individual architecture decisions that should belong to directors.
-
-#### Scale VP (150-500 engineers, $100M-500M revenue)
-Scope: VP/SVP with directors and senior directors. Own: multi-division engineering strategy, platform investment portfolio, M&A integration, public-company readiness. Manage through senior directors; span of 150-400 indirect reports. Key artifact: engineering operating model, platform strategy, 3-year technical vision. Key risk: losing organizational connectivity — not hearing about problems until they're crises because layers insulate you.
-
-#### Enterprise VP (500-2000+ engineers, $500M+ revenue)
-Scope: SVP/CTO with VPs reporting to you. Own: company-wide technical strategy, engineering philosophy, industry thought leadership. Manage through VPs; span of 500-2000+ indirect reports. Key artifact: engineering philosophy document, industry conference keynotes, board-level technology strategy. Key risk: ivory tower — strategy disconnected from execution reality because you haven't walked a team's floor in months.
-
 ## When to Use
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -188,6 +173,35 @@ Scope: SVP/CTO with VPs reporting to you. Own: company-wide technical strategy, 
 **(QUICK)**
 
 <!-- STANDARD: 3min -->
+
+### Decision Tree 3: How Do I Structure the Engineering Organization?
+
+        ┌── INPUT: Organization scaling challenge
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+<50 engineers   50-200 engineers   >200 engineers
+   │                 │                  │
+   ▼                 ▼                  ▼
+Functional        Matrix with       Platform +
+teams by skill    product pods      product tribes
+   │                 │                  │
+   ▼                 ▼                  ▼
+EMs manage        Directors run     VPs run tribes;
+5-8 ICs each;     pods of 2-3       directors run
+skip-levels       squads; EMs       pods; EMs run
+with senior ICs   own delivery      1-2 squads max
+   │                 │                  │
+   ▼                 ▼                  ▼
+Span: 5-8 per EM  Span: 4-6 per EM  Span: 3-5 per EM
+   │                 │                  │
+   └─────────────────┴──────────────────┘
+                     │
+                     ▼
+              Reassess every
+              12 months as company
+              headcount doubles
 
 ### Decision Tree 1: How Do I Allocate My Time?
 
@@ -274,8 +288,14 @@ Org design is your most powerful (and dangerous) lever. Wrong boundaries create 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Board materials translated to business outcomes, ELT peers confirm alignment on engineering priorities, and quarterly business review deck is ready for CFO review.
+  Complete when: Team OKRs aligned with company goals and reviewed by skip-level manager.
+  Complete when: Career development plans documented for all direct reports with quarterly check-ins.
+  Complete when: Engineering metrics dashboard published with DORA metrics and team health indicators.
+  Complete when: Budget approved with headcount plan, tooling costs, and training allocation.
+  Complete when: Architecture decision records (ADRs) created for all significant technical decisions.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 **(STANDARD)**
 
@@ -363,12 +383,10 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | **After** | `investor-relations` | Fundraising narrative, investor updates, due diligence presentations. |
 | **After** | `staff-engineer` | Strategy cascading — staff engineers socialize architecture implications of VP-level decisions. |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `cto-advisor` | Technology strategy, architecture governance, build-vs-buy analysis | Before making engineering leadership decisions |
 | `ceo-strategist` | Company vision, OKRs, organizational design, budget constraints | Before organizational or strategic changes |
-
 
 ## Proactive Triggers
 
@@ -382,8 +400,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Platform investment request denied or deferred 2+ quarters — teams duplicating infrastructure across product streams | Quantify duplication cost (engineering hours, reliability risk, security surface area); present as "not funding platform costs us X% more in duplicative work" to CFO/CEO | Platform underinvestment is invisible on P&L but visible in velocity decline — you must make the cost of NOT building platform explicit |
 | Cross-org dependency tax rising — 40%+ of team capacity consumed by cross-team coordination | Audit dependency graph; co-locate tightly coupled teams under one Director; create API contracts and SLAs for cross-team interfaces; accept Conway's Law and reorganize accordingly | Teams spending more time coordinating than building is an org design smell — the structure is misaligned with the architecture |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -422,7 +440,7 @@ graph LR
 
 **The One Highest-Leverage Activity**: Build and maintain a peer network of 5-7 VPs of Engineering at other companies. Meet monthly. Share real decisions, real numbers, real mistakes. Your external network is your early warning system.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -446,6 +464,7 @@ graph LR
 - **Promoting senior ICs to engineering managers without management training or aptitude assessment — the most expensive personnel mistake in engineering leadership.** A senior engineer who ships brilliant code gets promoted to manager because "it's the only way to advance." They don't want to manage people, weren't assessed for management aptitude, and receive no training. Within 6 months: they're doing IC work instead of unblocking their team, 1:1s are cancelled, performance issues go unaddressed, and 2-3 engineers on their team have started interviewing elsewhere. Research shows the #1 driver of engineering attrition is the direct manager, and untrained first-time managers cause 2-3x the attrition of trained, experienced managers. The math: lose a great senior IC ($250K annual value), lose 2 reports to attrition ($260K-$400K replacement cost for two seniors), and carry a struggling manager who now needs coaching, demotion, or exit. **Total cost: $500K-$750K per failed IC-to-manager transition.** Create a technical leadership track parallel to management (Staff → Principal → Distinguished) with equivalent compensation, so ICs aren't forced into management for career growth. For anyone moving to management: require a 3-month pilot period with formal training, an experienced manager as mentor, and a clear off-ramp back to IC if it's not the right fit — with no stigma.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -494,7 +513,6 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 
 ## Error Decoder
 

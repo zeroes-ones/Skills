@@ -58,7 +58,6 @@ Investor relations and fundraising operations for founders, CEOs, and CFOs. Run 
 | **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -119,20 +118,6 @@ If no auto-route matched, use this intent tree:
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-#### Solo
-- Run a fundraise end-to-end solo: build the pitch deck, manage the data room, track the pipeline, coordinate diligence. You are founder-CEO-IR all in one. Focus on mastering the narrative, building a tight target investor list, and running an efficient process without staffing overhead.
-
-#### Small Team
-- Manage IR with a chief of staff or part-time CFO. Delegate data room maintenance and pipeline tracking. You focus on investor meetings, term sheet negotiation, and board-level IR strategy. Monthly investor updates become systematized with templated metrics collection.
-
-#### Medium Organization
-- Build a dedicated IR function with 2-5 people: IR lead, analyst, and coordinator. Produce quarterly earnings materials, maintain consensus models, run investor days, and manage shareholder engagement for a public or late-stage private company. Sell-side analyst relationships become a formal program.
-
-#### Enterprise
-- Lead a public company IR department reporting to the CFO. Manage quarterly earnings cycles, annual shareholder meetings, proxy statements, activist defense preparedness, and ESG investor engagement. You shape how the Street values the company — the IR narrative directly impacts the cost of capital and market multiple. Reg FD compliance, 10b5-1 plans, and insider trading policies are operationalized across the organization.
-
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -153,7 +138,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You're pre-revenue and raising from friends & family (use `ceo-strategist` — this is institutional fundraising infrastructure)
 - You need legal review of a term sheet (use `legal-advisor` — this skill helps you compare terms, not negotiate them)
 - You're building the underlying financial model (use `fp-and-a-analyst` for the model; come here to package it for investors)
-
 
 ## Error Recovery
 **(STANDARD)**
@@ -366,6 +350,12 @@ Scenario 4: Acquisition (stock vs. cash deal)
 | 5. Market Size | How big can this get? | Bottoms-up TAM: how many customers × your ASP × penetration rate. Tops-down
 
   Complete when: 12-slide narrative arc deck with one question answered per slide is complete; financial model with bottoms-up TAM and unit economics is validated; data room with all 14 standard folders is populated; management bios and reference customer list are finalized; FAQ document anticipating top 20 investor questions is prepared.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -396,7 +386,6 @@ Common chains:
 # 3. legal-advisor reviews term sheet and drafts definitive agreements
 
 ```
-
 
 ## State Log
 
@@ -438,7 +427,7 @@ graph LR
 
 7. **Data room disorder during fundraising.** Sending investors to a Dropbox folder with no index, customer-attributed revenue data, and mixed document versions. This signals operational chaos and kills deal momentum. A structured 14-folder data room with legal-reviewed content is fundraise table stakes.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -564,17 +553,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 20. **Investor days (every 18-24 months) provide the deep-dive context quarterly calls cannot.** 45-minute earnings calls with 3 analysts asking pre-vetted questions don't build conviction. Investor days with product demos, segment economics, multi-year strategy, and unstructured Q&A make analysts comfortable holding through volatility — reducing stock beta by 15-20%.
 
-### Scale Depth
-
-| Company Stage | IR Function | Key Activities | Tools/Platforms |
-|--------------|-------------|----------------|-----------------|
-| **Pre-IPO/Private** | Fractional IR consultant or CFO-led, 5-10 hours/month | Fundraising data room, investor pipeline CRM, pitch deck, cap table modeling | Carta, Affinity/Pitchbook, Notion data room, DocSend |
-| **IPO Year** | 1-2 dedicated IR hires, 40-60 hours/week during IPO process | S-1 drafting support, analyst day, roadshow logistics, allocation strategy, first earnings as public company | IHS Markit/IPO intelligence, Nasdaq IR Insight, Q4/Notified, earnings webcast platform |
-| **Small Cap ($100M-$2B market cap)** | 1-2 person IR team, CFO-led earnings | Quarterly earnings, 2-3 conferences/year, NDRs (non-deal roadshows), sell-side coverage building, retail investor outreach | Q4/Notified, IR Magazine/IR Magazine Awards benchmarking, AlphaSense for competitive intelligence |
-| **Mid/Large Cap ($2B+ market cap)** | 2-4 person IR team, dedicated IR officer | Quarterly earnings + guidance, 6-8 conferences/year, investor days every 18-24 months, ESG reporting, activist monitoring, shareholder perception studies | Bloomberg Terminal, IHS Markit, Nasdaq IR Insight, AlphaSense, Morrow Sodali/Georgeson for activism defense |
-
-
-
 ## Verification
 
 - [ ] Earnings materials: press release, script, and Q&A prep completed 1 week before earnings
@@ -598,4 +576,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

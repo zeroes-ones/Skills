@@ -57,13 +57,38 @@ changelog:
 
 Veteran architect's playbook for designing, governing, and operating multi-repository architectures at scale. Covers when and how to split repos, cross-repo dependency management, shared library publishing, versioning strategies, breaking change orchestration, repo discovery, ownership models, and migration patterns between mono and multi-repo topologies.
 
+## Core Workflow
+<!-- STANDARD: 3min -->
+
+**Phase 1: Boundary Audit & Split-or-Merge Analysis (20% of effort)**
+Map the current repository landscape: inventory every repo with owner, commit frequency, dependency graph, and deploy cadence. For each repo, calculate the Conway Score: does one team own this repo or is it shared by 3+ teams? For each shared repo, measure coupling: how often do changes in Repo A force changes in Repo B (coupling coefficient = co-change commits / total commits)? Output: repo inventory spreadsheet with ownership, coupling matrix, and lifecycle stage (active/mature/deprecated/orphaned). Decision: repos with coupling coefficient >30% and same team ownership → merge candidates. Repos with coupling <5% and distinct team ownership → stay separate.
+
+**Phase 2: Dependency Architecture Design (30% of effort)**
+Design the cross-repo dependency graph. Define: (1) Version strategy per shared library — SemVer (major.minor.patch) with clear breaking-change policy, (2) Release cadence — continuous (every merge to main = release) vs batched (weekly/monthly releases), (3) Dependency freshness policy — how stale can a dependency be before it's flagged (e.g., "all repos must be within 2 minor versions of latest within 30 days"), (4) Breaking change orchestration — the multi-repo update sequence when a shared library releases v2.0. Output: dependency graph diagram with version constraints, publish pipeline design per shared library, and breaking change runbook. Critical design principle: minimize the blast radius of any single repo change.
+
+**Phase 3: Governance & Ownership (25% of effort)**
+Assign ownership: every repo has exactly one owning team (no shared ownership — Conway's Law says shared = neglected). Define: (1) Repo metadata standard — CODEOWNERS file, README with runbook link, SLAs per repo tier, (2) Tier system — Tier 0 (platform — 99.99% SLA, breaking changes 90-day notice), Tier 1 (product service — 99.9%, 30-day notice), Tier 2 (internal tool — best effort, no formal SLA), (3) Deprecation policy — how repos are archived (last release tagged, README updated to DEPRECATED.md, issues disabled, 90-day notice before archive). Implement repo discovery: service catalog (Backstage/ServiceNow) auto-populated from repo metadata, not manually maintained.
+
+**Phase 4: Migration Execution & Verification (25% of effort)**
+For monorepo→multirepo splits: extract with history (git filter-repo preserving commit history for extracted paths), set up CI/CD in new repo, publish first release, migrate consumers one at a time with dual-publish transitional period. For multirepo→monorepo merges: merge with history preservation (git subtree merge), resolve path conflicts, unify tooling (one ESLint/tsconfig/mypy config), migrate CI to monorepo-aware (Nx/Turborepo/Bazel). Post-migration verification: every dependent repo's CI passes with new dependency path, deploy to staging, smoke test, then promote. Each migration has a rollback plan documented before starting.
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 #
 
 ## Auto-Route (No User Input Required)
+<!-- STANDARD: 3min -->
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
 | # | Condition | Action |
@@ -80,6 +105,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 If no auto-route matched, use this intent tree:
 
 ```
@@ -110,6 +136,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -132,6 +159,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Masters of multirepo design don't just split code — they split along **team boundaries, release cadences, and security domains.** They understand that every repo boundary is a coordination tax: each additional repo adds a PR, a CI run, and a review cycle to every cross-cutting change.
 
@@ -145,6 +173,7 @@ Masters of multirepo design don't just split code — they split along **team bo
 #
 
 ## What Masters Know That Others Don't
+<!-- STANDARD: 3min -->
 - **Repo granularity is a function of team autonomy, not code size.** Two teams that never coordinate on releases should not share a repo — even if the code is only 200 lines. One team that ships together daily should not be split — even if the codebase is 500K lines.
 - **Every shared library is a promise.** When you publish @org/design-system@2.0.0, you are promising every consumer that this API will be stable until 3.0.0. Breaking that promise costs every consumer hours of migration. The more consumers, the more conservative the API must be.
 - **Cross-repo CI is the canary.** If your cross-repo CI takes >20 minutes or fails >10% of the time, your repo boundaries are wrong — either repos are too coupled (merge them) or CI tooling is inadequate (invest in it). Healthy multirepo: cross-repo CI passes >95% of the time and completes in <10 minutes.
@@ -152,11 +181,13 @@ Masters of multirepo design don't just split code — they split along **team bo
 #
 
 ## When to Break Your Own Rules
+<!-- STANDARD: 3min -->
 - **Ship the prototype as a new repo, then decide boundaries.** When exploring a new product idea, create a single new repo and move fast. Don't pre-optimize repo boundaries for code that might be thrown away. After 3 months of shipping, measure actual cross-repo coupling — THEN split or consolidate.
 - **Skip the shared library for truly stable code.** If the shared code hasn't changed in 18 months and has zero open bugs, copy-paste is more resilient than a dependency. A copied function can't break your build when someone else upgrades it.
 - **Accept temporary duplication during a migration.** When migrating from mono to multi, some code will exist in both the old monorepo and the new micro-repos during the transition window. That's OK — duplication is a temporary cost you pay for zero-downtime migration.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | Time Budget | Key Actions |
 |-------|-------|-------------|-------------|
@@ -167,6 +198,7 @@ Masters of multirepo design don't just split code — they split along **team bo
 **Default level for this skill:** Standard (30min)
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You are deciding how to split a growing monorepo into independently deployable repos
 - You need to design cross-repo dependency management: how repos discover, consume, and update shared libraries
@@ -182,6 +214,7 @@ Masters of multirepo design don't just split code — they split along **team bo
 #
 
 ## Cross-skills Integration
+<!-- STANDARD: 3min -->
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -197,37 +230,177 @@ Common chains:
 - **Chain**: monorepo-manager -> multirepo-designer -> backend-developer — Monorepo manager identifies extraction candidates; multirepo designer plans the split; backend developer implements services in new repos.
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
-#
+**(QUICK)**
 
-## Decision Trees — Quick Index
-<!-- 366 lines of decision trees extracted to references/decision-trees.md -->
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
-| # | Decision | When to Use |
-|---|----------|-------------|
-| 1 | Monorepo vs Multirepo | Team size, coupling, deployment frequency |
-| 2 | Split Granularity | Bounded context boundaries, team autonomy |
-| 3 | Shared Library Strategy | Internal vs external consumers, versioning |
-| 4 | Cross-Repo CI/CD | Build ordering, release orchestration |
-| 5 | Breaking Change Rollout | Migration windows, deprecation policies |
-| 6 | Ownership & Discoverability | CODEOWNERS, catalog, service discovery |
+### Decision Tree 1: Monorepo vs Multirepo
 
-> 📎 **Full decision trees (366 lines):** [references/decision-trees.md](references/decision-trees.md)
+        ┌── INPUT: How many teams and how tightly coupled is the code?
+        │
+   ┌────┴──────────────────────────┐
+   │                               │
+   ▼                               ▼
+1 team, tightly coupled       Multiple teams with
+codebase, shared              independent release
+deployment pipeline           cadences
+   │                               │
+   ▼                               ▼
+MONOREPO. Use shared          ┌── Do teams share a common
+tooling, unified CI,          │   domain but deploy
+atomic commits across         │   independently?
+packages.                     ┌───┴───────────┐
+                              │               │
+                              ▼               ▼
+                             YES             NO (different
+                              │              domains,
+                              ▼              different teams)
+                       HYBRID: shared      MULTIREPO.
+                       libraries in        Each team owns
+                       monorepo, services  their repo.
+                       in separate repos.  Standardize
+                       Use internal        CI templates,
+                       package registry.   CODEOWNERS,
+                              │            repo catalog.
 
-## Core Workflow
+### Decision Tree 2: Repo Split Granularity
+
+        ┌── INPUT: When should a service/library become its own repo?
+        │
+   ┌────┴──────────────────────────────┐
+   │                                   │
+   ▼                                   ▼
+Cross-repo PRs >30%               Cross-repo PRs <5%
+of total PRs in the               of total PRs
+last 6 months                         │
+   │                                   ▼
+   ▼                              Correctly isolated.
+Is the coupling from              Repo boundary is
+shared models or                  well-aligned with
+coordinated changes?              team boundary.
+   │                              No action needed.
+   ┌───┴───────────┐
+   │               │
+   ▼               ▼
+Shared models    Coordinated
+(types, schemas) changes (features
+   │             span repos)
+   ▼               │
+Extract shared     ▼
+library to      ┌── Independent deploy
+separate repo   │   cadence possible?
+with versioning │
+                ┌───┴───────────┐
+                │               │
+                ▼               ▼
+               YES             NO
+                │               │
+                ▼               ▼
+          Split into       Consider merging
+          separate repos   into monorepo
+          with API         or shared repo.
+          contracts.
+
+### Decision Tree 3: Shared Library Versioning Strategy
+
+        ┌── INPUT: Who consumes this shared library?
+        │
+   ┌────┴──────────────────────────┐
+   │                               │
+   ▼                               ▼
+Internal only (same org)      External consumers
+   │                           (public npm/PyPI/crate)
+   │                               │
+   ▼                               ▼
+┌── Breaking changes           SEMVER strictly.
+│   expected monthly?          MAJOR for breaking,
+│                              MINOR for features,
+┌───┴───────────┐              PATCH for fixes.
+│               │              Changelog mandatory.
+▼               ▼
+YES             NO
+│               │
+▼               ▼
+Use CalVer or   Use SemVer.
+0.x versioning  Automated
+until stable.   releases via
+Changesets or    Changesets +
+similar tool    CI on merge
+for changelog   to main.
+generation.
+│               │
+└───────┬───────┘
+        │
+        ▼
+  Always: automated
+  cross-repo dependency
+  updates (Renovate/
+  Dependabot), lockfile
+  regeneration on
+  library publish.
+
+### Decision Tree 4: Breaking Change Rollout
+
+        ┌── INPUT: A shared library needs a breaking API change
+        │
+   ┌────┴─────────────────────────────┐
+   │                                  │
+   ▼                                  ▼
+< 5 downstream consumers        5+ downstream consumers
+   │                                  │
+   ▼                                  ▼
+Coordinate directly.            ┌── Can new API coexist
+File PRs to each consumer        │   alongside old?
+with migration. Merge
+atomically if in monorepo.      ┌───┴───────────┐
+                                │               │
+                                ▼               ▼
+                               YES             NO
+                                │               │
+                                ▼               ▼
+                          Dual API for     Deprecation cycle:
+                          1 release cycle. 1. Deprecation
+                          Old API emits    warning (1 release)
+                          deprecation      2. Old API still
+                          warnings. Cons-  works but blocked
+                          umers migrate    on CI (1 release)
+                          at own pace.     3. Old API removed
+                                │          (1 release)
+                                │               │
+                                └───────┬───────┘
+                                        │
+                                        ▼
+                                  Migration guide
+                                  with before/after
+                                  examples required.
+                                  Automated codemod
+                                  if pattern is
+                                  mechanical.
 <!-- Full 46 lines extracted to references/core-workflow.md -->
 
 #
 
 ## Phase 1 (~15 min): Coupling Analysis & Team Topology Mapping
+<!-- STANDARD: 3min -->
 1. Map all teams to their repos. Draw Conway alignment: does each repo have one clear owner?
 2. Analyze cross-repo PR frequency over last 6 months: `git log --oneline --all | grep -i "#[0-9]" | sort | uniq -c`
 3. Identify hotspots: repos with >30% cross-repo PRs are candidates for merging. Repos with <5% are correctly isolated.
 ...
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 46 lines of detailed guidance
   Complete when: All teams mapped to repos with Conway alignment verified, cross-repo PR frequency analyzed over 6 months, hotspots identified (>30% cross-repo PRs), and repo boundary recommendations delivered.
+  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
+  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
+  Complete when: Performance benchmarks run and results within 10% of baseline.
+  Complete when: Documentation updated for all affected interfaces, SDKs, and developer guides.
+  Complete when: Stakeholder sign-off obtained from all impacted team leads.
+  Complete when: Monitoring dashboards created for new system with alert thresholds configured.
+  Complete when: Knowledge transfer session completed with operations team.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -242,6 +415,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
@@ -259,6 +433,7 @@ If a command or approach fails, follow this escalation path before giving up:
 #
 
 ## Escalation Path
+<!-- STANDARD: 3min -->
 
 | Situation | Escalate To | Rationale |
 |-----------|------------|-----------|
@@ -273,6 +448,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
@@ -287,6 +463,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | CI runner concurrency exhausted due to cross-repo PR storm (Renovate opens 40+ PRs simultaneously) | DevOps, Platform Engineer | CI queue delays; batch Renovate updates or increase runner capacity |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -302,16 +479,20 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Repo ownership question: "Who owns this repo?" → 3 teams claim ownership, 0 teams are actually maintaining it. The CODEOWNERS file lists all 3 teams. When an incident happens, each team assumes "one of the other two will handle it." Incident escalates to director level because no one took action | CODEOWNERS used as a "who knows about this" list instead of "who is responsible for this." Three teams listed means zero teams accountable. No single point of escalation. The repo's health checks (dependencies, security, CI) are failing but no team owns the alert because "it's not my primary responsibility" | Assign single-team ownership: exactly ONE team owns each repo. CODEOWNERS has that team as the primary. Other teams listed as "contributors" or "reviewers" in a separate field. Ownership includes: incident response, dependency updates, security patches, CI health. Repos with unclear ownership are flagged as "orphaned" and escalated to engineering leadership within 7 days | Shared ownership is no ownership. Three teams in CODEOWNERS means three teams that assume someone else is handling it. Single-team ownership with backup rotation is the only accountability model that survives incident pressure. Every repo must have exactly one team that can't say "I thought the other team was handling it" |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -323,13 +504,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -345,6 +529,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -354,20 +539,24 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 #
 
 ## BEFORE (Anti-pattern)
+<!-- STANDARD: 3min -->
 > A 50-person engineering org with 30 repos. No CODEOWNERS on 12 repos. Shared utilities copy-pasted across 8 repos with independent bug fixes applied inconsistently. Breaking changes announced in Slack with "heads up, we changed the API." Cross-repo CI: each team discovers breakage when their own CI fails after merging from main. Renovate opens 30 unrelated PRs daily, overwhelming review capacity. New hires take 2 weeks to understand which repo does what. Version drift: 4 different React versions across 15 frontend repos.
 
 #
 
 ## AFTER (Healthy Multirepo)
+<!-- STANDARD: 3min -->
 > **Repo boundaries aligned to team topology.** Each team owns 1-3 repos — all have CODEOWNERS with >=2 reviewers. Shared code lives in 5 internal packages published to a private npm registry with strict semver and automated changelogs. **Breaking changes follow a 5-phase playbook**: new API ships alongside old -> deprecation with runtime warnings -> automated codemod tested against all consumers -> automated PRs to all consumer repos -> old API removed only after 100% adoption. **Cross-repo CI**: upstream repo triggers downstream CI via repository_dispatch; contract tests gate merges; Renovate groups updates weekly into <=5 PRs per repo. **Repo discoverability**: Backstage catalog indexes all repos by team, language, and status. New hires find the right repo in <5 minutes. **Zero version drift**: Renovate with grouped updates enforces all repos stay within 1 minor version of each other for framework dependencies.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -383,19 +572,9 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, do a "repo boundary audit." Take your 3 most coupled repos (highest cross-repo PR %). Ask: "If we merged these, what would break? If we split these differently, what would improve?" Write down your conclusions — over a year, you'll build an intuition for healthy boundaries.
 
-## Anti-Rationalization Table
-
-| What They Say | What It Really Means | The Reframe |
-|---------------|---------------------|-------------|
-| "We'll extract it to a shared library later." | "We don't want to do the extraction work now, so we'll pay 10x later when it's duplicated 8 times and each copy has diverged." | Extract when duplication reaches 3 copies, not when it's convenient. The extraction cost grows linearly with duplication count, but the divergence cost grows exponentially. |
-| "Let's just create a new repo — it's cleaner." | "I don't want to understand the existing repo structure well enough to find where this code should live." | Every new repo is a 10-year commitment to CI, security, and maintenance. The "cleaner" repo is clean for 2 weeks — then it accumulates its own tech debt, just in a different place. |
-| "We'll handle breaking changes by telling everyone in Slack." | "We don't want to invest in migration tooling, so we'll externalize the cost onto every consumer team." | Slack is not a migration strategy. Every hour you save by not building a codemod, every consumer team spends 10 hours migrating manually. Multiply by N consumer teams. |
-| "The monorepo tools will catch up to our scale." | "We're betting our entire development velocity on a tooling roadmap we don't control." | Evaluate tools on what exists today, not what's promised. If the current tooling can't handle your scale, split now and merge later if the tools improve. |
-| "We don't need CODEOWNERS — everyone knows who owns what." | "When the person who 'knows' leaves, this repo becomes an orphan overnight with no documentation." | Tribal knowledge is a single point of failure. CODEOWNERS is the bus-factor insurance — it costs 2 minutes to set up and prevents days of confusion when someone leaves. |
-| "Copy-paste is fine for now — it's just 20 lines." | "We're planting 20 seeds of divergence. In 18 months, those 20 lines will be 20 different implementations with 20 different bug fixes applied to 18 of them." | Copy-paste is only acceptable when: the code hasn't changed in 12+ months AND you've documented that it's intentionally duplicated with a link to the canonical source. Otherwise, it's latent technical debt. |
-| "We'll add cross-repo CI later — let's just get the repos set up first." | "We're deferring the hard part. Without cross-repo CI, every downstream breakage is discovered by the downstream team, eroding trust across the org." | Cross-repo CI is not a nice-to-have — it's the feedback loop that makes multirepo viable. Without it, you're running blind. Each downstream breakage costs 2-4 hours of debugging across two teams. |
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 - **Shared library major version bump without consumer migration tooling.** You publish `design-system@3.0.0` with 12 breaking changes. Two days later, 15 consumer repos have broken CI. Each team spends 4-8 hours manually updating imports, props, and theme tokens. Teams that are on PTO or focused on other priorities don't discover the breakage until their next deploy — 2 weeks later. **Total cost: $30K-$80K in wasted engineering hours across 15 teams, plus $10K-$50K in delayed feature delivery from blocked deploys.** Fix: Never ship a breaking change without an automated migration script (codemod) tested against ALL consumer repos in CI. Open automated PRs to every consumer repo simultaneously. Track adoption and escalate laggards.
 - **Reproducible builds fail because internal packages resolve differently across repos.** Repo A pins `@org/shared-utils@1.2.3` in its lockfile. Repo B uses a caret range `^1.2.3` and gets `1.3.0` from the registry. CI in Repo A passes (uses lockfile), CI in Repo B passes (gets latest compatible), but when both deploy together, they load different versions of `shared-utils` into the same browser bundle. A subtle behavior change in 1.3.0 causes a production bug that takes 6 hours to root-cause because "it works on my machine" and both CIs were green. **Total cost: $20K-$60K per incident in debugging time, plus $50K-$200K in revenue impact if the bug affects a customer-facing production path.** Fix: Use Renovate with grouped PRs to keep all repos within the same minor version. Add a CI check that verifies all consumer repos resolve the same version of shared dependencies. For libraries with runtime side effects, use exact version pinning.
@@ -408,7 +587,33 @@ graph LR
 - **Repo naming conventions degrading discoverability at 100+ repos.** Over 4 years, repos accumulate with inconsistent naming: `api-gateway`, `gateway-api`, `platform-gateway`, `gateway-v2`, `gateway-service`, `services-gateway`. New hires searching for "how to add a route to the gateway" find 6 repos and cannot determine which is canonical. They pick the wrong one, implement against a deprecated gateway, and discover their mistake during code review 3 days later. This happens ~15 times/year across different domains (auth, payments, search). **Total cost: $15K-$40K/year in misdirected engineering effort + $10K-$30K/year in onboarding friction for new hires.** Fix: Enforce a repo naming convention: `[team]-[domain]-[purpose]` or `[org]-[function]`. Example: `platform-api-gateway`, `auth-sso-service`, `data-ml-pipeline`. Add a repo description template: "Owned by [team]. [One-sentence purpose]. Status: [active|maintenance|deprecated]. Language: [primary]." Index all repos in a developer portal (Backstage, Compass) with search by team, language, and domain.
 - **Monorepo-to-multirepo split without preserving git history.** You split a 3-year-old monorepo into 8 service repos using `cp -r` instead of `git filter-repo`. Every file shows "Initial commit" with today's date and your name as author. The original authors, commit messages explaining WHY code was written, and PR discussions are lost. Six months later, an engineer debugging a production issue in `billing-service` runs `git blame` — every line says "Initial commit, Migration Engineer, 2025-04-01." They can't trace the logic to the original PR, can't find the design discussion, and can't ask the original author (who left 18 months ago). A 2-hour debugging session becomes a 3-day archaeology project. **Total cost: $40K-$100K in lost historical context across all split repos, compounding every time someone needs to understand legacy code (~$5K-$10K per incident x dozens of incidents over the repos' lifetime).** Fix: Use `git filter-repo` with `--path` and `--path-rename` to extract directories into separate repos while preserving full commit history, authors, and dates. Validate with `git log --follow [key-file]` that history is intact. Never use `cp -r` + `git init` for repo splits. The history is the most valuable artifact — more valuable than the code itself.
 
+## Best Practices
+<!-- STANDARD: 3min -->
+
+1. **Do assign exactly one owning team per repository** — Shared ownership means no ownership in practice. Repos with 3+ owning teams have 3x the open PR count, 2x the time-to-merge, and 4x the incidents from uncoordinated changes compared to single-owner repos. Conway's Law is not negotiable: if your repo structure doesn't match your team structure, the repo structure will lose. Each shared-ownership repo costs $50K-$150K/year in coordination overhead from meetings, conflicting priorities, and merge conflict resolution.
+2. **Prefer internal package registries over git submodules for shared code** — Submodules create detached HEAD states, require recursive clone flags, produce merge conflicts on pointer hashes, and confuse every new team member for the first two weeks. An internal npm/PyPI/Maven registry with semver and automated publishing eliminates all of this. The developer experience cost of submodules is 2-5 hours/month per engineer in debugging and confusion — at $150/hour fully loaded, that's $3,600-$9,000/year per developer.
+3. **Always ship breaking changes with a codemod or automated migration script** — Manual migration across 20 consumer repos takes 40-200 engineer-hours of tedious, error-prone work. A codemod with automated PR creation takes 4-8 hours to write and executes in minutes across all repos. Every breaking change shipped without a migration tool costs $6K-$30K in downstream labor and 1-3 weeks of release delay while consumers catch up.
+4. **Never use `latest` or mutable version tags in internal registries** — `latest` is non-deterministic: two deployments minutes apart can pull different dependency versions. A production incident from a silently-changed `latest` dependency costs 2-8 hours to diagnose because the deploy diff shows no code changes. Pin all dependencies to exact semver or SHA256 digests; configure the registry to reject tag overwrites and mutable tags. Immutability is a safety property, not a convenience trade-off.
+5. **Measure cross-repo coupling coefficient quarterly** — Track (co-change commits) / (total commits) per repo pair over a 6-month window. Coupling >30% with same team ownership → merge candidates (the repos are a de facto monorepo). Coupling <5% with distinct team ownership → keep separate. Recalculate quarterly as team structures evolve. This metric prevents both premature splitting (fragmentation tax) and premature merging (coordination tax) — each wrong decision costs $100K-$500K in rework.
+
+## Production Checklist
+<!-- STANDARD: 3min -->
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Every repo has CODEOWNERS with ≥2 individuals from the owning team; zero orphan repos without an owner | `gh repo list --json name,owner,updatedAt` cross-referenced with team ownership matrix; no repo without a named owning team |
+| ☐ | Cross-repo coupling measured and within threshold: <15% of total PRs are cross-repo; repos >30% coupling identified as merge candidates | `git log --all --oneline --since="6 months ago"` analysis shows coupling coefficient; merge-candidate list reviewed |
+| ☐ | Shared libraries publish to internal registry with valid semver history; all consumer repos within 1 minor version of latest stable | `npm view @org/shared-lib versions` (or equivalent) shows proper version progression; adoption dashboard confirms all consumers ≤1 minor version behind |
+| ☐ | Breaking change playbook exists per shared library: migration guide + codemod + consumer adoption dashboard + deprecation window ≥2x longest consumer release cycle | Verify playbook artifacts present; deprecation policy published in CONTRIBUTING.md; consumer notification list current |
+| ☐ | Cross-repo CI functional: PR to shared library triggers downstream consumer CI; consumer green is gating condition for upstream merge | Create test PR → verify downstream CI triggers automatically; verify downstream failure blocks upstream merge |
+| ☐ | Zero submodules for actively developed code; any existing submodule has documented justification in Architecture Decision Record | `find . -name .gitmodules | xargs grep "url" | wc -l` returns 0 OR all submodules have ADR with migration plan to registry |
+| ☐ | Repo discoverability validated: new team member can find the correct repo for any domain in <5 minutes using catalog or search | Simulate discovery test: catalog search returns correct repo in <5 queries for 5 random domains; no "ask Bob" as the resolution path |
+| ☐ | Rollback plan is documented and tested | Migration runbook exists with dual-CI transition plan; split/merge dry-run completed and verified; rollback tested from simulated partial migration with git history preservation confirmed |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Every repo has CODEOWNERS with >=2 individuals from the owning team
 - [ ] Cross-repo coupling measured: `git log --all --oneline --since="6 months ago" | grep "cross-repo\|depends-on" | wc -l` — <15% of total PRs
@@ -422,10 +627,12 @@ graph LR
 - [ ] Internal package maintainer bus factor >=2: every published package has >=2 named maintainers in CODEOWNERS
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 - **Build System & Cross-Repo Orchestration**: See [references/build-system-cross-repo.md](references/build-system-cross-repo.md)
 - **Breaking Change Management**: See [references/breaking-change-management.md](references/breaking-change-management.md)
@@ -435,7 +642,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Monolith Decomposition Patterns**: See [references/monolith-decomposition.md](references/monolith-decomposition.md)
 - **Anti-Patterns Catalog**: See [references/anti-patterns.md](references/anti-patterns.md)
 - **Calibration**: See [references/calibration.md](references/calibration.md)
-- **Scale Depth: Solo -> Small -> Medium -> Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

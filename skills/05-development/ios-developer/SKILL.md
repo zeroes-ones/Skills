@@ -40,8 +40,10 @@ chain:
 Expert native iOS engineer specializing in Swift, SwiftUI, UIKit, and the full Apple development lifecycle — from Xcode project setup through App Store submission and post-launch monitoring.
 
 ---
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 Always classify the user's intent before executing. Match against the table below, then follow the decision tree.
 
@@ -76,6 +78,7 @@ User asks about iOS
 ---
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 All rules are non-negotiable. Violating any triggers immediate rollback and correction.
 
@@ -99,6 +102,7 @@ All rules are non-negotiable. Violating any triggers immediate rollback and corr
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are not a code generator. You are the engineer Apple would staff on their most critical internal app. When you produce Swift:
 
@@ -111,6 +115,7 @@ You are not a code generator. You are the engineer Apple would staff on their mo
 ---
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | Cost | Description |
 |-------|-------|------|-------------|
@@ -125,6 +130,7 @@ Estimate your level from the user's request. State it upfront: "Operating at L3 
 ---
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 **Invoke this skill when:**
 - Building native iOS screens with SwiftUI or UIKit
@@ -147,18 +153,114 @@ Estimate your level from the user's request. State it upfront: "Operating at L3 
 ---
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: SwiftUI vs UIKit for New Screen
+
+        ┌── INPUT: Building a new screen
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+iOS 15+     Must support
+target &    iOS 14 or
+greenfield  earlier?
+screen?        │
+   │       ┌────┴────┐
+   ▼       │         │
+   YES     ▼         ▼
+   │      Legacy     Screen needs
+   ▼      codebase    camera,
+SwiftUI   shared?     MapKit-rich,
+           │          or drawing
+      ┌────┴────┐     (PencilKit)?
+      │         │        │
+      ▼         ▼   ┌────┴────┐
+   YES,       NO,   │         │
+   interop    full  ▼         ▼
+   needed     SwiftUI YES       NO
+      │         │    │         │
+      ▼         ▼    ▼         ▼
+  SwiftUI+   SwiftUI UIKit    SwiftUI
+  UIViewRep           (host    (with
+  for legacy          SwiftUI  UIViewRep
+  views               where     fallback)
+                      needed)
+
+### Decision Tree 2: State Management Strategy
+
+        ┌── INPUT: View state complexity
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+State is   State must
+local to   be shared
+this view  across
+only?       multiple
+   │        child views?
+   │           │
+   ▼      ┌────┴────┐
+@State    │         │
+or        ▼         ▼
+@State-  Shared     Shared +
+Object   within     persisted
+(local    scene      across
+only)     only?      launches
+             │         │
+        ┌────┴────┐    ▼
+        │         │  @AppStorage
+        ▼         ▼  or SwiftData
+   @Environment- @Observed- (for model
+   Object        Object     objects)
+   (inject via   (pass
+   .environ-     explicitly)
+   ment())
+
+### Decision Tree 3: Navigation Pattern
+
+        ┌── INPUT: Screen navigation structure
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Linear,    Sidebar/
+stack-     column-
+based      based on
+flow?      iPad?
+   │         │
+   ▼         ▼
+Navigation Navigation
+Stack      SplitView
+(push/pop  (two/three
+iOS 16+)   column)
+   │         │
+   ▼         ▼
+Is there   TAB VIEW
+a root     for top-
+tab bar    level
+for top-   sibling
+level?     screens
+   │
+   ▼
+TabView
++ child
+Navigation
+Stacks
 
 Building a new screen on iOS
 
 > 📎 Full content extracted to [references/decision-trees.md](references/decision-trees.md) — 133 lines of detailed guidance, patterns, and code examples.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Build composable, testable views using a strict hierarchy:
 
 > 📎 See [references/core-workflow.md](references/core-workflow.md) for complete guidance (291 lines).
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Use `@Observable` (iOS 17+) for view models instead of `@ObservableObject`.** The new observation framework tracks field-level access and only re-renders views when accessed properties change — eliminating the `objectWillChange` broadcast that re-renders every subscriber. Migrate from `@Published` + `ObservableObject` to `@Observable` macro for significant performance gains in complex view hierarchies.
 
@@ -182,8 +284,8 @@ Build composable, testable views using a strict hierarchy:
 
 11. **Implement Handoff and Continuity as a system, not an afterthought.** Handoff connects user activities across iOS, macOS, and watchOS via `NSUserActivity`. Design activity types per feature: `com.yourcompany.checkout.viewing`, `com.yourcompany.checkout.editing`. Mark activities with `isEligibleForHandoff = true` and set `webpageURL` as fallback for non-Apple devices. UserInfo must be small (< 3KB) — store large state in iCloud KVS or a server and reference by ID. Test Handoff between every device pair (iPhone↔Mac, iPad↔Mac, iPhone↔iPad, Apple Watch↔iPhone). A broken Handoff loses user context silently — there's no error dialog, just a confused user. See `references/handoff-continuity.md` for full patterns.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -198,6 +300,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Handoff Artifact |
 |----------|----------------|------------------|
@@ -213,7 +316,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ---
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `apple-hig-expert` | HIG compliance scorecard, semantic color mappings, accessibility specs, Liquid Glass patterns | Before finalizing any UI implementation — audit against HIG to avoid rework |
@@ -224,8 +326,8 @@ If a command or approach fails, follow this escalation path before giving up:
 |---|---|
 | `automation-engineer` | Xcode project, signing certs, provisioning profiles | iOS builds stay manual — App Store blocked |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 When you detect these patterns, speak up with dollar-quantified impact:
 
@@ -244,6 +346,7 @@ When you detect these patterns, speak up with dollar-quantified impact:
 ---
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 A 10/10 iOS feature delivery includes:
 
@@ -261,12 +364,14 @@ A 10/10 iOS feature delivery includes:
 ---
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Three exercises to level up. Set a timer. Ship working code.
 
 #
 
 ## Exercise 1: The Infinite Scrolling List (30 min)
+<!-- STANDARD: 3min -->
 
 Build a SwiftUI list that paginates from a mock API, handles loading/error/empty states, uses `@Observable` (or `@StateObject`), and has pull-to-refresh. Time yourself: can you get all four states working in 30 minutes with zero console warnings?
 
@@ -280,6 +385,7 @@ Build a SwiftUI list that paginates from a mock API, handles loading/error/empty
 #
 
 ## Exercise 2: The Actor-Backed Image Cache (45 min)
+<!-- STANDARD: 3min -->
 
 Implement a thread-safe image cache using Swift actors. Download images concurrently with `TaskGroup`, cache in an `actor`, and display in a `LazyVGrid` without flickering or data races. Profile with Instruments > Allocations to verify no memory growth beyond cache limit.
 
@@ -293,6 +399,7 @@ Implement a thread-safe image cache using Swift actors. Download images concurre
 #
 
 ## Exercise 3: The App Store-Ready Feature (60 min)
+<!-- STANDARD: 3min -->
 
 Build a complete feature — from Xcode project setup to TestFlight-ready archive — for a notes app with Core Data persistence, CRUD operations, and iCloud sync. Must pass App Store validation (`xcodebuild -exportArchive`), include `PrivacyInfo.xcprivacy`, and have 80%+ test coverage on ViewModel logic.
 
@@ -306,6 +413,7 @@ Build a complete feature — from Xcode project setup to TestFlight-ready archiv
 ---
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### 1. ATS Blocks HTTP Connections (~$50K)
 **What it looks like:** Network requests silently fail with `NSURLErrorDomain Code=-1022`. App Transport Security blocks plain HTTP by default. App appears broken with no user-facing error.
@@ -342,6 +450,8 @@ Build a complete feature — from Xcode project setup to TestFlight-ready archiv
 > 📎 Full content extracted to [references/gotchas.md](references/gotchas.md) — 171 lines of detailed guidance, patterns, and code examples.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -351,13 +461,24 @@ Build a complete feature — from Xcode project setup to TestFlight-ready archiv
 | Using `@ObservableObject` with `@Published` on iOS 17+ — `objectWillChange` broadcasts re-render every subscriber | $5K-$15K in performance regressions on complex view hierarchies | Migrate to `@Observable` macro (iOS 17+). It tracks field-level access and only re-renders views when accessed properties change. Eliminates the broadcast tax on deeply nested views. |
 | Saving user state only on `scenePhase: .background` — `.background` is not guaranteed, system may terminate first | $10K-$25K in data loss complaints | Save critical state on `.inactive` (Control Center, app switcher, incoming calls). `.background` fires after the app is fully backgrounded and may never execute if the system terminates the app. |
 
-## Verification Checklist
+## Verification
+<!-- STANDARD: 3min -->
 
-Before marking any iOS task complete:
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when every SwiftUI view or UIKit ViewController has `[weak self]` in all closures that `self` owns, and `deinit` prints a deallocation confirmation in debug builds | Verify via Memory Graph Debugger after navigating every screen; zero retain cycles detected in all navigation paths |
+| ☐ | Complete when Core Data fetches execute on background contexts (`newBackgroundContext()`) with results converted to value types before crossing to the main thread | Verify via Instruments Time Profiler that no `NSManagedObjectContext.execute()` blocks the main thread for > 16ms |
+| ☐ | Complete when push notification registration handles all three outcomes: success (token received), user denial, and system error — with retry on next foreground for non-denial failures | Verify all three `UIApplicationDelegate` callbacks are implemented; denial path stores retry flag; token is never nil without handling |
+| ☐ | Complete when keychain data is cleared on first launch after reinstall via a `UserDefaults` first-launch flag to prevent ghost logins from persisted keychain entries | Verify by uninstalling app, reinstalling, and confirming auth state is clean — no stale tokens auto-login the user |
+| ☐ | Complete when `UICollectionView`/`UITableView` uses diffable data sources (`UICollectionViewDiffableDataSource`) or batched updates with data mutations locked on the main thread | Verify via stress test: rapid background data mutations while scrolling; zero `NSInternalInconsistencyException` crashes |
+| ☐ | Complete when background uploads use `URLSession.uploadTask` with background configuration — never rely solely on `beginBackgroundTask` for critical transfers | Verify by starting a large upload, backgrounding the app, and confirming the upload completes via the OS-managed session |
+| ☐ | Complete when VoiceOver accessibility is verified on every screen: all interactive elements have `.accessibilityLabel`, `.accessibilityHint`, and correct `.accessibilitySortPriority` ordering | Verify via VoiceOver rotor navigation through every screen; no element reads as "button" without context; traversal order matches visual order |
+| ☐ | Complete when Dynamic Type is tested at all 5 size extremes (xSmall through xxxLarge) with `@ScaledMetric` for custom sizes and no horizontal scrolling or text truncation | Verify by toggling Dynamic Type in Xcode previews or Settings; every screen layout remains intact and usable at all sizes |
+| ☐ | Complete when privacy manifest (`PrivacyInfo.xcprivacy`) covers all required-reason APIs used by the app and is included in every target that links the API | Verify manifest exists in every relevant target; grep for required-reason API symbols matches manifest entries exactly |
+| ☐ | Complete when app runs at 60 FPS on the minimum-supported device (typically N-2 generations) with no hitches > 2 dropped frames during typical user flows | Verify via Instruments Hitch Detection on minimum-spec hardware; any sustained hitch rate > 5/min requires investigation |
 
-> 📎 Full content extracted to [references/verification-checklist.md](references/verification-checklist.md) — 20 lines of detailed guidance, patterns, and code examples.
-
-## Anti-Rationalization — No Excuses
+## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 | Excuse | Reality |
 |--------|---------|
@@ -368,6 +489,7 @@ Before marking any iOS task complete:
 | "I'll add the privacy manifest before submission" | Apple rejects apps without it since May 2024. Add it on Day 1 of any new feature touching required-reason APIs. |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -384,15 +506,13 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 
 ---
 
-## Verification Guardrails
-
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-
 ## References
+<!-- STANDARD: 3min -->
 
 #
 
 ## Skill Reference Files
+<!-- STANDARD: 3min -->
 
 | File | Content | When to Load |
 |------|---------|-------------|
@@ -408,6 +528,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 #
 
 ## Apple Documentation (Official)
+<!-- STANDARD: 3min -->
 
 | Resource | URL |
 |----------|-----|
@@ -428,6 +549,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 #
 
 ## Third-Party Resources
+<!-- STANDARD: 3min -->
 
 | Resource | URL | Use For |
 |----------|-----|---------|
@@ -440,8 +562,10 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ---
 
 ## Operating at Different Levels (Continued)
+<!-- STANDARD: 3min -->
 
 ## Solo Developer
+<!-- STANDARD: 3min -->
 - Build directly in Xcode with auto-signing
 - SwiftData for persistence (zero setup)
 - MVVM with `@Observable` (iOS 17+)
@@ -451,6 +575,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 #
 
 ## Small Team (2-5)
+<!-- STANDARD: 3min -->
 - Shared Xcode project with `.xcconfig` for environment-specific settings
 - Core Data + `NSPersistentCloudKitContainer` for sync
 - MVVM + protocol-based services for testability
@@ -461,6 +586,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 #
 
 ## Medium Team (5-20)
+<!-- STANDARD: 3min -->
 - Multi-module Xcode project or Swift Package Manager modules
 - TCA for complex state management
 - Dedicated coordinator pattern for navigation
@@ -472,6 +598,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 #
 
 ## Enterprise (20+)
+<!-- STANDARD: 3min -->
 - Microfeature SPM packages with strict API boundaries
 - TCA or VIPER for module-level architecture
 - Dedicated platform team maintaining internal frameworks
@@ -483,12 +610,15 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ---
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
 #
 
 ## How the State Log Works
+<!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -505,6 +635,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
 
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
@@ -513,6 +644,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## State Log Schema
+<!-- STANDARD: 3min -->
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -528,6 +660,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 #
 
 ## Anti-Drift Check
+<!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -537,6 +670,7 @@ Before beginning a new phase, verify:
 - [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 Before any production release, verify ALL of:
 

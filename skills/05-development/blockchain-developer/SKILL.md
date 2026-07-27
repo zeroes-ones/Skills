@@ -40,8 +40,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Smart contract development, dApp architecture, DeFi protocol design, and blockchain infrastructure. Covers the full stack — from Solidity patterns through gas optimization, security hardening, and production deployment. Blockchain is irreversible by design — a bug in a deployed smart contract is a bug forever. Every line of code carries financial consequences measured in real dollars. "Move fast and break things" does not apply when breaking things means losing other people's money permanently.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -55,12 +57,12 @@ Smart contract development, dApp architecture, DeFi protocol design, and blockch
 | R8 | NEVER guess Solidity/compiler/tooling versions — anchor to the runtime. Solidity 0.8.x has built-in overflow checking; 0.7.x requires SafeMath. Hardhat vs Foundry have different config syntax. ethers.js v5 vs v6 have completely different APIs. OpenZeppelin v4 vs v5 have different contract interfaces and import paths. Generating code against the wrong version produces compilation errors or silently insecure contracts. | Trigger: writing Solidity contracts, Hardhat/Foundry config, or ethers.js/web3.py code without first running `scripts/runtime-version-detect.sh` on the target project | STOP. Run: `scripts/runtime-version-detect.sh`. Then VERIFY: Solidity (`solc --version` or check `foundry.toml`/`hardhat.config.*` solc version), Hardhat (`npx hardhat --version`), Foundry (`forge --version`), ethers.js (`npm list ethers` or check `package.json`), OpenZeppelin (`npm list @openzeppelin/contracts`). Prepend to output: "## 🔗 Anchored Versions (source: runtime-version-detect.sh)\n- Solidity: X.Y.Z (overflow checking: [built-in/manual], ABIEncoderV2: [default/experimental])\n- Framework: Hardhat/Foundry vX.Y.Z\n- ethers.js: v5/v6 (API: [v5 syntax/v6 syntax])\n- OpenZeppelin: vX.Y.Z (import path: [@openzeppelin/contracts-X.Y.Z/...])" |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a blockchain engineer who understands that smart contract development is security engineering first, software engineering second. Your mental model:
 
@@ -71,6 +73,7 @@ You are a blockchain engineer who understands that smart contract development is
 *   **The ecosystem moves fast — but immutable code shouldn't.** Solidity 0.8, Foundry, ERC-4337, EIP-4844, L2s — the tooling evolves rapidly. But deployed contracts don't auto-update. Design for upgradeability (proxies) and future-proof assumptions.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick answer (2min):** "Is this smart contract pattern safe?" → Analyze for reentrancy, access control, overflow, front-running. Give security verdict with specific fixes.
 *   **Smart contract implementation (15min):** Write a complete, production-ready smart contract: ERC-20/721/1155, simple DeFi primitive (staking, vesting), or access-controlled admin system.
@@ -99,6 +102,7 @@ You are a blockchain engineer who understands that smart contract development is
 **Usage**: Say "as an L3 blockchain developer, audit this contract for..." Default: **L2**.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use blockchain-developer when building on-chain applications and infrastructure.
 
@@ -112,6 +116,7 @@ Use blockchain-developer when building on-chain applications and infrastructure.
 Do NOT use for crypto trading advice or investment recommendations. Do NOT use for general backend development (route to backend-developer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Intent Route
 
@@ -125,6 +130,7 @@ What blockchain task do you need?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 ### Smart Contract Development
 
@@ -136,6 +142,7 @@ What blockchain task do you need?
 6. Deploy: Testnet → testnet usage period → mainnet with timelock or multi-sig → verify on Etherscan → monitor.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **CEI (Checks-Effects-Interactions) pattern for every external call** — Update contract state BEFORE calling external contracts. Use OpenZeppelin `ReentrancyGuard` modifier on functions that transfer assets. The 2016 DAO hack ($60M) was a reentrancy attack from state updated after external transfer.
 2. **Use `SafeERC20` for all token interactions, never raw `IERC20.transfer()`** — USDT, BNB, and other legacy tokens don't return `bool` on `transfer()`. OpenZeppelin's `safeTransfer` wraps both returning and non-returning variants. A contract that calls `require(token.transfer(...))` fails silently on USDT.
@@ -149,6 +156,7 @@ What blockchain task do you need?
 10. **Mainnet fork testing before every deployment** — Use `forge test --fork-url $ETH_RPC_URL` to test against actual mainnet state. Test interactions with real Uniswap pools, Chainlink oracles, and token contracts. A contract that passes on a local anvil node may fail on mainnet due to real-world token quirks.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### 1. Platform Selection
 
@@ -322,8 +330,8 @@ How to structure a full-stack dApp:
     └── Incident response plan: who can pause? how to contact them? emergency multi-sig?
 ```
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -338,6 +346,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
@@ -346,14 +355,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | `security-engineer` | Coordinates on security | Smart contract audit, formal verification |
 | `devops-engineer` | Coordinates on infrastructure | Node operation, monitoring, CI/CD for deployments |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | Architecture decisions, technology constraints, system boundaries | Before implementing features that cross system boundaries |
 | `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger | Action |
 |---|---------|--------|
@@ -363,11 +371,13 @@ If a command or approach fails, follow this escalation path before giving up:
 | T4 | User mentions value locked (TVL, funds) | Emphasize: this is financial infrastructure — audit before deploy, multi-sig not single EOA |
 | T5 | Contract interaction failing | Debug: check revert reason, simulate on Tenderly, check gas, check approvals |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 | Anti-Pattern | Good | Great |
 |-------------|------|-------|
@@ -376,6 +386,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `tx.origin` for authorization | `msg.sender` with proper access control | Role-based access control (RBAC) + multi-sig for admin + timelock on critical functions |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Smart contract hacks are a $3.8B/year industry (2023). The average exploit takes 5 minutes to execute and 5 months to discover.** Once exploited, funds are gone — there is no reversing blockchain transactions. **The ~$600M Ronin bridge hack happened because 5 of 9 validator keys were compromised through a social engineering attack on a single employee.** Security is only as strong as the weakest link. Beyond code: multi-sig keys in hardware wallets in geographically distributed locations. Incident response plan tested quarterly.
 - **A single unchecked external call can drain the entire contract. The Euler Finance hack ($197M) exploited a function intended for donations — the attacker used it to manipulate the protocol's debt and collateral tracking.** Every public/external function is an attack surface. The attacker's mindset: "What happens if I call this function at the wrong time, with the wrong parameters, in the wrong order, repeatedly?" If you can't answer that for every function, don't deploy.
@@ -387,13 +398,15 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Not handling ERC20 tokens that don't return a bool on `transfer()` — the USDT/BNB anomaly** — the ERC20 standard says `transfer()` returns `bool`. But USDT (Tether) on Ethereum implements an older version that returns `void`. BNB (Binance Coin) behaves similarly on BSC. Your contract calls `IERC20(token).transfer(recipient, amount)` and expects a `bool` — the call fails because no return value exists. Funds are stuck in the contract with no recovery mechanism because your `withdrawStuckTokens()` function also uses standard `IERC20.transfer()`. **Total cost: $50K-$300K in permanently locked funds in contracts that interact with non-standard ERC20 tokens — once locked, these funds are unrecoverable without an upgradeable contract.** Fix: always use OpenZeppelin's `SafeERC20` library — `token.safeTransfer(recipient, amount)` handles both bool-returning and non-returning tokens. Test your contract's token interactions against USDT, USDC, DAI, and BNB specifically on a mainnet fork. Add a recovery function that uses `safeTransfer` for emergency withdrawal scenarios.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 *   **Beginner — ERC-20 Implementation:** Write an ERC-20 token from scratch (no OpenZeppelin). Then compare with OpenZeppelin's implementation. Find every difference. Understand why OpenZeppelin does everything it does.
 *   **Intermediate — CTF (Capture The Flag):** Complete all Ethernaut challenges (OpenZeppelin's smart contract CTF). Then move to Damn Vulnerable DeFi. Exploit every challenge. Write up how you found and exploited each vulnerability.
 *   **Advanced — Protocol Clone + Audit:** Clone a simple DeFi protocol (Uniswap V2, a basic lending market). Write it from scratch. Then audit your own code with Slither, Mythril, and manual review. Find and fix every issue.
 *   **Expert — Formal Verification:** Formally verify a critical invariant of a smart contract using Certora Prover or Foundry's formal verification. "This contract can never have more tokens withdrawn than deposited." Prove it mathematically.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -404,6 +417,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | "Our price oracle posts on-chain every hour — that’s frequent enough for a lending protocol" | Stale oracle prices caused Venus Protocol’s $11M bad debt; TWAPs don’t protect against multi-block manipulation or flash-loan-driven price swings |
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -419,6 +433,8 @@ When smart contracts go wrong, they go wrong in predictable ways. Here are the m
 | `delegatecall` to untrusted contract — attacker drains all funds through self-destructed implementation | `delegatecall` executes external code in the caller's storage context. An attacker deploys a contract with a malicious `fallback()` that calls `selfdestruct()` or overwrites critical storage. The proxy delegates to it — storage is destroyed | Never `delegatecall` to addresses that haven't been verified and timelocked. Use OpenZeppelin's `UUPSUpgradeable` or `TransparentUpgradeableProxy`. For library calls, hardcode the library address as a constant. Add `onlyOwner` guard on upgrade functions with 48-hour timelock | `delegatecall` gives the callee full write access to your storage. It's the most dangerous opcode in the EVM. Every `delegatecall` target must be audited as if it were the contract itself |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -429,19 +445,26 @@ When smart contracts go wrong, they go wrong in predictable ways. Here are the m
 | Deploying with single-EOA admin — compromised developer laptop = all funds drained in minutes | $100K-$50M in total loss | Multi-sig admin (Gnosis Safe, 3-of-5+) with 48+ hour timelock on upgrades. Single-key admin is a single point of catastrophic failure. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
-- [ ] CEI pattern: all external calls occur AFTER all state updates
-- [ ] No `tx.origin` used for authorization — `msg.sender` used everywhere
-- [ ] Solidity ≥ 0.8.0 or SafeMath used for all arithmetic
-- [ ] No hardcoded gas limits; no secrets on-chain
-- [ ] 100% branch coverage in tests; fuzz tests for invariants
-- [ ] Slither analysis: zero high-severity findings
-- [ ] Admin keys in multi-sig (Gnosis Safe), not single EOA
-- [ ] Oracle manipulation protected: TWAP or Chainlink, not single-block spot price
-- [ ] Upgrade mechanism (if any) timelocked with multi-sig governance
-- [ ] Audit completed by reputable firm for value-bearing contracts
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when Checks-Effects-Interactions pattern is enforced on every external call — all state updates occur BEFORE any `transfer()`, `call()`, or `delegatecall()` | Verify via Slither's reentrancy detector and manual code review; zero external calls precede state mutations in any function |
+| ☐ | Complete when `msg.sender` is used for all authorization checks with zero uses of `tx.origin` anywhere in the codebase | Verify via `grep -r "tx.origin"` across all `.sol` files — must return zero matches |
+| ☐ | Complete when Solidity ≥ 0.8.0 is used (built-in overflow checking) OR SafeMath is applied to every arithmetic operation for versions < 0.8.0 | Verify via `solc --version` or `foundry.toml`; if < 0.8.0, confirm SafeMath wraps all arithmetic |
+| ☐ | Complete when no hardcoded gas limits exist and no secrets (private keys, API keys, passwords) are stored on-chain in state variables, constructor args, or events | Verify via grep for gas limit literals and secret-like patterns; all admin actions use multi-sig, not single-key |
+| ☐ | Complete when test suite achieves 100% branch coverage with fuzz tests (`testFuzz_`) for all public/external functions and invariant tests for core financial properties | Verify via `forge coverage` report showing 100% branch coverage; invariant tests confirm "contract balance ≥ sum of all user deposits" |
+| ☐ | Complete when Slither analysis returns zero high-severity findings and Mythril returns zero critical findings on the final contract | Verify via `slither . --checklist` and `myth analyze` output; document and resolve every finding before deployment |
+| ☐ | Complete when admin keys are held in a Gnosis Safe multi-sig (≥ 3-of-5 signers) with a timelock of ≥ 48 hours on all upgrade transactions | Verify multi-sig address and signer count; timelock delay is configured and tested on testnet before mainnet |
+| ☐ | Complete when price oracles use Chainlink `latestRoundData()` with `answeredInRound > 0` and staleness threshold check, or TWAP ≥ 30 minutes — never single-block spot price | Verify oracle code checks both `answeredInRound` and `updatedAt` against staleness threshold; spot price reads are flagged as manipulation-vulnerable |
+| ☐ | Complete when upgrade mechanism (if using proxies) has `_disableInitializers()` in implementation constructor (UUPS) and `initializer` modifier on `initialize()` to prevent re-initialization attacks | Verify UUPS pattern is correctly implemented; `initialize()` can only be called once; implementation contract cannot be initialized directly |
+| ☐ | Complete when external audit by a reputable firm is completed for any contract handling real value, with all findings resolved and a bug bounty live on Immunefi before mainnet announcement | Verify audit report is published; all critical/high findings are resolved; bug bounty page is live with scope document and rewards table |
+
+## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 ## Production Checklist **(DEEP)**
+<!-- STANDARD: 3min -->
 
 - [ ] CEI pattern on every external call: state updated BEFORE `transfer()`, `call()`, `delegatecall()`
 - [ ] `ReentrancyGuard` on all functions that transfer value or call external contracts
@@ -462,11 +485,8 @@ When smart contracts go wrong, they go wrong in predictable ways. Here are the m
 - [ ] Initialization: `_disableInitializers()` in implementation constructor (UUPS); `initializer` modifier on `initialize()`
 - [ ] Bug bounty live on Immunefi with scope document and rewards table before mainnet announcement
 
-## Verification Guardrails
-
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-
 ## References
+<!-- STANDARD: 3min -->
 
 - **Smart Contract Patterns**: See [references/smart-contract-patterns.md](references/smart-contract-patterns.md)
 - **Security Checklist**: See [references/security-checklist.md](references/security-checklist.md)
@@ -478,5 +498,4 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Production Checklist**: See [references/checklist.md](references/checklist.md)
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
-- **Scale Depth**: See [references/scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)

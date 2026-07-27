@@ -53,6 +53,13 @@ the answer is "don't write this code" regardless of how interesting the technica
 - If FALSE → STOP. The code should not be written.
 - If TRUE → Proceed. Document the assumptions.
 
+## Anti-Hallucination
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
@@ -65,7 +72,6 @@ the answer is "don't write this code" regardless of how interesting the technica
 | **R4** | ⚠️ **DETECT and WARN when a task targets code handling < 1% of traffic or revenue.** Optimizing low-impact paths is the #1 cause of negative-ROI engineering work. | Trigger: task targets a code path AND file_contains indicates it handles an edge case, error path, or low-traffic endpoint (e.g., `/admin/health`, `/internal/metrics`, `< 1%` in comments) | WARN: "This code path appears to handle [low-traffic scenario]. Before proceeding: (1) confirm actual traffic/revenue percentage, (2) calculate annual value of the fix, (3) compare against implementation cost. If this path handles < 1% of traffic, the annual value of any fix is likely < $1,000 — proceed only if implementation takes < 2 hours." |
 | **R5** | ⚠️ **DETECT and WARN when adding a dependency replaces < 50 lines of code.** Adding a dependency is a loan with compound interest — it saves N hours now, costs M hours/month in maintenance forever. | Trigger: `grep -rn "npm install\|pip install\|gem install\|go get\|cargo add" **/* | grep -v "existing\|already\|update\|upgrade"` → new dependency being added AND the functionality it replaces is < 50 LOC | WARN: "This dependency replaces approximately [X] lines of code. Cost analysis: (1) dependency maintenance: security updates, breaking changes, version pinning — ~[Y] hours/year, (2) supply chain risk: each dependency is a potential attack vector, (3) onboarding cost: new engineers learn one more library. If X < 50 LOC, the dependency pays for itself only if it solves a genuinely hard problem (crypto, date math, protocol implementation). For simple utilities, inline the implementation. Rule: < 50 LOC → write it; 50-200 LOC → evaluate; > 200 LOC → dependency justified." |
 | **R6** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about cost estimates, say so explicitly: "Estimated at $[X]/hour loaded cost. Verify with your actual team costs." Never invent a dollar figure without stating assumptions.
 - **Flag your knowledge cutoff.** Salary data, cloud pricing, and vendor costs change frequently. State your data cutoff and recommend verifying current rates.
@@ -442,6 +448,12 @@ Before approving any non-trivial task (> 8 hours), verify:
 **AMBIGUOUS:** "TCO shows payback at 1.7 years with ±30% uncertainty. Task cost: $35K estimated. Exceeds $25K autonomous threshold. Escalating to cto-advisor."
 
   Complete when: Full 3-year NPV calculation is complete with discounted cash flows, cost breakdown (development + maintenance + opportunity), risk-adjusted benefit quantification, and a final ROI percentage with payback period. Every dollar figure is tagged [VERIFIED] or [ESTIMATED].
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 ## Deliberate Practice
 
@@ -492,48 +504,6 @@ Before completing any ROI gate analysis, verify:
 - [ ] **[VG6]** For STOP verdicts: a higher-ROI alternative is suggested (redirect, not just refuse)
 - [ ] **[VG7]** Security fixes, compliance mandates, and active incidents are correctly bypassing the gate
 - [ ] **[VG8]** Cold-path work is flagged if traffic < 1% and cost > $500
-
-## Scale Depth
-
-### Solo (1 engineer, pre-revenue)
-- ROI threshold: Does this save more hours than it costs to build? Any positive hour-save ROI is probably worth it at this stage
-- Decision framework: Simple cost-benefit — time to build vs. time saved over 6 months
-- Abstraction rule: No abstractions for single implementations. Write it directly.
-- Dependency rule: Add dependencies only when they solve a problem you can't solve in a day
-- Deliverable: 1-paragraph ROI justification in a PR description
-
-### Small (2-10 engineers, $1M-$10M ARR)
-- ROI threshold: Project must show positive ROI within 12 months AND not block higher-ROI work
-- Decision framework: Decision tree with probability-weighted outcomes for major decisions (>40 engineering hours)
-- Abstraction rule: Abstract only when 2+ concrete implementations exist OR domain boundary is clear and stable
-- Dependency rule: ROI calculation required for dependencies that add > 5KB to bundle or require ongoing maintenance
-- Deliverable: 1-page ROI analysis with decision tree for decisions > 40 hours
-
-### Medium (10-50 engineers, $10M-$50M ARR)
-- ROI threshold: Project must show positive ROI within 18 months, account for displaced work, and include maintenance burden
-- Decision framework: Full decision tree with sensitivity analysis for decisions > 80 engineering hours
-- Abstraction rule: Pre-commit to abstraction ROI — document expected concrete cases before building
-- Dependency rule: Vendor risk assessment + exit strategy + TCO for dependencies that cost money or have security surface area
-- Deliverable: ROI document with decision tree, sensitivity analysis, displaced work calculation, and maintenance burden
-
-### Enterprise (50+ engineers, $50M+ ARR)
-- ROI threshold: Multi-year ROI with scenario planning (base/downside/upside), capital allocation framework, and portfolio optimization
-- Decision framework: Portfolio-level ROI — optimize across all proposed projects, not each in isolation
-- Abstraction rule: Architecture review board evaluates abstraction proposals against enterprise-wide patterns
-- Dependency rule: Formal vendor evaluation with legal, security, procurement, and architecture review
-- Deliverable: Business case document with multi-year financial model, risk register, and portfolio impact analysis
-
-## Error Decoder
-**(STANDARD)**
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Rewrite approved at $200K estimated cost; actual cost $650K and 9 months late | Planning fallacy — initial estimate used best-case assumptions (no scope creep, no discovered edge cases, no integration surprises) | Recalculate ROI after each phase milestone. Apply a 1.5x-2x multiplier to initial estimates based on historical accuracy. Include "discovery buffer" of 20-30% for unknown edge cases. | Your first estimate is an aspiration, not a prediction. Recalculate with real data. |
-| "Simple abstraction" grew to 2,000 lines used by exactly 1 consumer | Premature abstraction — built for anticipated future needs that never materialized. The abstraction tax is being paid by every developer who has to understand the indirection. | Apply the rule: no abstractions until 2+ concrete implementations exist. Delete abstractions that serve ≤ 1 consumer after 6 months. | YAGNI isn't cynicism — it's ROI discipline. |
-| Dependency added to "save 2 weeks of work"; 18 months later, it's caused 6 weeks of maintenance and 2 security incidents | Dependency ROI calculated on build cost only, ignoring lifetime maintenance burden. No exit strategy for when the dependency goes unmaintained or changes its API. | For every dependency, calculate: integration cost + (monthly maintenance × 36 months) + vulnerability risk × incident cost. If this exceeds build cost, build it. | Dependencies are liabilities that masquerade as assets. |
-| Team spent 3 months optimizing a query that runs 10 times/day and takes 2 seconds | No ROI gate applied. "It's slow" triggered optimization without asking "how much does this slowness actually cost?" | Quantify: 2 seconds × 10 runs/day × 250 work days = 1.4 hours/year of total wait time. At $150/hr fully-loaded, that's $208/year. 3 months of engineering time = ~$60K. ROI: negative. | Not all "problems" are problems worth solving. |
-| Refactor vs. rewrite debate consumed 6 weeks of meetings with no decision | No decision framework. Debate was based on intuition and anecdotes, not numbers. Both sides had valid arguments with no way to resolve them. | Run a decision tree with probability-weighted outcomes. Assign dollar amounts to each branch (best case, expected case, worst case for both options). The tree either reveals one option as clearly superior or reveals that the difference is negligible — in which case, flip a coin and move on. | A decision framework doesn't guarantee the right answer, but it guarantees the conversation ends. |
-| Feature built because "competitor has it" — 2% adoption after 6 months | ROI analysis skipped because "competitive parity" was treated as inherently valuable. The competitor's feature solved THEIR customers' problems; your customers never asked for it. | Before building for competitive parity, validate demand with your actual customers. Run a fake-door test or concierge MVP. If < 20% of surveyed customers express interest, competitive parity has negative ROI. | Your competitor's roadmap is not your customer's wishlist. |
 
 ## References
 

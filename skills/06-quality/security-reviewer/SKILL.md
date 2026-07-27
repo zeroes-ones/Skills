@@ -46,6 +46,7 @@ chain:
 Comprehensive security review of applications, APIs, infrastructure, and mobile platforms. Covers STRIDE threat modeling during code review, OWASP Top 10 2021 mapped to language-specific patterns, authentication and authorization hardening, data protection and encryption, injection defense across all vectors, API security posture, dependency and supply chain analysis, container and IaC hardening, mobile security review, CVSS-aligned severity classification, and structured review reports with reproduction and verification steps.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- TWO-TIER ROUTING: Auto-Route table (machine) → Intent Route tree (human fallback) -->
 
@@ -79,9 +80,11 @@ What are you trying to do?
 └── Not sure where to start? → "Core Workflow > Phase 1" — define scope, identify threat actors, then follow STRIDE
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -92,6 +95,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | "We passed security review once at v1.0 — we're good for the lifecycle." | Six months and 47 PRs later: new SVG uploads accept embedded JavaScript, a transitive dependency pulled in a critical CVE, and GraphQL introspection maps your entire data model. Cost: $100K-$1M in accumulated vulnerabilities exploitable for months. Security review is continuous, not a one-time gate. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect security review mistakes before they are given. Violation means STOP and refuse to proceed.
 
@@ -107,12 +111,12 @@ These rules are non-negotiable constraints that detect security review mistakes 
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Security review is not about finding every vulnerability — it's about **understanding the attacker's perspective and ensuring that the cost of exploiting your system exceeds the value of what's protected**. The best security reviewers think like adversaries: creative, persistent, and indifferent to the developer's intentions.
 
@@ -142,6 +146,7 @@ Security review is not about finding every vulnerability — it's about **unders
 - **Your threat model determines your security posture.** A system with no threat model has no security strategy — it has a collection of security controls with no coherence. Start every review by asking: "Who are we defending against? What are we protecting?"
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Security review scales from single-PR review to org-wide security program design.
 
@@ -156,6 +161,7 @@ Security review scales from single-PR review to org-wide security program design
 **Usage**: Say "as an L3 security reviewer, review this authentication flow." Default: **L2** (PR-level review, independent execution).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Performing a security code review on a pull request, feature branch, or release candidate
@@ -169,6 +175,7 @@ Security review scales from single-PR review to org-wide security program design
 - Reviewing mobile app security: secure storage, cert pinning, root detection, code obfuscation
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Review Depth by Change Type
@@ -199,6 +206,7 @@ Security review scales from single-PR review to org-wide security program design
                           │ OWASP cats │  │ scan only    │
                           └────────────┘  └──────────────┘
 ```
+
 **When full STRIDE + OWASP All:** Auth flows, payment processing, PII handling, cryptographic operations. Any change that could expose user data or enable privilege escalation.
 **When light review suffices:** Documentation changes, test-only changes, configuration changes with no security surface. SAST passes + `npm audit` clean = approve.
 
@@ -230,6 +238,7 @@ Security review scales from single-PR review to org-wide security program design
                             │            │  │ algorithm.   │
                             └────────────┘  └──────────────┘
 ```
+
 **When CRITICAL:** Auth bypass discovered. Any user can access another user's data (IDOR). Admin functions accessible without role check.
 **When MEDIUM:** JWT with `algorithm: none` possible but mitigated elsewhere. Session timeout is too long (72h+). Missing `SameSite` on non-critical cookie.
 
@@ -258,6 +267,7 @@ Security review scales from single-PR review to org-wide security program design
                             │ days.      │  │ days.        │
                             └────────────┘  └──────────────┘
 ```
+
 **When immediate hotfix:** Log4Shell-level vulnerability. RCE with public exploit. Dependency used in request path. CVSS ≥ 9.0 with network attack vector.
 **When 30-day fix:** Vulnerable in dev dependency only. Reachable code path requires non-default config. CVSS < 7.0 with local attack vector only.
 
@@ -282,10 +292,12 @@ Security review scales from single-PR review to org-wide security program design
         │                   │    │ conditions.          │
         └──────────────────┘    └──────────────────────┘
 ```
+
 **When SAST is sufficient:** SQL injection via string concatenation. Hardcoded API keys. Missing CSRF tokens. XSS via innerHTML. High true-positive rate.
 **When manual review required:** Authorization logic (role checks, ownership verification). Race conditions in financial transactions. Cryptographic algorithm misuse.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Threat Modeling with STRIDE During Code Review
@@ -334,9 +346,15 @@ Apply STRIDE per component by examining the code, not just architecture diagrams
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
   Complete when: OWASP Top 10 2021 reviewed per language with SAST pre-gate findings resolved and secrets scan completed.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Audit against the OWASP Top 10 2021 for every review.** Walk through all ten categories: Broken Access Control, Cryptographic Failures, Injection, Insecure Design, Security Misconfiguration, Vulnerable Components, Auth Failures, Software & Data Integrity Failures, Logging & Monitoring Failures, and SSRF. Each category has language-specific detection patterns. A review that skips a category leaves a known attack surface unchecked.
 
@@ -358,8 +376,8 @@ Apply STRIDE per component by examining the code, not just architecture diagrams
 
 10. **Make security review continuous, not a one-time gate.** After the initial review, every PR touching auth, data access, file handling, or external integrations triggers a re-review. Run SAST and dependency scanning on every commit. Schedule quarterly full-application reviews regardless of change volume. The 47 PRs between "we passed security review" and the next review can introduce as many vulnerabilities as the original codebase. Security is a process, not a milestone.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -374,6 +392,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -415,6 +434,7 @@ Low / Info?
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Rationale |
 |---|---|---|
@@ -436,11 +456,13 @@ Low / Info?
 | Security ↔ Code Review | Security findings from SAST posted as inline PR annotations. Dependency vulnerability alerts surfaced in PR diff view. Security reviewer auto-assigned by file pattern (`auth/`, `payment/`, `crypto/`, `admin/`). |
 | Security ↔ Observability | Security-relevant logs (auth failures, permission denials, suspicious patterns) shipped to SIEM. Detection rules aligned to MITRE ATT&CK framework. Anomaly detection on authentication and data access patterns. |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before delivering a security review and clearing code for deployment, verify every item:
 
@@ -459,14 +481,15 @@ Before delivering a security review and clearing code for deployment, verify eve
 - [ ] **Rate limiting and DoS protections in place.** Request size limits enforced. Query timeouts configured. Rate limiting per user/IP on auth and resource-intensive endpoints. No unbounded queries (missing LIMIT). Regex timeout on user-supplied patterns (ReDoS protection).
 - [ ] **Findings documented with full CVSS vector and fix recommendations.** Each finding includes: severity, CWE, OWASP category, CVSS vector, location (file + line), reproduction steps, risk assessment, fix code (before/after), and verification steps. Findings structured per the review template.
 
-
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Auth flows, data handling, and dependency chains are reviewed against the principle of least privilege.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Security instinct is built through repeated adversarial thinking — learning to see systems the way an attacker sees them. This is a mindset that must be practiced, not just studied.
 
@@ -489,6 +512,7 @@ graph LR
 **The One Highest-Leverage Activity**: Every time a major CVE is published, ask: "Is our system vulnerable to this class of attack?" Don't wait for a scanner to tell you — read the CVE, understand the vulnerability class, and hunt for it manually in your codebase.
 
 ## Finding #[N]: [SEVERITY] [CATEGORY] - [Brief Title]
+<!-- STANDARD: 3min -->
 
 **Severity:** Critical | High | Medium | Low | Info
 **CWE:** CWE-[Number] ([Name])
@@ -520,25 +544,30 @@ graph LR
 [Specific actionable code changes with before/after examples]
 
 **Before (Vulnerable):**
+
 ```[language]
 [actual vulnerable code from the codebase]
 ```
 
 **After (Fixed):**
+
 ```[language]
 [corrected code]
+
 ```
 
-### Verification Steps
+## Verification Steps
 1. [How to confirm the fix works]
 2. [Tests to run]
 3. [Automated scan to verify]
 
-### References
+- References
 - [Link to CWE, OWASP, or vendor advisory]
+
 ```
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Security review only at end of sprint.** The feature is built, tested, and polished. On the last day, security review finds: the auth middleware can be bypassed with a crafted header, user input is rendered without sanitization (stored XSS), and file uploads accept any MIME type including executable. Fixing these requires re-architecting the auth flow and redesigning the upload component — tasks measured in days, not hours. The feature ships late or ships vulnerable; neither is acceptable. **Total cost: $50,000-$500,000 in redesign and reimplementation when security flaws are found late in the development cycle.** Fix: Perform threat modeling during design, not after implementation; add security acceptance criteria to every user story; run SAST in CI as a pre-merge gate; conduct incremental security review as each component is built, not in a final gate.
 - **Dependency vulnerability left unpatched.** A critical CVE is published for a transitive dependency (log4shell, Spring4Shell, left-pad). The fix is available within 48 hours — a version bump and a test suite run. Instead, the ticket sits in the backlog for 6 months behind feature work. During that window, an attacker exploits the known CVE through a public proof-of-concept, exfiltrates customer data, and triggers a mandatory breach notification. The cost of the version bump was a few hours of engineering time; the cost of the breach is 100-1000x that. **Total cost: $100,000-$1,000,000+ breach cost from known CVEs with patches available but not applied.** Fix: Automate dependency scanning in CI (Dependabot, Snyk, Renovate); set SLAs for patch application (critical: 48 hours, high: 1 week, medium: 2 weeks); block deployments if critical CVEs are unpatched beyond the SLA window.
@@ -552,6 +581,8 @@ graph LR
 - **Prototype pollution in `Object.assign` or spread operators**: If user input like `{"__proto__": {"isAdmin": true}}` reaches a merge function, it pollutes `Object.prototype`. Every `{}` in the application now has `isAdmin: true`. Use `Object.create(null)` or libraries that sanitize keys.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -562,6 +593,7 @@ graph LR
 | Using weak JWT algorithm configuration (`none` algorithm accepted) | $100K-$500K in account takeover incidents from unsigned tokens | Always whitelist algorithms: `jwt.verify(token, secret, { algorithms: ['HS256', 'RS256'] })` |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `npm audit` / `pip-audit` / `trivy fs .` — zero critical/high vulnerabilities
 - [ ] Run SAST: `semgrep --config=auto .` or `codeql analyze` — zero high-severity findings
@@ -571,25 +603,11 @@ graph LR
 - [ ] Auth review: JWT validation, session management, password policy — all items checked against checklist
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-### Scale Depth
-
-#### Solo Developer
-Run `npm audit` before deploy. Manual code review focusing on OWASP Top 10. SAST (Semgrep) run locally. No formal threat modeling. Dependency scanning at release time. Secrets checked via `gitleaks` pre-commit hook. Auth patterns verified against known-good examples.
-
-#### Small Team (2-10)
-SAST (Semgrep/CodeQL) in CI as advisory gate. Dependency scanning (Dependabot/Snyk) with auto-PR for patches. Secret scanning blocks commits at pre-commit. STRIDE threat modeling for new features during design review. Security review on PRs touching auth, data access, or external integrations. CVEs triaged weekly. Critical patches within 48 hours SLA.
-
-#### Medium Team (10-50)
-SAST blocks PR on high-severity findings. Dependency scanning blocks deploy on critical CVEs past SLA (48 hours). Secret scanning in CI history + pre-commit. SBOM generated at build time. Formal threat modeling sessions for all new services. Quarterly full-application security review. Penetration testing annually. Security champion program — one per team.
-
-#### Enterprise (50+)
-All medium-team gates + dedicated AppSec team. Continuous pentesting or bug bounty program. Red team exercises quarterly. Runtime protection (RASP/WAF). SIEM with detection rules aligned to MITRE ATT&CK. Automated compliance evidence pipeline (SOC 2, ISO 27001, PCI DSS, HIPAA). Vendor security reviews for all third-party integrations. Board-level security metrics dashboard. Incident response tabletop exercises biannually. 24/7 security on-call rotation.
-
-**Transition Triggers:** Scale up when: (a) storing any PII, PHI, or payment data → Small, (b) first security incident or breach → Medium immediately, (c) revenue > $10M or 100K+ users → Enterprise, (d) regulatory compliance required (SOC 2, HIPAA, PCI DSS) → Enterprise, (e) operating in finance, healthcare, or government → Enterprise regardless of size.
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -605,6 +623,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Rate limit bypassed by sending `X-Forwarded-For: 127.0.0.1` — attacker controls the rate limit key | Application trusts `X-Forwarded-For` header from the client. Rate limiter uses client IP from that header. Attacker rotates fake IPs in the header — each request appears to come from a different IP | Only trust `X-Forwarded-For` from trusted proxies (your load balancer). Use `req.ip` from Express's trust proxy setting: `app.set('trust proxy', '10.0.0.0/8')`. Rate limit on the rightmost IP in the chain (the actual client), not any header the client can set | Any header the client can set is attacker-controlled. `X-Forwarded-For`, `X-Real-IP`, `X-Client-ID` — if the client sends it, it's a suggestion, not a fact. Trust only the IP your infrastructure provides at the TCP layer. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -615,5 +634,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

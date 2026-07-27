@@ -38,6 +38,7 @@ chain:
 End-to-end content strategy system covering planning, creation, governance, and measurement. Designed for product-led and SaaS organizations building authority through topical depth, structured content operations, and data-driven iteration.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -57,6 +58,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Content planning (pillars, personas, workflows)
@@ -80,9 +82,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules apply to *every* response this skill produces.
 
@@ -98,12 +102,12 @@ These rules apply to *every* response this skill produces.
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master content strategists understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -124,6 +128,7 @@ Master content strategists understand that strategy is not about predicting the 
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -139,6 +144,7 @@ Master content strategists understand that strategy is not about predicting the 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building a new content program from scratch — defining pillars, audience personas, and editorial workflows
@@ -151,6 +157,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Optimizing a content marketing funnel from awareness through conversion and retention
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Content Format Selection
@@ -179,6 +186,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │(SEO)  ││media  │              └──────────────┘
                   └───────┘└───────┘
 ```
+
 **When to choose Blog/Guide:** TOFU + organic search focus — invest in SEO, cluster strategy, evergreen content with 6-12 month shelf life.
 **When to choose Video/Podcast:** TOFU + brand building — reach audiences on YouTube, Spotify; high production cost, long payback.
 **When to choose Case Study/Comparison:** BOFU — close deals with social proof; quantifiable ROI metrics required.
@@ -212,6 +220,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     └───────────┘               │or de-optimize│
                                                 └─────────────┘
 ```
+
 **When to Refresh:** Existing page ranks #4-15, 6+ months old — update stats, add new sections, republish with fresh date (SEO win in 30-60 days).
 **When to Create New:** Keyword gap uncovered, no existing page within striking distance — build pillar + cluster, target long-tail first.
 **When to Consolidate:** Multiple pages competing for same keyword — merge into one definitive resource, 301 redirects.
@@ -241,6 +250,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                    │notifications│ │retargeting │
                                    └──────────┘ └─────────────┘
 ```
+
 **When to choose SEO + Owned:** Evergreen content, ROI from organic — invest in keyword research, backlinks, updates. Distribution: blog + newsletter.
 **When to choose Social + Push:** News, announcements, time-sensitive — Twitter, LinkedIn, Slack communities, push notifications.
 **When to choose Gated + Retargeting:** High-value lead gen asset — landing page, form, email sequence, retargeting ads.
@@ -275,6 +285,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                    └──────┘│priority)│
                                                            └────────┘
 ```
+
 **When to Keep + Optimize:** High traffic + high CVR — your best assets. Update CTAs, add related content links, optimize for conversions.
 **When to Refresh:** High traffic, low conversion — content is found but doesn't convert. Improve CTAs, update offers, or fix format/paywall.
 **When to Delete/Redirect:** <10 visits/month, >1 year old, no backlinks — prune. 301 redirect to closest relevant page.
@@ -304,11 +315,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        │partners │ │in-house team│
                                        └─────────┘ └─────────────┘
 ```
+
 **When to build in-house team:** >4 pieces/week, need deep product knowledge, fast iteration — hire editor + writers; supplement with freelancers.
 **When to use Agency + SME:** Niche domain expertise (legal, medical, financial) — pair agency with subject matter experts for accuracy.
 **When to use Freelance:** <4 pieces/week, general topics — cost-effective, flexible, no benefits overhead.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -343,8 +356,14 @@ Complete when: Editorial calendar populated for next quarter with assignments, d
 3. **Content Refresh Program** — Quarterly: identify pages with declining traffic, update with current data/examples, improve depth, expand keyword coverage, re-publish with new date. Track uplift 30/60/90 days post-refresh.
 4. **Repurposing Engine** — From each high-performing long-form piece, generate: Twitter thread, LinkedIn carousel, email newsletter version, podcast talking points, YouTube script, infographic. Maximize ROI per research investment.
 Complete when: Content metrics framework mapped to all funnel stages with dashboards configured. Top 20 pages by traffic and conversions identified with optimization candidates flagged. Content refresh program running with 30/60/90-day uplift tracking.
+Complete when: Content audit completed across all owned channels with inventory tagged by topic, format, funnel stage, and performance. Deprecated content flagged for removal or consolidation.
+Complete when: Audience research synthesized into distinct personas with content preferences, pain points, information needs per buying stage, preferred formats, and trusted channels.
+Complete when: Distribution strategy documented per content type with primary and secondary channels, promotion budget allocation, paid/organic/owned mix targets, and amplification workflow for high-performing content.
+Complete when: Content operations playbook published covering intake process, editorial workflow stages and SLAs, template library for all content formats, and quality checklist with mandatory review gates.
+Complete when: Quarterly content performance review completed: top and bottom performers identified with root cause analysis, content ROI calculated, and next quarter strategy adjusted based on learnings.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -359,6 +378,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Content strategy sits between marketing, product, SEO, and brand. Content produced in silos underperforms; coordination amplifies reach and relevance.
@@ -420,13 +440,12 @@ Content strategy sits between marketing, product, SEO, and brand. Content produc
 - **`devrel-advocate`** — When creating developer tutorials, technical blog posts, or community-facing content
 - **`marketing-manager`** — When aligning content calendar with campaigns, demand gen, or multi-channel distribution
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Target audience, growth model (PLG vs SLG), product positioning | Before designing growth experiments or content strategy |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -439,11 +458,12 @@ Content strategy sits between marketing, product, SEO, and brand. Content produc
 | Content team blocked by CMS or publishing tooling for > 2 weeks | Escalate to engineering/product; request temporary workaround (e.g., publish to staging URL, use alternative CMS); quantify opportunity cost | Blocked publishing is an operational emergency, not a nice-to-have — each week of delay compounds missed traffic and lead generation |
 | Brand voice inconsistency flagged in public by audience — "did someone else write this?" | Audit recent content for voice alignment; reinforce tone-of-voice guide with editorial team; add Vale linter to CI | Brand voice inconsistency erodes trust faster than grammatical errors — audience notices before internal review does |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 >
 
@@ -457,8 +477,11 @@ graph LR
     B --> C[devrel-advocate]
     D[seo-specialist] --> B
     B --> E[technical-writer]
+
 ```
+
 Run skills in the order shown:
+
 ```bash
 # Chain A: product-manager → content-strategist → devrel-advocate
 # Chain B: seo-specialist → content-strategist → technical-writer
@@ -466,6 +489,7 @@ Run skills in the order shown:
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
 graph LR
@@ -482,7 +506,8 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -493,6 +518,7 @@ graph LR
 | "Multiple pages for the same keyword is more content — that's good" | Cannibalization suppresses your single best chance at ranking — $50K-$150K/year in lost organic revenue from the keyword you should own with one authoritative pillar page. |
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **Content without distribution is a $30K-$100K black hole.** 90% of blog posts get zero organic traffic — not because the content is bad, but because there's no distribution plan. A $100K content budget producing 50 articles with no promotion strategy yields $0 pipeline. The same budget producing 15 articles each with a dedicated distribution plan (SEO, social, email, syndication, paid amplification) yields 3-10x ROI. **Total cost: $30K-$100K/year in content that no one sees.** For every piece of content, allocate 30-50% of the budget to distribution — content creation without distribution is just an expensive journaling habit.
 - **Writing for "everyone" delivers content for no one.** Generic content targeting broad audiences ("What is cloud computing?") competes with Wikipedia and AWS and generates $0 in pipeline. Content that targets a specific ICP with a specific pain point generates 3-10x more qualified leads at 1/3 the production cost. **Total cost: $0 return on generic content vs. 3-10x ROI on targeted content — opportunity cost of $50K-$150K/year.** Define your ICP before content planning: "What specific problem does this piece solve for what specific role?" If the answer fits in "everyone," kill the piece.
@@ -507,7 +533,31 @@ graph LR
 - **Hiring freelancers or agencies without a creative brief or style guide** — you hire 4 freelancers to produce 10 articles each ($500/article = $20K). No style guide, no ICP definition, no keyword targeting, no brand voice document. Results: 25% of articles target the wrong audience (too technical for executives, too high-level for practitioners), 15% require complete rewrites, and the remaining 60% have tonal inconsistency — switching between casual-blog and whitepaper-formal within the same piece. $20K spent, $12K of it on content that can't be published without substantial rework. **Total cost: $15K-$60K/year in wasted content production spend plus brand inconsistency that confuses the market — readers who see 3 articles with 3 different voices assume you don't know who you are.** Fix: every content assignment includes a 1-page brief: target persona, stage of buyer journey, primary keyword, 3 key points to cover, brand voice examples, and a reference article that represents the desired quality and tone. Style guide includes: tone, grammar conventions, formatting rules, and prohibited language. First assignment is a paid test piece.
 - **Editorial calendar planned 6 months ahead and never revisited** — Q1 content was planned in October. By February: a competitor launched a category-defining product that resets the narrative, new industry regulation obsoletes 2 of your planned pieces, and a market event shifts buyer priorities. Yet the content team keeps publishing the original plan because "it's on the calendar." Two articles ship addressing problems the industry solved 3 months ago. Meanwhile, your competitor owns the new narrative with fresh, relevant content published within 2 weeks of their launch. **Total cost: $20K-$50K in content that ships irrelevant to the current market plus $50K-$200K in missed opportunity to lead the new narrative — your competitor captures the search volume and mindshare that should have been yours.** Fix: quarterly editorial planning with monthly "relevance reviews." Each review asks: is this topic still urgent for our ICP? Has a competitor covered it better? Is there a new industry development that makes a planned piece more or less relevant? Reserve 20% of content capacity for "reactive" pieces — quick-turnaround content responding to market events within 5 business days.
 
+## Best Practices
+
+1. **Do content audits before creating anything new** — Content debt above 20% of inventory drags down your site's overall quality signal with search engines. A 200-page site with 40+ zombie pages (zero traffic for 6+ months) loses $15,000-$50,000/year in organic traffic dilution. Audit quarterly: score every page on traffic, conversion rate, and freshness; merge, refresh, or deprecate the bottom 20% before adding new content.
+2. **Prefer topic clusters over isolated blog posts** — A single pillar page with 8-12 cluster pieces builds domain authority 3x faster than publishing 12 disconnected posts on different topics. Google's algorithm rewards topical depth. Isolated posts compete against each other in search; clusters reinforce each other through internal linking, boosting the pillar page to page-1 rankings in 4-6 months instead of 12-18.
+3. **Always map every content piece to a conversion goal and funnel stage** — Content without a measurable outcome is editorial noise. Every piece must have `journey_stage` (TOFU/MOFU/BOFU), `conversion_goal` (newsletter signup, demo request, trial start), and a next-step CTA. A content plan with >30% of pieces missing conversion goals means you're paying writers to produce content that doesn't drive business — audit and tag before publishing.
+4. **Never enforce aspirational tone-of-voice guidelines that contradict actual writing** — If brand values say "bold and irreverent" but every published piece reads like a cautious whitepaper, enforcing those guidelines will produce inauthentic content that damages credibility. Audit 10 recent pieces against the tone guide; if >50% deviate, update the guidelines to match reality before enforcing them. Aspirational guidelines the team can't follow cost $20,000-$40,000 in wasted revision cycles.
+5. **Measure content efficiency ratio** — For every $1 spent on content (writer, editor, distribution), track pipeline revenue influenced. Target: CER > 3.0x within 12 months for B2B SaaS content programs. Track via: (attributed pipeline $ / total content program cost). Below 1.5x at month 12: audit topic selection, distribution channels, and conversion path — something in the funnel is broken.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Every content piece in the editorial calendar has `assigned_to`, `estimated_hours`, `journey_stage`, and `conversion_goal` populated | Open editorial calendar; verify no empty cells in these four columns across all scheduled pieces |
+| ☐ | Content inventory audit completed within the last quarter — every page scored on traffic (>100/mo threshold), conversion rate (>1%), and freshness (<6 months) | `grep -c "traffic\|conversion\|freshness" content-inventory.csv` — all three metrics present; count of pages with zero scores < 20% of total inventory |
+| ☐ | Topic cluster architecture has pillar pages for each core domain with ≥ 8 cluster pieces linked bidirectionally | Verify pillar-to-cluster link count: `grep -c "pillar_page" cluster-map.*` — each pillar must have ≥ 8 cluster pages; broken internal links = 0 |
+| ☐ | Patient-facing or consumer content scored at 6th-grade reading level or below via readability tool | Run Flesch-Kincaid on each patient/consumer piece; any score > grade 8 must be rewritten with simplified version before publish |
+| ☐ | Content performance dashboard tracking: traffic per piece, conversion rate, pipeline influenced, and content efficiency ratio (CER) | Verify dashboard loads with data from last 30 days; CER calculation: (attributed pipeline $ / content program cost $) visible |
+| ☐ | No content piece published without a next-step CTA mapped to its funnel stage | Spot-check 5 recently published pieces; each must have a visible CTA — newsletter signup (TOFU), case study download (MOFU), demo request (BOFU) |
+| ☐ | Tone-of-voice guidelines aligned with actual published content — ≤ 2 deviations from guide in last 10 pieces | Audit 10 recent pieces against tone guide; count deviations; if > 2, update guide to match reality or retrain writers before enforcing |
+| ☐ | Rollback plan is documented and tested | Verify: editorial calendar has buffer week after each major campaign; content performance alerts trigger at 50% below forecast; redirect map exists for deprecated content |
+
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Content audit: completed within last quarter — all content scored on traffic, conversion, and freshness
 - [ ] Editorial calendar: next 4 weeks planned — each piece has audience, format, distribution, and goal
@@ -516,10 +566,12 @@ graph LR
 - [ ] Content debt: outdated high-traffic content has update plan — outdated low-traffic content redirected
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -532,7 +584,6 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

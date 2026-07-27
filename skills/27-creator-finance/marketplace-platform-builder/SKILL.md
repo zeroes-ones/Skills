@@ -55,8 +55,45 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end marketplace platform building — from supply/demand dynamics and cold-start strategies to payment architectures, trust and safety systems, search and discovery, and regulatory compliance. Every recommendation is grounded in marketplace unit economics (GMV, take rate, liquidity, CAC by side) with dollar-quantified gotchas and profit-first architecture decisions.
+<!-- QUICK: 30s -->
+
+## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| Payments stuck in "pending" for 24+ hours — sellers not getting paid, buyers charged but order unfulfilled | Stripe/PayPal webhook not configured or webhook endpoint returning 5xx. Payment captured but fulfillment event never triggered | Verify webhook endpoint in payment dashboard. Check webhook signature verification isn't rejecting events. Add idempotency: replay missed events from payment provider dashboard. Add alert: if pending_payments > 10 for >1 hour, page on-call |
+| Search returns 0 results for queries that should match — "handmade leather wallet" returns nothing despite 50 wallets in catalog | Elasticsearch/Meilisearch index stale or field mapping changed without reindex. Synonyms/typo tolerance not configured | Reindex from source of truth (DB). Verify index mapping matches query field names. Add typo tolerance (fuzziness: 1) and synonyms (handmade = handcrafted = artisanal). Monitor: alert if 0-result searches > 10% of total |
+| Double-charge on split payment — buyer charged twice, once by platform and once by seller's Stripe Connect | Idempotency key not passed through to payment processor. Retry logic creates duplicate charge | Use UUID idempotency keys on all payment mutations. Store key in DB with payment_intent_id. Stripe automatically deduplicates by idempotency key for 24 hours. Check: `grep -r "idempotency" src/` returns results in payment service |
+| Liquidity death spiral — buyer churn because not enough supply, seller churn because not enough buyers | Cold-start solved wrong side first. Marketplace needs supply for demand to convert, but supply won't join without demand proof | Seed supply side first with guaranteed earnings (minimum guarantees). Curate 100 high-quality listings before opening to buyers. Track liquidity ratio: buyers/sellers > 10:1 for service marketplaces, > 100:1 for product marketplaces |
+| Chargeback rate exceeds 1% threshold — Stripe/PayPal threatens account closure | Fraudulent transactions not caught by basic rules. Friendly fraud (buyer claims "didn't receive" digital good) not contested | Implement Stripe Radar with custom rules. Require 3D Secure for high-risk transactions. Track chargeback rate weekly. At 0.65%, implement manual review for transactions >$100. Contest all friendly fraud with delivery proof |
+| GDPR/CCPA deletion request breaks referral program — user deleted but their referral credits still tracked in other users' wallets | Right-to-deletion conflicts with financial record-keeping requirements. Referral system stores referrer PII in recipient's record | Pseudonymize: replace referrer PII with anonymized token. Financial records retained for 7 years (legal requirement trumps deletion). Document legal basis for retention. Referral credits are financial instruments — treat as ledger entries not user data |
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Building custom payments instead of using Stripe Connect — reinventing PCI compliance, currency conversion, and payout scheduling | $500K-$2M in PCI DSS compliance + $200K-$500K/year in maintenance. Stripe Connect costs 0.25% per payout — custom costs 10x more in engineering + compliance | Use Stripe Connect (or Adyen/Mangopay for EU). Custom payments only justified at >$100M GMV with >$5M annual payment processing fees. Until then, off-the-shelf is cheaper even at "high" processor fees |
+| Launching a two-sided marketplace to both sides simultaneously — no supply when first buyers arrive, no buyers when sellers list | $100K-$500K in wasted launch marketing; 90% of visitors see empty marketplace and never return. Cold-start is the #1 marketplace killer | Seed supply side first: 100+ quality listings before any demand-side marketing. Use "supply-side first" launch: manual curation → invite-only demand → public launch. Pay early suppliers guarantees if needed |
+| Trust & safety as an afterthought — first fraud incident destroys marketplace reputation | $100K-$1M in fraud losses + permanent reputational damage. One viral story of "I got scammed on [platform]" kills growth for 6-12 months | Launch with: identity verification, escrow for transactions >$100, review system with verified-purchase-only, dispute resolution SLA (48-hour response). Budget 15% of engineering for trust & safety from day 1 |
+| Not modeling marketplace unit economics before writing code — take rate doesn't cover CAC | $200K-$1M in funding wasted on unviable marketplace. If CAC > LTV per transaction, marketplace dies regardless of engineering quality | Model before code: GMV = (buyers × transactions/buyer × avg_order_value), Revenue = GMV × take_rate, Gross Profit = Revenue - CAC - hostings costs. If take_rate < 5% and avg_order < $50, unit economics don't work without massive scale |
+| Using synchronous payment capture for all transactions — 3-second checkout kills conversion | $50K-$300K in lost GMV; every 100ms of checkout latency reduces conversion 1-2%. Synchronous capture = buyer waits for bank authorization | Async capture: accept order immediately, capture payment in background queue. Show "processing" with optimistic confirmation. Only surface payment failure if capture fails (shows as "payment issue" in order history, not during checkout) |
+| Geographic expansion without local payment methods — launching in Germany with credit-card-only | $50K-$200K in zero-traction launch; 80% of German online payments are non-card (SOFORT, Giropay, SEPA). Brazil: 60% use Boleto, not credit cards | Integrate local payment methods per market before launch. Use Adyen/dLocal for unified API across 100+ methods. Minimum: top 3 payment methods per country covering 80% of local transaction volume |
+| Ignoring marketplace regulations (EU Digital Services Act, INFORM Consumers Act, platform liability) | $500K-$5M in fines; DSA fines up to 6% of global revenue. INFORM Act requires seller identity verification for US marketplaces >$20K/year per seller | Implement: seller KYC (identity + bank account verification), transaction reporting (DAC7 in EU), content moderation reporting, buyer protection disclosures. Budget $50K-$150K/year for regulatory compliance from Series A onward |
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+* [VERIFIED] before any production guidance: Verify assumptions. Verify compatibility. Verify correctness.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that prevent marketplace failures that lead to zero liquidity, fraud losses, regulatory fines, and platform death. Violation means STOP and refuse to proceed.
 
@@ -79,6 +116,7 @@ These rules are non-negotiable constraints that prevent marketplace failures tha
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a marketplace architect operating at the intersection of network effects, payment infrastructure, trust and safety, and regulatory compliance. Your mental model:
 
@@ -91,12 +129,14 @@ You are a marketplace architect operating at the intersection of network effects
 #
 
 ## The Mental Model Shift
+<!-- STANDARD: 3min -->
 
 Competent developers build a two-sided platform with CRUD for listings, a payment integration, and a review widget. Masters understand that a marketplace is a **network-effect machine with a payment layer** - the technology exists to accelerate the network effect, not just to process transactions. The shift: the codebase is not the product; the liquidity between supply and demand IS the product. Every feature either increases liquidity (more matches, faster matches, higher-quality matches) or it's dead weight.
 
 #
 
 ## Cognitive Biases That Kill Marketplaces
+<!-- STANDARD: 3min -->
 
 | Bias | How It Manifests | Antidote |
 |-------|------------------|----------|
@@ -108,6 +148,7 @@ Competent developers build a two-sided platform with CRUD for listings, a paymen
 #
 
 ## What Marketplace Masters Know That Others Don't
+<!-- STANDARD: 3min -->
 
 - **The cold start is won in a single geography with 100 listings, not 1,000 cities with 10 listings each.** Uber launched in San Francisco. Airbnb launched around a single conference (SXSW 2008). Facebook launched at Harvard. Density beats breadth. A marketplace with 50 active sellers in one zip code is a business; a marketplace with 2 sellers in 50 zip codes is a failed experiment.
 - **Payment splitting is not a feature - it's the marketplace's revenue engine.** Stripe Connect's application fee is the take rate collection mechanism. Every transaction that flows through your payment infrastructure is a transaction you earn from. Every transaction that bypasses it is revenue leakage. Payment architecture IS revenue architecture.
@@ -118,12 +159,14 @@ Competent developers build a two-sided platform with CRUD for listings, a paymen
 #
 
 ## When to Break Your Own Rules
+<!-- STANDARD: 3min -->
 
 - **Break the "supply first" rule when demand is the scarce resource.** In B2B procurement marketplaces, qualified buyers (enterprises with budget and authority) are scarcer than suppliers. Seed demand first - bring 10 enterprise buyers with committed spend, then onboard suppliers to meet their needs.
 - **Break the "no off-platform" rule for high-trust, high-value B2B transactions where in-person meetings and contract negotiations are standard.** A marketplace for $100K industrial equipment deals needs different communication controls than a marketplace for $50 handmade crafts. Know when leakage prevention becomes deal friction.
 - **Break the escrow rule for micro-transactions below $5 where escrow costs exceed dispute value.** For a marketplace of $1 digital goods, instant payout with buyer-protection insurance is more cost-effective than per-transaction escrow. The escrow cost (payment processing + holding cost) must be less than the dispute risk cost.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - Building a two-sided marketplace from scratch - product marketplace, service marketplace, rental/sharing platform, freelance/gig platform, B2B exchange, or classifieds platform
 - Designing marketplace payment architecture - payment splitting (Stripe Connect), escrow, payout scheduling, multi-currency, refund and chargeback handling
@@ -140,10 +183,12 @@ Competent developers build a two-sided platform with CRUD for listings, a paymen
 - Don't use for ad-based aggregators (Craigslist-style) - invoke growth-engineer
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 #
 
 ## Auto-Route by Artifacts (Check Filesystem First)
+<!-- STANDARD: 3min -->
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -158,6 +203,7 @@ Competent developers build a two-sided platform with CRUD for listings, a paymen
 #
 
 ## Intent Route (Ask the User)
+<!-- STANDARD: 3min -->
 
 ```
 What type of marketplace are you building?
@@ -195,10 +241,12 @@ Discovery Questions (when user has no marketplace idea specified):
 ```
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 #
 
 ## Phase 1: Cold Start & Supply Acquisition
+<!-- STANDARD: 3min -->
 
 **Goal: Reach minimum viable liquidity - the point where organic transactions happen without manual intervention.**
 
@@ -244,6 +292,7 @@ Discovery Questions (when user has no marketplace idea specified):
 #
 
 ## Phase 2: Payment Architecture
+<!-- STANDARD: 3min -->
 
 **Goal: Implement payment splitting, escrow, and payout infrastructure that captures take rate automatically.**
 
@@ -299,6 +348,7 @@ Discovery Questions (when user has no marketplace idea specified):
 #
 
 ## Phase 3: Search & Discovery
+<!-- STANDARD: 3min -->
 
 **Goal: Build search infrastructure that maximizes match rate between supply and demand.**
 
@@ -347,6 +397,7 @@ Discovery Questions (when user has no marketplace idea specified):
 #
 
 ## Phase 4: Commission & Fee Architecture
+<!-- STANDARD: 3min -->
 
 **Goal: Design revenue model that maximizes platform revenue without destroying marketplace equilibrium.**
 
@@ -392,6 +443,7 @@ Discovery Questions (when user has no marketplace idea specified):
 #
 
 ## Phase 5: Analytics & Growth
+<!-- STANDARD: 3min -->
 
 **Goal: Instrument marketplace metrics to measure liquidity, identify churn, and optimize for profit.**
 
@@ -430,10 +482,77 @@ Discovery Questions (when user has no marketplace idea specified):
    ```
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Trust & Safety Architecture
+
+        ┌── INPUT: What's the transaction value per order?
+        │
+   ┌────┼────────────┐
+   │    │            │
+   ▼    ▼            ▼
+[<$50] [$50-$500]   [>$500]
+   │    │            │
+   ▼    ▼            ▼
+Light:   Medium:     Heavy:
+email    ID verify   Escrow +
+verify   + phone     3D Secure
++ basic  verify +    + manual
+review   dispute     review
+system   resolution  + insurance
+         workflow    option
+
+### Decision Tree 2: Commission & Fee Architecture
+
+        ┌── INPUT: Who pays the platform fee?
+        │
+   ┌────┼────────────────────┐
+   │    │                    │
+   ▼    ▼                    ▼
+[Buyer [Seller              [Both sides]
+only]  only]
+   │    │                    │
+   ▼    ▼                    ▼
+Service Buyer fee            ┌── Supply-constrained?
+fee on  on top of            │
+top of  seller price     ┌───┴───┐
+seller  (Booking.com        │         │
+price   model, 15-20%)      ▼         ▼
+(Uber,                      [Yes]     [No]
+DoorDash,                   │         │
+25-30%)                     ▼         ▼
+                         Charge     Charge
+                         buyers     sellers
+                         more       more
+                         (demand    (supply-
+                         side       side
+                         subsidy)   subsidy)
+
+### Decision Tree 3: Supply vs Demand Acquisition Priority
+
+        ┌── INPUT: Which side is the bottleneck today?
+        │
+   ┌────┴────────────────────┐
+   │                         │
+   ▼                         ▼
+[Supply scarce:           [Demand scarce:
+few sellers/              few buyers/
+providers]                 orders]
+   │                         │
+   ▼                         ▼
+Demand-first               Supply-first
+strategy:                  strategy:
+1. Aggregate buyers        1. Recruit providers
+   (waitlist, letters)         with guarantees
+2. Use committed demand    2. Offer exclusivity
+   to recruit supply           bonuses
+3. Launch with liquidity   3. Subsidize early
+   from day 1                  transactions
 
 #
 
 ## Marketplace Type Selection
+<!-- STANDARD: 3min -->
 
 ```
 What exchanges hands?
@@ -466,6 +585,7 @@ What exchanges hands?
 #
 
 ## Cold Start Strategy Selection
+<!-- STANDARD: 3min -->
 
 ```
 How much time do you have?
@@ -496,6 +616,7 @@ Supply seeding tactics ranked by effectiveness:
 #
 
 ## Trust & Safety Systems
+<!-- STANDARD: 3min -->
 
 ```
 Trust stack - from account creation to dispute resolution:
@@ -536,6 +657,7 @@ Trust stack - from account creation to dispute resolution:
 #
 
 ## Payment Architecture Decision Tree
+<!-- STANDARD: 3min -->
 
 ```
 Merchant of Record decision - this determines your regulation, revenue model, and risk:
@@ -568,6 +690,7 @@ Escrow decision tree:
 #
 
 ## Booking & Scheduling Architecture
+<!-- STANDARD: 3min -->
 
 ```
 Availability model:
@@ -597,6 +720,7 @@ Timezone handling:
 #
 
 ## Messaging Architecture
+<!-- STANDARD: 3min -->
 
 ```
 In-platform messaging stack:
@@ -627,6 +751,7 @@ Message templates for service providers:
 #
 
 ## Commission Model Decision Matrix
+<!-- STANDARD: 3min -->
 
 ```
 | Marketplace Type      | Best Model        | Typical Range    | Rationale                                          |
@@ -645,10 +770,12 @@ Message templates for service providers:
 ```
 
 ## Gotchas - Dollar-Quantified Marketplace Footguns
+<!-- STANDARD: 3min -->
 
 #
 
 ## Cold Start Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Launching city-wide when you can't dominate a neighborhood.** A marketplace with 5 restaurants in Manhattan + 5 in Brooklyn + 5 in Queens has 15 total listings but zero density anywhere. A delivery marketplace needs 10+ restaurants per delivery zone for reasonable delivery times. Density beats breadth - every time. **Total cost: $200K-$500K in demand acquisition burned on a marketplace where no buyer finds enough supply to transact. The "launch in a city" fallacy: a city is not a market - a neighborhood is.**
 
@@ -659,6 +786,7 @@ Message templates for service providers:
 #
 
 ## Trust & Safety Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Review gating by transaction value - the "my first transaction was $0.99" attack.** Fraudster buys 50 low-value items from their own seller account ($49.50 total), leaves 50 5-star reviews. Seller now has a perfect 5.0 rating and 50 "verified" reviews. Lists $5,000 item - buyers trust the rating because "All reviews are from verified purchases!" **Fix: Weight review scores by transaction value - a $0.99 review has 0.01x weight, a $500 review has 1.0x weight. Also: same-payment-method detection (one credit card used for all reviews = collusion signal). Total cost: $50K-$500K in fraud losses from review-manipulated scam listings.**
 
@@ -669,6 +797,7 @@ Message templates for service providers:
 #
 
 ## Payment Architecture Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Stripe Connect application fee cannot exceed the payment amount.** A $5 transaction with a 20% take rate = $1.00 application fee. That works. But if you charge a $2.00 flat fee on a $5 payment, Stripe rejects it - application fee > payment amount. **Fix: For flat-fee models with low transaction values, use separate platform charges (Stripe Billing) or minimum transaction size enforcement. Total cost: 5-10% of micro-transactions silently failing in production before anyone notices.**
 
@@ -679,6 +808,7 @@ Message templates for service providers:
 #
 
 ## Search & Discovery Gotchas
+<!-- STANDARD: 3min -->
 
 *   **PostgreSQL full-text search with 50K listings returns results in 800ms - buyers bounce.** PostgreSQL `tsvector` + GIN index works beautifully at 5K listings (30ms response). At 50K, without tuning, queries can hit 500-800ms. At 500K, they fail. The cliff is real and sudden. **Fix: Plan search infrastructure migration at 10K listings (not 50K). Have Meilisearch or Elasticsearch running in shadow mode from 5K listings so the migration is a one-line config change, not a crisis. Total cost: 20-40% drop in conversion rate during the "slow search" period - easily $50K-$200K in lost GMV.**
 
@@ -687,28 +817,19 @@ Message templates for service providers:
 #
 
 ## Booking & Scheduling Gotchas
+<!-- STANDARD: 3min -->
 
 *   **Race condition: two buyers book the same time slot within 200ms of each other.** Without database-level atomicity, both see "Available," both click Book, both get confirmation - and one is a double-booking that becomes a customer service disaster. **Fix: Database-level atomic booking: INSERT with UNIQUE constraint on (listing_id, date). If the INSERT fails (constraint violation), second buyer sees "Sorry, this slot was just booked." No application-level check is sufficient. Total cost of one double-booked Airbnb: $500-$2,000 in re-accommodation + negative reviews + platform credit compensation.**
 
 *   **Timezone bugs create bookings that start before they were made.** Provider in PST sets availability 9 AM - 5 PM PST. Buyer in EST books a 4 PM slot, which is 1 PM PST - valid. But if the system displays the wrong timezone, provider expects buyer at 4 PM PST (7 PM EST) - 3 hours late. **Fix: Store all times in UTC. Every display function accepts a timezone parameter. Total cost of timezone bugs: 10-20% of bookings have at least one party show up at the wrong time, causing 1-3% avoidable dispute rate.**
 
-## Anti-Rationalization - No Excuses
-
-| What They Say | What That Means | No-Excuses Response |
-|---|---|---|
-| "We'll add escrow later - for now, buyers pay sellers directly." | This is not a marketplace. This is a classifieds site with extra steps. Without payment integration, you have zero visibility into whether transactions actually happen, zero take rate, and zero trust mechanics. | Demonstrate escrow in v0.1. Stripe Connect custom account onboarding with deferred payout is ~200 lines of code. It is not optional. |
-| "We'll handle trust & safety when we hit 10K users." | One scam listing at 1,000 users will destroy the trust of every buyer who sees it. Trust is built slowly and destroyed instantly. You're choosing between 2 days of engineering now vs rebuilding your entire buyer base later. | Implement Tier 1 identity verification + verified-purchase review gating before public launch. These are table-stakes. |
-| "Everyone multi-homes anyway, so exclusivity doesn't matter for providers." | This is true at scale (Uber + Lyft drivers exist on both), but false at launch. At launch, exclusivity is the only way to prove your platform creates value independently. Without exclusivity, you're comparing your demand generation to a mature competitor - and you will lose. | Require exclusivity during incentive period. Track multi-homing rate as key metric. If multi-homing >60% after incentives end, your platform is not differentiated enough. |
-| "Chargebacks are just a cost of doing business - we budget 0.5% of GMV." | A chargeback rate above 0.75% triggers Stripe/PayPal account review. Above 1% triggers termination risk. "Budgeting for it" doesn't prevent it. Chargebacks are a symptom of failed trust & safety, not a cost line item. | Treat every chargeback as a product failure - root cause analysis required. Target <0.3% chargeback rate. |
-| "We don't need a mobile app - our responsive web app is good enough." | Marketplace usage skews heavily mobile: 60-80% of marketplace traffic is mobile. A responsive web app with no push notifications, no native camera, no offline support, and no app store presence is invisible to the primary use case. | Ship a PWA as v0.5 with push notifications and camera access from the browser. Plan native app for v1.0. Do not ignore mobile. |
-| "We'll match Stripe's pricing and be cheaper." | 2.9% + $0.30 is not your competitor - it's the payment processor's fee. Your take rate is on top of that. If you charge 3% and Stripe takes 2.9%, you have 0.1% net take rate. Your competition is not Stripe - it's other marketplaces. Compete on value, not price. | Price based on value captured, not cost-plus. A marketplace that saves a seller 20 hours/week of marketing is worth 20% take rate, not 3%. |
-| "We'll launch globally from day one." | You cannot dominate Berlin + London + Paris simultaneously with a 5-person team. You will be mediocre everywhere instead of dominant anywhere. | Single city launch. Single language. Single currency. Expand only after 30% market share in launch city. |
-
 ## Error Recovery - Explicit Step-by-Step
+<!-- STANDARD: 3min -->
 
 #
 
 ## When the Cold Start Is Failing
+<!-- STANDARD: 3min -->
 
 *   **Symptom:** Supply side has <20% utilization after 4 weeks, demand side sees mostly empty search results.
     *   **Step 1: Stop demand acquisition immediately.** Every paid click from a buyer who finds nothing is wasted. Pause all ads, SEO, and demand-gen.
@@ -730,7 +851,24 @@ Message templates for service providers:
     *   **Step 4: Raise verification gates.** Increase ID verification requirement threshold from $1,000 cumulative earnings to $100 cumulative earnings for new sellers. Add 48-hour payout delay for new accounts. Require tracking number for shipments > $100.
     *   **Step 5: Post-incident review.** Every fraud case answer: "How did this user pass our verification? Why didn't our rules catch this? What one rule would have prevented this specific case?"
 
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when Trust & safety: new user completes ID verification and lists item in < 15 minutes; fraudulent listing auto-detected | Test with legitimate user flow; inject stolen-photo + below-market listing → auto-flagged |
+| ☐ | Complete when Payment flow end-to-end: buyer pays → escrow → seller fulfills → buyer confirms → funds released | Full flow test including 48h inspection window, refund branch, chargeback simulation |
+| ☐ | Complete when Double-booking prevention: 10 concurrent requests for same slot → exactly 1 succeeds, 9 receive "unavailable" | Load test with concurrent booking; test under production-like conditions |
+| ☐ | Complete when Messaging security: phone numbers, emails, social handles blocked in messages | Test: "555-123-4567", "user@gmail.com", "@username" → all rejected |
+| ☐ | Complete when Review system integrity: only transaction parties can review; double-blind until both submitted; one review per transaction | Test: non-party review attempt → rejected; retaliatory review before seeing other → blocked |
+| ☐ | Complete when Payout correctness: seller with $1,000 at 10% take rate receives exactly $900 (minus processing) | Test with actual Stripe Connect test accounts; verify to 2 decimal places |
+| ☐ | Complete when Dispute resolution: buyer files dispute → seller responds within 48h → platform mediates → resolution within SLA | Simulate 3 dispute scenarios (item not received, not as described, damaged); verify timeline |
+| ☐ | Complete when Search quality: top 10 results for category query contain > 80% relevant listings | Test 20 common search queries; measure precision@10; verify no empty results for populated categories |
+| ☐ | Complete when Escalation path: automated rules → manual review queue → platform decision → appeal process | Walk through escalation: flagged listing → reviewer action → notification → appeal flow |
+| ☐ | Complete when Platform fee transparency: fee breakdown visible before listing publish and at transaction completion | Verify fee calculator; receipt shows gross, platform fee, processing fee, net for both sides |
+
 ## Verification Guardrails - Binary Deployment Checklist
+<!-- STANDARD: 3min -->
 
 Before deploying or shipping any marketplace feature, verify **every one** of these:
 
@@ -746,6 +884,7 @@ Before deploying or shipping any marketplace feature, verify **every one** of th
 *   [ ] **Cold start readiness:** Does the onboarding flow for new sellers create a listing that matches the quality of the top 25% of existing listings? Does the first-time buyer experience surface at least 10 relevant, high-quality listings within 2 seconds?
 
 ## Sub-Skills - When to Use Specialized References
+<!-- STANDARD: 3min -->
 
 *   **api-designer** - When designing the REST/GraphQL API surface for marketplace operations (listing CRUD, booking endpoints, messaging, payment initiation). The marketplace API has multiple consumer types (buyers, sellers, admins) with different permission models.
 *   **database-designer** - When designing the schema for listings (semi-structured data across categories), availability calendars (time-series), messaging, and transaction records. Marketplace databases balance relational integrity (payments, users) with flexible schemas (listing attributes across diverse categories).
@@ -761,6 +900,7 @@ Before deploying or shipping any marketplace feature, verify **every one** of th
 *   **accessibility-auditor** - Ensure marketplace UI (listings, booking flows, messaging) is accessible to all users including those with disabilities.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -769,6 +909,7 @@ Before deploying or shipping any marketplace feature, verify **every one** of th
 | `database-designer` | Schema design for multi-tenant marketplace data, indexing for search | During data model design |
 
 ## Handoff Protocols
+<!-- STANDARD: 3min -->
 
 When routing work to other skills, provide:
 *   **Marketplace context:** "Product marketplace, 500 sellers / 10K buyers, $75 AOV, 12% take rate, Stripe Connect Express accounts, PostgreSQL + Meilisearch, US-only for now, expanding to EU in 6 months."
@@ -782,6 +923,7 @@ Key interfaces between skills:
 *   marketplace-platform-builder -> search: define relevance factors (distance vs rating vs price vs freshness tradeoffs), faceted filter requirements, category taxonomy
 
 ## Communication Triggers
+<!-- STANDARD: 3min -->
 
 If you detect any of these conditions while working on the marketplace, you **must** explicitly call them out to the user:
 
@@ -793,6 +935,7 @@ If you detect any of these conditions while working on the marketplace, you **mu
 *   **Booking race condition risk:** No atomic booking implementation. Response: "The current booking flow uses application-level availability checks without database constraints. Under concurrent load, this allows double-bookings. Even at 100 bookings/day, with 3-second average booking flow time, the probability of a double-booking collision is approximately 3-5 per month. Each double-booking costs $[cost] in re-accommodation. Fix: add UNIQUE constraint on (listing_id, booking_date) and move availability check into the INSERT transaction."
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 These are things you should do automatically, without waiting for the user to ask:
 
@@ -807,10 +950,12 @@ These are things you should do automatically, without waiting for the user to as
 *   When designing reviews, always include "verified transaction only" and "double-blind" mechanisms.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 #
 
 ## Level 1 (Apprentice) - For Junior Developers
+<!-- STANDARD: 3min -->
 
 Focus: Implementing individual marketplace features correctly.
 *   Build a listing CRUD with proper validation (required fields by category, image upload with resizing).
@@ -822,6 +967,7 @@ Focus: Implementing individual marketplace features correctly.
 #
 
 ## Level 2 (Practitioner) - For Mid-Level Developers
+<!-- STANDARD: 3min -->
 
 Focus: Connecting marketplace components into a cohesive platform.
 *   Design the full listing lifecycle: create -> review -> publish -> deactivate -> archive.
@@ -833,6 +979,7 @@ Focus: Connecting marketplace components into a cohesive platform.
 #
 
 ## Level 3 (Senior) - For Senior Developers
+<!-- STANDARD: 3min -->
 
 Focus: System-level thinking across buyers, sellers, and platform operations.
 *   Architect the full payment flow including Connect account types, split payments for multi-party transactions, and multi-currency support.
@@ -844,6 +991,7 @@ Focus: System-level thinking across buyers, sellers, and platform operations.
 #
 
 ## Level 4 (Staff/Lead) - For Staff Engineers
+<!-- STANDARD: 3min -->
 
 Focus: Platform strategy, multi-marketplace patterns, and business impact.
 *   Design marketplace-in-a-box: a platform that can launch new marketplace verticals without rebuilding core infrastructure (listings, payments, messaging, trust).
@@ -855,6 +1003,7 @@ Focus: Platform strategy, multi-marketplace patterns, and business impact.
 #
 
 ## Level 5 (Transformative) - For Principal Engineers
+<!-- STANDARD: 3min -->
 
 Focus: Redefining what a marketplace can be.
 *   Decentralized marketplaces: smart contract escrow, DAO governance for dispute resolution, tokenized reputation that travels across platforms.
@@ -863,6 +1012,7 @@ Focus: Redefining what a marketplace can be.
 *   Embedded marketplaces: marketplace-as-API that integrates into other platforms (SaaS platform adds "find a consultant" marketplace natively powered by your infrastructure).
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 *   **Measure liquidity obsessively - it is the heartbeat of your marketplace.** Track fill rate (searches that result in a transaction), time-to-match (seconds from search to booking/purchase), and supplier utilization (% of supply-side capacity that is filled). If any of these decline for 2 consecutive weeks, intervene before the death spiral begins.
 
@@ -881,6 +1031,7 @@ Focus: Redefining what a marketplace can be.
 *   **Tax compliance is not optional and it compounds.** Start collecting sales tax from day one - retroactive compliance is exponentially harder. Stripe Tax or TaxJar costs 0.5% of transaction value - far less than the cost of non-compliance.
 
 ## State Log - Tracking Marketplace Build Progress
+<!-- STANDARD: 3min -->
 
 When working on a marketplace build, maintain a state tracking block.
 
@@ -912,12 +1063,14 @@ Below each turn's response, append a results block tracking decisions made, comp
     <item>[Description of pending decision or issue]</item>
   </open-items>
 </state_log>
+
 ```
 
 **Anti-Drift Check:**
 At the start of each new conversation about a marketplace build, consult the state log from the previous session. If no state log exists, begin with the discovery questions in the Route the Request section.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 A marketplace build is considered **production-ready** when:
 
@@ -933,6 +1086,7 @@ A marketplace build is considered **production-ready** when:
 *   Escrow and dispute resolution have clear policies at every tier (automated, mediation, arbitration), with documented SLAs for each.
 
 ## Deliberate Practice - Skill-Building Exercises
+<!-- STANDARD: 3min -->
 
 *   **Exercise 1: Design the transaction flow.** Take a marketplace you use regularly (Airbnb, Uber, Etsy, Upwork). Diagram the complete transaction flow: listing -> discovery -> booking/purchase -> payment -> escrow -> fulfillment -> confirmation -> review. For each step, identify: what data changes state, what notification fires, what failure modes exist.
 
@@ -947,6 +1101,7 @@ A marketplace build is considered **production-ready** when:
 *   **Exercise 6: Internationalize a US-only marketplace.** Take a US-only marketplace and design the changes needed for EU expansion: GDPR compliance, VAT collection (marketplace rules), multi-currency, multi-language listings, regional payment methods (SEPA, iDEAL, Sofort). Identify every code change, infrastructure change, and operational change.
 
 ## Error Decoder - War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 | Symptom | Common Cause | Diagnostic | Fix |
 |---|---|---|---|
@@ -958,6 +1113,7 @@ A marketplace build is considered **production-ready** when:
 | Mobile users have 3x lower conversion than desktop. | Non-responsive listing pages, slow image loading on mobile, no mobile-optimized booking/purchase flow, no push notifications for follow-up. | Check mobile page speed (Lighthouse score), image sizes, form UX on 375px wide viewport. | Implement responsive images with srcset, lazy loading, mobile-optimized booking UX (large tap targets, minimal typing), PWA with push notifications for booking confirmations and messages. |
 
 ## Production Checklist - Pre-Launch Verification
+<!-- STANDARD: 3min -->
 
 Before launching a marketplace to the public, every item in this checklist must be verified:
 
@@ -1002,6 +1158,7 @@ Before launching a marketplace to the public, every item in this checklist must 
 *   [ ] Logging: every state change in a transaction lifecycle is logged (created -> paid -> fulfilled -> confirmed -> paid_out), searchable within 60 seconds of occurrence.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 The best marketplace builders understand liquidity dynamics, trust mechanics, and multi-sided network effects. Deliberate practice means launching real marketplaces, measuring liquidity metrics, and iterating based on supply/demand data.
 
@@ -1013,6 +1170,8 @@ The best marketplace builders understand liquidity dynamics, trust mechanics, an
 | **Expert** | Scale a marketplace to $1M+ GMV. Implement multi-geography support (currencies, languages, compliance), marketplace facilitator tax automation, and ML-powered trust & safety. Publish a case study on liquidity engineering | Annually |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift. Every major decision (payment architecture, trust/safety strategy, search infrastructure, cold start playbook) must be recorded.
 
@@ -1021,6 +1180,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 | *Record all critical decisions here* | — | — | — |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Core marketplace platform references (extracted to.
 
@@ -1043,6 +1203,7 @@ Core marketplace platform references (extracted to.
 *   **Messaging & Communication** - Real-time messaging architecture, off-platform leakage prevention, message moderation patterns, attachment handling, notification systems..
 
 ## External Resources
+<!-- STANDARD: 3min -->
 
 *   **Stripe Connect Documentation** - https://stripe.com/docs/connect - The definitive reference for marketplace payment architecture. Study the account type comparison (Standard vs Express vs Custom) and application fee patterns.
 *   **The Marketplace Monetization Map** - https://a16z.com/marketplace-monetization-map/ - a16z framework for marketplace business models and monetization strategies.

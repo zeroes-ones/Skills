@@ -44,8 +44,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
 Design interfaces for healthcare — a domain where **clarity saves lives, ambiguity causes harm, and accessibility is a legal requirement.** Healthcare UI serves two fundamentally different audiences: clinicians (power users under time pressure who need efficiency) and patients (diverse health literacy levels who need clarity and reassurance).
+<!-- QUICK: 30s -->
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route
 
@@ -70,7 +72,8 @@ What are you building?
 └── Not sure → Describe the clinical context and primary user
 ```
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---------------------|--------------------|--------------------|
@@ -83,6 +86,7 @@ What are you building?
 | G7 | Never specify animations that could trigger seizures, obscure clinical data, or interfere with assistive technology — every animation must have a zero-motion fallback | `file_contains(spec, "animate|transition|motion|pulse|flash|spring")` AND NOT `file_contains(spec, "prefers-reduced-motion|seizure.safe|accessibility|no.motion|0ms")` | REFUSE. "Healthcare UI animations must be safe and functional: (1) no flashing >3 times/second — seizure threshold per WCAG 2.3.1, (2) critical alerts: gentle pulse at 1Hz with static indicator fallback, (3) every animation must respect `prefers-reduced-motion: reduce` → instant, (4) animations must never be the sole channel for critical information — always pair with static text/icon, (5) medication confirmation: green checkmark (static) + haptic, not a distracting celebration animation." |
 
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Healthcare UI is **safety-critical design**. A confusing medication list can cause a wrong dose. A poorly designed alert can cause alert fatigue and missed critical warnings. A patient who can't understand their discharge instructions will be readmitted. Every pixel in a healthcare interface carries ethical weight.
 
@@ -129,6 +133,7 @@ Healthcare UI is **safety-critical design**. A confusing medication list can cau
 - **Haptic pairing**: critical alerts = heavy haptic, warnings = medium, confirmations = light. Match platform haptic APIs (UIKit `UIImpactFeedbackGenerator`, Android `VibrationEffect`).
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | User | Scope | What Changes |
 |-------|------|-------|-------------|
@@ -138,7 +143,69 @@ Healthcare UI is **safety-critical design**. A confusing medication list can cau
 | **L4 — Medium** | Hospital system, health plan, major health app | Enterprise EHR, integrated delivery network | FDA human factors compliance. Clinical workflow optimization. Interoperability with multiple EHR systems. Advanced CDS alerts with alert fatigue management. |
 | **L5 — Enterprise** | National health system, global health platform | Multi-country, multi-language, multi-regulation | EU MDR / FDA Class III device compliance. Clinical validation studies. AI/ML decision support with explainability. Real-world evidence integration. |
 
+## Decision Trees
+<!-- STANDARD: 3min -->
+
+### Decision Tree 1: Role-Based View Selection
+
+        ┌── INPUT: Who is the primary user?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Clinician]       [Patient]          [Administrator]
+Physician,        Self-service,      Scheduling,
+nurse,            results,           billing,
+pharmacist        messaging          reporting
+   │                 │                  │
+   ▼                 ▼                  ▼
+High-density      Plain language     Tabular data,
+clinical data,    (6th-grade         search-heavy,
+CDS alerts,       reading level),    batch operations,
+quick-entry       large touch        role-permission
+workflows         targets            gating
+
+### Decision Tree 2: Clinical Alert Severity
+
+        ┌── INPUT: What is the clinical risk?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Critical/STAT]   [Warning]          [Informational]
+Life-threatening  Action needed      Routine
+allergy, drug     soon: abnormal     notification,
+interaction,      lab, overdue       appointment
+critical lab      medication         reminder
+   │                 │                  │
+   ▼                 ▼                  ▼
+Red, modal,       Amber, banner,     Blue/gray,
+requires          persistent until   dismissible,
+immediate         acknowledged,      non-blocking,
+acknowledgment    blocks related     logged to
+→ audit trail     actions            audit trail
+
+### Decision Tree 3: PHI Visibility & Consent
+
+        ┌── INPUT: What PHI is being displayed?
+        │
+   ┌────┴────────────┬──────────────────┐
+   │                 │                  │
+   ▼                 ▼                  ▼
+[Direct View]     [Glanceable]       [Shared Screen]
+Patient's own     Lock screen        Waiting room,
+record, full      notifications,     hallway display,
+detail            watch face         teaching
+   │                 │                  │
+   ▼                 ▼                  ▼
+Show full data,   Mask PHI until     No PHI visible,
+auto-logout       authentication,    generic labels
+after inactivity, show "New lab      only, room
+audit every       result" without    number/initials
+access            values             anonymized
+
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 ### Phase 1: Clinical Context Discovery (10 min)
 
@@ -258,6 +325,7 @@ Healthcare UI is **safety-critical design**. A confusing medication list can cau
 - Marketing: must be separate from treatment consent. Cannot be required for care.
 
 ## Medical Device UI
+<!-- STANDARD: 3min -->
 
 For FDA-regulated medical devices (Class II/III) and SaMD (Software as a Medical Device):
 
@@ -274,6 +342,7 @@ For FDA-regulated medical devices (Class II/III) and SaMD (Software as a Medical
 - **Trend displays**: Vital signs over time. Selectable timescale (1h, 4h, 8h, 24h).
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What We Need | When |
 |---------------|-------------|------|
@@ -288,6 +357,7 @@ For FDA-regulated medical devices (Class II/III) and SaMD (Software as a Medical
 | `hipaa-technical-implementation` | UI-level PHI requirements: auto-logout timing, access indicators, consent flows, audit trail UI events | During implementation — align UI with HIPAA technical controls |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -298,10 +368,13 @@ For FDA-regulated medical devices (Class II/III) and SaMD (Software as a Medical
 | No auto-logout on patient data screen | Flag: "Add session timeout (15 min idle) with visible countdown. PHI exposure from unattended screens is a HIPAA violation." | Unattended screens with PHI are the most common HIPAA breach cause. |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > A clinician logs in, views their patient list with severity-based sorting (critical first), opens a patient chart, and sees the medication list with Tall Man lettering, allergy check, and interaction warnings — all in under 3 seconds. Lab results show patient-specific reference ranges with trend arrows. Medication orders complete in 3 clicks: select medication → confirm dose/route/frequency → sign. The PHI badge and 15-minute session timer are always visible. A patient opens their portal, sees their next appointment and medications due today in plain language at a 6th-grade reading level, and understands exactly what to do. All screens pass WCAG 2.2 AA and have been tested with screen readers.
 
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix |
 |---------|-----------|-----|
@@ -310,8 +383,113 @@ For FDA-regulated medical devices (Class II/III) and SaMD (Software as a Medical
 | Wrong medication administered | Drug name confusion (look-alike/sound-alike) | Implement Tall Man lettering. Show drug images. Require barcode scanning confirmation. |
 | PHI exposed on unattended screen | No auto-logout or too-long timeout | 15-minute idle timeout with visible countdown. Auto-logout at 0. Watermark with user identity. |
 
-## Anti-Hallucination
+## Best Practices
 
+1. **Do design clinical alerts with a 3-tier severity system (Critical/Warning/Info) and reduce total alert volume by ≥ 60%** — Alert fatigue is the #1 patient safety risk in clinical software. When all alerts are red and critical, clinicians dismiss them without reading — a 2017 study found clinicians override 49-96% of medication alerts. Tier alerts: Critical (red, blocks workflow — "Allergy: Penicillin. Do NOT administer"), Warning (amber, acknowledge required — "Duplicate therapy: patient already on lisinopril"), Info (blue, dismissible — "Lab result available"). Audit alert volume before/after tiering; must drop ≥ 60%.
+2. **Prefer Tall Man lettering and fully spelled-out medication names over abbreviated forms** — "hydrOXYzine" vs "hydrALAzine" — one letter distinguishes an antihistamine from a vasodilator. Abbreviated units cause dosing errors: "5.0 mg" misread as "50 mg" when the decimal is missed. ISMP and FDA mandate Tall Man lettering and a Do Not Use abbreviation list. A medication display error caused by abbreviated units costs $100,000-$500,000 in liability per incident and can be fatal.
+3. **Always display PHI indicators (lock badge + "Confidential" label + auto-logout countdown) on every screen with patient data** — Users must never be uncertain whether they're viewing protected health information. The lock badge provides visual assurance; the auto-logout timer (≤ 15 minutes idle, configurable) enforces HIPAA session management (45 CFR §164.312(a)(2)(iii)). A missing PHI indicator that leads to a screen-surfing breach costs $50,000-$1.5M in HIPAA fines per incident.
+4. **Never use red for non-critical information in a clinical context** — In healthcare, red means emergency, life-threatening, or stop. A red "New Feature!" badge or a red accent color on a dashboard desensitizes clinicians to real red alerts. Reserve red exclusively for: abnormal critical lab values, contraindicated medication interactions, emergency alerts, and error states that block workflow. A red decorative element that causes a clinician to miss a critical allergy alert has a non-monetary cost measured in patient harm.
+5. **Measure click count for the top 5 clinical workflows** — How many clicks/interactions to: administer medication, enter vitals, sign a note, review a lab result, and order a test? Target: ≤ 3 clicks per task from the primary workflow screen. Clinicians see 20+ patients per shift; every 30 seconds of UI friction per patient costs 10+ minutes per shift — time that could prevent a medication error. Instrument with RUM analytics segmented by clinician role and shift.
+
+## Production Checklist
+
+Before deploying or delivering work from this skill, verify:
+
+| # | Check | Verify |
+|---|-------|--------|
+| ☐ | Every screen with PHI displays a visible lock badge, "Confidential — PHI" label, and auto-logout countdown timer (≤ 15 minutes idle) | Verify PHI badge renders on all screens with patient data; auto-logout timer counts down and triggers session termination at expiry |
+| ☐ | All medication names display both brand and generic names with fully spelled-out units (milligram, not mg; microgram, not mcg) | Spot-check every medication reference in the UI; no abbreviated units; Tall Man lettering applied to look-alike/sound-alike drug names per ISMP list |
+| ☐ | Red color reserved exclusively for critical/emergency/error states; amber for warnings; blue for informational | Run a color audit script: `grep -rn 'red\|#FF0000\|Color.red' --include="*.swift" --include="*.tsx"` — verify each red instance maps to a critical/error/emergency context |
+| ☐ | Common clinical tasks (medication admin, vitals entry, note signing) complete in ≤ 3 clicks from the primary workflow screen | Time and count clicks for each top-5 workflow with a clinician tester; any task > 3 clicks must be restructured |
+| ☐ | Clinical alerts use 3-tier severity (Critical red, Warning amber, Info blue); total alert volume reduced ≥ 60% from unfiltered state | Audit alert count before/after tiering implementation; total alert count must decrease by at least 60% |
+| ☐ | Patient-facing content scored at 6th-grade reading level (Flesch-Kincaid) with teach-back confirmation prompts for discharge and medication instructions | Run readability tool on every patient-facing string; any score > grade 8 must be rewritten; teach-back prompt renders after key instructions |
+| ☐ | All UI logging, crash reporting, and analytics redact PHI at the pipeline — no patient data, account numbers, or identifiers in any log at any level | Inspect DEBUG-level log output: no patient names, MRNs, dates of birth, SSNs, or full account numbers; crash reporter screenshots disabled for patient-data screens |
+| ☐ | Rollback plan is documented and tested | Verify: EHR downtime procedure documented; rollback maintains data integrity (no lost entries); auto-logout timer and PHI indicators persist through version rollback; FDA human factors validation repeated if rollback changes clinical workflows |
+
+## Verification
+<!-- STANDARD: 3min -->
+
+| # | Complete when... | Verify |
+|---|---|---|
+| ☐ | Complete when every screen displaying PHI has a visible lock badge, "Confidential" label, and auto-logout timer countdown indicator | Verify PHI badge renders on all screens with patient data; auto-logout timer is visible and counts down from ≤ 15 minutes of inactivity |
+| ☐ | Complete when all medication names show both brand and generic names, with units of measure fully spelled out (milligram, not mg; microgram, not mcg) | Verify every medication reference in the UI pairs brand + generic names; no abbreviated units appear anywhere in medication display |
+| ☐ | Complete when red color is reserved exclusively for critical/emergency/error states, with amber for warnings and blue for informational | Verify via color audit that no red appears outside critical alert contexts; non-critical elements using red trigger Ground Rule G3 violation |
+| ☐ | Complete when common clinical tasks (medication administration, vitals entry, note signing) complete in ≤ 3 clicks from the primary workflow screen | Verify click count for each common task; if > 3 clicks, restructure workflow to reduce steps or add shortcuts |
+| ☐ | Complete when clinical alerts use a 3-tier severity system: Critical (red, action required), Warning (amber, be aware), Info (blue, reference) with total alert volume reduced by ≥ 60% from unfiltered state | Verify alert tiering system is in place; audit alert volume before/after tiering — must drop by at least 60% |
+| ☐ | Complete when patient-facing content is written at a 6th-grade reading level with teach-back confirmation prompts for discharge and medication instructions | Verify via readability tool (Flesch-Kincaid) that patient content scores at grade 6 or below; teach-back prompt renders after key instructions |
+| ☐ | Complete when auto-logout triggers after ≤ 15 minutes of idle time with a visible countdown during the final 60 seconds and screen watermark showing logged-in user identity | Verify idle timeout fires at 15 minutes; countdown appears at 14:00; watermark shows username/role persistently |
+| ☐ | Complete when look-alike/sound-alike drug names use Tall Man lettering and barcode scanning confirmation is required for medication administration | Verify Tall Man formatting on high-risk drug name pairs (e.g., hydrOXYzine vs hydrALAzine); barcode scan step cannot be bypassed |
+| ☐ | Complete when all clinical data displays (lab results, vitals trends, medication schedules) include reference ranges, measurement units, and collection timestamps | Verify every lab value shows normal range, unit, and "Collected: [timestamp]"; abnormal values are visually distinct from normal |
+| ☐ | Complete when accessibility covers: screen reader labels on all interactive elements, keyboard navigation for every workflow, and minimum 4.5:1 contrast on all text | Verify via automated accessibility scan (axe-core, Accessibility Inspector) with zero critical violations; manual screen reader pass completes all workflows |
+
+## When to Use
+<!-- STANDARD: 3min -->
+
+| Condition | Use This Skill | Use Instead |
+|-----------|---------------|-------------|
+| Designing EHR interface (lab results, medication administration, vitals) | ✅ Clinical data display, 3-click workflows, severity-tiered alerts | — |
+| Building patient portal (appointments, prescriptions, secure messaging) | ✅ 6th-grade reading level, teach-back confirmation, PHI indicators | — |
+| Designing telemedicine platform (virtual visits, waiting room) | ✅ HIPAA-compliant video UX, pre-visit intake, post-visit summary | — |
+| Building medical device UI (patient monitor, infusion pump, diagnostic) | ✅ FDA human factors (IEC 62366), alarm tiering, barcode confirmation | — |
+| HIPAA compliance implementation (backend) | ❌ | `hipaa-technical-implementation` |
+| FDA 510(k) regulatory submission | ❌ | `health-regulatory-submission` |
+| General healthcare UX research | ❌ | `patient-experience-researcher` |
+| Pharmacy system UI | ✅ Medication display with Tall Man lettering, drug interaction alerts | — |
+| Health tracking app (symptoms, vitals, activity) | ✅ Consumer health UX, data visualization for non-clinicians | — |
+| Clinical decision support (alerts, guidelines, risk scores) | ✅ Alert tiering, clinical workflow integration, cognitive load management | — |
+
+## Deliberate Practice
+<!-- STANDARD: 3min -->
+
+1. **Audit a real EHR screen.** Screenshot a patient chart from Epic or Cerner (or a publicly available demo). Count clicks to order a medication. Check: is the PHI indicator visible? Are lab results shown with reference ranges and timestamps? Is red used only for critical alerts? Identify 5 violations of best practices.
+2. **Redesign medication administration for safety.** Take a medication order screen. Add: brand + generic name, Tall Man lettering for look-alike drugs, barcode scan confirmation step, allergy cross-check visual indicator, and drug-drug interaction warning. Test: can a nurse complete administration in 3 clicks without missing a safety check?
+3. **Rewrite discharge instructions for health literacy.** Take a standard discharge summary (typically 12th-grade reading level). Rewrite at 6th-grade level. Add teach-back confirmation: "In your own words, what will you do when you get home?" Add visual icons for: take medication, schedule follow-up, watch for symptoms, call if worse.
+4. **Design a clinical alert tiering system.** Start with an undifferentiated alert feed (50 alerts/day). Classify each: Critical (red, action required), Warning (amber, be aware), Info (blue, reference). Reduce total alerts by 60%. Design the visual hierarchy so Critical alerts are unmissable but Info alerts are non-interruptive.
+5. **Build an accessible patient portal flow.** Design a prescription refill flow for a 65-year-old patient with low vision and limited tech literacy. Test: screen reader navigation, keyboard-only input, 200% text zoom, and touch targets ≥44pt. Measure time-to-complete — target under 3 minutes.
+
+## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Medication names without Tall Man lettering — look-alike/sound-alike drugs cause administration errors | $100K-$5M per medication error incident; 25% of medication errors from name confusion; preventable death liability | Implement Tall Man lettering (hydrOXYzine vs hydrALAzine). Show drug images. Require barcode scanning confirmation before administration |
+| Clinical alerts without severity tiering — clinicians develop alert fatigue and ignore critical warnings | $500K-$10M in missed critical findings leading to adverse events; clinical burnout from constant low-value interruptions | 3-tier severity: Critical (red, action required), Warning (amber, aware), Info (blue, reference). Reduce total alert volume by ≥60% |
+| Patient content written above 6th-grade reading level — 36% of US adults have basic or below-basic health literacy | $200K-$2M in readmission penalties (CMS Hospital Readmissions Reduction Program); medical errors from misunderstood instructions | Rewrite at 6th-grade Flesch-Kincaid level. Add teach-back confirmation. Offer audio version. Define all medical terms inline |
+| No auto-logout on PHI screens — unattended screen exposes protected health information | $50K-$250K per HIPAA breach incident (tiered by record count); $1.5M average OCR settlement for systemic violations | 15-minute idle timeout with visible countdown. Auto-logout at 0. Screen watermark showing logged-in user identity. Audit logging on every session end |
+| Red used for non-critical information — in clinical contexts, red means emergency/error | $30K-$150K in UX redesign; potential clinical error from misinterpreting non-critical red element as emergency alert | Reserve red exclusively for Critical/Emergency/Error. Use amber for warnings, blue for informational. Audit every red pixel in the UI |
+| Clinical workflow requiring >3 clicks for common tasks — wastes clinician time under pressure | $100K-$500K/year in lost clinician productivity (15 clinicians × 5 min/day × $150/hr); clinician burnout and dissatisfaction | Common tasks (medication admin, vitals entry, note signing) must complete in ≤3 clicks. Add shortcuts and favorites. Measure time-motion |
+| Lab results without reference ranges and timestamps — clinically meaningless and potentially misleading | $50K-$500K in diagnostic errors from out-of-context lab values; normal ranges vary by age, sex, lab method, and pregnancy status | Every lab value shows: reference range, units, collection timestamp, and trend arrow. Abnormal values visually distinct. "Collected: [datetime]" adjacent to value |
+| Weight-based medication dosing without weight validation — pediatric overdose risk | $500K-$10M in pediatric medication error liability; children dosed by weight — a 10× dosing error from kg/lb confusion is fatal | Require weight entry with unit validation (kg only). Automatic dose calculation. Hard stops on doses exceeding mg/kg safety limits. Pharmacist verification for high-alert medications |
+
+## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
+
+| Decision | Status | Timestamp |
+|----------|--------|-----------|
+| (none yet) | — | — |
+
+## References
+<!-- STANDARD: 3min -->
+
+- [FDA Human Factors Guidance](https://www.fda.gov/regulatory-information/search-fda-guidance-documents) — Applying Human Factors and Usability Engineering to Medical Devices
+- [IEC 62366-1:2015](https://www.iso.org/standard/63179.html) — Medical devices usability engineering standard
+- [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html) — Technical safeguards for ePHI
+- [WCAG 2.2 AA](https://www.w3.org/TR/WCAG22/) — Accessibility standard for healthcare applications
+- `references/clinical-interface-patterns.md` — EHR design, lab result display, medication administration
+- `references/patient-portal-patterns.md` — Health-literate content, appointment booking, prescription refill
+- `references/telemedicine-patterns.md` — Virtual visit UX, waiting room design, post-visit summary
+- `references/medical-device-ui.md` — FDA human factors, alarm design, vital sign monitoring
+- `references/clinical-alert-design.md` — Severity tiering, alert fatigue reduction, interruptive vs non-interruptive
+- `references/healthcare-accessibility.md` — Screen reader patterns for clinical data, colorblind-safe medical indicators
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 - [VERIFIED] — Confirmed against FDA guidance, HIPAA requirements, or published clinical standards
 - [COMMON-PRACTICE] — Widely used in major EHR systems (Epic, Cerner) or health tech products
 - [INFERRED] — Reasonable extrapolation from healthcare UX principles

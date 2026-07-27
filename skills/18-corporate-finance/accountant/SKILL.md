@@ -60,7 +60,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -244,6 +243,7 @@ What's your stage and complexity?
 
 ### Phase 1: Accounting Setup (~2 hours, one-time)
 1. **Chart of accounts design.** SaaS-specific structure:
+
 ```
 1000 Assets
   1100 Cash & Equivalents (1101 Operating, 1102 Money Market, 1103 Restricted)
@@ -264,6 +264,7 @@ What's your stage and complexity?
 6000-9000 Operating Expenses
   6000 S&M, 7000 R&D, 8000 G&A, 8100 SBC (separate line!)
 ```
+
 2. **Configure accounting system.** Set fiscal year, close periods monthly, enable class/location tracking if multi-entity. Import opening balance sheet.
 3. **Set up bank feeds.** Link all bank accounts and credit cards for automatic transaction import. Map recurring transactions to rules.
 4. **Document accounting policies** in a 3-5 page memo: revenue recognition policy, expense capitalization threshold ($2,500 typical for startups), prepaid expense policy, accrual policy, equity accounting method.
@@ -280,11 +281,16 @@ What's your stage and complexity?
 1. **Payroll entry:** Dr Salary Expense (gross) + Employer Tax Expense, Cr Cash (net pay), Cr Payroll Tax Payable, Cr Benefits Payable. Never record only the net pay hitting the bank — that understates expenses by 15-25%.
 2. **Employer taxes:**
   Complete when: Payroll journal entries posted with gross pay, employer taxes, and net pay correctly split (never net-only), equity compensation expense recorded per ASC 718 with fair value mark, and all payroll tax liabilities reconciled to provider reports.
+  Complete when: Financial statements reconciled — balance sheet balances, P&L ties to trial balance.
+  Complete when: Variance analysis completed — actuals vs. budget explained with < 5% unexplained.
+  Complete when: Audit trail documented — all journal entries have supporting documentation attached.
+  Complete when: Close checklist completed — all period-end entries posted and reviewed.
+  Complete when: Forecast updated with actuals and rolling 12-month projection.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
 
 **(STANDARD)**
 
@@ -351,8 +357,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Audit evidence request received without prior notice | Pull requested support within 2 hours and confirm completeness with auditor | Responsiveness builds auditor trust and can reduce substantive testing scope |
 | Bank feed disruption >4 hours during business day | Switch to manual import protocol and notify all entities relying on auto-feed | Delayed bank data cascades into cash positioning, reconciliation, and payment runs |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -390,7 +396,7 @@ graph LR
 
 **DEEP: 10+min — War story:** A Series B startup got a $2.00/share 409A in January. By June, they had a term sheet at $15/share (Series C). They granted options at the $2.00 strike in July — but didn't get a new 409A. The IRS audited and determined the FMV at grant date was actually $8.00 based on the term sheet progression. Result: all July grants were discounted options with $6/share of compensation income to employees AND a $500K penalty for the company. Rule: new 409A before any option grant where > 6 months since last valuation OR any material event (fundraise term sheet, major customer win, revenue 2x).
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -426,6 +432,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Year-end: $50K invoice dated Dec 28, payment received Jan 12. Accrual basis = December revenue (with receivable). Cash basis = January revenue. Wrong choice shifts tax liability across fiscal years. | Year-end cutoff error: transaction straddling fiscal year boundary classified under wrong basis. IRS cares about consistency — switching methods without Form 3115 triggers automatic audit flags. Revenue recognized in wrong tax year = tax paid in wrong year = penalties + interest. | Document revenue recognition policy in writing. Run year-end cutoff checklist identifying ALL transactions straddling fiscal year boundary. For contracts > $25K, confirm recognition treatment with engagement partner before close. If switching between cash and accrual basis, file Form 3115 BEFORE the change. | December 28 vs January 12 isn't a 2-week difference — it's a fiscal-year difference. The IRS doesn't audit your accounting philosophy, but they WILL audit a company that reports the same transaction differently two years in a row. |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -472,15 +479,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Accruals: accrued expenses reconciled to actual invoices when received — no stale accruals > 90 days
 - [ ] Audit readiness: all material balances have supporting schedules with source data references — PBC list pre-populated
 
-### Scale Depth
-
-| Company Stage | Accounting System | Close Process | Key Compliance |
-|--------------|-------------------|---------------|----------------|
-| **Pre-revenue startup** | QBO/Xero, $15-30K/year outsourced bookkeeping | Cash-basis, monthly close within 5 days, Excel-based schedules | Payroll taxes, 409A, sales tax nexus (remote employees), R&D tax credit eligibility |
-| **Seed/Series A ($1M-$10M ARR)** | QBO/Xero + Bill.com + Rippling/Gusto, $60-120K/year part-time controller | Modified cash-basis transitioning to accrual, deferred revenue tracking, AR/AP management | ASC 606 revenue recognition, 409A, ASC 718 stock comp, sales tax registration, first audit preparation |
-| **Series B/C ($10M-$50M ARR)** | NetSuite/Sage Intacct, $150-300K/year full-time controller + CPA firm audit | Full GAAP accrual, 5-day close, ASC 606 rev rec, ASC 842 lease accounting, intercompany eliminations | Annual GAAP audit, ASC 718/409A, multi-state sales tax, transfer pricing (if international), SOX readiness |
-| **Pre-IPO ($50M+ ARR)** | NetSuite/Oracle Fusion + FloQast/BlackLine, $500K-1M+/year controller + IA + SEC reporting | 3-day close, SOX controls, SEC reporting (10-K, 10-Q, 8-K), segment reporting | SOX 404(b), PCAOB audit, SEC filings, ASC 740 (tax provision), ESG reporting readiness |
-
 ## Error Decoder
 
 | Symptom | Root Cause | Fix | Prevention |
@@ -515,4 +513,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

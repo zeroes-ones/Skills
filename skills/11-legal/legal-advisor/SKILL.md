@@ -58,7 +58,8 @@ chain:
 
 Comprehensive legal advisory framework for software and SaaS businesses. Covers document drafting, intellectual property strategy, open-source compliance, and risk assessment — designed to be used alongside qualified legal counsel, not as a replacement.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -69,6 +70,7 @@ Comprehensive legal advisory framework for software and SaaS businesses. Covers 
 | "A verbal handshake is fine for now — we'll paper it later." | There is no such thing as a verbal contract that survives a dispute. 100% of "we had an understanding" cases devolve into contested recollections with zero documentary evidence. The party with the better lawyer wins, not the party who was right. Every deal, every partnership, every equity split — write it down, sign it, date it. Before the conflict, not after. |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -86,12 +88,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master legal advisors understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
 
@@ -112,6 +114,7 @@ Master legal advisors understand that strategy is not about predicting the futur
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
@@ -127,6 +130,7 @@ Master legal advisors understand that strategy is not about predicting the futur
 | **A8** | `file_exists("SECURITY.md")` or `file_contains("README.md", "license\|legal\|compliance\|attorney")` | Core Workflow → Phase 1 | "I detect legal documentation — this is the legal-advisor skill domain. Routing to Core Workflow Phase 1." |
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -141,21 +145,8 @@ Master legal advisors understand that strategy is not about predicting the futur
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
-### Scale Depth
-
-#### Solo
-- Draft foundational documents (ToS, privacy policy, contractor IP assignment), run an open-source license audit on your dependency tree, and establish signing authority protocols — cover the must-haves before scaling legal infrastructure
-
-#### Small Team
-- Implement standardized contract playbooks with pre-approved fallback positions, automate open-source license compliance checks in CI/CD, maintain a legal document registry with version history, and establish quarterly legal review cadences
-
-#### Medium Organization
-- Build an in-house legal function or dedicated external counsel relationship, manage multi-jurisdiction compliance (GDPR + CCPA + PIPEDA), run trademark registration and enforcement programs, and establish IP portfolio management with patent strategy
-
-#### Enterprise
-- Operate a full legal department with specialized counsel across IP, employment, commercial contracts, M&A, and regulatory domains; manage international corporate structure with entity-level compliance; run board-level risk governance with legal KPIs and materiality thresholds
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Drafting or updating Terms of Service (ToS), Privacy Policy, or End User License Agreement (EULA) for a SaaS product
@@ -168,7 +159,102 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Building a contributor license agreement (CLA) or developer certificate of origin (DCO) process
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 **(QUICK)**
+
+### Decision Tree 1: Contract Type Selection
+
+        ┌── INPUT: What legal document does this engagement need?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+Self-serve SaaS              Enterprise      Mobile/desktop
+product                      customer deal   software
+   │                         │              │
+   ▼                         ▼              ▼
+Terms of Service             Master Service  EULA (End User
++ Privacy Policy             Agreement (MSA) License Agreement)
++ Cookie Policy              + SOW/Order     + Privacy Policy
+   │                         Form            + Third-party
+   ▼                         │              notices
+Clickwrap acceptance         ▼              │
+(not browsewrap)             Negotiate:      ▼
+   │                         liability cap,  License grant:
+   ▼                         indemnification perpetual vs
+Standard docs                data processing subscription,
+suffice for most             addendum (DPA)  permitted copies
+early-stage SaaS             SLA terms
+                             │
+                             ▼
+                             Revenue >$50K/yr
+                             → get lawyer review
+                             on every MSA
+
+### Decision Tree 2: IP Protection Strategy
+
+        ┌── INPUT: What intellectual property needs protection?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+Brand name/logo              Novel          Proprietary
+   │                         invention      business info
+   ▼                         │              │
+Trademark                    ▼              ▼
+registration              Patent or       Trade secret
+   │                      trade secret?   protection
+   ▼                         │              │
+Search USPTO              ┌──┴──┐         ▼
+database first            │     │      NDAs with
+   │                      ▼     ▼      employees +
+┌──┴──┐                Patent  Trade     contractors
+│     │                  │     secret    │
+▼     ▼                  ▼     │         ▼
+Clear  Conflicting      File    ▼      Access controls
+│      │              provisional Assess   need-to-know
+▼      ▼              first ($70- public   basis
+Register Choose new    $280)   disclosure  │
+™       name          converts risk of     ▼
+                     invention  losing    Document what
+                     to product trade      IS and IS NOT
+                                secret     a trade secret
+                                status
+
+### Decision Tree 3: Fundraising Instrument Selection
+
+        ┌── INPUT: Early-stage startup — which fundraising vehicle?
+        │
+   ┌────┴────────────────────┬──────────────┐
+   │                         │              │
+   ▼                         ▼              ▼
+Pre-seed /                   Seed round     Series A or
+friends & family             ($500K-$3M)    priced round
+   │                         │              │
+   ▼                         ▼              ▼
+SAFE (Simple Agreement       Priced Seed    Series Seed/Series A
+for Future Equity)           Round OR       Preferred Stock
+   │                         Convertible    │
+   ▼                         Note           ▼
+No valuation needed          │              Board expansion
+No maturity date             ▼              Investor rights
+No board seat              Convertible      (info, pro-rata,
+   │                       Note:            anti-dilution)
+   ▼                       interest +       │
+Y Combinator SAFE           discount +      ▼
+is industry standard        valuation cap   Lead investor
+   │                         │              negotiates terms
+   ▼                         ▼              → others follow
+CAUTION: too many           Converts at     on same docs
+SAFEs → messy cap           next priced     │
+table at Series A           round           ▼
+                            │              Hire startup
+                            ▼              lawyer to review
+                            If within       term sheet before
+                            6 months of     signing — terms
+                            priced round,   at this stage
+                            use SAFE       are sticky
+                            instead
 
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
@@ -179,6 +265,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
                      ┌──────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -246,8 +333,14 @@ Complete when: Terms of Service drafted with all key clauses (acceptance, IP, pa
 4. **Contributor License Management** — For open-source projects: DCO (lighter, trust-based, sign-off-by in commits) vs. CLA (formal, signed agreement assigning or licensing rights to the project). CLA needed if you plan to relicense or offer commercial licenses later.
 5. **Trade Secret Protection** — Identify trade secrets: algorithms, training data, pricing models, customer lists. Implement reasonable measures: access controls, NDAs with employees and contractors, document labeling, exit interview procedures, non-compete/non-solicit where enforceable.
 Complete when: Patent strategy defined (defensive/offensive/none) with provisional filings for key innovations. Trademark strategy filed with clearance search completed for name, logo, and tagline. Open-source license audit completed with dependency tree categorized by license type (permissive/weak copyleft/strong copyleft). Contributor license management policy established (DCO or CLA). Trade secret inventory with protection measures documented.
+  Complete when: Legal review completed and all required disclosures documented.
+  Complete when: Data retention policy defined with automated enforcement and audit trail.
+  Complete when: Cross-border data transfer impact assessment completed and documented.
+  Complete when: Third-party vendor compliance verified — DPA signed and security review passed.
+  Complete when: Incident response plan updated to include regulatory notification procedures.
 
 ## Error Recovery
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -263,6 +356,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Legal advice touches every function. Missed coordination creates liability; over-lawyering blocks velocity. Balance is structural.
@@ -325,13 +419,12 @@ Legal advice touches every function. Missed coordination creates liability; over
 | Cross-border M&A or IPO preparation | **External Transactional Counsel** + CEO Strategist + CFO | Complex multi-jurisdiction; specialized expertise required |
 | Criminal allegation involving employee or company | **External Criminal Defense Counsel** + Board | Personal and corporate liability; privilege critical |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `compliance-officer` | Regulatory requirements, audit frameworks, control mappings | Before providing legal or privacy advice |
 
-
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -345,15 +438,17 @@ Legal advice touches every function. Missed coordination creates liability; over
 | Team discusses an acquisition or funding round without having done IP assignment cleanup | Intervene immediately: "Due diligence will require: (1) signed IP assignment agreements from every founder, employee, and contractor who ever contributed code, (2) open-source license audit (SBOM), (3) trademark registration status, (4) patent filings if any. Missing IP assignments from a former contractor who contributed 20% of the codebase can kill a deal. Start the IP cleanup audit now — it takes months" | IP ownership gaps are the #1 deal-killer in M&A and funding due diligence. A single contractor without a signed IP assignment means the company doesn't own its own product. This is unfixable retroactively without locating and negotiating with the former contractor |
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > When legal advisory is applied perfectly, contracts are negotiated with precision using playbook-driven redlines that close in days not weeks, open source licenses are cataloged with zero copyleft sur
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```mermaid
+
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
 
@@ -369,6 +464,7 @@ graph LR
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **"I am not a lawyer, but..."** followed by legal advice — this disclaimer doesn't protect the company from unauthorized practice of law claims AND doesn't protect the recipient from relying on non-lawyer legal opinions. If you're not a barred attorney in the relevant jurisdiction, don't give legal conclusions. Give risk assessments and options, not legal opinions.
 - **Accepting the other party's contract without redlines** — their contract was written by their lawyers to protect them, not you. Every clause favors them by default. A contract that arrives "pre-approved" is a negotiation opening, not a final document. Always redline.
@@ -377,6 +473,7 @@ graph LR
 - **Signing personally instead of as an authorized representative of the company** — "John Smith" instead of "John Smith, CEO, on behalf of Acme Corp." The contract now binds John Smith personally. If the company can't pay, John's personal assets are at risk.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -386,8 +483,8 @@ graph LR
 | NDA that defines "Confidential Information" as "all information disclosed" | Overbroad definition captures publicly available information, information you already knew, and information you independently developed | Add standard exclusions: publicly known, previously known, independently developed, rightfully received from third party | An NDA without exclusions restricts you from using information you already owned — it's a trap that creates risk rather than managing it |
 | Indemnification: "Each party indemnifies the other" (mutual) | Mutual indemnification for the SAME liability type means each party pays for the other's mistakes | Structure indemnification by liability type: IP infringement (vendor indemnifies), data misuse (customer indemnifies), each party bears their own area of responsibility | Indemnification should follow fault, not symmetry — fair-looking mutual clauses can be deeply unfair when one party controls the risk |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Version every contract with effective dates and acceptance records.** Without versioned acceptance tracking, you cannot prove a user or customer agreed to specific terms in a dispute. Maintain an audit trail of who accepted which version and when.
 
@@ -409,11 +506,12 @@ graph LR
 
 10. **Archive signed agreements in a durable, searchable, access-controlled system.** Signed contracts are evidence in disputes, due diligence artifacts in fundraising, and compliance records in audits. A PDF in someone's email is not an archive — use a contract management system with retention policies and role-based access.
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 **(STANDARD)**
 
 - [ ] Contract review: reviewed by a barred attorney in the relevant jurisdiction (not just an AI-assisted review)
@@ -425,6 +523,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Document retention: signed contracts stored in a durable, backed-up system with access controls. Retention schedule documented.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 - **Open-source license compatibility** — MIT code in an Apache 2.0 project is compatible (MIT is more permissive). GPLv3 code in an MIT project makes the ENTIRE project GPLv3 (copyleft propagation). Apache 2.0 and GPLv2 are INCOMPATIBLE (patent grant vs termination clauses). License compatibility must be checked at the dependency-graph level, not per-package. **Total cost: $100K-$2M in litigation from license violation claims, forced open-sourcing of proprietary codebase under copyleft propagation, or emergency reimplementation of GPL-contaminated modules after a single incompatible dependency is discovered during funding due diligence or acquisition — and kills the deal.**
 - **Contributor License Agreements (CLAs)** require contributors to sign over rights. But a CLA that says "you grant us an irrevocable, perpetual, worldwide license" without specifying what "us" can do — the contributor's employer may claim the code was created on company time. CLAs must include IP ownership attestation: "I certify this is my original work and not owned by my employer." **Total cost: $50K-$500K in IP ownership litigation with a contributor's employer who claims the code was created on company time, plus the cost of rewriting disputed modules from scratch and potential injunctions blocking product shipment until ownership is resolved.**
@@ -440,6 +539,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - **Classifying workers as independent contractors to avoid employment taxes and benefits.** The IRS 20-factor test and state-level ABC tests (California, Massachusetts, New Jersey) set a high bar — if you set hours, provide equipment, supervise the work, and the role is core to your business, the law considers them employees regardless of what the contract says. Misclassification penalties include back overtime pay, back payroll taxes (employer + employee portions), unpaid benefits, and civil penalties — per worker, going back up to 3 years. **Total cost: $100K-$1M+ in back taxes, penalties, benefits restitution, and class-action exposure. Uber's $100M misclassification settlement is the high-profile example, but small companies with 5-10 misclassified workers face six-figure DOL audit findings that exceed their annual revenue.** Fix: if a worker is full-time, uses your equipment, follows your schedule, performs core business functions, and can't subcontract the work — they are an employee. Use a staffing agency or Employer of Record (EOR) like Deel or Rippling if you need flexible workforce arrangements. Consult an employment attorney before classifying anyone as a 1099 contractor — the legal analysis must happen before the engagement starts, not during an audit.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] License audit: `fossa` or `license-checker` — all dependencies have licenses, no GPLv3 in non-GPL projects
 - [ ] CLA/contributor agreement: reviewed within last 12 months, includes IP ownership attestation
@@ -448,10 +548,12 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Open source: projects with > 100 stars have contributing guide, code of conduct, and license
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -464,7 +566,6 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
 - **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
 - **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)

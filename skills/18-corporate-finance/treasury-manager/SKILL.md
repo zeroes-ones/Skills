@@ -56,7 +56,6 @@ Treasury, cash management, and financial risk for venture-backed startups. From 
 | **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -257,11 +256,16 @@ What's your risk profile?
 ### Phase 3: Investment & Debt (~3 hours/month)
 1. **Investment policy document (1-2 pages).** Objectives: capital preservation, liquidity, yield (in that order). Permitted instruments: US Treasury bills (< 6 month maturity), government money market funds (NAV $1.00, S&P AAAm rated), FDIC-insured deposits. Prohibited: corporate bonds, equiti
   Complete when: Investment policy document reviewed and signed, current cash allocation verified against policy, upcoming debt covenant dates recorded, and sweep schedule confirmed for next 30 days.
+  Complete when: Debt covenant compliance report reviewed and signed, all financial ratios within required thresholds, and next 12 months of covenant dates calendared with automated reminders.
+  Complete when: FX exposure hedge positions reviewed against policy limits, mark-to-market valuations reconciled, and hedge effectiveness testing completed for all material positions.
+  Complete when: Bank fee analysis completed across all banking relationships, fee benchmarking performed against peer set, and cost-saving opportunities identified with implementation timeline.
+  Complete when: Counterparty risk assessment updated with current credit ratings, concentration limits verified across all counterparties, and any breaches escalated with remediation plans.
+  Complete when: Treasury technology stack reviewed (TMS, ERP treasury module, bank connectivity), integration health confirmed, and system upgrade roadmap documented.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
 **(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
@@ -329,8 +333,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | 409A valuation is >10 months old or material event occurred (new term sheet, secondary, tender offer) | Order new 409A immediately (3-4 week lead time); pause all option grants until refreshed; document board resolution if grants must proceed | Expired 409A = options at risk of IRS challenge and Section 409A penalties on employees |
 | ACH debit block is not enabled on operating account | Enable ACH debit block today on all accounts except designated ACH collection accounts; add ACH positive pay with pre-authorized originators | ACH debit block costs nothing; one fraudulent ACH debit can drain operating cash with limited recovery rights |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
@@ -354,7 +358,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -390,6 +394,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Floating-rate debt: $50M at SOFR + 200bp. Fed raises 300bp — annual interest goes from $2M to $3.5M, EBITDA miss of $1.5M | Interest rate risk unmodeled because "rates have been low for years." No rate sensitivity analysis, no hedging. When rates rose, the P&L impact was a surprise to the board — $1.5M EBITDA miss that should have been forecasted 12 months earlier with basic scenario modeling. | Model interest rate sensitivity for every 100bp movement. Present to board: "At current rates: $2M/year. At +100bp: $2.5M. At +300bp: $3.5M." Consider hedging 50% of floating-rate exposure with interest rate swaps or caps when rates are below historical medians. Review quarterly. | Interest rate risk is not just for banks. Any company with floating-rate debt is short rates — and when the Fed moves, your P&L moves with it. The question isn't "will rates change?" but "can we afford it when they do?" |
 
 ## Gotchas
+<!-- DEEP: 10+min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -435,15 +440,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Insurance review: all policies reviewed annually — D&O, cyber, key person, GL, property limits benchmarked to company stage
 - [ ] Signing authority: authorized signers list current — limits documented, segregation of duties enforced (initiator ≠ approver)
 - [ ] Bank fee analysis: quarterly review of all bank fees — ACH, wire, account maintenance, FX spread benchmarked and negotiated
-
-### Scale Depth
-
-| Company Stage | Treasury Complexity | Banking Setup | Key Instruments |
-|--------------|-------------------|---------------|-----------------|
-| **Seed/Pre-revenue** | Single bank, founder as signer, basic cash tracking | SVB/Mercury/Brex, operating account only, debit card | Checking account, basic ACH/wire capability |
-| **Series A ($1-10M raised)** | 2 banks, controller manages daily cash, basic forecasting spreadsheet | SVB + JPM/regional bank, operating + reserve accounts, corporate card program | Money market funds, 4-week T-bill ladder, basic FX spot for international customers |
-| **Series B/C ($10-50M raised)** | Multi-bank, treasury management system (TMS) or advanced spreadsheet, weekly forecasting | 2-3 banks, operating + reserve + investment accounts, credit facility, FX accounts | T-bill ladder (4/8/13/26 week), commercial paper, FX forwards, venture debt management |
-| **Growth/Late Stage ($50M+ raised)** | Dedicated treasury team, TMS (Kyriba/GTreasury), daily cash positioning, multi-currency | 3+ global banks, multi-currency accounts, revolving credit facility, supply chain finance | T-bills, agency bonds, corporate bonds, FX forwards/options, interest rate swaps/caps, share buyback execution |
 
 ## Error Decoder
 

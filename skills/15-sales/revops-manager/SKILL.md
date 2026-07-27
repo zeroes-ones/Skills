@@ -81,6 +81,7 @@ What are you trying to do?
 └── Not sure? → Describe the revenue problem and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -100,7 +101,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and WARN about CRM-to-billing ARR variance over 2%.** When CRM ARR and billing ARR diverge by more than 2%, you have two sources of truth — and investor reporting integrity is at risk. | Trigger: generated output references `CRM.ARR\|billing.ARR` AND no `variance\|reconciliation\|diff` check appears | WARN: Add monthly reconciliation step: `SELECT CRM.ARR - billing.ARR WHERE variance > 2%`. Flag for immediate investigation. Dual sources of truth kill board credibility.
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -307,7 +307,12 @@ Which integration is suspect?
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Analysis results documented with effect sizes and confidence intervals, segment analysis complete, and findings communicated to stakeholders.
-
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
 
 ## Error Recovery
 
@@ -382,11 +387,9 @@ Attribution model dispute between marketing and sales -> CEO Strategist (arbitra
 
 ```
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `product-strategist` | Product positioning, competitive analysis, value proposition | Before engaging prospects or designing partnerships |
-
 
 ## Proactive Triggers
 
@@ -402,7 +405,6 @@ Attribution model dispute between marketing and sales -> CEO Strategist (arbitra
 | Rep ramp time exceeds 6 months (enterprise) or 3 months (SMB) for 2+ consecutive hires | VP Sales, People Ops | Hiring profile or onboarding process mismatch; cost of delayed productivity compounds. Audit recent hires for common failure patterns |
 | Deal desk average approval time exceeds SLA for 2 consecutive months | CRO, VP Sales | Revenue velocity bottleneck; deals stalling in approval. Either increase AE discount authority or add deal desk headcount |
 | Win/loss analysis reveals same competitor winning with same objection across 5+ deals in a quarter | Product Manager, Marketing Manager, Sales Engineer | Systemic competitive vulnerability; product gap or positioning weakness being exploited. Battle card refresh and roadmap escalation |
-
 
 ## State Log
 
@@ -494,59 +496,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] Deals with no activity in 30+ days flagged — owners notified, forecast category downgraded if no response in 7 days
 - [ ] Monthly forecast accuracy tracked — end-of-quarter forecast vs actuals within ±10% target
 
-## Scale Depth
-
-<!-- DEEP: How this skill scales from solo to enterprise. -->
-
-### Solo RevOps (Founder-led, pre-Series A)
-- **Tooling:** HubSpot CRM (free), Google Sheets for forecasting, manual pipeline reviews, Stripe for billing
-- **Process:** Founder manages CRM and does weekly pipeline review personally; no formal territory plan; comp is simple commission
-- **Risk:** No systematic data governance; forecast is founder's gut feel; CRM hygiene depends entirely on one person
-- **Move to next level when:** Sales team exceeds 5 reps OR running ≥2 distinct sales motions (inbound + outbound)
-
-### Small Team (1 RevOps, Series A-B)
-- **Tooling:** HubSpot/Salesforce Professional, basic forecasting spreadsheet, simple attribution (first-touch), Excel comp modeling
-- **Process:** Formal pipeline review cadence (weekly), basic territory design by geo, simple deal desk (discount approval workflow), monthly CRM hygiene audit
-- **Key hire:** First Salesforce/HubSpot admin — dedicated to CRM configuration, automation, and data quality
-- **Move to next level when:** Sales team exceeds 20 reps OR implementing first comp plan with accelerators
-
-### Medium Team (2-4 RevOps, Series B-C)
-- **Tooling:** Salesforce Enterprise, forecasting platform (Clari/BoostUp), multi-touch attribution, comp management software (CaptivateIQ/Spiff), deal desk automation
-- **Process:** Deal-level forecast inspection, formal territory planning with workload modeling, multi-touch attribution (W-shaped), quarterly comp plan modeling, dedicated deal desk function, sales process documentation and training
-- **Metrics:** Forecast accuracy by rep/team/region, pipeline coverage ratio, sales cycle length by segment, quota attainment distribution, CRM adoption score
-- **Move to next level when:** Supporting ≥3 sales segments (SMB + Mid-Market + Enterprise) OR implementing global territories across ≥2 regions
-
-### Enterprise (4+ RevOps, Series C+)
-- **Tooling:** Full RevOps tech stack — CRM (Salesforce Unlimited), forecasting AI, advanced attribution (media mix modeling), comp intelligence, territory planning software (Fullcast/Territory Manager), revenue intelligence (Gong/Clari)
-- **Process:** RevOps leadership team, dedicated functions (CRM architecture, analytics, enablement ops, deal desk), monthly forecast council with CRO/CFO, quarterly territory rebalancing, annual comp plan redesign with sandbox simulation
-- **Metrics:** Revenue per rep, time-to-productivity for new reps, forecast accuracy by week of quarter, pipeline generation rate, win rate by segment/competitor, sales capacity model
-- **Governance:** Monthly data quality scorecard, quarterly tech stack ROI review, annual RevOps maturity assessment, CRM change management board with bi-weekly review of all configuration changes
-
-## Error Decoder
-
-<!-- STANDARD: Symptom → Diagnosis → Root Cause → Fix table. -->
-
-| Symptom | Diagnosis | Root Cause | Fix |
-|---------|-----------|------------|-----|
-| End-of-quarter forecast misses by 30% — $3M forecast, $2.1M actual | Pipeline-as-forecast — aggregate number with no deal-level audit trail | No deal-level inspection; commits accepted at face value; stale deals in forecast | Implement deal-level forecast inspection: every commit must have deal name, stage, amount, close date, rep, last activity date; flag deals with no activity in 14+ days |
-| CRM ARR = $12.5M, billing ARR = $11.8M (5.6% variance) | Two sources of truth — CRM and billing systems diverged over time | No monthly reconciliation process; CRM opportunities not closed when contracts signed; billing system has different contract definitions | Implement monthly CRM-to-billing reconciliation; reconcile line-by-line for top 20 accounts; fix root cause (likely inconsistent opportunity close process) |
-| 3 AEs hit 300% quota in Q1 from inherited pipeline — comp budget blown by $250K | Comp plan had uncapped accelerators; inherited pipeline treated same as self-sourced | Comp plan designed without RevOps modeling; no windfall clause for inherited pipeline | Model every comp change against prior year actuals BEFORE rollout; add windfall clause (inherited pipeline capped at 150% of variable); test edge cases |
-| Territory 8 (Montana/Dakotas) rep at 40% quota, Territory 1 (NYC) reps at 140% | Territories split by equal account count, not workload or density | Territory design used spreadsheet equal-split; no travel time or account density model | Redesign with workload model: accounts × meetings/year × travel time; validate with field reps; rebalance quarterly; use territory planning software (Fullcast) |
-| CRM migration: 9 months, $300K, migrated 400 unused fields and 80 broken automations | Lift-and-shift migration without source system cleanup | No data audit before migration; assumption that "migrating everything" is safer than selective migration | Halt migration; audit source CRM — archive unused fields, validate automations, migrate only active objects; run parallel systems 30 days minimum |
-| Attribution model gives equal credit to touch from 18 months ago and last week's webinar | No recency weighting in multi-touch model | Attribution treated as static first-touch or even-split multi-touch; temporal decay ignored | Implement W-shaped attribution with recency weighting (exponential decay, half-life of 90 days); model must weight recent touches higher |
-| Sales rep enters "N/A" in required Amount field, deal skips to Commit stage | CRM validation rules are cosmetic — "required" doesn't enforce valid data | No data validation rules beyond field-level "required"; no stage progression gates | Add validation rules: close date > today, amount > $0, valid email regex; add stage progression requirements (previous stage fields must be complete); audit and flag non-compliant deals weekly |
-
-## Anti-Rationalization — No Excuses
-
-| Rationalization | Reality |
-|---|---|
-| "Revenue operations is just Salesforce admin" | RevOps without data governance = $250K+ in duplicate pipeline reporting, misattributed revenue, and wasted sales capacity. CRM administration is 15% of RevOps; the other 85% is process design, analytics, enablement, and stack strategy. |
-| "The reps know their pipeline, CRM hygiene rules slow them down" | 71% of sales leaders report CRM data quality directly causes missed forecasts. A $500K deal marked "committed" with no contact activity in 45 days is fiction. Pipeline hygiene automation prevents CFO-surprise moments at quarter-end. |
-| "We can fix attribution after we scale revenue" | Without multi-touch attribution from day one, you can't distinguish a $50K campaign that influenced $2M in pipeline from one that influenced nothing. Retroactive attribution is impossible — the tracking data was never collected. Every dollar spent without attribution is spent blind. |
-| "Sales and marketing alignment is a culture problem, not a systems problem" | Mismatched MQL-to-SAL criteria cost mid-market B2B companies $1.2M/year in wasted marketing spend. This is fixed by shared lead scoring and SLA enforcement in the CRM, not by a joint team offsite. Systems enforce culture. |
-| "Comp plan design happens once a year in Excel" | A comp error overpaying 50 reps by $200/month for 8 months costs $80K in unrecoverable overpayments plus morale damage from clawbacks. Comp changes need sandbox simulation against 12 months of actual deal data before rollout. |
-
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -556,7 +505,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Partner enablement materials outdated after product release | $25K-$100K in partner-sourced pipeline degradation | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
 | Marketing campaign launched without proper UTM/tracking, losing attribution data | $10K-$50K in wasted spend without ROI measurement | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
 | RFP response submitted with errors due to last-minute rush and no review process | $50K-$500K in lost enterprise deals | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -589,4 +537,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)

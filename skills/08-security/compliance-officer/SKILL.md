@@ -59,6 +59,7 @@ regulatory requirements, collect and organize evidence, and author clear, action
 Covers SOC 2, ISO 27001, GDPR, HIPAA, PCI-DSS, and the unified control framework approach.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
@@ -74,6 +75,7 @@ Covers SOC 2, ISO 27001, GDPR, HIPAA, PCI-DSS, and the unified control framework
 | **A8** | `file_contains("*.md", "penetration.test\|pentest\|security.*audit\|vulnerability.*assessment")` or `file_exists("pentest/")` | Core Workflow → Phase 4 (Evidence Collection) | "I detect pentest/security audit references — routing to Evidence Collection phase." |
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -93,12 +95,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R10** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R11** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Master compliance officers know that compliance is not about checklists — it's about **building evidence of control effectiveness that holds up under regulator scrutiny and, more importantly, actually reduces risk.** The worst compliance program is the one that passes audits while the organization burns.
 
@@ -119,6 +121,7 @@ Master compliance officers know that compliance is not about checklists — it's
 - **Write the exception, don't hide the gap.** Auditors respect documented, risk-accepted exceptions more than undocumented compliance. Transparency builds trust; surprises burn it.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -134,6 +137,7 @@ Master compliance officers know that compliance is not about checklists — it's
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Preparing for a first-time SOC 2 Type II, ISO 27001, or PCI-DSS certification audit
@@ -146,6 +150,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Conducting internal readiness assessments before external audits
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Framework Selection
@@ -238,6 +243,7 @@ How should you assess third-party vendor risk?
 > **Key principle:** Vendor risk tier is determined by data access, not contract value. A $50/month SaaS tool that processes customer PII is high-risk. A $500K/year office furniture supplier that touches no data is low-risk. Classification by spend produces dangerous blind spots.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -291,6 +297,9 @@ How should you assess third-party vendor risk?
 4. After certification: maintain the compliance posture continuously, not just before audits.
 5. Schedule quarterly internal reviews, annual external surveillance audits (ISO), and continuous monitoring.
   Complete when: Auditor kickoff completed, evidence responses within 48-hour SLA, findings categorized with corrective action plans, certification achieved or surveillance audit passed, and continuous monitoring cadence established with quarterly internal reviews.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
 
 ### Cross-skills Integration
 
@@ -302,6 +311,7 @@ How should you assess third-party vendor risk?
 ```
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -317,6 +327,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Automated compliance monitoring deployed → 200 alerts/day about "control deviation." Team acknowledges and silences all. 6 months later, a genuine control failure (termination not revoking access for 30 days) goes unnoticed because it was buried in alert noise | Controls were monitored at too granular a level — every individual access grant that didn't follow the exact workflow triggered an alert. 95% of "deviations" were pre-authorized exceptions or edge cases. No severity tiering — a minor policy deviation and a complete control failure generated the same alert type | Tier control monitoring: P1 = control completely failed (e.g., access revocation pipeline down → immediate PagerDuty). P2 = control degraded (e.g., >10% of access grants bypassed workflow → daily summary). P3 = individual exceptions (weekly digest). Measure alert-to-action ratio: if <10% of alerts drive a response, the monitoring is too noisy | Compliance monitoring that generates noise trains the team to ignore compliance monitoring. The signal-to-noise ratio determines whether your control monitoring actually works. 200 daily alerts with 0 action items = 0 effective monitoring. Tune until every alert is actionable |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Control mapping: build a unified framework — one internal control maps to multiple compliance requirements.** SOC 2 CC5.1 (Access Control), ISO 27001 A.9, PCI-DSS 7, HIPAA 164.312(a), NIST 800-53 AC-family — these all require access control. Map them to ONE internal control: "Access Review — Quarterly with automated evidence." Don't duplicate effort per framework. Use Cloud Security Alliance CCM, NIST 800-53, or UCF Common Controls Hub as your mapping backbone. When an auditor asks for access control evidence, you produce one evidence set that satisfies all frameworks simultaneously.
 
@@ -339,9 +350,11 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Audit communication: single point of contact, 48-hour evidence response SLA, proactive context.** Assign one person to coordinate all auditor requests — multiple points of contact lead to inconsistent answers. Respond to evidence requests within 48 hours with complete evidence packages, not partial responses. For every evidence package, include context: what control this evidence supports, when the control operated, and any anomalies (with remediation timeline). Auditors appreciate transparency — a control gap you've already identified with a remediation plan is a finding with context, not a surprise.
 
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 Before a compliance program goes operational or before an audit engagement, validate every item. This is the gate between preparation and audit — skip none.
 
@@ -372,6 +385,7 @@ Before a compliance program goes operational or before an audit engagement, vali
 If any checklist item fails: STOP. Going into an audit with unchecked items guarantees findings. Resolve the gap, document the resolution, and re-verify before engaging the auditor.
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ### BEFORE (Novice) → AFTER (World-Class)
 
@@ -397,33 +411,8 @@ The vendor risk dimension is where most compliance programs fail silently — a 
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-### Scale Depth
-
-#### Solo
-
-**Compliance for a solo founder, freelancer, or 1-5 person startup preparing for first enterprise customer.** Focus on the one framework your customers actually ask for: usually SOC 2 Type II for US B2B SaaS. Use a compliance automation platform (Vanta, Drata, Secureframe — startup-tier pricing $5K-$15K/yr). Connect your core systems: identity provider (Google Workspace/Okta), cloud (AWS/GCP/Azure), HR (Gusto/Rippling), and code repository (GitHub/GitLab). The automation platform will tell you which controls you're failing. Fix the "must-pass" controls first: access reviews, background checks, MDM, incident response plan. Don't build a comprehensive ISO 27001 ISMS for your first audit — it's more than you need and delays the SOC 2 report your customer is waiting for.
-
-**Transition trigger:** First enterprise customer requiring SOC 2 Type II, or international customers requiring ISO 27001 → move to Small.
-
-#### Small
-
-**Small business (20-100 people) with first compliance hire or fractional CISO.** Maintain SOC 2 Type II with annual audit. Add ISO 27001 if selling to EU/APAC enterprises. Implement formal policy hierarchy: policy → standard → procedure. Quarterly access reviews with automated evidence. Tabletop exercises twice yearly. Vendor risk management: Tier 1 and Tier 2 vendors assessed annually, DPA repository maintained. GRC tool: Vanta/Drata/Secureframe with all integrations connected and evidence refreshing automatically. Compliance is 50% automated, 50% manual — the compliance hire's job is automating the remaining 50%.
-
-**Transition trigger:** >100 employees, multi-framework requirements (SOC 2 + ISO 27001 + HIPAA), or dedicated compliance team of 2+ → move to Medium.
-
-#### Medium
-
-**Mid-size company (100-500 employees) with dedicated compliance team (2-3 people).** Multi-framework compliance program: SOC 2 Type II + ISO 27001 + PCI-DSS + HIPAA (as applicable). Enterprise GRC platform (ServiceNow GRC, Archer, LogicGate) with custom control mapping. Continuous compliance monitoring with automated drift detection. Vendor risk: tiered program with continuous monitoring for critical vendors. Dedicated DPO (or external DPO service) for GDPR compliance. Internal audit function: quarterly internal audits against top 20 controls, findings tracked to remediation. Board reporting: quarterly compliance dashboard with control health, audit status, and regulatory changes.
-
-**Transition trigger:** >500 employees, public company (SOX), FedRAMP authorization, or operating in 3+ regulatory jurisdictions → move to Enterprise.
-
-#### Enterprise
-
-**Large enterprise (500+), public company, or regulated industry (finance, healthcare, defense).** Comprehensive compliance program: SOC 2, ISO 27001, PCI-DSS, HIPAA, SOX, FedRAMP, CMMC, GDPR, CCPA/CPRA, and sector-specific regulations. Dedicated compliance team with specialists per framework. Full-time DPO. Internal audit team: independent from compliance team, reports to audit committee. GRC platform: ServiceNow GRC or RSA Archer with custom integrations, automated evidence collection, real-time dashboards, and board reporting. Regulatory affairs: dedicated team monitoring 50+ jurisdictions for regulatory changes, impact assessments completed within 30 days of change. External audit coordination: parallel audit tracks (SOC 2 + ISO 27001 surveillance + PCI-DSS ROC) managed with shared evidence repository.
-
-**Transition triggers:** Global operations in 10+ countries, M&A activity requiring acquired company compliance integration, or operating under consent decree/regulatory settlement.
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -438,6 +427,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -455,6 +445,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | Pipeline audit trails, evidence collection, attestations | Compliance evidence missing — audit fails |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -468,6 +459,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | A penetration test or security audit finds that documented controls don't match implemented controls | This is a control design failure — your policy says one thing, your infrastructure does another. Remediate the gap and update either the control implementation or the policy. Mismatched documentation is guaranteed to produce audit findings. | Documentation without implementation is compliance theater. Auditors verify that controls exist and operate — if your access review policy says "quarterly" but you only review annually, that's a finding. |
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 | Level | Practice | Frequency |
 |-------|----------|-----------|
@@ -479,6 +471,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **The One Highest-Leverage Activity:** Every quarter, pick 5 controls at random and trace their evidence end-to-end — from policy document → to implementation → to evidence collection → to the actual evidence file. If any link in the chain is broken (policy says quarterly, evidence is annual), the control is not operational. Sample-testing your own controls is what auditors do — do it before they do.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **SOC 2 Type II** covers a period (usually 6-12 months), not a point in time. If you implemented a control on month 5, the auditor only tests months 5-12. Controls added mid-period have partial coverage, which may not satisfy the report's intended use. **Total cost: $50,000-$500,000 in re-audit fees, delayed enterprise deals, and lost revenue from prospects who require a clean SOC 2 report.**
 - **GDPR "right to erasure"** (Article 17) doesn't mean delete everything. You must erase personal data — but retain transaction records for tax law, fraud logs for security, and backup tapes that can't be surgically deleted. The exception for "legal obligation" must be documented per-request. **Total cost: €10,000,000-€20,000,000 or 2-4% of global annual revenue in GDPR fines for systematic non-compliance with data subject rights.**
@@ -494,7 +487,8 @@ If a command or approach fails, follow this escalation path before giving up:
 - **PCI-DSS SAQ (Self-Assessment Questionnaire) scope misclassification.** Merchants often select SAQ A (e-commerce, fully-outsourced payment) when they should be SAQ A-EP (e-commerce, partially-outsourced) or SAQ D (all others). SAQ A has 22 requirements; SAQ D has 329. An acquiring bank that discovers misclassification during a breach investigation treats it as non-compliance with the full standard. **Total cost: $5K-$100K/month in non-compliance fines from acquiring bank + mandatory forensic investigation ($20K-$100K) + potential card brand penalties.** Fix: Before selecting an SAQ type, trace every piece of cardholder data through your environment. If even one JavaScript snippet on your checkout page touches card data before it reaches the processor iframe, you're not SAQ A. Get a QSA opinion on scope — it's cheaper than post-breach reclassification.
 - **Not testing your incident response plan against a compliance framework scenario.** Tabletop exercises that simulate "a server went down" are operational drills, not compliance tests. A compliance-relevant scenario: "Your S3 bucket containing 3 years of customer PII was publicly accessible for 72 hours. The GDPR 72-hour notification clock started when your engineer discovered it — not when leadership was informed 48 hours later." Your incident response plan's notification trigger says "upon confirmation of breach" — but the regulator's clock starts at "awareness," which is when the first employee knew. **Total cost: €10M-€20M or 2-4% of global revenue under GDPR for late notification + separate fines under state breach notification laws (e.g., CCPA $2,500 per unintentional violation).** Fix: Test incident response against regulatory scenarios, not just operational ones. Include: (1) when does the regulatory clock start in this scenario?, (2) who must be notified and in what order?, (3) what evidence must be preserved for the regulator? Run this test annually with legal counsel present.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -504,8 +498,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | "We'll self-assess — external auditors are too expensive" | Self-assessment is acceptable only for SOC 2 Type I (design snapshot). Type II (operating effectiveness over 6-12 months) requires an independent CPA firm. Investors and enterprise customers increasingly reject self-assessments as insufficient assurance. |
 | "Compliance slows down engineering, we need velocity" | Embedding compliance into the SDLC via pre-commit hooks, policy-as-code, and automated evidence collection is faster than retrofitting. GDPR DSAR response costs $1,500-$7,000/request manually vs $50-$200 automated. Compliance automation is an engineering efficiency investment. |
 
-
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -514,6 +508,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Overlooking data residency requirements in your cloud architecture — storing EU customer data in US regions without SCCs or adequate safeguards triggers GDPR Article 44-49 violations, and each EU member state DPA can independently fine you. | €250K-€20M in GDPR cross-border transfer penalties across multiple EU DPAs | Map data flows by residency requirement during cloud architecture design. Use cloud provider region constraints, data residency controls (AWS Control Tower, Azure Policy), and maintain current SCCs/BCRs for any cross-border transfers. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Control mapping: every compliance requirement (SOC 2, ISO 27001, GDPR) maps to at least one implemented control
 - [ ] Evidence collection: for each control, evidence is current (collected within the audit period, not from last year)
@@ -529,10 +524,12 @@ If a command or approach fails, follow this escalation path before giving up:
 - [ ] Vendor inventory: complete vendor inventory refreshed within last quarter — no unvetted vendors processing regulated data
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -542,5 +539,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

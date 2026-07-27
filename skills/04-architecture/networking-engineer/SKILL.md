@@ -37,7 +37,23 @@ chain:
 # Networking Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Core Workflow
+<!-- STANDARD: 3min -->
+
+**Phase 1: Discovery & Requirements (15% of effort)**
+Inventory the existing topology — map every subnet, ASN, VPC, firewall rule, and peering link. Use `nmap`, `traceroute`, and cloud provider APIs (AWS VPC/Transit Gateway, GCP VPC Network Peering, Azure Virtual Network). Document: CIDR ranges (identify overlaps), connectivity paths (direct peering, VPN, SD-WAN), NAT/bastion topology, DNS resolution paths (split-horizon?), and where TLS terminates. Output: network topology diagram (ASCII or Cloudcraft) + spreadsheet of every subnet with CIDR, route table ID, NACL reference, and connectivity matrix.
+
+**Phase 2: Architecture Design (25% of effort)**
+Design the target topology addressing all requirements. Select IP addressing plan (RFC 1918 private — 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 — avoid overlaps across regions/accounts). Design: VPC/VNet network segmentation (public/private/intra tiers), transit routing (Transit Gateway/hub-spoke vs mesh peering), NAT strategy (centralized egress vs per-VPC — cost/capacity trade-off), DNS resolution architecture (Route 53 Resolver/Hybrid DNS/conditional forwarding), and BGP/static routing for hybrid connectivity. Calculate total IP capacity needed per subnet with 2x headroom. Flag: any 0.0.0.0/0 routes wider than necessary.
+
+**Phase 3: Security & Compliance Integration (35% of effort)**
+Apply zero-trust networking principles: no implicit trust based on network location. Layer: security groups (stateful, instance-level) + NACLs (stateless, subnet-level) + AWS Network Firewall/Cloud NGFW (stateful, VPC-level) + WAF (L7, edge). Implement: flow logs on every VPC/subnet/ENI (VPC Flow Logs to S3 + Athena for querying), private connectivity (PrivateLink/VPC Endpoints — no traffic traverses public internet), east-west traffic inspection, egress filtering (allow-list outbound destinations), DDoS protection (Shield Advanced for critical workloads). Run `nmap` from inside each subnet to verify actual reachability matches intended reachability.
+
+**Phase 4: Validation & Documentation (25% of effort)**
+Run reachability tests: from every tier, verify connectivity to every dependency. Test failure modes: what happens when AZ-a goes down? when Transit Gateway attachments fail? when VPN tunnel drops? Document: runbook for each failure scenario (<2 page turns to execute), network topology diagram updated to as-built, CIDR allocation register with owner/expiry, firewall rule justification spreadsheet (every rule has business justification + ticket reference). Validate: `route` table audit passes (no 0.0.0.0/0 except through approved egress), flow logs show no unexpected traffic, all public-facing endpoints go through WAF/CDN.
+
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -50,6 +66,7 @@ chain:
 Design, deploy, and operate cloud-native and hybrid network architectures. This skill covers the full stack: from IP address planning and subnet design through DNS, load balancing, CDN, firewalls, VPNs, and service mesh. Every design considers cost, latency, security, and operational complexity. The goal is a network that developers never think about because it just works — secure by default, fast everywhere, and cheap at scale.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -93,6 +110,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -109,12 +127,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Networking is not about connecting things — it's about **understanding that the network is always the bottleneck until proven otherwise, and designing systems that fail gracefully when that bottleneck manifests**. The best network designs are so boring nobody thinks about them until they're needed.
 
@@ -144,6 +162,7 @@ Networking is not about connecting things — it's about **understanding that th
 - **Network observability is underinvested.** Most teams have great application monitoring and poor network visibility. When the app is slow, they can't tell if it's the network because they never instrumented it. VPC flow logs + synthetic probes = non-negotiable.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Network engineering scales from single VPC design to global multi-cloud network architecture.
 
@@ -158,6 +177,7 @@ Network engineering scales from single VPC design to global multi-cloud network 
 **Usage**: Say "as an L3 networking engineer, design the VPC architecture for..." Default: **L3** (multi-region design, independent architectural decisions).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 - You are designing a new VPC/VNet with subnets, CIDR ranges, and routing tables from scratch
 - You need to connect multiple VPCs across accounts or regions via peering or transit gateway
@@ -169,17 +189,106 @@ Network engineering scales from single VPC design to global multi-cloud network 
 - You are designing a CDN strategy with edge caching, origin shield, and DDoS mitigation
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
-Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
-
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
-```
-VPC/BLOCK DESIGN — How many VPCs and what CIDR ranges?
-├── Single region, single environment (dev/prod combined), < 10 services?... [See full decision trees →](references/decision-trees.md)
 
-## Core Workflow
+### Decision Tree 1: VPC Topology Design
+
+        ┌── INPUT: How many regions, environments, and services?
+        │
+   ┌────┴──────────────────────────┐
+   │                               │
+   ▼                               ▼
+Single region, < 10 svcs    Multi-region or > 10 services
+   │                               │
+   ▼                               ▼
+Single VPC, public +         ┌────┴────────────┐
+private subnets              │                 │
+                             ▼                 ▼
+                       < 3 accounts,    3+ accounts, shared
+                       simple routing   services across teams
+                             │                 │
+                             ▼                 ▼
+                       Multi-VPC peering   Hub-and-spoke with
+                       mesh (VPC peering   Transit Gateway +
+                       per connection)     centralized egress
+
+### Decision Tree 2: CIDR Allocation Strategy
+
+        ┌── INPUT: Expected scale over 3 years?
+        │
+   ┌────┴──────────────┐
+   │                   │
+   ▼                   ▼
+< 5 VPCs total     5+ VPCs, multi-region, hybrid cloud
+   │                   │
+   ▼                   ▼
+Use 10.0.0.0/16     ┌── Allocate master supernet (e.g., 10.0.0.0/12)
+per VPC, simple     │
+allocation          ├── Carve /14 per region
+                    ├── Carve /16 per environment per region
+                    ├── Carve /18 or /20 per AZ per subnet type
+                    └── Reserve 20% for future growth
+                             │
+                             ▼
+                    Must NOT overlap with: on-prem, partner
+                    networks, any future cloud connection.
+                    Use IPAM for tracking.
+
+### Decision Tree 3: DNS Architecture
+
+        ┌── INPUT: Do you have on-prem or cross-cloud DNS needs?
+        │
+   ┌────┴──────────────────────┐
+   │                           │
+   ▼                           ▼
+Cloud-only, single        Hybrid (on-prem + cloud)
+provider                       │
+   │                     ┌─────┴──────┐
+   ▼                     │            │
+Public hosted zone       ▼            ▼
+for customer-facing   Outbound only  Bidirectional
+records + private          │            │
+hosted zone for            ▼            ▼
+internal discovery    Route 53/      Route 53 Resolver
+                      Azure DNS      endpoints + forwarding
+                      private zone   rules. Conditional
+                      + forwarding   forwarding for
+                      rule to on-prem on-prem domains.
+                                        │
+                                        ▼
+                                   Private hosted zone
+                                   (internal.example.com)
+                                   for service discovery.
+
+### Decision Tree 4: Load Balancer Selection
+
+        ┌── INPUT: What protocol and routing needs?
+        │
+   ┌────┴────────────┐
+   │                 │
+   ▼                 ▼
+HTTP/HTTPS         Non-HTTP (TCP, UDP, TLS)
+traffic            or static IP required
+   │                 │
+   ▼                 ▼
+ALB (L7 routing,   NLB (low latency,
+SSL termination,   static IP, TLS
+host/path routing, passthrough)
+WAF integration)        │
+   │               ┌────┴──────────┐
+   ▼               │               │
+Need OIDC/JWT     ▼               ▼
+auth at LB?    Need 3rd-party  Need Zonal
+   │           virtual appliance? failover?
+   ▼               │               │
+ALB + Cognito/  GWLB (GENEVE     ALB + cross-zone
+Okta/OAuth2     encapsulation,   load balancing
+                transparent      enabled
+                appliance insert)
 
 **(STANDARD)**
 
@@ -239,8 +348,8 @@ Complete when:
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Plan CIDR ranges for 3-year growth.** Allocate contiguous supernets per region (`/12`), carve `/16` per VPC, `/18` or `/20` per AZ tier. Never use `/28` subnets — 14 usable IPs vanish when ALB, RDS, and Lambda ENIs claim addresses. CIDR planning is the one network decision you cannot undo.
 
@@ -262,8 +371,8 @@ Complete when:
 
 10. **Document network topology as code, not as a diagram.** Diagrams go stale within weeks of creation. Maintain topology in Terraform/CDK with automated diagram generation. Every peering connection, route table entry, security group rule, and TLS termination point must be version-controlled.
 
-
 ## Error Recovery
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -280,6 +389,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -306,6 +416,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | New VPC peering requested between prod and non-prod | Security Engineer, Compliance Officer | Blast radius increase; must justify and document |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -317,11 +428,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | Connecting an on-prem data center to a cloud VPC via VPN | Before provisioning, propose redundant tunnels (2 minimum per connection) with BGP dynamic routing. Monitor `TunnelState` AND `TunnelDataIn`/`TunnelDataOut` — tunnels can show "UP" with zero data flow due to Phase 2 parameter mismatch. Set BGP keepalive to 10s with hold time 30s for fast failover. Test failover quarterly | VPN tunnels silently fail. Phase 2 IPsec parameter mismatch shows tunnel "UP" but drops all data — no error log, no alert. Without BGP, failover from a dead tunnel requires manual intervention. The difference between 30s automated failover and 3-hour manual recovery is BGP |
 | Designing API gateway → backend routing when the backend fleet auto-scales | Before configuring target groups, propose service discovery integration: register new instances on scale-up, deregister on scale-down with connection draining (30s minimum). Use IP target type (not instance) for direct pod routing. Configure the API gateway retry policy to exclude 5xx from retries on non-idempotent endpoints (`POST /orders`). Discuss sticky sessions only if strictly needed — they break horizontal scaling | Auto-scaling triggers fleet churn: instances come and go in minutes. Without proper deregistration delay, the gateway routes to terminated instances. Without IP target type, traffic double-hops through instance-level load balancing. Retrying a `POST /checkout` that returned 500 can create duplicate charges — the gateway must know which methods are safe to retry |
 
-
 ## State Log
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -340,13 +452,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[NE13]** Network topology documented as code (Terraform/CDK) with automated diagram generation, version-controlled
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > A packet from a user's device in Tokyo reaches the application server in Frankfurt with under 80ms latency, traversing only the intended paths with no accidental exposure to public subnets.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Network engineering is one of the few domains where a mistake can take down the entire company. Practice must happen in sandboxes, not in production.
 
@@ -462,6 +575,7 @@ Complete when:
 - **Edge VPC pattern**: Centralize internet-facing LBs in a dedicated edge/ingress VPC. Route to internal LBs in workload VPCs via TGW or PrivateLink. Only the edge VPC has internet gateways — workload VPCs are fully private.
 
 Complete when:
+  Complete when: Architecture decision record (ADR) created with context, options, and rationale.
 - Architecture pattern (API Gateway, CDN origin, PrivateLink, Edge VPC) selected based on consumer profile
 - Pattern decision documented with rationale and rejection of alternatives
 - Public surface area minimized to single entry point where possible
@@ -480,6 +594,7 @@ Complete when:
 **Recommendation:** Default to internal unless the consumer is definitively on the public internet. Every internet-facing load balancer is a potential entry point. For public-facing services, always layer: WAF, CDN, TLS 1.2+ with strong ciphers, and security group rules scoped to CDN IP ranges or WAF-managed prefix lists — never `0.0.0.0/0` directly.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Security group rules are stateful** — if you allow outbound on port 443, return traffic is automatically allowed. But Network ACLs are stateless — you must explicitly allow both outbound (ephemeral ports 1024-65535) AND inbound responses.
 - **DNS TTL is a maximum, not a guarantee**. Clients and intermediate resolvers may cache beyond TTL. During a DNS cutover, some clients will hit the old IP for up to 48 hours regardless of your 300-second TTL. Always keep old endpoints running for TTL × 2.
@@ -494,6 +609,7 @@ Complete when:
 - **Missing or stale network topology documentation after personnel changes.** The senior network engineer who architected the multi-cloud VPC peering, Transit Gateway, and Direct Connect topology leaves the company — the architecture existed only in their head. Six months later, a routine TLS certificate rotation on an internal-facing Application Load Balancer takes down production for 6 hours because nobody documented which certificates terminate where, which route tables reference which gateways, and which security groups allow health-check traffic between tiers. Network outages caused by missing documentation are the most common avoidable cause of extended MTTR — every minute of downtime from "figuring out how it's connected" is pure waste. **Total cost: $50K-$300K per extended outage from undocumented network topology, plus $10K-$25K in emergency consulting fees to reverse-engineer the architecture.** Maintain a living network diagram (Lucidchart, draw.io, or infrastructure-as-diagram tooling) updated with every infrastructure change, documenting every peering connection, route table entry, security group rule intent, and TLS termination point with expiration dates.
 
 ## Gotchas
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -503,6 +619,7 @@ Complete when:
 | CIDR overallocation exhausting RFC 1918 space across environments | $15K-$50K/year in renumbering projects when ranges overlap across VPCs | Plan CIDR allocations with future growth. Use /22 per environment max. Reserve contiguous supernets for region expansion |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `terraform plan` — no unexpected resource changes, CIDR ranges don't overlap
 - [ ] Verify DNS: `dig +short ${service}.internal` resolves to expected private IP
@@ -512,6 +629,7 @@ Complete when:
 - [ ] Verify TLS: `openssl s_client -connect ${host}:443` shows valid certificate chain, no expired certs
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Error Decoder — War Stories from the Trenches
 
@@ -529,6 +647,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | WAF blocks legitimate traffic with 403 Forbidden — customers can't log in from certain ISPs | AWS WAF rate-based rule triggers on shared IP ranges (mobile carriers, corporate NAT). 500 users behind one IP all throttled as one "client" | Add IP warm-up list for known shared IPs. Use token-based rate limiting (JWT claims) instead of IP-based. Set WAF in COUNT mode for 7 days before switching to BLOCK — review blocked patterns before enforcement | IPs are not users. Rate limiting by IP in the age of CGNAT and corporate VPNs will produce false positives. Token-based limiting or IP reputation overrides are essential. |
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -539,5 +658,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

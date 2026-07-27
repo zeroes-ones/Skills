@@ -36,7 +36,8 @@ chain:
 # Brand Guidelines
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---:|
@@ -49,6 +50,7 @@ chain:
 Design, document, and enforce a comprehensive brand identity system. This skill covers the full brand design lifecycle: brand architecture and strategy, logo systems with clear space and minimum size rules, color palette creation with accessibility validation, typographic hierarchy, iconography standards, imagery and illustration direction, motion design tokens, brand expression within digital product UI, and governance processes for brand consistency at scale.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -66,6 +68,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Brand architecture (house of brands, branded house, endorsed, hybrid) → Start at "Decision Trees > Brand Architecture Model"
@@ -78,9 +81,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These are hard-gate constraints. Violate any one and the output is invalid.
 
@@ -95,12 +100,12 @@ These are hard-gate constraints. Violate any one and the output is invalid.
 | R1 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R2 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Brand is not a logo and a color palette — it's **what people say about you when you're not in the room**. Every visual asset, interaction, and piece of copy either reinforces or erodes that perception. The designer's job is to make the brand feel inevitable: so consistent and coherent that users never consciously notice it, but would immediately feel its absence.
 
@@ -130,6 +135,7 @@ Brand is not a logo and a color palette — it's **what people say about you whe
 - **Typography does more emotional work than color.** Users may not consciously notice the typeface, but they feel it. A geometric sans feels modern and clean; a humanist sans feels warm and approachable. Choose type for feeling, not just legibility.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Brand design scales from single-brand identity to multi-brand portfolio governance.
 
@@ -144,6 +150,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 **Usage**: Say "as an L3 brand designer, create the identity system for..." Default: **L2** (product/sub-brand identity, independent execution).
 
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Creating a brand identity system for a new company, product, or sub-brand
@@ -157,6 +164,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 - Setting up brand governance: review processes, asset distribution, violation handling
 
 ## Decision Trees
+<!-- STANDARD: 3min -->
 
 **(QUICK)**
 
@@ -191,6 +199,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
                           │ Apple)     │  │ Google)      │
                           └────────────┘  └──────────────┘
 ```
+
 **When Branded House:** Single strong master brand. Products are features/verticals of one promise. Marketing efficiency through unified awareness.
 **When House of Brands:** Acquired companies with existing equity. Targeting different audiences with conflicting brand promises. Risk isolation between brands.
 
@@ -215,6 +224,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ variants.        │    └──────────────────────┘
         └──────────────────┘
 ```
+
 **When full system needed:** Multi-platform product (web, iOS, Android, print). Logo appears at extreme sizes. Brand used by external partners.
 **When minimal suffices:** Single-context use (web only). Logo always appears at predictable sizes. Internal or B2B tool with limited brand exposure.
 
@@ -241,6 +251,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ 30–50 tokens.    │    └──────────────────────┘
         └──────────────────┘
 ```
+
 **When full token system:** Product UI with light/dark mode. Analytics dashboards with charts. White-label or multi-tenant theming requirements.
 **When core palette:** Marketing site + simple app. Light mode only. No data visualization beyond status indicators. Fast time to launch.
 
@@ -267,6 +278,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ 10–14 sizes.     │
         └──────────────────┘
 ```
+
 **When full scale:** Blog, documentation, marketing site with long-form reading. Multiple content types (articles, case studies, legal). Readability-critical.
 **When compact scale:** Dashboard, admin panel, B2B tool. Primarily UI components. Short text mostly. Consistency over typographic expression.
 
@@ -291,10 +303,12 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
         │ violation tiers. │    └──────────────────────┘
         └──────────────────┘
 ```
+
 **When full governance:** Co-branding with partners. Multiple agencies creating assets. Brand used in 20+ countries. Enterprise with legal/compliance requirements.
 **When light governance:** Single design team. Assets consumed only by internal engineering. No external co-branding. Brand changes < quarterly.
 
 ## Core Workflow
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -311,6 +325,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 | **Hybrid** | Mix of endorsed and independent | Complex portfolios | Microsoft (Windows, Xbox, LinkedIn — each distinct) |
 
 Decision framework:
+
 ```
 ┌─ Single audience, single promise? ───────► Branded House
 │
@@ -356,14 +371,21 @@ Every brand needs a logo system, not just one logo. Define all variants:
 | **Icon-only / Mark
 
 Complete when:
+Complete when: Color palette defined with primary, secondary, neutral, and semantic colors. Each color has hex, RGB, HSL values, and accessible text/background pairings with 4.5:1 minimum contrast ratio documented.
+Complete when: Typography system defined with type scale (heading levels, body, caption, overline), font stack with fallbacks, and usage rules for weight, line-height, letter-spacing, and responsive scaling per breakpoint.
+Complete when: Component library initialized with design tokens exported as JSON/CSS custom properties, theme structure defined with light/dark mode support, and spacing/sizing scale aligned to grid system.
+Complete when: Brand voice and tone guidelines published covering: brand personality attributes, writing principles, tone spectrum, grammar and style rules, and before/after examples for common content types.
+Complete when: Imagery and illustration guidelines defined: photography style, illustration style, iconography system, and data visualization standards with do and do-not examples for each.
+Complete when: Brand compliance review process defined: who approves brand usage, submission workflow, review SLA per asset type, and enforcement mechanism for unauthorized brand usage.
 - Logo system defined with all variants (primary/horizontal, stacked/vertical, icon-only, wordmark, monochrome) and usage rules
 - Logo construction specs documented: clear space, minimum size, color variations, placement rules
 - Logo asset package exported in all required formats (SVG, PNG @1x/2x/3x) with naming convention
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Error Recovery
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -380,6 +402,8 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -388,6 +412,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Design tokens that don't map to code — brand defines tokens in Figma only. Developers hard-code hex values, font sizes, and spacing as raw numbers. When the primary brand color changes from #0066FF to #0055DD, design makes the change in an afternoon; engineering needs 3 sprints to find and replace 400 hard-coded occurrences across 6 codebases. | $30K-$100K per brand refresh in engineering labor — and the change is never fully complete, leaving a permanent mix of old and new brand values in production | Export tokens as a single source of truth consumed everywhere: Style Dictionary generates CSS custom properties, Swift, and Kotlin/XML from one JSON file. Tokens use semantic naming: `color-surface-primary`, not `color-gray-100`. Token changes follow semver with deprecation timelines. If a token exists only in Figma, it's a design opinion. If it exists as a versioned package consumed by code, it's a design system. |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Logo system design — one mark, multiple environments, zero degradation.** A professional logo system includes at minimum: full-color horizontal, full-color vertical (stacked), monochrome (black), reversed (white on dark), and icon-only mark variants. Each variant needs clean SVG (no inline styles, no external font references, `presentationAttributes` export mode), and PNG renders at 1x, 2x, and 3x resolutions. Define clear-space rules (minimum padding around logo = logo height × 0.5), minimum-size thresholds (never smaller than 24px height for full logo, 16px for icon mark), and placement rules (preferred: top-left or centered; never: stretched, rotated, or placed on busy backgrounds). A logo that renders differently across platforms is not a logo — it's a brand failure replicated at every touchpoint.
 2. **Color palette accessibility — WCAG 2.2 contrast validation is not optional; it's a legal and ethical requirement.** Every text-on-brand-background combination must pass 4.5:1 contrast ratio for normal text and 3:1 for large text (18px+ bold or 24px+ regular). Validate during palette creation — not after — using contrast-checking tools (Stark, WebAIM Contrast Checker). Document accessible color pairings directly in brand guidelines: "Primary Blue #0066FF on White #FFFFFF passes at 5.2:1. On Dark #121212 at 4.7:1. Do NOT use Primary Blue on Mid-Gray #888888 (fails at 2.8:1)." Every brand palette needs dark mode, high-contrast mode, and color-blind-safe variants defined as first-class assets — not as remediation workarounds discovered post-launch.
@@ -401,6 +426,7 @@ If a command or approach fails, follow this escalation path before giving up:
 10. **Brand audit cadence — quarterly cross-touchpoint audits catch drift before it becomes identity.** Every quarter, audit every surface where the brand appears: product UI (10 key screens), marketing website (homepage + 5 landing pages), email templates (5 recent sends), social media (last 20 posts per platform), sales collateral (5 recent decks), support documentation, and physical materials (packaging, signage, swag). Score each touchpoint against brand guidelines using a simple rubric: compliant, minor drift, major violation. Track scores over time. Publish results with remediations owners and deadlines. Without scheduled audits, brand drift is invisible until a customer points it out.
 
 ## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Error Message / Situation | Root Cause | Fix | Lesson |
 |--------------------------|------------|-----|--------|
@@ -412,6 +438,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Accessibility fails on brand palette — primary brand colors yield 2.3:1 text contrast (below 4.5:1 WCAG 2.2 AA minimum) | Brand colors chosen purely for aesthetic appeal during palette creation without running WCAG contrast checks. The palette was finalized before accessibility was considered, and now every product screen built with those colors ships legally non-compliant | Audit entire brand palette against WCAG 2.2 AA: every text-on-brand-background combination must reach 4.5:1 (normal text) or 3:1 (large text). Adjust problematic pairs — brand identity must work within accessibility constraints. Create an "accessible pairings" matrix as a first-class brand deliverable. Include dark mode, high-contrast mode, and color-blind-safe palette variants | Accessibility is a brand constraint, not an override layer. A brand palette that fails contrast is not a brand asset — it's an exclusion. Building accessible color pairings during palette creation costs hours; retrofitting after launch costs weeks and risks ADA demand letters. Palettes designed for all users are better palettes for all users |
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Brand guidelines are useless if nobody uses them. Coordination with design, engineering, and marketing ensures the brand is applied consistently — not just in Figma, but in production code, marketing materials, and partner content.
@@ -454,6 +481,7 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 ```
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -466,17 +494,20 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 | Brand asset request from external partner (co-marketing, integration partner, press) with no co-branding guidelines | Pause approval until co-branding rules are defined: logo placement hierarchy, minimum clear space between logos, color restrictions, "Powered by" vs "In partnership with" language. Coordinate with `legal-advisor` for trademark usage terms | Unauthorized co-branding creates legal exposure and brand dilution. Partners will use your logo in the most prominent position unless you define the rules upfront. Co-branding guidelines protect both brand equity and legal standing |
 | Interaction with `frontend-developer` for design token handoff | When brand tokens change, coordinate the pipeline: brand-guidelines defines semantic tokens → Style Dictionary transforms to platform-specific formats (CSS custom properties, Swift, Kotlin) → frontend-developer consumes via npm package or CDN. Every token change must include a migration guide with before/after values and deprecation timeline | The gap between a brand token update in Figma and the same token in production code is where brand drift lives. A defined pipeline with automated token distribution eliminates "the old blue" from surviving in code for 6 months after the brand refresh |
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > The logo renders crisply at every size from 16px favicon to 4K billboard, with correct clear space, and never stretched, recolored, or placed on a busy background.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Brand design mastery comes from exposure — seeing more brands, analyzing what works, and applying principles across diverse constraints.
 
@@ -499,6 +530,7 @@ graph LR
 **The One Highest-Leverage Activity**: Take a screenshot of every touchpoint where your brand appears (product, marketing, support, invoices). Print them on one wall. The inconsistencies will scream at you.
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **Brand inconsistency across product and marketing.** When the product UI uses a different color system, typography, or illustration style than the marketing site, users perceive them as two different companies. Customer trust erodes, conversion rates drop, and brand equity leakage compounds quarterly. **Total cost: $50,000-$500,000 in lost brand equity from customer confusion per year.** Fix: Establish a single design token source of truth that feeds both product and marketing; audit brand expression quarterly across all surfaces.
 - **Rebrand without customer research.** Changing your logo, name, or brand identity without validating with existing customers first (Gap's 2010 logo reversal, Tropicana's 2009 packaging redesign) triggers customer backlash, social media firestorms, and emergency reversion. The rebrand itself costs money; the reversion costs double. **Total cost: $100,000-$1,000,000 in rebrand failure, reversion, and lost goodwill.** Fix: Run brand perception surveys and A/B test new identity elements with a representative customer panel before committing.
@@ -512,6 +544,7 @@ graph LR
 - **Accessibility not validated in brand palette creation.** Brand colors are chosen purely for aesthetic appeal without checking WCAG 2.2 contrast ratios. The primary palette yields 2.3:1 text contrast on the brand background — below the 4.5:1 AA minimum. Every product screen built with those brand colors ships legally non-compliant, and remediating after launch requires reworking every color-dependent component. **Total cost: $20,000-$80,000 in accessibility remediation, potential ADA demand letters, and redesign of color-dependent UI components.** Fix: Validate every brand color combination against WCAG 2.2 AA contrast ratios during palette creation, not after; document accessible color pairings directly in brand guidelines; include dark mode, high-contrast mode, and color-blind-safe palette variants as first-class brand assets.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Color palette: all colors have HEX, RGB, CMYK, and P3 values — no conversions needed by implementers
 - [ ] Typography: all fonts are self-hosted (WOFF2), `font-display: swap`, preloaded on critical pages
@@ -520,10 +553,12 @@ graph LR
 - [ ] Brand-in-product audit: product UI uses same color system, typographic scale, and tone as marketing — consistent brand experience
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -541,6 +576,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[BG12]** Governance process published: brand review workflow (what requires review, who approves, turnaround SLA), brand violation reporting channel (with severity levels), decision log maintained, changelog published on every guideline update
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -551,5 +587,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

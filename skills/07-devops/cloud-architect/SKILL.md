@@ -48,6 +48,7 @@ landing zone design, multi-account/ multi-project governance, networking topolog
 managed service selection, serverless patterns, and the Well-Architected Framework.
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -79,9 +80,11 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -99,12 +102,12 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 Cloud architecture is not about picking services from a catalog — it's about **designing systems that deliver business value while gracefully handling the reality that everything fails eventually**. The best cloud architectures are boring, cost-optimized, and so well-instrumented that you detect problems before users do.
 
@@ -134,6 +137,7 @@ Cloud architecture is not about picking services from a catalog — it's about *
 - **The Well-Architected Framework is a diagnostic, not a design tool.** It tells you what's wrong with an existing architecture. It doesn't tell you what to build. Use it to review, not to design.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 Cloud architecture scales from single-service cloud design to enterprise-wide multi-cloud strategy.
 
@@ -147,21 +151,8 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 
 **Usage**: Say "as an L3 cloud architect, design the landing zone for..." Default: **L3** (multi-account architecture, independent design).
 
-### Scale Depth — Organizational Context
-
-#### Solo (1 engineer, 1 account)
-Single AWS account or GCP project. Root account with MFA, consolidated billing, one VPC. Manual terraform apply is acceptable. Focus: learn core services, avoid free-tier traps, set up budget alerts first. Deploy from templates, not from scratch.
-
-#### Small (2-10 engineers, 2-5 accounts)
-Separate production and non-production accounts under AWS Organizations or GCP folders. IaC-only policy for production, SCP guardrails denying public S3 buckets and open security groups. Single-region with multi-AZ. Focus: cost allocation tags, least-privilege IAM, backup policies. Manual Well-Architected reviews quarterly.
-
-#### Medium (10-50 engineers, 10-30 accounts)
-Hub-and-spoke networking with Transit Gateway, centralized egress inspection. Account-per-team-per-environment. OIDC for CI/CD pipelines, IRSA/Workload Identity Federation for pods. Multi-region DR with pilot-light minimum. Focus: SCP-based guardrails, FinOps anomaly detection, automated compliance scanning. Landing zone as a product managed by a platform team.
-
-#### Enterprise (50+ engineers, 30+ accounts, multi-cloud)
-Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Service Catalog or Developer Portal for approved architectures. Automated Well-Architected reporting, cost anomaly ML detection, cross-cloud networking with SD-WAN or dedicated interconnect. Focus: cloud financial operations at scale, compliance automation (SOC 2, HIPAA, PCI-DSS), cloud-agnostic abstraction layer decisions. "This is our cloud operating model — every team uses these patterns."
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing greenfield cloud architecture or migrating on-premises workloads to the cloud
@@ -174,6 +165,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 - Architecting for multi-region DR with RPO/RTO targets and automated failover
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Compute Selection: EC2 vs ECS vs EKS vs Lambda
@@ -200,6 +192,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
                                       │ K8s)     │ │ Runner      │
                                       └──────────┘ └────────────┘
 ```
+
 **When to choose Lambda:** Event-driven, <15 min runtime, <10GB memory, cold start acceptable (<1s for non-latency-critical). **When to choose EKS:** >5 microservices, team has K8s expertise, need service mesh, budget >$600/month. **When to choose ECS Fargate:** Containerized but <5 services, no K8s expertise, simpler than EKS, budget $200-500/month.
 
 ### Managed vs Self-Managed Database
@@ -223,6 +216,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
                     └─────────────┘   │   scale savings │
                                       └────────────────┘
 ```
+
 **When to choose Managed (RDS/Aurora):** Team <5, no DBA, automatic failover needed, compliance (automated patching). Saves 10-20 hrs/week in maintenance. **When to choose Self-Managed:** Custom PostgreSQL extensions, >$50K/month where 30-40% savings offset DBA cost, specific version pinning needed.
 
 ### VPC Networking Topology
@@ -243,6 +237,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
                     │ Gateway     │   │ single VPC)     │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose Hub-Spoke:** >3 VPCs, multi-account, centralized egress/inspection needed, on-prem hybrid connectivity. **When to choose Simple Peering:** <3 VPCs, single account, no on-prem connectivity, no centralized inspection requirement.
 
 ### Disaster Recovery Strategy
@@ -269,6 +264,7 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
                                       │  failover│ │  restore) │
                                       └─────────┘ └────────────┘
 ```
+
 **When to choose Active-Active:** 99.99% SLA, RTO <1 min, revenue loss >$10K/min during outage, budget for 3-5× infra cost. **When to choose Warm Standby:** 99.9% SLA, RTO <15 min, 2× cost acceptable. **When to choose Pilot Light:** 99.5% SLA, RTO <1 hr, cost-sensitive — replicate data continuously, scale compute on failover.
 
 ### Multi-Account Strategy
@@ -291,9 +287,11 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
                     │             │   │ max)            │
                     └─────────────┘   └────────────────┘
 ```
+
 **When to choose Account-per-workload:** >3 teams, compliance isolation (PCI vs non-PCI), >$10K/month spend, need SCP-based guardrails per team. **When to choose few accounts:** <3 teams, <$5K/month, simple compliance, tagging sufficient for cost allocation.
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Discovery and Requirements
@@ -339,6 +337,9 @@ Multi-cloud governance (AWS + Azure + GCP) with cloud center of excellence. Serv
 4. Establish incident response runbooks specific to cloud attack vectors: compromised credentials, exposed buckets, cryptomining.
 5. Conduct regular Well-Architected Framework reviews and penetration tests.
   Complete when: encryption is enabled for all data at rest and in transit, compliance monitoring reports zero critical findings, and incident response runbooks are tested via tabletop exercise.
+  Complete when: Pipeline runs end-to-end in under 15 minutes with parallelized stages.
+  Complete when: Rollback tested — can revert to previous version within 5 minutes of detection.
+  Complete when: Secrets scan runs in CI and blocks merge on any detected credential.
 
 ### Cross-skills Integration
 
@@ -352,8 +353,9 @@ Common chains:
 - **Chain**: cto-advisor → cloud-architect → devops-engineer — Strategy informs architecture; architecture is codified into infrastructure
 - **Chain**: system-architect → cloud-architect → finops-engineer — System design maps to cloud services; FinOps validates cost estimates and optimizes spend
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -362,8 +364,8 @@ Common chains:
 | Centralizing all IAM in one "admin" role — a compromised admin session gives attacker access to every account and service | $500K-$2M in full environment compromise and data exfiltration | Implement least-privilege with role-based access; use permission boundaries; require MFA for all human users; use separate break-glass roles with just-in-time elevation |
 | Using default VPC and default security groups — broad `0.0.0.0/0` ingress rules expose services to the internet unintentionally | $50K-$300K in data exposure and incident response | Never deploy production workloads in default VPC; create custom VPCs with explicit security group rules; use AWS Config rule to detect open security groups |
 
-
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -378,8 +380,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | AWS Organization SCP blocks a new service in all accounts because of an overly broad deny list | The SCP denies `*:*` on all services not in an explicit allow list. A new AWS service (e.g., EKS Anywhere) launches and teams can't even call `Describe*` to check if it's available. Innovation stops cold | Use `Deny` SCPs only for specific dangerous actions (`s3:DeleteBucket`, `iam:CreateAccessKey`). Use `Allow` lists only for regulated environments. Maintain a quarterly SCP review that adds newly released services. Never deny `Describe*`/`List*` — observability must work before teams can ask for access | SCPs are organization-wide and take effect immediately. A deny-all-except-list blocks every future AWS service. Deny specific dangerous actions; allow everything else. |
 | CloudFront distribution returns 502 for 5% of requests — only from users in Asia-Pacific | The origin is an ALB in us-east-1. Users in ap-southeast-1 hit a CloudFront edge location that routes through a congested transit provider. CloudFront's origin timeout is 30 seconds; the ALB's idle timeout is 60 seconds — but the TCP connection through the middle mile drops at 15 seconds | Increase CloudFront origin timeout to 60 seconds. Add a regional origin in ap-southeast-1 with latency-based routing. Enable origin shield in us-east-1 to consolidate requests. Monitor `5xxErrorRate` per region in CloudFront metrics | CloudFront is global — your origin isn't. Regional edge-to-origin paths traverse unpredictable middle-mile networks. Origin Shield reduces origin hits but doesn't fix latency. Multi-region origins are the only reliable fix for global 5xx patterns. |
 
-
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Design multi-account from day one.** Account per environment per workload with AWS Organizations or GCP folders. Blast radius isolation, SCP-based guardrails, and per-team billing. Consolidation is easy later; separation is traumatic.
 
@@ -401,8 +403,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Run Well-Architected Framework reviews quarterly.** The gap between what you designed and what actually exists is where risk lives. Every review must produce a remediation plan with owners, severity ratings, and target dates.
 
-
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -417,6 +419,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -434,6 +437,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `automation-engineer` | Infrastructure design, Terraform modules, IAM topology | Can't provision or manage infra as code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | Trigger | Action | Why |
 |---------|--------|-----|
@@ -448,11 +452,13 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **What good looks like:** Architecture diagram with all services, data flows, and network boundaries. Multi-region failover tested and documented. Cost projection within 10% of actual for 3 consecutive months. Every service has SLO with error budget.
 
-
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 - [ ] **[CL1]** Multi-account organization: account per environment per workload, SCP guardrails denying high-risk actions
 - [ ] **[CL2]** IaC-only policy enforced — all production changes via Terraform/CDK pipeline with PR review, console read-only
@@ -469,12 +475,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] **[CL13]** SCPs/Organization Policies deny public S3 buckets, unencrypted EBS volumes, and open security groups
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 > Architecture decisions are documented as ADRs with clear trade-off analysis, and every decision traces back to a business requirement.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 Cloud architecture mastery comes from building, breaking, and rebuilding — in sandbox environments where the blast radius is contained.
 
@@ -496,7 +504,8 @@ graph LR
 
 **The One Highest-Leverage Activity**: Every quarter, run a Well-Architected Framework review on your most critical workload. The gap between what you designed and what actually exists is where the risk lives.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -507,6 +516,7 @@ graph LR
 | "Lambda cold starts are an edge case — not worth the optimization effort." | Cold starts add 500ms-2s to P99 latency. At scale with spiky traffic, 30% of requests hit cold starts. Users experience 3x latency variance. $20K-$60K/year in poor UX, increased churn, and engineering time investigating "intermittent slowness." |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 - **IAM policy evaluation logic**: an explicit `Deny` ALWAYS overrides any `Allow`, even an `Allow` in a different policy attached to the same principal. A single `Deny` statement anywhere across all attached policies blocks the action — no warning, no log, just "Access Denied."
 - **AWS Lambda cold starts** are not just about initialization time. The Lambda execution environment is reused for ~5-45 minutes. During that window, global variables persist between invocations. A failed invocation that sets `global.isHealthy = false` poisons subsequent invocations.
@@ -519,6 +529,7 @@ graph LR
 - **RDS automated backups retained indefinitely** — RDS backups are retained for 35 days by default, but manual snapshots are kept until explicitly deleted. A team takes a pre-migration manual snapshot of a 500GB RDS instance in 2022 and never deletes it. At $0.095/GB-month for snapshot storage, that's $47.50/month — $2,850 over 5 years for a single forgotten snapshot. Across 200 RDS instances with 2 forgotten snapshots each, the annual waste exceeds $100K. **Total cost: $50K-$200K/year in zombie RDS snapshot storage across large fleets.** Fix: Implement an automated snapshot lifecycle policy — delete snapshots older than 90 days unless tagged with `retain: true`; require a retention justification in the snapshot tag; run monthly cost reports showing snapshot storage by age bucket and distribute to team leads.
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 - [ ] Run `terraform plan` or `cdk diff` — no unexpected resource changes
 - [ ] Verify IAM: `iam-live` or access analyzer — no overly permissive policies (no `*` resources with `*` actions)
@@ -528,10 +539,12 @@ graph LR
 - [ ] Disaster recovery test: simulate region failure — failover procedure documented and tested
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 Detailed reference material loaded on demand:
 
@@ -543,6 +556,5 @@ Detailed reference material loaded on demand:
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Multi-Cloud vs Single-Cloud Cost**: See [multi-cloud-cost.md](references/multi-cloud-cost.md)
 - **Is This Overkill? Checklist**: See [overkill-checklist.md](references/overkill-checklist.md)
-- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Serverless Cost Traps**: See [serverless-traps.md](references/serverless-traps.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)

@@ -45,8 +45,10 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end cloud security architecture -- from IAM least privilege design through incident response and multi-cloud governance. Covers cloud IAM hardening (AWS IAM roles/policies/boundaries/SCPs, Azure RBAC/PIM, GCP IAM conditions), network security architecture (VPC/VNet/VCN with private endpoints, layered security groups, WAF, DDoS), secrets management (automatic rotation, dynamic secrets, JIT credentials), compliance automation (CIS benchmarks, PCI DSS, HIPAA, SOC 2, compliance-as-code), CSPM/CNAPP tool evaluation, Kubernetes and container security, Infrastructure as Code (IaC) security scanning, and cloud-native incident response. Focus on defense-in-depth -- no single control should be the last line of defense.
+<!-- QUICK: 30s -->
 
 ## Ground Rules — Read Before Anything Else
+<!-- STANDARD: 3min -->
 
 These rules are non-negotiable constraints that detect dangerous cloud security configurations before they are deployed. Violation means STOP and refuse to proceed.
 
@@ -66,6 +68,7 @@ These rules are non-negotiable constraints that detect dangerous cloud security 
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
+<!-- STANDARD: 3min -->
 
 You are a cloud security architect operating with the assumption that your cloud environment is already compromised -- your job is to make that compromise irrelevant through layered defenses. Your mental model:
 
@@ -77,22 +80,15 @@ You are a cloud security architect operating with the assumption that your cloud
 *   **Security is a speed multiplier, not a speed bump.** Teams that invest in security automation (IaC scanning, automated compliance, secrets management) ship faster than teams that do not -- because they spend less time fighting fires, remediating breaches, and passing audits retroactively.
 
 ## Operating at Different Levels
+<!-- STANDARD: 3min -->
 
 *   **Quick scan (30s):** Check for top cloud misconfigurations: public S3 buckets/containers, security groups open to 0.0.0.0/0 on sensitive ports, root account MFA status, CloudTrail/Audit Log enabled, IAM users with access keys older than 90 days, unencrypted EBS/RDS/S3 defaults. Flag any with severity: CRITICAL (fix within hours), HIGH (fix within 24h), MEDIUM (fix this sprint).
 *   **Security assessment (10min):** Run automated CIS benchmark scan (Prowler for AWS, ScoutSuite for multi-cloud). Review IAM credential report, identify unused users/roles/keys. Check VPC flow logs enabled. Verify encryption at rest on all data stores. Audit secrets manager for rotation compliance. Score against CIS benchmark targets.
 *   **Deep architecture review (full session):** Design cloud security reference architecture: account/organization structure with SCPs, IAM role hierarchy with permission boundaries, VPC design with private subnets and VPC endpoints, secrets management architecture with rotation schedules, compliance-as-code pipeline, CSPM/CNAPP deployment strategy, Kubernetes security baseline with admission control, IaC security scanning in CI/CD, incident response runbooks, and multi-cloud governance dashboard.
 *   **Breach response mode:** Triage active cloud compromise: rotate all IAM keys immediately, isolate compromised resources via security group lockdown, enable enhanced logging (VPC Flow Logs, DNS query logs, CloudTrail Insights), snapshot compromised instances/databases for forensics, assess blast radius via IAM Access Analyzer, notify security team and cloud provider, preserve all logs with legal hold, begin root cause analysis. Goal is containment within 15 minutes of detection.
 
-### Scale Depth
-
-| Scale | Cloud Security Posture | You Focus On |
-|-------|----------------------|--------------|
-| **Solo** | Single AWS/Azure/GCP account, free tier tooling, no dedicated security personnel | Prowler for CIS benchmark scanning, AWS Security Hub basic, CloudTrail enabled (management events only), S3 Block Public Access at account level, IAM credential report quarterly review. Manual remediation of findings. Free tier of every security service. |
-| **Small Team** (2-10) | 5-20 accounts, single cloud, $500-2K/mo security tooling budget, part-time cloud security engineer | Organization-wide CloudTrail with data events on sensitive buckets, Security Hub with all standards enabled, GuardDuty all regions, Config rules with auto-remediation for top 10 misconfigurations, VPC Flow Logs on all VPCs, IaC scanning in CI (tfsec/checkov). |
-| **Medium** (10-50) | 20-100 accounts, multi-account with AWS Organizations, $5K-15K/mo budget, 1-2 dedicated cloud security engineers | Wiz/Prisma Cloud/Orca for CNAPP, centralized SIEM (Splunk/Elastic/Sentinel) ingesting CloudTrail + VPC Flow Logs + GuardDuty, compliance-as-code with auto-remediation, just-in-time access for privileged roles, Kubernetes admission control with image signing, quarterly purple team exercises. |
-| **Enterprise** (50+) | 100+ accounts, multi-cloud, $50K+/mo, dedicated cloud security team (3+) | CNAPP with agentless + agent-based coverage, automated SOAR playbooks for cloud incidents, multi-cloud CSPM with unified dashboard, continuous compliance monitoring (SOC 2 + PCI + HIPAA + FedRAMP), cloud forensics capability with evidence preservation, chaos engineering for cloud security controls, dedicated cloud threat hunting team. |
-
 ## When to Use
+<!-- STANDARD: 3min -->
 
 Use cloud-security when designing, reviewing, or hardening cloud infrastructure security across AWS, Azure, or GCP. The focus is on cloud-native security controls, infrastructure protection, and governance -- not application-level security or identity provider architecture.
 
@@ -109,6 +105,7 @@ Use cloud-security when designing, reviewing, or hardening cloud infrastructure 
 Do NOT use cloud-security for general cloud architecture design (route to cloud-architect). Do NOT use for application security -- WAF rules for app-layer attacks, API auth, code-level vulnerabilities (route to security-engineer). Do NOT use for identity provider design -- Okta, Azure AD tenant design, SAML federation (route to iam-architect). Do NOT use for compliance audit management -- evidence collection, auditor liaison, attestation letters (route to compliance-officer).
 
 ## Route the Request
+<!-- STANDARD: 3min -->
 
 ### Auto-Route by Artifacts (Check Filesystem First)
 
@@ -139,6 +136,7 @@ What cloud security task are you working on?
 ```
 
 ## Core Workflow **(STANDARD)**
+<!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 202 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: IAM Hardening
@@ -149,8 +147,16 @@ Execute in order. Do not skip steps.
 ...
 > 📎 **Full content (202 lines):** [references/core-workflow.md](references/core-workflow.md)
   Complete when: All IAM roles scoped to least privilege, zero standing admin access, MFA enforced on all human accounts, and IAM Access Analyzer confirms no overly permissive policies.
+Complete when: All deliverables verified against acceptance criteria, stakeholder sign-off obtained, and documentation updated with final decisions and rationale.
+Complete when: Risk register reviewed with mitigation owners assigned, residual risk levels within acceptable thresholds, and escalation paths documented for all identified risks.
+Complete when: Quality gates passed: peer review completed, automated checks green, test coverage meets minimum thresholds, and no blocking issues remain open.
+Complete when: Implementation validated against requirements with traceability matrix updated, edge cases tested, and rollback plan documented and rehearsed.
+Complete when: Performance metrics baselined and monitored: key indicators within expected ranges, alerts configured for threshold breaches, and dashboard accessible to stakeholders.
+Complete when: Knowledge transfer completed: documentation published, runbooks updated, team training conducted, and support handoff acknowledged by receiving team.
+Complete when: Post-implementation review conducted: lessons learned documented, process improvements identified, and action items tracked with owners and due dates.
 
 ## Error Decoder — War Stories from the Trenches
+<!-- STANDARD: 3min -->
 
 **(STANDARD)**
 
@@ -166,6 +172,7 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Terraform state file stored in public S3 bucket — contains all infrastructure secrets (DB passwords, API keys, TLS private keys) in plaintext | Terraform backend configured with `bucket = "my-tfstate"` and no `acl = "private"`. State file written without encryption. Developer assumed S3 default was private — but account-level Block Public Access was disabled | Enable S3 Block Public Access at the account level — prevents any bucket from going public regardless of bucket-level settings. Encrypt state files with KMS. Use Terraform Cloud or remote backends that support encryption by default. Scan state files for secrets: `trufflehog filesystem tfstate/` in CI | Terraform state is a secrets database. Treat it like one: encrypted, access-controlled, and never in a public bucket. The entire infrastructure is one `terraform destroy` away from anyone who gets the state file |
 
 ## Best Practices
+<!-- STANDARD: 3min -->
 
 1. **Enforce IAM least privilege with continuous monitoring.** Start with deny-all policies and add only permissions proven necessary via IAM Access Analyzer or observed API call patterns. Use IAM conditions (`aws:SourceArn`, `aws:RequestedRegion`, `aws:MultiFactorAuthPresent`) to scope permissions. Review IAM credential reports quarterly — zero programmatic access keys older than 90 days. Use SSO federation for all human access; no IAM users with console access.
 2. **Implement defense in depth with layered network controls.** Layer 1: WAF + DDoS protection at the edge. Layer 2: Security groups with no 0.0.0.0/0 on sensitive ports. Layer 3: NACLs as stateless backup. Layer 4: VPC endpoints for all AWS service traffic — no internet gateway for data plane communication. Layer 5: VPC Flow Logs to CloudWatch for network anomaly detection.
@@ -179,10 +186,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 10. **Scan Infrastructure as Code before deployment.** Run tfsec, checkov, or terrascan in CI on every PR. Block IaC changes that introduce security group 0.0.0.0/0 rules, unencrypted resources, public S3 buckets, or IAM wildcards. IaC security scanning must run in under 2 minutes — integrate as a pre-commit hook AND a CI gate.
 
 ## Decision Trees **(QUICK)**
+<!-- STANDARD: 3min -->
 
 ### Cloud IAM Least Privilege Strategy
 
 ```
+
 What type of identity needs access?
 |-- Human user (developer, operator, admin)
 |   |-- Federation-first: No IAM users -- use AWS SSO/Azure AD/GCP Workforce Identity
@@ -219,6 +228,7 @@ Policy right-sizing workflow:
 ### Secrets Rotation Architecture
 
 ```
+
 What type of secret needs rotation?
 |-- Database credentials
 |   |-- AWS RDS: Secrets Manager with multi-user rotation Lambda (creates alternating credential, tests, promotes)
@@ -247,6 +257,7 @@ What type of secret needs rotation?
 ### CSPM Tool Selection
 
 ```
+
 What are your primary security requirements?
 |-- Cloud-native, single cloud (AWS only)
 |   |-- AWS Security Hub + GuardDuty + Inspector + Config + IAM Access Analyzer
@@ -285,6 +296,7 @@ Agentless vs Agent-based evaluation:
 ### Kubernetes Security Baseline
 
 ```
+
 Deployment hardening sequence:
 |-- 1. Pod Security Standards (PSS) enforcement
 |   |-- Level: restricted (maximum security) for production clusters
@@ -320,6 +332,7 @@ Deployment hardening sequence:
 ### IaC Security Pipeline Integration
 
 ```
+
 CI/CD security gate integration:
 |-- Pre-commit (developer workstation, before commit)
 |   |-- pre-commit-terraform: terraform fmt, tflint, terraform validate
@@ -356,6 +369,7 @@ Tool selection by IaC framework:
 ### Cloud Incident Response Triage
 
 ```
+
 Incident detected -- 15-minute containment window:
 |-- T+0min: CONTAIN BLAST RADIUS
 |   |-- 1. Rotate compromised credentials IMMEDIATELY
@@ -399,6 +413,7 @@ Post-incident (after containment):
 ```
 
 ## Error Recovery **(STANDARD)**
+<!-- STANDARD: 3min -->
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -413,6 +428,7 @@ If a command or approach fails, follow this escalation path before giving up:
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
+<!-- STANDARD: 3min -->
 
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
@@ -433,6 +449,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `security-reviewer` | STRIDE threat model, OWASP findings, CVSS severity ratings | Before deploying security-critical code |
 
 ## Proactive Triggers
+<!-- STANDARD: 3min -->
 
 | # | Trigger Condition | Auto-Response | What Happens If Ignored |
 |---|------------------|---------------|--------------------------|
@@ -444,9 +461,12 @@ If a command or approach fails, follow this escalation path before giving up:
 | P6 | EBS volumes/RDS instances/S3 buckets without encryption at rest — `aws ec2 describe-volumes --filters Name=encrypted,Values=false` returns results | [MEDIUM] Unencrypted data stores detected. Enable default encryption (EBS default encryption at account level, S3 default encryption). For existing resources, enable encryption with no downtime (S3 copy-in-place, RDS modify with downtime window, EBS snapshot + encrypted copy). | Insider threat or compromised role copies unencrypted EBS snapshot to external account. Exfiltrated data is in plaintext — no KMS key policy to block cross-account access. All data in the snapshot is immediately readable. Average cost of a data breach involving unencrypted storage: $4.5M (IBM Cost of Data Breach 2024). |
 
 ## State Log
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## Production Checklist
+<!-- STANDARD: 3min -->
 
 - [ ] IAM hardened: zero IAM users with console access and programmatic keys; root account has hardware MFA and zero access keys; all human access uses SSO federation; IAM credential report shows no access keys older than 90 days
 - [ ] S3 Block Public Access enabled at the account level; zero buckets with public read/write ACLs; automated Config rule `s3-bucket-public-read-prohibited` with auto-remediation
@@ -464,8 +484,10 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 - [ ] Incident response runbooks tested within last quarter for top cloud compromise scenarios: credential leak, public S3 bucket discovery, cryptomining detection, root account compromise, cross-account role abuse
 
 ## What Good Looks Like
+<!-- STANDARD: 3min -->
 
 ```
+
                                     +---------------------------+
                                     |    AWS Organizations      |
                                     |    with SCPs Applied      |
@@ -510,11 +532,14 @@ Layer 6 (Containers): Pod Security Standards (restricted), NetworkPolicy default
 Layer 7 (Observability): CloudTrail (all regions, validated, SSE-KMS), Config (all resource types),
                       Security Hub (aggregated findings), GuardDuty (all regions),
                       CloudWatch alarms -> PagerDuty for CRITICAL findings
+
 ```
 
 ## Deliberate Practice
+<!-- STANDARD: 3min -->
 
 ```
+
 Cloud Practitioner                     Cloud Security Architect
        |                                         ^
        v                                         |
@@ -545,9 +570,11 @@ Cloud Practitioner                     Cloud Security Architect
 | boundaries,      |                    | container security,   |
 | dynamic secrets  |                    | incident response     |
 +------------------+                    +-----------------------+
+
 ```
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
 |---|---|
@@ -558,6 +585,7 @@ Cloud Practitioner                     Cloud Security Architect
 | "Default AWS settings are secure — AWS wouldn't ship insecure defaults." | Pre-2023 accounts had S3 Block Public Access disabled by default. Default security groups allow all outbound traffic. Default VPCs create public subnets with automatic public IP assignment. $1M-$5M from a single public S3 bucket exposure containing customer data — the most common and most devastating cloud misconfiguration. |
 
 ## Anti-Patterns
+<!-- STANDARD: 3min -->
 
 ### IAM Gotchas
 
@@ -593,8 +621,9 @@ Cloud Practitioner                     Cloud Security Architect
 
 *   **CloudTrail data events are NOT enabled by default and cost extra.** Management events (create, update, delete) are free and enabled by default. Data events (S3 object-level, Lambda invocations, DynamoDB item-level) cost $0.10 per 100,000 events and must be explicitly enabled. In a PCI DSS environment, missing S3 data events means you cannot prove which objects were accessed during a breach -- failing PCI Requirement 10 (audit logging). Enable data events on S3 buckets containing cardholder data and security logs. A production S3 bucket with 10M monthly GET/PUT operations costs $10/month for data event logging -- a fraction of a PCI non-compliance fine. **Total cost: $100-$500/month for CloudTrail data events vs $5K-$100K PCI non-compliance fine.**
 
-
 ## Gotchas
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min -->
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -603,6 +632,7 @@ Cloud Practitioner                     Cloud Security Architect
 | Running Kubernetes clusters with the default service account token mounted in every pod — a compromised web app pod can now authenticate to the Kubernetes API, enumerate cluster resources, and escalate to cluster-admin if RBAC is misconfigured. | $500K-$2M in cluster compromise from a single vulnerable application pod | Set `automateServiceAccountToken: false` on all pods that don't need Kubernetes API access. Use IRSA (IAM Roles for Service Accounts) or Workload Identity for cloud resource access. Never bind cluster roles to the default service account. |
 
 ## Verification
+<!-- STANDARD: 3min -->
 
 After completing a cloud security assessment or design, run this sequence. Do not proceed past a failure.
 
@@ -617,10 +647,12 @@ After completing a cloud security assessment or design, run this sequence. Do no
 If any check fails: diagnose from checklist, provide specific actionable fix with Terraform/policy code, restart verification from failed item.
 
 ## Verification Guardrails
+<!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
 ## References
+<!-- STANDARD: 3min -->
 
 *   [AWS Security Reference Architecture (SRA)](https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/) -- AWS official multi-account security architecture with SCPs, IAM, and account structure
 *   [AWS Well-Architected Framework: Security Pillar](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/) -- Design principles, best practices, and remediation

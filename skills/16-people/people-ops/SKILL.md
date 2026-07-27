@@ -57,6 +57,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What people operations program are you building or improving?
 ├── Employee Lifecycle Programs
@@ -97,7 +98,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **REFUSE to design a geo-differential compensation model without a documented policy on what happens when employees relocate — especially senior leaders.** A NYC VP moving to Boise who keeps their NYC comp while everyone else takes a pay cut reveals the model as selectively enforced — a pay equity and credibility disaster. | Trigger: `file_contains("*", "geo-differential\|geo differential\|location.*pay\|location.*adjust\|cost of labor")` AND `!file_contains("*", "relocation policy\|move.*adjust\|what happens when.*move\|transfer.*comp")`. | STOP. Respond: "This geo-differential model has no relocation policy. Decide now: (a) Do you adjust comp when employees relocate? If you will not adjust for senior talent, the model is location-agnostic — own that fully. If you will adjust, define tier thresholds clearly and enforce for every hire regardless of level. Document the policy in the compensation philosophy statement." |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -160,6 +160,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- QUICK: 30s -->
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Performance review       │
                      │ cadence?                       │
@@ -188,6 +189,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        │ check-in       │ │ Culture of    │
                                        └────────────────┘ │ coaching.     │
                                                           └───────────────┘
+
 ```
 **When semi-annual:** Rapid growth, role fluidity, frequent reorgs — people need formal feedback twice/year to calibrate expectations as the company changes. Cost: 2-3 weeks of manager time per cycle.
 **When annual + mid-year:** Stable organization, clear roles, comp tied to reviews — one deep review/year for comp decisions, one light check-in for course correction.
@@ -196,6 +198,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ### Compensation Philosophy: Percentile Anchor Decision
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: What comp percentile?    │
                      └────────────┬─────────────────┘
@@ -222,6 +225,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        │ equity, scope │ │ stable growth │
                                        └───────────────┘ │ companies.    │
                                                           └───────────────┘
+
 ```
 **25-40th percentile:** Pre-seed/Seed. Compensate with equity and autonomy. Accept that you'll lose candidates optimizing for cash. The ones who join are in it for the mission.
 **65-85th percentile:** Growth stage competing with big tech. Expensive but necessary for critical roles. Apply selectively: staff+ engineers, execs, specialized roles — not every role needs to be at this tier.
@@ -230,6 +234,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ### 9-Box Talent Grid — Action Matrix
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Where does employee      │
                      │ land on 9-box?                 │
@@ -258,6 +263,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                       │  Severance + dignity.  │  Risk: key person       │  promotion pressure.
                       │                        │  dependency if niche.   │
                       └────────────────────────┴─────────────────────────┴────────────────────────
+
 ```
 **Decision principle:** Box 1C = exit within 30 days. Box 3A = promote within 6 months or lose them. Box 2B = your largest population; invest in engagement, not promotion pressure. Box 3C = celebrate — not everyone needs to be on a management track.
 
@@ -290,7 +296,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Implementation complete, tests passing, and code reviewed with all acceptance criteria met.
-
+  Complete when: Job description reviewed by legal for compliance with equal opportunity requirements.
+  Complete when: Interview panel confirmed with calibrated rubrics and bias training completed.
+  Complete when: Compensation band benchmarked against market data with equity range approved.
+  Complete when: Candidate feedback collected within 48 hours of each interview round.
+  Complete when: Pipeline diversity metrics tracked and reviewed monthly against hiring goals.
+  Complete when: Onboarding plan documented with 30/60/90-day milestones and buddy assignment.
 
 ## Error Recovery
 
@@ -326,43 +337,53 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Chain 1: New hire signed → Fully ramped employee**
 ```
+
 recruiting (signed offer + start date)
   → people-ops (pre-boarding: laptop + accounts + buddy assignment)
     → people-ops (30-60-90 day onboarding program)
       → hr-manager (productivity assessment at 90 days)
         → ceo-strategist (workforce capacity update)
+
 ```
 
 **Chain 2: Performance cycle execution → Comp adjustments**
 ```
+
 people-ops (review cycle launch + calibration sessions)
   → hr-manager (talent review + PIP decisions + promotion approvals)
     → people-ops (comp adjustments within bands + equity refreshers)
       → ceo-strategist (budget impact summary)
+
 ```
 
 **Chain 3: Retention risk detected → Intervention deployed**
 ```
+
 people-ops (retention_risk.py scan → high-risk employees flagged)
   → hr-manager (retention conversation strategy + comp flex approval)
     → ceo-strategist (above-band exception if needed for critical talent)
       → people-ops (retention offer delivered within 2 weeks)
+
 ```
 
 **Chain 4: Compliance audit → Corrective action**
 ```
+
 people-ops (I-9/FLSA self-audit findings)
   → legal-advisor (compliance gap assessment + correction guidance)
     → hr-manager (policy update + manager retraining)
       → people-ops (process fix implemented + re-audit scheduled)
+
 ```
 
 **Chain 5: Engagement survey results → Culture program**
 ```
+
 people-ops (eNPS survey + thematic analysis)
   → hr-manager (action plan development + manager coaching priorities)
     → ceo-strategist (culture investment decisions)
       → people-ops (program rollout + progress tracking)
+
 ```
 
 ### Escalation Path
@@ -375,11 +396,9 @@ people-ops (eNPS survey + thematic analysis)
 | Calibration reveals systemic bias (e.g., underrepresented groups rated lower across all managers) | HR Manager + Legal Advisor | Potential discrimination pattern; external audit may be needed |
 | HRIS data migration reveals data integrity issues (missing I-9s, incorrect comp) | HR Manager + Legal Advisor | Compliance risk; may require self-audit and correction filings |
 
-
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `hr-manager` | Organizational policies, compliance requirements, company culture | Before making people decisions or designing processes |
-
 
 ## Proactive Triggers
 
@@ -396,7 +415,6 @@ people-ops (eNPS survey + thematic analysis)
 | HRIS migration or new module implementation is planned | IT + Finance + All people managers | HR data is always messier than expected. Start with a complete data audit before selecting the system. Map every field from source to target. Budget 2x your optimistic timeline |
 | I-9 audit deadline or E-Verify compliance deadline is approaching | Legal Advisor + Compliance Officer | I-9 penalties are $250-$2,700 per form. Self-audit a random 10% sample quarterly. Remediate errors before the government finds them |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
@@ -407,6 +425,7 @@ A new hire receives a shipped laptop, fully-provisioned accounts, and a welcome 
 ## Deliberate Practice
 
 ```mermaid
+
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
 
@@ -421,7 +440,7 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
-## Anti-Rationalization — No Excuses
+## Anti-Hallucination
 
 | Rationalization | Reality |
 |---|---|
@@ -482,52 +501,6 @@ Before deploying any People Operations program or process change, verify ALL of:
 11. Employee handbook: legal review current (within 12 months), 100% acknowledgment tracked in HRIS within 30 days — version history maintained
 12. Termination checklist: PIP documentation verified, legal consulted for protected class/protected activity, severance per policy offered with release — every termination defensible on paper
 
-## Scale Depth
-
-### Seed/Pre-Seed (1-25 employees)
-- **Onboarding**: Founder-led. 1-page checklist. No dedicated HRIS — Rippling/Gusto PEO handles basics.
-- **Performance**: Quarterly founder 1:1s. No formal review process or calibration needed.
-- **Compensation**: Market-informed but informal. 50th-75th percentile for first 10 hires. Equity-heavy (1-5% for early engineers).
-- **Culture**: Organic. Founder personality defines culture. No formal DEI programs — hire for values alignment.
-- **Skip**: Career frameworks, stay interviews, engagement surveys, compensation bands, benefits benchmarking.
-
-### Series A-B (25-100 employees)
-- **Add**: Dedicated People Ops hire (#1). BambooHR or Workday starter. Structured onboarding (30/60/90). Basic career framework with 3-4 levels.
-- **Performance**: Semi-annual reviews with simple rating scale. Start calibration for managers.
-- **Compensation**: Bands based on Pave/Radford entry-level data. Geo-differential for remote only. Annual benchmarking.
-- **Culture**: Values codified. Pulse surveys begin (Lattice, Culture Amp starter). Benefits benchmarked annually.
-- **Skip**: Full DEI analytics, succession planning, global mobility, predictive attrition modeling.
-
-### Series C-D (100-500 employees)
-- **Add**: People Ops team (3-5). Workday full suite. Compensation bands with full market data. Calibration across departments. Quarterly stay interviews.
-- **Performance**: Formal review cycle with calibration. 9-box talent grid. PIPs standardized. Succession planning for top 50 roles.
-- **DEI**: Dedicated DEI lead or program. Hiring/retention/promotion dashboard by demographic. ERG program launched.
-- **Analytics**: Turnover by department/manager. Engagement trends. Skills gap analysis. HR dashboard reviewed monthly by leadership.
-- **Skip**: Internal mobility marketplace, AI-driven retention prediction, multi-country compliance.
-
-### Enterprise (500+ employees)
-- **People Ops**: 10+ team. HR shared services center. Tiered support model. HRBPs aligned to business units.
-- **Talent**: Succession planning for top 100+ roles. Executive coaching. Leadership development pipeline. Internal mobility marketplace.
-- **Compliance**: In-house employment counsel. Multi-country compliance. OFCCP audit readiness. GDPR/CCPA employee data.
-- **Analytics**: Predictive attrition modeling. Workforce planning with FP&A integration. DEI analytics with statistical significance testing.
-
-### Transition Triggers
-- Seed → Series A: First dedicated People Ops hire. 25+ employees means compliance obligations multiply.
-- Series A → Series B: First manager-layer calibration needed. 50+ employees — career framework becomes urgent.
-- Series B → Series C: International employees trigger multi-country compliance. 100+ employees — engagement surveys become predictive.
-- Series C → Enterprise: 500+ triggers additional regulatory requirements. Multiple business units require HRBP support.
-
-## Error Decoder
-
-| Error Message / Situation | Root Cause | Fix | Lesson |
-|--------------------------|------------|-----|--------|
-| "Top performer quit — exit interview revealed they were unhappy for 9 months and nobody asked" | Only exit interviews, no stay interviews. Problems festered for months. Manager assumed silence = satisfaction. | Implement quarterly 30-minute stay interviews for all employees. Ask: "What keeps you here? What might pull you away? What would make your job better? When did you last think about leaving?" Track themes. | Organizations with stay interviews reduce regrettable attrition by 25-35%. Ask before they leave — it's $180K-$250K per retained senior employee. |
-| "80% of employees rated 'Exceeds Expectations' — merit budget distributed evenly, top performers got nothing extra and left" | Performance reviews without calibration. Managers rate independently with different standards, all inflating to protect their teams. | Hold calibration sessions before finalizing. All departmental managers discuss ratings together, defend outliers with evidence, normalize distribution. | Uncalibrated reviews misallocate $100K-$500K/year in merit budgets and drive top performers to leave. Calibration is not optional — it's the system's integrity check. |
-| "Promoted top IC to manager — 6 months later, 3 reports have left and the ex-IC is failing" | Promoted without management training. IC continued doing IC work, neglected 1:1s, skipped performance conversations. | Every new manager completes 3-month training (1:1s, feedback, delegation, performance management) before receiving direct reports. Pair with experienced manager coach for 6 months. | $250K-$500K per failed first-time manager transition. Management is a different job, not a promotion of the IC job. Train before you promote. |
-| "Employee handbook is 120 pages — nobody reads it, policy violation leads to termination, employee claims they didn't know" | Handbook designed for legal protection, not readability. No acknowledgment system beyond a checkbox. | Redesign handbook: 30-page core with essential policies, 90-page reference appendix. Acknowledge receipt with a quiz: "What's our social media policy? (a) Anything goes (b) Don't share confidential info (c) No social media allowed." | The handbook only protects you if employees actually read it. A quiz beats a checkbox — it proves comprehension, not just acknowledgment. |
-| "Benefits survey shows 4.2/5 satisfaction — but utilization data shows only 30% of employees use any benefit beyond health insurance" | Aggregate satisfaction masks life-stage segmentation. 25-year-olds and 45-year-olds have opposite needs. | Segment by life stage. Survey satisfaction within each segment. Track utilization per benefit. Replace underused benefits with what each segment actually values. | A benefits package nobody uses is wasted compensation budget. Segment, measure, iterate — don't optimize for the aggregate. |
-
-
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -537,7 +510,6 @@ Before deploying any People Operations program or process change, verify ALL of:
 | Interview feedback collected days after session, losing critical detail | $15K-$30K in bad hires from incomplete evaluation | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
 | Offer accepted but candidate reneges due to slow process or better counter-offer | $30K-$100K in restarting search and team productivity loss | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
 | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | $50K-$200K in early attrition and lost productivity | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
-
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -570,6 +542,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-- **Scale Depth: Seed → Series A → Series C → Enterprise**: See [references/scale-depth.md](references/scale-depth.md)
-- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
