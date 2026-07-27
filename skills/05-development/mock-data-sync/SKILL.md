@@ -13,6 +13,7 @@ description: >
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+token_budget: 3500
 chain:
   consumes_from:
   - backend-developer

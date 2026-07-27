@@ -11,6 +11,7 @@ description: Use when integrating new libraries, frameworks, or APIs into a prod
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+token_budget: 4000
 chain:
   consumes_from:
   - backend-developer
