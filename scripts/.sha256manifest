@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-27T19:10:21Z
+# Generated: 2026-07-27T20:12:53Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    1c268bf8568676486abd44e48d0cf8c7661de67a
+# Commit:    f56a43d2584b107edd14c128a01d3aa2cea66d5a
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -23,17 +23,19 @@ a9a1c622d551381a1fb5b9883b76656ae031671c48b147e7d94863c05ef4e610  scripts/instal
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
 0bb1042e1e108645dc1a862cea231e7dc7be7c08552f5d9bf3274a30555ae34f  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
-df631242e6f3955c24021094e541abc100ae26c1980c3da99db9fe7a066c8dc0  scripts/lib/lint-template.py
+03e9fc3ced22daf6930dc34765955619d1b505b6677e45bf64e783990dc62c99  scripts/lib/lint-template.py
 803942ce420e2fd140d7ad6ec02d79328fa404dc33b85febddad8853e83df1c3  scripts/lib/lint-yaml.py
 5f2ffb808c267412a2fe61d40a51fa5ebaf76836bcc32a191f02202200b7a5b0  scripts/lint.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
 ecb22092ccd8296b87add0817298eb117b09f67c7ff6648c7c96e23a9ee253a2  scripts/run-evals.sh
 fd1b88f2e6e0491d653c161745eef606b6b047196c524d7aefe4ae021ed8feea  scripts/runtime-version-detect.sh
 0903dd20ea08299f40eaadad44bf39188e2282eb7dea8a16852385299ed9eb4a  scripts/sandbox-exec.sh
+8d2f021ec58a01ec88332d21574ece6cad5ac7219b53cbcedbe82ad1de37db1b  scripts/scaffold-skill.sh
 e30826411b84e2d4402143670ff88d6821e2635b762d964fcc3015595228cc56  scripts/skill-router.py
 5efe46068f41d543978a8df504ea429125bd03c425675074b8d3a8fd3e739c37  scripts/trim-context.sh
 0a95e1fb6019c454162c2e3222fe9d461c65eecf7a3a8955373a26a7f13d7cb0  scripts/upgrade_to_10_v2.py
-5f007310d475687e4a95880c9f45145d1840a71d10cc18f9c6ad14570a5d9299  scripts/validate-skills.sh
+c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
+5c424d382f57745f0dfd43a6fb30ccc4adf6989ed5c7b299176dcc56af6c6bed  scripts/validate-skills.sh
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/00-framework/skill-levels/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/00-framework/writing-great-skills/scripts/verify-skill.sh

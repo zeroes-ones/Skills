@@ -7,12 +7,18 @@ on:
       - 'skills/**/SKILL.md'
       - 'skills/**/references/*.md'
       - 'scripts/validate-skills.sh'
+      - 'scripts/validate_chains.py'
+      - 'scripts/lib/lint-template.py'
+      - '.github/**'
   push:
     branches: [main]
     paths:
       - 'skills/**/SKILL.md'
       - 'skills/**/references/*.md'
       - 'scripts/validate-skills.sh'
+      - 'scripts/validate_chains.py'
+      - 'scripts/lib/lint-template.py'
+      - '.github/**'
   workflow_dispatch:
 
 permissions:
@@ -28,6 +34,10 @@ jobs:
       - name: Validate Skills
         id: validate
         run: bash scripts/validate-skills.sh
+
+      - name: Chain Symmetry
+        id: chain
+        run: python3 scripts/validate_chains.py
 
       - name: Token Budget Report
         if: always()
@@ -66,10 +76,13 @@ jobs:
             Please check the [workflow run](${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.
 
             **Common fixes:**
-            - Frontmatter: ensure \`---\` delimiters are exactly 3 dashes
+            - Frontmatter: ensure \`---\` delimiters are exactly 3 dashes, \`token_budget\` field present
             - Descriptions: must include "Use when..." and "Handles..."
-            - All 12 core sections must be present
+            - All 22 core sections must be present (see \`scripts/references/10-10-template.md\`)
             - Reference links must point to existing files
+            - Chain references must be bidirectional (A feeds_into B → B consumes_from A)
+            - Error Decoder, Best Practices, Production Checklist sections required
+            - At least 3 QUICK markers for progressive disclosure
             - SKILL.md body must be under 5000 words`;
 
             await github.rest.issues.createComment({

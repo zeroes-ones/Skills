@@ -15,24 +15,30 @@ import re
 import sys
 import subprocess
 
-# ── 14 Required Core Sections ──────────────────────────────────────────────
+# ── 16 Required Core Sections ──────────────────────────────────────────────
 REQUIRED_SECTIONS = {
     'Route the Request',
     'Ground Rules',
     "The Expert's Mindset",
     'Operating at Different Levels',
     'When to Use',
+    'When NOT to Use',
     'Decision Trees',
     'Core Workflow',
+    'Best Practices',
+    'Error Decoder',
     'Cross-Skill Coordination',
     'Proactive Triggers',
     'What Good Looks Like',
     'Deliberate Practice',
     'References',
     'Gotchas',
+    'Anti-Patterns',
     'Verification',
     'Error Recovery',
     'State Log',
+    'Production Checklist',
+    'Anti-Rationalization',
 }
 
 # ── Anti-Hallucination Guardrails ──────────────────────────────────────────
@@ -202,6 +208,53 @@ class SkillChecker:
         if body_lines > 600:
             self.warnings.append(f"Body is {body_lines} lines (budget: 500, hard max: 600)")
 
+    def check_best_practices(self):
+        """Best Practices must have at least 8 numbered items."""
+        bp_match = re.search(r'^## Best Practices.*?\n(.*?)(?=^## |\Z)', self.body, re.MULTILINE | re.DOTALL)
+        if bp_match:
+            bp_section = bp_match.group(1)
+            numbered = len(re.findall(r'^\d+\.\s', bp_section, re.MULTILINE))
+            if numbered < 8:
+                self.warnings.append(f"Best Practices has only {numbered} numbered items (recommend 10+)")
+
+    def check_production_checklist(self):
+        """Production Checklist must have at least 10 CR items."""
+        pc_match = re.search(r'^## Production Checklist.*?\n(.*?)(?=^## |\Z)', self.body, re.MULTILINE | re.DOTALL)
+        if pc_match:
+            pc_section = pc_match.group(1)
+            cr_items = len(re.findall(r'CR\d+', pc_section))
+            if cr_items < 10:
+                self.warnings.append(f"Production Checklist has only {cr_items} CR items (recommend 12+)")
+
+    def check_error_decoder_format(self):
+        """Error Decoder must have a table with at least 3 columns (Symptom | Root Cause | Fix | Lesson)."""
+        ed_match = re.search(r'^## Error Decoder.*?\n(.*?)(?=^## |\Z)', self.body, re.MULTILINE | re.DOTALL)
+        if ed_match:
+            ed_section = ed_match.group(1)
+            # Count pipe-separated columns in the header row
+            header_match = re.search(r'^\|(.+)\|', ed_section, re.MULTILINE)
+            if header_match:
+                cols = [c.strip() for c in header_match.group(1).split('|') if c.strip()]
+                if len(cols) < 3:
+                    self.warnings.append(f"Error Decoder table has only {len(cols)} columns (recommend 4: Symptom|Root Cause|Fix|Lesson)")
+            else:
+                self.warnings.append("Error Decoder section exists but no table found")
+
+    def check_anti_patterns_content(self):
+        """Anti-Patterns must have at least 5 ❌/✅ pairs."""
+        ap_match = re.search(r'^## Anti-Patterns.*?\n(.*?)(?=^## |\Z)', self.body, re.MULTILINE | re.DOTALL)
+        if ap_match:
+            ap_section = ap_match.group(1)
+            cross_count = len(re.findall(r'❌', ap_section))
+            if cross_count < 3:
+                self.warnings.append(f"Anti-Patterns has only {cross_count} patterns (recommend 5+)")
+
+    def check_progressive_disclosure(self):
+        """At least 3 sections must have QUICK markers."""
+        quick_count = len(re.findall(r'\*\*\(QUICK', self.body))
+        if quick_count < 3:
+            self.errors.append(f"Only {quick_count} QUICK markers found (minimum 3 required for progressive disclosure)")
+
     def check_chain_connectivity(self):
         """Must have consumes_from and feeds_into in chain."""
         if 'consumes_from' not in self.content:
@@ -255,6 +308,7 @@ class SkillChecker:
         self.check_cross_skill_table()
         self.check_portability_target()
         self.check_chain_connectivity()
+        self.check_progressive_disclosure()
 
         # Content checks
         self.check_description_triggers()
@@ -262,6 +316,10 @@ class SkillChecker:
         self.check_name_matches_dir()
         self.check_no_duplicate_headings()
         self.check_reference_links()
+        self.check_best_practices()
+        self.check_production_checklist()
+        self.check_error_decoder_format()
+        self.check_anti_patterns_content()
 
         # File structure checks
         self.check_verify_script_exists()

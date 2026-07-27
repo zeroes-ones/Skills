@@ -362,7 +362,215 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 sys.exit(errors)
 "
 
-# --- 10. ERROR RECOVERY ---
+# --- 12. TOKEN BUDGET FRONTMATTER FIELD ---
+echo "[12] Token budget frontmatter field..."
+
+check "All skills have token_budget in frontmatter" python3 -c "
+import os, re, yaml, sys
+errors = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            try:
+                fm = yaml.safe_load(parts[1])
+            except:
+                continue
+            if not isinstance(fm, dict):
+                continue
+            if 'token_budget' not in fm:
+                print(f'  MISSING token_budget field: {path}', file=sys.stderr)
+                errors += 1
+            else:
+                tb = fm['token_budget']
+                if not isinstance(tb, (int, float)) or tb < 1000:
+                    print(f'  INVALID token_budget ({tb}): {path} (must be integer >= 1000)', file=sys.stderr)
+                    errors += 1
+sys.exit(errors)
+"
+
+# --- 13. ERROR DECODER SECTION (ADVISORY — non-blocking for existing library) ---
+echo "[13] Error Decoder section..."
+python3 -c "
+import os, re, sys
+missing = 0
+total = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            total += 1
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            if '## Error Decoder' not in body:
+                if not re.search(r'^## .*Error.*\n.*\|.*\|.*\|', body, re.MULTILINE) and \
+                   not re.search(r'^## .*(?:Negative Constraint|Routing|Decision Matrix).*', body, re.MULTILINE):
+                    missing += 1
+if missing > 0:
+    print(f'  {missing}/{total} skills missing Error Decoder (advisory — domain-adapted formats accepted, see SKILL-QUALITY-STANDARDS.md)')
+else:
+    print(f'  All {total} skills have Error Decoder or domain-adapted format')
+" && echo -e "  ${GREEN}PASS${NC} Error Decoder check" || echo -e "  ${YELLOW}ADVISORY${NC} Error Decoder check"
+
+# --- 14. BEST PRACTICES SECTION (ADVISORY) ---
+echo "[14] Best Practices section..."
+python3 -c "
+import os, re, sys
+
+EXEMPT = {
+    'using-agent-skills', 'writing-great-skills', 'agent-persona-orchestrator',
+    'skill-levels', 'community-operations-manager', 'crisis-response-manager',
+    'medical-content-reviewer', 'patient-health-educator', 'patient-experience-researcher'
+}
+
+missing = 0
+total = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            total += 1
+            path = os.path.join(root, f)
+            skill_name = os.path.basename(os.path.dirname(path))
+            if skill_name in EXEMPT:
+                continue
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            if '## Best Practices' not in body:
+                missing += 1
+if missing > 0:
+    print(f'  {missing} skills missing Best Practices (advisory — framework/health exempt, see SKILL-QUALITY-STANDARDS.md)')
+else:
+    print(f'  All non-exempt skills have Best Practices')
+" && echo -e "  ${GREEN}PASS${NC} Best Practices check" || echo -e "  ${YELLOW}ADVISORY${NC} Best Practices check"
+
+# --- 15. PRODUCTION CHECKLIST SECTION (ADVISORY) ---
+echo "[15] Production Checklist section..."
+python3 -c "
+import os, re, sys
+
+EXEMPT = {
+    'using-agent-skills', 'writing-great-skills', 'agent-persona-orchestrator',
+    'skill-levels', 'community-operations-manager', 'crisis-response-manager',
+    'medical-content-reviewer', 'patient-health-educator', 'patient-experience-researcher'
+}
+
+missing = 0
+total = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            total += 1
+            path = os.path.join(root, f)
+            skill_name = os.path.basename(os.path.dirname(path))
+            if skill_name in EXEMPT:
+                continue
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            if '## Production Checklist' not in body:
+                missing += 1
+if missing > 0:
+    print(f'  {missing} skills missing Production Checklist (advisory — framework/health exempt)')
+else:
+    print(f'  All non-exempt skills have Production Checklist')
+" && echo -e "  ${GREEN}PASS${NC} Production Checklist check" || echo -e "  ${YELLOW}ADVISORY${NC} Production Checklist check"
+
+# --- 16. ANTI-PATTERNS SECTION (ADVISORY) ---
+echo "[16] Anti-Patterns section..."
+python3 -c "
+import os, re, sys
+missing = 0
+total = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            total += 1
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            if '## Anti-Patterns' not in body and '## Gotchas' not in body:
+                missing += 1
+if missing > 0:
+    print(f'  {missing}/{total} skills missing Anti-Patterns/Gotchas (advisory)')
+else:
+    print(f'  All {total} skills have Anti-Patterns or Gotchas')
+" && echo -e "  ${GREEN}PASS${NC} Anti-Patterns check" || echo -e "  ${YELLOW}ADVISORY${NC} Anti-Patterns check"
+
+# --- 17. PROGRESSIVE DISCLOSURE MARKERS (ADVISORY) ---
+echo "[17] Progressive disclosure markers (QUICK/STANDARD/DEEP)..."
+python3 -c "
+import os, re, sys
+low_quick = 0
+total = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            total += 1
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            quick_count = len(re.findall(r'\*\*\(QUICK', body))
+            if quick_count < 3:
+                low_quick += 1
+if low_quick > 0:
+    print(f'  {low_quick}/{total} skills have fewer than 3 QUICK markers (advisory)')
+else:
+    print(f'  All {total} skills have >=3 QUICK markers')
+" && echo -e "  ${GREEN}PASS${NC} Progressive disclosure check" || echo -e "  ${YELLOW}ADVISORY${NC} Progressive disclosure check"
+
+# --- 18. BIDIRECTIONAL CHAIN SYMMETRY (ADVISORY) ---
+echo "[18] Bidirectional chain symmetry..."
+python3 "$(dirname "$0")/validate_chains.py" --json 2>/dev/null | python3 -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    errors = data.get('errors', 0)
+    warnings = data.get('warnings', 0)
+    if errors > 0:
+        print(f'  {errors} asymmetric chain references found (advisory — fix incrementally)')
+    else:
+        print(f'  All chain references are symmetric')
+except:
+    print(f'  Chain validator could not run (non-blocking)')
+" && echo -e "  ${GREEN}PASS${NC} Chain symmetry check" || echo -e "  ${YELLOW}ADVISORY${NC} Chain symmetry check (non-blocking)"
+
+# --- 19. ERROR RECOVERY ---
 check "All skills have Error Recovery section" python3 -c "
 import os, re, sys
 errors = 0
@@ -384,7 +592,7 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 sys.exit(errors)
 "
 
-# --- 11. VERIFICATION GUARDRAILS ---
+# --- 20. VERIFICATION GUARDRAILS ---
 check "All skills have Verification Guardrails section" python3 -c "
 import os, re, sys
 errors = 0
@@ -407,7 +615,7 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 sys.exit(errors)
 "
 
-# --- 12. UPSTREAM TABLE QUALITY ---
+# --- 21. UPSTREAM TABLE QUALITY ---
 check "All skills have meaningful upstream table in Cross-Skill Coordination" python3 -c "
 import os, re, sys
 errors = 0
@@ -430,8 +638,8 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 sys.exit(errors)
 "
 
-# --- 13. LINE BUDGET ENFORCEMENT (ADVISORY — non-blocking) ---
-echo -n "[13] Line budget check (advisory)... "
+# --- 22. LINE BUDGET ENFORCEMENT (ADVISORY — non-blocking) ---
+echo -n "[22] Line budget check (advisory)... "
 python3 -c "
 import os, sys
 over = []
