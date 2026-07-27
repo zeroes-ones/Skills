@@ -73,41 +73,40 @@ These rules are non-negotiable constraints that prevent the most common submodul
 
 You are a Git internals expert who has recovered from every submodule disaster: detached HEADs, orphaned .git/modules directories, submodule merge conflicts that spanned 40 commits, and the special hell of `git subtree split` rewriting history. Your mental model:
 
-* **Submodules are pointers, not content.** A submodule is just a commit SHA stored in the parent tree. Everything else — the actual files, the .git directory, the working tree — is derived. When you understand this, all submodule behavior becomes predictable.
-* **The tool is not the problem — the workflow is.** Git submodules work at Google, Meta, and thousands of open-source projects. The difference is they have documented, enforced workflows. Without them, submodules are footguns. With them, they are infrastructure.
-* **Vendoring is a liability, not just a dependency.** Every vendored line of code is code you are now responsible for maintaining, securing, and updating. Treat vendoring as a decision to fork, not a convenience.
-* **History preservation matters.** `git filter-repo` and `git subtree split` exist because history has value — blame, bisect, provenance. The difference between a good extraction and a bad one is whether `git log` still works afterward.
-* **CI is the enforcement mechanism.** Whatever workflow you design, CI must enforce it. Submodule health checks should run on every PR. A stale submodule should fail CI as aggressively as a failing test.
+- **Submodules are pointers, not content.** A submodule is just a commit SHA stored in the parent tree. Everything else — the actual files, the .git directory, the working tree — is derived. When you understand this, all submodule behavior becomes predictable.
+- **The tool is not the problem — the workflow is.** Git submodules work at Google, Meta, and thousands of open-source projects. The difference is they have documented, enforced workflows. Without them, submodules are footguns. With them, they are infrastructure.
+- **Vendoring is a liability, not just a dependency.** Every vendored line of code is code you are now responsible for maintaining, securing, and updating. Treat vendoring as a decision to fork, not a convenience.
+- **History preservation matters.** `git filter-repo` and `git subtree split` exist because history has value — blame, bisect, provenance. The difference between a good extraction and a bad one is whether `git log` still works afterward.
+- **CI is the enforcement mechanism.** Whatever workflow you design, CI must enforce it. Submodule health checks should run on every PR. A stale submodule should fail CI as aggressively as a failing test.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-* **Quick scan (30s):** Check .gitmodules exists, submodule count, tracking branch config, submodule update status. Flag: detached HEAD in submodules, submodules without branch config, >20 submodule entries.
-* **Triage (10min):** Verify all submodule pointers are reachable (no orphaned SHAs). Run `git submodule status --recursive`. Check CI config for submodule checkout. Verify .gitmodules has no stale entries.
-* **Deep workflow design (full session):** Full cross-repo code sharing architecture: decision matrix analysis, submodule/subtree/vendor selection, CI integration, disaster recovery playbooks, team training materials, migration plan.
-* **Crisis mode (submodule broken, CI red, deployment blocked):** Identify failure: detached HEAD? merge conflict? missing submodule? Apply the appropriate recovery from the Disaster Recovery decision tree. Get CI green first, then diagnose root cause.
+- **Quick scan (30s):** Check .gitmodules exists, submodule count, tracking branch config, submodule update status. Flag: detached HEAD in submodules, submodules without branch config, >20 submodule entries.
+- **Triage (10min):** Verify all submodule pointers are reachable (no orphaned SHAs). Run `git submodule status --recursive`. Check CI config for submodule checkout. Verify .gitmodules has no stale entries.
+- **Deep workflow design (full session):** Full cross-repo code sharing architecture: decision matrix analysis, submodule/subtree/vendor selection, CI integration, disaster recovery playbooks, team training materials, migration plan.
+- **Crisis mode (submodule broken, CI red, deployment blocked):** Identify failure: detached HEAD? merge conflict? missing submodule? Apply the appropriate recovery from the Disaster Recovery decision tree. Get CI green first, then diagnose root cause.
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use git-submodules when sharing code across repositories and the alternatives (monorepo, package registry) are not viable — the focus is on Git-native code sharing mechanisms and their operational implications.
 
-* Deciding between submodules, subtree, vendoring, and package registries for cross-repo code sharing
-* Adding a shared library as a submodule and configuring tracking branches
-* Setting up CI/CD to correctly clone and update submodules
-* Extracting a subdirectory from a monorepo into its own repo with full history preservation
-* Setting up bidirectional code sharing with `git subtree` (push/pull/split)
-* Managing vendor dependencies that require local modifications
-* Recovering from submodule disasters: detached HEAD, merge conflicts, accidental deletion
-* Auditing submodule health: stale pointers, orphaned commits, incorrect .gitmodules
-* Evaluating alternative tools: git-subrepo, gitslave, repo tool, myrepos
+- Deciding between submodules, subtree, vendoring, and package registries for cross-repo code sharing
+- Adding a shared library as a submodule and configuring tracking branches
+- Setting up CI/CD to correctly clone and update submodules
+- Extracting a subdirectory from a monorepo into its own repo with full history preservation
+- Setting up bidirectional code sharing with `git subtree` (push/pull/split)
+- Managing vendor dependencies that require local modifications
+- Recovering from submodule disasters: detached HEAD, merge conflicts, accidental deletion
+- Auditing submodule health: stale pointers, orphaned commits, incorrect .gitmodules
+- Evaluating alternative tools: git-subrepo, gitslave, repo tool, myrepos
 
 Do NOT use git-submodules for monorepo architecture decisions (route to monorepo-manager). Do NOT use for package publishing workflows (route to appropriate language skill). Do NOT use for CI/CD pipeline design (route to ci-cd-builder).
 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -122,7 +121,6 @@ Do NOT use git-submodules for monorepo architecture decisions (route to monorepo
 | A6 | User mentions "extract" + "subdirectory" + "history" | Split-filter needed -> Go to **Core Workflow: Phase 2 — Split-Filter Extraction** |
 | A7 | No submodule/subtree/vendor files | New cross-repo sharing decision -> Jump to **Decision Trees: Code Sharing Strategy** |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -143,7 +141,6 @@ What git submodule/subtree task are you working on?
 <!-- STANDARD: 3min -->
 <!-- Full 131 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Submodule Health Audit
 <!-- STANDARD: 3min -->
@@ -248,7 +245,6 @@ then re-init        verify hash       into parent
                     exists on remote   at merge time)
                     before merge
 
-#
 
 ## Gotchas
 <!-- DEEP: 10+min -->
@@ -325,7 +321,6 @@ How should you share code across repositories?
 |   |-- NEVER: Submodules without CI automation, Vendoring without update tracking
 ```
 
-#
 
 ## Disaster Recovery
 <!-- STANDARD: 3min -->
@@ -366,7 +361,6 @@ What submodule disaster are you facing?
 |   |-- Then: git submodule update --init --recursive
 ```
 
-#
 
 ## Vendoring Assessment
 <!-- STANDARD: 3min -->
@@ -398,7 +392,6 @@ Should you vendor this dependency?
 |   |-- Security vulnerability disclosed -> patch immediately or un-vendor and use upstream
 ```
 
-#
 
 ## Submodule Health Monitoring
 <!-- STANDARD: 3min -->
@@ -435,7 +428,6 @@ How to prevent submodule problems before they cause outages:
 |   |-- Pinned-to-specific-version: quarterly review (is the pinned version still correct?)
 ```
 
-#
 
 ## Submodule Migration Patterns
 <!-- STANDARD: 3min -->
@@ -551,7 +543,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -577,7 +568,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -593,7 +583,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -762,14 +751,14 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ## References
 <!-- STANDARD: 3min -->
 
-* [Git Submodules Documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules) — Official Git documentation for submodules
-* [Git Subtree Documentation](https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt) — Official git-subtree documentation
-* [git-filter-repo](https://github.com/newren/git-filter-repo) — Recommended tool for history rewriting (replaces filter-branch)
-* [/references/decision-matrix.md](references/decision-matrix.md) — Submodule vs subtree vs package registry vs vendoring comparison
-* [/references/submodule-lifecycle.md](references/submodule-lifecycle.md) — Full submodule lifecycle: add, update, deinit, recursive operations
-* [/references/submodule-ci.md](references/submodule-ci.md) — CI/CD configuration for GitHub Actions, GitLab CI, Jenkins
-* [/references/subtree-workflows.md](references/subtree-workflows.md) — git subtree add/pull/push/split patterns and gotchas
-* [/references/split-filter-extraction.md](references/split-filter-extraction.md) — git filter-repo extraction playbook with history preservation
-* [/references/vendoring-strategies.md](references/vendoring-strategies.md) — When to vendor, maintenance strategies, update automation
-* [/references/disaster-recovery.md](references/disaster-recovery.md) — Common failures, recovery procedures, prevention checklist
-* [/references/alternative-tools.md](references/alternative-tools.md) — git-subrepo, gitslave, repo tool, myrepos comparison
+- [Git Submodules Documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules) — Official Git documentation for submodules
+- [Git Subtree Documentation](https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt) — Official git-subtree documentation
+- [git-filter-repo](https://github.com/newren/git-filter-repo) — Recommended tool for history rewriting (replaces filter-branch)
+- [/references/decision-matrix.md](references/decision-matrix.md) — Submodule vs subtree vs package registry vs vendoring comparison
+- [/references/submodule-lifecycle.md](references/submodule-lifecycle.md) — Full submodule lifecycle: add, update, deinit, recursive operations
+- [/references/submodule-ci.md](references/submodule-ci.md) — CI/CD configuration for GitHub Actions, GitLab CI, Jenkins
+- [/references/subtree-workflows.md](references/subtree-workflows.md) — git subtree add/pull/push/split patterns and gotchas
+- [/references/split-filter-extraction.md](references/split-filter-extraction.md) — git filter-repo extraction playbook with history preservation
+- [/references/vendoring-strategies.md](references/vendoring-strategies.md) — When to vendor, maintenance strategies, update automation
+- [/references/disaster-recovery.md](references/disaster-recovery.md) — Common failures, recovery procedures, prevention checklist
+- [/references/alternative-tools.md](references/alternative-tools.md) — git-subrepo, gitslave, repo tool, myrepos comparison

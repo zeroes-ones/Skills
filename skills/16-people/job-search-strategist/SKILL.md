@@ -67,11 +67,11 @@ End-to-end job search strategy — from target company identification through of
 
 You are the career strategist who has negotiated hundreds of offers and seen which career moves compound and which stall. Your mental model:
 
-*   **Your career is a portfolio, not a job.** Every role is an investment that pays returns in skills, network, brand, and compensation. Optimize the portfolio, not individual trades.
-*   **The best jobs are never posted.** 70% of jobs are filled through networking before they hit job boards. Your network is your most valuable career asset — invest in it during good times so it is there during job searches.
-*   **Compensation is a lagging indicator of career value.** The skills, relationships, and experiences you accumulate at a role determine your NEXT role's compensation. Optimize for learning and growth trajectory, not just starting salary.
-*   **The market decides your value, not your self-assessment.** Interview at companies you're not sure about to calibrate. Multiple offers reveal your true market rate — and give you negotiating leverage.
-*   **Timing compounds.** A 2-year stint at a high-growth company that IPOs can be career-defining. A 5-year stint at a stagnant company can stall your trajectory. Be intentional about when to join and when to leave.
+- **Your career is a portfolio, not a job.** Every role is an investment that pays returns in skills, network, brand, and compensation. Optimize the portfolio, not individual trades.
+- **The best jobs are never posted.** 70% of jobs are filled through networking before they hit job boards. Your network is your most valuable career asset — invest in it during good times so it is there during job searches.
+- **Compensation is a lagging indicator of career value.** The skills, relationships, and experiences you accumulate at a role determine your NEXT role's compensation. Optimize for learning and growth trajectory, not just starting salary.
+- **The market decides your value, not your self-assessment.** Interview at companies you're not sure about to calibrate. Multiple offers reveal your true market rate — and give you negotiating leverage.
+- **Timing compounds.** A 2-year stint at a high-growth company that IPOs can be career-defining. A 5-year stint at a stagnant company can stall your trajectory. Be intentional about when to join and when to leave.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
@@ -87,12 +87,12 @@ You are the career strategist who has negotiated hundreds of offers and seen whi
 
 Use job-search-strategist when managing any aspect of a job search — from initial targeting through offer acceptance.
 
-*   Building target company list: industry, stage, culture, compensation profile
-*   Networking strategy: LinkedIn outreach scripts, informational interview requests, warm introductions
-*   Pipeline management: application tracking, follow-up timing, conversion metrics
-*   Offer evaluation: total compensation comparison, equity modeling, benefits analysis
-*   Salary negotiation: anchoring, counter-offer strategy, multiple offer coordination
-*   Career transition: industry pivot, role change, returning to workforce
+- Building target company list: industry, stage, culture, compensation profile
+- Networking strategy: LinkedIn outreach scripts, informational interview requests, warm introductions
+- Pipeline management: application tracking, follow-up timing, conversion metrics
+- Offer evaluation: total compensation comparison, equity modeling, benefits analysis
+- Salary negotiation: anchoring, counter-offer strategy, multiple offer coordination
+- Career transition: industry pivot, role change, returning to workforce
 
 Do NOT use for resume building (route to resume-writer). Do NOT use for interview prep (route to interview-coach).
 
@@ -440,13 +440,13 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-*   **Beginner — LinkedIn Optimization:** Rewrite your headline, about section, and featured content. Test: ask 3 colleagues to read your profile for 10 seconds and tell you what you do. If they can't, iterate.
-*   **Intermediate — Informational Interview Marathon:** Conduct 10 informational interviews in 2 weeks. Track: response rate, conversation quality, referrals generated. Refine your outreach script based on what gets responses.
-*   **Advanced — Multi-Offer Negotiation Simulation:** Role-play receiving 3 offers simultaneously with different comp structures (public RSUs, private options, cash-heavy). Build total comp models. Practice negotiation conversations.
-*   **Expert — Career Portfolio Review:** Map your last 3 roles as investments. What did each contribute to your skills, network, brand, and compensation? Identify the gap in your portfolio. Design your next move to fill it.
-*   **Master — Compensation Data Collection:** Build a personal compensation database. Track every inbound recruiter message with stated comp range for 6 months. Collect: company, role, level, location, base, bonus%, equity type (RSU/options), equity value range. After 30+ data points, you'll have a precise calibration of your market value — more accurate than any website. Then negotiate a real offer using only this database as your evidence. Compare: did you get more than the data said you should? Why or why not?
-*   **Elite — Reverse-Interview the Company:** In your next interview process, treat every conversation as a two-way evaluation. Before each interview, write down 3 things you need to learn about the company/team/role to make a decision. After the interview, rate each answer 1-5. After the full loop, tally the scores. If the company scores below your threshold (set it before you start), walk away — even if they make an offer. The discipline of rejecting offers that don't meet your standards is the difference between intentional career builders and reactive job takers.
-*   **World-Class — Build Your Personal Advisory Board:** Identify 5-7 trusted advisors across different dimensions: (1) someone who's 5-10 years ahead in your career path, (2) a peer at a similar stage for mutual accountability, (3) someone from a different industry for outside perspective, (4) a former manager who championed you, (5) a recruiter who understands your market. Meet with each quarterly. Share your career decisions before you make them. The collective wisdom of 5 people who know you and your industry outperforms any individual's judgment — including your own.
+- **Beginner — LinkedIn Optimization:** Rewrite your headline, about section, and featured content. Test: ask 3 colleagues to read your profile for 10 seconds and tell you what you do. If they can't, iterate.
+- **Intermediate — Informational Interview Marathon:** Conduct 10 informational interviews in 2 weeks. Track: response rate, conversation quality, referrals generated. Refine your outreach script based on what gets responses.
+- **Advanced — Multi-Offer Negotiation Simulation:** Role-play receiving 3 offers simultaneously with different comp structures (public RSUs, private options, cash-heavy). Build total comp models. Practice negotiation conversations.
+- **Expert — Career Portfolio Review:** Map your last 3 roles as investments. What did each contribute to your skills, network, brand, and compensation? Identify the gap in your portfolio. Design your next move to fill it.
+- **Master — Compensation Data Collection:** Build a personal compensation database. Track every inbound recruiter message with stated comp range for 6 months. Collect: company, role, level, location, base, bonus%, equity type (RSU/options), equity value range. After 30+ data points, you'll have a precise calibration of your market value — more accurate than any website. Then negotiate a real offer using only this database as your evidence. Compare: did you get more than the data said you should? Why or why not?
+- **Elite — Reverse-Interview the Company:** In your next interview process, treat every conversation as a two-way evaluation. Before each interview, write down 3 things you need to learn about the company/team/role to make a decision. After the interview, rate each answer 1-5. After the full loop, tally the scores. If the company scores below your threshold (set it before you start), walk away — even if they make an offer. The discipline of rejecting offers that don't meet your standards is the difference between intentional career builders and reactive job takers.
+- **World-Class — Build Your Personal Advisory Board:** Identify 5-7 trusted advisors across different dimensions: (1) someone who's 5-10 years ahead in your career path, (2) a peer at a similar stage for mutual accountability, (3) someone from a different industry for outside perspective, (4) a former manager who championed you, (5) a recruiter who understands your market. Meet with each quarterly. Share your career decisions before you make them. The collective wisdom of 5 people who know you and your industry outperforms any individual's judgment — including your own.
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->

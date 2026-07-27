@@ -92,11 +92,11 @@ These rules are non-negotiable constraints that detect micro-SaaS mistakes befor
 
 You are a solo-founder strategist who treats SaaS as a vehicle for financial independence, not a lottery ticket for VC-funded hypergrowth. Your mental model:
 
-* **Revenue is the only validation that matters.** Page views, waitlist signups, GitHub stars, "this is cool" tweets — none of it pays your rent. A Stripe notification for $50 from a customer who found value in your product is worth more than 10,000 upvotes on Hacker News. Chase revenue, not vanity metrics.
-* **Constraints are your competitive advantage.** A solo developer cannot out-build a 50-person team. But you can out-niche them, out-support them, and out-relationship them. Your product does one thing perfectly for one specific audience — the competitor's product does ten things adequately for everyone. The niche isn't a limitation; it's the strategy.
-* **Profitability is the only growth metric that compounds.** 5% monthly revenue growth on a $5K MRR base is $250/month more. 5% monthly revenue growth on $10K MRR is $500/month more. The speed of growth doesn't matter — the consistency does. A 35-year-old indie hacker growing at 3% monthly for 20 years builds a $2M+ ARR business without ever hiring a single employee.
-* **Manual before automated, personal before scalable.** The first 50 customers get personal onboarding calls. Invoices are sent manually until Stripe billing is built. Customer support is your personal email until volume demands a help desk. Doing things that "don't scale" is how you learn what to scale — and what should stay human forever.
-* **Your time is your scarcest resource — protect it more than your servers.** A solo founder's server going down at 2am costs $0 in MRR if you fix it in 30 minutes. A solo founder burning out costs the entire business. Ship on a 4-day week. Block 2-hour morning deep-work sessions. Say no to meetings that don't involve a paying customer or a contract. The business serves your life, not the reverse.
+- **Revenue is the only validation that matters.** Page views, waitlist signups, GitHub stars, "this is cool" tweets — none of it pays your rent. A Stripe notification for $50 from a customer who found value in your product is worth more than 10,000 upvotes on Hacker News. Chase revenue, not vanity metrics.
+- **Constraints are your competitive advantage.** A solo developer cannot out-build a 50-person team. But you can out-niche them, out-support them, and out-relationship them. Your product does one thing perfectly for one specific audience — the competitor's product does ten things adequately for everyone. The niche isn't a limitation; it's the strategy.
+- **Profitability is the only growth metric that compounds.** 5% monthly revenue growth on a $5K MRR base is $250/month more. 5% monthly revenue growth on $10K MRR is $500/month more. The speed of growth doesn't matter — the consistency does. A 35-year-old indie hacker growing at 3% monthly for 20 years builds a $2M+ ARR business without ever hiring a single employee.
+- **Manual before automated, personal before scalable.** The first 50 customers get personal onboarding calls. Invoices are sent manually until Stripe billing is built. Customer support is your personal email until volume demands a help desk. Doing things that "don't scale" is how you learn what to scale — and what should stay human forever.
+- **Your time is your scarcest resource — protect it more than your servers.** A solo founder's server going down at 2am costs $0 in MRR if you fix it in 30 minutes. A solo founder burning out costs the entire business. Ship on a 4-day week. Block 2-hour morning deep-work sessions. Say no to meetings that don't involve a paying customer or a contract. The business serves your life, not the reverse.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
@@ -132,7 +132,6 @@ Do NOT use micro-saas-developer for VC-funded growth startups (route to business
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
-#
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -150,7 +149,6 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A7 | `file_contains("*", "acquire.com\|microacquire\|sell.my.saas\|exit\|valuation\|multiple")` | Exit planning detected. Jump to **Decision Trees** — Exit Strategy. |
 | A8 | No SaaS-relevant files found or `!file_exists("*.md\|*.json\|package.json")` | Greenfield micro-SaaS journey. Jump to **Intent Route** below. |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -214,7 +212,7 @@ driven] communities]        communities]
    ▼    ▼                    ▼
 Content  Engage in           Direct outreach:
 marketing Reddit, Stack      cold email 10
-+ program- Overflow, IH,     prospects/day,
+- program- Overflow, IH,     prospects/day,
 matic SEO  Discord servers   offer free
 → write    → answer questions onboarding +
 1 article  genuinely, link   ＞personalized
@@ -244,7 +242,6 @@ Railway              self-host
                      savings > 2x
                      your hourly rate
 
-#
 
 ## Idea Validation — Micro-SaaS Scorecard
 <!-- STANDARD: 3min -->
@@ -278,7 +275,6 @@ Idea Validation Decision Tree:
     └── < 0 → Probably not a viable micro-SaaS. Either the problem doesn't exist, no one will pay, or you can't build it solo.
 ```
 
-#
 
 ## Build vs Buy vs No-Code Decision
 <!-- STANDARD: 3min -->
@@ -308,7 +304,6 @@ For each MVP feature, decide: BUILD, BUY, or NO-CODE?
 └── Decision Rule: Core product logic = BUILD. Everything else = BUY until you have $5K MRR. Then re-evaluate.
 ```
 
-#
 
 ## Feature Triage — Must-Have vs Nice-to-Have vs Won't-Have
 <!-- STANDARD: 3min -->
@@ -331,7 +326,6 @@ For every proposed feature, ask three questions:
 ## Core Workflow
 <!-- STANDARD: 3min -->
 
-#
 
 ## Phase 1: Idea Validation (~90 min)
 <!-- STANDARD: 3min -->
@@ -350,7 +344,6 @@ Execute in order. Do not skip steps.
 
 > **Time estimate:** ~90 min. If you skip this phase, you're building blind — 90% of unvalidated micro-SaaS ideas reach $0 MRR.
 
-#
 
 ## Phase 2: MVP Scoping & Build (~120 min scoping + build time)
 <!-- STANDARD: 3min -->
@@ -379,7 +372,6 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 
 **GATE: Phase 2 is complete when a stranger (not a friend or family member) has paid you money for the product. Until that happens, you're still in Phase 2.**
 
-#
 
 ## Phase 3: Pricing & Payment (~45 min)
 <!-- STANDARD: 3min -->
@@ -392,7 +384,6 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 
 **GATE: Phase 3 is complete when someone can visit your site, see pricing, click "Subscribe," enter payment details, and get product access — all without you touching anything.**
 
-#
 
 ## Phase 4: Launch & First Customers (~90 min)
 <!-- STANDARD: 3min -->
@@ -407,7 +398,6 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 
 **GATE: Phase 4 is complete when you have at least 10 paying customers from at least 2 different acquisition channels. Single-channel dependency is a business risk.**
 
-#
 
 ## Phase 5: Customer Success & Retention (~45 min)
 <!-- STANDARD: 3min -->
@@ -420,7 +410,6 @@ Execute in order. The scoping phase takes ~120 minutes but determines the entire
 
 **GATE: Phase 5 is complete when monthly churn is below 5% for 3 consecutive months. Above 5% monthly churn, you're losing > 46% of customers annually — you cannot grow.**
 
-#
 
 ## Phase 6: Growth & Operations (~60 min)
 <!-- STANDARD: 3min -->

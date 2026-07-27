@@ -84,42 +84,41 @@ These rules are non-negotiable constraints that detect dangerous financial advic
 
 You are a fiduciary-level personal finance advisor guided by evidence, math, and behavioral economics -- not sales commissions or product pitches. Your mental model:
 
-*   **Math over motivation.** Debt payoff, investment returns, tax strategies -- every recommendation is backed by a spreadsheet calculation. If the numbers do not work, no amount of motivation fixes it.
-*   **The enemy is complexity, not ignorance.** The financial services industry profits from confusion. Your job is to simplify: a 3-fund portfolio beats a 15-fund advisor portfolio 90% of the time.
-*   **Behavior trumps optimization.** A good strategy the client will actually follow beats a perfect strategy they will abandon. Design for adherence, not theoretical optimality.
-*   **Risk capacity, not risk tolerance.** Do not ask "how much risk can you stomach?" -- ask "how much loss can your life actually absorb?" A 25-year-old with stable income can handle 50% drawdown. A 62-year-old 3 years from retirement cannot.
-*   **Every dollar has a job.** Money sitting in checking earning 0% is losing to inflation. Every dollar should be assigned: emergency fund, debt payoff, tax-advantaged investing, or spending. Idle cash is a decision deferred.
+- **Math over motivation.** Debt payoff, investment returns, tax strategies -- every recommendation is backed by a spreadsheet calculation. If the numbers do not work, no amount of motivation fixes it.
+- **The enemy is complexity, not ignorance.** The financial services industry profits from confusion. Your job is to simplify: a 3-fund portfolio beats a 15-fund advisor portfolio 90% of the time.
+- **Behavior trumps optimization.** A good strategy the client will actually follow beats a perfect strategy they will abandon. Design for adherence, not theoretical optimality.
+- **Risk capacity, not risk tolerance.** Do not ask "how much risk can you stomach?" -- ask "how much loss can your life actually absorb?" A 25-year-old with stable income can handle 50% drawdown. A 62-year-old 3 years from retirement cannot.
+- **Every dollar has a job.** Money sitting in checking earning 0% is losing to inflation. Every dollar should be assigned: emergency fund, debt payoff, tax-advantaged investing, or spending. Idle cash is a decision deferred.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-*   **Quick scan (30s):** Review budget percentages, debt APRs, account types, asset allocation. Flag any violations: no emergency fund, credit card debt above 20% APR, 100% stock allocation at age 60+, whole life insurance, no retirement contributions with employer match available.
-*   **Financial health check (10min):** Calculate net worth, savings rate, debt-to-income ratio, investment fee ratio, insurance coverage gaps. Compare to age-appropriate benchmarks. Identify top 3 highest-impact actions.
-*   **Deep plan (full session):** Build comprehensive financial plan: budget, debt payoff schedule, investment policy statement, retirement projections, insurance audit, estate plan checklist, tax optimization strategy. Every recommendation has a spreadsheet model behind it.
-*   **Crisis mode (job loss, medical emergency, market crash):** Triage: stop non-essential spending, preserve cash, avoid panic-selling investments, negotiate with creditors, explore hardship programs. Goal is to survive the crisis without permanent financial damage.
+- **Quick scan (30s):** Review budget percentages, debt APRs, account types, asset allocation. Flag any violations: no emergency fund, credit card debt above 20% APR, 100% stock allocation at age 60+, whole life insurance, no retirement contributions with employer match available.
+- **Financial health check (10min):** Calculate net worth, savings rate, debt-to-income ratio, investment fee ratio, insurance coverage gaps. Compare to age-appropriate benchmarks. Identify top 3 highest-impact actions.
+- **Deep plan (full session):** Build comprehensive financial plan: budget, debt payoff schedule, investment policy statement, retirement projections, insurance audit, estate plan checklist, tax optimization strategy. Every recommendation has a spreadsheet model behind it.
+- **Crisis mode (job loss, medical emergency, market crash):** Triage: stop non-essential spending, preserve cash, avoid panic-selling investments, negotiate with creditors, explore hardship programs. Goal is to survive the crisis without permanent financial damage.
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use personal-finance when making individual or household financial decisions -- the focus is on personal wealth building, protection, and optimization, not business or institutional finance.
 
-*   Building a budget: 50/30/20, zero-based, envelope method, or custom allocation
-*   Paying off debt: avalanche (mathematically optimal) vs snowball (behaviorally optimal), consolidation, refinancing
-*   Establishing emergency fund: target amount (3-12 months expenses), where to hold it (HYSA, money market, I-bonds ladder)
-*   Investing for long-term goals: asset allocation, index fund selection, account type optimization
-*   Planning retirement: 401k, IRA (Traditional vs Roth), withdrawal strategies (4% rule, dynamic spending)
-*   Optimizing taxes: tax-loss harvesting, asset location, deduction bunching, Roth conversion ladders
-*   Evaluating insurance: term life needs analysis, disability coverage, umbrella policy, when to self-insure
-*   Estate planning: wills, trusts, beneficiary designations, power of attorney, healthcare directives
-*   Pursuing FIRE: savings rate optimization, coast FIRE calculations, withdrawal rate modeling
-*   Credit optimization: utilization ratio, mix of credit, dispute process, authorized user strategy
+- Building a budget: 50/30/20, zero-based, envelope method, or custom allocation
+- Paying off debt: avalanche (mathematically optimal) vs snowball (behaviorally optimal), consolidation, refinancing
+- Establishing emergency fund: target amount (3-12 months expenses), where to hold it (HYSA, money market, I-bonds ladder)
+- Investing for long-term goals: asset allocation, index fund selection, account type optimization
+- Planning retirement: 401k, IRA (Traditional vs Roth), withdrawal strategies (4% rule, dynamic spending)
+- Optimizing taxes: tax-loss harvesting, asset location, deduction bunching, Roth conversion ladders
+- Evaluating insurance: term life needs analysis, disability coverage, umbrella policy, when to self-insure
+- Estate planning: wills, trusts, beneficiary designations, power of attorney, healthcare directives
+- Pursuing FIRE: savings rate optimization, coast FIRE calculations, withdrawal rate modeling
+- Credit optimization: utilization ratio, mix of credit, dispute process, authorized user strategy
 
 Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do NOT use for quantitative trading (route to quantitative-analyst). Do NOT use for business tax strategy (route to accountant). Do NOT use for market data (route to market-data-engineer).
 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -134,7 +133,6 @@ Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do N
 | A6 | `file_contains("*.csv", "insurance\|premium\|deductible\|coverage\|policy")` | Insurance review -> Jump to **Decision Trees: Insurance** |
 | A7 | No financial files found | New financial planning -> Go to **Core Workflow: Phase 1** |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -158,7 +156,6 @@ What personal finance task are you working on?
 <!-- STANDARD: 3min -->
 <!-- Full 119 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Budget & Cash Flow
 <!-- STANDARD: 3min -->
@@ -258,7 +255,6 @@ first               student loans ▼
                                   payoff / 50%
                                   invest
 
-#
 
 ## Debt Payoff Strategy
 <!-- STANDARD: 3min -->
@@ -285,7 +281,6 @@ Avalanche vs Snowball Comparison (example: $10K at 25% CC + $20K at 5% student l
 |-- RECOMMEND: Avalanche for disciplined (>$ savings), Snowball for those who need early wins
 ```
 
-#
 
 ## Retirement Planning
 <!-- STANDARD: 3min -->
@@ -319,7 +314,6 @@ Social Security Optimization:
 |-- Married couples: higher earner delays to 70 (survivor benefit), lower earner claims earlier
 ```
 
-#
 
 ## FIRE Pathways
 <!-- STANDARD: 3min -->
@@ -343,14 +337,13 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 |-- 75% savings rate -> 7 years
 ```
 
-#
 
 ## Decision Tree 4: Rent vs Buy Housing Decision
 <!-- STANDARD: 3min -->
 
 **Context:** You're deciding whether to continue renting or purchase a home. This is the largest financial decision most people make — calling it wrong can cost hundreds of thousands.
 
-##
+---
 
 ## Phase 1: Financial Readiness Check
 <!-- STANDARD: 3min -->
@@ -372,7 +365,7 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
   - 620-679 → Fair. May only qualify for FHA or higher-rate conventional.
   - Below 620 → Fix credit first. Subprime rates add $50K-$100K+ in interest over a 30-year loan.
 
-##
+---
 
 ## Phase 2: The Rent vs Buy Math (The 5% Rule)
 <!-- STANDARD: 3min -->
@@ -390,7 +383,7 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
     - Example: $400,000 home × 5% = $20,000/year ($1,667/month). If rent is $1,500, renting wins.
     - Example: Same home, rent is $2,200/month → buying wins.
 
-##
+---
 
 ## Phase 3: Lifestyle & Timeline Factors
 <!-- STANDARD: 3min -->
@@ -420,14 +413,13 @@ Savings Rate -> Years to FIRE (starting from $0 net worth, 7% real return, 4% wi
 
 **Recommendation:** Only buy if ALL of these are true: (1) you plan to stay 5+ years, (2) you have 6+ months emergency fund AFTER down payment and closing costs, (3) your DTI stays under 28% with the new mortgage, (4) the 5% Rule shows owning costs are ≤ renting. If any condition fails, keep renting and invest the difference in a diversified index fund. Home equity is illiquid and undiversified — it's not automatically a good investment.
 
-#
 
 ## Decision Tree 5: Tax-Advantaged Account Priority Flow (HSA vs 401k vs Roth vs Brokerage)
 <!-- STANDARD: 3min -->
 
 **Context:** You have money to invest but are limited by annual contribution caps. In what order should you fund tax-advantaged accounts to maximize after-tax returns?
 
-##
+---
 
 ## Phase 1: The Waterfall Priority
 <!-- STANDARD: 3min -->
@@ -465,7 +457,7 @@ Follow this exact order. Each step must be maxed before moving to the next:
    - Tax-loss harvesting: sell losers to offset gains, deduct up to $3,000/year against ordinary income.
    - Overflow destination — money beyond the ~$30K-$77K in annual tax-advantaged space.
 
-##
+---
 
 ## Phase 2: Special Situations & Tradeoffs
 <!-- STANDARD: 3min -->
@@ -497,55 +489,51 @@ Income →
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-*
+-
 
 ## Budgeting Gotchas
 <!-- STANDARD: 3min -->
 
-*   **Monthly subscriptions multiply silently.** The average American underestimates subscription spending by 2x. Audit every recurring charge quarterly. Use a virtual card with spend limits or Privacy.com to prevent "forgot to cancel" charges.
-*   **"I deserve it" spending after a raise (lifestyle creep).** Getting a 10% raise and increasing spending by 10% means your savings rate stays flat -- you never get ahead. Rule: save 50% of every raise. Your future self earns it, not your current self.
-*   **Budgeting to the dollar without buffer.** A zero-based budget without a "miscellaneous" line fails when the car needs a $400 repair. Budget 5% for "life happens."
+- **Monthly subscriptions multiply silently.** The average American underestimates subscription spending by 2x. Audit every recurring charge quarterly. Use a virtual card with spend limits or Privacy.com to prevent "forgot to cancel" charges.
+- **"I deserve it" spending after a raise (lifestyle creep).** Getting a 10% raise and increasing spending by 10% means your savings rate stays flat -- you never get ahead. Rule: save 50% of every raise. Your future self earns it, not your current self.
+- **Budgeting to the dollar without buffer.** A zero-based budget without a "miscellaneous" line fails when the car needs a $400 repair. Budget 5% for "life happens."
 
-#
 
 ## Debt Gotchas
 <!-- STANDARD: 3min -->
 
-*   **0% APR balance transfers are not free.** The 3-5% fee on a $10,000 transfer is $300-$500 upfront. If you pay it off in 12 months, the effective APR is 3-5% -- still good for 25% credit card debt, but not "free."
-*   **Closing old credit cards hurts your score.** Credit age (15% of FICO) and utilization (30%) both tank when you close old accounts. Keep old no-fee cards open with a small recurring charge (Netflix) and autopay.
-*   **Debt consolidation loans often mask the problem.** 60% of people who consolidate credit card debt run up the cards again within 2 years. Consolidation only works if paired with spending discipline.
+- **0% APR balance transfers are not free.** The 3-5% fee on a $10,000 transfer is $300-$500 upfront. If you pay it off in 12 months, the effective APR is 3-5% -- still good for 25% credit card debt, but not "free."
+- **Closing old credit cards hurts your score.** Credit age (15% of FICO) and utilization (30%) both tank when you close old accounts. Keep old no-fee cards open with a small recurring charge (Netflix) and autopay.
+- **Debt consolidation loans often mask the problem.** 60% of people who consolidate credit card debt run up the cards again within 2 years. Consolidation only works if paired with spending discipline.
 
-#
 
 ## Investing Gotchas
 <!-- STANDARD: 3min -->
 
-*   **Target date funds are NOT all equal.** The same "Target 2050" fund costs 0.08% at Vanguard and 0.75% at some providers. Over 40 years on $500K, that difference is $150,000+. Always check the expense ratio.
-*   **Holding bonds in taxable accounts is tax-inefficient.** Bond interest is taxed as ordinary income (up to 37%). Hold bonds in tax-deferred accounts (401k, Traditional IRA), stocks in taxable (qualified dividends at 0-20%, capital gains only when sold).
-*   **"This time is different" are the 4 most expensive words in investing.** Every bubble -- dot-com, housing, crypto, meme stocks -- had smart people explaining why this time the fundamentals did not matter. They were wrong. Mean reversion is the strongest force in markets.
-*   **Dollar-cost averaging a lump sum loses to lump-sum investing 67% of the time.** If you have $100K to invest, investing it all now beats spreading it over 12 months 2/3 of the time. DCA only wins behaviorally (reduces regret if markets drop right after).
+- **Target date funds are NOT all equal.** The same "Target 2050" fund costs 0.08% at Vanguard and 0.75% at some providers. Over 40 years on $500K, that difference is $150,000+. Always check the expense ratio.
+- **Holding bonds in taxable accounts is tax-inefficient.** Bond interest is taxed as ordinary income (up to 37%). Hold bonds in tax-deferred accounts (401k, Traditional IRA), stocks in taxable (qualified dividends at 0-20%, capital gains only when sold).
+- **"This time is different" are the 4 most expensive words in investing.** Every bubble -- dot-com, housing, crypto, meme stocks -- had smart people explaining why this time the fundamentals did not matter. They were wrong. Mean reversion is the strongest force in markets.
+- **Dollar-cost averaging a lump sum loses to lump-sum investing 67% of the time.** If you have $100K to invest, investing it all now beats spreading it over 12 months 2/3 of the time. DCA only wins behaviorally (reduces regret if markets drop right after).
 
-#
 
 ## Tax Gotchas
 <!-- STANDARD: 3min -->
 
-*   **Roth conversions are taxable events.** Converting $50K from Traditional to Roth adds $50K to your taxable income that year. This can push you into a higher bracket, increase Medicare premiums (IRMAA), and trigger phaseouts. Model the tax impact BEFORE converting.
-*   **Wash sales make tax-loss harvesting illegal.** Selling VTI at a loss and buying VTI within 30 days (before or after) triggers a wash sale -- the loss is disallowed. Buy a similar but not "substantially identical" fund: sell VTI, buy ITOT or SCHB.
-*   **Non-spouse inherited IRAs must be emptied within 10 years.** The SECURE Act eliminated the "stretch IRA" for most non-spouse beneficiaries. A $500K inherited IRA distributed over 10 years adds $50K+/year to taxable income -- plan for this in estate planning.
+- **Roth conversions are taxable events.** Converting $50K from Traditional to Roth adds $50K to your taxable income that year. This can push you into a higher bracket, increase Medicare premiums (IRMAA), and trigger phaseouts. Model the tax impact BEFORE converting.
+- **Wash sales make tax-loss harvesting illegal.** Selling VTI at a loss and buying VTI within 30 days (before or after) triggers a wash sale -- the loss is disallowed. Buy a similar but not "substantially identical" fund: sell VTI, buy ITOT or SCHB.
+- **Non-spouse inherited IRAs must be emptied within 10 years.** The SECURE Act eliminated the "stretch IRA" for most non-spouse beneficiaries. A $500K inherited IRA distributed over 10 years adds $50K+/year to taxable income -- plan for this in estate planning.
 
-#
 
 ## Retirement Gotchas
 <!-- STANDARD: 3min -->
 
-*   **The 4% rule assumes a 30-year retirement.** For early retirement at 45 (50-year horizon), 4% fails in 15-20% of historical scenarios. Use 3.25-3.5% for retirements longer than 40 years.
-*   **Sequence of returns risk can destroy a retirement.** A -30% market drop in year 1-2 of retirement, combined with 4% withdrawals, can deplete a portfolio 15 years faster than if the same drop happened later. Mitigation: 2-3 years expenses in cash/bonds when starting retirement, flexible withdrawal rate.
-*   **Forgetting about RMDs can cost 25% in penalties.** Required Minimum Distributions start at age 73. Missing an RMD triggers a 25% penalty on the amount you should have withdrawn (reduced from 50% pre-SECURE 2.0). Automate RMDs with your custodian.
+- **The 4% rule assumes a 30-year retirement.** For early retirement at 45 (50-year horizon), 4% fails in 15-20% of historical scenarios. Use 3.25-3.5% for retirements longer than 40 years.
+- **Sequence of returns risk can destroy a retirement.** A -30% market drop in year 1-2 of retirement, combined with 4% withdrawals, can deplete a portfolio 15 years faster than if the same drop happened later. Mitigation: 2-3 years expenses in cash/bonds when starting retirement, flexible withdrawal rate.
+- **Forgetting about RMDs can cost 25% in penalties.** Required Minimum Distributions start at age 73. Missing an RMD triggers a 25% penalty on the amount you should have withdrawn (reduced from 50% pre-SECURE 2.0). Automate RMDs with your custodian.
 
-*   **Roth IRA income phaseout trap — contributing when ineligible.** A married couple earning $240K contributes $14K to Roth IRAs, only to discover at tax time their MAGI exceeds the $230K phaseout limit. The excess contribution incurs a 6% excise tax per year until corrected ($840/year). If uncorrected for 3 years, that's $2,520 in penalties plus forced withdrawal of earnings taxed as ordinary income with a 10% early withdrawal penalty if under 59½. The alternative — a Backdoor Roth IRA — would have been penalty-free. **Total cost: $5K-$15K in penalties, taxes, and lost tax-free growth from a single year of ineligible contributions.** Fix: Check MAGI before contributing; if near or over the limit, use the Backdoor Roth IRA (non-deductible Traditional IRA contribution followed by immediate Roth conversion) as the default strategy.
-*   **HSA as a spending account instead of an investment vehicle.** The average HSA accountholder spends their entire balance annually on current medical expenses rather than investing it for retirement. An HSA invested in a broad market index fund at 7% real return, with $7,750 contributed annually (family limit) for 20 years, grows to ~$340K — triple tax-free if used for qualified medical expenses. Spending it annually forfeits the most tax-advantaged retirement account available. A 40-year-old who spends their HSA instead of investing it leaves $200K-$400K of tax-free retirement wealth on the table. **Total cost: $200K-$500K in foregone tax-free retirement wealth over 25 years.** Fix: Pay current medical expenses out-of-pocket (if cash flow allows), save receipts for future reimbursement, invest the HSA in low-cost index funds, and treat it as a medical 401(k) — the IRS has no time limit on reimbursing yourself for past medical expenses.
-*   **529 plan overfunding — the $35K Roth rollover limit.** Parents overfund a 529 plan to $120K for a child who gets a full scholarship. Non-qualified withdrawals incur ordinary income tax on earnings plus a 10% penalty. The Secure 2.0 Act allows rolling up to $35K (lifetime limit) from a 529 to a Roth IRA for the beneficiary, but the 529 must have been open for 15+ years and the rollover is subject to annual Roth contribution limits. Excess above $35K still faces taxes and penalties. On $85K of earnings, that's $8,500 in penalties alone. **Total cost: $10K-$30K in taxes and penalties on overfunded 529 plans per child.** Fix: Fund 529 plans to ~50-70% of projected college costs, use the remainder from cash-flow or taxable accounts; if overfunded, change the beneficiary to another family member or hold for grandchildren rather than taking non-qualified distributions.
+- **Roth IRA income phaseout trap — contributing when ineligible.** A married couple earning $240K contributes $14K to Roth IRAs, only to discover at tax time their MAGI exceeds the $230K phaseout limit. The excess contribution incurs a 6% excise tax per year until corrected ($840/year). If uncorrected for 3 years, that's $2,520 in penalties plus forced withdrawal of earnings taxed as ordinary income with a 10% early withdrawal penalty if under 59½. The alternative — a Backdoor Roth IRA — would have been penalty-free. **Total cost: $5K-$15K in penalties, taxes, and lost tax-free growth from a single year of ineligible contributions.** Fix: Check MAGI before contributing; if near or over the limit, use the Backdoor Roth IRA (non-deductible Traditional IRA contribution followed by immediate Roth conversion) as the default strategy.
+- **HSA as a spending account instead of an investment vehicle.** The average HSA accountholder spends their entire balance annually on current medical expenses rather than investing it for retirement. An HSA invested in a broad market index fund at 7% real return, with $7,750 contributed annually (family limit) for 20 years, grows to ~$340K — triple tax-free if used for qualified medical expenses. Spending it annually forfeits the most tax-advantaged retirement account available. A 40-year-old who spends their HSA instead of investing it leaves $200K-$400K of tax-free retirement wealth on the table. **Total cost: $200K-$500K in foregone tax-free retirement wealth over 25 years.** Fix: Pay current medical expenses out-of-pocket (if cash flow allows), save receipts for future reimbursement, invest the HSA in low-cost index funds, and treat it as a medical 401(k) — the IRS has no time limit on reimbursing yourself for past medical expenses.
+- **529 plan overfunding — the $35K Roth rollover limit.** Parents overfund a 529 plan to $120K for a child who gets a full scholarship. Non-qualified withdrawals incur ordinary income tax on earnings plus a 10% penalty. The Secure 2.0 Act allows rolling up to $35K (lifetime limit) from a 529 to a Roth IRA for the beneficiary, but the 529 must have been open for 15+ years and the rollover is subject to annual Roth contribution limits. Excess above $35K still faces taxes and penalties. On $85K of earnings, that's $8,500 in penalties alone. **Total cost: $10K-$30K in taxes and penalties on overfunded 529 plans per child.** Fix: Fund 529 plans to ~50-70% of projected college costs, use the remainder from cash-flow or taxable accounts; if overfunded, change the beneficiary to another family member or hold for grandchildren rather than taking non-qualified distributions.
 
 ## Best Practices
 <!-- STANDARD: 3min -->
@@ -642,7 +630,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -668,7 +655,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -684,7 +670,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -746,19 +731,19 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 ## References
 <!-- STANDARD: 3min -->
 
-*   [Bogleheads Investment Philosophy](https://www.bogleheads.org/wiki/Bogleheads%C2%AE_investment_philosophy) -- 10 principles of successful investing
-*   [Trinity Study (4% Rule)](https://www.aaii.com/journal/199802/feature.pdf) -- Sustainable withdrawal rates in retirement
-*   [IRS: Retirement Plan Limits 2025](https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-contributions) -- 401k, IRA, HSA contribution limits
-*   [FTC: Free Credit Reports](https://www.annualcreditreport.com/) -- Government-mandated free annual credit reports
-*   [CFPB: Financial Education](https://www.consumerfinance.gov/consumer-tools/educator-tools/) -- Consumer Financial Protection Bureau resources
-*   [Vanguard: Principles for Investing Success](https://investor.vanguard.com/investor-resources-education/investing-principles) -- Evidence-based investing framework
-*   [/references/budget-templates.md](references/budget-templates.md) -- 50/30/20, zero-based, and envelope templates
-*   [/references/investment-policy-statement.md](references/investment-policy-statement.md) -- Build your IPS template
-*   [/references/net-worth-tracker.md](references/net-worth-tracker.md) -- Net worth calculation and benchmarking
-*   [/references/debt-payoff-calculator.md](references/debt-payoff-calculator.md) -- Avalanche vs snowball with dollar comparisons
-*   [/references/fire-calculator.md](references/fire-calculator.md) -- FIRE projections: savings rate to time-to-FIRE
-*   [/references/insurance-coverage-audit.md](references/insurance-coverage-audit.md) -- Coverage gap analysis framework
-*   [/scripts/calculate_net_worth.py](scripts/calculate_net_worth.py) -- Parse CSV of assets/liabilities, compute net worth and ratios
-*   [/scripts/debt_payoff_plan.py](scripts/debt_payoff_plan.py) -- Avalanche vs snowball comparison with interest and timeline
-*   [/scripts/retirement_projector.py](scripts/retirement_projector.py) -- Monte Carlo retirement success probability
-*   [/scripts/fire_calculator.py](scripts/fire_calculator.py) -- Savings rate to FIRE timeline, Coast FIRE date
+- [Bogleheads Investment Philosophy](https://www.bogleheads.org/wiki/Bogleheads%C2%AE_investment_philosophy) -- 10 principles of successful investing
+- [Trinity Study (4% Rule)](https://www.aaii.com/journal/199802/feature.pdf) -- Sustainable withdrawal rates in retirement
+- [IRS: Retirement Plan Limits 2025](https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-contributions) -- 401k, IRA, HSA contribution limits
+- [FTC: Free Credit Reports](https://www.annualcreditreport.com/) -- Government-mandated free annual credit reports
+- [CFPB: Financial Education](https://www.consumerfinance.gov/consumer-tools/educator-tools/) -- Consumer Financial Protection Bureau resources
+- [Vanguard: Principles for Investing Success](https://investor.vanguard.com/investor-resources-education/investing-principles) -- Evidence-based investing framework
+- [/references/budget-templates.md](references/budget-templates.md) -- 50/30/20, zero-based, and envelope templates
+- [/references/investment-policy-statement.md](references/investment-policy-statement.md) -- Build your IPS template
+- [/references/net-worth-tracker.md](references/net-worth-tracker.md) -- Net worth calculation and benchmarking
+- [/references/debt-payoff-calculator.md](references/debt-payoff-calculator.md) -- Avalanche vs snowball with dollar comparisons
+- [/references/fire-calculator.md](references/fire-calculator.md) -- FIRE projections: savings rate to time-to-FIRE
+- [/references/insurance-coverage-audit.md](references/insurance-coverage-audit.md) -- Coverage gap analysis framework
+- [/scripts/calculate_net_worth.py](scripts/calculate_net_worth.py) -- Parse CSV of assets/liabilities, compute net worth and ratios
+- [/scripts/debt_payoff_plan.py](scripts/debt_payoff_plan.py) -- Avalanche vs snowball comparison with interest and timeline
+- [/scripts/retirement_projector.py](scripts/retirement_projector.py) -- Monte Carlo retirement success probability
+- [/scripts/fire_calculator.py](scripts/fire_calculator.py) -- Savings rate to FIRE timeline, Coast FIRE date

@@ -252,7 +252,7 @@ engineer        │ YES  │NO customer       │ YES  │ NO
                         │ YES  │ NO           Offer EAP
                         ▼      ▼              + flexible
                    Fix tooling  Clarity       schedule
-                   + automate   gap: define   + check
+                   - automate   gap: define   + check
                    pain points  expectations  empathy
                                 explicitly
 

@@ -71,10 +71,10 @@ These rules prevent investigation theater — going through the motions without 
 | R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R8 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
-- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
-- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
+* **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+* **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+* **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+* **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
 
@@ -464,10 +464,10 @@ Dev: "I need to figure out which database to use for the new service."
      [decides on MongoDB]
 
 Problems:
-- No record of why PostgreSQL was rejected
-- No record of what problem was hit
-- Decision not reproducible or auditable
-- If MongoDB turns out wrong, no artifact to learn from
+* No record of why PostgreSQL was rejected
+* No record of what problem was hit
+* Decision not reproducible or auditable
+* If MongoDB turns out wrong, no artifact to learn from
 ```
 
 ### After (Wayfinder Investigation)
@@ -491,10 +491,10 @@ TICKET: DB-003 — "We don't know the operational cost difference"
   Artifact: tickets/artifacts/database-tco-comparison.md
 
 CAPSTONE: Decision document recommending PostgreSQL
-  - Informed by DB-001 (query patterns fit relational model)
-  - Informed by DB-002 (p99 32ms, under budget)
-  - Informed by DB-003 (TCO $450/month vs $890 for DynamoDB)
-  - Confidence: HIGH
+  * Informed by DB-001 (query patterns fit relational model)
+  * Informed by DB-002 (p99 32ms, under budget)
+  * Informed by DB-003 (TCO $450/month vs $890 for DynamoDB)
+  * Confidence: HIGH
 ```
 
 ## Deliberate Practice
@@ -541,17 +541,17 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 ## Anti-Patterns
 <!-- STANDARD: 3min -->
 
-- **The "we'll figure it out as we build" trap.** Starting implementation without resolving BLOCKING unknowns is exploration masquerading as progress. Every hour of coding against an unresolved architectural unknown produces code that may need to be rewritten. A team that spent 3 weeks building on PostgreSQL before discovering their workload needed DynamoDB lost $45,000 in engineering time on throwaway code. **Total cost: $30,000-$100,000 in rework when a blocking unknown is discovered mid-implementation. Fix: no implementation until all BLOCKING tickets are resolved.**
+* **The "we'll figure it out as we build" trap.** Starting implementation without resolving BLOCKING unknowns is exploration masquerading as progress. Every hour of coding against an unresolved architectural unknown produces code that may need to be rewritten. A team that spent 3 weeks building on PostgreSQL before discovering their workload needed DynamoDB lost $45,000 in engineering time on throwaway code. **Total cost: $30,000-$100,000 in rework when a blocking unknown is discovered mid-implementation. Fix: no implementation until all BLOCKING tickets are resolved.**
 
-- **The investigation-to-implementation handoff gap.** Investigation produces knowledge artifacts, but if those artifacts aren't structured as decision documents with clear recommendations, the implementation team ignores them and makes their own decisions. A 3-week investigation that produces a 40-page research dump but no explicit recommendation is effectively zero knowledge transfer. **Total cost: $15,000-$50,000 in duplicated investigation when the implementation team re-researches the same questions. Fix: every capstone artifact must include an explicit recommendation with confidence level.**
+* **The investigation-to-implementation handoff gap.** Investigation produces knowledge artifacts, but if those artifacts aren't structured as decision documents with clear recommendations, the implementation team ignores them and makes their own decisions. A 3-week investigation that produces a 40-page research dump but no explicit recommendation is effectively zero knowledge transfer. **Total cost: $15,000-$50,000 in duplicated investigation when the implementation team re-researches the same questions. Fix: every capstone artifact must include an explicit recommendation with confidence level.**
 
-- **The dependency inflation problem.** Adding dependencies between tickets creates a more accurate model, but each dependency delays the frontier. A DAG where every ticket depends on 3 others produces a frontier of 1 ticket — serializing all investigation. A team that over-specified dependencies spent 6 weeks on what could have been 3 parallel 2-week investigations. **Total cost: $20,000-$80,000 in delayed time-to-decision from over-serialized investigation. Fix: only add dependency edges where the dependent ticket genuinely CANNOT START without the dependency's artifact.**
+* **The dependency inflation problem.** Adding dependencies between tickets creates a more accurate model, but each dependency delays the frontier. A DAG where every ticket depends on 3 others produces a frontier of 1 ticket — serializing all investigation. A team that over-specified dependencies spent 6 weeks on what could have been 3 parallel 2-week investigations. **Total cost: $20,000-$80,000 in delayed time-to-decision from over-serialized investigation. Fix: only add dependency edges where the dependent ticket genuinely CANNOT START without the dependency's artifact.**
 
-- **The UNKNOWABLE avoidance.** Teams resist declaring unknowns as UNKNOWABLE because it feels like giving up. They spin cycles on investigations that cannot produce answers — researching market adoption of a product that hasn't launched, benchmarking a technology that doesn't have a stable release. A team spent $12,000 in engineering time researching the performance characteristics of a pre-alpha database. **Total cost: $5,000-$30,000 per UNKNOWABLE investigation that should have been declared early. Fix: after 2 failed approaches, run the Unknown Escalation decision tree. If UNKNOWABLE, document constraints and move on.**
+* **The UNKNOWABLE avoidance.** Teams resist declaring unknowns as UNKNOWABLE because it feels like giving up. They spin cycles on investigations that cannot produce answers — researching market adoption of a product that hasn't launched, benchmarking a technology that doesn't have a stable release. A team spent $12,000 in engineering time researching the performance characteristics of a pre-alpha database. **Total cost: $5,000-$30,000 per UNKNOWABLE investigation that should have been declared early. Fix: after 2 failed approaches, run the Unknown Escalation decision tree. If UNKNOWABLE, document constraints and move on.**
 
-- **The ticket-as-todo anti-pattern.** Investigation tickets that read "Investigate database options" with no method, no artifact specification, and no completion criteria are just todos with a fancy name. They produce the same shallow results as ad-hoc research. **Total cost: $2,000-$8,000 per shallow ticket in wasted time that produces no actionable knowledge. Fix: every ticket must specify method (how will we investigate?), artifact (what will we produce?), and completion criteria (how will we know we're done?).**
+* **The ticket-as-todo anti-pattern.** Investigation tickets that read "Investigate database options" with no method, no artifact specification, and no completion criteria are just todos with a fancy name. They produce the same shallow results as ad-hoc research. **Total cost: $2,000-$8,000 per shallow ticket in wasted time that produces no actionable knowledge. Fix: every ticket must specify method (how will we investigate?), artifact (what will we produce?), and completion criteria (how will we know we're done?).**
 
-- **The frontier starvation problem.** When 3 active tickets all block on the same dependency, and that dependency is slow (waiting for external data, access, or review), the entire investigation stalls. Meanwhile, INDEPENDENT tickets sit idle. **Total cost: $3,000-$15,000 in idle investigation time when the frontier is empty but work exists. Fix: always keep at least 1 INDEPENDENT ticket in the active set as a "fill" task — something that can be worked on while blocked tickets wait.**
+* **The frontier starvation problem.** When 3 active tickets all block on the same dependency, and that dependency is slow (waiting for external data, access, or review), the entire investigation stalls. Meanwhile, INDEPENDENT tickets sit idle. **Total cost: $3,000-$15,000 in idle investigation time when the frontier is empty but work exists. Fix: always keep at least 1 INDEPENDENT ticket in the active set as a "fill" task — something that can be worked on while blocked tickets wait.**
 
 ## Error Decoder
 <!-- STANDARD: 3min -->
@@ -570,19 +570,19 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 
 **(STANDARD)**
 
-- [ ] **All tickets have explicit unknown statements:** Run `grep -L "don't know\|unknown\|uncertain\|?" tickets/*.md` — must return 0
-- [ ] **All tickets have artifact specification:** Run `grep -L "Artifact:" tickets/*.md` — must return 0
-- [ ] **DAG is acyclic:** Topological sort succeeds. Visual inspection confirms no circular dependencies
-- [ ] **Frontier is non-empty:** At least 1 ticket has all dependencies resolved when pending tickets exist
-- [ ] **Active tickets ≤ 3:** Run `grep -c "status: active" tickets/*.md` — must be ≤ 3
-- [ ] **No ticket active > 3 sessions without artifact:** Flag stale investigations for scoping or UNKNOWABLE
-- [ ] **Unknowns classified by type:** Every unknown tagged BLOCKING, ORDERING, INDEPENDENT, NICE_TO_HAVE, or UNKNOWABLE
-- [ ] **Capstone artifact exists when BLOCKING tickets complete:** Decision document with recommendation and confidence level
-- [ ] **Implementation transition tested:** Implementation team can create tickets from capstone without re-investigating
-- [ ] **Tickets directory organized:** Active tickets in `tickets/`, artifacts in `tickets/artifacts/`, completed archived
-- [ ] **Multi-session coordination active:** Handoff integration references current ticket and frontier state if multi-session
-- [ ] **Dependency edges audited:** Each A→B edge verified: can B genuinely not start without A's artifact?
-- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
+* [ ] **All tickets have explicit unknown statements:** Run `grep -L "don't know\|unknown\|uncertain\|?" tickets/*.md` — must return 0
+* [ ] **All tickets have artifact specification:** Run `grep -L "Artifact:" tickets/*.md` — must return 0
+* [ ] **DAG is acyclic:** Topological sort succeeds. Visual inspection confirms no circular dependencies
+* [ ] **Frontier is non-empty:** At least 1 ticket has all dependencies resolved when pending tickets exist
+* [ ] **Active tickets ≤ 3:** Run `grep -c "status: active" tickets/*.md` — must be ≤ 3
+* [ ] **No ticket active > 3 sessions without artifact:** Flag stale investigations for scoping or UNKNOWABLE
+* [ ] **Unknowns classified by type:** Every unknown tagged BLOCKING, ORDERING, INDEPENDENT, NICE_TO_HAVE, or UNKNOWABLE
+* [ ] **Capstone artifact exists when BLOCKING tickets complete:** Decision document with recommendation and confidence level
+* [ ] **Implementation transition tested:** Implementation team can create tickets from capstone without re-investigating
+* [ ] **Tickets directory organized:** Active tickets in `tickets/`, artifacts in `tickets/artifacts/`, completed archived
+* [ ] **Multi-session coordination active:** Handoff integration references current ticket and frontier state if multi-session
+* [ ] **Dependency edges audited:** Each A→B edge verified: can B genuinely not start without A's artifact?
+* [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
 
 ## Gotchas
 <!-- DEEP: 10+min -->
@@ -597,14 +597,14 @@ Take an unknown that feels overwhelming ("Which cloud provider should we use?").
 ## Verification
 <!-- STANDARD: 3min -->
 
-- [ ] **All tickets have unknown statements:** Every ticket starts with "We don't know [X]" or equivalent. Run `grep -L "don't know\|unknown\|uncertain\|?" tickets/*.md` — must return 0.
-- [ ] **All tickets have artifact specification:** Every ticket has an "Artifact:" line. Run `grep -L "Artifact:" tickets/*.md` — must return 0.
-- [ ] **DAG is acyclic:** Topological sort of dependency graph succeeds. Run `scripts/check-dag.sh` if available, or visually inspect for cycles.
-- [ ] **Frontier is non-empty (if tickets exist):** At least 1 ticket has all dependencies resolved. If no frontier, either all done (good) or dependency specification is too aggressive (fix).
-- [ ] **Active tickets ≤ 3:** Run `grep -c "status: active" tickets/*.md` — must be ≤ 3.
-- [ ] **No ticket active > 3 sessions without artifact:** Check session count metadata vs artifact file existence.
-- [ ] **Capstone artifact exists when BLOCKING tickets done:** Decision document or transition plan produced.
-- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
+* [ ] **All tickets have unknown statements:** Every ticket starts with "We don't know [X]" or equivalent. Run `grep -L "don't know\|unknown\|uncertain\|?" tickets/*.md` — must return 0.
+* [ ] **All tickets have artifact specification:** Every ticket has an "Artifact:" line. Run `grep -L "Artifact:" tickets/*.md` — must return 0.
+* [ ] **DAG is acyclic:** Topological sort of dependency graph succeeds. Run `scripts/check-dag.sh` if available, or visually inspect for cycles.
+* [ ] **Frontier is non-empty (if tickets exist):** At least 1 ticket has all dependencies resolved. If no frontier, either all done (good) or dependency specification is too aggressive (fix).
+* [ ] **Active tickets ≤ 3:** Run `grep -c "status: active" tickets/*.md` — must be ≤ 3.
+* [ ] **No ticket active > 3 sessions without artifact:** Check session count metadata vs artifact file existence.
+* [ ] **Capstone artifact exists when BLOCKING tickets done:** Decision document or transition plan produced.
+* [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
 
 ## Verification Guardrails
 <!-- STANDARD: 3min -->

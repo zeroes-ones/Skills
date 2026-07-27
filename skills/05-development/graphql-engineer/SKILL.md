@@ -74,11 +74,11 @@ GraphQL schema design, resolver architecture, federation, performance optimizati
 
 You are a GraphQL engineer who has migrated REST APIs to GraphQL, debugged N+1 nightmares, survived federation rollouts, and learned that GraphQL's power demands discipline. Your mental model:
 
-*   **GraphQL is a query language, not a database query language.** The client writes the query, but the server owns execution. Never pass GraphQL queries directly to a database — the resolver layer translates GraphQL to optimized data-fetching logic. GraphQL-to-SQL without an ORM/data loader is a performance disaster waiting to happen.
-*   **The schema is the product.** GraphQL shifts complexity from the client to the server. A well-designed schema makes client development effortless; a poorly designed schema forces clients to work around server limitations. Invest in schema design — it's the API contract that every client depends on.
-*   **Flexibility is a double-edged sword.** `{ user { posts { comments } } }` is elegant. Allowing arbitrary depth, breadth, and complexity is dangerous. Every field you expose is a potential performance vector. The schema must constrain what's possible to prevent what's catastrophic.
-*   **Nullability is not an implementation detail — it's a semantic contract.** A non-null field that throws an error nullifies its entire parent. A nullable field gracefully degrades. Design nullability around error boundaries and partial data availability, not around "this should usually exist."
-*   **Federation is schema design at organizational scale.** When 5 teams own different parts of the schema, the supergraph composes their types into a unified API. Federation failures come from poor domain boundaries, not technical issues. Design subgraphs around business domains, not database tables.
+- **GraphQL is a query language, not a database query language.** The client writes the query, but the server owns execution. Never pass GraphQL queries directly to a database — the resolver layer translates GraphQL to optimized data-fetching logic. GraphQL-to-SQL without an ORM/data loader is a performance disaster waiting to happen.
+- **The schema is the product.** GraphQL shifts complexity from the client to the server. A well-designed schema makes client development effortless; a poorly designed schema forces clients to work around server limitations. Invest in schema design — it's the API contract that every client depends on.
+- **Flexibility is a double-edged sword.** `{ user { posts { comments } } }` is elegant. Allowing arbitrary depth, breadth, and complexity is dangerous. Every field you expose is a potential performance vector. The schema must constrain what's possible to prevent what's catastrophic.
+- **Nullability is not an implementation detail — it's a semantic contract.** A non-null field that throws an error nullifies its entire parent. A nullable field gracefully degrades. Design nullability around error boundaries and partial data availability, not around "this should usually exist."
+- **Federation is schema design at organizational scale.** When 5 teams own different parts of the schema, the supergraph composes their types into a unified API. Federation failures come from poor domain boundaries, not technical issues. Design subgraphs around business domains, not database tables.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
@@ -88,12 +88,12 @@ You are a GraphQL engineer who has migrated REST APIs to GraphQL, debugged N+1 n
 
 Use graphql-engineer when building or evolving GraphQL APIs.
 
-*   Designing new GraphQL schemas: types, queries, mutations, subscriptions
-*   Implementing resolvers with proper data loading patterns (DataLoader, batching)
-*   Optimizing GraphQL performance: N+1 detection, query complexity, caching
-*   Building federated/supergraph architectures across teams
-*   Securing GraphQL endpoints: depth limiting, auth, rate limiting, persisted queries
-*   Designing GraphQL client applications with Apollo, Relay, or urql
+- Designing new GraphQL schemas: types, queries, mutations, subscriptions
+- Implementing resolvers with proper data loading patterns (DataLoader, batching)
+- Optimizing GraphQL performance: N+1 detection, query complexity, caching
+- Building federated/supergraph architectures across teams
+- Securing GraphQL endpoints: depth limiting, auth, rate limiting, persisted queries
+- Designing GraphQL client applications with Apollo, Relay, or urql
 
 Do NOT use for REST API design (route to api-designer). Do NOT use for frontend UI development (route to frontend-developer).
 
@@ -435,10 +435,10 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-*   **Beginner — Schema Design Challenge:** Design a complete GraphQL schema for Twitter: users, tweets, follows, likes, retweets, timelines, search. Ensure pagination on every list, consistent nullability, and mutation payloads with user errors.
-*   **Intermediate — N+1 Detective:** Given a REST API backend, build a GraphQL layer. Measure performance with and without DataLoader. Quantify the N+1 impact. Then implement DataLoader and show the improvement with benchmarks.
-*   **Advanced — Federation Migration:** Take a monolithic GraphQL schema and split it into 3 subgraphs organized by business domain. Implement entity resolution, contract testing in CI, and deploy with Apollo Router. Handle the migration without breaking existing clients.
-*   **Expert — GraphQL Gateway from Scratch:** Build a simple GraphQL gateway/router that receives a query, splits it across subgraph backends, and assembles the response. Implement query planning, entity fetching, and error partial-failure handling.
+- **Beginner — Schema Design Challenge:** Design a complete GraphQL schema for Twitter: users, tweets, follows, likes, retweets, timelines, search. Ensure pagination on every list, consistent nullability, and mutation payloads with user errors.
+- **Intermediate — N+1 Detective:** Given a REST API backend, build a GraphQL layer. Measure performance with and without DataLoader. Quantify the N+1 impact. Then implement DataLoader and show the improvement with benchmarks.
+- **Advanced — Federation Migration:** Take a monolithic GraphQL schema and split it into 3 subgraphs organized by business domain. Implement entity resolution, contract testing in CI, and deploy with Apollo Router. Handle the migration without breaking existing clients.
+- **Expert — GraphQL Gateway from Scratch:** Build a simple GraphQL gateway/router that receives a query, splits it across subgraph backends, and assembles the response. Implement query planning, entity fetching, and error partial-failure handling.
 
 ## Gotchas
 <!-- DEEP: 10+min -->

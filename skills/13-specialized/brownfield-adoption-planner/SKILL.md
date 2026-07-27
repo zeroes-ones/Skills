@@ -119,34 +119,34 @@ INCOMING: Team wants to adopt agent skills in an existing project
 <!-- STANDARD: 3min -->
 
 ### Level 1: Quick (Basic Assessment)
-- Run the adoption readiness checklist
-- Identify the first codebase target: smallest service or module with git activity in the past thirty days
-- Output Phase 0 plan: install code-reviewer and security-reviewer skills
-- Measure: coverage_report.md, security_findings.md in the first week
-- **Complete when:** Phase 0 skills running, first read-only artifact delivered
+* Run the adoption readiness checklist
+* Identify the first codebase target: smallest service or module with git activity in the past thirty days
+* Output Phase 0 plan: install code-reviewer and security-reviewer skills
+* Measure: coverage_report.md, security_findings.md in the first week
+* **Complete when:** Phase 0 skills running, first read-only artifact delivered
 
 ### Level 2: Standard (Team Rollout)
-- Full four-phase plan for one codebase with timeline and ownership
-- Phase 0: Read-only safety skills with manual review workflow
-- Phase 1: Context skills plus test harness addition
-- Phase 2: Development skills for new features only — existing code is protected
-- Phase 3: DevOps and observability for technical debt pay-down
-- **Complete when:** All four phases complete, team self-sufficient with skills
+* Full four-phase plan for one codebase with timeline and ownership
+* Phase 0: Read-only safety skills with manual review workflow
+* Phase 1: Context skills plus test harness addition
+* Phase 2: Development skills for new features only — existing code is protected
+* Phase 3: DevOps and observability for technical debt pay-down
+* **Complete when:** All four phases complete, team self-sufficient with skills
 
 ### Level 3: Deep (Organization Rollout)
-- Multi-codebase adoption with codebase-specific risk assessment
-- Brownfield adoption playbook customized to team topology
-- Integration with existing CI/CD and code review workflows
-- Metrics dashboard: adoption rate, error rate, team satisfaction, time saved
-- Run business-strategist to model ROI of full adoption
-- **Complete when:** Three or more codebases at Phase 2 or higher, dashboard operational
+* Multi-codebase adoption with codebase-specific risk assessment
+* Brownfield adoption playbook customized to team topology
+* Integration with existing CI/CD and code review workflows
+* Metrics dashboard: adoption rate, error rate, team satisfaction, time saved
+* Run business-strategist to model ROI of full adoption
+* **Complete when:** Three or more codebases at Phase 2 or higher, dashboard operational
 
 ### Level 4: Exploration (Strangler Fig Migration)
-- Run system-architect to identify extraction candidates
-- Each extracted service becomes greenfield for skill adoption
-- Old monolith receives Phase 0 and Phase 1 only
-- Migration roadmapped over quarters, not sprints
-- **Complete when:** First extracted service running independently with full skill coverage
+* Run system-architect to identify extraction candidates
+* Each extracted service becomes greenfield for skill adoption
+* Old monolith receives Phase 0 and Phase 1 only
+* Migration roadmapped over quarters, not sprints
+* **Complete when:** First extracted service running independently with full skill coverage
 
 ## Core Workflow
 <!-- STANDARD: 3min -->
@@ -364,24 +364,24 @@ Before deploying or delivering work from this skill, verify:
 
 **Correct:**
 
-```
+~~~
 Phase 0 complete: billing-service
-- code-reviewer: 12 findings over 3 PRs (8 accepted, 2 rejected, 2 discussion)
-- security-reviewer: 3 findings (1 high-severity SQL injection, fixed)
-- Team sign-off: ✅ (Sarah, Engineering Lead)
-- Phase 1 gate: ✅ (characterization tests green, architecture doc approved)
-- Phase 1 start: Tuesday
-- Rollback: rm -rf adoption_artifacts/phase0 && git restore .
+* code-reviewer: 12 findings over 3 PRs (8 accepted, 2 rejected, 2 discussion)
+* security-reviewer: 3 findings (1 high-severity SQL injection, fixed)
+* Team sign-off: ✅ (Sarah, Engineering Lead)
+* Phase 1 gate: ✅ (characterization tests green, architecture doc approved)
+* Phase 1 start: Tuesday
+* Rollback: rm -rf adoption_artifacts/phase0 && git restore .
 
-```
+~~~
 
 **Counter-example (reject):**
 
-```
+~~~
 "We installed skills and started refactoring. Four bugs in production.
 Team is upset. Rollback took two days because we didn't plan it."
 
-```
+~~~
 
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
@@ -406,26 +406,26 @@ Team is upset. Rollback took two days because we didn't plan it."
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-- [ ] Phase 0: Read-only skills installed and producing artifacts
-- [ ] Phase 0: Team sign-off received
-- [ ] Phase 1: Architecture documented
-- [ ] Phase 1: Characterization tests green in CI
-- [ ] Phase 1: Gate passed, Phase 2 authorized
-- [ ] Phase 2: First feature shipped with skills, zero incidents
-- [ ] Phase 2: Team self-sufficient with development skills
-- [ ] Phase 3: CI/CD audit complete
-- [ ] Phase 3: Dashboards operational
-- [ ] Adoption metrics dashboard live
+* [ ] Phase 0: Read-only skills installed and producing artifacts
+* [ ] Phase 0: Team sign-off received
+* [ ] Phase 1: Architecture documented
+* [ ] Phase 1: Characterization tests green in CI
+* [ ] Phase 1: Gate passed, Phase 2 authorized
+* [ ] Phase 2: First feature shipped with skills, zero incidents
+* [ ] Phase 2: Team self-sufficient with development skills
+* [ ] Phase 3: CI/CD audit complete
+* [ ] Phase 3: Dashboards operational
+* [ ] Adoption metrics dashboard live
 
 ## References
 <!-- STANDARD: 3min -->
 
-- [PROJECT-BOOTSTRAP.md](../../../PROJECT-BOOTSTRAP.md) — Greenfield adoption path
-- [code-reviewer](../../../personas/code-reviewer.md) — Read-only review persona
-- [security-reviewer](../../06-quality/security-reviewer/SKILL.md) — Security audit skill
-- [incremental-implementation](../../05-development/incremental-implementation/SKILL.md) — Safe feature delivery
-- [system-architect](../../04-architecture/system-architect/SKILL.md) — Architecture understanding
-- [qa-engineer](../../06-quality/qa-engineer/SKILL.md) — Test suite creation
-- [teach](../../12-people/teach/SKILL.md) — Team training
-- [Strangler Fig Application (Martin Fowler)](https://martinfowler.com/bliki/StranglerFigApplication.html)
-- [Characterization Tests (Michael Feathers)](https://michaelfeathers.silvrback.com/characterization-testing)
+* [PROJECT-BOOTSTRAP.md](../../../PROJECT-BOOTSTRAP.md) — Greenfield adoption path
+* [code-reviewer](../../../personas/code-reviewer.md) — Read-only review persona
+* [security-reviewer](../../06-quality/security-reviewer/SKILL.md) — Security audit skill
+* [incremental-implementation](../../05-development/incremental-implementation/SKILL.md) — Safe feature delivery
+* [system-architect](../../04-architecture/system-architect/SKILL.md) — Architecture understanding
+* [qa-engineer](../../06-quality/qa-engineer/SKILL.md) — Test suite creation
+* [teach](../../12-people/teach/SKILL.md) — Team training
+* [Strangler Fig Application (Martin Fowler)](https://martinfowler.com/bliki/StranglerFigApplication.html)
+* [Characterization Tests (Michael Feathers)](https://michaelfeathers.silvrback.com/characterization-testing)

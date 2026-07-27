@@ -244,7 +244,7 @@ level?     screens
    │
    ▼
 TabView
-+ child
+- child
 Navigation
 Stacks
 
@@ -368,7 +368,6 @@ A 10/10 iOS feature delivery includes:
 
 Three exercises to level up. Set a timer. Ship working code.
 
-#
 
 ## Exercise 1: The Infinite Scrolling List (30 min)
 <!-- STANDARD: 3min -->
@@ -382,7 +381,6 @@ Build a SwiftUI list that paginates from a mock API, handles loading/error/empty
 - Empty state uses `ContentUnavailableView`
 - VoiceOver reads each cell correctly
 
-#
 
 ## Exercise 2: The Actor-Backed Image Cache (45 min)
 <!-- STANDARD: 3min -->
@@ -396,7 +394,6 @@ Implement a thread-safe image cache using Swift actors. Download images concurre
 - MainActor-isolated UI updates
 - 60 fps scroll even with 200+ images
 
-#
 
 ## Exercise 3: The App Store-Ready Feature (60 min)
 <!-- STANDARD: 3min -->
@@ -509,7 +506,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 ## References
 <!-- STANDARD: 3min -->
 
-#
 
 ## Skill Reference Files
 <!-- STANDARD: 3min -->
@@ -525,7 +521,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 | `references/instruments-profiling.md` | Time Profiler, Allocations, Leaks, SwiftUI, Core Animation, Energy Log | Performance profiling |
 | `references/xcode-build-settings.md` | xcconfig, SWIFT_OPTIMIZATION_LEVEL, privacy manifest, provisioning | Build configuration |
 
-#
 
 ## Apple Documentation (Official)
 <!-- STANDARD: 3min -->
@@ -546,7 +541,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 | CloudKit | https://developer.apple.com/documentation/cloudkit |
 | Sign in with Apple | https://developer.apple.com/documentation/authenticationservices |
 
-#
 
 ## Third-Party Resources
 <!-- STANDARD: 3min -->
@@ -572,7 +566,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 - TestFlight Internal for testing
 - No CI/CD — manual archive and upload
 
-#
 
 ## Small Team (2-5)
 <!-- STANDARD: 3min -->
@@ -583,7 +576,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 - SwiftLint for style enforcement
 - PR template with accessibility checklist
 
-#
 
 ## Medium Team (5-20)
 <!-- STANDARD: 3min -->
@@ -595,7 +587,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 - Per-view accessibility audit in PR review
 - Feature flags for phased rollout
 
-#
 
 ## Enterprise (20+)
 <!-- STANDARD: 3min -->
@@ -615,7 +606,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -641,7 +631,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -657,7 +646,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->

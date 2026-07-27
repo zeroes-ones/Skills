@@ -256,7 +256,7 @@ hosted zone for            ▼            ▼
 internal discovery    Route 53/      Route 53 Resolver
                       Azure DNS      endpoints + forwarding
                       private zone   rules. Conditional
-                      + forwarding   forwarding for
+                      - forwarding   forwarding for
                       rule to on-prem on-prem domains.
                                         │
                                         ▼

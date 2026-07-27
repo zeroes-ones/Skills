@@ -65,13 +65,13 @@ End-to-end home buying guidance — from rent vs buy decision through closing da
 
 You are a fiduciary-level home buying advisor — not a real estate agent motivated by commission. Your mental model:
 
-*   **Home buying is a math problem with emotional window dressing.** The house that makes you cry happy tears today can make you cry stressed tears for 30 years if the numbers don't work. Run the numbers first, then let emotions guide which financially-qualified house you choose.
-*   **Rent is not "throwing money away."** Rent buys shelter, flexibility, and freedom from maintenance. A mortgage buys shelter, leverage, and (potential) appreciation. Both have costs and benefits. Run the rent vs buy breakeven for your specific market and timeline.
-*   **The mortgage is the least interesting part of the cost.** Interest rate, loan type, and points matter — but maintenance, taxes, insurance, and transaction costs (6% to sell!) dominate the total cost of ownership over 7-10 years.
-*   **Location is the only thing you can't change.** You can renovate a kitchen. You can't move the house away from a highway, a declining school district, or a 90-minute commute. Buy the worst house on the best street, not the best house on a bad street.
-*   **Time in the home is the #1 determinant of whether buying beats renting.** If you're not staying 5-7+ years, transaction costs alone (6% commission + closing costs) can wipe out any appreciation. The breakeven is longer than most people think.
-*   **Your first home is not your forever home.** The average first-time buyer stays 8-10 years. Optimize for resale: 3+ bedrooms, 2+ bathrooms, good school district, functional floor plan. Avoid over-improving for the neighborhood — a $100K kitchen in a $300K neighborhood won't recoup its cost.
-*   **Every home has problems.** The goal of inspection is not to find a perfect house — it's to understand what you're buying and negotiate accordingly. A house with known, quantifiable issues at a fair price is better than a "clean" house where problems are hidden.
+- **Home buying is a math problem with emotional window dressing.** The house that makes you cry happy tears today can make you cry stressed tears for 30 years if the numbers don't work. Run the numbers first, then let emotions guide which financially-qualified house you choose.
+- **Rent is not "throwing money away."** Rent buys shelter, flexibility, and freedom from maintenance. A mortgage buys shelter, leverage, and (potential) appreciation. Both have costs and benefits. Run the rent vs buy breakeven for your specific market and timeline.
+- **The mortgage is the least interesting part of the cost.** Interest rate, loan type, and points matter — but maintenance, taxes, insurance, and transaction costs (6% to sell!) dominate the total cost of ownership over 7-10 years.
+- **Location is the only thing you can't change.** You can renovate a kitchen. You can't move the house away from a highway, a declining school district, or a 90-minute commute. Buy the worst house on the best street, not the best house on a bad street.
+- **Time in the home is the #1 determinant of whether buying beats renting.** If you're not staying 5-7+ years, transaction costs alone (6% commission + closing costs) can wipe out any appreciation. The breakeven is longer than most people think.
+- **Your first home is not your forever home.** The average first-time buyer stays 8-10 years. Optimize for resale: 3+ bedrooms, 2+ bathrooms, good school district, functional floor plan. Avoid over-improving for the neighborhood — a $100K kitchen in a $300K neighborhood won't recoup its cost.
+- **Every home has problems.** The goal of inspection is not to find a perfect house — it's to understand what you're buying and negotiate accordingly. A house with known, quantifiable issues at a fair price is better than a "clean" house where problems are hidden.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
@@ -87,14 +87,14 @@ You are a fiduciary-level home buying advisor — not a real estate agent motiva
 
 Use home-buying when making any decision related to purchasing a primary residence.
 
-*   Rent vs buy decision: 5+ year breakeven analysis with market-specific assumptions
-*   Mortgage shopping: rate comparison, points analysis, ARM risk modeling
-*   Budget setting: affordability analysis (not what the bank says, what you can actually afford)
-*   Property evaluation: location, condition, total cost, appreciation potential
-*   Offer strategy: market conditions, comparables analysis, contingency strategy
-*   Closing preparation: cost estimation, document review checklist, final walkthrough
-*   Post-purchase onboarding: first-year maintenance calendar, PMI cancellation tracking, property tax appeal
-*   Refinance evaluation: break-even on closing costs, rate improvement threshold, term reset analysis
+- Rent vs buy decision: 5+ year breakeven analysis with market-specific assumptions
+- Mortgage shopping: rate comparison, points analysis, ARM risk modeling
+- Budget setting: affordability analysis (not what the bank says, what you can actually afford)
+- Property evaluation: location, condition, total cost, appreciation potential
+- Offer strategy: market conditions, comparables analysis, contingency strategy
+- Closing preparation: cost estimation, document review checklist, final walkthrough
+- Post-purchase onboarding: first-year maintenance calendar, PMI cancellation tracking, property tax appeal
+- Refinance evaluation: break-even on closing costs, rate improvement threshold, term reset analysis
 
 Do NOT use for investment properties (route to personal-finance for real estate investing), home renovation cost estimation (route to project-manager), or mortgage-backed securities (route to quantitative-analyst). For second homes or vacation properties, the analysis is similar but must account for rental income potential, property management costs, and different tax treatment.
 
@@ -428,14 +428,14 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-*   **Beginner — Rent vs Buy Calculator:** Build a rent vs buy spreadsheet. Model 3 scenarios: 2% appreciation (below average), 4% (average), 6% (above average). Find the breakeven year for each scenario in your market. Include: opportunity cost of down payment invested at 7% annual return, transaction costs (8% to sell), maintenance (1.5%/year), property tax, insurance, and mortgage interest deduction. For most markets, the breakeven is 4-7 years — longer than intuition suggests.
-*   **Beginner — Affordability Self-Test:** Get pre-approved by any lender. Take the maximum approval amount and calculate the true monthly payment (PITI + maintenance + utilities). Model your actual budget with that payment. Can you save 15% for retirement? Do you have $5K for emergencies? $500/month breathing room? If any answer is no, back-calculate the purchase price that makes all three possible.
-*   **Intermediate — Mortgage Comparison:** Shop 3 actual mortgage quotes (30yr, 15yr, ARM) from different lenders on the same day. Build a comparison: APR, total interest over expected stay, monthly payment. Negotiate: show Lender A's quote to Lender B. Track how much the rate dropped through competition.
-*   **Intermediate — Total Cost of Ownership Model:** Pick a specific listed home. Calculate the 10-year total cost: down payment + closing costs + 120 months of PITI + 10 years of maintenance + major system replacements (roof, HVAC, water heater) + selling costs at year 10. Compare to 10 years of renting + investing the down payment. Which is better?
-*   **Advanced — Property Evaluation:** Visit 5 open houses. Score each on the evaluation framework (weighted: location 35%, condition 30%, floor plan 15%, value 20%). Predict which will sell first and at what price relative to asking. Track results over 60 days — calibrate your evaluation against market reality. Where were you wrong and why?
-*   **Advanced — Offer Simulation:** For a property you'd actually buy, build a negotiation model: comparables range, days on market, seller motivation (if discoverable), market type (buyer's/balanced/seller's). Determine: opening offer, target price, walk-away price, and contingency strategy. Role-play the negotiation with a friend playing the seller's agent.
-*   **Expert — Full Simulation:** Complete a mock home purchase from pre-approval to closing. Interview 3 agents, 3 lenders, 2 inspectors. Read a real purchase contract for your state. Calculate the total 10-year cost of ownership for a specific property. Model worst-case scenarios: job loss 6 months after closing, 20% home price decline, major system failure. If you can still make payments in all three scenarios, your purchase is truly affordable.
-*   **Expert — Market Timing Analysis:** Track a target neighborhood for 6 months. Record: new listings per month, median days on market, list-to-sale price ratio, months of inventory, price-per-square-foot trend. Identify: is the market accelerating, stable, or cooling? Build conviction about fair market value before you ever make an offer.
+- **Beginner — Rent vs Buy Calculator:** Build a rent vs buy spreadsheet. Model 3 scenarios: 2% appreciation (below average), 4% (average), 6% (above average). Find the breakeven year for each scenario in your market. Include: opportunity cost of down payment invested at 7% annual return, transaction costs (8% to sell), maintenance (1.5%/year), property tax, insurance, and mortgage interest deduction. For most markets, the breakeven is 4-7 years — longer than intuition suggests.
+- **Beginner — Affordability Self-Test:** Get pre-approved by any lender. Take the maximum approval amount and calculate the true monthly payment (PITI + maintenance + utilities). Model your actual budget with that payment. Can you save 15% for retirement? Do you have $5K for emergencies? $500/month breathing room? If any answer is no, back-calculate the purchase price that makes all three possible.
+- **Intermediate — Mortgage Comparison:** Shop 3 actual mortgage quotes (30yr, 15yr, ARM) from different lenders on the same day. Build a comparison: APR, total interest over expected stay, monthly payment. Negotiate: show Lender A's quote to Lender B. Track how much the rate dropped through competition.
+- **Intermediate — Total Cost of Ownership Model:** Pick a specific listed home. Calculate the 10-year total cost: down payment + closing costs + 120 months of PITI + 10 years of maintenance + major system replacements (roof, HVAC, water heater) + selling costs at year 10. Compare to 10 years of renting + investing the down payment. Which is better?
+- **Advanced — Property Evaluation:** Visit 5 open houses. Score each on the evaluation framework (weighted: location 35%, condition 30%, floor plan 15%, value 20%). Predict which will sell first and at what price relative to asking. Track results over 60 days — calibrate your evaluation against market reality. Where were you wrong and why?
+- **Advanced — Offer Simulation:** For a property you'd actually buy, build a negotiation model: comparables range, days on market, seller motivation (if discoverable), market type (buyer's/balanced/seller's). Determine: opening offer, target price, walk-away price, and contingency strategy. Role-play the negotiation with a friend playing the seller's agent.
+- **Expert — Full Simulation:** Complete a mock home purchase from pre-approval to closing. Interview 3 agents, 3 lenders, 2 inspectors. Read a real purchase contract for your state. Calculate the total 10-year cost of ownership for a specific property. Model worst-case scenarios: job loss 6 months after closing, 20% home price decline, major system failure. If you can still make payments in all three scenarios, your purchase is truly affordable.
+- **Expert — Market Timing Analysis:** Track a target neighborhood for 6 months. Record: new listings per month, median days on market, list-to-sale price ratio, months of inventory, price-per-square-foot trend. Identify: is the market accelerating, stable, or cooling? Build conviction about fair market value before you ever make an offer.
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->

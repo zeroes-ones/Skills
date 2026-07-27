@@ -93,9 +93,9 @@ ZKP requirement identified
 <!-- STANDARD: 3min -->
 ## Ground Rules — Read Before Anything Else
 
-- **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
-- **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
+* **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
+* **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
+* **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
 
 1. **Never deploy a circuit without under-constraint analysis.** Under-constrained circuits leak witness information and are the #1 source of ZKP exploits ($10M+ historically). Always run automated constraint checking.
 
@@ -138,23 +138,23 @@ The ZKP engineer's job is not to write circuits — it's to **encode computation
 
 ### What Masters Know | |
 
-- **Under-constrained circuits are the #1 vulnerability class.** More ZKP systems have been broken by missing constraints than by cryptographic breaks in the proof system itself. Every audit finds constraint bugs — the question is whether you find them before deployment. | |
+* **Under-constrained circuits are the #1 vulnerability class.** More ZKP systems have been broken by missing constraints than by cryptographic breaks in the proof system itself. Every audit finds constraint bugs — the question is whether you find them before deployment. | |
 
-- **Circuit optimization is a security discipline, not a performance one.** Reducing constraints is good; removing safety constraints to reduce constraints is catastrophic. Every removed constraint must be justified by a proof that it's redundant. | |
+* **Circuit optimization is a security discipline, not a performance one.** Reducing constraints is good; removing safety constraints to reduce constraints is catastrophic. Every removed constraint must be justified by a proof that it's redundant. | |
 
-- **Trusted setups are organizational challenges, not cryptographic ones.** The math of a Powers of Tau ceremony is well-understood. Getting 100+ independent participants to verify their contributions honestly is a logistics and reputation problem. | |
+* **Trusted setups are organizational challenges, not cryptographic ones.** The math of a Powers of Tau ceremony is well-understood. Getting 100+ independent participants to verify their contributions honestly is a logistics and reputation problem. | |
 
 ## When to Use
 
-- Designing ZKP circuits for private transactions, zk-rollups, or confidential smart contracts
-- Selecting a proof system: Groth16 for small on-chain proofs, STARKs for transparency, Halo2 for recursion, Plonky3 for speed
-- Writing Circom 2 circuits with R1CS constraints, or Noir programs with PLONK backend
-- Auditing existing circuits for under-constraint vulnerabilities, missing input validation, or range check gaps
-- Implementing recursive proving with Nova/SuperNova folding schemes for Incrementally Verifiable Computation (IVC)
-- Deploying Solidity verifiers on EVM chains with gas optimization
-- Migrating between proof systems (e.g., Groth16 => Plonky3 for performance)
-- Architecting ZKP-based privacy solutions: private identity, zk-email, zkKYC, zkML inference verification
-- Building zk-rollup infrastructure (validium, zkEVM, custom application-specific rollups)
+* Designing ZKP circuits for private transactions, zk-rollups, or confidential smart contracts
+* Selecting a proof system: Groth16 for small on-chain proofs, STARKs for transparency, Halo2 for recursion, Plonky3 for speed
+* Writing Circom 2 circuits with R1CS constraints, or Noir programs with PLONK backend
+* Auditing existing circuits for under-constraint vulnerabilities, missing input validation, or range check gaps
+* Implementing recursive proving with Nova/SuperNova folding schemes for Incrementally Verifiable Computation (IVC)
+* Deploying Solidity verifiers on EVM chains with gas optimization
+* Migrating between proof systems (e.g., Groth16 => Plonky3 for performance)
+* Architecting ZKP-based privacy solutions: private identity, zk-email, zkKYC, zkML inference verification
+* Building zk-rollup infrastructure (validium, zkEVM, custom application-specific rollups)
 
 <!-- STANDARD: 3min -->
 ## Decision Trees **(QUICK)**
@@ -480,10 +480,10 @@ This skill maintains a **decision ledger** to prevent context drift across ZKP e
 ### Anti-Drift Check
 
 Before beginning a new phase:
-- [ ] Have I read the state log from the previous session?
-- [ ] Do any prior decisions constrain what I'm about to do?
-- [ ] Is my proposed approach consistent with prior constraints?
-- [ ] If I'm contradicting a prior decision, have I documented WHY?
+* [ ] Have I read the state log from the previous session?
+* [ ] Do any prior decisions constrain what I'm about to do?
+* [ ] Is my proposed approach consistent with prior constraints?
+* [ ] If I'm contradicting a prior decision, have I documented WHY?
 
 ## Proactive Triggers
 
@@ -531,13 +531,13 @@ Before beginning a new phase:
 
 An excellent ZKP engineering delivery produces:
 
-- **Circuit code** that compiles cleanly, passes all automated constraint audits, and has documented constraint counts
-- **Constraint audit report** showing every signal is properly constrained, no free variables exist, and all public inputs have range checks
-- **Verifier contract** (Solidity or native) that is benchmarked on testnet, passes valid/invalid proof test vectors, and has an upgrade path
-- **Proof system selection** documented with rationale: security assumptions, performance targets, trusted setup requirements
-- **Recursive proving pipeline** (if applicable) with measured proving time, verification time, and proof size
-- **Trusted setup ceremony documentation** with participant attestations and beacon source verification (for Groth16)
-- **Security hardening report** documenting under-constraint analysis, fuzz test results, and incident response plan
+* **Circuit code** that compiles cleanly, passes all automated constraint audits, and has documented constraint counts
+* **Constraint audit report** showing every signal is properly constrained, no free variables exist, and all public inputs have range checks
+* **Verifier contract** (Solidity or native) that is benchmarked on testnet, passes valid/invalid proof test vectors, and has an upgrade path
+* **Proof system selection** documented with rationale: security assumptions, performance targets, trusted setup requirements
+* **Recursive proving pipeline** (if applicable) with measured proving time, verification time, and proof size
+* **Trusted setup ceremony documentation** with participant attestations and beacon source verification (for Groth16)
+* **Security hardening report** documenting under-constraint analysis, fuzz test results, and incident response plan
 
 All circuits are auditable, verifiably correct, and ready for production deployment.
 
@@ -559,14 +559,14 @@ Before deploying or delivering work from this skill, verify:
 
 ## Verification Guardrails
 
-- [ ] No unconstrained signals in the circuit (verified by static analysis and manual review)
-- [ ] Every public input has a range check or other constraint preventing malicious witness injection
-- [ ] Trusted setup ceremony completed with ≥ N independent participants, all attestations verified
-- [ ] Verifier contract bytecode verified on-chain and matches audited source
-- [ ] Fuzz test: 10K+ random valid proofs verified successfully; 10K+ invalid witnesses rejected
-- [ ] Nullifier domain separation: unique application scope in nullifier computation
-- [ ] Incident response plan for proof system vulnerability: verifier upgrade path, circuit breaker, disclosure timeline
-- [ ] All ZKP decisions recorded in State Log with security assumptions documented
+* [ ] No unconstrained signals in the circuit (verified by static analysis and manual review)
+* [ ] Every public input has a range check or other constraint preventing malicious witness injection
+* [ ] Trusted setup ceremony completed with ≥ N independent participants, all attestations verified
+* [ ] Verifier contract bytecode verified on-chain and matches audited source
+* [ ] Fuzz test: 10K+ random valid proofs verified successfully; 10K+ invalid witnesses rejected
+* [ ] Nullifier domain separation: unique application scope in nullifier computation
+* [ ] Incident response plan for proof system vulnerability: verifier upgrade path, circuit breaker, disclosure timeline
+* [ ] All ZKP decisions recorded in State Log with security assumptions documented
 
 ## References
 

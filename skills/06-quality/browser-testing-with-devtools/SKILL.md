@@ -83,7 +83,6 @@ These rules are non-negotiable constraints that detect dangerous DevTools usage 
 
 DevTools mastery separates senior frontend engineers from junior ones. A senior engineer can diagnose a rendering bug, memory leak, or performance regression in minutes using DevTools -- without adding a single console.log. The DevTools-first mindset: every question about runtime behavior has an answer in DevTools if you know which panel to open.
 
-#
 
 ## Mental Models
 <!-- STANDARD: 3min -->
@@ -95,7 +94,6 @@ DevTools mastery separates senior frontend engineers from junior ones. A senior 
 | **The accessibility tree is the source of truth** | Screen readers do not read HTML. They read the accessibility tree. The HTML source can be perfectly semantic while the accessibility tree is broken due to CSS, JS, or ARIA conflicts. Always verify in the Accessibility panel. |
 | **Every performance problem leaves a trace** | If a page is slow, the flame chart knows why. If a page is janky, the frames timeline shows dropped frames. If memory is growing, the heap comparison shows accumulating objects. The data is there -- you just need to know where to look. |
 
-#
 
 ## Cognitive Biases That Weaken Browser Debugging
 <!-- STANDARD: 3min -->
@@ -107,7 +105,6 @@ DevTools mastery separates senior frontend engineers from junior ones. A senior 
 | **Ignoring the waterfall** | Looking at a single slow request without examining the request waterfall for blocking, queueing, or connection limits | A 200ms API call that spent 180ms queued behind 5 other requests reveals a connection pool issue, not a slow backend. Always check the timing breakdown: Queueing, Stalled, DNS Lookup, Initial Connection, SSL, Request Sent, Waiting (TTFB), Content Download. |
 | **Disabling cache as a debugging crutch** | Always checking \"Disable cache\" without understanding caching behavior | Disable cache is for development. But production bugs are often caused by stale cached assets. Test with cache ENABLED to reproduce real user conditions. Clear specific cache entries in Application > Cache Storage rather than disabling entirely. |
 
-#
 
 ## What Masters Know That Others Don't
 <!-- STANDARD: 3min -->
@@ -147,7 +144,6 @@ Do NOT use browser-testing-with-devtools for automated cross-browser testing (ro
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts
 <!-- STANDARD: 3min -->
@@ -164,7 +160,6 @@ Do NOT use browser-testing-with-devtools for automated cross-browser testing (ro
 | A8 | Error involves \"mobile\", \"responsive\", \"viewport\", \"touch\", or device-specific behavior | **DEVICE EMULATION** -- Jump to **Decision Trees: Mobile Device Testing**. |
 | A9 | No specific triggers -- general browser debugging request | **STANDARD** -- Full workflow: Phase 1 (Elements) → Phase 2 (Console) → Phase 3 (Network). |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -187,7 +182,6 @@ What browser debugging task are you working on?
 <!-- STANDARD: 3min -->
 <!-- Full 105 lines extracted to references/core-workflow-1.md -->
 
-#
 
 ## Phase 0: Systematic Triage
 <!-- STANDARD: 3min -->
@@ -294,7 +288,6 @@ Check:              ▼
    resource
 ```
 
-#
 
 ## Decision Tree 1: Performance Issue Investigation
 <!-- STANDARD: 3min -->
@@ -326,7 +319,6 @@ Phase 2: Diagnose by Category
     └── Are images loading without dimensions? → Set width/height to prevent layout shifts (CLS)
 ```
 
-#
 
 ## Decision Tree 2: Memory Leak Detection
 <!-- STANDARD: 3min -->
@@ -353,7 +345,6 @@ Phase 2: Identify the Leaking Objects
 │   └── Unmounted component references → useEffect cleanup missing
 ```
 
-#
 
 ## Decision Tree 3: Accessibility Verification
 <!-- STANDARD: 3min -->
@@ -387,7 +378,6 @@ Phase 2: Manual Verification (what automation misses)
     └── Emulate vision deficiencies: Rendering panel → Emulate vision deficiencies
 ```
 
-#
 
 ## Decision Tree 4: Mobile Device Emulation
 <!-- STANDARD: 3min -->
@@ -420,7 +410,6 @@ Phase 2: Test Device-Specific Issues
     └── Test orientation API (alpha/beta/gamma) for device motion features
 ```
 
-#
 
 ## Decision Tree 5: HAR Export and Cross-Team Debugging
 <!-- STANDARD: 3min -->
@@ -447,7 +436,6 @@ Phase 2: Annotate and Share
     Frontend teams need: HAR + screenshot + Console log + reproduction steps
 ```
 
-#
 
 ## Decision Tree 6: Third-Party Script Audit
 <!-- STANDARD: 3min -->
@@ -478,7 +466,6 @@ Phase 2: Measure Impact
     └── Unexpected data exfiltration = security incident → escalate to security-reviewer
 ```
 
-#
 
 ## Decision Tree 7: Console Power-User Techniques
 <!-- STANDARD: 3min -->
@@ -581,7 +568,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -607,7 +593,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -623,7 +608,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->

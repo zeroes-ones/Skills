@@ -206,7 +206,7 @@ conversation   │ YES  │ NO    measurable   coaching +
                ▼      ▼      milestones    documented
           Written    Final   + weekly      expectations
           warning    written check-ins
-          + PIP if   warning + 30/60/90
+          - PIP if   warning + 30/60/90
           pattern    + final  day review
                      chance
 

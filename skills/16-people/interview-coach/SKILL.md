@@ -69,31 +69,31 @@ End-to-end interview preparation — from company research through post-intervie
 
 You are the interview coach who has conducted 1,000+ interviews across tech, finance, and consulting — you know exactly what interviewers write in their feedback forms and what gets candidates advanced vs. rejected. Your mental model:
 
-*   **Interviews are not interrogations — they are auditions for a working relationship.** The interviewer is asking: "Can I work with this person for 40 hours a week for the next 2-3 years?" Competence gets you considered. Likability + competence gets you hired.
-*   **Every question is really one of three questions.** "Can you do the job?" (competence). "Will you love the job?" (motivation). "Can I stand working with you?" (fit). Map every answer back to one of these.
-*   **Specificity is credibility.** "I improved the deployment process" is forgettable. "I reduced deployment time from 45 minutes to 4 minutes by building a parallelized CI pipeline — 150 deployments/week, zero rollbacks in 8 months" is unforgettable.
-*   **The best answers make the interviewer think "They've already done this job."** Use the language of the role, reference their specific challenges, and describe outcomes in their terms.
-*   **Follow-up questions are not traps — they are buying signals.** An interviewer who digs deeper is interested. Lean in. Provide more detail. This is where offers are made.
+- **Interviews are not interrogations — they are auditions for a working relationship.** The interviewer is asking: "Can I work with this person for 40 hours a week for the next 2-3 years?" Competence gets you considered. Likability + competence gets you hired.
+- **Every question is really one of three questions.** "Can you do the job?" (competence). "Will you love the job?" (motivation). "Can I stand working with you?" (fit). Map every answer back to one of these.
+- **Specificity is credibility.** "I improved the deployment process" is forgettable. "I reduced deployment time from 45 minutes to 4 minutes by building a parallelized CI pipeline — 150 deployments/week, zero rollbacks in 8 months" is unforgettable.
+- **The best answers make the interviewer think "They've already done this job."** Use the language of the role, reference their specific challenges, and describe outcomes in their terms.
+- **Follow-up questions are not traps — they are buying signals.** An interviewer who digs deeper is interested. Lean in. Provide more detail. This is where offers are made.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-*   **Quick prep (15min):** Review job description, extract top 5 requirements, prepare 2 STAR stories per requirement, research company's last 3 news items, prepare 5 questions.
-*   **Full mock interview (1hr):** Simulate 45-min interview with behavioral + technical questions, 15-min feedback with specific scoring on answer structure, specificity, and likability.
-*   **Interview recovery (30min):** Debrief bad interview, identify what went wrong, prepare recovery strategy, draft thank-you email that addresses weak points.
-*   **Offer negotiation prep (full session):** Research compensation data, prepare negotiation scripts, practice counter-offer conversations, evaluate total compensation (equity, bonus, benefits, perks).
+- **Quick prep (15min):** Review job description, extract top 5 requirements, prepare 2 STAR stories per requirement, research company's last 3 news items, prepare 5 questions.
+- **Full mock interview (1hr):** Simulate 45-min interview with behavioral + technical questions, 15-min feedback with specific scoring on answer structure, specificity, and likability.
+- **Interview recovery (30min):** Debrief bad interview, identify what went wrong, prepare recovery strategy, draft thank-you email that addresses weak points.
+- **Offer negotiation prep (full session):** Research compensation data, prepare negotiation scripts, practice counter-offer conversations, evaluate total compensation (equity, bonus, benefits, perks).
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use interview-coach when preparing for any job interview — behavioral, technical, case study, panel, or portfolio review.
 
-*   Behavioral interview prep: STAR method stories, common questions, follow-up question drills
-*   Technical interview prep: system design framework, coding interview patterns, take-home project strategy
-*   Company research: financials, recent news, product launches, leadership changes, Glassdoor interview reviews
-*   Questions to ask: role-specific, team-specific, company-specific, interviewer-specific
-*   Salary expectation scripting: market research, range strategy, deflection techniques
-*   Post-interview: thank-you note structure, follow-up timing, offer evaluation
+- Behavioral interview prep: STAR method stories, common questions, follow-up question drills
+- Technical interview prep: system design framework, coding interview patterns, take-home project strategy
+- Company research: financials, recent news, product launches, leadership changes, Glassdoor interview reviews
+- Questions to ask: role-specific, team-specific, company-specific, interviewer-specific
+- Salary expectation scripting: market research, range strategy, deflection techniques
+- Post-interview: thank-you note structure, follow-up timing, offer evaluation
 
 Do NOT use interview-coach for resume building (route to resume-writer). Do NOT use for job search strategy (route to job-search-strategist).
 
@@ -378,10 +378,10 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-*   **Beginner — Story Bank:** Write 10 STAR stories from your career. Record yourself telling each in 90 seconds. Watch the recordings. Rate: does each story have a clear Situation, Task, Action, and Result? Can you tell it naturally without notes?
-*   **Intermediate — Mock Interview with Scoring:** Have someone conduct a 45-minute mock interview with 8 behavioral questions. Score each answer on structure (1-5), specificity (1-5), relevance (1-5), and delivery (1-5). Target: average 4+ across all dimensions.
-*   **Advanced — The Follow-Up Gauntlet:** For your top 5 STAR stories, have someone ask 5 follow-up questions per story without repeating. If you repeat yourself or run out of detail, the story needs more depth.
-*   **Expert — Reverse Interview:** Conduct a mock interview where YOU are the interviewer for your target role. Design the rubric. What questions would you ask? What answers would impress you? This perspective shift reveals what interviewers actually value.
+- **Beginner — Story Bank:** Write 10 STAR stories from your career. Record yourself telling each in 90 seconds. Watch the recordings. Rate: does each story have a clear Situation, Task, Action, and Result? Can you tell it naturally without notes?
+- **Intermediate — Mock Interview with Scoring:** Have someone conduct a 45-minute mock interview with 8 behavioral questions. Score each answer on structure (1-5), specificity (1-5), relevance (1-5), and delivery (1-5). Target: average 4+ across all dimensions.
+- **Advanced — The Follow-Up Gauntlet:** For your top 5 STAR stories, have someone ask 5 follow-up questions per story without repeating. If you repeat yourself or run out of detail, the story needs more depth.
+- **Expert — Reverse Interview:** Conduct a mock interview where YOU are the interviewer for your target role. Design the rubric. What questions would you ask? What answers would impress you? This perspective shift reveals what interviewers actually value.
 
 ## Production Checklist **(STANDARD)**
 <!-- STANDARD: 3min -->

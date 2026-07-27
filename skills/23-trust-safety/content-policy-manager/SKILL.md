@@ -146,9 +146,9 @@ category emerges                 has coverage gap
    │                         ┌── Is this a
    ▼                         │   clarification or
 CREATE new policy            │   a substantive
-+ taxonomy + tiering          │   change?
-+ enforcement rules          └──┬────────────────┘
-+ clinical review if            │
+- taxonomy + tiering          │   change?
+- enforcement rules          └──┬────────────────┘
+- clinical review if            │
   health-related          ┌─────┴──────┐
                           │            │
                           ▼            ▼
@@ -157,10 +157,10 @@ CREATE new policy            │   a substantive
                      existing       ▼
                      policy +    AMEND policy
                      update FAQ   + new examples
-                                  + updated
+                                  - updated
                                   enforcement
                                   guidance
-                                  + stakeholder
+                                  - stakeholder
                                   review cycle
 
 ### Decision Tree 2: Strike Escalation Pathway
@@ -206,9 +206,9 @@ DSA Article 15                    DSA Article 24
    ▼                                 ▼
 Per-content-action:              Aggregate reporting:
 notify affected user              • content removals
-+ legal basis                     • government requests
-+ facts & circumstances           • automated decisions
-+ redress options                 • error rates
+- legal basis                     • government requests
+- facts & circumstances           • automated decisions
+- redress options                 • error rates
    │                              • appeal outcomes
    ▼                                 │
    ┌── EU user?                      ▼

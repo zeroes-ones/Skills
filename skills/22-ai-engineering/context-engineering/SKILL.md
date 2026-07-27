@@ -199,17 +199,17 @@ Algorithm: INVERSE_CONTEXT_PACKING
   Input:  candidate_files[], token_budget, relevance_threshold
   Output: final_context[]
 
-  1.  candidates ← ALL files in repo (recursive glob)
-  2.  candidates ← SORT candidates BY relevance_score DESC
-  3.  context ← [] , tokens_used ← 0
-  4.  FOR each file IN candidates:
-  5.      cost ← estimate_tokens(file)
-  6.      IF tokens_used + cost > token_budget:
-  7.          BREAK  // budget exhausted; rest are excluded
-  8.      IF relevance_score(file) < relevance_threshold:
-  9.          CONTINUE  // below quality bar
-  10.     context.append(file)
-  11.     tokens_used += cost
+  1. candidates ← ALL files in repo (recursive glob)
+  2. candidates ← SORT candidates BY relevance_score DESC
+  3. context ← [] , tokens_used ← 0
+  4. FOR each file IN candidates:
+  5. cost ← estimate_tokens(file)
+  6. IF tokens_used + cost > token_budget:
+  7. BREAK  // budget exhausted; rest are excluded
+  8. IF relevance_score(file) < relevance_threshold:
+  9. CONTINUE  // below quality bar
+  10. context.append(file)
+  11. tokens_used += cost
   12. context ← DEDUPLICATE(context)  // hash-based, content-aware
   13. context ← COMPRESS(context)     // strip comments, minify where safe
   14. RETURN context

@@ -202,7 +202,7 @@ design system     app, full          custom, legacy
    ▼                 ▼                  ▼
 Start with        Run migration      Phase approach:
 MaterialTheme     tooling → map      migrate one
-+ MD3 defaults    MD2 tokens to      screen at a time
+- MD3 defaults    MD2 tokens to      screen at a time
 → customize       MD3 → update       → validate with
 from baseline     components batch   md3_checker.py
 
@@ -566,7 +566,7 @@ Before deploying or delivering work from this skill, verify:
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 
-* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+- Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 This skill covers Material Design 3 guidelines that evolve independently of Android OS releases. MD3 updates are published continuously at m3.material.io. Never treat training data as current — always execute the Research Gate.
 
 - `[VERIFIED]` — Confirmed against live m3.material.io or developer.android.com/design

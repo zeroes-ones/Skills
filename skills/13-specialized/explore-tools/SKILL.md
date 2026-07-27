@@ -43,7 +43,6 @@ chain:
 
 Meta-research skill for discovering, evaluating, and recommending the best tools, libraries, frameworks, and services for ANY development task. This is the "tool that finds the right tool" — critical for low-cost development, cost optimization, and making informed technology choices. When a developer asks "What's the best library for X?" or "Is there a cheaper alternative to Y?" — this skill provides a structured, evidence-based recommendation with cost comparison, community health metrics, and decision frameworks.
 
-#
 
 ## Cross-skills Integration
 <!-- STANDARD: 3min -->
@@ -67,7 +66,6 @@ Common chains:
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
-#
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -85,7 +83,6 @@ Evaluate these conditions in order. First match wins — jump immediately.
 | A8 | User asks about "CVEs" OR "security vulnerability in X" OR "dependency audit" | Jump to **Security Posture** in Adoption Risk Assessment. |
 | A9 | User mentions specific registry (npm/PyPI/cargo/Docker) + search | Jump to **Tool Discovery Sources → Registries**. |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -157,7 +154,6 @@ Masters of tool evaluation don't just compare features — they evaluate **total
 | **Sunk cost fallacy** — sticking with a tool because you've already invested in it | Re-evaluate tool choices quarterly. Migration cost vs. staying cost is a math problem, not an emotional one. |
 | **Not-invented-here** — preferring to build rather than compose | Always evaluate 2 existing solutions before building custom. Building is a last resort, not a first instinct. |
 
-#
 
 ## What Masters Know That Others Don't
 <!-- STANDARD: 3min -->
@@ -167,7 +163,6 @@ Masters of tool evaluation don't just compare features — they evaluate **total
 - The **migration cost** from every tool before adopting it — always know the exit price
 - **Dependency tree health** matters more than top-level package health — one bad sub-dependency poisons the whole tree
 
-#
 
 ## When to Break Your Own Rules
 <!-- STANDARD: 3min -->
@@ -409,7 +404,6 @@ How tool selection criteria evolve as your organization and system grow.
 | **Decision Process** | Individual, instant | Team discussion, days | Cross-team review, weeks | RFP, legal review, security review, months |
 | **Lock-in Tolerance** | High — easy to change | Medium — manageable with planning | Low — changes affect many teams | Very low — multi-year contracts, deep integration |
 
-#
 
 ## Key Insight: The Tool-Cost Inversion Point
 <!-- STANDARD: 3min -->
@@ -487,7 +481,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 > When tool evaluation is embedded in the development lifecycle, every significant dependency choice is backed by evidence, cost analysis, and an exit strategy. Developers don't default to familiar tools — they evaluate alternatives and choose deliberately. Quarterly audits catch abandoned dependencies before they become emergencies. Cost ladders make budget conversations data-driven instead of vendor-pitch-driven.
 
-#
 
 ## Signs of Excellence
 <!-- STANDARD: 3min -->
@@ -501,7 +494,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - **Vendor negotiations start with competing quotes.** The team knows the alternatives and uses them as leverage. "We're considering switching to X" is backed by a completed evaluation matrix.
 - **"When NOT to use" is documented for every tool.** Developers know which tools are right for which problems and — critically — which tools are WRONG for which problems.
 
-#
 
 ## Signs of Dysfunction
 <!-- STANDARD: 3min -->
@@ -559,22 +551,18 @@ Detailed reference material loaded on demand:
 - **Verification Guardrails**: See [verification-guardrails.md](references/verification-guardrails.md)
 - **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
 
-#
 
 ## Core Methodology
 <!-- STANDARD: 3min -->
 
-#
 
 ## Ecosystem-Specific Guides
 <!-- STANDARD: 3min -->
 
-#
 
 ## Tool Category Deep Dives
 <!-- STANDARD: 3min -->
 
-#
 
 ## External Resources
 <!-- STANDARD: 3min -->

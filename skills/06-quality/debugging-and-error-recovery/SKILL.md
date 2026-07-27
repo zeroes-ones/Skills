@@ -81,7 +81,6 @@ These rules are non-negotiable constraints that detect debugging mistakes before
 
 Debugging is not a talent -- it is a discipline. The best debuggers are not the smartest engineers; they are the most systematic. They treat every bug as a scientific investigation: form a hypothesis, design an experiment to test it, analyze the results, and iterate.
 
-#
 
 ## Mental Models
 <!-- STANDARD: 3min -->
@@ -93,7 +92,6 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 | **Occam's Razor** | The simplest explanation is usually correct. If you find yourself constructing an elaborate theory involving cosmic rays or compiler bugs, stop. Check the basics first: typos, off-by-one errors, null values, incorrect config. |
 | **5 Whys** | Keep asking \"why?\" until you reach the root cause. Symptom: \"The API returns 500.\" Why? \"Null pointer.\" Why null? \"Database returned no rows.\" Why no rows? \"The record was soft-deleted.\" Why soft-deleted? \"The cleanup job ran with wrong date filter.\" Root cause: cleanup job date filter. Fix: fix the filter. Symptom fix (null guard at API) would have masked the data loss. |
 
-#
 
 ## Cognitive Biases That Sabotage Debugging
 <!-- STANDARD: 3min -->
@@ -106,7 +104,6 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 | **Fundamental attribution error** | Blaming external libraries, frameworks, or \"someone else's code\" before checking your own | Rule: assume the bug is in YOUR code first. Framework bugs exist but are 100x less common than application bugs. |
 | **Premature optimization** | Fixing the bug AND refactoring the module AND improving performance all at once | One PR = one bug fix. Do not refactor while debugging. You cannot distinguish which change actually fixed the bug. |
 
-#
 
 ## What Masters Know That Others Don't
 <!-- STANDARD: 3min -->
@@ -174,7 +171,6 @@ Do NOT use debugging-and-error-recovery for writing new features (route to backe
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -189,7 +185,6 @@ Do NOT use debugging-and-error-recovery for writing new features (route to backe
 | A6 | File has `console.log\|print(\|logger.` debugging statements scattered | **AD-HOC DEBUGGING** -- Developer was debugging manually. Jump to **Decision Trees: Structured Debugging Replacement**. |
 | A7 | No artifacts -- verbal bug description only | **VERBAL REPORT** -- Start at **Core Workflow: Phase 0 (Clarify)**. Must extract reproduction steps before proceeding. |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -214,7 +209,6 @@ What kind of bug are you dealing with?
 <!-- STANDARD: 3min -->
 <!-- Full 168 lines extracted to references/core-workflow-1.md -->
 
-#
 
 ## Phase 0: Clarify the Bug
 <!-- STANDARD: 3min -->
@@ -300,7 +294,6 @@ External impact    Internal alert    Proactive find
 5. Close loop with                      in team wiki
    customer
 
-#
 
 ## Decision Tree 1: Non-Reproducible Bug Strategy
 <!-- STANDARD: 3min -->
@@ -321,7 +314,6 @@ Phase 2: Hypothesis Testing
 └── Hypothesis: state-dependent → Capture and replay the exact state (state snapshot + replay)
 ```
 
-#
 
 ## Decision Tree 2: Critical Incident Triage (Stop-the-Line)
 <!-- STANDARD: 3min -->
@@ -341,7 +333,6 @@ Phase 2: INVESTIGATE (after service is restored)
 └── Postmortem: blameless analysis, timeline, 5 Whys, action items with owners and dates.
 ```
 
-#
 
 ## Decision Tree 3: Safe Fallback Patterns
 <!-- STANDARD: 3min -->
@@ -361,7 +352,6 @@ Phase 2: Implement Safely
 └── Fallback must be tested → Chaos test: kill the primary and verify fallback activates
 ```
 
-#
 
 ## Decision Tree 4: Binary Search Debugging (Delta Debugging)
 <!-- STANDARD: 3min -->
@@ -382,7 +372,6 @@ Phase 2: Execute Binary Search
 └── Stop when you have isolated the bug to a single function, input, commit, or state change
 ```
 
-#
 
 ## Decision Tree 5: Distributed System Debugging
 <!-- STANDARD: 3min -->
@@ -405,7 +394,6 @@ Phase 2: Isolate the Failing Service
 └── Bug is in downstream → Repeat isolation for that service.
 ```
 
-#
 
 ## Decision Tree 6: Memory Leak and Resource Exhaustion
 <!-- STANDARD: 3min -->
@@ -425,7 +413,6 @@ Phase 2: Fix the Leak
 └── Streaming response not consumed → Always consume or cancel response bodies
 ```
 
-#
 
 ## Decision Tree 7: Rubber Duck Debugging Protocol
 <!-- STANDARD: 3min -->
@@ -496,7 +483,6 @@ These conditions automatically activate debugging scrutiny:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -522,7 +508,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -538,7 +523,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->

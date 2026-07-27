@@ -28,7 +28,6 @@ chain:
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -74,25 +73,21 @@ You are a desktop architect who has shipped productivity applications, creative 
 
 Desktop architecture follows a 4-phase decision process:
 
-#
 
 ## Phase 1 (~10 min): Platform & Technology Selection
 <!-- STANDARD: 3min -->
 Evaluate: target OS(es), OS integration depth required, team skills (web vs native), performance requirements, bundle size constraints, distribution complexity. Use the technology selection matrix in Section 16.
 
-#
 
 ## Phase 2 (~15 min): Process Architecture Design
 <!-- STANDARD: 3min -->
 Decide: single-process vs multi-process. Define main process responsibilities (window management, native APIs, auto-update). Define renderer responsibilities (UI, business logic). Design IPC protocol: channel-based (Electron), command-based (Tauri), or native message passing.
 
-#
 
 ## Phase 3 (~20 min): Window & State Management
 <!-- STANDARD: 3min -->
 Design: primary window lifecycle, secondary windows (settings, about, modal dialogs), cross-window state synchronization. Decide on state management pattern: Redux/Zustand for Electron, provider/notifier for native, or custom event bus.
 
-#
 
 ## Phase 4 (~15 min): Distribution & Update Architecture
 <!-- STANDARD: 3min -->
@@ -194,7 +189,6 @@ Run these checks before declaring work complete. ALL must pass.
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -220,7 +214,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -236,7 +229,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -295,7 +287,6 @@ Detailed reference material loaded on demand:
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->
 
-#
 
 ## 1.1 Non-Negotiables
 <!-- STANDARD: 3min -->
@@ -312,7 +303,6 @@ Detailed reference material loaded on demand:
 
 6. **NEVER hardcode platform paths.** `%APPDATA%` on Windows, `~/Library/Application Support` on macOS, `$XDG_DATA_HOME` on Linux. Use `env-paths` or equivalent. Platform path bugs create irrecoverable data-states — average remediation cost: $45K per incident.
 
-#
 
 ## 1.2 Architecture First Principles
 <!-- STANDARD: 3min -->
@@ -393,7 +383,6 @@ macOS: hide();      Cross-platform:     Main + tray
 Windows: notifyIcon tray.show() +       helper process;
                     window.hide()       IPC for actions
 
-#
 
 ## 2.1 Electron vs Tauri vs Native
 <!-- STANDARD: 3min -->
@@ -418,7 +407,6 @@ Is your team primarily web/frontend developers?
 
 **Cost of wrong choice:** Electron when Tauri would suffice → $120K/yr in excess memory/CPU on user machines (support load). Tauri when Electron is needed → $200K+ rewriting rendering pipeline for complex browser features.
 
-#
 
 ## 2.2 MVVM vs MVP vs Redux-Style for Desktop
 <!-- STANDARD: 3min -->
@@ -437,7 +425,6 @@ Does your app have complex, interactive forms with bidirectional data binding?
 
 ```
 
-#
 
 ## 2.3 Multi-Window vs Single-Window with Tabs/Views
 <!-- STANDARD: 3min -->
@@ -454,7 +441,6 @@ Does the user need to compare content side-by-side?
 
 ```
 
-#
 
 ## 2.4 SQLite vs File-Based Storage
 <!-- STANDARD: 3min -->
@@ -471,7 +457,6 @@ Is your data structured with > 1000 records or relational queries?
 
 ```
 
-#
 
 ## 2.5 Auto-Update Strategy
 <!-- STANDARD: 3min -->
@@ -488,7 +473,6 @@ Is your app on an app store (Mac App Store, Microsoft Store)?
 
 ```
 
-#
 
 ## 2.6 IPC Mechanism
 <!-- STANDARD: 3min -->
@@ -553,7 +537,6 @@ This table lists the excuses teams give for skipping architectural rigor — and
 <!-- STANDARD: 3min -->
 <!-- COMPRESSED: Full 91 lines extracted to references/5-core-desktop-architecture-patterns.md -->
 
-#
 
 ## 5.1 MVVM (Model-View-ViewModel)
 <!-- STANDARD: 3min -->
@@ -568,7 +551,6 @@ The dominant pattern for data-binding-native frameworks (WPF, WinUI 3, SwiftUI, 
 ## 6. Multi-Window Architecture
 <!-- STANDARD: 3min -->
 
-#
 
 ## 6.1 Window Ownership Model
 <!-- STANDARD: 3min -->
@@ -673,7 +655,6 @@ See: [reference/desktop-auto-update-patterns.md](reference/desktop-auto-update-p
 ## 10. Desktop Security Architecture
 <!-- STANDARD: 3min -->
 
-#
 
 ## 10.1 Threat Model
 <!-- STANDARD: 3min -->
@@ -699,7 +680,6 @@ See: [reference/desktop-security-architecture.md](reference/desktop-security-arc
 ## 11. Cross-Platform Desktop Strategies
 <!-- STANDARD: 3min -->
 
-#
 
 ## 11.1 Platform Abstraction Layer
 <!-- STANDARD: 3min -->
@@ -728,7 +708,6 @@ See: [reference/cross-platform-desktop-strategies.md](reference/cross-platform-d
 ## 12. Desktop State Management
 <!-- STANDARD: 3min -->
 
-#
 
 ## 12.1 State Categories
 <!-- STANDARD: 3min -->
@@ -749,7 +728,6 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 <!-- STANDARD: 3min -->
 <!-- Full 34 lines extracted to references/13-performance-architecture.md -->
 
-#
 
 ## 13.1 Thread/Process Model
 <!-- STANDARD: 3min -->
@@ -762,7 +740,6 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 ## 14. Installer & Distribution Architecture
 <!-- STANDARD: 3min -->
 
-#
 
 ## 14.1 Platform Matrix
 <!-- STANDARD: 3min -->
@@ -773,7 +750,6 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 | macOS | DMG / PKG | Apple Developer ID + Notarization | Mac App Store |
 | Linux | AppImage / deb / rpm / Flatpak | GPG (optional) | Flathub / Snap Store |
 
-#
 
 ## 14.2 Installation Concerns
 <!-- STANDARD: 3min -->
@@ -787,7 +763,6 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 ## 15. Testing Architecture
 <!-- STANDARD: 3min -->
 
-#
 
 ## 15.1 Testing Pyramid for Desktop Apps
 <!-- STANDARD: 3min -->
@@ -804,7 +779,6 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 
 ```
 
-#
 
 ## 15.2 Desktop-Specific Test Concerns
 <!-- STANDARD: 3min -->

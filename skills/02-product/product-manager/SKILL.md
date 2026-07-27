@@ -247,7 +247,7 @@ Executive / Board          Engineering / Design
 Decision     Weekly      Unblock        Async
 memo +       exec        meeting        Slack +
 options      summary     (15 min)       sprint
-+ reco       3 bullets                  board
+- reco       3 bullets                  board
                                        update
    ┌── Customer-facing
    │   launch imminent?

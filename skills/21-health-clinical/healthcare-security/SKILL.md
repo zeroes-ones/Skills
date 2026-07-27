@@ -132,7 +132,6 @@ Master healthcare security architects carry a triple responsibility: patient saf
 | **Perimeter-only thinking** — focusing security investment on the network edge while neglecting clinical endpoints | 60%+ of healthcare breaches originate from compromised clinical endpoints, not perimeter bypass. Segment clinical workstations, enforce application whitelisting, and deploy EDR on every device touching PHI. |
 | **Compliance-as-ceiling** — treating HIPAA compliance as the security program rather than the floor | HIPAA is a minimum baseline. A HIPAA-compliant organization can still be breached. HITRUST CSF and NIST CSF provide progressive maturity models above HIPAA's floor. |
 
-#
 
 ## What Masters Know That Others Don't
 
@@ -141,7 +140,6 @@ Master healthcare security architects carry a triple responsibility: patient saf
 - **That FDA cybersecurity guidance is becoming mandatory.** The 2023 Omnibus Appropriations Act amended the FD&C Act to require medical device cybersecurity as a condition of premarket clearance. Postmarket patching obligations are enforceable.
 - **Where the 60-day breach notification clock actually starts.** It starts at discovery, not confirmation. If you discover an incident on day 1 and spend 30 days investigating, you have 30 days remaining — not a fresh 60.
 
-#
 
 ## When to Break Your Own Rules
 
@@ -274,7 +272,6 @@ At rest           In transit
                      networks
 ```
 
-#
 
 ## PHI Data Classification
 
@@ -303,7 +300,6 @@ healthcare provision, or healthcare payment?
             └── NO → PHI 🔴
 ```
 
-#
 
 ## Breach Notification Decision
 
@@ -332,7 +328,6 @@ Was there an impermissible acquisition, access, use, or disclosure of PHI?
                     → Prominent media outlet in affected area
 ```
 
-#
 
 ## Medical Device Security Risk Assessment
 
@@ -371,7 +366,6 @@ Medical device risk assessment scope:
     └── End-of-life tracking: device OS EOL date → replacement procurement timeline
 ```
 
-#
 
 ## Cloud Vendor BAA Decision
 
@@ -399,7 +393,6 @@ Does the vendor create, receive, maintain, or transmit PHI on your behalf?
         └── BAA expiring? → Renew or migrate off
 ```
 
-#
 
 ## IoMT Network Segmentation
 
@@ -443,7 +436,7 @@ Clinical network segmentation design:
 
 <!-- QUICK: 30s — scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
-#
+
 
 ## Phase 1 (~20 min): HITRUST CSF Scoping and Control Mapping
 1. Determine HITRUST assessment type: e1 (essentials, 44 controls), i1 (implemented, 182 controls), or r2 (risk-based, validated assessment with ~300-500 controls depending on scoping factors).
@@ -596,7 +589,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
@@ -621,7 +613,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 
@@ -636,7 +627,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->

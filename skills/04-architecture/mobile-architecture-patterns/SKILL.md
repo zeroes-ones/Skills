@@ -26,30 +26,13 @@ chain:
 ---
 <!-- QUICK: 30s -->
 
-## Table of Contents
 <!-- STANDARD: 3min -->
-1. [Ground Rules — Read Before Anything Else](#1-ground-rules--read-before-anything-else)
-2. [Decision Trees](#2-decision-trees)
-3. [Gotchas](#3-gotchas)
-4. [Anti-Rationalization — No Excuses](#4-anti-rationalization--no-excuses)
-5. [Architecture Overview & Comparison Matrix](#5-architecture-overview--comparison-matrix)
-6. [MVVM Pattern](#6-mvvm-pattern)
-7. [Clean Architecture on Mobile](#7-clean-architecture-on-mobile)
-8. [VIPER Architecture (iOS)](#8-viper-architecture-ios)
-9. [MVI Pattern (Android)](#9-mvi-pattern-android)
-10. [TCA — The Composable Architecture](#10-tca--the-composable-architecture)
-11. [Navigation Patterns](#11-navigation-patterns)
-12. [Offline-First Architecture](#12-offline-first-architecture)
-13. [State Management at Scale](#13-state-management-at-scale)
-14. [Dependency Injection & Modularization](#14-dependency-injection--modularization)
-15. [Testing Strategy Per Architecture](#15-testing-strategy-per-architecture)
 
 ---
 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -96,25 +79,21 @@ You are a mobile architect who has designed production applications serving 10M+
 
 Mobile architecture follows a 4-phase decision process:
 
-#
 
 ## Phase 1 (~10 min): Requirements Triage
 <!-- STANDARD: 3min -->
 List: number of screens, navigation complexity (flat/hierarchical/multi-module), team size, offline requirements, platform-specific API depth, test coverage targets. These constraints determine viable architectures.
 
-#
 
 ## Phase 2 (~15 min): Architecture Selection
 <!-- STANDARD: 3min -->
 Map requirements to architecture patterns using the comparison matrix in Section 5. Rule of thumb: MVVM for standard apps (70% of cases), Clean Architecture for complex domain logic, VIPER for deep iOS integration, MVI for Android with complex state, TCA for Swift-centric teams.
 
-#
 
 ## Phase 3 (~20 min): Module & Layer Design
 <!-- STANDARD: 3min -->
 Define module boundaries, dependency direction (domain ← data, presentation ← domain), DI graph, and navigation routes. Document decisions in an architecture decision record (ADR).
 
-#
 
 ## Phase 4 (~15 min): Validation & Prototyping
 <!-- STANDARD: 3min -->
@@ -216,7 +195,6 @@ Run these checks before declaring work complete. ALL must pass.
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -242,7 +220,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -258,7 +235,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -320,7 +296,6 @@ Detailed reference material loaded on demand:
 
 These are non-negotiable. Violating any of them sets the project up for a rewrite within 12 months. Every "we'll fix it later" decision here has been measured in real dollars across dozens of mobile teams.
 
-#
 
 ## 1.1 NEVER put business logic in ViewControllers/Activities
 <!-- STANDARD: 3min -->
@@ -329,7 +304,6 @@ This is the #1 cause of untestable mobile apps costing $200K+ in rewrite. A 50-l
 
 **What to do instead:** Business logic lives in ViewModels, UseCases, Interactors, or Reducers. The View layer is a dumb renderer. It receives pre-formatted display data and forwards user actions. No `if` statements about business state. No direct database queries. No URLSession/Alamofire/OkHttp/Retrofit calls. Period.
 
-#
 
 ## 1.2 Data flows unidirectionally — always
 <!-- STANDARD: 3min -->
@@ -338,7 +312,6 @@ Bidirectional data binding without a single source of truth is the second-most-e
 
 **Rule:** State is owned in exactly one place. Views observe it. User actions produce events that flow through a single pipeline: `User Action → Intent/Event → Reducer/ViewModel → New State → UI Update`. If you find yourself writing `viewModel.data = response; tableView.reloadData()`, you have bidirectional flow.
 
-#
 
 ## 1.3 Dependency injection is mandatory from Day 1
 <!-- STANDARD: 3min -->
@@ -347,21 +320,18 @@ Service locators and singletons accessed via `shared` are not dependency injecti
 
 **Rule:** Every dependency is injected through initializers. On iOS: use constructor injection with protocols. On Android: use Hilt/Dagger constructor injection with `@Inject` annotation. No `shared`, no `default`, no `object` singletons for anything that touches I/O.
 
-#
 
 ## 1.4 The UI layer must survive process death (Android) and background termination (iOS)
 <!-- STANDARD: 3min -->
 
 The average mobile user switches apps 10+ times per session. If your app cannot restore its exact UI state after process death, users lose context and abandon tasks. On Android, `onSaveInstanceState()` must persist enough data to reconstruct the full screen. On iOS, `NSUserActivity` + `Codable` state restoration. Test this by enabling "Don't Keep Activities" on Android and force-quitting the app mid-flow on iOS.
 
-#
 
 ## 1.5 Offline is not a feature — it is the default state
 <!-- STANDARD: 3min -->
 
 Treat network connectivity as a transient enhancement, not the baseline. Every screen must render meaningfully with stale cached data. Network errors must never produce blank screens. A "No Internet Connection" full-screen blocker is a user-hostile pattern that costs 7-12% of active users permanently (measured across 8 consumer apps, 2023-2025). Always render cached data first, then update.
 
-#
 
 ## 1.6 Navigation state is separate from UI state
 <!-- STANDARD: 3min -->
@@ -440,7 +410,6 @@ ui, data)           layers             platform layers
 modules; keep it    compile-time       strict API/impl
 simple              verification      separation
 
-#
 
 ## 2.1 MVVM vs Clean Architecture vs VIPER vs TCA vs MVI
 <!-- STANDARD: 3min -->
@@ -480,7 +449,6 @@ START: What is your team size and app complexity?
 
 ```
 
-#
 
 ## 2.2 Reactive vs Imperative State Management
 <!-- STANDARD: 3min -->
@@ -507,7 +475,6 @@ START: How complex is your UI state?
 
 ```
 
-#
 
 ## 2.3 Coordinator vs Router vs View-Based Navigation
 <!-- STANDARD: 3min -->
@@ -535,7 +502,6 @@ START: How complex is your navigation graph?
 
 ```
 
-#
 
 ## 2.4 Single-Module vs Multi-Module
 <!-- STANDARD: 3min -->
@@ -564,7 +530,6 @@ START: How many developers touch the codebase simultaneously?
 
 ```
 
-#
 
 ## 2.5 Offline-First vs Online-First
 <!-- STANDARD: 3min -->
@@ -594,7 +559,6 @@ START: What is the user's typical connectivity?
 
 ```
 
-#
 
 ## 2.6 Core Data vs Realm vs Room vs SQLite as Source of Truth
 <!-- STANDARD: 3min -->
@@ -633,49 +597,42 @@ START: Platform and data model complexity?
 
 These are the patterns that have burned teams for $50K-$500K. Every one is avoidable if you know what to look for.
 
-#
 
 ## 3.1 "Massive ViewModel" (MVVM) — $180K average remediation
 <!-- STANDARD: 3min -->
 
 When you move business logic from ViewController to ViewModel but keep the ViewModel monolithic, you haven't fixed the problem — you've renamed it. A 400-line ViewModel with 20 `@Published` properties and direct API calls is just a Massive ViewController in disguise. **Fix:** UseCases/Interactors extract business logic. ViewModel transforms domain models to view state. Max ViewModel size: 150 lines.
 
-#
 
 ## 3.2 "Retained Fragment/ViewController references in long-lived coroutines" — $75K per memory leak incident
 <!-- STANDARD: 3min -->
 
 Launching a `viewModelScope` coroutine that captures `this` and runs a 30-second network call? If the user navigates away, the coroutine holds the entire ViewModel (and its View reference) in memory. On low-end Android devices, 3-4 leaked ViewModels cause OOM. **Fix:** Use `repeatOnLifecycle` for UI-scoped coroutines. Cancel on `onStop`/`viewDidDisappear`. Never capture `this` in `GlobalScope`.
 
-#
 
 ## 3.3 "Core Data threading violations" — $120K in crash-related app store rejections
 <!-- STANDARD: 3min -->
 
 Accessing an `NSManagedObject` on the wrong queue causes nondeterministic crashes. Apple's review team catches these. One rejected update during holiday season cost a retail app $120K in lost revenue (5-day delay × $24K/day). **Fix:** `viewContext` for main thread reads. `performBackgroundTask` for writes. Never pass `NSManagedObject` between threads — pass `NSManagedObjectID` or a separate DTO.
 
-#
 
 ## 3.4 "Skipping database migrations" — $50-90K per botched release
 <!-- STANDARD: 3min -->
 
 Adding a column without a migration on Room or Core Data corrupts the database. Users must delete and reinstall — losing offline data. For a banking app with 2M users, a migration failure affecting 15% of users costs ~$50K in support tickets and ~$90K in churn. **Fix:** Every schema change gets a migration. Test migrations on the previous 3 production schema versions. Room: `@Database(version = N, autoMigrations = [...])`. Core Data: lightweight migration or `NSPersistentStoreDescription.shouldMigrateStoreAutomatically`.
 
-#
 
 ## 3.5 "Main thread I/O" — $200K+ in poor reviews and uninstalls
 <!-- STANDARD: 3min -->
 
 A single synchronous SQLite query on the main thread adds 50-300ms of jank. Users perceive anything >100ms as lag. 16ms is your budget per frame (60fps). Apps with ANR rates >0.47% get ranked lower in Google Play. **Fix:** All I/O on background queues. `viewContext` only for reads displayed on screen. Prefetch data before navigation.
 
-#
 
 ## 3.6 "Tight coupling to a specific navigation framework" — $130K migration cost
 <!-- STANDARD: 3min -->
 
 Building every screen with NavigationStack APIs or Jetpack Navigation inline means switching navigation approaches requires touching every screen. A team migrating from UINavigationController to SwiftUI NavigationStack spent 11 weeks rewriting 42 screens ($130K at $300K/developer-year for 3 developers). **Fix:** Router/Coordinator abstraction. Screens don't know how they were presented. Only the Router knows.
 
-#
 
 ## 3.7 "Missing state restoration on both platforms" — $60K in user churn
 <!-- STANDARD: 3min -->

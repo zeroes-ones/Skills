@@ -79,9 +79,9 @@ What needs auditing?
 <!-- STANDARD: 3min -->
 ## Ground Rules — Read Before Anything Else
 
-- **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
-- **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
+* **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
+* **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
+* **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
 
 1. **REFUSE to skip Slither before manual review.** Automated scanners catch 60-80% of vulnerabilities. Skipping them wastes auditor time and misses obvious findings. Always run `slither . --print human-summary` first.
 
@@ -124,23 +124,23 @@ The smart contract auditor's job is not to find bugs — it's to **think like an
 
 ### What Masters Know | |
 
-- **The best auditors don't find more bugs — they find the bugs that matter.** A Medium-severity finding that prevents a $50M exploit is worth more than 50 Low-severity findings. Severity classification is a skill, not a formula. | |
+* **The best auditors don't find more bugs — they find the bugs that matter.** A Medium-severity finding that prevents a $50M exploit is worth more than 50 Low-severity findings. Severity classification is a skill, not a formula. | |
 
-- **business logic vulnerabilities outnumber technical vulnerabilities in production exploits.** Flash loan attacks, oracle manipulation, and governance attacks exploit correct code operating in unexpected economic conditions. Read the whitepaper before reading the code. | |
+* **business logic vulnerabilities outnumber technical vulnerabilities in production exploits.** Flash loan attacks, oracle manipulation, and governance attacks exploit correct code operating in unexpected economic conditions. Read the whitepaper before reading the code. | |
 
-- **Every protocol has at least one Critical-severity bug at launch.** The question is whether your audit finds it or the attacker finds it first. Audit with the assumption that you're racing against an adversary who's also reading the code. | |
+* **Every protocol has at least one Critical-severity bug at launch.** The question is whether your audit finds it or the attacker finds it first. Audit with the assumption that you're racing against an adversary who's also reading the code. | |
 
 ## When to Use
 
-- Pre-deployment security audit of a new DeFi protocol or smart contract system
-- Post-incident root cause analysis and fix verification after an exploit or close-call
-- Upgradeable contract deployment (UUPS, Transparent, Beacon proxy patterns) -- verify storage layout and access control
-- Third-party protocol integration review -- composition risk multiplies attack surface
-- Token standard compliance audit (ERC-20, ERC-721, ERC-1155, ERC-4626)
-- Gas optimization review with adversarial security analysis (not just cost reduction)
-- Formal verification request for mission-critical invariants with Certora Prover or KEVM
-- Cross-chain bridge or L2 contract audit -- bridge exploits account for 70% of DeFi exploit value
-- Continuous audit program for protocols with frequent upgrades -- CI-integrated fuzzing pipeline
+* Pre-deployment security audit of a new DeFi protocol or smart contract system
+* Post-incident root cause analysis and fix verification after an exploit or close-call
+* Upgradeable contract deployment (UUPS, Transparent, Beacon proxy patterns) -- verify storage layout and access control
+* Third-party protocol integration review -- composition risk multiplies attack surface
+* Token standard compliance audit (ERC-20, ERC-721, ERC-1155, ERC-4626)
+* Gas optimization review with adversarial security analysis (not just cost reduction)
+* Formal verification request for mission-critical invariants with Certora Prover or KEVM
+* Cross-chain bridge or L2 contract audit -- bridge exploits account for 70% of DeFi exploit value
+* Continuous audit program for protocols with frequent upgrades -- CI-integrated fuzzing pipeline
 
 <!-- STANDARD: 3min -->
 ## Decision Trees **(QUICK)**
@@ -438,10 +438,10 @@ This skill maintains a **decision ledger** to prevent context drift across audit
 ### Anti-Drift Check
 
 Before beginning a new phase:
-- [ ] Have I read the state log from the previous session?
-- [ ] Do any prior findings constrain what I'm about to audit?
-- [ ] Is my methodology consistent with prior audit decisions?
-- [ ] If I'm contradicting a prior finding, have I documented WHY?
+* [ ] Have I read the state log from the previous session?
+* [ ] Do any prior findings constrain what I'm about to audit?
+* [ ] Is my methodology consistent with prior audit decisions?
+* [ ] If I'm contradicting a prior finding, have I documented WHY?
 
 ## Proactive Triggers
 
@@ -489,14 +489,14 @@ Before beginning a new phase:
 
 An excellent smart contract audit produces:
 
-- **Comprehensive automated analysis:** Slither + Echidna + Manticore + Foundry all run and documented
-- **Formalized invariants:** All property invariants written, verified (fuzzing or formal), with source code trace
-- **Reproducible PoCs:** Every Critical/High finding has a standalone PoC exploit that demonstrates the vulnerability
-- **Clear severity classification:** Trail of Bits standards with CVSS-aligned scoring, not subjective labels
-- **Business logic analysis:** Tokenomics, economic incentives, and governance mechanics reviewed beyond code correctness
-- **Actionable remediation:** 30-day fix timeline with verification, clear before/after code for each finding
-- **Upgrade safety:** Storage layout diff, initializer verification, proxy pattern analysis
-- **Gas analysis:** Adversarial considerations included (not just optimization), assembly blocks verified
+* **Comprehensive automated analysis:** Slither + Echidna + Manticore + Foundry all run and documented
+* **Formalized invariants:** All property invariants written, verified (fuzzing or formal), with source code trace
+* **Reproducible PoCs:** Every Critical/High finding has a standalone PoC exploit that demonstrates the vulnerability
+* **Clear severity classification:** Trail of Bits standards with CVSS-aligned scoring, not subjective labels
+* **Business logic analysis:** Tokenomics, economic incentives, and governance mechanics reviewed beyond code correctness
+* **Actionable remediation:** 30-day fix timeline with verification, clear before/after code for each finding
+* **Upgrade safety:** Storage layout diff, initializer verification, proxy pattern analysis
+* **Gas analysis:** Adversarial considerations included (not just optimization), assembly blocks verified
 
 Results are measured in findings caught before deployment, not post-exploit.
 
@@ -518,15 +518,15 @@ Before deploying or delivering work from this skill, verify:
 
 ## Verification Guardrails
 
-- [ ] Automated analysis complete: Slither, Mythril, and at least one fuzzer (Echidna/Foundry) run without errors
-- [ ] Every external call checked for re-entrancy (CEI pattern, re-entrancy guards, read-only re-entrancy)
-- [ ] Access control: every state-changing function has appropriate modifiers/guards; no unauthorized proxy upgrades
-- [ ] Integer overflow/underflow checked (Solidity >=0.8 has built-in checks; verify assembly blocks manually)
-- [ ] Oracle/manipulation risk assessed: every price oracle has a manipulation threshold and fallback
-- [ ] Upgrade safety verified: storage layout compatible, initializer protected, no selfdestruct in implementation
-- [ ] Every Critical/High finding has a reproducible PoC exploit (Foundry test or Hardhat script)
-- [ ] Audit report includes: severity methodology, finding details with PoCs, remediation guidance with before/after code
-- [ ] All findings recorded in State Log with severity classification rationale
+* [ ] Automated analysis complete: Slither, Mythril, and at least one fuzzer (Echidna/Foundry) run without errors
+* [ ] Every external call checked for re-entrancy (CEI pattern, re-entrancy guards, read-only re-entrancy)
+* [ ] Access control: every state-changing function has appropriate modifiers/guards; no unauthorized proxy upgrades
+* [ ] Integer overflow/underflow checked (Solidity >=0.8 has built-in checks; verify assembly blocks manually)
+* [ ] Oracle/manipulation risk assessed: every price oracle has a manipulation threshold and fallback
+* [ ] Upgrade safety verified: storage layout compatible, initializer protected, no selfdestruct in implementation
+* [ ] Every Critical/High finding has a reproducible PoC exploit (Foundry test or Hardhat script)
+* [ ] Audit report includes: severity methodology, finding details with PoCs, remediation guidance with before/after code
+* [ ] All findings recorded in State Log with severity classification rationale
 
 ## References
 

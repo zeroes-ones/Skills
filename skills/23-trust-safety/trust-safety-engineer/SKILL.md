@@ -141,8 +141,8 @@ detected?                      pattern? (100+
    ▼                           in < 5 min)
 YES → LOCK account                │
       immediately                  ▼
-      + force MFA              BLOCK IP + rate-limit
-      + notify user            + force password reset
+      - force MFA              BLOCK IP + rate-limit
+      - notify user            + force password reset
                                    │
    ┌── Unknown device             │
    │   + new location?            │
@@ -177,9 +177,9 @@ Permanent   ┌── Tier 2?  Escalate     Apply next
 ban +       │            tier:        strike level
 report to   ▼            temporary →  per policy
 authorities Warning      permanent    ladder
-            + content
+            - content
             removal
-            + education
+            - education
 
 ### Decision Tree 3: Bot Behavior Classification
 
@@ -195,7 +195,7 @@ analysis                    analysis
 ┌── > 100 req/sec?       ┌── Identical content
 │                         │   posted to 50+
 └── YES → Rate-limit     │   threads?
-      + CAPTCHA          └──┬──────────────┘
+      - CAPTCHA          └──┬──────────────┘
                             │ YES        │ NO
                             ▼            ▼
    ┌── Headless browser    Shadowban   ┌── Inauthentic

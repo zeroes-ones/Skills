@@ -206,22 +206,22 @@ expired flags       flags weekly       branches
 **Process:**
 
 1. **Assess the platform and requirements.** Determine: target platforms (mobile, web, backend, desktop), evaluation latency requirements, offline behavior needs, team size, compliance constraints, budget.
-   - Output: Platform Matrix showing flag evaluation points and constraints per platform.
+   * Output: Platform Matrix showing flag evaluation points and constraints per platform.
 
 2. **Classify flag types needed.** Release toggles (temporary), experiment toggles (A/B test), ops toggles (kill switches, circuit breakers), permission toggles (premium features, beta access).
-   - Output: Flag Type Map matching each planned flag to its type and lifecycle.
+   * Output: Flag Type Map matching each planned flag to its type and lifecycle.
 
 3. **Select evaluation architecture.** Choose between: server-side evaluation (backend, zero client latency), client-side evaluation (mobile/web, works offline), or hybrid (evaluate server-side, sync to client).
-   - Output: Evaluation Architecture Diagram per platform.
+   * Output: Evaluation Architecture Diagram per platform.
 
 4. **Evaluate SDKs against requirements.** Matrix: LaunchDarkly (enterprise, multi-platform), Flagsmith (open-source option), Unleash (self-hosted), Firebase Remote Config (mobile-first, free), OpenFeature (vendor-neutral abstraction), homegrown (full control, high maintenance).
-   - Output: SDK Recommendation with trade-off analysis.
+   * Output: SDK Recommendation with trade-off analysis.
 
 5. **Define flag conventions.** Naming: `[team].[feature].[variant]` (e.g., `checkout.new_flow.v2`). Default values: OFF for release toggles, control for experiments, ON for ops toggles. Expiry: max 60 days post-100% for release toggles.
-   - Output: Flag Convention Guide for all teams.
+   * Output: Flag Convention Guide for all teams.
 
 6. **Build the flag cleanup pipeline.** CI checks: (a) flag at 100% > 30 days with open removal ticket → CI FAIL, (b) flag referenced in code but not in flag registry → CI WARN, (c) flag in registry but never evaluated → CI WARN.
-   - Output: CI configuration and removal workflow.
+   * Output: CI configuration and removal workflow.
 
 **Completion criteria:** SDK recommendation delivered with trade-off matrix, flag conventions documented, CI enforcement configured, removal workflow tested with a dummy flag.
 
@@ -232,23 +232,23 @@ expired flags       flags weekly       branches
 **Process:**
 
 1. **Identify flag type.** Release toggle (temporary, removed after rollout), experiment toggle (A/B, removed after experiment ends), ops toggle (permanent, kill switch), permission toggle (permanent, gated access).
-   - Decision: Use the type that matches the flag's purpose and expected lifetime.
+   * Decision: Use the type that matches the flag's purpose and expected lifetime.
 
 2. **Choose the abstraction pattern.**
-   - **Branching by Abstraction** (recommended for new features): Create interface/strategy, implement old and new, select via flag.
-   - **Simple If/Else** (acceptable for small changes): `if (flags.isEnabled("checkout_v2")) { ... } else { ... }`.
-   - **Dependency Injection** (recommended for DI frameworks): Bind implementation based on flag state at composition root.
-   - **Decorator/Proxy** (recommended for adding behavior): Wrap existing service, add behavior when flag ON.
-   - Output: Architecture sketch showing the abstraction boundary.
+   * **Branching by Abstraction** (recommended for new features): Create interface/strategy, implement old and new, select via flag.
+   * **Simple If/Else** (acceptable for small changes): `if (flags.isEnabled("checkout_v2")) { ... } else { ... }`.
+   * **Dependency Injection** (recommended for DI frameworks): Bind implementation based on flag state at composition root.
+   * **Decorator/Proxy** (recommended for adding behavior): Wrap existing service, add behavior when flag ON.
+   * Output: Architecture sketch showing the abstraction boundary.
 
 3. **Implement both paths.** Write the flag-ON path and flag-OFF path. Both must compile and pass tests. Never delete the old code path until the flag is removed — the kill switch depends on it.
-   - Per-platform considerations in `references/per-platform-patterns.md`.
+   * Per-platform considerations in `references/per-platform-patterns.md`.
 
 4. **Write flag-aware tests.** Test both paths independently. Add integration tests that verify: (a) flag OFF → old behavior, (b) flag ON → new behavior, (c) flag toggles at runtime without restart, (d) kill switch works within target latency.
-   - See `references/testing-strategies.md` for combinatorial explosion mitigation.
+   * See `references/testing-strategies.md` for combinatorial explosion mitigation.
 
 5. **Register the flag with metadata.** Owner, removal date (max 60 days post-100%), rollout plan (5% → 25% → 50% → 100%), kill switch verified, monitoring dashboard linked.
-   - Use the flag registration template in `templates/flag-registration.yaml`.
+   * Use the flag registration template in `templates/flag-registration.yaml`.
 
 **Completion criteria:** Both code paths implemented and tested, flag registered with full metadata, kill switch verified, removal ticket created and assigned.
 
@@ -454,13 +454,13 @@ A feature flag system that meets this standard: (1) Every flag has an owner, rem
 ## References
 <!-- STANDARD: 3min -->
 
-- `references/flag-type-taxonomy.md` — Detailed taxonomy: release toggles, experiment toggles, ops toggles, permission toggles with lifecycle and removal strategy per type
-- `references/sdk-comparison-matrix.md` — LaunchDarkly vs Flagsmith vs Unleash vs Firebase Remote Config vs OpenFeature across 15 dimensions
-- `references/testing-strategies.md` — Combinatorial testing, pairwise/t-way testing, both-state test patterns, flag transition testing
-- `references/mobile-flag-architecture.md` — Per-platform mobile architecture: Firebase Remote Config, offline defaults, store review window, force-refresh patterns
-- [LaunchDarkly SDK Documentation](https://docs.launchdarkly.com/sdk) — Official SDK docs for all platforms
-- [OpenFeature Specification](https://openfeature.dev/specification/) — Vendor-neutral flag evaluation specification
-- [Martin Fowler: Feature Toggles](https://martinfowler.com/articles/feature-toggles.html) — Canonical reference on toggle categories and lifecycle
+* `references/flag-type-taxonomy.md` — Detailed taxonomy: release toggles, experiment toggles, ops toggles, permission toggles with lifecycle and removal strategy per type
+* `references/sdk-comparison-matrix.md` — LaunchDarkly vs Flagsmith vs Unleash vs Firebase Remote Config vs OpenFeature across 15 dimensions
+* `references/testing-strategies.md` — Combinatorial testing, pairwise/t-way testing, both-state test patterns, flag transition testing
+* `references/mobile-flag-architecture.md` — Per-platform mobile architecture: Firebase Remote Config, offline defaults, store review window, force-refresh patterns
+* [LaunchDarkly SDK Documentation](https://docs.launchdarkly.com/sdk) — Official SDK docs for all platforms
+* [OpenFeature Specification](https://openfeature.dev/specification/) — Vendor-neutral flag evaluation specification
+* [Martin Fowler: Feature Toggles](https://martinfowler.com/articles/feature-toggles.html) — Canonical reference on toggle categories and lifecycle
 
 ## Route the Request
 <!-- STANDARD: 3min -->

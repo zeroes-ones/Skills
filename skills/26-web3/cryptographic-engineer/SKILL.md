@@ -81,9 +81,9 @@ Cryptographic requirement identified
 <!-- STANDARD: 3min -->
 ## Ground Rules — Read Before Anything Else
 
-- **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
-- **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
+* **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
+* **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
+* **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
 
 1. **Never roll your own crypto.** Always use formally verified implementations from established libraries (libsodium, OpenSSL, Bouncy Castle). Custom cryptographic code is the #1 source of critical vulnerabilities.
 
@@ -122,22 +122,22 @@ The cryptographic engineer's job is not to implement algorithms from scratch —
 
 ### What Masters Know | |
 
-- **The best cryptographic engineer says "use libsodium" 90% of the time.** Custom cryptography is the last resort, not the first tool. Mastery is knowing which battle-tested library to reach for. | |
+* **The best cryptographic engineer says "use libsodium" 90% of the time.** Custom cryptography is the last resort, not the first tool. Mastery is knowing which battle-tested library to reach for. | |
 
-- **Side channels are the real attack surface.** Academic breaks are rare. Timing attacks, cache attacks, and power analysis are practical and under-exploited. Constant-time code is a discipline, not a feature flag. | |
+* **Side channels are the real attack surface.** Academic breaks are rare. Timing attacks, cache attacks, and power analysis are practical and under-exploited. Constant-time code is a discipline, not a feature flag. | |
 
-- **Key ceremonies fail on the human factor, not the math.** The most secure threshold scheme means nothing if participants store shares in email drafts. Ceremony design is UX design for trust. | |
+* **Key ceremonies fail on the human factor, not the math.** The most secure threshold scheme means nothing if participants store shares in email drafts. Ceremony design is UX design for trust. | |
 
 ## When to Use
 
-- When implementing threshold cryptography: FROST Schnorr (RFC 9591), BLS aggregation, t-of-n signing with identifiable aborts
-- When deploying MPC protocols: MP-SPDZ with dishonest/honest majority selection, Shamir Secret Sharing, Garbled Circuits with oblivious transfer
-- When configuring FHE: HEIR compiler for MLIR-based pipeline, Concrete for TFHE programmable bootstrapping, SEAL for CKKS approximate arithmetic, OpenFHE for multi-scheme support
-- When engineering TEE attestation: Intel SGX DCAP quote verification, AMD SEV-SNP VCEK certificate chain, AWS Nitro Enclaves PCR binding, ARM CCA Realm token verification
-- When planning PQC migration: crypto inventory via TLS fingerprinting, ML-KEM-1024 key encapsulation, ML-DSA Dilithium signatures, hybrid X.509 certificates with NIST Round 3 algorithms
-- When designing key management ceremonies: HSM PKCS#11 operations, Shamir backup with Feldman Verifiable Secret Sharing, multi-party entropy ceremonies with SP 800-90B validation
-- When building cryptographic agility layers: algorithm registry design, protocol negotiation with downgrade prevention, hybrid middleware for cross-scheme compatibility
-- When auditing cryptographic code for side-channel resistance: constant-time verification, memory access pattern analysis, timing attack mitigation
+* When implementing threshold cryptography: FROST Schnorr (RFC 9591), BLS aggregation, t-of-n signing with identifiable aborts
+* When deploying MPC protocols: MP-SPDZ with dishonest/honest majority selection, Shamir Secret Sharing, Garbled Circuits with oblivious transfer
+* When configuring FHE: HEIR compiler for MLIR-based pipeline, Concrete for TFHE programmable bootstrapping, SEAL for CKKS approximate arithmetic, OpenFHE for multi-scheme support
+* When engineering TEE attestation: Intel SGX DCAP quote verification, AMD SEV-SNP VCEK certificate chain, AWS Nitro Enclaves PCR binding, ARM CCA Realm token verification
+* When planning PQC migration: crypto inventory via TLS fingerprinting, ML-KEM-1024 key encapsulation, ML-DSA Dilithium signatures, hybrid X.509 certificates with NIST Round 3 algorithms
+* When designing key management ceremonies: HSM PKCS#11 operations, Shamir backup with Feldman Verifiable Secret Sharing, multi-party entropy ceremonies with SP 800-90B validation
+* When building cryptographic agility layers: algorithm registry design, protocol negotiation with downgrade prevention, hybrid middleware for cross-scheme compatibility
+* When auditing cryptographic code for side-channel resistance: constant-time verification, memory access pattern analysis, timing attack mitigation
 
 <!-- STANDARD: 3min -->
 ## Decision Trees **(QUICK)**
@@ -451,10 +451,10 @@ This skill maintains a **decision ledger** to prevent context drift across sessi
 ### Anti-Drift Check
 
 Before beginning a new phase:
-- [ ] Have I read the state log from the previous session?
-- [ ] Do any prior decisions constrain what I'm about to do?
-- [ ] Would my proposed change require key rotation?
-- [ ] If I'm contradicting a prior decision, have I documented WHY?
+* [ ] Have I read the state log from the previous session?
+* [ ] Do any prior decisions constrain what I'm about to do?
+* [ ] Would my proposed change require key rotation?
+* [ ] If I'm contradicting a prior decision, have I documented WHY?
 
 ## Proactive Triggers
 
@@ -502,12 +502,12 @@ Before beginning a new phase:
 
 The output of a cryptographic engineering engagement is:
 
-- **Protocol specification** with formal security model, parameter selection rationale, and proof references
-- **Implementation** using verified libraries, passing all test vectors, with constant-time verification
-- **Key ceremony documentation** with entropy validation, participant attestations, and HSM audit logs
-- **TEE attestation pipeline** with full certificate chain validation, TCB monitoring, and CRL management
-- **PQC migration plan** with crypto inventory, hybrid deployment strategy, and timeline with failure triggers
-- **Cryptographic agility layer** with algorithm registry, downgrade prevention, and migration automation
+* **Protocol specification** with formal security model, parameter selection rationale, and proof references
+* **Implementation** using verified libraries, passing all test vectors, with constant-time verification
+* **Key ceremony documentation** with entropy validation, participant attestations, and HSM audit logs
+* **TEE attestation pipeline** with full certificate chain validation, TCB monitoring, and CRL management
+* **PQC migration plan** with crypto inventory, hybrid deployment strategy, and timeline with failure triggers
+* **Cryptographic agility layer** with algorithm registry, downgrade prevention, and migration automation
 
 All cryptographic operations use AEAD or stronger. Keys are managed via KMS/HSM with audit trail. PQC migration plan is documented and funded. Every implementation has a security proof or references a published proof.
 
@@ -529,14 +529,14 @@ Before deploying or delivering work from this skill, verify:
 
 ## Verification Guardrails
 
-- [ ] All cryptographic operations use AEAD or stronger (no CBC, no ECB, no unauthenticated modes)
-- [ ] Keys managed via KMS/HSM with audit trail; no keys in source code, config files, or environment variables
-- [ ] Constant-time verification: critical comparison operations pass `dudect` or equivalent TVLA
-- [ ] Test vectors: NIST CAVP or Wycheproof test vectors pass for all implemented algorithms
-- [ ] PQC migration plan documented with algorithm inventory, hybrid deployment strategy, and hard migration date
-- [ ] Side-channel assessment completed: timing, cache-timing, and (for TEE) electromagnetic analysis
-- [ ] Key ceremony documentation: participant attestations, entropy validation, backup share verification
-- [ ] Every cryptographic decision recorded in the State Log with rationale and alternatives considered
+* [ ] All cryptographic operations use AEAD or stronger (no CBC, no ECB, no unauthenticated modes)
+* [ ] Keys managed via KMS/HSM with audit trail; no keys in source code, config files, or environment variables
+* [ ] Constant-time verification: critical comparison operations pass `dudect` or equivalent TVLA
+* [ ] Test vectors: NIST CAVP or Wycheproof test vectors pass for all implemented algorithms
+* [ ] PQC migration plan documented with algorithm inventory, hybrid deployment strategy, and hard migration date
+* [ ] Side-channel assessment completed: timing, cache-timing, and (for TEE) electromagnetic analysis
+* [ ] Key ceremony documentation: participant attestations, entropy validation, backup share verification
+* [ ] Every cryptographic decision recorded in the State Log with rationale and alternatives considered
 
 <!-- STANDARD: 3min -->
 ## References

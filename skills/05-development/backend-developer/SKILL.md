@@ -293,7 +293,7 @@ JWT       │         │
 (short-   ▼         ▼
 lived     B2C app?  B2B/enterprise
 access       │      or third-party?
-+ refresh    │         │
+- refresh    │         │
 token)       ▼         ▼
    │      OAuth 2.0  OAuth 2.0
    ▼      + PKCE      + client

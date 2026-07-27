@@ -42,7 +42,6 @@ Drive product decisions with data. Covers metric definition, experiment design, 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -57,7 +56,6 @@ Drive product decisions with data. Covers metric definition, experiment design, 
 | A6 | User asks about tooling (Amplitude, Mixpanel, PostHog, GA4) | Go to "Decision Trees > Tooling Selection" |
 | A7 | No analytics infrastructure exists | Jump to "Core Workflow > Phase 1" — start with metric definition |
 
-#
 
 ## Intent Route
 <!-- STANDARD: 3min -->
@@ -116,19 +114,16 @@ The best analysis does not answer "what happened?" — it answers **"what should
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-#
 
 ## Beginner: Metric Traceability Audit
 <!-- STANDARD: 3min -->
 Take one product metric from your analytics dashboard (e.g., "7-day retention rate"). Trace it all the way back to the raw tracking event — find the exact event name, the property used for the calculation, and the precise SQL or tool configuration that computes it. Then trace it forward again: how does that raw event become the number on the dashboard? Now find **3 ways the metric could be misleading**: (a) Does the event fire reliably on all platforms? (b) Are there sampling or identity-resolution gaps? (c) Does the definition match what stakeholders think it means? Document each gap with a concrete example.
 
-#
 
 ## Intermediate: A/B Test Design from Scratch
 <!-- STANDARD: 3min -->
 Pick a real feature change in your product (e.g., redesigning the signup flow). Design the full experiment: (1) Define the primary metric and the exact tracking event. (2) Calculate required sample size per variant given baseline conversion rate, minimum detectable effect (MDE), α=0.05, and power=0.80. (3) Compute the minimum experiment duration based on your daily traffic. (4) Identify the **counter-metric** — what could break if this feature succeeds? (5) Define the stopping rule: fixed-horizon or sequential testing with adjusted α. (6) Write the launch checklist: A/A validation, ramp plan, guardrail alert thresholds.
 
-#
 
 ## Advanced: Reverse-Engineer a Public Company's Metric Tree
 <!-- STANDARD: 3min -->
@@ -249,7 +244,6 @@ NO  → Check error             + user interviews
                                when degradation
                                started
 
-#
 
 ## North Star Metric Selection
 <!-- STANDARD: 3min -->
@@ -287,7 +281,6 @@ NO  → Check error             + user interviews
 | Developer Tools | Weekly active repositories, API calls | Time to first API call |
 | Fintech | Monthly transacting users, Volume | Fraud rate, support contacts |
 
-#
 
 ## Tooling Selection
 <!-- STANDARD: 3min -->
@@ -324,7 +317,6 @@ NO  → Check error             + user interviews
 | **Pendo** | In-app guides + analytics, product-led adoption | Contact sales (~$1000+/mo) | Expensive for small teams |
 | **GA4** | Web-focused, marketing attribution, free at any scale | Free | Not built for product analytics (no user profiles, limited cohorts) |
 
-#
 
 ## Experiment Design Flow
 <!-- STANDARD: 3min -->
@@ -354,7 +346,6 @@ NO  → Check error             + user interviews
                                                    +-----------+
 ```
 
-#
 
 ## Retention Diagnosis
 <!-- STANDARD: 3min -->
@@ -386,7 +377,6 @@ NO  → Check error             + user interviews
                                                      +----------+
 ```
 
-#
 
 ## User Segmentation Strategy
 <!-- STANDARD: 3min -->
@@ -426,7 +416,6 @@ NO  → Check error             + user interviews
 <!-- STANDARD: 3min -->
 <!-- Full 112 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Metric Definition & Framework (~45 min)
 <!-- STANDARD: 3min -->
@@ -490,7 +479,6 @@ If a command or approach fails, follow this escalation path before giving up:
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 
-#
 
 ## Upstream
 <!-- STANDARD: 3min -->
@@ -503,7 +491,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | `ab-testing-specialist` | Experiment platform, randomization setup | Infrastructure to run experiments correctly |
 | `analytics-engineer` | Transformed datasets, dbt models | Analysis-ready tables (not raw events) |
 
-#
 
 ## Downstream
 <!-- STANDARD: 3min -->
@@ -551,7 +538,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -576,7 +562,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -592,7 +577,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -646,7 +630,6 @@ Detailed reference material loaded on demand:
 - **Verification**: See [verification.md](references/verification.md)
 - **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
 
-#
 
 ## Cross-Skill References
 <!-- STANDARD: 3min -->

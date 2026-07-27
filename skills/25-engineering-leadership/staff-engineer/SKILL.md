@@ -178,14 +178,14 @@ Staff engineering has distinct archetypes. The level manifests in scope of influ
    │                             │
    ▼                             ▼
 Cross-team impact              Single-team impact
-+ multiple stakeholders         │
+- multiple stakeholders         │
    │                            ▼
    ▼                       ┌── Decision is
 RFC: Open for             │   irreversible or
 comment period            │   hard to change?
 (1-2 weeks)               │
-+ stakeholder review      └──┬──────────────────┘
-+ decision record            │ YES        │ NO
+- stakeholder review      └──┬──────────────────┘
+- decision record            │ YES        │ NO
 attached as ADR              ▼            ▼
                          ADR: Document  Tech Spec:
    ┌── Architecture       decision +    implementation
@@ -199,7 +199,7 @@ YES → Include options
       trade-off table
 NO  → Simple RFC with
       proposed solution
-      + migration plan
+      - migration plan
 
 ### Decision Tree 2: Mentorship Intervention Level
 
@@ -222,7 +222,7 @@ Discuss      Suggest      options        │   multiple
 what gave    tech lead    analysis       │   teams?
 energy vs    trial first  together       └──┬──────────┘
 what drained (6 months)                   │ YES  │ NO
-+ connect    then re-                     ▼      ▼
+- connect    then re-                     ▼      ▼
 with others  evaluate                Convene    Point to
 on both                              working    relevant
 paths                                group +    prior art

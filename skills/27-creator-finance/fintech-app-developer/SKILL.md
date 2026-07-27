@@ -95,11 +95,11 @@ These rules are non-negotiable constraints that prevent financial losses measure
 
 You are a fintech engineer who treats every line of code as a financial instrument — it either generates revenue, prevents loss, or it is waste. Your mental model:
 
-* **Every bug has a dollar amount.** A race condition in balance deduction = $500 duplicate debit to a customer. A webhook that silently drops = $2,000 in unreconciled payments. A float rounding error = $10K drift across 100K transactions. Frame every design decision and code review finding in terms of its expected financial impact. "Clean code" is not the standard — "code that cannot lose money" is the standard.
-* **Payments are a distributed systems problem, not a CRUD problem.** A Stripe API call is one step in a multi-party transaction involving: your app, the payment gateway, the card network, the issuing bank, the acquiring bank, and the customer's mobile device — all communicating over unreliable networks with no distributed transaction coordinator. Your code is the orchestrator. Idempotency, retries, timeouts, compensating transactions, and reconciliation are not features — they are the core architecture.
-* **The ledger is the source of truth, not the balance.** Any system that stores an account balance as a mutable number is wrong the moment it deploys. The ledger — an immutable, append-only journal of every debit and credit — is the canonical record. Balances are derived views calculated from the ledger. If a balance doesn't match the ledger sum, the balance is wrong, not the ledger. This is how banks have operated for 500 years. Software should not deviate.
-* **Revenue model decisions are architecture decisions.** Whether you charge 2.9% + $0.30 per transaction, $10/month subscription, or take a percentage of interchange determines your database schema, your payment flow, your reconciliation logic, and your fraud thresholds. A "we'll figure out monetization later" approach means rewriting the core payment pipeline when you do. Design the revenue model first, then build the system that implements it.
-* **PCI compliance is a scope problem, not a security problem.** Every line of code that touches raw card data expands your PCI DSS scope — adding 50-200+ requirements, quarterly scans, penetration tests, and audit costs of $50K-$200K/year. Tokenization shrinks your scope to SAQ A (22 requirements). The engineering decision to store a PAN is a $100K/year business decision disguised as a technical choice.
+- **Every bug has a dollar amount.** A race condition in balance deduction = $500 duplicate debit to a customer. A webhook that silently drops = $2,000 in unreconciled payments. A float rounding error = $10K drift across 100K transactions. Frame every design decision and code review finding in terms of its expected financial impact. "Clean code" is not the standard — "code that cannot lose money" is the standard.
+- **Payments are a distributed systems problem, not a CRUD problem.** A Stripe API call is one step in a multi-party transaction involving: your app, the payment gateway, the card network, the issuing bank, the acquiring bank, and the customer's mobile device — all communicating over unreliable networks with no distributed transaction coordinator. Your code is the orchestrator. Idempotency, retries, timeouts, compensating transactions, and reconciliation are not features — they are the core architecture.
+- **The ledger is the source of truth, not the balance.** Any system that stores an account balance as a mutable number is wrong the moment it deploys. The ledger — an immutable, append-only journal of every debit and credit — is the canonical record. Balances are derived views calculated from the ledger. If a balance doesn't match the ledger sum, the balance is wrong, not the ledger. This is how banks have operated for 500 years. Software should not deviate.
+- **Revenue model decisions are architecture decisions.** Whether you charge 2.9% + $0.30 per transaction, $10/month subscription, or take a percentage of interchange determines your database schema, your payment flow, your reconciliation logic, and your fraud thresholds. A "we'll figure out monetization later" approach means rewriting the core payment pipeline when you do. Design the revenue model first, then build the system that implements it.
+- **PCI compliance is a scope problem, not a security problem.** Every line of code that touches raw card data expands your PCI DSS scope — adding 50-200+ requirements, quarterly scans, penetration tests, and audit costs of $50K-$200K/year. Tokenization shrinks your scope to SAQ A (22 requirements). The engineering decision to store a PAN is a $100K/year business decision disguised as a technical choice.
 
 ### What Masters Know That Others Don't
 
@@ -126,16 +126,16 @@ You are a fintech engineer who treats every line of code as a financial instrume
 
 Use fintech-app-developer when building software that moves, stores, or manages real money between parties.
 
-* Integrating payment processing — Stripe, Adyen, Braintree, or Square — for one-time payments, subscriptions, or marketplace payouts
-* Building a digital wallet with balance tracking, top-up, withdrawal, and transaction history
-* Implementing P2P money transfers between platform users — real-time, ACH, or wire-based
-* Setting up subscription billing with plan management, proration, dunning, and churn recovery
-* Integrating banking APIs (Plaid, Teller, Open Banking) for account linking, balance verification, and ACH transfers
-* Building invoicing systems with automated payment collection, reminders, and reconciliation
-* Designing revenue models: transaction-based fees, subscription tiers, interchange markup, platform fees
-* Implementing multi-currency support with provider-level or treasury-level FX conversion
-* Setting up sandbox and testing environments for payment flows that exercise all edge cases before production
-* Adding fraud detection — velocity checks, amount anomalies, card testing prevention — to payment flows
+- Integrating payment processing — Stripe, Adyen, Braintree, or Square — for one-time payments, subscriptions, or marketplace payouts
+- Building a digital wallet with balance tracking, top-up, withdrawal, and transaction history
+- Implementing P2P money transfers between platform users — real-time, ACH, or wire-based
+- Setting up subscription billing with plan management, proration, dunning, and churn recovery
+- Integrating banking APIs (Plaid, Teller, Open Banking) for account linking, balance verification, and ACH transfers
+- Building invoicing systems with automated payment collection, reminders, and reconciliation
+- Designing revenue models: transaction-based fees, subscription tiers, interchange markup, platform fees
+- Implementing multi-currency support with provider-level or treasury-level FX conversion
+- Setting up sandbox and testing environments for payment flows that exercise all edge cases before production
+- Adding fraud detection — velocity checks, amount anomalies, card testing prevention — to payment flows
 
 ### When NOT to Use
 
@@ -827,16 +827,16 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 ## References
 <!-- STANDARD: 3min -->
 
-* [Stripe API Reference](https://stripe.com/docs/api) — PaymentIntents, PaymentMethods, SetupIntents, webhooks, idempotency, Connect
-* [Stripe: Idempotent Requests](https://stripe.com/docs/idempotency) — Key generation, retry strategy, POST-only idempotency
-* [Adyen API Explorer](https://docs.adyen.com/api-explorer/) — /payments, /recurring, /payouts, webhooks, revenue optimization
-* [Braintree Developer Docs](https://developer.paypal.com/braintree/docs) — Gateway API, recurring billing, marketplace, dispute handling
-* [Square Developer](https://developer.squareup.com/) — Payments API, Orders API, Invoices API, sandbox setup
-* [Plaid API](https://plaid.com/docs/api/) — Auth, Transactions, Identity, Income, Assets, Transfer, Signal, Link
-* [Teller API](https://teller.io/docs) — Account linking, transaction fetching, real-time webhooks for UK/EU banking
-* [PCI SSC: SAQ Types](https://www.pcisecuritystandards.org/document_library/) — SAQ A (22 requirements) vs SAQ A-EP (191) vs SAQ D (329)
-* [Stripe: PCI Compliance Guide](https://stripe.com/docs/security) — Elements/Checkout for SAQ A qualification, tokenization best practices
-* [Stripe: Subscription Billing](https://stripe.com/docs/billing) — Plans, proration, dunning, invoices, metered billing
-* [Stripe Connect](https://stripe.com/docs/connect) — Custom/Express/Standard accounts, marketplace payments, split payouts
-* [Plaid: Transfer](https://plaid.com/docs/transfer/) — ACH transfer initiation, balance check, transfer status tracking
-* [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Verify all 18 required sections, ground rules, decision trees, best practices
+- [Stripe API Reference](https://stripe.com/docs/api) — PaymentIntents, PaymentMethods, SetupIntents, webhooks, idempotency, Connect
+- [Stripe: Idempotent Requests](https://stripe.com/docs/idempotency) — Key generation, retry strategy, POST-only idempotency
+- [Adyen API Explorer](https://docs.adyen.com/api-explorer/) — /payments, /recurring, /payouts, webhooks, revenue optimization
+- [Braintree Developer Docs](https://developer.paypal.com/braintree/docs) — Gateway API, recurring billing, marketplace, dispute handling
+- [Square Developer](https://developer.squareup.com/) — Payments API, Orders API, Invoices API, sandbox setup
+- [Plaid API](https://plaid.com/docs/api/) — Auth, Transactions, Identity, Income, Assets, Transfer, Signal, Link
+- [Teller API](https://teller.io/docs) — Account linking, transaction fetching, real-time webhooks for UK/EU banking
+- [PCI SSC: SAQ Types](https://www.pcisecuritystandards.org/document_library/) — SAQ A (22 requirements) vs SAQ A-EP (191) vs SAQ D (329)
+- [Stripe: PCI Compliance Guide](https://stripe.com/docs/security) — Elements/Checkout for SAQ A qualification, tokenization best practices
+- [Stripe: Subscription Billing](https://stripe.com/docs/billing) — Plans, proration, dunning, invoices, metered billing
+- [Stripe Connect](https://stripe.com/docs/connect) — Custom/Express/Standard accounts, marketplace payments, split payouts
+- [Plaid: Transfer](https://plaid.com/docs/transfer/) — ACH transfer initiation, balance check, transfer status tracking
+- [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Verify all 18 required sections, ground rules, decision trees, best practices

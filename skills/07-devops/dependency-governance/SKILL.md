@@ -79,42 +79,41 @@ These rules are non-negotiable constraints that detect dangerous dependency mana
 
 You are a dependency governance specialist who understands that dependencies are the #1 source of technical debt and security risk in modern software. Your mental model:
 
-* **Every dependency is a liability that happens to provide value.** Before adding a dependency, ask: does the value (functionality, velocity) exceed the lifetime cost (updates, CVEs, breaking changes, license compliance, bundle size)? If you cannot quantify both sides, you are guessing.
-* **Transitive dependencies are not "someone else\'s problem."** Your application executes transitive dependency code in production. You inherit their CVEs, their license terms, and their supply chain risk. Your dependency graph is your attack surface.
-* **Version sprawl is a coordination failure, not a technical problem.** When 12 repos use 7 versions of React, the problem is not that engineers are lazy — it is that there is no policy, no automation, and no visibility. Fix the system, not the people.
-* **CVSS is a starting point, not a decision.** CVSS tells you severity. You must layer on exploitability (is there a public exploit?), reachability (does your code call the vulnerable function?), and exposure (is the affected component internet-facing?). A CVSS 9.8 in an unreachable dev dependency is less urgent than a CVSS 5.5 in your auth library.
-* **Automation without policy is chaos.** Renovate without grouping rules, auto-merge without test gates, and SBOM without verification are worse than nothing — they create a false sense of security while generating noise that engineers learn to ignore.
+- **Every dependency is a liability that happens to provide value.** Before adding a dependency, ask: does the value (functionality, velocity) exceed the lifetime cost (updates, CVEs, breaking changes, license compliance, bundle size)? If you cannot quantify both sides, you are guessing.
+- **Transitive dependencies are not "someone else\'s problem."** Your application executes transitive dependency code in production. You inherit their CVEs, their license terms, and their supply chain risk. Your dependency graph is your attack surface.
+- **Version sprawl is a coordination failure, not a technical problem.** When 12 repos use 7 versions of React, the problem is not that engineers are lazy — it is that there is no policy, no automation, and no visibility. Fix the system, not the people.
+- **CVSS is a starting point, not a decision.** CVSS tells you severity. You must layer on exploitability (is there a public exploit?), reachability (does your code call the vulnerable function?), and exposure (is the affected component internet-facing?). A CVSS 9.8 in an unreachable dev dependency is less urgent than a CVSS 5.5 in your auth library.
+- **Automation without policy is chaos.** Renovate without grouping rules, auto-merge without test gates, and SBOM without verification are worse than nothing — they create a false sense of security while generating noise that engineers learn to ignore.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-* **Quick scan (30s):** Check dependency count, version sprawl (distinct versions of top frameworks), open Renovate/Dependabot PRs, and known CVEs. Flag: >5 versions of same framework, >50 open dependency PRs, critical CVEs >30 days old.
-* **Dependency audit (10min):** Run dependency graph across repos. Identify top-10 most-used dependencies. Count distinct versions. Flag packages used in only 1 repo (candidate for removal). Check CVE status for top-10. Review Renovate config for grouping and auto-merge rules.
-* **Governance design (full session):** Establish version alignment policy. Design Renovate shared presets with grouping, scheduling, and auto-merge rules. Build CVE triage workflow with CVSS + exploitability + reachability. Implement license compliance scanning and approval workflow. Design SBOM generation, signing, and verification pipeline.
-* **Crisis mode (critical CVE, supply chain attack, breaking change cascade):** Triage: identify affected repos via dependency graph, assess reachability, deploy fixes to highest-risk repos first, verify fix deployment, post-incident: why was this not caught by existing governance?
+- **Quick scan (30s):** Check dependency count, version sprawl (distinct versions of top frameworks), open Renovate/Dependabot PRs, and known CVEs. Flag: >5 versions of same framework, >50 open dependency PRs, critical CVEs >30 days old.
+- **Dependency audit (10min):** Run dependency graph across repos. Identify top-10 most-used dependencies. Count distinct versions. Flag packages used in only 1 repo (candidate for removal). Check CVE status for top-10. Review Renovate config for grouping and auto-merge rules.
+- **Governance design (full session):** Establish version alignment policy. Design Renovate shared presets with grouping, scheduling, and auto-merge rules. Build CVE triage workflow with CVSS + exploitability + reachability. Implement license compliance scanning and approval workflow. Design SBOM generation, signing, and verification pipeline.
+- **Crisis mode (critical CVE, supply chain attack, breaking change cascade):** Triage: identify affected repos via dependency graph, assess reachability, deploy fixes to highest-risk repos first, verify fix deployment, post-incident: why was this not caught by existing governance?
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use dependency-governance when managing dependencies at organizational scale — the focus is on policy, automation, and risk reduction across many repos.
 
-* Establishing organization-wide dependency policies (version alignment, update cadence, approval workflows)
-* Dependency version sprawl is causing bugs: "it works on my machine" due to different lodash versions
-* Responding to a critical CVE (Log4Shell-scale) that affects 10+ repos across the org
-* Setting up Renovate or Dependabot at scale with shared configuration, grouping, and auto-merge
-* Auditing license compliance across all repos — especially copyleft detection (GPL, AGPL)
-* Reducing dependency bloat: identifying unused, duplicate, or over-engineered dependencies
-* Implementing SBOM generation and supply chain security attestation
-* Designing breaking change detection for shared dependencies
-* Establishing dependency review process for new dependency additions
-* Creating dependency health dashboards with version alignment, CVE status, and license compliance
+- Establishing organization-wide dependency policies (version alignment, update cadence, approval workflows)
+- Dependency version sprawl is causing bugs: "it works on my machine" due to different lodash versions
+- Responding to a critical CVE (Log4Shell-scale) that affects 10+ repos across the org
+- Setting up Renovate or Dependabot at scale with shared configuration, grouping, and auto-merge
+- Auditing license compliance across all repos — especially copyleft detection (GPL, AGPL)
+- Reducing dependency bloat: identifying unused, duplicate, or over-engineered dependencies
+- Implementing SBOM generation and supply chain security attestation
+- Designing breaking change detection for shared dependencies
+- Establishing dependency review process for new dependency additions
+- Creating dependency health dashboards with version alignment, CVE status, and license compliance
 
 Do NOT use dependency-governance for monorepo workspace configuration (route to monorepo-manager). Do NOT use for CI/CD pipeline implementation (route to ci-cd-builder). Do NOT use for security incident response (route to incident-responder). Do NOT use for legal review of specific licenses (route to legal-advisor). Do NOT use for vulnerability scanning tool configuration (route to security-engineer).
 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -129,7 +128,6 @@ Do NOT use dependency-governance for monorepo workspace configuration (route to 
 | A6 | `grep -rn "TODO.*remove\|FIXME.*dependency"` across repos | Technical debt markers -> Jump to **Decision Trees: Dependency Removal** |
 | A7 | No dependency management tooling found | Greenfield governance setup -> Go to **Core Workflow: Phase 1** |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -151,7 +149,6 @@ What dependency governance task are you working on?
 <!-- STANDARD: 3min -->
 <!-- Full 103 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Dependency Inventory
 <!-- STANDARD: 3min -->
@@ -259,7 +256,6 @@ upgrades across all
 repos via migration
 sprint
 
-#
 
 ## Gotchas
 <!-- DEEP: 10+min -->
@@ -313,7 +309,6 @@ How critical is version consistency for this dependency?
 |   |-- Solution: Tiered policy. Only enforce alignment where it matters.
 ```
 
-#
 
 ## Renovate/Dependabot at Scale
 <!-- STANDARD: 3min -->
@@ -354,7 +349,6 @@ Configuring automated dependency updates across 10+ repos.
 |   |-- Deploying an unverified React major version at 3 AM breaks production.
 ```
 
-#
 
 ## License Compliance
 <!-- STANDARD: 3min -->
@@ -384,7 +378,6 @@ How to enforce license compliance across your dependency graph?
 |   |-- Licenses change. Projects relicense. Monthly re-scan is non-negotiable.
 ```
 
-#
 
 ## CVE Triage Decision Tree
 <!-- STANDARD: 3min -->
@@ -414,7 +407,6 @@ A new CVE is reported. Is it critical?
 |   |-- CVSS Low -> Fix when convenient. Do not disrupt sprint.
 ```
 
-#
 
 ## Dependency Removal
 <!-- STANDARD: 3min -->
@@ -448,7 +440,6 @@ Can this dependency be safely removed?
 |   |-- Without bundle verification, you did not actually remove the dependency.
 ```
 
-#
 
 ## SBOM & Supply Chain Security
 <!-- STANDARD: 3min -->
@@ -560,7 +551,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -586,7 +576,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -602,7 +591,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -773,17 +761,17 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ## References
 <!-- STANDARD: 3min -->
 
-* [Renovate Documentation: Shareable Config Presets](https://docs.renovatebot.com/config-presets/) — Centralized configuration across repos
-* [GitHub: Dependabot Alerts & Security Updates](https://docs.github.com/en/code-security/dependabot) — Automated vulnerability detection and remediation
-* [NIST National Vulnerability Database (NVD)](https://nvd.nist.gov/) — CVSS scoring and CVE database
-* [CISA Known Exploited Vulnerabilities Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) — CVEs with active exploitation
-* [Open Source Security Foundation (OpenSSF) Scorecard](https://securityscorecards.dev/) — Automated security health assessment for open source projects
-* [SPDX Specification](https://spdx.dev/specifications/) — ISO-standard SBOM format
-* [/references/dependency-inventory.md](references/dependency-inventory.md) — Multi-repo dependency graphing and analysis framework
-* [/references/version-alignment.md](references/version-alignment.md) — Tiered version policy design and enforcement
-* [/references/breaking-change-detection.md](references/breaking-change-detection.md) — Automated canary tests and compiler-based detection
-* [/references/vulnerability-triage.md](references/vulnerability-triage.md) — CVSS + exploitability + reachability scoring methodology
-* [/references/license-compliance.md](references/license-compliance.md) — Copyleft detection, approval workflows, exception management
-* [/references/renovate-at-scale.md](references/renovate-at-scale.md) — Shared presets, auto-merge rules, grouping, scheduling
-* [/references/dependency-removal.md](references/dependency-removal.md) — Safe removal with tree-shaking and bundle verification
-* [/references/sbom-supply-chain.md](references/sbom-supply-chain.md) — SBOM generation, signing, attestation, and verification
+- [Renovate Documentation: Shareable Config Presets](https://docs.renovatebot.com/config-presets/) — Centralized configuration across repos
+- [GitHub: Dependabot Alerts & Security Updates](https://docs.github.com/en/code-security/dependabot) — Automated vulnerability detection and remediation
+- [NIST National Vulnerability Database (NVD)](https://nvd.nist.gov/) — CVSS scoring and CVE database
+- [CISA Known Exploited Vulnerabilities Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) — CVEs with active exploitation
+- [Open Source Security Foundation (OpenSSF) Scorecard](https://securityscorecards.dev/) — Automated security health assessment for open source projects
+- [SPDX Specification](https://spdx.dev/specifications/) — ISO-standard SBOM format
+- [/references/dependency-inventory.md](references/dependency-inventory.md) — Multi-repo dependency graphing and analysis framework
+- [/references/version-alignment.md](references/version-alignment.md) — Tiered version policy design and enforcement
+- [/references/breaking-change-detection.md](references/breaking-change-detection.md) — Automated canary tests and compiler-based detection
+- [/references/vulnerability-triage.md](references/vulnerability-triage.md) — CVSS + exploitability + reachability scoring methodology
+- [/references/license-compliance.md](references/license-compliance.md) — Copyleft detection, approval workflows, exception management
+- [/references/renovate-at-scale.md](references/renovate-at-scale.md) — Shared presets, auto-merge rules, grouping, scheduling
+- [/references/dependency-removal.md](references/dependency-removal.md) — Safe removal with tree-shaking and bundle verification
+- [/references/sbom-supply-chain.md](references/sbom-supply-chain.md) — SBOM generation, signing, attestation, and verification

@@ -33,7 +33,6 @@ Build production-grade native Android applications with Kotlin and Jetpack Compo
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
-#
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -52,7 +51,6 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A9 | `file_contains("*.kt", "#[0-9A-Fa-f]{6}")` AND NOT `file_contains("*.kt", "MaterialTheme.colorScheme\|dynamicColor\|ColorScheme")` | Hardcoded colors without MD3 tokens. Route to **material-design-expert** for color system audit. |
 | A10 | `file_contains("*.kt", "fillMaxWidth\|fillMaxSize")` AND NOT `file_contains("*.kt", "WindowWidthSizeClass\|BoxWithConstraints\|windowSizeClass")` | Full-width layout without adaptive breakpoints. Route to **material-design-expert** for window size class adaptation. |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -105,13 +103,11 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
-#
 
 ## The Mental Model Shift
 <!-- STANDARD: 3min -->
 Competent Android developers build apps that work on their Pixel 9 Pro. Masters build experiences that **work on a $150 Samsung Galaxy A14 with 4GB RAM, on 3G connectivity, at 10% battery.** Your flagship device on office WiFi represents 5% of global Android users. Design for constraints first — enhance for abundance.
 
-#
 
 ## Cognitive Biases That Kill Android Experiences
 <!-- STANDARD: 3min -->
@@ -122,7 +118,6 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 | **Coroutine over-engineering** | Building Channel/actor pipelines for simple data loading | A `StateFlow` with `map`/`combine` handles 95% of cases. Channels are for one-shot events only. |
 | **Premature DI abstraction** | Adding Koin or manual factories "to keep it simple" — then fighting lifecycle bugs | Hilt costs 3 annotation lines per class. Compile-time verification prevents runtime DI crashes. |
 
-#
 
 ## What Android Masters Know
 <!-- STANDARD: 3min -->
@@ -132,7 +127,6 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 - **Every refactor must remove dead code — not just reorganize it.** When you refactor a screen or module, actively hunt for unused resources, dead navigation routes, stale feature flags, and abandoned Gradle dependencies. Each unused drawable bloats the APK. Each unused string clutters translation files. Each unused dependency increases build time and ProGuard complexity. A refactor's diff should be net-negative in lines.
 - **Baseline profiles are not optional for release.** A generated baseline profile pre-compiles critical code paths during install (AOT compilation), reducing JIT warmup by 30-40%. Without one, your app interprets bytecode on first launch after install — producing jank and slow startup for every new user. Generate via Macrobenchmark's `BaselineProfileRule.collect()` and include in your AAB. Every release should audit the baseline profile delta for regressions.
 
-#
 
 ## When to Break Your Own Rules
 <!-- STANDARD: 3min -->
@@ -199,7 +193,7 @@ module?     with heavy
    ▼      ┌────┴────┐
 KOTLIN    │         │
 COROUTINES ▼         ▼
-+ Flow     RxJava    Wrap
+- Flow     RxJava    Wrap
    │        only in   legacy Rx
    ▼        this      in coroutine
 Structured module?    bridges
@@ -230,7 +224,7 @@ Compose?   entry points
    ▼          │
 SINGLE    ┌────┴────┐
 ACTIVITY   │         │
-+ NavHost  ▼         ▼
+- NavHost  ▼         ▼
            YES        NO
    │        │         │
    ▼        ▼         ▼
@@ -270,7 +264,6 @@ Prefs       (compile- (no   for
 for small   verify)          remote
 config)                       mediator
 
-#
 
 ## Compose vs XML Layout
 <!-- STANDARD: 3min -->
@@ -283,7 +276,6 @@ New project, minSdk ≥ 21, team comfortable with declarative UI?
           └── NO  → XML + Data Binding + Fragments (migration path)
 ```
 
-#
 
 ## MVVM vs MVI
 <!-- STANDARD: 3min -->
@@ -296,7 +288,6 @@ Complex user-driven state machines (wizard, checkout, multi-step forms)?
           └── NO  → Start with MVVM. Graduate to MVI only when state complexity demands it.
 ```
 
-#
 
 ## Room vs SQLDelight
 <!-- STANDARD: 3min -->
@@ -309,7 +300,6 @@ KMP (Kotlin Multiplatform) planned or in use?
           └── NO  → Room. It's the default. Google's recommended persistence library.
 ```
 
-#
 
 ## Hilt vs Koin vs Manual DI
 <!-- STANDARD: 3min -->
@@ -324,7 +314,6 @@ Build speed the overwhelming concern AND < 10 ViewModels?
 
 **Koin**: Prefer if team needs runtime DI with DSL definitions. Risk: runtime crash for missing deps vs Hilt's compile-time error.
 
-#
 
 ## Navigation Compose vs Fragments
 <!-- STANDARD: 3min -->
@@ -337,7 +326,6 @@ UI built entirely with Compose (no XML screens)?
           └── NO  → Migrate new screens to Nav Compose. Interop existing Fragments.
 ```
 
-#
 
 ## ProGuard/R8 Configuration
 <!-- STANDARD: 3min -->
@@ -353,7 +341,7 @@ Using reflection, serialization, or annotation processors requiring class names?
 <!-- Full 203 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles -->
-#
+
 
 ## Phase 1 (~15 min): Project Setup & Architecture
 <!-- STANDARD: 3min -->
@@ -420,7 +408,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | `performance-engineer` | Profile data, baseline profiles, macrobenchmark results, APK size breakdown | Performance optimization needs instrumented measurement |
 | `automation-engineer` | Gradle config, keystore, Play Store credentials | Android builds stay manual — Play Store blocked |
 
-#
 
 ## Communication Triggers
 <!-- STANDARD: 3min -->
@@ -433,7 +420,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | Play Store pre-launch report violation | QA, Accessibility Auditor | Fix before production |
 | ProGuard/R8 rule added | Performance, Release Manager | APK size regression, obfuscation verification |
 
-#
 
 ## Escalation Path
 <!-- STANDARD: 3min -->
@@ -467,7 +453,6 @@ These are signals that should trigger the Android developer to investigate — n
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -493,7 +478,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -509,7 +493,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -528,7 +511,6 @@ Before beginning a new phase, verify:
 
 > `AndroidManifest.xml` has `android:supportsRtl="true"`, layout mirrors correctly in Arabic/Hebrew. Pseudo-localized strings (`en-XA`) pass without truncation. R8 enabled in release with `isMinifyEnabled = true` AND `isShrinkResources = true`. `proguard-rules.pro` contains zero custom `-keep` rules — all libraries ship consumer rules. `app/build.gradle.kts` uses `composeBom` for version management, KSP instead of kapt. Baseline profiles generated via Macrobenchmark and included in every AAB. Room schema exported with `exportSchema = true`, migration tests validate every version path against production database snapshots.
 
-#
 
 ## Cross-skills Integration
 <!-- STANDARD: 3min -->
@@ -548,7 +530,6 @@ Common chains:
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-#
 
 ## The Android Improvement Loop
 <!-- STANDARD: 3min -->
@@ -557,7 +538,6 @@ Common chains:
 3. **Profile and fix** — CPU Profiler, Memory Profiler, Battery Historian. Fix the worst offender.
 4. **Repeat monthly** with a different budget device. Your app behaves differently on all of them.
 
-#
 
 ## Practice Routines
 <!-- STANDARD: 3min -->
@@ -567,7 +547,6 @@ Common chains:
 | Competent → Expert | Enable StrictMode with penaltyDeath(). Fix every violation: disk reads, network, leaked closeables. | Quarterly | App verified clean by platform tooling |
 | Expert → Master | Build feature with only Android framework (no Jetpack, no Retrofit). Then rebuild with Jetpack. | Annually | Understands what Jetpack abstracts and where the real cost is |
 
-#
 
 ## The One Thing
 <!-- STANDARD: 3min -->

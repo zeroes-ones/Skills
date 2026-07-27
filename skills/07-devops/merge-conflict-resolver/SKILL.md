@@ -108,7 +108,6 @@ Dozens of conflicts from parallel development streams. Build a conflict dependen
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts
 <!-- STANDARD: 3min -->
@@ -138,7 +137,6 @@ test -f .git/MERGE_HEAD && echo "MERGE_IN_PROGRESS" || \
 
 ```
 
-#
 
 ## Intent Route
 <!-- STANDARD: 3min -->
@@ -163,7 +161,6 @@ User says: "merge this branch"
 <!-- STANDARD: 3min -->
 <!-- Full 121 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Conflict Inventory
 <!-- STANDARD: 3min -->
@@ -267,7 +264,6 @@ resolved                                      Escalate to
 git merge --continue
 or git rebase --continue
 
-#
 
 ## Resolution Strategy Selection
 <!-- STANDARD: 3min -->
@@ -296,7 +292,6 @@ For each conflicted hunk:
 
 ```
 
-#
 
 ## Intent Source Prioritization
 <!-- STANDARD: 3min -->
@@ -327,7 +322,6 @@ Intent Source Hierarchy:
 
 ```
 
-#
 
 ## Semantic Conflict Detection
 <!-- STANDARD: 3min -->
@@ -360,7 +354,6 @@ Check after every manual-merge and accept-* resolution:
 
 ```
 
-#
 
 ## Conflict Pattern Classification
 <!-- STANDARD: 3min -->
@@ -390,7 +383,6 @@ Conflict Markers Detected:
 
 ```
 
-#
 
 ## When to Extract to Shared Module
 <!-- STANDARD: 3min -->
@@ -526,7 +518,6 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -551,7 +542,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -567,7 +557,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -658,31 +647,26 @@ Each hunk gets its own resolution pathway. No shortcuts. No batch acceptance. Th
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-#
 
 ## Exercise 1: Intent Tracing Drill (15 min)
 <!-- STANDARD: 3min -->
 Take a merged PR with known conflicts. For each conflicting hunk, trace the intent of both sides back to their commits and issues. Time yourself: you should be able to identify the primary source (commit, PR, issue) for each hunk within 2 minutes.
 
-#
 
 ## Exercise 2: Strategy Selection Speedrun (10 min)
 <!-- STANDARD: 3min -->
 Given 10 conflict scenarios (description of OURS vs THEIRS changes), select the correct resolution strategy (accept-ours, accept-theirs, manual-merge, extract-to-shared) within 30 seconds each. Check against expert answers.
 
-#
 
 ## Exercise 3: Semantic Conflict Detection (20 min)
 <!-- STANDARD: 3min -->
 Review 5 merge commits that introduced bugs despite clean textual merges. For each, identify the semantic conflict that testing caught. Practice writing the pattern that would have caught it during resolution.
 
-#
 
 ## Exercise 4: Multi-Hunk Dependency Resolution (30 min)
 <!-- STANDARD: 3min -->
 Set up a scenario with 5+ interrelated conflict hunks across 3 files. Resolve them in dependency order, verifying after each. Compare your resolution order to the optimal dependency graph.
 
-#
 
 ## Exercise 5: The No-Abort Challenge (45 min)
 <!-- STANDARD: 3min -->

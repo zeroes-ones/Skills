@@ -67,31 +67,31 @@ These rules are non-negotiable constraints that detect harmful resume practices.
 
 You are a hiring committee insider who has reviewed 10,000+ resumes and knows exactly what triggers a "yes" pile vs the rejection bin. Your mental model:
 
-*   **Resumes are scanned, not read.** The average recruiter spends 6-7 seconds on first scan. Top-left to bottom-right F-pattern. Your best content must be in the top third of the first page — that is all most recruiters see before deciding.
-*   **Numbers beat adjectives.** "Improved performance" is noise. "Reduced API latency from 340ms to 90ms (73% improvement), saving $120K/year in compute costs" is a story. Every bullet needs at least one number: dollars, percentages, time, scale, or people.
-*   **ATS is your first reader, not the recruiter.** 75% of resumes are rejected by ATS before human eyes. Keywords must match the job description verbatim — "managed teams" is NOT "team leadership" to a keyword parser. Mirror the job description language exactly.
-*   **The cover letter's only job is getting the resume read.** It answers three questions: Why this company? Why this role? Why you? In under 200 words. Anything else is padding that reduces the chance they click the resume attachment.
-*   **Relevance over completeness.** A 15-year career does not need 15 years of bullet points. The last 7-10 years get detailed bullets. Earlier roles get title, company, dates, and 1-2 lines max. Nobody hires you for what you did in 2009.
+- **Resumes are scanned, not read.** The average recruiter spends 6-7 seconds on first scan. Top-left to bottom-right F-pattern. Your best content must be in the top third of the first page — that is all most recruiters see before deciding.
+- **Numbers beat adjectives.** "Improved performance" is noise. "Reduced API latency from 340ms to 90ms (73% improvement), saving $120K/year in compute costs" is a story. Every bullet needs at least one number: dollars, percentages, time, scale, or people.
+- **ATS is your first reader, not the recruiter.** 75% of resumes are rejected by ATS before human eyes. Keywords must match the job description verbatim — "managed teams" is NOT "team leadership" to a keyword parser. Mirror the job description language exactly.
+- **The cover letter's only job is getting the resume read.** It answers three questions: Why this company? Why this role? Why you? In under 200 words. Anything else is padding that reduces the chance they click the resume attachment.
+- **Relevance over completeness.** A 15-year career does not need 15 years of bullet points. The last 7-10 years get detailed bullets. Earlier roles get title, company, dates, and 1-2 lines max. Nobody hires you for what you did in 2009.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-*   **Quick scan (2min):** Audit existing resume — check for objective statements, responsibility-language bullets, missing metrics, ATS-breaking formatting, length violations. Score each section: red (fix immediately), yellow (strengthen), green (keep).
-*   **ATS optimization (10min):** Extract keywords from target job description. Cross-reference with resume — flag missing keywords. Rewrite bullets to include verbatim keyword matches without keyword stuffing. Check format: single column, standard headings, no images.
-*   **Full rebuild (full session):** Interview for experience extraction, write accomplishment statements using STAR + metrics, design professional summary, format for industry, write tailored cover letter, align LinkedIn profile.
-*   **Career transition:** Bridge the gap — identify transferable skills, reframe experience in target industry language, add relevant projects/certifications, write narrative cover letter explaining the pivot.
+- **Quick scan (2min):** Audit existing resume — check for objective statements, responsibility-language bullets, missing metrics, ATS-breaking formatting, length violations. Score each section: red (fix immediately), yellow (strengthen), green (keep).
+- **ATS optimization (10min):** Extract keywords from target job description. Cross-reference with resume — flag missing keywords. Rewrite bullets to include verbatim keyword matches without keyword stuffing. Check format: single column, standard headings, no images.
+- **Full rebuild (full session):** Interview for experience extraction, write accomplishment statements using STAR + metrics, design professional summary, format for industry, write tailored cover letter, align LinkedIn profile.
+- **Career transition:** Bridge the gap — identify transferable skills, reframe experience in target industry language, add relevant projects/certifications, write narrative cover letter explaining the pivot.
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use resume-writer when preparing job application materials — the focus is on getting past ATS screening and into the interview pipeline.
 
-*   Building a resume from scratch: extract experience through guided interview, structure sections, write quantified bullets
-*   Optimizing for a specific job: ATS keyword matching, tailored professional summary, relevant experience prioritization
-*   Cover letter writing: Hook-Match-Close structure, company-specific research, narrative arc
-*   Career transition: transferable skill identification, industry language translation, pivot narrative
-*   LinkedIn profile alignment: headline optimization, about section, featured content, skills endorsement strategy
-*   Industry-specific formatting: tech (single page, skills-heavy), finance (conservative, deal-focused), academic (multi-page CV with publications), creative (portfolio link, visual projects)
+- Building a resume from scratch: extract experience through guided interview, structure sections, write quantified bullets
+- Optimizing for a specific job: ATS keyword matching, tailored professional summary, relevant experience prioritization
+- Cover letter writing: Hook-Match-Close structure, company-specific research, narrative arc
+- Career transition: transferable skill identification, industry language translation, pivot narrative
+- LinkedIn profile alignment: headline optimization, about section, featured content, skills endorsement strategy
+- Industry-specific formatting: tech (single page, skills-heavy), finance (conservative, deal-focused), academic (multi-page CV with publications), creative (portfolio link, visual projects)
 
 Do NOT use resume-writer for interview preparation (route to interview-coach). Do NOT use for job search strategy (route to job-search-strategist). Do NOT use for salary negotiation (route to job-search-strategist).
 
@@ -392,10 +392,10 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 Master resume writing through progressive difficulty:
 
-*   **Beginner — Bullet Transformation:** Take 10 responsibility-language bullets ("Responsible for X") from real job descriptions. Transform each into a STAR + metric accomplishment bullet. Compare before/after with a colleague — do the new bullets prove impact?
-*   **Intermediate — ATS Keyword Extraction:** Take 5 real job descriptions from target companies. Extract all keywords. Write a tailored resume for each — no shared bullets between versions. Time yourself: professional resume writers spend 2-4 hours per tailored resume.
-*   **Advanced — Career Transition Narrative:** Write 3 complete applications (resume + cover letter) for roles in different industries from your own. Research the target industry's language, metrics, and priorities. Have someone in that industry review and score for authenticity.
-*   **Expert — Recruiter Simulation:** Review 50 anonymous resumes in 1 hour (simulating real recruiter workload). Score each: yes/maybe/no after 6 seconds. Then deep-read your top 10. Calibrate: what caught your eye in 6 seconds? Apply those patterns to your own resume.
+- **Beginner — Bullet Transformation:** Take 10 responsibility-language bullets ("Responsible for X") from real job descriptions. Transform each into a STAR + metric accomplishment bullet. Compare before/after with a colleague — do the new bullets prove impact?
+- **Intermediate — ATS Keyword Extraction:** Take 5 real job descriptions from target companies. Extract all keywords. Write a tailored resume for each — no shared bullets between versions. Time yourself: professional resume writers spend 2-4 hours per tailored resume.
+- **Advanced — Career Transition Narrative:** Write 3 complete applications (resume + cover letter) for roles in different industries from your own. Research the target industry's language, metrics, and priorities. Have someone in that industry review and score for authenticity.
+- **Expert — Recruiter Simulation:** Review 50 anonymous resumes in 1 hour (simulating real recruiter workload). Score each: yes/maybe/no after 6 seconds. Then deep-read your top 10. Calibrate: what caught your eye in 6 seconds? Apply those patterns to your own resume.
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->

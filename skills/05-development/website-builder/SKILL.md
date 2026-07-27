@@ -68,7 +68,6 @@ End-to-end website building from concept to production — covering static site 
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
-#
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -85,7 +84,6 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A6 | `file_contains("*", "sitemap" \|\| "robots.txt" \|\| "structured.*data" \|\| "json-ld")` AND `file_contains("*", "missing\|not.*found\|broken")` | SEO issue detected. Jump to **Core Workflow > Phase 5 (SEO Foundation)**. |
 | A7 | No framework or platform detected (`!file_exists("package.json\|composer.json\|Gemfile\|requirements.txt")` AND no SSG configs) | Greenfield project. Jump to **Intent Route** below. |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -136,22 +134,20 @@ These rules are non-negotiable constraints that detect website building mistakes
 | **R11** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | **R12** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
-- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
-- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
+* **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+* **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+* **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+* **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
 
-#
 
 ## The Mental Model Shift
 <!-- STANDARD: 3min -->
 
 Competent web developers build sites that look good on their MacBook Pro with gigabit WiFi. Masters build sites that **load in under 2.5 seconds on a $150 Android phone with 3G connectivity, render correctly at 320px width, score 100 on Lighthouse, and cost $0/month to host indefinitely.** The shift: your Retina display is not representative. The median web user browses on a mid-range mobile device with variable connectivity. Design for constraints first — enhance for abundance.
 
-#
 
 ## Cognitive Biases That Kill Websites
 <!-- STANDARD: 3min -->
@@ -163,35 +159,33 @@ Competent web developers build sites that look good on their MacBook Pro with gi
 | **Over-engineering the CMS** | Building a custom headless CMS + GraphQL API for a blog that one person updates quarterly — 80 hours of engineering for a markdown folder | Content update frequency drives CMS complexity. Quarterly updates = markdown. Daily updates by 5+ people = headless CMS. Match investment to usage. |
 | **Desktop-first design** | Designing at 1440px and "adapting" to mobile — mobile feels like a cramped afterthought | Design at 320px first. If it works on a tiny screen, it works everywhere. Mobile-first CSS (min-width breakpoints) enforces this mechanically. |
 
-#
 
 ## What Website Masters Know That Others Don't
 <!-- STANDARD: 3min -->
 
-- **The cheapest hosting is no hosting.** A static site deployed to Cloudflare Pages or GitHub Pages costs $0/month forever. No servers to patch, no databases to backup, no runtime to monitor. If your site doesn't need server-side logic, don't pay for server-side infrastructure.
-- **JavaScript is a progressive enhancement, not a requirement.** Your site must be functional and readable with JavaScript disabled. Semantic HTML handles navigation, forms, and content. JavaScript adds interactivity (animations, filtering, dynamic loading) but must never be the sole mechanism for core functionality.
-- **SEO is a compounding investment.** A site with perfect SEO shipped today starts earning organic traffic in 3-6 months. A site with "SEO later" loses 6+ months of compounding traffic growth. Every month you delay SEO is a month of traffic you'll never get back.
-- **Platform risk is real and often invisible.** Webflow, Shopify, Squarespace — they can change pricing, remove features, or get acquired. Your content and code should be extractable. Static site generators produce plain HTML/Markdown — portable to any host. Proprietary platforms produce locked-in data. The portability difference is existential.
-- **The performance-poverty line divides the web.** Sites that load in < 2s on a budget device have global reach. Sites that require a flagship phone and fiber connection only serve the top 20% of users by income. Every 100KB of JS you ship excludes more of the world.
+* **The cheapest hosting is no hosting.** A static site deployed to Cloudflare Pages or GitHub Pages costs $0/month forever. No servers to patch, no databases to backup, no runtime to monitor. If your site doesn't need server-side logic, don't pay for server-side infrastructure.
+* **JavaScript is a progressive enhancement, not a requirement.** Your site must be functional and readable with JavaScript disabled. Semantic HTML handles navigation, forms, and content. JavaScript adds interactivity (animations, filtering, dynamic loading) but must never be the sole mechanism for core functionality.
+* **SEO is a compounding investment.** A site with perfect SEO shipped today starts earning organic traffic in 3-6 months. A site with "SEO later" loses 6+ months of compounding traffic growth. Every month you delay SEO is a month of traffic you'll never get back.
+* **Platform risk is real and often invisible.** Webflow, Shopify, Squarespace — they can change pricing, remove features, or get acquired. Your content and code should be extractable. Static site generators produce plain HTML/Markdown — portable to any host. Proprietary platforms produce locked-in data. The portability difference is existential.
+* **The performance-poverty line divides the web.** Sites that load in < 2s on a budget device have global reach. Sites that require a flagship phone and fiber connection only serve the top 20% of users by income. Every 100KB of JS you ship excludes more of the world.
 
-#
 
 ## When to Break Your Own Rules
 <!-- STANDARD: 3min -->
 
-- **Use a heavy framework when the dynamic features justify it.** If your marketing site has a real-time dashboard, user auth, and database-driven content, Next.js or Remix is appropriate. Don't use Astro just because "static is always better."
-- **Use a low-code platform when the alternative is no website at all.** A non-technical founder with no budget for developers should use Webflow or Framer rather than waiting months to hire. A launched site > no site.
+* **Use a heavy framework when the dynamic features justify it.** If your marketing site has a real-time dashboard, user auth, and database-driven content, Next.js or Remix is appropriate. Don't use Astro just because "static is always better."
+* **Use a low-code platform when the alternative is no website at all.** A non-technical founder with no budget for developers should use Webflow or Framer rather than waiting months to hire. A launched site > no site.
 
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
-- Building a new website from scratch — static site, landing page, portfolio, blog, e-commerce storefront, or SaaS marketing site
-- Migrating an existing website from a proprietary platform (Wix, Squarespace, WordPress) to a modern, portable stack
-- Choosing between static site generators (Astro, Hugo, 11ty, Next.js, Remix) based on build speed, JS footprint, and content update frequency
-- Evaluating low-code platforms (Webflow, Framer, Bubble) for non-developer content editors or rapid prototyping
-- Optimizing Core Web Vitals and implementing SEO-first architecture for existing or new sites
-- Setting up cost-optimized hosting and deployment pipelines ($0-50/mo range)
-- Designing content architecture, CMS integration, and editorial workflows for teams
-- Don't use for backend API development or full-stack web apps with complex server-side logic — invoke backend-developer or fullstack-developer
+* Building a new website from scratch — static site, landing page, portfolio, blog, e-commerce storefront, or SaaS marketing site
+* Migrating an existing website from a proprietary platform (Wix, Squarespace, WordPress) to a modern, portable stack
+* Choosing between static site generators (Astro, Hugo, 11ty, Next.js, Remix) based on build speed, JS footprint, and content update frequency
+* Evaluating low-code platforms (Webflow, Framer, Bubble) for non-developer content editors or rapid prototyping
+* Optimizing Core Web Vitals and implementing SEO-first architecture for existing or new sites
+* Setting up cost-optimized hosting and deployment pipelines ($0-50/mo range)
+* Designing content architecture, CMS integration, and editorial workflows for teams
+* Don't use for backend API development or full-stack web apps with complex server-side logic — invoke backend-developer or fullstack-developer
 
 ## Decision Trees
 <!-- STANDARD: 3min -->
@@ -307,7 +301,7 @@ Detailed reference material
 ## Gotchas — Dollar-Quantified Website Footguns
 <!-- STANDARD: 3min -->
 
-- **"I'll just use WordPress" → $3,200/mo in security cleanup.** WordPress power...
+* **"I'll just use WordPress" → $3,200/mo in security cleanup.** WordPress power...
 
 > 📎 Full content extracted to [references/gotchas---dollar-quantified-website-footguns.md](references/gotchas---dollar-quantified-website-footguns.md) — 25 lines of detailed guidance, patterns, and code examples.
 
@@ -381,7 +375,6 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | **accessibility-testing** | Component inventory, interaction patterns, color tokens | Accessibility audit requires implemented UI components |
 | **ci-cd-builder** | Framework build command, environment variables, deploy target, branch strategy | CI/CD can't be configured without knowing the build toolchain |
 
-#
 
 ## Communication Triggers
 <!-- STANDARD: 3min -->
@@ -429,7 +422,6 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -455,7 +447,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -471,17 +462,16 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
-- [ ] Have I read the state log from the previous session?
-- [ ] Do any prior decisions constrain what I'm about to do?
-- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
-- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
+* [ ] Have I read the state log from the previous session?
+* [ ] Do any prior decisions constrain what I'm about to do?
+* [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+* [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Deliberate Practice
 <!-- QUICK: 30s -- exercises to build website-builder mastery -->
@@ -533,7 +523,7 @@ When website builds go wrong, they go wrong in predictable ways. Here are the mo
 ## Production Checklist — Pre-Launch Verification
 <!-- STANDARD: 3min -->
 
-- [ ] **P1. Lighthouse Performance ≥ 90 on mobile** (simulated 4G, Moto G4). Tar...
+* [ ] **P1. Lighthouse Performance ≥ 90 on mobile** (simulated 4G, Moto G4). Tar...
 
 > 📎 Full content extracted to [references/production-checklist---pre-launch-verification.md](references/production-checklist---pre-launch-verification.md) — 22 lines of detailed guidance, patterns, and code examples.
 
@@ -547,29 +537,28 @@ When website builds go wrong, they go wrong in predictable ways. Here are the mo
 
 Detailed reference material loaded on demand:
 
-- **Anti-Rationalization**: See [anti-rationalization.md](references/anti-rationalization.md)
-- **Best Practices**: See [best-practices.md](references/best-practices.md)
-- **Production Checklist**: See [checklist.md](references/checklist.md)
-- **Deliberate Practice**: See [deliberate-practice.md](references/deliberate-practice.md)
-- **Error Recovery**: See [error-recovery.md](references/error-recovery.md)
-- **Gotchas**: See [gotchas.md](references/gotchas.md)
-- **State Log**: See [state-log.md](references/state-log.md)
-- **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-- **Verification Guardrails**: See [verification-guardrails.md](references/verification-guardrails.md)
-- **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
+* **Anti-Rationalization**: See [anti-rationalization.md](references/anti-rationalization.md)
+* **Best Practices**: See [best-practices.md](references/best-practices.md)
+* **Production Checklist**: See [checklist.md](references/checklist.md)
+* **Deliberate Practice**: See [deliberate-practice.md](references/deliberate-practice.md)
+* **Error Recovery**: See [error-recovery.md](references/error-recovery.md)
+* **Gotchas**: See [gotchas.md](references/gotchas.md)
+* **State Log**: See [state-log.md](references/state-log.md)
+* **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+* **Verification Guardrails**: See [verification-guardrails.md](references/verification-guardrails.md)
+* **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
 
-#
 
 ## External Resources
 <!-- STANDARD: 3min -->
 
-- **Content Architecture Patterns**: Content modeling (collections, taxonomies, relationships), multilingual strategies, CMS migration paths, markdown-to-headless-CMS workflow. See Astro content collections, Hugo taxonomies, and 11ty data cascade docs.
-- **Static Site Starter Templates**: Scaffolding for Astro (content collections, View Transitions), Hugo (modules, pipes), 11ty (data cascade, pagination), and Next.js (App Router, static exports). See framework docs for deployment config.
-- **E-commerce Platform Comparison**: Shopify vs Medusa vs Saleor vs custom — checkout optimization, product page patterns, payment gateway integration, headless commerce API design.
-- **SaaS Landing Page Patterns**: Waitlist pages, pricing tables, interactive demos, ROI calculators, social proof sections, and conversion rate optimization. See [landingfolio.com](https://landingfolio.com) for inspiration.
-- **Web App Deployment Architecture**: Auth (Auth0, Clerk, Supabase), database (PlanetScale, Neon, Turso), API routes, real-time (WebSocket, Server-Sent Events), edge functions.
-- **Low-Code Platforms**: Webflow (designer interface, CMS, interactions), Framer (React-based, animations), Bubble (no-code web apps). Know the migration path before committing.
-- **Maintenance Guide**: Dependency upgrade cadences, security patch workflows, content audit automation, hosting migration runbooks, domain renewal checklists.
-- **Core Web Vitals**: [web.dev/vitals](https://web.dev/vitals/), Lighthouse CI, `web-vitals` library, CrUX dashboard, PageSpeed Insights API.
-- **Structured Data**: [schema.org](https://schema.org/), Google Rich Results Test, JSON-LD generation patterns, breadcrumb/FAQ/Article/Product schemas.
-- **CDN & Hosting**: Cloudflare Pages, Vercel, Netlify, GitHub Pages, BunnyCDN — free tiers, limits, custom domain setup, SSL automation.
+* **Content Architecture Patterns**: Content modeling (collections, taxonomies, relationships), multilingual strategies, CMS migration paths, markdown-to-headless-CMS workflow. See Astro content collections, Hugo taxonomies, and 11ty data cascade docs.
+* **Static Site Starter Templates**: Scaffolding for Astro (content collections, View Transitions), Hugo (modules, pipes), 11ty (data cascade, pagination), and Next.js (App Router, static exports). See framework docs for deployment config.
+* **E-commerce Platform Comparison**: Shopify vs Medusa vs Saleor vs custom — checkout optimization, product page patterns, payment gateway integration, headless commerce API design.
+* **SaaS Landing Page Patterns**: Waitlist pages, pricing tables, interactive demos, ROI calculators, social proof sections, and conversion rate optimization. See [landingfolio.com](https://landingfolio.com) for inspiration.
+* **Web App Deployment Architecture**: Auth (Auth0, Clerk, Supabase), database (PlanetScale, Neon, Turso), API routes, real-time (WebSocket, Server-Sent Events), edge functions.
+* **Low-Code Platforms**: Webflow (designer interface, CMS, interactions), Framer (React-based, animations), Bubble (no-code web apps). Know the migration path before committing.
+* **Maintenance Guide**: Dependency upgrade cadences, security patch workflows, content audit automation, hosting migration runbooks, domain renewal checklists.
+* **Core Web Vitals**: [web.dev/vitals](https://web.dev/vitals/), Lighthouse CI, `web-vitals` library, CrUX dashboard, PageSpeed Insights API.
+* **Structured Data**: [schema.org](https://schema.org/), Google Rich Results Test, JSON-LD generation patterns, breadcrumb/FAQ/Article/Product schemas.
+* **CDN & Hosting**: Cloudflare Pages, Vercel, Netlify, GitHub Pages, BunnyCDN — free tiers, limits, custom domain setup, SSL automation.

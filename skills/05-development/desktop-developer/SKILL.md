@@ -197,7 +197,7 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
           └──┬──────────┬──────────┬──────────┬──────────┬──────────┘
              │          │          │          │          │
        Win+Mac+Linux  Windows  Win+Mac+Linux Windows  Win+Mac+Linux
-       + mobile                 + mobile               + embedded
+       - mobile                 + mobile               + embedded
              │          │          │          │          │
              ▼          ▼          ▼          ▼          ▼
     ┌─────────────┐ ┌─────────┐ ┌──────────┐ ┌──────┐ ┌──────────┐

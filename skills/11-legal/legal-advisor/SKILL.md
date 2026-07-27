@@ -174,8 +174,8 @@ product                      customer deal   software
    │                         │              │
    ▼                         ▼              ▼
 Terms of Service             Master Service  EULA (End User
-+ Privacy Policy             Agreement (MSA) License Agreement)
-+ Cookie Policy              + SOW/Order     + Privacy Policy
+- Privacy Policy             Agreement (MSA) License Agreement)
+- Cookie Policy              + SOW/Order     + Privacy Policy
    │                         Form            + Third-party
    ▼                         │              notices
 Clickwrap acceptance         ▼              │

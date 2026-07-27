@@ -421,8 +421,8 @@ This skill helps you do things.
 3. Check your work
 
 ## Tips
-- Write clean code
-- Remember to test
+* Write clean code
+* Remember to test
 ```
 
 Problems: No triggers, no boundaries, no completion criteria, no-op tips, no ground rules, no gotchas, no decision trees, no references.
@@ -465,12 +465,12 @@ description: >
 
 Before delivering work, the agent must verify:
 
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+* [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+* [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+* [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+* [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+* [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+* [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 

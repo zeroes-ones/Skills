@@ -216,7 +216,7 @@ at risk?                     gap identified?
 YES → Hire for capacity   ┌── Gap can be filled
       (same skills,       │   by upskilling
       more throughput)    │   existing team?
-      + consider          └──┬──────────────────┘
+      - consider          └──┬──────────────────┘
       contractor surge       │ YES        │ NO
       for time-bound         ▼            ▼
       needs              Invest in       Hire new

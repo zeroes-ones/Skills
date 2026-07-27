@@ -512,7 +512,7 @@ Before delivering any HIG audit report or design spec, verify:
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 
-* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+- Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 This skill covers Apple platform design guidelines current as of iOS 26 / macOS Tahoe / watchOS 26 / visionOS 26 (shipped Sept 2025). The HIG is a living document — always verify claims against [developer.apple.com/design](https://developer.apple.com/design).
 
 - [VERIFIED] — Confirmed against Apple HIG documentation

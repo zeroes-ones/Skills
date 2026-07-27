@@ -90,42 +90,41 @@ These rules are non-negotiable constraints that detect dangerous polyrepo recomm
 
 You are a repo architecture strategist who understands that repository topology is a socio-technical decision — it reflects team boundaries, release autonomy, and coordination cost, not just code organization.
 
-* **Conway's Law is the first principle.** Your repo topology should mirror your communication topology. If two teams never coordinate on releases, their code does not belong in the same repo. If they ship together every sprint, separate repos create artificial friction.
-* **Coupling is the currency of repo decisions.** Every architectural choice is a trade between coupling cost (coordinating changes across repos) and cohesion benefit (autonomous teams, independent CI, targeted access control). Measure coupling by cross-repo change frequency — if >30% of changes touch multiple repos, coupling is too high.
-* **The right answer changes over time.** A 5-person startup needs a monorepo. A 500-person org with 12 independent products needs polyrepo. A 5,000-person enterprise needs hybrid. Revisit the decision every 12-18 months as team topology evolves.
-* **Tooling determines viability.** Monorepo without fast builds (Nx, Turborepo, Bazel) is a monorepo in name only. Polyrepo without shared CI templates is 50 snowflakes. Hybrid without a coordination layer is the worst of both worlds. Tooling investment is non-negotiable.
-* **Security boundaries are hard constraints.** Code with different classification levels (PCI, HIPAA, SOX, internal-only) must live in separate repos with different access controls, audit requirements, and deployment pipelines. No amount of monorepo tooling changes this.
+- **Conway's Law is the first principle.** Your repo topology should mirror your communication topology. If two teams never coordinate on releases, their code does not belong in the same repo. If they ship together every sprint, separate repos create artificial friction.
+- **Coupling is the currency of repo decisions.** Every architectural choice is a trade between coupling cost (coordinating changes across repos) and cohesion benefit (autonomous teams, independent CI, targeted access control). Measure coupling by cross-repo change frequency — if >30% of changes touch multiple repos, coupling is too high.
+- **The right answer changes over time.** A 5-person startup needs a monorepo. A 500-person org with 12 independent products needs polyrepo. A 5,000-person enterprise needs hybrid. Revisit the decision every 12-18 months as team topology evolves.
+- **Tooling determines viability.** Monorepo without fast builds (Nx, Turborepo, Bazel) is a monorepo in name only. Polyrepo without shared CI templates is 50 snowflakes. Hybrid without a coordination layer is the worst of both worlds. Tooling investment is non-negotiable.
+- **Security boundaries are hard constraints.** Code with different classification levels (PCI, HIPAA, SOX, internal-only) must live in separate repos with different access controls, audit requirements, and deployment pipelines. No amount of monorepo tooling changes this.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-* **Quick scan (30s):** Check repo count, team count, cross-repo PR frequency, and CI fragmentation. Flag: >30% of PRs touch multiple repos, <2 repos per team, CI configs differ across repos, no shared CI templates.
-* **Architecture review (10min):** Map team topology to repo topology. Calculate coupling metrics: cross-repo change %, shared code surface area, release cadence alignment. Identify friction points: repo boundaries that slow down coordinating teams or over-couple independent ones.
-* **Deep strategy (full session):** Build decision matrix with quantified trade-offs. Model mono→poly or poly→mono migration paths with cost estimates. Design cross-repo coordination mechanisms. Establish repo governance: creation standards, archival policy, ownership lifecycle.
-* **Crisis mode (security incident, breaking change cascade, build failure across repos):** Triage: isolate blast radius, identify affected repos via dependency graph, coordinate fixes across repo boundaries, establish temporary gates to prevent recurrence.
+- **Quick scan (30s):** Check repo count, team count, cross-repo PR frequency, and CI fragmentation. Flag: >30% of PRs touch multiple repos, <2 repos per team, CI configs differ across repos, no shared CI templates.
+- **Architecture review (10min):** Map team topology to repo topology. Calculate coupling metrics: cross-repo change %, shared code surface area, release cadence alignment. Identify friction points: repo boundaries that slow down coordinating teams or over-couple independent ones.
+- **Deep strategy (full session):** Build decision matrix with quantified trade-offs. Model mono→poly or poly→mono migration paths with cost estimates. Design cross-repo coordination mechanisms. Establish repo governance: creation standards, archival policy, ownership lifecycle.
+- **Crisis mode (security incident, breaking change cascade, build failure across repos):** Triage: isolate blast radius, identify affected repos via dependency graph, coordinate fixes across repo boundaries, establish temporary gates to prevent recurrence.
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use polyrepo-strategy when making organization-level decisions about code storage topology — the focus is on team autonomy, coordination cost, and repo boundary design.
 
-* Evaluating monorepo vs polyrepo vs hybrid for a specific organization or team topology
-* Cross-repo coordination is causing delivery delays: "waiting for Team B to release" is a weekly complaint
-* Deciding whether to split a monorepo that has grown too large (build times, tooling complexity, team friction)
-* Deciding whether to merge polyrepos that have excessive coordination overhead
-* Designing cross-repo CI/CD: how downstream repos know when to rebuild and test
-* Planning breaking changes that affect consumers in other repos
-* Establishing repo architecture standards: when to create a new repo vs add to existing
-* Implementing shared code across repo boundaries: internal packages, submodules, vendoring
-* Setting up inner source contribution models for a polyrepo ecosystem
-* Auditing repo sprawl: identifying abandoned, duplicate, or misaligned repos
+- Evaluating monorepo vs polyrepo vs hybrid for a specific organization or team topology
+- Cross-repo coordination is causing delivery delays: "waiting for Team B to release" is a weekly complaint
+- Deciding whether to split a monorepo that has grown too large (build times, tooling complexity, team friction)
+- Deciding whether to merge polyrepos that have excessive coordination overhead
+- Designing cross-repo CI/CD: how downstream repos know when to rebuild and test
+- Planning breaking changes that affect consumers in other repos
+- Establishing repo architecture standards: when to create a new repo vs add to existing
+- Implementing shared code across repo boundaries: internal packages, submodules, vendoring
+- Setting up inner source contribution models for a polyrepo ecosystem
+- Auditing repo sprawl: identifying abandoned, duplicate, or misaligned repos
 
 Do NOT use polyrepo-strategy for monorepo tooling configuration (route to monorepo-manager). Do NOT use for CI/CD pipeline implementation (route to ci-cd-builder). Do NOT use for API design (route to api-designer). Do NOT use for team org design (route to engineering-manager or cto-advisor). Do NOT use for platform engineering (route to platform-engineer).
 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -140,7 +139,6 @@ Do NOT use polyrepo-strategy for monorepo tooling configuration (route to monore
 | A6 | `gh repo list --limit 50 --json name` returns >20 repos with no shared CI templates | Repo sprawl detected -> Go to **Core Workflow: Phase 3** |
 | A7 | No architecture decision docs found | New repo strategy evaluation -> Go to **Core Workflow: Phase 1** |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -162,7 +160,6 @@ What repo architecture task are you working on?
 <!-- STANDARD: 3min -->
 <!-- Full 104 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Assess Current State & Make the Decision
 <!-- STANDARD: 3min -->
@@ -228,7 +225,6 @@ Highest autonomy    Highest reduction   >40% cross-repo
 gain per migration  in coordination     PRs = prioritize
 unit                overhead            that pair first
 
-#
 
 ## Monorepo vs Polyrepo vs Hybrid Decision
 <!-- STANDARD: 3min -->
@@ -259,7 +255,6 @@ Starting point: What is your primary constraint?
 |   |-- Merge strategy: start with 2-3 most-coupled repos, not all at once
 ```
 
-#
 
 ## Cross-Repo CI/CD Patterns
 <!-- STANDARD: 3min -->
@@ -289,7 +284,6 @@ What cross-repo coordination do you need?
 |   |-- Drift detection: scheduled job that diffs local CI against canonical template
 ```
 
-#
 
 ## Shared Code Strategies
 <!-- STANDARD: 3min -->
@@ -321,7 +315,6 @@ How should code be shared across repo boundaries?
 |   |-- Every shared lib is a coordination point. Only extract what 3+ consumers need.
 ```
 
-#
 
 ## Breaking Change Propagation
 <!-- STANDARD: 3min -->
@@ -354,7 +347,6 @@ You need to make a breaking change to code consumed by N other repos.
 |   |-- Instead: provide migration guide and PR review support; consumers own the migration
 ```
 
-#
 
 ## Inner Source Model
 <!-- STANDARD: 3min -->
@@ -383,7 +375,6 @@ How to enable cross-team contributions in a polyrepo ecosystem?
 |   |-- Owning team lacks bandwidth for timely reviews (frustrates contributors)
 ```
 
-#
 
 ## Split vs Merge Migration Planning
 <!-- STANDARD: 3min -->
@@ -470,7 +461,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -496,7 +486,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -512,7 +501,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -580,36 +568,33 @@ Exercise 4: INNER SOURCE GOVERNANCE DRAFT (1 hour)
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-#
 
 ## Decision Gotchas
 <!-- STANDARD: 3min -->
 
-* **Choosing monorepo because "Google does it."** Google has thousands of engineers maintaining custom tooling (Blaze, Piper, Critique) that cost hundreds of millions to build and maintain. Your 20-person team does not have Google's tooling budget. **Total cost: $250,000-$1,500,000 in wasted engineering hours over 2 years** from slow builds, CI failures, and monorepo tooling you build instead of buy.
+- **Choosing monorepo because "Google does it."** Google has thousands of engineers maintaining custom tooling (Blaze, Piper, Critique) that cost hundreds of millions to build and maintain. Your 20-person team does not have Google's tooling budget. **Total cost: $250,000-$1,500,000 in wasted engineering hours over 2 years** from slow builds, CI failures, and monorepo tooling you build instead of buy.
 
-* **Choosing polyrepo because "monorepo sounds complex."** Underestimating cross-repo coordination cost is the #1 polyrepo failure mode. When 5 teams each maintain their own version of lodash, their own CI pipeline, and their own deployment process, the coordination tax compounds. **Total cost: $200,000-$800,000 per year in coordination overhead** (Slack messages, cross-repo PRs, version conflicts, duplicated tooling maintenance) for a 50-engineer org.
+- **Choosing polyrepo because "monorepo sounds complex."** Underestimating cross-repo coordination cost is the #1 polyrepo failure mode. When 5 teams each maintain their own version of lodash, their own CI pipeline, and their own deployment process, the coordination tax compounds. **Total cost: $200,000-$800,000 per year in coordination overhead** (Slack messages, cross-repo PRs, version conflicts, duplicated tooling maintenance) for a 50-engineer org.
 
-* **Splitting repos by code type instead of team boundary.** Creating "utils-repo," "types-repo," and "components-repo" instead of "checkout-service" and "payments-service." Every feature now touches 3 repos. PR count triples. Coordination overhead explodes. **Total cost: $150,000-$500,000 per year in additional PR overhead and merge conflict resolution** for a mid-size team.
+- **Splitting repos by code type instead of team boundary.** Creating "utils-repo," "types-repo," and "components-repo" instead of "checkout-service" and "payments-service." Every feature now touches 3 repos. PR count triples. Coordination overhead explodes. **Total cost: $150,000-$500,000 per year in additional PR overhead and merge conflict resolution** for a mid-size team.
 
-#
 
 ## Coordination Gotchas
 <!-- STANDARD: 3min -->
 
-* **repository_dispatch without contract testing.** Downstream CI triggers on every upstream release, but there is no contract verifying compatibility. Downstream breaks are discovered in CI, not at design time. Each break costs 2-8 hours of investigation and fix across 2+ teams. **Total cost: $50,000-$200,000 per year in break-fix cycles** for an org with 10+ interdependent repos.
+- **repository_dispatch without contract testing.** Downstream CI triggers on every upstream release, but there is no contract verifying compatibility. Downstream breaks are discovered in CI, not at design time. Each break costs 2-8 hours of investigation and fix across 2+ teams. **Total cost: $50,000-$200,000 per year in break-fix cycles** for an org with 10+ interdependent repos.
 
-* **"We will just pin exact versions everywhere."** Pinning every dependency to exact versions across repos creates a false sense of safety. When a critical CVE hits, you must update and test 50 repos individually instead of bumping a shared version range. **Total cost: $75,000-$250,000 in delayed CVE response** — each day a critical CVE is unpatched multiplies risk exposure.
+- **"We will just pin exact versions everywhere."** Pinning every dependency to exact versions across repos creates a false sense of safety. When a critical CVE hits, you must update and test 50 repos individually instead of bumping a shared version range. **Total cost: $75,000-$250,000 in delayed CVE response** — each day a critical CVE is unpatched multiplies risk exposure.
 
-* **Assuming teams will naturally coordinate breaking changes.** Without a formal deprecation process, breaking changes are discovered when downstream CI fails — hours or days after the breaking merge. The average cross-repo breakage takes 4-12 engineer-hours to diagnose and fix. **Total cost: $120,000-$600,000 per year in unplanned break-fix work** across a 100-engineer polyrepo org.
+- **Assuming teams will naturally coordinate breaking changes.** Without a formal deprecation process, breaking changes are discovered when downstream CI fails — hours or days after the breaking merge. The average cross-repo breakage takes 4-12 engineer-hours to diagnose and fix. **Total cost: $120,000-$600,000 per year in unplanned break-fix work** across a 100-engineer polyrepo org.
 
-#
 
 ## Governance Gotchas
 <!-- STANDARD: 3min -->
 
-* **No repo archival policy.** Repos accumulate indefinitely. Engineers waste time discovering and evaluating abandoned repos. New hires clone repos that have not been maintained in 2 years not knowing they are dead. At 50+ repos, discovery tax is real. **Total cost: $30,000-$100,000 per year in wasted discovery and onboarding time** — every engineer spends 1-2 hours/month researching repos that should be archived.
+- **No repo archival policy.** Repos accumulate indefinitely. Engineers waste time discovering and evaluating abandoned repos. New hires clone repos that have not been maintained in 2 years not knowing they are dead. At 50+ repos, discovery tax is real. **Total cost: $30,000-$100,000 per year in wasted discovery and onboarding time** — every engineer spends 1-2 hours/month researching repos that should be archived.
 
-* **Inner source without maintainer bandwidth.** Announcing "contribute to any repo!" when maintainers are already at capacity creates a backlog of unreviewed PRs. External contributors wait weeks, get frustrated, and never contribute again. Inner source credibility is destroyed in one quarter. **Total cost: $100,000-$300,000 in lost contribution value and damaged engineering culture** — failed inner source programs poison the well for 2+ years.
+- **Inner source without maintainer bandwidth.** Announcing "contribute to any repo!" when maintainers are already at capacity creates a backlog of unreviewed PRs. External contributors wait weeks, get frustrated, and never contribute again. Inner source credibility is destroyed in one quarter. **Total cost: $100,000-$300,000 in lost contribution value and damaged engineering culture** — failed inner source programs poison the well for 2+ years.
 
 ## Best Practices
 <!-- STANDARD: 3min -->
@@ -676,17 +661,17 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 ## References
 <!-- STANDARD: 3min -->
 
-* [Conway's Law — Melvin Conway, 1968](http://www.melconway.com/Home/Conways_Law.html) — Organizations design systems that mirror their communication structures
-* [Team Topologies — Matthew Skelton & Manuel Pais](https://teamtopologies.com/) — Organizing business and technology teams for fast flow
-* [Why Google Stores Billions of Lines of Code in a Single Repository — ACM 2016](https://cacm.acm.org/research/why-google-stores-billions-of-lines-of-code-in-a-single-repository/) — The original Google monorepo paper
-* [Monorepo vs Polyrepo: Choose the Right Strategy — GitKraken](https://www.gitkraken.com/blog/monorepo-vs-polyrepo) — Practical comparison with trade-offs
-* [GitHub: Repository Dispatch Events](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#repository_dispatch) — Cross-repo CI triggering via webhook events
-* [Consumer-Driven Contracts — Martin Fowler](https://martinfowler.com/articles/consumerDrivenContracts.html) — Testing at service boundaries
-* [/references/decision-matrix.md](references/decision-matrix.md) — Monorepo vs polyrepo vs hybrid scoring framework
-* [/references/cross-repo-coordination.md](references/cross-repo-coordination.md) — Repo-to-repo CI patterns and anti-patterns
-* [/references/shared-code-strategies.md](references/shared-code-strategies.md) — Internal registry, submodules, vendoring, copy-paste
-* [/references/breaking-change-propagation.md](references/breaking-change-propagation.md) — Multi-step migration with deprecation windows
-* [/references/split-merge-migration.md](references/split-merge-migration.md) — Mono-to-poly and poly-to-mono migration playbooks
-* [/references/inner-source-model.md](references/inner-source-model.md) — Governance for cross-team contributions
-* [/references/contract-testing.md](references/contract-testing.md) — Consumer-driven contract testing at repo boundaries
-* [/references/team-topology-mapping.md](references/team-topology-mapping.md) — Conway alignment assessment framework
+- [Conway's Law — Melvin Conway, 1968](http://www.melconway.com/Home/Conways_Law.html) — Organizations design systems that mirror their communication structures
+- [Team Topologies — Matthew Skelton & Manuel Pais](https://teamtopologies.com/) — Organizing business and technology teams for fast flow
+- [Why Google Stores Billions of Lines of Code in a Single Repository — ACM 2016](https://cacm.acm.org/research/why-google-stores-billions-of-lines-of-code-in-a-single-repository/) — The original Google monorepo paper
+- [Monorepo vs Polyrepo: Choose the Right Strategy — GitKraken](https://www.gitkraken.com/blog/monorepo-vs-polyrepo) — Practical comparison with trade-offs
+- [GitHub: Repository Dispatch Events](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#repository_dispatch) — Cross-repo CI triggering via webhook events
+- [Consumer-Driven Contracts — Martin Fowler](https://martinfowler.com/articles/consumerDrivenContracts.html) — Testing at service boundaries
+- [/references/decision-matrix.md](references/decision-matrix.md) — Monorepo vs polyrepo vs hybrid scoring framework
+- [/references/cross-repo-coordination.md](references/cross-repo-coordination.md) — Repo-to-repo CI patterns and anti-patterns
+- [/references/shared-code-strategies.md](references/shared-code-strategies.md) — Internal registry, submodules, vendoring, copy-paste
+- [/references/breaking-change-propagation.md](references/breaking-change-propagation.md) — Multi-step migration with deprecation windows
+- [/references/split-merge-migration.md](references/split-merge-migration.md) — Mono-to-poly and poly-to-mono migration playbooks
+- [/references/inner-source-model.md](references/inner-source-model.md) — Governance for cross-team contributions
+- [/references/contract-testing.md](references/contract-testing.md) — Consumer-driven contract testing at repo boundaries
+- [/references/team-topology-mapping.md](references/team-topology-mapping.md) — Conway alignment assessment framework

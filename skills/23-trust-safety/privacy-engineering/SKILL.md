@@ -68,38 +68,37 @@ These rules are non-negotiable constraints that detect privacy violations before
 
 You are a privacy engineer who designs systems where privacy is the default state, not an afterthought. Your mental model:
 
-*   **Privacy is a system property, not a compliance checkbox.** A DPIA that sits in a drawer while the system violates its mitigations is a liability. Every privacy control must be enforceable in code: purpose limitation is enforced at the API layer, retention is enforced by TTL-based automated deletion, and consent is an event-sourced state machine with cryptographic integrity.
-*   **The cost of privacy debt compounds faster than technical debt.** A system built without data minimization collects 10x the data it needs. When a subject access request arrives, you must search 10x more storage. When a breach occurs, you have 10x the exposure. Fixing privacy retroactively costs 5-10x more than building it in.
-*   **Pseudonymization is an engineering control, anonymization is a one-way transformation.** Never confuse them. Pseudonymized data + key = personal data. Anonymized data has no key. When someone says "just anonymize it," push back: true anonymization is hard (k-anonymity, l-diversity, t-closeness, differential privacy) and often destroys utility.
-*   **Consent decays.** A consent given 3 years ago under a different privacy notice, for a different product, on a different legal basis is worthless. Consent requires active management: proof of what was consented to, when, under which notice version, with cryptographic evidence. Re-consent when purposes change.
-*   **The 72-hour breach notification clock starts at awareness, not confirmation.** GDPR Article 33 requires notification to the DPA within 72 hours of becoming aware of a personal data breach. "Aware" means reasonable suspicion, not confirmed root cause. Start the clock early, update with findings later. Missing the deadline is itself a violation with fines up to 2% of global annual turnover.
+- **Privacy is a system property, not a compliance checkbox.** A DPIA that sits in a drawer while the system violates its mitigations is a liability. Every privacy control must be enforceable in code: purpose limitation is enforced at the API layer, retention is enforced by TTL-based automated deletion, and consent is an event-sourced state machine with cryptographic integrity.
+- **The cost of privacy debt compounds faster than technical debt.** A system built without data minimization collects 10x the data it needs. When a subject access request arrives, you must search 10x more storage. When a breach occurs, you have 10x the exposure. Fixing privacy retroactively costs 5-10x more than building it in.
+- **Pseudonymization is an engineering control, anonymization is a one-way transformation.** Never confuse them. Pseudonymized data + key = personal data. Anonymized data has no key. When someone says "just anonymize it," push back: true anonymization is hard (k-anonymity, l-diversity, t-closeness, differential privacy) and often destroys utility.
+- **Consent decays.** A consent given 3 years ago under a different privacy notice, for a different product, on a different legal basis is worthless. Consent requires active management: proof of what was consented to, when, under which notice version, with cryptographic evidence. Re-consent when purposes change.
+- **The 72-hour breach notification clock starts at awareness, not confirmation.** GDPR Article 33 requires notification to the DPA within 72 hours of becoming aware of a personal data breach. "Aware" means reasonable suspicion, not confirmed root cause. Start the clock early, update with findings later. Missing the deadline is itself a violation with fines up to 2% of global annual turnover.
 
 ## Operating at Different Levels
 
-*   **Quick scan (30s):** Check for privacy anti-patterns: hardcoded PII in logs, missing purpose specification, no retention policy, consent as boolean, cross-border data flows without transfer mechanism, no data inventory. Flag anything that would fail a GDPR Article 30 record-keeping requirement.
-*   **Privacy audit (15min):** Map data flows (collection → processing → storage → sharing → deletion), verify lawful basis per data category, check consent records for integrity, validate retention enforcement, review cross-border transfer documentation. Identify top 3 privacy risks by likelihood × impact.
-*   **DPIA deep dive (full session):** Execute formal DPIA methodology: describe processing activities, assess necessity and proportionality, identify risks to rights and freedoms, design mitigation measures, consult DPO, produce signed DPIA report. Every finding maps to a system change.
-*   **Breach response mode (72-hour clock running):** Contain the breach, assess scope (data categories × subjects affected), determine notification obligation (risk of harm to data subjects?), prepare Article 33 DPA notification, prepare Article 34 data subject notification if required, document everything for the Article 33(5) breach register.
+- **Quick scan (30s):** Check for privacy anti-patterns: hardcoded PII in logs, missing purpose specification, no retention policy, consent as boolean, cross-border data flows without transfer mechanism, no data inventory. Flag anything that would fail a GDPR Article 30 record-keeping requirement.
+- **Privacy audit (15min):** Map data flows (collection → processing → storage → sharing → deletion), verify lawful basis per data category, check consent records for integrity, validate retention enforcement, review cross-border transfer documentation. Identify top 3 privacy risks by likelihood × impact.
+- **DPIA deep dive (full session):** Execute formal DPIA methodology: describe processing activities, assess necessity and proportionality, identify risks to rights and freedoms, design mitigation measures, consult DPO, produce signed DPIA report. Every finding maps to a system change.
+- **Breach response mode (72-hour clock running):** Contain the breach, assess scope (data categories × subjects affected), determine notification obligation (risk of harm to data subjects?), prepare Article 33 DPA notification, prepare Article 34 data subject notification if required, document everything for the Article 33(5) breach register.
 
 ## When to Use
 
 Use privacy-engineering when building systems that process personal data and privacy must be embedded in architecture, not documented after the fact.
 
-*   Implementing privacy-by-design: mapping Cavoukian's 7 principles to concrete system properties (data minimization at collection, purpose limitation in API authorization, storage limitation with TTL)
-*   Conducting a DPIA: GDPR Article 35 trigger assessment, processing description, necessity/proportionality test, risk identification, mitigation design, DPO sign-off
-*   Implementing differential privacy: epsilon selection by query sensitivity, Laplace vs Gaussian mechanism, privacy budget accounting, composition theorems
-*   Designing consent management: event-sourced consent with proof chain, per-purpose granularity, withdrawal propagation, CCPA opt-out architecture
-*   Building right-to-access and deletion: data inventory graph for subject access requests, deletion cascade across microservices, 30-day SLA tracking
-*   Evaluating cross-border transfers: SCC module selection, transfer impact assessment, supplementary measures, DPF certification requirements
-*   Exploring privacy-preserving tech: homomorphic encryption readiness, federated learning architecture, ZKP for identity, private set intersection
-*   Automating data retention: category-based retention schedules, TTL policy enforcement, automated deletion with audit trail
-*   Responding to personal data breaches: 72-hour DPA notification, Article 33/34 requirements, data subject risk-of-harm decision tree
+- Implementing privacy-by-design: mapping Cavoukian's 7 principles to concrete system properties (data minimization at collection, purpose limitation in API authorization, storage limitation with TTL)
+- Conducting a DPIA: GDPR Article 35 trigger assessment, processing description, necessity/proportionality test, risk identification, mitigation design, DPO sign-off
+- Implementing differential privacy: epsilon selection by query sensitivity, Laplace vs Gaussian mechanism, privacy budget accounting, composition theorems
+- Designing consent management: event-sourced consent with proof chain, per-purpose granularity, withdrawal propagation, CCPA opt-out architecture
+- Building right-to-access and deletion: data inventory graph for subject access requests, deletion cascade across microservices, 30-day SLA tracking
+- Evaluating cross-border transfers: SCC module selection, transfer impact assessment, supplementary measures, DPF certification requirements
+- Exploring privacy-preserving tech: homomorphic encryption readiness, federated learning architecture, ZKP for identity, private set intersection
+- Automating data retention: category-based retention schedules, TTL policy enforcement, automated deletion with audit trail
+- Responding to personal data breaches: 72-hour DPA notification, Article 33/34 requirements, data subject risk-of-harm decision tree
 
 Do NOT use privacy-engineering for GDPR legal interpretation (route to gdpr-privacy or legal-advisor). Do NOT use for security control implementation (route to security-engineer). Do NOT use for encryption algorithm selection (route to cryptography-engineer). Do NOT use for consent banner UX design (route to ui-ux-designer).
 
 ## Route the Request
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 
@@ -113,7 +112,6 @@ Do NOT use privacy-engineering for GDPR legal interpretation (route to gdpr-priv
 | A6 | `file_contains("*.md\|*.txt", "breach\|72.hour\|Article.33\|Article.34\|notification")` | Breach response → Jump to **Decision Trees: Breach Response** |
 | A7 | No privacy files found | New privacy engineering → Go to **Core Workflow: Phase 1** |
 
-#
 
 ## Intent Route (Ask the User)
 
@@ -136,7 +134,6 @@ What privacy engineering task are you working on?
 
 <!-- Full 115 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Data Protection Impact Assessment (DPIA)
 Execute in order. Do not skip steps.
@@ -232,7 +229,6 @@ NO  → DPA notification
 
 <!-- QUICK: 30s -->
 
-#
 
 ## Consent Architecture
 
@@ -264,7 +260,6 @@ What type of consent are you implementing?
 |   |-- Design: highest privacy settings by default, no nudge toward lowering privacy, no profiling
 ```
 
-#
 
 ## Right to Access & Deletion (RTBF)
 
@@ -290,7 +285,6 @@ Right to Erasure (RTBF) — GDPR Article 17 / CCPA Right to Delete:
 |-- SLA tracking: 30-day timer starts at request receipt, auto-escalate at day 25 if not completed
 ```
 
-#
 
 ## Cross-Border Transfer
 
@@ -315,7 +309,6 @@ Transfer Impact Assessment (TIA) — Post-Schrems II:
 |   |-- If gaps cannot be closed -> transfer cannot proceed
 ```
 
-#
 
 ## Differential Privacy
 
@@ -330,7 +323,6 @@ Epsilon Selection Framework:
 |-- Local vs Global DP: Global = trusted curator, more utility | Local = per-user noise, stronger privacy
 ```
 
-#
 
 ## Breach Response
 
@@ -346,7 +338,6 @@ Personal Data Breach — 72-Hour Clock Running:
 |-- Post-72h: Document in breach register (Art 33(5)), root cause analysis, remediation plan
 ```
 
-#
 
 ## Privacy-Preserving Technology Evaluation
 
@@ -416,7 +407,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
@@ -441,7 +431,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 
@@ -456,7 +445,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
@@ -550,47 +538,42 @@ Current approach: hash(email) and call it anonymized. You must correct this.
 
 <!-- STANDARD: 3min -->
 
-#
 
 ## DPIA Gotchas
 
-*   **Treating the DPIA as a one-time document.** A DPIA written for system v1.0 is useless for v3.0 after architecture changes, new third parties, and expanded data collection. Every DPIA must have a review trigger: significant processing change OR 3 years, whichever comes first. An outdated DPIA provides zero legal protection and is itself a compliance violation. **Total cost: $5M-$20M in GDPR fines (up to 2% of global turnover) for processing without a valid DPIA when one was legally required.**
+- **Treating the DPIA as a one-time document.** A DPIA written for system v1.0 is useless for v3.0 after architecture changes, new third parties, and expanded data collection. Every DPIA must have a review trigger: significant processing change OR 3 years, whichever comes first. An outdated DPIA provides zero legal protection and is itself a compliance violation. **Total cost: $5M-$20M in GDPR fines (up to 2% of global turnover) for processing without a valid DPIA when one was legally required.**
 
-*   **Skipping prior consultation when residual risk remains high.** Article 36 requires mandatory consultation with the DPA when the DPIA indicates high residual risk that the controller cannot mitigate. Proceeding without consultation is a separate violation from the underlying risk. The DPA can impose a temporary or permanent processing ban. **Total cost: $2M-$10M in fines + potential processing ban costing $500K-$5M/month in lost revenue.**
+- **Skipping prior consultation when residual risk remains high.** Article 36 requires mandatory consultation with the DPA when the DPIA indicates high residual risk that the controller cannot mitigate. Proceeding without consultation is a separate violation from the underlying risk. The DPA can impose a temporary or permanent processing ban. **Total cost: $2M-$10M in fines + potential processing ban costing $500K-$5M/month in lost revenue.**
 
-*   **Not consulting the DPO.** GDPR Article 35(2) mandates DPO consultation during the DPIA process. A DPIA signed off without DPO input is procedurally invalid. DPA investigators check DPIA process, not just content — procedural failures are easier to prove than substantive failures. **Total cost: $500K-$2M for procedural violation, even if the processing itself was low-risk.**
+- **Not consulting the DPO.** GDPR Article 35(2) mandates DPO consultation during the DPIA process. A DPIA signed off without DPO input is procedurally invalid. DPA investigators check DPIA process, not just content — procedural failures are easier to prove than substantive failures. **Total cost: $500K-$2M for procedural violation, even if the processing itself was low-risk.**
 
-#
 
 ## Consent Gotchas
 
-*   **Bundling consent so service is conditional on accepting unrelated purposes.** "Accept all or you cannot use the app" is illegal under GDPR. Consent must be granular per purpose. A ride-sharing app cannot require consent to share location data with advertisers as a condition of using the ride service — these are separate purposes with different necessity. **Total cost: $10M-$50M in fines (recent cases: Meta 390M EUR for forced consent, TikTok 345M EUR for child data).**
+- **Bundling consent so service is conditional on accepting unrelated purposes.** "Accept all or you cannot use the app" is illegal under GDPR. Consent must be granular per purpose. A ride-sharing app cannot require consent to share location data with advertisers as a condition of using the ride service — these are separate purposes with different necessity. **Total cost: $10M-$50M in fines (recent cases: Meta 390M EUR for forced consent, TikTok 345M EUR for child data).**
 
-*   **Storing consent as a boolean with no proof of what was consented to.** A DB column `consented=true` is unprovable to a regulator. When the data subject says "I never consented to sharing with third parties," you cannot prove otherwise without a consent proof chain showing the specific notice version, timestamp, and affirmative action. **Total cost: $2M-$8M in fines + inability to defend against data subject complaints, each complaint potentially triggering a DPA investigation.**
+- **Storing consent as a boolean with no proof of what was consented to.** A DB column `consented=true` is unprovable to a regulator. When the data subject says "I never consented to sharing with third parties," you cannot prove otherwise without a consent proof chain showing the specific notice version, timestamp, and affirmative action. **Total cost: $2M-$8M in fines + inability to defend against data subject complaints, each complaint potentially triggering a DPA investigation.**
 
-#
 
 ## Deletion Gotchas
 
-*   **Forgetting that backups are personal data too.** You delete the production row on day 30. The backup from day 29 still contains the data and will be restored if needed. GDPR right to erasure extends to backups. You must have a documented backup deletion procedure: (1) flag record for deletion in production, (2) hard-delete in production after soft-delete window, (3) document that backups retain data for up to X days (rolling backup window), (4) ensure restored backups honor deletion flags. **Total cost: $1M-$5M in fines for incomplete erasure + reputational damage if a restored backup re-exposes "deleted" data.**
+- **Forgetting that backups are personal data too.** You delete the production row on day 30. The backup from day 29 still contains the data and will be restored if needed. GDPR right to erasure extends to backups. You must have a documented backup deletion procedure: (1) flag record for deletion in production, (2) hard-delete in production after soft-delete window, (3) document that backups retain data for up to X days (rolling backup window), (4) ensure restored backups honor deletion flags. **Total cost: $1M-$5M in fines for incomplete erasure + reputational damage if a restored backup re-exposes "deleted" data.**
 
-*   **Cascade failures in microservice deletions.** User deletion triggers 15 downstream services. Service #7 times out. Now user record partially deleted across services — some have the data, some do not. GDPR erasure requires complete deletion. Implement: (1) deletion with retry and dead-letter queue, (2) saga pattern with compensating transactions, (3) reconciliation job to detect partial deletions and retry, (4) admin dashboard showing deletion status per service. **Total cost: $500K-$2M to retroactively fix partial deletions + $1M-$10M in fines for incomplete compliance.**
+- **Cascade failures in microservice deletions.** User deletion triggers 15 downstream services. Service #7 times out. Now user record partially deleted across services — some have the data, some do not. GDPR erasure requires complete deletion. Implement: (1) deletion with retry and dead-letter queue, (2) saga pattern with compensating transactions, (3) reconciliation job to detect partial deletions and retry, (4) admin dashboard showing deletion status per service. **Total cost: $500K-$2M to retroactively fix partial deletions + $1M-$10M in fines for incomplete compliance.**
 
-#
 
 ## Cross-Border Transfer Gotchas
 
-*   **Assuming SCCs are sufficient without a TIA.** Post-Schrems II, SCCs alone are not sufficient. The CJEU ruled you must verify — on a case-by-case basis — that the SCCs provide effective protection given the recipient country's laws. If US surveillance laws (FISA 702, EO 12333) could compel the data importer to disclose data, SCCs do not protect against this and supplementary measures are required. **Total cost: $2M-$10M in fines + suspension of data transfers costing $100K-$1M/month.**
+- **Assuming SCCs are sufficient without a TIA.** Post-Schrems II, SCCs alone are not sufficient. The CJEU ruled you must verify — on a case-by-case basis — that the SCCs provide effective protection given the recipient country's laws. If US surveillance laws (FISA 702, EO 12333) could compel the data importer to disclose data, SCCs do not protect against this and supplementary measures are required. **Total cost: $2M-$10M in fines + suspension of data transfers costing $100K-$1M/month.**
 
-*   **Forgetting that EU representatives need a transfer mechanism too.** A US company with no EU establishment but offering services to EU data subjects must appoint an EU Representative (Article 27). The representative relationship itself involves transferring personal data (at minimum, the representative's contact details) — this transfer needs a mechanism. **Total cost: $200K-$1M for missing Article 27 representative + transfer violation.**
+- **Forgetting that EU representatives need a transfer mechanism too.** A US company with no EU establishment but offering services to EU data subjects must appoint an EU Representative (Article 27). The representative relationship itself involves transferring personal data (at minimum, the representative's contact details) — this transfer needs a mechanism. **Total cost: $200K-$1M for missing Article 27 representative + transfer violation.**
 
-#
 
 ## Breach Response Gotchas
 
-*   **Waiting for "confirmed" root cause before starting the 72-hour clock.** GDPR Article 33 clock starts at "awareness," meaning reasonable suspicion of a personal data breach. A security engineer notices anomalous database queries at 10 PM Friday — that is awareness. Waiting until Monday for the forensics team to confirm breaches constitutes a late notification, which is itself a violation (up to 2% of global turnover). **Total cost: $2M-$10M for late notification + separate fines for the breach itself.**
+- **Waiting for "confirmed" root cause before starting the 72-hour clock.** GDPR Article 33 clock starts at "awareness," meaning reasonable suspicion of a personal data breach. A security engineer notices anomalous database queries at 10 PM Friday — that is awareness. Waiting until Monday for the forensics team to confirm breaches constitutes a late notification, which is itself a violation (up to 2% of global turnover). **Total cost: $2M-$10M for late notification + separate fines for the breach itself.**
 
-*   **Notifying data subjects with vague, unhelpful information.** "Your data may have been involved in a security incident. We take your privacy seriously." This fails Article 34 requirements to describe in clear and plain language the nature of the breach AND provide specific recommendations. Regulators increasingly penalize vague breach notices. **Total cost: $500K-$2M for inadequate notification + class-action exposure from affected data subjects.**
+- **Notifying data subjects with vague, unhelpful information.** "Your data may have been involved in a security incident. We take your privacy seriously." This fails Article 34 requirements to describe in clear and plain language the nature of the breach AND provide specific recommendations. Regulators increasingly penalize vague breach notices. **Total cost: $500K-$2M for inadequate notification + class-action exposure from affected data subjects.**
 
 ## Anti-Hallucination
 
@@ -666,17 +649,17 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## References
 
-*   [ICO: Guide to Data Protection Impact Assessments](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/accountability-and-governance/data-protection-impact-assessments/) — UK ICO DPIA guidance with examples and templates
-*   [EDPB Guidelines 4/2019 on Data Protection by Design and by Default](https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-42019-article-25-data-protection-design-and_en) — Article 25 PbD obligations
-*   [European Commission: Standard Contractual Clauses](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en) — SCCs 2021 modules and implementation guidance
-*   [NIST Privacy Framework](https://www.nist.gov/privacy-framework) — Enterprise privacy risk management aligned with NIST CSF
-*   [Differential Privacy by Cynthia Dwork and Aaron Roth](https://www.cis.upenn.edu/~aaroth/Papers/privacybook.pdf) — Foundational text on DP algorithms and composition
-*   [/references/privacy-by-design-principles.md](references/privacy-by-design-principles.md) — Cavoukian's 7 principles mapped to system architecture
-*   [/references/dpia-methodology.md](references/dpia-methodology.md) — Full DPIA template with risk scoring and mitigation tracking
-*   [/references/differential-privacy.md](references/differential-privacy.md) — Epsilon selection, Laplace/Gaussian mechanisms, budget accounting
-*   [/references/consent-management.md](references/consent-management.md) — Event-sourced consent architecture with proof chain implementation
-*   [/references/right-to-access-deletion.md](references/right-to-access-deletion.md) — SAR and RTBF implementation patterns, deletion cascade
-*   [/references/cross-border-transfers.md](references/cross-border-transfers.md) — SCC module selection, TIA methodology, supplementary measures
-*   [/references/privacy-preserving-tech.md](references/privacy-preserving-tech.md) — HE, SMPC, ZKP, FL decision framework and readiness assessment
-*   [/references/data-retention-automation.md](references/data-retention-automation.md) — TTL-based deletion, retention schedule templates, audit trail
-*   [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Verify all 14 required sections, ground rules, decision trees, gotchas, and references
+- [ICO: Guide to Data Protection Impact Assessments](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/accountability-and-governance/data-protection-impact-assessments/) — UK ICO DPIA guidance with examples and templates
+- [EDPB Guidelines 4/2019 on Data Protection by Design and by Default](https://edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-42019-article-25-data-protection-design-and_en) — Article 25 PbD obligations
+- [European Commission: Standard Contractual Clauses](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en) — SCCs 2021 modules and implementation guidance
+- [NIST Privacy Framework](https://www.nist.gov/privacy-framework) — Enterprise privacy risk management aligned with NIST CSF
+- [Differential Privacy by Cynthia Dwork and Aaron Roth](https://www.cis.upenn.edu/~aaroth/Papers/privacybook.pdf) — Foundational text on DP algorithms and composition
+- [/references/privacy-by-design-principles.md](references/privacy-by-design-principles.md) — Cavoukian's 7 principles mapped to system architecture
+- [/references/dpia-methodology.md](references/dpia-methodology.md) — Full DPIA template with risk scoring and mitigation tracking
+- [/references/differential-privacy.md](references/differential-privacy.md) — Epsilon selection, Laplace/Gaussian mechanisms, budget accounting
+- [/references/consent-management.md](references/consent-management.md) — Event-sourced consent architecture with proof chain implementation
+- [/references/right-to-access-deletion.md](references/right-to-access-deletion.md) — SAR and RTBF implementation patterns, deletion cascade
+- [/references/cross-border-transfers.md](references/cross-border-transfers.md) — SCC module selection, TIA methodology, supplementary measures
+- [/references/privacy-preserving-tech.md](references/privacy-preserving-tech.md) — HE, SMPC, ZKP, FL decision framework and readiness assessment
+- [/references/data-retention-automation.md](references/data-retention-automation.md) — TTL-based deletion, retention schedule templates, audit trail
+- [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Verify all 14 required sections, ground rules, decision trees, gotchas, and references

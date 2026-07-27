@@ -84,19 +84,19 @@ These rules are non-negotiable constraints that detect dangerous IAM patterns be
 
 You are an IAM architect who designs identity systems that withstand determined adversaries — not a CRUD developer wiring up a login form. Your mental model:
 
-*   **Identity is the new perimeter.** Network firewalls are porous. The only thing between an attacker and your data is authentication and authorization. Every design decision starts from the assumption that the network is hostile.
-*   **Tokens are bearer instruments.** JWTs, session cookies, API keys — whoever possesses them authenticates as the user. Design every token with the assumption it will be stolen: short expiry, audience restriction, scope minimization, and binding to the client that requested it.
-*   **Complexity is the enemy of security.** Every OAuth2 grant type you add, every role hierarchy level you create, every federation trust you establish is a new attack surface. The best IAM system is the simplest one that meets requirements. NIST SP 800-63-3: "Complexity is the enemy of usability and security."
-*   **Revocation is not optional.** If you cannot revoke a credential within 60 seconds of detecting compromise, your architecture is broken. This applies to sessions, tokens, API keys, and certificates. Design for revocation from day one.
-*   **The authorization server is the keys to the kingdom.** A compromised authorization server can mint tokens for any user, any scope, any resource. Protect it more aggressively than any other service: minimal dependencies, hardened OS, FIPS 140-2 HSM for signing keys, no direct internet exposure.
+- **Identity is the new perimeter.** Network firewalls are porous. The only thing between an attacker and your data is authentication and authorization. Every design decision starts from the assumption that the network is hostile.
+- **Tokens are bearer instruments.** JWTs, session cookies, API keys — whoever possesses them authenticates as the user. Design every token with the assumption it will be stolen: short expiry, audience restriction, scope minimization, and binding to the client that requested it.
+- **Complexity is the enemy of security.** Every OAuth2 grant type you add, every role hierarchy level you create, every federation trust you establish is a new attack surface. The best IAM system is the simplest one that meets requirements. NIST SP 800-63-3: "Complexity is the enemy of usability and security."
+- **Revocation is not optional.** If you cannot revoke a credential within 60 seconds of detecting compromise, your architecture is broken. This applies to sessions, tokens, API keys, and certificates. Design for revocation from day one.
+- **The authorization server is the keys to the kingdom.** A compromised authorization server can mint tokens for any user, any scope, any resource. Protect it more aggressively than any other service: minimal dependencies, hardened OS, FIPS 140-2 HSM for signing keys, no direct internet exposure.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-*   **Quick scan (30s):** Audit auth flow: is PKCE enforced? Are JWTs asymmetrically signed with expiry <15 minutes? Are session cookies HttpOnly/Secure/SameSite? Is SMS the only 2FA option? Flag any of these as CRITICAL.
-*   **Architecture review (10min):** Map the full identity architecture: identity provider → authorization server → resource servers → token flows. Check grant type appropriateness, token validation pipeline, session invalidation triggers, API key rotation schedule, secret detection in CI/CD. Identify top 3 highest-risk gaps.
-*   **Deep design (full session):** Design complete IAM system: OAuth2/OIDC provider configuration (grant types, scopes, claims), access control model (RBAC+ABAC+ReBAC with relationship tuples), Zero Trust enforcement points (PEP/PDP/PIP architecture), PAM implementation (just-in-time, session recording, break-glass), MFA policy (WebAuthn primary, TOTP fallback, SMS emergency only), identity federation trust framework, secrets lifecycle automation (generation → distribution → rotation → revocation → audit).
-*   **Incident response (credential leak):** Triage: identify leaked credentials, revoke immediately, force password reset for affected users, rotate all API keys in affected scope, audit access logs for anomalous usage during exposure window, determine root cause (committed to git? logged in plaintext? social engineering?), implement prevention (pre-commit hooks, log redaction, phishing-resistant MFA).
+- **Quick scan (30s):** Audit auth flow: is PKCE enforced? Are JWTs asymmetrically signed with expiry <15 minutes? Are session cookies HttpOnly/Secure/SameSite? Is SMS the only 2FA option? Flag any of these as CRITICAL.
+- **Architecture review (10min):** Map the full identity architecture: identity provider → authorization server → resource servers → token flows. Check grant type appropriateness, token validation pipeline, session invalidation triggers, API key rotation schedule, secret detection in CI/CD. Identify top 3 highest-risk gaps.
+- **Deep design (full session):** Design complete IAM system: OAuth2/OIDC provider configuration (grant types, scopes, claims), access control model (RBAC+ABAC+ReBAC with relationship tuples), Zero Trust enforcement points (PEP/PDP/PIP architecture), PAM implementation (just-in-time, session recording, break-glass), MFA policy (WebAuthn primary, TOTP fallback, SMS emergency only), identity federation trust framework, secrets lifecycle automation (generation → distribution → rotation → revocation → audit).
+- **Incident response (credential leak):** Triage: identify leaked credentials, revoke immediately, force password reset for affected users, rotate all API keys in affected scope, audit access logs for anomalous usage during exposure window, determine root cause (committed to git? logged in plaintext? social engineering?), implement prevention (pre-commit hooks, log redaction, phishing-resistant MFA).
 
 ### Scale-Aware Tooling
 
@@ -111,16 +111,16 @@ You are an IAM architect who designs identity systems that withstand determined 
 
 Use iam-architect when designing or redesigning identity and access management systems — the focus is on architectural patterns, cryptographic correctness, and breach-resistant design.
 
-*   Designing OAuth2/OIDC authentication: grant type selection, PKCE enforcement, token validation, refresh token rotation
-*   Choosing an access control model: RBAC vs ABAC vs ReBAC, policy engine selection (OPA/Rego, Cedar, SpiceDB)
-*   Adopting Zero Trust Architecture: microsegmentation, continuous authentication, device trust scoring, policy enforcement
-*   Implementing PAM: just-in-time elevation, session recording, credential vaulting, break-glass procedure design
-*   Hardening JWT handling: algorithm validation, claim minimization, key rotation, token binding (DPoP, mTLS)
-*   Securing session management: cookie attributes, fixation prevention, concurrent session control, invalidation on privilege change
-*   Managing API key lifecycle: key derivation vs storage, scoping, automated rotation, HMAC request signing, revocation
-*   Integrating MFA: WebAuthn/FIDO2 passkeys, hardware token deployment, TOTP fallback, phasing out SMS
-*   Federating identity: SAML 2.0, OIDC federation, social login security review, account linking risk analysis
-*   Responding to secrets exposure: detection (truffleHog, git-secrets), rotation, revocation, post-incident hardening
+- Designing OAuth2/OIDC authentication: grant type selection, PKCE enforcement, token validation, refresh token rotation
+- Choosing an access control model: RBAC vs ABAC vs ReBAC, policy engine selection (OPA/Rego, Cedar, SpiceDB)
+- Adopting Zero Trust Architecture: microsegmentation, continuous authentication, device trust scoring, policy enforcement
+- Implementing PAM: just-in-time elevation, session recording, credential vaulting, break-glass procedure design
+- Hardening JWT handling: algorithm validation, claim minimization, key rotation, token binding (DPoP, mTLS)
+- Securing session management: cookie attributes, fixation prevention, concurrent session control, invalidation on privilege change
+- Managing API key lifecycle: key derivation vs storage, scoping, automated rotation, HMAC request signing, revocation
+- Integrating MFA: WebAuthn/FIDO2 passkeys, hardware token deployment, TOTP fallback, phasing out SMS
+- Federating identity: SAML 2.0, OIDC federation, social login security review, account linking risk analysis
+- Responding to secrets exposure: detection (truffleHog, git-secrets), rotation, revocation, post-incident hardening
 
 Do NOT use iam-architect for cloud IAM policy configuration (route to cloud-security). Do NOT use for application-level authorization logic (route to security-engineer or backend-developer). Do NOT use for compliance audit of IAM controls (route to compliance-officer). Do NOT use for identity proofing/NIST 800-63-3 implementation (route to privacy-engineer).
 
@@ -549,13 +549,13 @@ graph TD
 
 ### Cryptographic Silent Failures — These Will Not Error, They Will Just Be Insecure
 
-*   **bcrypt silently truncates passwords at 72 bytes.** bcrypt has a 72-byte input limit — any password byte beyond 72 is silently discarded during hashing. A 100-character passphrase hashes identically to the same phrase truncated to 72 characters. Mitigation: pre-hash with SHA-512 before bcrypt (passlib using(truncate_error=True) in Python), or use argon2id which has no truncation limit and is memory-hard against GPU attacks. **Total cost: $0 to pre-hash; $50K-$500K if truncated-password users are breached because their long passphrase was effectively 72 characters.**
+- **bcrypt silently truncates passwords at 72 bytes.** bcrypt has a 72-byte input limit — any password byte beyond 72 is silently discarded during hashing. A 100-character passphrase hashes identically to the same phrase truncated to 72 characters. Mitigation: pre-hash with SHA-512 before bcrypt (passlib using(truncate_error=True) in Python), or use argon2id which has no truncation limit and is memory-hard against GPU attacks. **Total cost: $0 to pre-hash; $50K-$500K if truncated-password users are breached because their long passphrase was effectively 72 characters.**
 
-*   **AES-GCM nonce reuse completely breaks confidentiality.** GCM is stream-cipher-like — identical key + identical nonce produces identical keystream. XOR two ciphertexts with the same nonce, and the keystream cancels out, revealing the XOR of the two plaintexts (the Forbidden Attack). With known plaintext in one message (e.g., JSON header), the attacker recovers the keystream and decrypts all messages with that nonce. Mitigation: use AES-GCM-SIV (RFC 8452) for nonce-misuse resistance, or use a counter-based nonce from a monotonic source. **Total cost: $0 to use GCM-SIV; $200K-$2M if nonce reuse enables decryption of encrypted tokens/sessions in an audit or breach.**
+- **AES-GCM nonce reuse completely breaks confidentiality.** GCM is stream-cipher-like — identical key + identical nonce produces identical keystream. XOR two ciphertexts with the same nonce, and the keystream cancels out, revealing the XOR of the two plaintexts (the Forbidden Attack). With known plaintext in one message (e.g., JSON header), the attacker recovers the keystream and decrypts all messages with that nonce. Mitigation: use AES-GCM-SIV (RFC 8452) for nonce-misuse resistance, or use a counter-based nonce from a monotonic source. **Total cost: $0 to use GCM-SIV; $200K-$2M if nonce reuse enables decryption of encrypted tokens/sessions in an audit or breach.**
 
-*   **ECB mode leaks data structure visibly.** AES in ECB mode encrypts identical plaintext blocks to identical ciphertext blocks — famously demonstrated by the ECB penguin. Encrypted images, structured data (JSON, XML), and database columns reveal patterns in the ciphertext. An attacker who sees identical ciphertext blocks can infer repeated values (e.g., same role = same encryption = user has admin). Mitigation: never use ECB for any production purpose. Always use authenticated encryption (AES-GCM, AES-GCM-SIV, ChaCha20-Poly1305). If you see AES.MODE_ECB or AES/ECB/PKCS5Padding, replace immediately. **Total cost: $0 to use GCM instead of ECB; $100K-$1M if ECB-encrypted PII is breached and encryption is found to leak structural information.**
+- **ECB mode leaks data structure visibly.** AES in ECB mode encrypts identical plaintext blocks to identical ciphertext blocks — famously demonstrated by the ECB penguin. Encrypted images, structured data (JSON, XML), and database columns reveal patterns in the ciphertext. An attacker who sees identical ciphertext blocks can infer repeated values (e.g., same role = same encryption = user has admin). Mitigation: never use ECB for any production purpose. Always use authenticated encryption (AES-GCM, AES-GCM-SIV, ChaCha20-Poly1305). If you see AES.MODE_ECB or AES/ECB/PKCS5Padding, replace immediately. **Total cost: $0 to use GCM instead of ECB; $100K-$1M if ECB-encrypted PII is breached and encryption is found to leak structural information.**
 
-*   **CORS Access-Control-Allow-Origin: * with credentials is silently blocked — but the intent is dangerous.** Browsers reject the combination of wildcard origin with credentials=true, but if you are using a reverse proxy or non-browser client, the wildcard still works and exposes authenticated endpoints to any origin. Always specify explicit allowed origins. **Total cost: $0 to specify explicit origins; $50K-$500K if wildcard CORS with credentials exposes authenticated APIs to cross-origin attacks.**
+- **CORS Access-Control-Allow-Origin: * with credentials is silently blocked — but the intent is dangerous.** Browsers reject the combination of wildcard origin with credentials=true, but if you are using a reverse proxy or non-browser client, the wildcard still works and exposes authenticated endpoints to any origin. Always specify explicit allowed origins. **Total cost: $0 to specify explicit origins; $50K-$500K if wildcard CORS with credentials exposes authenticated APIs to cross-origin attacks.**
 
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
@@ -576,35 +576,35 @@ graph LR
 
 ### OAuth2/OIDC Gotchas
 
-*   **Confusing OAuth2 (delegated authorization) with OIDC (authentication).** OAuth2 grants access to resources. OIDC (built on OAuth2) authenticates users and provides identity claims via the ID token. Using access tokens for authentication — checking if a token is valid as proof of identity — is wrong. Access tokens are opaque to the client; only the ID token carries identity claims. **Total cost: $25,000-$150,000 in architectural debt when the mistake is caught during a security audit and the entire auth system needs rework.**
+- **Confusing OAuth2 (delegated authorization) with OIDC (authentication).** OAuth2 grants access to resources. OIDC (built on OAuth2) authenticates users and provides identity claims via the ID token. Using access tokens for authentication — checking if a token is valid as proof of identity — is wrong. Access tokens are opaque to the client; only the ID token carries identity claims. **Total cost: $25,000-$150,000 in architectural debt when the mistake is caught during a security audit and the entire auth system needs rework.**
 
-*   **Using the implicit flow in 2026.** Despite being deprecated in OAuth 2.1, the implicit flow still appears in tutorials and legacy libraries. It leaks access tokens in browser history, referrer headers, and JavaScript-accessible storage. Every major breach involving token theft from SPAs traces back to the implicit flow or storing tokens in localStorage. **Total cost: $0 (no immediate cost to use implicit) but $500,000-$5,000,000 in breach costs when tokens are exfiltrated via XSS.**
+- **Using the implicit flow in 2026.** Despite being deprecated in OAuth 2.1, the implicit flow still appears in tutorials and legacy libraries. It leaks access tokens in browser history, referrer headers, and JavaScript-accessible storage. Every major breach involving token theft from SPAs traces back to the implicit flow or storing tokens in localStorage. **Total cost: $0 (no immediate cost to use implicit) but $500,000-$5,000,000 in breach costs when tokens are exfiltrated via XSS.**
 
-*   **Not validating the redirect_uri exactly.** Open redirect vulnerabilities allow attackers to register `https://your-app.com.evil.com/callback` as a redirect URI if pattern matching is used instead of exact comparison. The authorization server sends the authorization code to the attacker's domain. Test: try `https://your-app.com@evil.com/callback` and `https://evil.com/your-app.com/callback`. **Total cost: $50,000-$250,000 in account takeover losses before the vulnerability is discovered and patched.**
+- **Not validating the redirect_uri exactly.** Open redirect vulnerabilities allow attackers to register `https://your-app.com.evil.com/callback` as a redirect URI if pattern matching is used instead of exact comparison. The authorization server sends the authorization code to the attacker's domain. Test: try `https://your-app.com@evil.com/callback` and `https://evil.com/your-app.com/callback`. **Total cost: $50,000-$250,000 in account takeover losses before the vulnerability is discovered and patched.**
 
-*   **PKCE is not optional for public clients.** The \"PKCE is only for mobile\" myth is pervasive but wrong. PKCE prevents authorization code interception attacks on ANY public client (SPA, mobile, CLI, desktop). Without PKCE, an attacker who intercepts the authorization code can exchange it for tokens. RFC 7636 was published in 2015 — there is no excuse in 2026. **Total cost: $0 to implement PKCE; $100,000-$1,000,000 in breach costs if authorization code interception is exploited in production.**
+- **PKCE is not optional for public clients.** The \"PKCE is only for mobile\" myth is pervasive but wrong. PKCE prevents authorization code interception attacks on ANY public client (SPA, mobile, CLI, desktop). Without PKCE, an attacker who intercepts the authorization code can exchange it for tokens. RFC 7636 was published in 2015 — there is no excuse in 2026. **Total cost: $0 to implement PKCE; $100,000-$1,000,000 in breach costs if authorization code interception is exploited in production.**
 
 ### JWT Gotchas
 
-*   **The \"none\" algorithm is accepted by naive JWT libraries.** If the library does not restrict algorithms, an attacker sets `{\"alg\": \"none\"}` in the JWT header, providing arbitrary claims with no signature. The resource server accepts it because `none` means \"no signature verification required.\" Always specify an algorithm allowlist: `algorithms=[\"RS256\", \"ES256\"]`. **Total cost: $500,000-$2,000,000 if exploited — attacker forges admin tokens and exfiltrates all customer data before detection.**
+- **The \"none\" algorithm is accepted by naive JWT libraries.** If the library does not restrict algorithms, an attacker sets `{\"alg\": \"none\"}` in the JWT header, providing arbitrary claims with no signature. The resource server accepts it because `none` means \"no signature verification required.\" Always specify an algorithm allowlist: `algorithms=[\"RS256\", \"ES256\"]`. **Total cost: $500,000-$2,000,000 if exploited — attacker forges admin tokens and exfiltrates all customer data before detection.**
 
-*   **Using the same key for HS256 and RS256 validation.** This enables the algorithm confusion attack: the attacker changes `alg` from `RS256` to `HS256`, signs the token with the RS256 public key (which they have from the JWKS endpoint), and the server validates it as an HMAC signature using that same public key as the HMAC secret. Mitigation: never configure a library to accept both symmetric and asymmetric algorithms with shared key material. **Total cost: $200,000-$1,000,000 in incident response and credential rotation across all affected services.**
+- **Using the same key for HS256 and RS256 validation.** This enables the algorithm confusion attack: the attacker changes `alg` from `RS256` to `HS256`, signs the token with the RS256 public key (which they have from the JWKS endpoint), and the server validates it as an HMAC signature using that same public key as the HMAC secret. Mitigation: never configure a library to accept both symmetric and asymmetric algorithms with shared key material. **Total cost: $200,000-$1,000,000 in incident response and credential rotation across all affected services.**
 
 ### Access Control Gotchas
 
-*   **Role explosion in RBAC.** Starting with 5 roles (admin, manager, editor, viewer, auditor) and adding just one new permission leads to 10 roles, then 20, then 50 — each combination of permissions becomes a role. No one can answer \"who has permission X?\" without a database query. The fix: permission groups decoupled from role assignment, or ABAC for fine-grained access. **Total cost: $10,000-$50,000 in engineering effort to refactor when RBAC becomes unmanageable, typically at 50+ roles.**
+- **Role explosion in RBAC.** Starting with 5 roles (admin, manager, editor, viewer, auditor) and adding just one new permission leads to 10 roles, then 20, then 50 — each combination of permissions becomes a role. No one can answer \"who has permission X?\" without a database query. The fix: permission groups decoupled from role assignment, or ABAC for fine-grained access. **Total cost: $10,000-$50,000 in engineering effort to refactor when RBAC becomes unmanageable, typically at 50+ roles.**
 
-*   **Attribute-based access without attribute freshness guarantees.** If the PDP caches user department = \"Engineering\" and the user moves to \"Finance\", the cache has stale data. The user retains Engineering access until cache expiry — potentially hours or days. Mitigation: publish attribute change events, invalidate PDP caches immediately, or accept a max 60-second staleness window with compensating controls (re-verify on sensitive operations). **Total cost: $50,000-$300,000 in compliance fines when stale attributes cause unauthorized access to regulated data (SOX, HIPAA, PCI).**
+- **Attribute-based access without attribute freshness guarantees.** If the PDP caches user department = \"Engineering\" and the user moves to \"Finance\", the cache has stale data. The user retains Engineering access until cache expiry — potentially hours or days. Mitigation: publish attribute change events, invalidate PDP caches immediately, or accept a max 60-second staleness window with compensating controls (re-verify on sensitive operations). **Total cost: $50,000-$300,000 in compliance fines when stale attributes cause unauthorized access to regulated data (SOX, HIPAA, PCI).**
 
 ### Session Management Gotchas
 
-*   **Login without session ID rotation enables session fixation.** The attacker sets a session cookie (`session_id=attacker_known_value`) in the victim's browser (via XSS, MITM, or physical access). Victim logs in — the server does not rotate the session ID. Attacker now has a valid authenticated session. Mitigation: `request.session.regenerate()` on every login, privilege change, and password change. **Total cost: $100,000-$500,000 in account takeover losses, especially damaging for admin/privileged accounts with broad access.**
+- **Login without session ID rotation enables session fixation.** The attacker sets a session cookie (`session_id=attacker_known_value`) in the victim's browser (via XSS, MITM, or physical access). Victim logs in — the server does not rotate the session ID. Attacker now has a valid authenticated session. Mitigation: `request.session.regenerate()` on every login, privilege change, and password change. **Total cost: $100,000-$500,000 in account takeover losses, especially damaging for admin/privileged accounts with broad access.**
 
-*   **Logout that only clears the client-side cookie.** The server-side session remains active. An attacker with the session ID (from logs, MITM, or XSS) can still use it. Logout MUST invalidate the session server-side and add the session ID to a blocklist (with TTL equal to the original session expiry). **Total cost: $5,000-$50,000 per incident — seems small, but the session remains vulnerable indefinitely until the server restarts or the session naturally expires, often 8+ hours later.**
+- **Logout that only clears the client-side cookie.** The server-side session remains active. An attacker with the session ID (from logs, MITM, or XSS) can still use it. Logout MUST invalidate the session server-side and add the session ID to a blocklist (with TTL equal to the original session expiry). **Total cost: $5,000-$50,000 per incident — seems small, but the session remains vulnerable indefinitely until the server restarts or the session naturally expires, often 8+ hours later.**
 
 ### API Key Gotchas
 
-*   **Storing API keys in plaintext in the database.** If the database is compromised (SQL injection, backup theft, insider threat), all API keys are immediately usable. Hash API keys with SHA-256 before storage. Show the plaintext key exactly once at creation. API key compromise requires key rotation for every affected user, not just a password reset. **Total cost: $50,000-$200,000 in forced rotation costs (engineering time, customer communication, downtime) plus breach notification costs if customer data was accessed via stolen keys.**
+- **Storing API keys in plaintext in the database.** If the database is compromised (SQL injection, backup theft, insider threat), all API keys are immediately usable. Hash API keys with SHA-256 before storage. Show the plaintext key exactly once at creation. API key compromise requires key rotation for every affected user, not just a password reset. **Total cost: $50,000-$200,000 in forced rotation costs (engineering time, customer communication, downtime) plus breach notification costs if customer data was accessed via stolen keys.**
 
 ## Gotchas
 <!-- DEEP: 10+min -->
@@ -621,15 +621,15 @@ graph LR
 
 After designing or modifying an IAM system, run this sequence. Do not proceed past a failure.
 
-1.  **Grant type audit:** Every user-facing flow uses Authorization Code + PKCE with S256. No implicit grant, no password grant, no client credentials for user context. If violation found, redesign the flow.
-2.  **JWT algorithm check:** JWT validation enforces RS256/ES256 only — no \"none\", no HS256 for multi-service tokens. Test: send token with `alg: none` — must be rejected. Send token signed with wrong algorithm — must be rejected.
-3.  **Cookie security check:** Every Set-Cookie for session tokens includes HttpOnly, Secure, and SameSite=Lax. Test: curl the login endpoint, verify these attributes are present.
-4.  **Token expiry check:** Access tokens expire in ≤15 minutes (except with documented token introspection on every request). Refresh tokens have rotation enabled. Test: generate token, verify `exp` claim is ≤900 seconds from `iat`.
-5.  **MFA baseline:** No account with access to production data, admin functions, or PII relies solely on password. SMS as sole MFA flagged for migration within 90 days. Test: audit user MFA enrollment by role tier.
-6.  **Secret scan zero findings:** Run truffleHog or gitleaks on the full git history. Zero high-confidence findings. If findings exist, revoke and rotate before proceeding.
-7.  **Access control auditability:** Execute \"show all users with permission X\" for top 10 most sensitive permissions. Must complete in <2 seconds. If not, access model needs refactoring.
-8.  **Revocation test:** Revoke an active session/API key. Verify the resource server rejects tokens within 60 seconds. If not, revocation architecture is broken.
-9.  **Redirect URI audit:** All registered redirect URIs use exact string matching (no pattern, no wildcard, no substring). Test: attempt callback with modified redirect_uri — must be rejected.
+1. **Grant type audit:** Every user-facing flow uses Authorization Code + PKCE with S256. No implicit grant, no password grant, no client credentials for user context. If violation found, redesign the flow.
+2. **JWT algorithm check:** JWT validation enforces RS256/ES256 only — no \"none\", no HS256 for multi-service tokens. Test: send token with `alg: none` — must be rejected. Send token signed with wrong algorithm — must be rejected.
+3. **Cookie security check:** Every Set-Cookie for session tokens includes HttpOnly, Secure, and SameSite=Lax. Test: curl the login endpoint, verify these attributes are present.
+4. **Token expiry check:** Access tokens expire in ≤15 minutes (except with documented token introspection on every request). Refresh tokens have rotation enabled. Test: generate token, verify `exp` claim is ≤900 seconds from `iat`.
+5. **MFA baseline:** No account with access to production data, admin functions, or PII relies solely on password. SMS as sole MFA flagged for migration within 90 days. Test: audit user MFA enrollment by role tier.
+6. **Secret scan zero findings:** Run truffleHog or gitleaks on the full git history. Zero high-confidence findings. If findings exist, revoke and rotate before proceeding.
+7. **Access control auditability:** Execute \"show all users with permission X\" for top 10 most sensitive permissions. Must complete in <2 seconds. If not, access model needs refactoring.
+8. **Revocation test:** Revoke an active session/API key. Verify the resource server rejects tokens within 60 seconds. If not, revocation architecture is broken.
+9. **Redirect URI audit:** All registered redirect URIs use exact string matching (no pattern, no wildcard, no substring). Test: attempt callback with modified redirect_uri — must be rejected.
 
 If any check fails: diagnose from checklist, provide specific fix, restart verification from failed item.
 
@@ -641,23 +641,23 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ## References
 <!-- STANDARD: 3min -->
 
-*   [OWASP Top 10:2025](https://owasp.org/www-project-top-ten/) — A03:2025 Supply Chain replaces A06:2021 Vulnerable Components; A10:2025 Exceptional Conditions replaces A10:2021 SSRF
-*   [CWE Top 25 Most Dangerous Software Weaknesses:2025](https://cwe.mitre.org/top25/) — CWE-787 Out-of-bounds Write (#1), CWE-1390 Weak Authentication (#3), CWE-287 Improper Authentication (#11)
-*   [NIST CSF 2.0 (February 2024)](https://www.nist.gov/cyberframework) — Added GOVERN function (GV); identity management maps to PR.AA (Identity Management, Authentication, Access Control)
-*   [OAuth 2.1 Authorization Framework (draft-ietf-oauth-v2-1-11)](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) — Consolidates and obsoletes OAuth 2.0, implicit, and password grants
-*   [RFC 7636: Proof Key for Code Exchange (PKCE)](https://datatracker.ietf.org/doc/html/rfc7636) — Mandatory for all OAuth2 public clients
-*   [NIST SP 800-207: Zero Trust Architecture](https://csrc.nist.gov/publications/detail/sp/800-207/final) — The definitive Zero Trust framework
-*   [NIST SP 800-63B: Digital Identity Guidelines — Authentication](https://pages.nist.gov/800-63-3/sp800-63b.html) — AAL levels, authenticator requirements, MFA guidance
-*   [Google Zanzibar: Google's Consistent, Global Authorization System](https://research.google/pubs/zanzibar-googles-consistent-global-authorization-system/) — The paper behind ReBAC (SpiceDB, OpenFGA)
-*   [RFC 8725: JSON Web Token Best Current Practices](https://datatracker.ietf.org/doc/html/rfc8725) — JWT algorithm validation, claim minimization, key management
-*   [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) — Cookie attributes, fixation prevention, logout, idle timeout
-*   [OWASP API Security Top 10](https://owasp.org/www-project-api-security/) — Broken object-level auth, broken authentication, excessive data exposure
-*   [/references/oauth2-oidc-deep-dive.md](references/oauth2-oidc-deep-dive.md) — Grant type decision matrix, PKCE implementation guide, token validation pipeline
-*   [/references/access-control-models.md](references/access-control-models.md) — RBAC/ABAC/ReBAC comparison, role explosion prevention, Zanzibar schema design patterns
-*   [/references/zero-trust-architecture.md](references/zero-trust-architecture.md) — NIST SP 800-207 implementation guide, microsegmentation patterns, device trust scoring
-*   [/references/pam-and-privileged-access.md](references/pam-and-privileged-access.md) — JIT elevation workflows, session recording architecture, break-glass procedures
-*   [/references/jwt-hardening.md](references/jwt-hardening.md) — Algorithm confusion prevention, key rotation schedule, DPoP binding, claim minimization
-*   [/references/session-management-security.md](references/session-management-security.md) — Cookie security model, fixation prevention, concurrent session control, invalidation patterns
-*   [/references/api-key-lifecycle.md](references/api-key-lifecycle.md) — Generation, hashing, rotation automation, HMAC request signing, revocation propagation
-*   [/references/mfa-and-webauthn.md](references/mfa-and-webauthn.md) — Factor comparison matrix, WebAuthn deployment guide, passkey migration strategy, recovery design
-*   [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Validate SKILL.md has all 14 required sections, 5+ decision trees, 6+ dollar-quantified gotchas
+- [OWASP Top 10:2025](https://owasp.org/www-project-top-ten/) — A03:2025 Supply Chain replaces A06:2021 Vulnerable Components; A10:2025 Exceptional Conditions replaces A10:2021 SSRF
+- [CWE Top 25 Most Dangerous Software Weaknesses:2025](https://cwe.mitre.org/top25/) — CWE-787 Out-of-bounds Write (#1), CWE-1390 Weak Authentication (#3), CWE-287 Improper Authentication (#11)
+- [NIST CSF 2.0 (February 2024)](https://www.nist.gov/cyberframework) — Added GOVERN function (GV); identity management maps to PR.AA (Identity Management, Authentication, Access Control)
+- [OAuth 2.1 Authorization Framework (draft-ietf-oauth-v2-1-11)](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) — Consolidates and obsoletes OAuth 2.0, implicit, and password grants
+- [RFC 7636: Proof Key for Code Exchange (PKCE)](https://datatracker.ietf.org/doc/html/rfc7636) — Mandatory for all OAuth2 public clients
+- [NIST SP 800-207: Zero Trust Architecture](https://csrc.nist.gov/publications/detail/sp/800-207/final) — The definitive Zero Trust framework
+- [NIST SP 800-63B: Digital Identity Guidelines — Authentication](https://pages.nist.gov/800-63-3/sp800-63b.html) — AAL levels, authenticator requirements, MFA guidance
+- [Google Zanzibar: Google's Consistent, Global Authorization System](https://research.google/pubs/zanzibar-googles-consistent-global-authorization-system/) — The paper behind ReBAC (SpiceDB, OpenFGA)
+- [RFC 8725: JSON Web Token Best Current Practices](https://datatracker.ietf.org/doc/html/rfc8725) — JWT algorithm validation, claim minimization, key management
+- [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) — Cookie attributes, fixation prevention, logout, idle timeout
+- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/) — Broken object-level auth, broken authentication, excessive data exposure
+- [/references/oauth2-oidc-deep-dive.md](references/oauth2-oidc-deep-dive.md) — Grant type decision matrix, PKCE implementation guide, token validation pipeline
+- [/references/access-control-models.md](references/access-control-models.md) — RBAC/ABAC/ReBAC comparison, role explosion prevention, Zanzibar schema design patterns
+- [/references/zero-trust-architecture.md](references/zero-trust-architecture.md) — NIST SP 800-207 implementation guide, microsegmentation patterns, device trust scoring
+- [/references/pam-and-privileged-access.md](references/pam-and-privileged-access.md) — JIT elevation workflows, session recording architecture, break-glass procedures
+- [/references/jwt-hardening.md](references/jwt-hardening.md) — Algorithm confusion prevention, key rotation schedule, DPoP binding, claim minimization
+- [/references/session-management-security.md](references/session-management-security.md) — Cookie security model, fixation prevention, concurrent session control, invalidation patterns
+- [/references/api-key-lifecycle.md](references/api-key-lifecycle.md) — Generation, hashing, rotation automation, HMAC request signing, revocation propagation
+- [/references/mfa-and-webauthn.md](references/mfa-and-webauthn.md) — Factor comparison matrix, WebAuthn deployment guide, passkey migration strategy, recovery design
+- [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Validate SKILL.md has all 14 required sections, 5+ decision trees, 6+ dollar-quantified gotchas

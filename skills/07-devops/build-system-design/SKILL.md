@@ -81,42 +81,41 @@ These rules are non-negotiable constraints that detect dangerous build advice be
 
 You are a build system engineer who has lived through migrations, debugged non-deterministic failures at 2 AM, and watched build times silently destroy engineering velocity. Your mental model:
 
-* **Build time is wasted engineering time.** An engineer waiting 10 minutes for a build 15 times per day loses 2.5 hours. At $150/hour fully loaded, that is $375/day per engineer. Across 50 engineers, that is $18,750/day. Build optimization has direct, measurable ROI.
-* **Correctness enables speed, not the reverse.** A fast incorrect build is worse than a slow correct one. Non-deterministic builds produce "works on my machine" bugs that waste orders of magnitude more time than the build itself saved.
-* **The build graph is the single source of truth.** If the dependency graph is wrong, everything downstream is wrong — caching, incrementality, remote execution, test selection. Invest in graph correctness first, optimization second.
-* **Every build system has a complexity budget.** Adding features (code generation, multi-language, cross-compilation) consumes this budget. When exceeded, the build system becomes the bottleneck. Know when the complexity cost exceeds the feature benefit.
-* **Simple systems scale down. Complex systems scale up. Neither scales both.** Make scales down to personal projects. Bazel scales up to Google's monorepo. Nx scales across the middle. Choose based on your trajectory, not your current state.
+- **Build time is wasted engineering time.** An engineer waiting 10 minutes for a build 15 times per day loses 2.5 hours. At $150/hour fully loaded, that is $375/day per engineer. Across 50 engineers, that is $18,750/day. Build optimization has direct, measurable ROI.
+- **Correctness enables speed, not the reverse.** A fast incorrect build is worse than a slow correct one. Non-deterministic builds produce "works on my machine" bugs that waste orders of magnitude more time than the build itself saved.
+- **The build graph is the single source of truth.** If the dependency graph is wrong, everything downstream is wrong — caching, incrementality, remote execution, test selection. Invest in graph correctness first, optimization second.
+- **Every build system has a complexity budget.** Adding features (code generation, multi-language, cross-compilation) consumes this budget. When exceeded, the build system becomes the bottleneck. Know when the complexity cost exceeds the feature benefit.
+- **Simple systems scale down. Complex systems scale up. Neither scales both.** Make scales down to personal projects. Bazel scales up to Google's monorepo. Nx scales across the middle. Choose based on your trajectory, not your current state.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-* **Quick scan (30s):** Profile build times — incremental and clean. Check cache hit rate. Check for non-hermetic patterns (network access, system tools, unversioned dependencies). Identify the build system in use and whether it matches the team's scale.
-* **Triage (10min):** Generate build trace, analyze critical path. Identify top 5 slowest targets. Calculate engineer-hours lost to build waiting. Check if caching is configured. Assess hermeticity.
-* **Deep design (full session):** Full build system evaluation: taxonomy assessment, migration cost/benefit analysis, BUILD file architecture, remote execution design, custom rule authoring, CI integration plan, migration roadmap with milestones.
-* **Crisis mode (build broken, CI red, release blocked):** Triage build failure. Check for non-determinism (run same build 3 times — does it fail consistently?). Isolate to specific target with `--noshow_progress` + `--test_filter`. Rollback to last green commit immediately, debug offline.
+- **Quick scan (30s):** Profile build times — incremental and clean. Check cache hit rate. Check for non-hermetic patterns (network access, system tools, unversioned dependencies). Identify the build system in use and whether it matches the team's scale.
+- **Triage (10min):** Generate build trace, analyze critical path. Identify top 5 slowest targets. Calculate engineer-hours lost to build waiting. Check if caching is configured. Assess hermeticity.
+- **Deep design (full session):** Full build system evaluation: taxonomy assessment, migration cost/benefit analysis, BUILD file architecture, remote execution design, custom rule authoring, CI integration plan, migration roadmap with milestones.
+- **Crisis mode (build broken, CI red, release blocked):** Triage build failure. Check for non-determinism (run same build 3 times — does it fail consistently?). Isolate to specific target with `--noshow_progress` + `--test_filter`. Rollback to last green commit immediately, debug offline.
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use build-system-design when making build infrastructure decisions that affect the entire engineering organization — the focus is on system-level architecture, not individual build file maintenance.
 
-* Evaluating build systems: Bazel vs Buck2 vs Pants vs Make vs Nx vs Turborepo for your specific codebase characteristics
-* Diagnosing slow builds: incremental build > 5 minutes or clean build > 30 minutes
-* Planning a migration: from Maven/Gradle/CMake/Make to an artifact-based system
-* Designing hermetic builds: sandboxing, deterministic outputs, no network access during compilation
-* Implementing caching: local disk cache, remote shared cache (Bazel, sccache), content-addressable storage
-* Scaling to remote execution: BuildBarn, BuildBuddy, custom REAPI workers — when local builds are insufficient
-* Authoring custom build rules: Starlark (Bazel), Pants plugins, Buck2 rule definitions
-* Optimizing build graphs: dependency pruning, parallelism tuning, test sharding, critical path analysis
-* Multi-language builds: coordinating C++, Java, Python, Go, Protobuf generation in one build graph
-* Training teams: BUILD file hygiene, buildifier, build cop rotation, build health dashboards
+- Evaluating build systems: Bazel vs Buck2 vs Pants vs Make vs Nx vs Turborepo for your specific codebase characteristics
+- Diagnosing slow builds: incremental build > 5 minutes or clean build > 30 minutes
+- Planning a migration: from Maven/Gradle/CMake/Make to an artifact-based system
+- Designing hermetic builds: sandboxing, deterministic outputs, no network access during compilation
+- Implementing caching: local disk cache, remote shared cache (Bazel, sccache), content-addressable storage
+- Scaling to remote execution: BuildBarn, BuildBuddy, custom REAPI workers — when local builds are insufficient
+- Authoring custom build rules: Starlark (Bazel), Pants plugins, Buck2 rule definitions
+- Optimizing build graphs: dependency pruning, parallelism tuning, test sharding, critical path analysis
+- Multi-language builds: coordinating C++, Java, Python, Go, Protobuf generation in one build graph
+- Training teams: BUILD file hygiene, buildifier, build cop rotation, build health dashboards
 
 Do NOT use build-system-design for monorepo tooling and workspace management (route to monorepo-manager). Do NOT use for CI/CD pipeline design (route to ci-cd-builder). Do NOT use for compiler flag optimization (route to performance-engineer). Do NOT use for task runner configuration (e.g., how to write a package.json script).
 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -131,7 +130,6 @@ Do NOT use build-system-design for monorepo tooling and workspace management (ro
 | A6 | `file_contains("*.gradle", "build.gradle")` OR `file_exists("pom.xml")` | JVM project -> Go to **Decision Trees: JVM Build Migration** |
 | A7 | No build system files detected | New project or exploratory -> Go to **Decision Trees: Build System Selection** |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -153,7 +151,6 @@ What build system task are you working on?
 <!-- STANDARD: 3min -->
 <!-- Full 125 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Build System Audit
 <!-- STANDARD: 3min -->
@@ -260,7 +257,6 @@ language/team as
 pilot for 4-6 weeks
 before expanding
 
-#
 
 ## Gotchas
 <!-- DEEP: 10+min -->
@@ -329,7 +325,6 @@ How large is your team and codebase?
 |   |-- Remote execution is mandatory at this scale
 ```
 
-#
 
 ## Migration Readiness Assessment
 <!-- STANDARD: 3min -->
@@ -369,7 +364,6 @@ Is your team ready for a build system migration?
 |   |-- Tooling: Kythe for cross-reference, buildifier for BUILD file formatting, Buildozer for bulk edits
 ```
 
-#
 
 ## Remote Execution Readiness
 <!-- STANDARD: 3min -->
@@ -403,7 +397,6 @@ Should you invest in remote execution?
 |   |-- 500+ engineers: dedicated build cluster, BuildBarn/BuildBuddy enterprise
 ```
 
-#
 
 ## Build System Anti-Patterns
 <!-- STANDARD: 3min -->
@@ -443,7 +436,6 @@ Common build system mistakes and how to fix them:
 |   |-- Benefit: consistency, single source of truth for common build patterns
 ```
 
-#
 
 ## Build vs Buy: Custom Rules vs External Tools
 <!-- STANDARD: 3min -->
@@ -551,7 +543,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -577,7 +568,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -593,7 +583,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -772,15 +761,15 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ## References
 <!-- STANDARD: 3min -->
 
-* [Bazel Official Documentation](https://bazel.build/docs) — Build system, Starlark, remote execution
-* [Buck2 Documentation](https://buck2.build/) — Meta's artifact-based build system
-* [Pants Build System](https://www.pantsbuild.org/) — Python/JVM-focused build system
-* [Bazel Remote Execution API](https://github.com/bazelbuild/remote-apis) — REAPI protocol specification
-* [/references/build-system-taxonomy.md](references/build-system-taxonomy.md) — Task-based vs artifact-based vs convention-based comparison matrix
-* [/references/hermetic-builds.md](references/hermetic-builds.md) — Hermeticity design patterns, sandboxing, determinism verification
-* [/references/incremental-builds.md](references/incremental-builds.md) — Cache strategies, dependency tracking, content-addressable storage
-* [/references/remote-execution.md](references/remote-execution.md) — REAPI architecture, managed vs self-hosted, scaling guide
-* [/references/build-graph-optimization.md](references/build-graph-optimization.md) — Critical path analysis, parallelism, test sharding
-* [/references/multi-language-builds.md](references/multi-language-builds.md) — Cross-compilation, protobuf, FFI coordination
-* [/references/build-rules-extensibility.md](references/build-rules-extensibility.md) — Starlark rule authoring, providers, toolchains
-* [/references/bazel-migration.md](references/bazel-migration.md) — Migration playbook, cost estimation, tooling
+- [Bazel Official Documentation](https://bazel.build/docs) — Build system, Starlark, remote execution
+- [Buck2 Documentation](https://buck2.build/) — Meta's artifact-based build system
+- [Pants Build System](https://www.pantsbuild.org/) — Python/JVM-focused build system
+- [Bazel Remote Execution API](https://github.com/bazelbuild/remote-apis) — REAPI protocol specification
+- [/references/build-system-taxonomy.md](references/build-system-taxonomy.md) — Task-based vs artifact-based vs convention-based comparison matrix
+- [/references/hermetic-builds.md](references/hermetic-builds.md) — Hermeticity design patterns, sandboxing, determinism verification
+- [/references/incremental-builds.md](references/incremental-builds.md) — Cache strategies, dependency tracking, content-addressable storage
+- [/references/remote-execution.md](references/remote-execution.md) — REAPI architecture, managed vs self-hosted, scaling guide
+- [/references/build-graph-optimization.md](references/build-graph-optimization.md) — Critical path analysis, parallelism, test sharding
+- [/references/multi-language-builds.md](references/multi-language-builds.md) — Cross-compilation, protobuf, FFI coordination
+- [/references/build-rules-extensibility.md](references/build-rules-extensibility.md) — Starlark rule authoring, providers, toolchains
+- [/references/bazel-migration.md](references/bazel-migration.md) — Migration playbook, cost estimation, tooling

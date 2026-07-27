@@ -96,47 +96,46 @@ These rules are non-negotiable constraints that detect dangerous platform decisi
 
 You are a creator economy platform architect who has built and scaled platforms handling millions in creator payouts. You understand that the technology is the easy part — the hard part is earning and keeping creator trust. Your mental model:
 
-*   **Creator payout reliability is existential.** If a creator doesn't get paid on time, in full, with a clear breakdown — they leave. Not next month. This week. And they tell other creators. Payout infrastructure is the heartbeat of the platform. Every scheduled payout that fails is a trust bankruptcy event.
-*   **The platform works for creators, not the other way around.** Every feature decision starts with: "Does this help creators earn more or work less?" Features that benefit the platform at creators' expense (algorithmic suppression for ad revenue, hidden fee increases, data hoarding) destroy the value proposition. A platform with 1,000 happy creators beats one with 100,000 suspicious ones.
-*   **Transparency is the moat.** In a market where any developer can clone your UI in a weekend, the differentiator is trust infrastructure: auditable payouts, transparent fee structures, clear content ownership terms, responsive safety teams. Build systems where creators can verify everything independently — if they need to trust you, you've already lost.
-*   **Unit economics must work for the smallest creator.** A platform that only works for creators earning $10K+/month is a platform for the 1%. The long tail of creators (earning $50-$500/month) is where platform loyalty, word-of-mouth growth, and network effects live. Design for the creator earning $100/month — if it works for them, it scales to everyone.
-*   **Compliance is not a feature — it's the operating license.** Payment processing, tax reporting, content moderation, identity verification — these aren't "nice to have" items on a backlog. They are the regulatory price of handling other people's money and content. A single compliance failure (missed 1099 filing, money laundering via creator accounts, copyright lawsuit) can shut down the entire platform.
+- **Creator payout reliability is existential.** If a creator doesn't get paid on time, in full, with a clear breakdown — they leave. Not next month. This week. And they tell other creators. Payout infrastructure is the heartbeat of the platform. Every scheduled payout that fails is a trust bankruptcy event.
+- **The platform works for creators, not the other way around.** Every feature decision starts with: "Does this help creators earn more or work less?" Features that benefit the platform at creators' expense (algorithmic suppression for ad revenue, hidden fee increases, data hoarding) destroy the value proposition. A platform with 1,000 happy creators beats one with 100,000 suspicious ones.
+- **Transparency is the moat.** In a market where any developer can clone your UI in a weekend, the differentiator is trust infrastructure: auditable payouts, transparent fee structures, clear content ownership terms, responsive safety teams. Build systems where creators can verify everything independently — if they need to trust you, you've already lost.
+- **Unit economics must work for the smallest creator.** A platform that only works for creators earning $10K+/month is a platform for the 1%. The long tail of creators (earning $50-$500/month) is where platform loyalty, word-of-mouth growth, and network effects live. Design for the creator earning $100/month — if it works for them, it scales to everyone.
+- **Compliance is not a feature — it's the operating license.** Payment processing, tax reporting, content moderation, identity verification — these aren't "nice to have" items on a backlog. They are the regulatory price of handling other people's money and content. A single compliance failure (missed 1099 filing, money laundering via creator accounts, copyright lawsuit) can shut down the entire platform.
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
 
-*   **Quick scan (30s):** Review platform monetization model, payment architecture, creator agreement terms, tax compliance status. Flag any violations: hidden fees, no tax form collection, content ownership grab, payout infrastructure without audit trail, no creator safety systems, platform take rate below sustainable threshold.
-*   **Platform health check (10min):** Evaluate revenue share model sustainability, payment architecture for current scale, creator onboarding flow (KYC + tax forms), content moderation pipeline, creator dashboard defaults, mobile IAP strategy. Identify top 3 highest-impact fixes for creator trust and platform viability.
-*   **Full platform build (full session):** Design complete creator economy platform: monetization model selection, payment & payout infrastructure (Stripe Connect with double-entry ledger), membership subscription system with tier management, digital goods delivery pipeline with DRM, creator dashboard with real earnings analytics, tax compliance automation (1099-K, W-9/W-8BEN, VAT MOSS), trust & safety infrastructure, creator onboarding flow, audience/patron features, mobile experience strategy. Every architectural decision has a documented trade-off.
-*   **Crisis mode (payout failure, compliance audit, creator exodus, chargeback cascade):** Triage: halt new payouts, investigate root cause with full audit trail, communicate transparently to affected creators within 2 hours, implement fix with reconciliation, prevent recurrence with automated monitoring. For compliance: engage legal counsel immediately, preserve all records, do not destroy or alter data. For creator exodus: publish transparent post-mortem, demonstrate concrete fixes, offer goodwill compensation.
+- **Quick scan (30s):** Review platform monetization model, payment architecture, creator agreement terms, tax compliance status. Flag any violations: hidden fees, no tax form collection, content ownership grab, payout infrastructure without audit trail, no creator safety systems, platform take rate below sustainable threshold.
+- **Platform health check (10min):** Evaluate revenue share model sustainability, payment architecture for current scale, creator onboarding flow (KYC + tax forms), content moderation pipeline, creator dashboard defaults, mobile IAP strategy. Identify top 3 highest-impact fixes for creator trust and platform viability.
+- **Full platform build (full session):** Design complete creator economy platform: monetization model selection, payment & payout infrastructure (Stripe Connect with double-entry ledger), membership subscription system with tier management, digital goods delivery pipeline with DRM, creator dashboard with real earnings analytics, tax compliance automation (1099-K, W-9/W-8BEN, VAT MOSS), trust & safety infrastructure, creator onboarding flow, audience/patron features, mobile experience strategy. Every architectural decision has a documented trade-off.
+- **Crisis mode (payout failure, compliance audit, creator exodus, chargeback cascade):** Triage: halt new payouts, investigate root cause with full audit trail, communicate transparently to affected creators within 2 hours, implement fix with reconciliation, prevent recurrence with automated monitoring. For compliance: engage legal counsel immediately, preserve all records, do not destroy or alter data. For creator exodus: publish transparent post-mortem, demonstrate concrete fixes, offer goodwill compensation.
 
 ## When to Use
 <!-- STANDARD: 3min -->
 
 Use creator-economy-builder when building platforms, tools, or infrastructure that enables individual creators (writers, artists, musicians, video creators, podcasters, educators, developers, coaches) to earn sustainable income from their work. The focus is on direct monetization — creators earning from patrons, customers, and fans — not ad-based models or enterprise sales.
 
-*   Building a membership/subscription platform (Patreon-style): recurring billing, tier management, benefit gating, creator pages
-*   Building a tipping or donation system: one-time payments, payment links, virtual tipping jars, live stream donations
-*   Building a digital product marketplace: courses, ebooks, templates, presets, code, stock media, digital art
-*   Building a token-gated content or NFT platform: wallet authentication, token ownership verification, exclusive content delivery
-*   Building a newsletter monetization platform (Substack-style): free/paid subscriber tiers, email delivery, archive access
-*   Building a crowdfunding platform for creative projects: campaign creation, funding goals, backer rewards, milestone payouts
-*   Building a royalty-based content platform: usage tracking, revenue pooling, proportional distribution
-*   Building a live streaming monetization system: super chats, virtual gifts, channel subscriptions
-*   Building a podcast monetization platform: subscriber-only episodes, ad-free feeds, early access
-*   Building a commission marketplace for custom work: request/bid system, escrow, milestone payments
-*   Designing payment splitting and revenue share architecture for any multi-party platform
-*   Implementing creator onboarding with KYC, tax form collection, and identity verification
-*   Building creator analytics dashboards with real earnings, churn analysis, and audience insights
-*   Implementing multi-currency payout infrastructure with global creator support
-*   Generating 1099-K, 1099-NEC, and international tax forms for creator earnings
+- Building a membership/subscription platform (Patreon-style): recurring billing, tier management, benefit gating, creator pages
+- Building a tipping or donation system: one-time payments, payment links, virtual tipping jars, live stream donations
+- Building a digital product marketplace: courses, ebooks, templates, presets, code, stock media, digital art
+- Building a token-gated content or NFT platform: wallet authentication, token ownership verification, exclusive content delivery
+- Building a newsletter monetization platform (Substack-style): free/paid subscriber tiers, email delivery, archive access
+- Building a crowdfunding platform for creative projects: campaign creation, funding goals, backer rewards, milestone payouts
+- Building a royalty-based content platform: usage tracking, revenue pooling, proportional distribution
+- Building a live streaming monetization system: super chats, virtual gifts, channel subscriptions
+- Building a podcast monetization platform: subscriber-only episodes, ad-free feeds, early access
+- Building a commission marketplace for custom work: request/bid system, escrow, milestone payments
+- Designing payment splitting and revenue share architecture for any multi-party platform
+- Implementing creator onboarding with KYC, tax form collection, and identity verification
+- Building creator analytics dashboards with real earnings, churn analysis, and audience insights
+- Implementing multi-currency payout infrastructure with global creator support
+- Generating 1099-K, 1099-NEC, and international tax forms for creator earnings
 
 Do NOT use creator-economy-builder for enterprise SaaS monetization (route to saas-monetization-strategist). Do NOT use for ad-based monetization only (route to growth-engineer). Do NOT use for traditional e-commerce with physical goods (route to website-builder). Do NOT use for marketplace platforms connecting service providers with clients where the platform doesn't handle content (route to marketplace-platform-builder). Do NOT use for fintech applications (route to fintech-app-developer) unless the fintech app specifically serves creators.
 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -151,7 +150,6 @@ Do NOT use creator-economy-builder for enterprise SaaS monetization (route to sa
 | A6 | `file_contains("*.tsx\|*.jsx", "fee\|take.rate\|revenue.share\|platform.fee\|processing.fee")` | Fee/revenue model configuration -> Jump to **Decision Trees: Revenue Share Model** |
 | A7 | No creator economy files found | New creator platform build -> Go to **Core Workflow: Phase 1** |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -235,14 +233,14 @@ CURATED    │         │
    │       ▼         ▼
    ▼      OPEN       INVITE-
 Application  │       ONLY
-+ portfolio  ▼       (exclusive
+- portfolio  ▼       (exclusive
 review       Instant  launch)
    │         signup     │
    ▼         + content  ▼
 Approved     auto-     Controlled
 creators     approved  quality,
 get badge    │         high
-+ higher      ▼        perceived
+- higher      ▼        perceived
 revenue      Scalable  value,
 share        but risk  slow
              of low-   growth
@@ -280,7 +278,6 @@ platforms,  UGC-heavy
 early stage platforms,
             video/audio
 
-#
 
 ## Creator Platform Model Selection
 <!-- STANDARD: 3min -->
@@ -358,7 +355,6 @@ What type of creator are you serving, and what content do they produce?
 |   |-- SaaS template licenses -> DIGITAL GOODS with license key enforcement
 ```
 
-#
 
 ## Payment Architecture
 <!-- STANDARD: 3min -->
@@ -411,7 +407,6 @@ What is your platform's scale, and what are your compliance obligations?
 |   |-- Examples: Patreon (moved to this model), Substack (Stripe-based), OnlyFans (custom)
 ```
 
-#
 
 ## Revenue Share Model Selection
 <!-- STANDARD: 3min -->
@@ -454,7 +449,6 @@ What value does the platform provide, and what can the market bear?
 ## Core Workflow
 <!-- STANDARD: 3min -->
 
-#
 
 ## Phase 1: Creator Platform Model Selection (~45 min)
 <!-- STANDARD: 3min -->
@@ -751,31 +745,31 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 ## References
 <!-- STANDARD: 3min -->
 
-*   [Stripe Connect Documentation](https://stripe.com/docs/connect) — Platform payment infrastructure: Standard, Express, Custom accounts
-*   [Stripe Connect Onboarding](https://stripe.com/docs/connect/onboarding) — Creator KYC and identity verification flows
-*   [IRS 1099-K Reporting Thresholds](https://www.irs.gov/businesses/understanding-your-form-1099-k) — Current federal and state filing requirements
-*   [IRS 1099-NEC Instructions](https://www.irs.gov/instructions/i1099nec) — Non-employee compensation reporting for creator bonuses and referrals
-*   [EU VAT on Digital Services (MOSS)](https://ec.europa.eu/taxation_customs/business/vat/vat-digital-services-moss_en) — VAT Mini One Stop Shop for digital goods sold to EU consumers
-*   [EU VAT IOSS (Import One Stop Shop)](https://ec.europa.eu/taxation_customs/business/vat/ioss_en) — Import scheme for low-value goods, applicable to digital products with physical components
-*   [PCI DSS v4.0 Standards](https://www.pcisecuritystandards.org/document_library/) — Payment Card Industry Data Security Standards
-*   [Apple App Store Review Guidelines — 3.1.1 In-App Purchase](https://developer.apple.com/app-store/review/guidelines/#in-app-purchase) — IAP requirements for digital goods
-*   [Google Play Payments Policy](https://support.google.com/googleplay/android-developer/answer/9858738) — Google Play Billing requirements for digital content
-*   [Stripe Tax](https://stripe.com/tax) — Automated sales tax, VAT, and GST calculation
-*   [Stripe Radar](https://stripe.com/radar) — Machine learning fraud detection for platforms
-*   [Stripe Identity](https://stripe.com/identity) — Programmatic identity verification for creator KYC
-*   [Quaderno — Digital Goods Tax Compliance](https://quaderno.io/) — VAT/GST/sales tax automation for digital products
-*   [TaxBandits — 1099 E-File](https://www.taxbandits.com/) — IRS-approved 1099 e-filing service
-*   [Sovos — Tax Compliance Platform](https://sovos.com/) — Enterprise tax compliance including 1099 and VAT
-*   [Tipalti — Mass Payout Platform](https://tipalti.com/) — Cross-border creator payouts with tax form collection
-*   [Hyperwallet — Global Payouts](https://www.hyperwallet.com/) — PayPal-owned global payout infrastructure
-*   [AWS S3 Presigned URLs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) — Secure time-limited download URLs for digital goods
-*   [ClamAV — Open Source Antivirus](https://www.clamav.net/) — Virus scanning for creator file uploads
-*   [DMCA Safe Harbor Provisions](https://www.copyright.gov/dmca/) — Copyright safe harbor requirements for UGC platforms
-*   [GDPR Article 20 — Right to Data Portability](https://gdpr-info.eu/art-20-gdpr/) — Creator data export requirements for EU citizens
-*   [Patreon Creator Agreement](https://www.patreon.com/policy/legal) — Reference for creator platform legal terms
-*   [Substack Publisher Agreement](https://substack.com/terms) — Reference for newsletter platform legal terms
-*   [Gumroad Terms of Service](https://gumroad.com/tos) — Reference for digital goods marketplace terms
-*   [/scripts/payout-reconciliation.sh](scripts/payout-reconciliation.sh) — Automated double-entry ledger verification
-*   [/scripts/tax-form-audit.sh](scripts/tax-form-audit.sh) — 1099-K test generation and verification
-*   [/scripts/content-gate-pentest.sh](scripts/content-gate-pentest.sh) — Content gating penetration test automation
-*   [/scripts/fee-calculator.py](scripts/fee-calculator.py) — Fee calculation engine with integer cents, configurable take rates
+- [Stripe Connect Documentation](https://stripe.com/docs/connect) — Platform payment infrastructure: Standard, Express, Custom accounts
+- [Stripe Connect Onboarding](https://stripe.com/docs/connect/onboarding) — Creator KYC and identity verification flows
+- [IRS 1099-K Reporting Thresholds](https://www.irs.gov/businesses/understanding-your-form-1099-k) — Current federal and state filing requirements
+- [IRS 1099-NEC Instructions](https://www.irs.gov/instructions/i1099nec) — Non-employee compensation reporting for creator bonuses and referrals
+- [EU VAT on Digital Services (MOSS)](https://ec.europa.eu/taxation_customs/business/vat/vat-digital-services-moss_en) — VAT Mini One Stop Shop for digital goods sold to EU consumers
+- [EU VAT IOSS (Import One Stop Shop)](https://ec.europa.eu/taxation_customs/business/vat/ioss_en) — Import scheme for low-value goods, applicable to digital products with physical components
+- [PCI DSS v4.0 Standards](https://www.pcisecuritystandards.org/document_library/) — Payment Card Industry Data Security Standards
+- [Apple App Store Review Guidelines — 3.1.1 In-App Purchase](https://developer.apple.com/app-store/review/guidelines/#in-app-purchase) — IAP requirements for digital goods
+- [Google Play Payments Policy](https://support.google.com/googleplay/android-developer/answer/9858738) — Google Play Billing requirements for digital content
+- [Stripe Tax](https://stripe.com/tax) — Automated sales tax, VAT, and GST calculation
+- [Stripe Radar](https://stripe.com/radar) — Machine learning fraud detection for platforms
+- [Stripe Identity](https://stripe.com/identity) — Programmatic identity verification for creator KYC
+- [Quaderno — Digital Goods Tax Compliance](https://quaderno.io/) — VAT/GST/sales tax automation for digital products
+- [TaxBandits — 1099 E-File](https://www.taxbandits.com/) — IRS-approved 1099 e-filing service
+- [Sovos — Tax Compliance Platform](https://sovos.com/) — Enterprise tax compliance including 1099 and VAT
+- [Tipalti — Mass Payout Platform](https://tipalti.com/) — Cross-border creator payouts with tax form collection
+- [Hyperwallet — Global Payouts](https://www.hyperwallet.com/) — PayPal-owned global payout infrastructure
+- [AWS S3 Presigned URLs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) — Secure time-limited download URLs for digital goods
+- [ClamAV — Open Source Antivirus](https://www.clamav.net/) — Virus scanning for creator file uploads
+- [DMCA Safe Harbor Provisions](https://www.copyright.gov/dmca/) — Copyright safe harbor requirements for UGC platforms
+- [GDPR Article 20 — Right to Data Portability](https://gdpr-info.eu/art-20-gdpr/) — Creator data export requirements for EU citizens
+- [Patreon Creator Agreement](https://www.patreon.com/policy/legal) — Reference for creator platform legal terms
+- [Substack Publisher Agreement](https://substack.com/terms) — Reference for newsletter platform legal terms
+- [Gumroad Terms of Service](https://gumroad.com/tos) — Reference for digital goods marketplace terms
+- [/scripts/payout-reconciliation.sh](scripts/payout-reconciliation.sh) — Automated double-entry ledger verification
+- [/scripts/tax-form-audit.sh](scripts/tax-form-audit.sh) — 1099-K test generation and verification
+- [/scripts/content-gate-pentest.sh](scripts/content-gate-pentest.sh) — Content gating penetration test automation
+- [/scripts/fee-calculator.py](scripts/fee-calculator.py) — Fee calculation engine with integer cents, configurable take rates

@@ -67,10 +67,10 @@ These rules are non-negotiable constraints that detect handoff failures before t
 | R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
 | R8 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
-- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
-- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
-- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
-- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
+* **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+* **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+* **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+* **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
 
@@ -447,9 +447,9 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ```
 TODO:
-- Fix the auth bug
-- Add rate limiting
-- Update docs
+* Fix the auth bug
+* Add rate limiting
+* Update docs
 
 Blocked on: API team
 
@@ -464,19 +464,19 @@ Problems: No file paths, no line numbers, no rationale, no resolution condition 
 # Session Ledger: Rate Limiter Implementation
 ## Context
 <!-- STANDARD: 3min -->
-- branch: feat/rate-limit
-- commit: a1b2c3d
-- cwd: /project/backend
-- task: Add per-user rate limiting to API gateway
+* branch: feat/rate-limit
+* commit: a1b2c3d
+* cwd: /project/backend
+* task: Add per-user rate limiting to API gateway
 
 ## Completed
 <!-- STANDARD: 3min -->
-- DONE: Rate limiter middleware scaffold | src/middleware/rate-limiter.ts | Tests: `npm test -- rate-limiter` (12/12 pass)
-- DONE: Redis client configuration | src/config/redis.ts:15-32 | Verified: `redis-cli PING` → PONG
+* DONE: Rate limiter middleware scaffold | src/middleware/rate-limiter.ts | Tests: `npm test -- rate-limiter` (12/12 pass)
+* DONE: Redis client configuration | src/config/redis.ts:15-32 | Verified: `redis-cli PING` → PONG
 
 ## In Progress
 <!-- STANDARD: 3min -->
-- DOING: Token bucket refill logic | src/middleware/rate-limiter.ts:47
+* DOING: Token bucket refill logic | src/middleware/rate-limiter.ts:47
   State: Bucket decrement working, refill rate calculation in progress.
   Resume: Implement `refillTokens()` using `performance.now()` for monotonic timing.
 
@@ -488,14 +488,14 @@ Problems: No file paths, no line numbers, no rationale, no resolution condition 
 
 ## Decisions
 <!-- STANDARD: 3min -->
-- DECIDED: Token bucket over sliding window log
+* DECIDED: Token bucket over sliding window log
   Options: (a) sliding window log (precise but high memory), (b) token bucket (approximate, constant memory).
   Chose (b): acceptable 5% over-limit tolerance, constant O(1) memory per user, simpler Redis operations.
   Tradeoff: burst allowance may exceed configured rate by up to bucket capacity (100 requests).
 
 ## Blockers
 <!-- STANDARD: 3min -->
-- BLOCKED: Redis cluster connection pool exhausted at 1000 concurrent users
+* BLOCKED: Redis cluster connection pool exhausted at 1000 concurrent users
   RESOLUTION: `redis-cli -h staging-redis CLIENT LIST | grep -c "rate-limiter"` returns < 50
   ETA: 2026-07-25 (ops team provisioning larger instance)
   ESCALATION: If not resolved by 2026-07-26 10:00, ping #infra in Slack
@@ -556,17 +556,17 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 ## Anti-Patterns
 <!-- STANDARD: 3min -->
 
-- **The "I'll update the ledger later" trap.** Every turn you skip the ledger update is context that will evaporate on compaction. After 5 turns without a ledger update, 60% of micro-decisions are lost — which dependency version you chose, why you went with approach A over B, what test case you thought of but didn't write yet. **Total cost: $500-$2,000 in rework time per session when a fresh agent must re-discover 5+ lost decisions. Fix: update ledger after every decision, not at session end.**
+* **The "I'll update the ledger later" trap.** Every turn you skip the ledger update is context that will evaporate on compaction. After 5 turns without a ledger update, 60% of micro-decisions are lost — which dependency version you chose, why you went with approach A over B, what test case you thought of but didn't write yet. **Total cost: $500-$2,000 in rework time per session when a fresh agent must re-discover 5+ lost decisions. Fix: update ledger after every decision, not at session end.**
 
-- **The stale ledger deception.** A ledger last updated 3 days ago gives false confidence — the receiving agent assumes it's current, spends 15 minutes trying to resume, then discovers the code has moved on. A git diff between the ledger's recorded commit and HEAD showing 200+ changed lines means the ledger is archaeological, not operational. **Total cost: $300-$800 per stale-ledger handoff in wasted orientation time and incorrect assumptions. Fix: every handoff starts with `git diff --stat $(ledger_commit)..HEAD` — if >50 lines changed, flag as STALE and rebuild context.**
+* **The stale ledger deception.** A ledger last updated 3 days ago gives false confidence — the receiving agent assumes it's current, spends 15 minutes trying to resume, then discovers the code has moved on. A git diff between the ledger's recorded commit and HEAD showing 200+ changed lines means the ledger is archaeological, not operational. **Total cost: $300-$800 per stale-ledger handoff in wasted orientation time and incorrect assumptions. Fix: every handoff starts with `git diff --stat $(ledger_commit)..HEAD` — if >50 lines changed, flag as STALE and rebuild context.**
 
-- **The "too many TODOs" quicksand.** A ledger with 40+ TODO items is not a progress tracker — it's a shame list. The receiving agent cannot prioritize, so they either cherry-pick easy items (ignoring critical path) or freeze (analysis paralysis). **Total cost: $1,000-$3,000 in misdirected effort when the receiving agent works on TODO #37 (low priority) while TODO #2 (blocker for launch) sits untouched. Fix: hard cap of 5 active TODOs. Everything else goes to `backlog.md` with priority labels.**
+* **The "too many TODOs" quicksand.** A ledger with 40+ TODO items is not a progress tracker — it's a shame list. The receiving agent cannot prioritize, so they either cherry-pick easy items (ignoring critical path) or freeze (analysis paralysis). **Total cost: $1,000-$3,000 in misdirected effort when the receiving agent works on TODO #37 (low priority) while TODO #2 (blocker for launch) sits untouched. Fix: hard cap of 5 active TODOs. Everything else goes to `backlog.md` with priority labels.**
 
-- **The blocker without teeth.** "Blocked on design review" with no date, no contact, and no escalation path is not a blocker — it's an abandonment note. After 5 business days without follow-up, the probability that anyone remembers what was blocked drops below 20%. **Total cost: $2,000-$10,000 in delayed launches and context-switching when blockers silently expire. Fix: every blocker must have an auto-escalation trigger (e.g., "If no response in 48 hours, escalate to #team-leads").**
+* **The blocker without teeth.** "Blocked on design review" with no date, no contact, and no escalation path is not a blocker — it's an abandonment note. After 5 business days without follow-up, the probability that anyone remembers what was blocked drops below 20%. **Total cost: $2,000-$10,000 in delayed launches and context-switching when blockers silently expire. Fix: every blocker must have an auto-escalation trigger (e.g., "If no response in 48 hours, escalate to #team-leads").**
 
-- **The "obvious context" assumption.** Writing "continuing the auth refactor" assumes the next agent knows there IS an auth refactor, why it started, what pattern is being followed, and what was tried and rejected. A fresh agent reading that phrase has zero of that context. **Total cost: $400-$1,500 per handoff in re-orientation when the receiving agent must reconstruct the "why" from git history and file comments. Fix: every handoff starts with a 3-sentence context: (1) what problem we're solving, (2) approach chosen and why, (3) current state.**
+* **The "obvious context" assumption.** Writing "continuing the auth refactor" assumes the next agent knows there IS an auth refactor, why it started, what pattern is being followed, and what was tried and rejected. A fresh agent reading that phrase has zero of that context. **Total cost: $400-$1,500 per handoff in re-orientation when the receiving agent must reconstruct the "why" from git history and file comments. Fix: every handoff starts with a 3-sentence context: (1) what problem we're solving, (2) approach chosen and why, (3) current state.**
 
-- **The cross-agent trust gap.** When handing off between different agent types (e.g., Claude → Gemini), assume different training data, different reasoning patterns, and different tool preferences. A command that works in one agent's toolset may silently fail in another's. **Total cost: $500-$2,500 in debugging when the receiving agent runs a handoff command that fails due to tool incompatibility. Fix: test the resume command in the receiving agent's environment before finalizing the handoff.**
+* **The cross-agent trust gap.** When handing off between different agent types (e.g., Claude → Gemini), assume different training data, different reasoning patterns, and different tool preferences. A command that works in one agent's toolset may silently fail in another's. **Total cost: $500-$2,500 in debugging when the receiving agent runs a handoff command that fails due to tool incompatibility. Fix: test the resume command in the receiving agent's environment before finalizing the handoff.**
 
 ## Error Decoder
 <!-- STANDARD: 3min -->
@@ -585,19 +585,19 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 
 **(STANDARD)**
 
-- [ ] **Workspace exists:** `.handoff/` directory present and git-ignored. Run `ls .handoff/ && grep -q ".handoff/" .gitignore`
-- [ ] **Ledger initialized:** `.handoff/ledger.md` has all required sections: Context, Completed, In Progress, Remaining, Decisions, Blockers, Next Steps
-- [ ] **Restartability verified:** Handoff contains cwd, branch, resume command, file manifest, and 3 concrete next steps with expected outcomes
-- [ ] **Decision coverage complete:** Every non-trivial decision has DECIDED: entry with options, rationale, and tradeoffs
-- [ ] **Blocker quality verified:** Every BLOCKED: entry has resolution condition, ETA, and escalation path. Run `grep "BLOCKED:" .handoff/ledger.md | grep -v "RESOLUTION:\|ETA:"` — must return 0
-- [ ] **No vague TODOs:** Zero TODOs use "investigate", "look into", "figure out" without concrete commands. Run verification grep
-- [ ] **Fresh agent test passed:** A colleague can read the handoff and identify the next action in <60 seconds
-- [ ] **Ledger staleness checked:** `git diff --stat $(ledger_commit)..HEAD` shows <50 changed lines. If >50, flag as STALE
-- [ ] **Active TODOs capped at 5:** Run `grep -c "TODO:" .handoff/ledger.md` — must be ≤ 5. Overflow goes to `backlog.md`
-- [ ] **Decisions include tradeoffs:** Every DECIDED: entry documents what was given up, not just what was chosen
-- [ ] **Cross-agent compatibility tested:** Resume command tested in target agent's environment if cross-agent handoff
-- [ ] **Ledger committed to session state:** Decision ledger entries synced to `.copilot/session-state/decision-ledger.json` for cross-skill coordination
-- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
+* [ ] **Workspace exists:** `.handoff/` directory present and git-ignored. Run `ls .handoff/ && grep -q ".handoff/" .gitignore`
+* [ ] **Ledger initialized:** `.handoff/ledger.md` has all required sections: Context, Completed, In Progress, Remaining, Decisions, Blockers, Next Steps
+* [ ] **Restartability verified:** Handoff contains cwd, branch, resume command, file manifest, and 3 concrete next steps with expected outcomes
+* [ ] **Decision coverage complete:** Every non-trivial decision has DECIDED: entry with options, rationale, and tradeoffs
+* [ ] **Blocker quality verified:** Every BLOCKED: entry has resolution condition, ETA, and escalation path. Run `grep "BLOCKED:" .handoff/ledger.md | grep -v "RESOLUTION:\|ETA:"` — must return 0
+* [ ] **No vague TODOs:** Zero TODOs use "investigate", "look into", "figure out" without concrete commands. Run verification grep
+* [ ] **Fresh agent test passed:** A colleague can read the handoff and identify the next action in <60 seconds
+* [ ] **Ledger staleness checked:** `git diff --stat $(ledger_commit)..HEAD` shows <50 changed lines. If >50, flag as STALE
+* [ ] **Active TODOs capped at 5:** Run `grep -c "TODO:" .handoff/ledger.md` — must be ≤ 5. Overflow goes to `backlog.md`
+* [ ] **Decisions include tradeoffs:** Every DECIDED: entry documents what was given up, not just what was chosen
+* [ ] **Cross-agent compatibility tested:** Resume command tested in target agent's environment if cross-agent handoff
+* [ ] **Ledger committed to session state:** Decision ledger entries synced to `.copilot/session-state/decision-ledger.json` for cross-skill coordination
+* [ ] **Verification script passes:** Run `scripts/verify-skill.sh`
 
 ## Gotchas
 <!-- DEEP: 10+min -->
@@ -612,14 +612,14 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 ## Verification
 <!-- STANDARD: 3min -->
 
-- [ ] **Workspace exists:** `.handoff/` directory present and git-ignored. Run `ls .handoff/ && grep -q ".handoff/" .gitignore`.
-- [ ] **Ledger initialized:** `.handoff/ledger.md` has all required sections: Context, Completed, In Progress, Remaining, Decisions, Blockers, Next Steps.
-- [ ] **Restartability check:** Handoff contains: cwd, branch, resume command, file manifest, next 3 concrete steps with expected outcomes.
-- [ ] **Decision coverage:** Every non-trivial decision has a DECIDED: entry with options, rationale, and tradeoffs. Run `grep -c "DECIDED:" .handoff/ledger.md` — should be >= number of architectural choices made.
-- [ ] **Blocker quality:** Every BLOCKED: entry has resolution condition, ETA, and escalation path. Run `grep "BLOCKED:" .handoff/ledger.md | grep -v "RESOLUTION:\|ETA:"` — must return 0.
-- [ ] **No vague TODOs:** Zero TODOs use "investigate", "look into", "figure out" without a concrete command. Run `grep -iE "(investigate|look into|figure out)" .handoff/ledger.md | grep -v "grep\|curl\|npm\|cargo\|go "` — must return 0.
-- [ ] **Fresh agent test:** A colleague can read the handoff and identify the next action in <60 seconds. If not, add missing context.
-- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
+* [ ] **Workspace exists:** `.handoff/` directory present and git-ignored. Run `ls .handoff/ && grep -q ".handoff/" .gitignore`.
+* [ ] **Ledger initialized:** `.handoff/ledger.md` has all required sections: Context, Completed, In Progress, Remaining, Decisions, Blockers, Next Steps.
+* [ ] **Restartability check:** Handoff contains: cwd, branch, resume command, file manifest, next 3 concrete steps with expected outcomes.
+* [ ] **Decision coverage:** Every non-trivial decision has a DECIDED: entry with options, rationale, and tradeoffs. Run `grep -c "DECIDED:" .handoff/ledger.md` — should be >= number of architectural choices made.
+* [ ] **Blocker quality:** Every BLOCKED: entry has resolution condition, ETA, and escalation path. Run `grep "BLOCKED:" .handoff/ledger.md | grep -v "RESOLUTION:\|ETA:"` — must return 0.
+* [ ] **No vague TODOs:** Zero TODOs use "investigate", "look into", "figure out" without a concrete command. Run `grep -iE "(investigate|look into|figure out)" .handoff/ledger.md | grep -v "grep\|curl\|npm\|cargo\|go "` — must return 0.
+* [ ] **Fresh agent test:** A colleague can read the handoff and identify the next action in <60 seconds. If not, add missing context.
+* [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
 
 ## Verification Guardrails
 <!-- STANDARD: 3min -->
@@ -649,6 +649,6 @@ This section documents every irreversible decision made during the session. It i
 | 1 | *[no decisions logged yet]* | — | — | — |
 
 **Rules:**
-- Append a new row for each irreversible or hard-to-reverse decision
-- Never modify past rows — only append
-- If revisiting a decision, add a NEW row (do not edit the old one)
+* Append a new row for each irreversible or hard-to-reverse decision
+* Never modify past rows — only append
+* If revisiting a decision, add a NEW row (do not edit the old one)

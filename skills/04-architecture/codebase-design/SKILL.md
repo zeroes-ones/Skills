@@ -114,7 +114,6 @@ Use this skill when:
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
@@ -127,7 +126,6 @@ Use this skill when:
 | A4 | New file added with `public` methods but no callers yet | Premature interface. Jump to **Decision Trees** — Interface Minimization Strategy. |
 | A5 | Configuration class with >20 fields and individual getters | Trivial wrapper. Jump to **Core Workflow** — Phase 2 (Interface Minimization). |
 
-#
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -162,7 +160,7 @@ What are you trying to do?
 DESIGN → MINIMIZE → SEAM → ADAPT → VERIFY
    ↑___________________________________|
               (iterate)
-#
+
 
 ## Phase 1: Module Inventory
 <!-- STANDARD: 3min -->
@@ -239,7 +237,6 @@ Use adapter         Use API contract   Inline and
 pattern at          with versioning    redesign before
 the seam            at the seam        extracting
 
-#
 
 ## Module Depth Classification
 <!-- STANDARD: 3min -->
@@ -266,7 +263,6 @@ Module under evaluation
     └── Impossible. A module with behavior must expose it. Re-check measurement.
 ```
 
-#
 
 ## Interface Minimization Strategy
 <!-- STANDARD: 3min -->
@@ -294,7 +290,6 @@ Module with N public methods
     └── Apply deletion test to each method group. Keep only essential groups.
 ```
 
-#
 
 ## Seam Placement Decision
 <!-- STANDARD: 3min -->
@@ -321,7 +316,6 @@ Candidate boundary between Module A and Module B
     └── Reconsider. Merging A and B may be better than forcing a seam.
 ```
 
-#
 
 ## Adapter Pattern Selection
 <!-- STANDARD: 3min -->
@@ -349,7 +343,6 @@ Seam characteristics → Adapter type
     └── No adapter needed. Just import. If packaging is the only difference, refactor packaging.
 ```
 
-#
 
 ## Refactoring Priority Matrix
 <!-- STANDARD: 3min -->
@@ -457,7 +450,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -483,7 +475,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -499,7 +490,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -545,31 +535,26 @@ Metrics improvement:
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-#
 
 ## Exercise 1: Depth Scoring (15 min)
 <!-- STANDARD: 3min -->
 Take any module in your current codebase. Count its public methods. Count its lines of actual behavior (not delegation, not getters/setters). Compute depth. Classify it. If shallow, identify the 3 most important changes to increase depth. Timebox: 15 minutes.
 
-#
 
 ## Exercise 2: Deletion Test Sprint (20 min)
 <!-- STANDARD: 3min -->
 Take a package or directory. Run the deletion test on every file in it. For each file, answer: "If I delete this, what breaks?" Create a list: files to delete, files to keep, files to refactor. Timebox: 20 minutes.
 
-#
 
 ## Exercise 3: Interface Minimization Kata (25 min)
 <!-- STANDARD: 3min -->
 Choose a module with 8+ public methods. Apply Phase 2's three questions to every method. Combine, hide, or delete until the interface is ≤5 methods. Re-compute depth. Compare before/after. Timebox: 25 minutes.
 
-#
 
 ## Exercise 4: Seam Mapping (20 min)
 <!-- STANDARD: 3min -->
 Pick a feature that spans 3+ files. Draw the dependency graph. Identify where changes propagate. Score each boundary using the seam checklist. Mark natural seams. Propose adapter placements. Timebox: 20 minutes.
 
-#
 
 ## Exercise 5: Locality Heatmap (30 min)
 <!-- STANDARD: 3min -->

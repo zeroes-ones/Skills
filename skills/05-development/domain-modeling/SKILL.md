@@ -74,7 +74,6 @@ These rules are non-negotiable. The agent MUST follow every rule on every invoca
 
 Domain modeling masters think differently. They don't just document — they interrogate. Every term is a hypothesis until tested against edge cases. Every boundary is a bet about where complexity lives. Every ADR is a signal that the team faced a genuine fork in the road.
 
-#
 
 ## Cognitive Biases to Guard Against
 <!-- STANDARD: 3min -->
@@ -113,7 +112,6 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 - Auditing an existing codebase for undocumented business rules
 - Preparing for a domain event storming session
 
-#
 
 ## Do NOT Use
 <!-- STANDARD: 3min -->
@@ -128,7 +126,6 @@ Domain modeling operates at four levels of granularity. Ascend when the current 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-#
 
 ## Auto-Route by Artifacts
 <!-- STANDARD: 3min -->
@@ -143,7 +140,6 @@ When the request context includes these files, auto-activate domain-modeling:
 | `**/domain/` directory in code | Scan for aggregates, entities, value objects; cross-reference with CONTEXT.md |
 | `**/bounded-contexts.md` or context map diagrams | Validate boundaries against current code organization |
 
-#
 
 ## Intent Route
 <!-- STANDARD: 3min -->
@@ -179,7 +175,6 @@ User request
 
 <!-- Full 128 lines extracted to references/core-workflow.md -->
 
-#
 
 ## Phase 1: Term Harvesting — Scan the Codebase
 <!-- STANDARD: 3min -->
@@ -308,7 +303,6 @@ CONTEXTS  BOUNDED    M2 have
                    CONTEXTS   (or shared
                               kernel)
 
-#
 
 ## Term Ambiguity Detection
 <!-- STANDARD: 3min -->
@@ -331,7 +325,6 @@ Term T encountered in request or codebase
        └─ NO  → Single-context term — no disambiguation needed
 ```
 
-#
 
 ## ADR Trigger Decision
 <!-- STANDARD: 3min -->
@@ -355,7 +348,6 @@ ADR requested for decision D
             └─ NO  → REFUSE: "Only one reasonable approach existed. No tradeoff to document."
 ```
 
-#
 
 ## Bounded Context Boundary Placement
 <!-- STANDARD: 3min -->
@@ -384,7 +376,6 @@ Proposed boundary between concepts A and B
        → Consider: shared kernel, or same context with sub-modules
 ```
 
-#
 
 ## Edge-Case Generation Strategy
 <!-- STANDARD: 3min -->
@@ -418,7 +409,6 @@ Given domain term T with definition D
        └─ Scheduled job runs during a deployment
 ```
 
-#
 
 ## Glossary Maintenance Cadence
 <!-- STANDARD: 3min -->
@@ -492,7 +482,6 @@ Domain modeling feeds domain clarity into every downstream skill while consuming
 | **Feeds** | [database-designer] | Aggregate boundaries that guide transaction scoping, entity relationships, invariant enforcement points |
 | **Feeds** | [qa-engineer] | Domain rules as test cases, edge-case scenarios for test planning, invariant validation checks |
 
-#
 
 ## Coordination Protocol
 <!-- STANDARD: 3min -->
@@ -528,7 +517,6 @@ The agent watches for these signals and acts without being asked.
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- STANDARD: 3min -->
@@ -554,7 +542,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -570,7 +557,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -634,31 +620,26 @@ A well-modeled domain has clear boundaries, a shared language, and traceability 
 
 Five exercises to sharpen domain modeling skills.
 
-#
 
 ## Exercise 1: The 30-Second Definition
 <!-- STANDARD: 3min -->
 Pick any domain term from your current project. Define it in 30 seconds to a colleague who knows nothing about the project. If they can't explain it back correctly, your definition isn't precise enough. Repeat until they can.
 
-#
 
 ## Exercise 2: The Edge-Case Gauntlet
 <!-- STANDARD: 3min -->
 Take the 5 most important domain rules in your project. For each, write 3 edge cases that would break a naive implementation. Then check if your current code handles them. Document the gaps.
 
-#
 
 ## Exercise 3: The Terminology Audit
 <!-- STANDARD: 3min -->
 Pick a bounded context. List every term used in class names, API endpoints, and database tables. Circle any term that appears in more than one bounded context with a different meaning. Propose disambiguation.
 
-#
 
 ## Exercise 4: The ADR Litmus Test
 <!-- STANDARD: 3min -->
 Review the last 10 "architecture decisions" your team made informally (Slack threads, PR comments, meeting notes). For each, run the three-part trigger test. How many would have warranted a formal ADR? Write those ADRs.
 
-#
 
 ## Exercise 5: The Glossary Time Machine
 <!-- STANDARD: 3min -->

@@ -258,7 +258,7 @@ wound care)?            why treatment matters)?
    │                         │
    ▼                         ▼
 Video demonstration      ┌────┴────────────┐
-+ step-by-step           │                 │
+- step-by-step           │                 │
 printable guide          ▼                 ▼
                     Newly diagnosed?   Experienced patient?
                          │                 │
@@ -353,8 +353,8 @@ demonstration            ▼                 ▼
                                                               └────────────────┘
                                                               → Education about
                                                               subclinical bleeds
-                                                              + peer testimonials
-                                                              + joint health imaging
+                                                              - peer testimonials
+                                                              - joint health imaging
 
 ```
 

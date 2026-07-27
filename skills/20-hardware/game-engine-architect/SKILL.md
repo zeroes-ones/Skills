@@ -50,7 +50,6 @@ Architect, profile, and ship real-time game engines — from ECS memory layouts 
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
-#
 
 ## Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -66,7 +65,6 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A7 | `file_exists("*.uproject|*.uplugin")` AND `file_contains("*.cpp", "(Nanite|Lumen|GAS|GameplayAbility|MassEntity)")` | Jump to **Core Workflow** — Phase 3: Unreal Engine 5 Architecture. |
 | A8 | `file_contains("*.cs|*.cpp", "(PhysicsWorld|PhysX|ChaosPhysics|UnityPhysics)")` | Jump to **Core Workflow** — Phase 4: Physics Integration. |
 
-#
 
 ## Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
@@ -111,14 +109,12 @@ Masters of game engine architecture don't just build — they build **engines th
 | **Single-platform thinking** — designing for Xbox Series X then discovering PS5's split memory architecture breaks everything | Maintain a per-platform memory budget spreadsheet from day one. Test on all target platforms weekly. |
 | **Over-abstraction** — building a generic "rendering backend" before shipping the first game | Ship one game with one concrete pipeline. Abstract on the second game when you have data on what actually varies. |
 
-#
 
 ## What Masters Know That Others Don't
 - The **failure modes** of every rendering pipeline — not just the best-case FPS, but what happens at 1000 dynamic lights, or with 50 transparent layers, or when the GPU driver decides to stall.
 - When **not** to use ECS — not every object benefits. ECS for 10,000 bullets: yes. ECS for 5 UI buttons: catastrophic over-engineering.
 - That **frame time variance matters more than average FPS** — 60 FPS average with 30ms spikes = unshippable. Target P99 frame time < budget.
 
-#
 
 ## When to Break Your Own Rules
 - **Ship now, optimize later.** A working game at 30 FPS with a gameplay problem is better than a perfectly optimized engine with no game.
@@ -271,7 +267,6 @@ Arena + pools           for loading phases
 <!-- STANDARD: 3min — each phase has explicit Do/Verify/Recover steps -->
 <!-- DEEP: 10+min -->
 
-#
 
 ## Phase 1 (~8 hours): Rendering Pipeline Architecture & PBR Setup
 ...
@@ -295,7 +290,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 <!-- QUICK: 30s — who to talk to, when, what to share -->
 
-#
 
 ## Coordinate With
 
@@ -308,7 +302,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | **Mobile Developer** | Mobile GPU profiling, texture compression formats, power/thermal budgets | ASTC/ETC2 texture format selection, mobile render pass merging, thermal throttling thresholds |
 | **Embedded Engineer** | Console memory budgets, low-level GPU driver behavior, shader compiler toolchains | Per-platform memory map, DMA transfer patterns, GPU command buffer submission strategies |
 
-#
 
 ## Communication Triggers
 
@@ -320,7 +313,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | Memory usage exceeds 85% of console budget | Embedded Engineer, Performance Engineer | Content trim or memory optimization; prevent OOM crash |
 | Deterministic replay diverges after N frames | QA Engineer | Non-deterministic system (unordered iteration, uninitialized memory, float non-determinism) |
 
-#
 
 ## Escalation Path
 
@@ -331,7 +323,6 @@ Multiplayer desync >5% reproducible? → System Architect → Netcode re-archite
 Console certification failure (TRC/TCR)? → Embedded Engineer + QA → +4 weeks cert cycle
 ```
 
-#
 
 ## Cross-Skill Chain
 
@@ -372,7 +363,6 @@ Console certification failure (TRC/TCR)? → Embedded Engineer + QA → +4 weeks
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
@@ -396,7 +386,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 
@@ -411,7 +400,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
@@ -623,7 +611,6 @@ Most engine failures aren't technical — they're process failures disguised as 
 | **Render feature creep** — adding ray tracing, DLSS, FSR, HDR, ultrawide all for launch | Integration bugs multiply combinatorially. Each feature breaks on one GPU vendor | 3-month delay, $300K overtime, certified on only 2 of 5 planned platforms |
 | **Profile only on dev kit (RTX 4090)** — "it runs fine on our machines" | Launch: GTX 1060 (most popular GPU per Steam Survey) runs at 12 FPS on minimum settings | 40% refund rate, "unoptimized" tag on Steam, $200K+ in refund processing fees |
 
-#
 
 ## The Anti-Rationalization Protocol
 
@@ -640,7 +627,6 @@ These are not opinions. These are production data from shipped titles that faile
 
 ## Platform-Specific Architecture Notes
 
-#
 
 ## PlayStation 5 (PS5)
 - **Memory:** 16GB GDDR6 unified. Split: CPU-accessible (~8GB game) vs GPU-optimal. Avoid CPU reading GPU-written buffers
@@ -648,14 +634,12 @@ These are not opinions. These are production data from shipped titles that faile
 - **Geometry Engine:** Primitive shaders (mesh shader equivalent). Use `libSceGeometry` for amplification + mesh shader path
 - **Tempest Engine:** Dedicated audio DSP. Offload spatial audio to avoid CPU cost
 
-#
 
 ## Xbox Series X|S
 - **X|S split:** Series S has 10GB RAM (8GB at 224 GB/s, 2GB at 56 GB/s). Target Series S first — if it fits, Series X is trivial
 - **DirectX 12 Ultimate:** Sampler Feedback, VRS Tier 2, Mesh Shaders, DXR 1.1. Xbox Game Development Kit (GDK) same API as Windows
 - **Velocity Architecture:** DirectStorage + Sampler Feedback Streaming (SFS). 2.4 GB/s compressed. BCPack texture compression
 
-#
 
 ## Nintendo Switch
 - **Tegra X1:** 4 ARM Cortex-A57 @ 1.02 GHz. Maxwell GPU (256 CUDA cores). 4GB LPDDR4 (3.25GB available)
@@ -663,7 +647,6 @@ These are not opinions. These are production data from shipped titles that faile
 - **Dynamic resolution:** Target 720p handheld / 1080p docked. Drop to 540p/720p dynamically. Temporal upscaling (FSR 1.0 lite)
 - **Shader:** GLSL 4.50 or SPIR-V via NVN. Separate shader compilation for handheld vs docked (different clock profiles)
 
-#
 
 ## Steam Deck (Linux/Proton)
 - **APU:** Zen 2 (4C/8T @ 2.4-3.5 GHz) + RDNA 2 (8 CU @ 1.0-1.6 GHz). 16GB LPDDR5 unified. Target: 800p @ 30-60 FPS

@@ -117,10 +117,10 @@ You are not just writing a SKILL.md — you are encoding years of domain experti
 
 ## The Mental Model Shift
 <!-- STANDARD: 3min -->
-* **The agent is your apprentice, not your peer.** It has encyclopedic general knowledge but zero domain-specific judgment. Your job is to provide the judgment framework — the "when NOT to do X" that general knowledge lacks. The most valuable sentence in any skill is "Do NOT use [approach] when [condition]."
-* **Research reveals what expertise conceals.** You know your domain so well that you've forgotten what's hard about it. Research CVEs, post-mortems, and Stack Overflow questions to rediscover the pain points. The gotchas that make you say "oh right, that got me too in 2018" are the ones that matter.
-* **Structure is the message.** Agents pattern-match against structure before they process content. A well-structured decision tree communicates more in 30 lines than 300 lines of prose explanation. Tables beat paragraphs. ASCII trees beat tables. Ground rules as mechanical triggers beat prose admonitions.
-* **The bootstrap test is the ultimate quality gate.** Ask: "If I fed this skill to a fresh agent with no other skills loaded, could that agent generate a 10/10* skill for any domain?" If the answer is no, you have gaps. This is why the Phase 0 discovery questions, the domain mapping table, the quality rubric, and the gotcha research guide must be complete.
+- **The agent is your apprentice, not your peer.** It has encyclopedic general knowledge but zero domain-specific judgment. Your job is to provide the judgment framework — the "when NOT to do X" that general knowledge lacks. The most valuable sentence in any skill is "Do NOT use [approach] when [condition]."
+- **Research reveals what expertise conceals.** You know your domain so well that you've forgotten what's hard about it. Research CVEs, post-mortems, and Stack Overflow questions to rediscover the pain points. The gotchas that make you say "oh right, that got me too in 2018" are the ones that matter.
+- **Structure is the message.** Agents pattern-match against structure before they process content. A well-structured decision tree communicates more in 30 lines than 300 lines of prose explanation. Tables beat paragraphs. ASCII trees beat tables. Ground rules as mechanical triggers beat prose admonitions.
+- **The bootstrap test is the ultimate quality gate.** Ask: "If I fed this skill to a fresh agent with no other skills loaded, could that agent generate a 10/10* skill for any domain?" If the answer is no, you have gaps. This is why the Phase 0 discovery questions, the domain mapping table, the quality rubric, and the gotcha research guide must be complete.
 
 ## Cognitive Biases That Corrupt Skill Creation
 <!-- STANDARD: 3min -->

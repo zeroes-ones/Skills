@@ -170,7 +170,6 @@ Data security is not a feature to bolt on after the breach. It is an architectur
 | **A7** | file_contains("*.md|*.txt", "HIPAA|PHI|ePHI|BAA|covered.entity") | Decision Trees → Data Classification (PHI branch) | "I detect HIPAA/PHI references — routing to healthcare data classification and protection." |
 | **A8** | file_contains("*.sql", "DROP|DELETE|TRUNCATE") and file_contains("*.md", "retention|disposal|purge") | Decision Trees → Data Retention & Disposal | "I detect data deletion + retention references — routing to Data Retention & Disposal decision tree." |
 
-#
 
 ## Intent Route (Ask the User)
 
@@ -361,7 +360,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-#
 
 ## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
@@ -386,7 +384,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-#
 
 ## State Log Schema
 
@@ -401,7 +398,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-#
 
 ## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
@@ -460,7 +456,6 @@ Before beginning a new phase, verify:
 
 ## Anti-Patterns
 
-#
 
 ## Data Classification Gotchas
 
@@ -470,7 +465,6 @@ Before beginning a new phase, verify:
 
 **Encrypting everything without classification wastes resources and creates operational friction.** Encrypting PUBLIC data (marketing assets, public docs) consumes KMS API calls at scale, adds latency to every read, and complicates backup/restore. Meanwhile, RESTRICTED data might be under-protected because everything is treated equally. Classification tells you where to spend your encryption budget. **Total cost: $50K–$500K in unnecessary KMS costs, query latency impact, and operational complexity over 3 years.** Fix: Classify first, then encrypt based on tier: PUBLIC (no encryption), INTERNAL (TLS + provider-managed keys), CONFIDENTIAL (AES-256-GCM + CMK), RESTRICTED (AES-256-GCM + CMK + application-level encryption + audit).
 
-#
 
 ## Encryption Gotchas
 
@@ -478,7 +472,6 @@ Before beginning a new phase, verify:
 
 **Unrotated encryption keys turn a 30-day exposure into a permanent, catastrophic breach.** If encryption keys are not rotated and an attacker gains access to a historical backup containing old keys, all data ever encrypted with those keys is compromised — potentially years of historical data. Key rotation limits the blast radius: if keys rotate every 90 days, a key compromise only exposes data encrypted in that 90-day window. **Total cost: $1M–$10M+ for mass data exposure spanning years of records, multi-jurisdiction notification, and class-action litigation.** Fix: Implement automatic key rotation every 90 days in KMS. Use key versioning to track which data was encrypted with which key version. Destroy old key versions when all associated data exceeds retention period.
 
-#
 
 ## DLP Gotchas
 
@@ -486,7 +479,6 @@ Before beginning a new phase, verify:
 
 **Cross-border data transfer without adequate safeguards triggers GDPR fines up to 4% of global annual turnover.** Under Schrems II (CJEU C-311/18), transferring EU personal data to the US without SCCs + Transfer Impact Assessment + supplementary technical measures can result in orders to suspend transfers plus fines. The Irish DPC fined Meta €1.2 billion in 2023 for unlawful EU-US data transfers. Even at smaller scale, a transfer suspension order halts operations. **Total cost: €20M–€1.2B+ in GDPR fines plus business disruption.** Fix: Implement SCCs (2021 version) for all EU data transfers. Conduct and document Transfer Impact Assessment. Apply supplementary technical measures: CMK encryption, pseudonymization, split processing. Review annually.
 
-#
 
 ## Database Hardening Gotchas
 
@@ -494,7 +486,6 @@ Before beginning a new phase, verify:
 
 **Database public endpoints are the #1 cloud data breach vector.** A database exposed to the internet with default credentials is discoverable within hours by automated scanners. Once discovered, the time to full compromise averages 72 hours. 58% of cloud data breaches originate from misconfigured storage. **Total cost: $1M–$10M+ for a database breach involving PII or PHI, including notification, forensic investigation, regulatory fines, and class-action litigation.** Fix: Bind databases to private subnets only. Use VPC/service endpoints for cloud database services. Never assign public IP addresses to database instances.
 
-#
 
 ## Data Masking Gotchas
 
@@ -583,7 +574,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Format-preserving masked dataset shared with analytics vendor was re-identified within 48 hours | Deterministic HMAC masking on SSN preserved uniqueness. Vendor joined masked data with public voter registration database using ZIP + DOB + gender as join key. k-anonymity = 1 for 87% of records | Use k-anonymity ≥ 11 with l-diversity ≥ 3 for shared datasets. Apply differential privacy (ε ≤ 1.0) on aggregate queries. Never share deterministically masked identifiers with external parties | Masking that preserves uniqueness is pseudonymization, not anonymization. Assume any external recipient will attempt re-identification — design for that threat model |
 | Cross-border data transfer fined €1.2B after Schrems II ruling invalidated Privacy Shield | Company relied on invalidated Privacy Shield framework for EU-US transfers. No SCCs executed. No TIA conducted. Continued transfers for 18 months post-ruling | Execute SCCs (2021 modules) for all cross-border flows. Conduct TIA evaluating FISA 702/EO 12333 impact. Apply supplementary measures: CMK encryption with keys held outside US jurisdiction, pseudonymization, split processing | Cross-border compliance is not static. Framework invalidation (Schrems II, DPF challenges) can happen at any time. Maintain a transfer mechanism inventory with 90-day review cadence |
 
-#
 
 ## Industry Standards & Frameworks
 - [PCI DSS v4.0.1](references/pci-dss-v4.md) — Payment Card Industry Data Security Standard, Requirements 3, 4, 7, 10
@@ -593,7 +583,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [CIS Benchmarks](references/cis-benchmarks.md) — Database hardening benchmarks (PostgreSQL, MySQL, SQL Server, Oracle)
 - [ISO 27001/27002](references/iso-27001-27002.md) — Information Security Management Controls (A.10 Cryptography, A.12 Operations Security)
 
-#
 
 ## Regulations
 - [GDPR Articles 5, 25, 32, 44-49](references/gdpr-data-protection.md) — Data protection by design, security of processing, cross-border transfers
@@ -603,7 +592,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [EU-US Data Privacy Framework](references/eu-us-dpf.md) — Adequacy decision for certified US organizations
 - [PCI DSS 4.0 Requirements](references/pci-dss-requirements.md) — Requirements 3 (stored data), 4 (transit encryption), 7 (access control), 10 (logging)
 
-#
 
 ## Technical References
 - [OWASP Top 10 A02:2021](references/owasp-crypto-failures.md) — Cryptographic Failures
@@ -613,7 +601,6 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [GCP Cloud KMS](references/gcp-cloud-kms.md) — Symmetric and asymmetric encryption at scale
 - [HashiCorp Vault](references/hashicorp-vault.md) — Multi-cloud secrets management and encryption as a service
 
-#
 
 ## Data Security Tools
 - [AWS Macie](references/aws-macie.md) — Managed sensitive data discovery and classification

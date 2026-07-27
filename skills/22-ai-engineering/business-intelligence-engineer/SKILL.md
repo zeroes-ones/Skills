@@ -80,14 +80,12 @@ Masters of business intelligence engineer don't just build — they build **the 
 | **Not-invented-here** — preferring to build rather than compose | Always evaluate 2 existing solutions before building custom |
 | **Sunk cost fallacy** — sticking with a technology because you already invested in it | Re-evaluate tech choices every quarter; migration cost vs. staying cost |
 
-#
 
 ## What Masters Know That Others Don't
 - The **failure modes** of every component in their stack — not just the happy path
 - When **not** to use their favorite tool (every tool has a misuse zone)
 - That **data/model quality decays over time** — monitoring is not optional, it's foundational
 
-#
 
 ## When to Break Your Own Rules
 - **Move fast on reversible decisions.** Data format? Hard to change. Dashboard layout? Easy. Know the difference.
@@ -108,7 +106,6 @@ Masters of business intelligence engineer don't just build — they build **the 
 | **A7** | `file_contains("*.sql\|*.yml", "dbt_test\|great_expectations\|data_quality\|not_null\|unique\|accepted_values")` | This is your skill. Jump to **Core Workflow** — Phase 5 (Data Quality). | "I detect dbt tests/data quality checks — routing to data quality testing strategy." |
 | **A8** | `file_contains("*", "embedded\|white.label\|customer.facing\|iframe\|export")` AND `file_contains("*.yml", "dashboard\|report\|chart\|visualization")` | This is your skill. Jump to **Core Workflow** — Phase 6 (Embedded Analytics). | "I detect embedded/customer-facing analytics — routing to embedded BI architecture." |
 
-#
 
 ## Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
@@ -128,7 +125,6 @@ What are you building?
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
-#
 
 ## Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
@@ -144,7 +140,6 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | **A7** | `file_contains("*.sql", "CREATE TABLE\|ALTER TABLE\|raw_\|staging_\|ods_")` AND `file_contains("*", "pipeline\|ETL\|ELT\|orchestrat")` | Invoke **data-engineer** instead. Raw data pipelines and ingestion belong to data engineering before BI modeling. | "I detect raw data pipeline and table creation — routing to Data Engineer for ingestion and transformation." |
 | **A8** | `file_contains("*", "financial_model\|forecast\|projection\|p&l\|balance_sheet\|cash_flow")` | Invoke **fp-and-a-analyst** instead. Financial modeling and forecasting is FP&A, not BI engineering. | "I detect financial modeling/forecasting — routing to FP&A Analyst for financial planning." |
 
-#
 
 ## Alternative Route (Ask the User)
 If no auto-route matched, use this intent tree:
@@ -278,7 +273,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 <!-- STANDARD: 3min -->
 
-#
 
 ## Phase 1 (~25 min): Semantic Layer Design
 
@@ -451,7 +445,6 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-#
 
 ## Real-Time vs Batch Data Pipeline Decision
 
@@ -542,7 +535,6 @@ START: New data pipeline needed for BI/reporting use case
 
 ```
 
-#
 
 ## BI Tool Selection (Tableau vs Power BI vs Looker vs Metabase)
 
@@ -641,7 +633,6 @@ START: Selecting or re-evaluating a BI platform
 
 ```
 
-#
 
 ## Data Warehouse vs Data Lake vs Lakehouse Architecture Decision
 

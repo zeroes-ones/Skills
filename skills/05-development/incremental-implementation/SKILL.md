@@ -124,35 +124,35 @@ This is a map, not a recipe. Start at the top and follow the matching branch.
 <!-- STANDARD: 3min -->
 
 ### Level 1: Quick (Single Slice)
-- Decompose into VS-0 through VS-3 using the template below
-- Create the feature flag config file
-- Commit VS-0: scaffold plus flag plus passing test
-- Push and open draft PR with remaining slices as TODOs
-- **Complete when:** VS-0 merged, flag at zero percent, CI passes, team acknowledges workflow
+* Decompose into VS-0 through VS-3 using the template below
+* Create the feature flag config file
+* Commit VS-0: scaffold plus flag plus passing test
+* Push and open draft PR with remaining slices as TODOs
+* **Complete when:** VS-0 merged, flag at zero percent, CI passes, team acknowledges workflow
 
 ### Level 2: Standard (Multi-Slice Feature)
-- Run full decomposition with file-level estimates
-- Create feature flag lifecycle dashboard entry
-- Implement VS-0 through VS-2 as separate PRs
-- Run qa-engineer for cross-slice integration tests
-- Incremental flag rollout: zero to one to ten to fifty to one hundred percent
-- Remove each flag after seven days at one hundred percent
-- **Complete when:** All slices merged, all flags at one hundred percent, cleanup scheduled
+* Run full decomposition with file-level estimates
+* Create feature flag lifecycle dashboard entry
+* Implement VS-0 through VS-2 as separate PRs
+* Run qa-engineer for cross-slice integration tests
+* Incremental flag rollout: zero to one to ten to fifty to one hundred percent
+* Remove each flag after seven days at one hundred percent
+* **Complete when:** All slices merged, all flags at one hundred percent, cleanup scheduled
 
 ### Level 3: Deep (Team-Wide Rollout)
-- Run brainstorming to validate slice decomposition with stakeholders
-- Design flag lifecycle tooling with dashboard, auto-off metrics, cleanup automation
-- Write runbook for canary analysis per slice
-- Run observability-engineer to instrument per-flag metrics
-- Run release-manager for multi-service flag coordination
-- Schedule flag removal sprints every two weeks
-- **Complete when:** Automation in place, runbooks tested, team trained, dashboards operational
+* Run brainstorming to validate slice decomposition with stakeholders
+* Design flag lifecycle tooling with dashboard, auto-off metrics, cleanup automation
+* Write runbook for canary analysis per slice
+* Run observability-engineer to instrument per-flag metrics
+* Run release-manager for multi-service flag coordination
+* Schedule flag removal sprints every two weeks
+* **Complete when:** Automation in place, runbooks tested, team trained, dashboards operational
 
 ### Level 4: Exploration (Brownfield Migration)
-- Run brownfield-adoption-planner to select monolith extraction targets
-- Apply Strangler Fig pattern: new behavior to slice, old behavior to monolith
-- Run code-simplification on each extracted slice
-- **Complete when:** First monolith slice extracted and running in production
+* Run brownfield-adoption-planner to select monolith extraction targets
+* Apply Strangler Fig pattern: new behavior to slice, old behavior to monolith
+* Run code-simplification on each extracted slice
+* **Complete when:** First monolith slice extracted and running in production
 
 ## Core Workflow
 <!-- STANDARD: 3min -->
@@ -328,10 +328,10 @@ Before deploying or delivering work from this skill, verify:
 **Correct:**
 
     PR #142: feat(billing-vs1): add invoice creation endpoint
-    - UI: InvoiceForm.tsx (+45)
-    - API: POST /api/invoices (+32)
-    - Data: invoices migration (+18)
-    - Test: vs1-invoice.test.ts (+67)
+    * UI: InvoiceForm.tsx (+45)
+    * API: POST /api/invoices (+32)
+    * Data: invoices migration (+18)
+    * Test: vs1-invoice.test.ts (+67)
     Flag: feature_billing_vs1 (default: false, kill_switch: p99 > 1000ms)
 
 **Counter-example (reject):**
@@ -362,24 +362,24 @@ Before deploying or delivering work from this skill, verify:
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-- [ ] VS-0 decomposed and estimated
-- [ ] Feature flag created with default: false
-- [ ] VS-0 PR merged
-- [ ] VS-1 decomposed and estimated
-- [ ] VS-1 PR merged
-- [ ] VS-2 decomposed and estimated
-- [ ] VS-2 PR merged
-- [ ] VS-3 integration decomposed
-- [ ] All flags at one hundred percent
-- [ ] Flag cleanup scheduled
+* [ ] VS-0 decomposed and estimated
+* [ ] Feature flag created with default: false
+* [ ] VS-0 PR merged
+* [ ] VS-1 decomposed and estimated
+* [ ] VS-1 PR merged
+* [ ] VS-2 decomposed and estimated
+* [ ] VS-2 PR merged
+* [ ] VS-3 integration decomposed
+* [ ] All flags at one hundred percent
+* [ ] Flag cleanup scheduled
 
 ## References
 <!-- STANDARD: 3min -->
 
-- [feature-flag-architect](../feature-flag-architect/SKILL.md) — Flag infrastructure design
-- [shipping-and-launch](../../07-devops/shipping-and-launch/SKILL.md) — Staged rollout patterns
-- [ci-cd-builder](../../07-devops/ci-cd-builder/SKILL.md) — CI/CD pipeline integration
-- [tdd-guide](../../06-quality/tdd-guide/SKILL.md) — Test-first discipline per slice
-- [brownfield-adoption-planner](../../13-specialized/brownfield-adoption-planner/SKILL.md) — Brownfield adoption
-- [Feature Toggles (Martin Fowler)](https://martinfowler.com/articles/feature-toggles.html)
-- [Strangler Fig Application (Martin Fowler)](https://martinfowler.com/bliki/StranglerFigApplication.html)
+* [feature-flag-architect](../feature-flag-architect/SKILL.md) — Flag infrastructure design
+* [shipping-and-launch](../../07-devops/shipping-and-launch/SKILL.md) — Staged rollout patterns
+* [ci-cd-builder](../../07-devops/ci-cd-builder/SKILL.md) — CI/CD pipeline integration
+* [tdd-guide](../../06-quality/tdd-guide/SKILL.md) — Test-first discipline per slice
+* [brownfield-adoption-planner](../../13-specialized/brownfield-adoption-planner/SKILL.md) — Brownfield adoption
+* [Feature Toggles (Martin Fowler)](https://martinfowler.com/articles/feature-toggles.html)
+* [Strangler Fig Application (Martin Fowler)](https://martinfowler.com/bliki/StranglerFigApplication.html)
