@@ -23,6 +23,7 @@ token_budget: 4500
 chain:
   consumes_from:
     - apple-hig-expert
+    - feature-flag-architect
     - mobile-architecture-patterns
     - system-architect
     - ui-ux-designer
@@ -178,6 +179,8 @@ Build composable, testable views using a strict hierarchy:
 9. **Use Swift Concurrency (`async/await`) with `@MainActor` for UI updates.** Annotate ViewModels with `@MainActor` so the compiler enforces that published properties are only mutated on the main thread. Use `Task.detached` for background work that returns results via `await`. NEVER use `DispatchQueue.main.async` inside an async context — it breaks structured concurrency and cancellation propagation.
 
 10. **Test Xcode Previews with mock data, never with live services.** Previews run in a sandbox that can't access Keychain, network, or certain entitlements. Inject mock services via the environment: `.environment(\.apiService, MockAPIService())`. Guard preview-only crashes with `if !ProcessInfo.processInfo.isSwiftUIPreview`. Fixing previews is an investment — they save 15 seconds per view-edit-verify cycle, which compounds to hours per week.
+
+11. **Implement Handoff and Continuity as a system, not an afterthought.** Handoff connects user activities across iOS, macOS, and watchOS via `NSUserActivity`. Design activity types per feature: `com.yourcompany.checkout.viewing`, `com.yourcompany.checkout.editing`. Mark activities with `isEligibleForHandoff = true` and set `webpageURL` as fallback for non-Apple devices. UserInfo must be small (< 3KB) — store large state in iCloud KVS or a server and reference by ID. Test Handoff between every device pair (iPhone↔Mac, iPad↔Mac, iPhone↔iPad, Apple Watch↔iPhone). A broken Handoff loses user context silently — there's no error dialog, just a confused user. See `references/handoff-continuity.md` for full patterns.
 
 
 ## Error Recovery **(STANDARD)**

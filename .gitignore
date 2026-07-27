@@ -39,3 +39,8 @@ build/
 .cursor/skills
 .openclaw/workspace/skills
 .gemini/skills
+
+# Dev tool scripts (should not be versioned)
+_gen.py
+_write_skill.py
+_gen_skills.py

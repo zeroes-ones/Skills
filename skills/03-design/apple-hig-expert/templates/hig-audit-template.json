@@ -1,0 +1,14 @@
+{
+  "checks": [
+    {"type": "contrast", "name": "body-text-on-background", "fg": "#000000", "bg": "#FFFFFF"},
+    {"type": "contrast", "name": "caption-text-on-background", "fg": "#8E8E93", "bg": "#FFFFFF"},
+    {"type": "contrast", "name": "primary-cta-label", "fg": "#FFFFFF", "bg": "#007AFF"},
+    {"type": "contrast", "name": "destructive-button-label", "fg": "#FFFFFF", "bg": "#FF3B30"},
+    {"type": "target", "name": "close-button", "w": 32, "h": 32},
+    {"type": "target", "name": "back-button", "w": 44, "h": 44},
+    {"type": "target", "name": "primary-cta", "w": 343, "h": 50},
+    {"type": "target", "name": "tab-bar-item-home", "w": 48, "h": 48},
+    {"type": "contrast", "name": "title-on-glass-over-photo", "fg": "#FFFFFF", "bg": "#666666"},
+    {"type": "contrast", "name": "secondary-label-on-glass", "fg": "#EBEBF5", "bg": "#2C2C2E"}
+  ]
+}

@@ -1,0 +1,94 @@
+# Feature Flag Registration Template
+# File: .flags/checkout-new-flow-v2.yaml (or store in flag management system)
+flag:
+  # REQUIRED: Unique flag key following [team].[feature].[variant] convention
+  key: "checkout.new_flow.v2"
+
+  # REQUIRED: Human-readable name
+  name: "Checkout New Flow V2"
+
+  # REQUIRED: Flag type (release, experiment, ops, permission)
+  type: release
+
+  # REQUIRED: Owner — the person responsible for flag lifecycle
+  owner: "sandeep@company.com"
+
+  # REQUIRED: Team
+  team: "checkout"
+
+  # REQUIRED: Removal date — no later than 60 days after reaching 100%
+  # Format: ISO 8601 date
+  removal_date: "2026-09-26"
+
+  # REQUIRED: Removal ticket — link to Jira/Linear/GitHub issue
+  removal_ticket: "https://linear.app/company/issue/ENG-4242"
+
+  # REQUIRED: Description of what the flag controls
+  description: >
+    Migrates the checkout flow from legacy single-page to new multi-step wizard
+    with address validation and fraud check integration.
+
+  # REQUIRED: Default value (OFF for release/experiment toggles)
+  default_value: false
+
+  # OPTIONAL: Rollout plan
+  rollout_plan:
+    - percentage: 5
+      environment: production
+      duration_days: 3
+      monitoring:
+        - error_rate_checkout_v2
+        - checkout_conversion_rate
+    - percentage: 25
+      environment: production
+      duration_days: 4
+    - percentage: 50
+      environment: production
+      duration_days: 3
+    - percentage: 100
+      environment: production
+      duration_days: 0 # enable fully, start 60-day removal clock
+
+  # REQUIRED: Kill switch configuration
+  kill_switch:
+    enabled: true
+    activation_latency_seconds: 5
+    drill_schedule: "quarterly"
+    last_drill_date: "2026-07-15"
+    drill_result: "PASS"
+
+  # REQUIRED: Monitoring dashboards
+  monitoring:
+    error_rate_dashboard: "https://datadog.company.com/dash/checkout-errors"
+    business_metrics_dashboard: "https://datadog.company.com/dash/checkout-conversion"
+
+  # OPTIONAL: Flag dependencies — other flags that interact with this one
+  depends_on: []
+
+  # OPTIONAL: Services that evaluate this flag
+  evaluated_by:
+    - checkout-service
+    - checkout-web
+    - checkout-mobile
+
+  # OPTIONAL: Platform-specific notes
+  platforms:
+    web:
+      evaluation: client_side
+      cache_ttl_seconds: 60
+    ios:
+      evaluation: remote_config
+      default_value: false # safe during App Store review
+      minimum_fetch_interval_seconds: 43200 # 12 hours
+    android:
+      evaluation: remote_config
+      default_value: false
+      minimum_fetch_interval_seconds: 43200
+    backend:
+      evaluation: server_side
+      cache_ttl_seconds: 30
+
+  # METADATA (auto-populated by CI)
+  created_at: "2026-07-26T10:00:00Z"
+  created_by: "sandeep@company.com"
+  last_modified: "2026-07-26T10:00:00Z"

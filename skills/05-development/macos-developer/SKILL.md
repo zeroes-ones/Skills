@@ -17,6 +17,7 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
+  - apple-hig-expert
   - desktop-developer
   - desktop-architecture-patterns
   - ui-ux-designer
@@ -197,7 +198,19 @@ The same macOS development task produces fundamentally different output dependin
 3. **Spotlight**: Index your app's documents with `CSSearchableIndex` or `NSMetadataQuery`. Provide a Core Spotlight importer for custom document types.
   Complete when: Services menu entry appears in other apps, Quick Look preview renders correctly for custom types, and Spotlight finds app documents by content.
 4. **Touch Bar / Magic Keyboard**: Support `NSTouchBar` for MacBook Pro users. Map critical actions to the Touch Bar with fallback keyboard shortcuts.
-5. **Handoff & Universal Clipboard**: Use `NSUserActivity` to enable Handoff between Mac and iOS. Mark activities with `isEligibleForHandoff = true`.
+5. **Handoff & Continuity — Full Implementation:**
+
+macOS is the primary Handoff destination for iOS users. Your Mac app receives NSUserActivity from iPhone/iPad/Apple Watch — implement `application(_:continue:restorationHandler:)` on `NSApplicationDelegate` to receive activities. Register activity types in Info.plist under `NSUserActivityTypes`. Key patterns:
+
+a. **Scene-based continuation:** In multi-window apps, route Handoff activities to the correct `NSWindowController` via `NSUserActivity`. Store window restoration state in the activity's userInfo so recreated windows restore scroll position, selection, and edit state.
+
+b. **Universal Clipboard coordination:** UCPboard data arrives via `NSPasteboard.general`. For custom types beyond text/images, register a UTI and handle `NSPasteboardReading` conformance. Test paste from iOS → macOS for every data type your app supports.
+
+c. **Continuity Camera:** Respond to `AVCaptureDevice.continuityCamera` becoming available. Your Mac app automatically gets the iPhone camera as a video source — handle `AVCaptureSession` interruption when the camera disconnects (user walks away with phone).
+
+d. **Flag-aware Handoff:** When a feature is behind a flag, receiving devices may have different flag states. Design activity types that include a fallback: if `checkout.new_flow` is OFF on Mac but the Handoff comes from an iPhone where it's ON, route to the closest equivalent experience — never show a blank window.
+
+e. **Testing:** Test Handoff iPhone↔Mac with Bluetooth+WiFi enabled, same iCloud account on both devices. Simulator doesn't support Handoff — test on physical hardware. Verify Handoff icon appears in Mac Dock within 5 seconds of iPhone activity becoming current. See ios-developer references/handoff-continuity.md for full NSUserActivity patterns.
 
 ## Best Practices
 
@@ -396,6 +409,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
+| `apple-hig-expert` | HIG compliance scorecard, semantic color mappings, Liquid Glass patterns (macOS Tahoe), accessibility specs | Before finalizing any UI implementation — audit against macOS HIG to avoid rework |
 | `ui-ux-designer` | Design system, interaction patterns, component specs, typography scale, color tokens, spacing grid | Before implementing any UI; ensures macOS HIG compliance and native feel |
 | `system-architect` | Service boundaries, data flow architecture, technology stack decisions, IPC strategy | Before choosing XPC boundaries, persistence layer, or networking stack |
 | `backend-developer` | REST/GraphQL API endpoints, authentication tokens, WebSocket push channels | Before implementing networking layer in the macOS client |
@@ -439,6 +453,8 @@ Accessibility compliance issue? -> Accessibility Auditor -> Legal Advisor (ADA c
 | "App launches to blank window on Apple Silicon when built as x86_64 only" | The app is running under Rosetta 2 translation. While it works, performance degrades 20-40%. Build as Universal Binary (`arm64 x86_64` in `ARCHS`). Do NOT set `EXCLUDED_ARCHS[sdk=macosx*] = arm64` in Release configuration — this strips Apple Silicon from release builds. |
 | "SwiftUI List shows empty rows or stale data with Core Data @FetchRequest" | `@FetchRequest` is tied to the view's identity. If the view struct is recreated, the fetch is re-executed. Use `@SectionedFetchRequest` for grouped data. Set `nsPredicate` and `sortDescriptors` as constants (not computed properties) — changing them recreates the fetch request and resets scroll position. |
 | "Drag-and-drop works in debug but fails in Release / App Store build" | Release builds have `com.apple.security.app-sandbox` enabled. File promises and drop destinations that rely on direct file access fail. Use `NSItemProvider` with sandbox-compatible UTI types. Register for `NSFilenamesPboardType` only if `com.apple.security.files.user-selected.read-write` is in entitlements. |
+| "Using hardcoded colors in SwiftUI views (Color(hex:) or Color(red:green:blue:))" | "Colors won't adapt to Dark Mode, Increase Contrast, or Liquid Glass (macOS Tahoe). Replace with semantic colors: `.label`, `.secondaryLabel`, `.systemBackground`. Run `apple-hig-expert/scripts/hig_checker.py` to audit." |
+| "Custom controls with tight hit targets (under 44x44 pt)" | "macOS HIG requires accessible hit targets. Expand with `.contentShape(Rectangle().size(width: 44, height: 44))` or padding. Verify with `apple-hig-expert` audit." |
 
 
 ## State Log

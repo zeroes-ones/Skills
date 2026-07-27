@@ -1,0 +1,21 @@
+{
+  "_description": "Material Design 3 audit batch template. Add checks for each screen/component, then run: python3 scripts/md3_checker.py batch this_file.json",
+  "_scoring": "Starts at 100, -10 per violation. 90-100=ship, 70-80=fix before release, <70=systematic rework.",
+  "_check_types": {
+    "contrast": "WCAG contrast check. Requires fg (foreground hex), bg (background hex). Optional: large_text (bool, defaults false).",
+    "touch-target": "48dp minimum touch target. Requires w (width), h (height) in dp.",
+    "component": "MD3 component spec validation. Requires element (component name), property (spec property), actual (measured value in dp)."
+  },
+  "checks": [
+    {"type": "contrast", "name": "body-text-on-surface", "fg": "#1C1B1F", "bg": "#FFFBFE"},
+    {"type": "contrast", "name": "caption-on-surface-variant", "fg": "#49454F", "bg": "#E7E0EC", "large_text": true},
+    {"type": "contrast", "name": "primary-button-label", "fg": "#FFFFFF", "bg": "#6750A4"},
+    {"type": "touch-target", "name": "top-app-bar-nav-icon", "w": 48, "h": 48},
+    {"type": "touch-target", "name": "list-item-trailing-icon", "w": 24, "h": 24},
+    {"type": "component", "name": "filled-button-height", "element": "button-filled", "property": "height", "actual": 40},
+    {"type": "component", "name": "dialog-corner-radius", "element": "dialog", "property": "corner-radius", "actual": 28},
+    {"type": "component", "name": "chip-height", "element": "chip", "property": "height", "actual": 32},
+    {"type": "component", "name": "top-app-bar-height", "element": "top-app-bar-small", "property": "height", "actual": 64},
+    {"type": "component", "name": "nav-bar-height", "element": "nav-bar", "property": "height", "actual": 80}
+  ]
+}

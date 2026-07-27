@@ -28,9 +28,12 @@ chain:
   - api-designer
   - backend-developer
   - localization-engineer
+  - feature-flag-architect
+  - material-design-expert
   - tdd-guide
   - ui-ux-designer
   feeds_into:
+  - apple-hig-expert
   - automation-engineer
   - localization-engineer
   - qa-engineer

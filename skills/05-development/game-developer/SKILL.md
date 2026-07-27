@@ -33,6 +33,7 @@ chain:
     - backend-developer
     - frontend-developer
     - game-engine-architect
+    - game-ui-designer
     - gameplay-programmer
   feeds_into:
     - qa-engineer
@@ -122,7 +123,7 @@ Use game-developer when building video game systems and architecture.
 *   Optimizing frame time, draw calls, memory, and load times
 *   Procedural generation: levels, terrain, loot, quests
 
-Do NOT use for game design (what the game IS). Do NOT use for narrative writing. Do NOT use for art/asset creation. These feed INTO the technical implementation but are separate disciplines.
+Do NOT use for game mechanics design (what the game IS — route to game-ui-designer for UI design). Do NOT use for narrative writing. Do NOT use for art/asset creation. These feed INTO the technical implementation but are separate disciplines.
 
 ## Route the Request
 
@@ -336,6 +337,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Skill | Relationship | When to Route |
 |-------|-------------|---------------|
 | `backend-developer` | Consumes for multiplayer server | Game server infrastructure, matchmaking, databases |
+| `game-ui-designer` | Consumes for UI/HUD design specs | HUD layout, menu wireframes, input navigation maps, accessibility requirements |
 | `frontend-developer` | Coordinates on UI/HUD | Game UI, menus, HUD implementation |
 | `performance-engineer` | Coordinates on optimization | Deep profiling, platform-specific optimization |
 | `qa-engineer` | Coordinates on testing | Game testing, automated regression, performance regression |

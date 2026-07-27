@@ -12,6 +12,8 @@ chain:
     - mobile-developer
     - mobile-architecture-patterns
     - ui-ux-designer
+    - material-design-expert
+    - feature-flag-architect
     - backend-developer
     - accessibility-auditor
   feeds_into:
@@ -45,6 +47,8 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A6 | `file_contains("*.kt", "ProGuard\|R8\|minifyEnabled\|proguard-rules")` OR `file_contains("*.kt", "CollectingProguard\|proguard")` | Jump to **Decision Trees** — ProGuard/R8 Configuration. |
 | A7 | `file_contains("*.xml", "strings.xml\|contentDescription\|accessibility")` OR `file_contains("*.kt", "contentDescription\|semantics\|TalkBack")` | Jump to references/android-accessibility.md. |
 | A8 | `file_contains("*.kt", "Glide\|Coil\|BitmapFactory")` AND `file_contains("*.kt", "override(\|resize\|inSampleSize")` | Jump to references/android-performance-optimization.md. |
+| A9 | `file_contains("*.kt", "#[0-9A-Fa-f]{6}")` AND NOT `file_contains("*.kt", "MaterialTheme.colorScheme\|dynamicColor\|ColorScheme")` | Hardcoded colors without MD3 tokens. Route to **material-design-expert** for color system audit. |
+| A10 | `file_contains("*.kt", "fillMaxWidth\|fillMaxSize")` AND NOT `file_contains("*.kt", "WindowWidthSizeClass\|BoxWithConstraints\|windowSizeClass")` | Full-width layout without adaptive breakpoints. Route to **material-design-expert** for window size class adaptation. |
 
 #
 
@@ -285,6 +289,7 @@ If a command or approach fails, follow this escalation path before giving up:
 |---|---|---|
 | `mobile-developer` | Cross-platform architecture, offline-first patterns, push notification strategy | Before Android-only decisions that should align with iOS |
 | `ui-ux-designer` | Material Design 3 spec, screen mockups, interaction patterns, a11y requirements | Before implementing Compose UI |
+| `material-design-expert` | MD3 compliance audit, Dynamic Color strategy, window size class layouts, touch-target verification | Before shipping UI — verify design against current MD3 spec and Android guidelines |
 | `backend-developer` | REST/GraphQL API with Android-specific optimizations, push payloads | Before integrating network layer |
 | `api-designer` | OpenAPI 3.1 spec, SDK generation, rate limits | Before writing Retrofit/Ktor interfaces |
 | `database-designer` | ERD, Room schema decisions, indexing for mobile queries | Before defining Room @Entity classes |
@@ -400,6 +405,7 @@ Before beginning a new phase, verify:
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
+| **Before** | material-design-expert | MD3 compliance audit with `md3_checker.py`, Dynamic Color strategy (adopt/override/reject), window size class adaptation plan |
 | **Before** | ui-ux-designer | Material Design 3 design system, screen mockups with a11y annotations, interaction patterns, component specs |
 | **This** | android-developer | Native Compose implementation: UI, ViewModel, Room, Retrofit, WorkManager, Hilt, Gradle, Play Store AAB |
 | **After** | qa-engineer | Compose/Espresso tests, device coverage matrix, performance baselines, accessibility audit pass |
