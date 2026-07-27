@@ -77,6 +77,7 @@ What are you building?
 | G4 | Never abbreviate large numbers without a consistent legend and tooltip with full precision | `file_contains(output, "K|M|B|T")` AND NOT `file_contains(output, "legend|tooltip|exact")` | STOP. "Abbreviated numbers must show full precision on hover/tap. '$1.2M' must reveal '$1,234,567.89' with the abbreviation legend visible." |
 | G5 | Never display user financial data without end-to-end encryption indicators (lock icon, "Secured by" label) | `file_contains(output, "account|balance|portfolio")` AND NOT `file_contains(output, "secure|encrypt|lock|256-bit|SSL|TLS")` | DETECT. "Financial applications must display security assurance indicators. Show lock icon + encryption status in persistent chrome." |
 | G6 | Never specify UI telemetry, analytics, or error logging that could capture financial credentials, account numbers, or PII in plaintext | `file_contains(spec, "log|analytics|telemetry|track")` AND NOT `file_contains(spec, "redact|sanitize|mask|PII|never.log|no.sensitive")` | REFUSE. "UI telemetry and logging must never capture financial data in plaintext. Specify: all account numbers masked to last 4 digits, all PII redacted at the logging pipeline, zero credentials in any log. Reference PCI DSS Requirement 3.4 for data masking standards." |
+| G7 | Never specify animations that delay data visibility or misrepresent financial values — every animation must complete in ≤200ms and never interpolate prices | `file_contains(spec, "animate|transition|motion|spring|tween")` AND NOT `file_contains(spec, "duration.*ms|200ms|prefers-reduced-motion|no.interpolation")` | REFUSE. "Financial UI animations must never delay data visibility or distort values. Rules: (1) price animations ≤200ms — faster is better, (2) NEVER interpolate between prices — a price change flash communicates the fact of change, not a fake 'tween' from old to new, (3) transaction confirmations: checkmark animation + haptic, (4) every animation must have a `prefers-reduced-motion: reduce` fallback to instant. A 400ms price 'count-up' animation showing $97.34 → $103.21 is showing the user WRONG numbers for 400ms." |
 
 ## The Expert's Mindset
 
@@ -164,6 +165,23 @@ Financial UI is **high-stakes information design**. Users don't browse financial
 - **Stale data warning**: Gray out prices older than threshold. Banner: "Prices delayed by 15 minutes."
 - **Update animations**: Flash changed values briefly (200ms) — not jarring, just noticeable
 - **Throttle extreme updates**: During market volatility, don't re-render on every tick. Batch at 100-200ms.
+
+**Animation patterns for financial UI (by context):**
+
+| Context | Animation | Duration | Easing | Reduced Motion | Notes |
+|---|---|---|---|---|---|
+| Price change (up) | Green flash + arrow | 150-200ms | ease-out | Static green + arrow icon | Never interpolate price number — show the change, not a fake tween |
+| Price change (down) | Red flash + arrow | 150-200ms | ease-out | Static red + arrow icon | Same as up but red — consistency matters |
+| Order confirmed | Checkmark draw + subtle scale | 300ms | ease-out-back | Static checkmark | Pair with haptic (light) on mobile |
+| Transfer initiated | Progress indicator fill | Variable | linear | Static "% complete" text | Shows real progress, not indeterminate spinner |
+| New data arrived (WebSocket) | Gentle highlight in/out | 100ms in, 500ms fade | ease-in-out | Instant replace | Subtle — user's eye should catch the change naturally |
+| Error / rejection | Red border pulse (1 pulse) | 150ms | ease-out | Static red border | Single pulse only. Never loop — anxiety-inducing in financial context |
+| Value crossed threshold (alert) | Amber highlight + gentle pulse (2x) | 150ms × 2 | ease-in-out | Static amber badge | 2 pulse maximum. Pair with sound if user-enabled alerts |
+
+**Performance constraints for financial animations:**
+- Animations must not add latency to data display — render the number FIRST, animate the decoration AFTER
+- On a ticker with 50+ symbols updating simultaneously, batch DOM updates via `requestAnimationFrame` — never animate each individually
+- Mobile: reduce animation complexity on low-power mode. Detect via `navigator.hardwareConcurrency` and battery API
 
 ## Trading Interfaces
 

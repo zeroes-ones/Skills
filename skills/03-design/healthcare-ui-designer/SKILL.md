@@ -80,6 +80,7 @@ What are you building?
 | G4 | Never design a clinical workflow that requires more than 3 clicks to complete a common task | `file_contains(output, "clinician|nurse|physician")` AND `file_contains(output, "step.*[4-9]|step.*10")` | REFUSE. "Clinicians work under time pressure. Common tasks (medication administration, vitals entry, note signing) must complete in ≤3 clicks." |
 | G5 | Never design patient-facing content above a 6th-grade reading level without offering a simplified version | `file_contains(output, "patient|portal|consumer")` AND NOT `file_contains(output, "simplified|plain.language|easy.read|grade.level")` | DETECT. "Patient content must target 6th-grade reading level. Provide simplified versions for all medical terminology. Test with readability tools." |
 | G6 | Never specify UI logging, error tracking, or analytics that could capture PHI in plaintext | `file_contains(spec, "log|analytics|crash.report|error.track|telemetry")` AND NOT `file_contains(spec, "PHI.redact|HIPAA.log|sanitize|de.identify|no.PHI")` | REFUSE. "Healthcare UI must never log PHI to analytics, crash reporters, or error trackers. Specify: all patient data redacted from logs, crash reports stripped of screen contents, analytics use only de-identified tokens. Reference HIPAA 164.312(c)(1) — audit controls must not themselves become PHI leaks. If the crash reporter captures screenshots, it must be disabled for patient-data screens." |
+| G7 | Never specify animations that could trigger seizures, obscure clinical data, or interfere with assistive technology — every animation must have a zero-motion fallback | `file_contains(spec, "animate|transition|motion|pulse|flash|spring")` AND NOT `file_contains(spec, "prefers-reduced-motion|seizure.safe|accessibility|no.motion|0ms")` | REFUSE. "Healthcare UI animations must be safe and functional: (1) no flashing >3 times/second — seizure threshold per WCAG 2.3.1, (2) critical alerts: gentle pulse at 1Hz with static indicator fallback, (3) every animation must respect `prefers-reduced-motion: reduce` → instant, (4) animations must never be the sole channel for critical information — always pair with static text/icon, (5) medication confirmation: green checkmark (static) + haptic, not a distracting celebration animation." |
 
 ## The Expert's Mindset
 
@@ -108,6 +109,24 @@ Healthcare UI is **safety-critical design**. A confusing medication list can cau
 - **The medication list is the most dangerous part of the UI.** Drug name confusion (look-alike/sound-alike), wrong dose, wrong route, wrong frequency — these errors kill patients. Tall Man lettering (e.g., hydrOXYzine vs hydrALAzine) reduces errors by 35%.
 - **Normal ranges are age, sex, and context-dependent.** A "normal" lab value that's flagged red because the reference range is wrong for the patient causes unnecessary panic and workup. Reference ranges must be patient-specific.
 - **Clinical notes are designed for speed, not readability.** Templates with smart defaults, voice dictation integration, and auto-populated fields save minutes per patient. A well-designed note template is a clinical productivity tool.
+
+**Animation principles for healthcare UI:**
+
+| Context | Animation | Duration | Reduced Motion | Safety Rule |
+|---|---|---|---|---|
+| Critical alert (vital sign out of range) | Gentle red pulse (1Hz) + static badge | Continuous until acknowledged | Static red badge + "Critical" text | ≤2 pulses/second — never exceed 3/sec (seizure threshold). Alert must remain visible when animation stops |
+| Warning alert | Amber highlight fade-in | 200ms | Static amber badge | Single animation. Do not loop warnings — loop = critical |
+| Info notification | Blue fade-in | 150ms | Instant replace | Subtle. Information already visible in the data — don't distract |
+| Medication administered confirmation | Green checkmark appear (no animation beyond CSS transition) | 100ms | Static checkmark | Pair with haptic. NO celebration/pop/confetti — this is serious, not gamified |
+| Lab result loaded | Row highlight fade-in (top to bottom) | 100ms per row (staggered) | All rows appear instantly | Data before decoration. Render values first, animate highlights after |
+| Auto-logout countdown (PHI screen) | Countdown number + progress bar | Idle timer (15 min) | Static timer text | The animation IS the information. Must be visible peripherally. Pulse in last 60 seconds |
+| Patient list reorder (severity sort) | FLIP animation — rows move to new position | 300ms | Instant reorder | FLIP (First, Last, Invert, Play) preserves context. Without animation, reorder looks like data changed |
+
+**Hard rules for clinical animations:**
+- **No animation on medication names, dosages, or allergy flags.** These must render instantly. Any delay = risk of misread.
+- **No animation that loops continuously.** Looping animations trigger alert fatigue and increase cognitive load.
+- **No parallax, scroll-triggered reveals, or "delight" animations in clinical views.** These belong in patient-facing wellness apps, not clinical tools.
+- **Haptic pairing**: critical alerts = heavy haptic, warnings = medium, confirmations = light. Match platform haptic APIs (UIKit `UIImpactFeedbackGenerator`, Android `VibrationEffect`).
 
 ## Operating at Different Levels
 

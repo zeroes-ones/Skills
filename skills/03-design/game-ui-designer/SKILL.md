@@ -72,6 +72,7 @@ What are you designing?
 | G4 | Never design a menu that requires more than 3 button presses to return to gameplay | `file_contains(spec, "menu|settings|inventory")` AND NOT `file_contains(spec, "depth|back.press|quick.return")` | STOP. "Menu navigation must return to gameplay in ≤3 presses (pause → resume, or settings → back → resume)." |
 | G5 | Never ship game UI without subtitles, colorblind support, and remappable controls | `file_contains(spec, "game|release")` AND NOT `file_contains(spec, "subtitle|colorblind|remap|accessibility")` | REFUSE. "Games ship to millions of players. Accessibility is non-optional: subtitles (with speaker labels), colorblind modes (3 types), and fully remappable controls." |
 | G6 | Never specify game telemetry, analytics, or crash reporting that captures player PII without explicit consent and redaction | `file_contains(spec, "telemetry|analytics|crash.report|track.event")` AND NOT `file_contains(spec, "consent|redact|sanitize|PII|GDPR|COPPA|anonymize")` | REFUSE. "Game telemetry must never capture PII without consent. Specify: opt-in consent flow with clear language, PII redaction pipeline (names, emails, IP addresses, device IDs), COPPA compliance if targeting under-13 audience, GDPR right-to-deletion design. Crash reporters must strip screen contents and user input. Analytics must use anonymous session tokens." |
+| G7 | Never specify a HUD animation without its frame budget impact, haptic pairing, and reduced-motion fallback — game UI animations compete with the render budget | `file_contains(spec, "animate|pulse|shake|flash|fade|spring|tween")` AND NOT `file_contains(spec, "frame.budget|ms.budget|haptic|prefers-reduced-motion|accessibility")` | REFUSE. "Game UI animations cost frame time and must be budgeted: (1) UI animation budget ≤1ms per frame at target FPS — the rest belongs to rendering/physics/AI, (2) every animation must specify: duration (ms), easing, trigger, haptic pairing (light/medium/heavy per platform SDK), and reduced-motion alternative (instant or fade), (3) health pulse must pair with controller rumble, (4) damage flash must never exceed 3 flashes/second — seizure safety threshold, (5) diegetic animations (in-world holograms, screens) share the 3D render budget — more expensive than canvas overlay." |
 
 ## The Expert's Mindset
 
@@ -100,6 +101,27 @@ Game UI is not a tool — it's a **diegetic or semi-diegetic extension of the ga
 - **The HUD is a contract with the player.** If you show a health bar, the player trusts that number. If damage is inconsistent with the display, you've broken the contract.
 - **Animation is information, not decoration.** A health bar that pulses when critical or flashes on hit is communicating. Animation without information is motion sickness.
 - **Audio cues replace visual UI.** Footstep sounds, heartbeat on low health, ammo-click on empty — audio is UI. Design the soundscape as part of the interface.
+
+**HUD animation catalog (by gameplay function):**
+
+| Function | Animation | Duration | Haptic | Reduced Motion | Frame Cost |
+|---|---|---|---|---|---|
+| Low health (<25%) | Red vignette pulse + health bar pulse | Pulse 1Hz, continuous | Heavy rumble (controller) / long vibration (mobile) | Static red vignette + "LOW HEALTH" text | ~0.3ms (color overlay) |
+| Take damage | Screen edge red flash + health bar shake | 150ms | Medium impact | Instant health bar decrement — no flash | ~0.2ms (flash) + ~0.1ms (shake transform) |
+| Critical hit landed | Yellow/gold flash + damage number pop | 100ms flash, 400ms number | Light tap | Static gold damage number | ~0.2ms (flash) + ~0.3ms (text animation) |
+| Ability cooldown | Radial wipe + number countdown | Real-time (matches cooldown) | None (already info-dense) | Static number + filled/unfilled ratio bar | ~0.4ms (radial shader) |
+| Buff applied | Icon glow + slide-in from edge | 200ms ease-out | Light tap | Static icon with "+BUFF" text | ~0.2ms (glow) + ~0.1ms (slide) |
+| Buff expiring (last 3s) | Icon pulse + transparency fade | 500ms fade-out | Light warning pulse | Static icon with countdown number | ~0.3ms (pulse + fade) |
+| Kill confirmed | Kill feed slide-in + score pop | 300ms ease-out-back | Medium celebration | Static kill feed entry (no animation) | ~0.3ms (slide) + ~0.2ms (score pop) |
+| Objective updated | Banner slide-down + hold + slide-up | 500ms in, 2s hold, 300ms out | None | Static banner (no animation) | ~0.3ms (slide) |
+| Ammo low (<20%) | Ammo counter yellow → red + gentle pulse | Pulse 0.5Hz | None | Static red ammo number | ~0.1ms (color shift) |
+| Menu open/close | Scale + fade (from center) | 200ms ease-out (open), 150ms ease-in (close) | Light tap on open | Instant show/hide | ~0.5ms (scale + fade) |
+
+**Frame budget allocation for game UI animations:**
+- At 60fps (16.67ms total): UI animation budget = **≤1.5ms** — the rest belongs to rendering (8ms), physics/AI (5ms), network (1ms), margin (1.17ms)
+- At 30fps (33.33ms total): UI animation budget = **≤3ms**
+- **Enforce in engine**: profile UI layer separately. If UI > budget, reduce: particle count, animation complexity, or canvas redraw area
+- **Diegetic UI warning**: in-world UI animations (holograms, screens, spatial markers) render in the 3D pass — they share the RENDERING budget (8ms), not the UI budget. Diegetic animations are 3-5x more expensive than canvas overlay equivalents.
 
 ## Operating at Different Levels
 
