@@ -172,8 +172,9 @@ sys.exit(min(errs, 1))
     while IFS= read -r f; do
         [ -z "$f" ] && continue
         [ ! -f "$REPO_ROOT/$f" ] && continue
-        count=$(grep -ci 'Complete when' "$REPO_ROOT/$f" 2>/dev/null || echo 0)
-        if [ "$count" -lt 8 ]; then
+        count=$(grep -ci 'Complete when' "$REPO_ROOT/$f" 2>/dev/null || true)
+        count=${count:-0}
+        if [ "$count" -lt 8 ] 2>/dev/null; then
             echo "  ✗ $f: only $count 'Complete when' criteria (need \u22658)"
             comp_failures=$((comp_failures + 1))
         fi
@@ -190,8 +191,9 @@ sys.exit(min(errs, 1))
     while IFS= read -r f; do
         [ -z "$f" ] && continue
         [ ! -f "$REPO_ROOT/$f" ] && continue
-        dt_count=$(sed -n '/^## Decision Trees/,/^## Gotchas/p' "$REPO_ROOT/$f" 2>/dev/null | grep -c '^###' || echo 0)
-        if [ "$dt_count" -lt 3 ]; then
+        dt_count=$(sed -n '/^## Decision Trees/,/^## Gotchas/p' "$REPO_ROOT/$f" 2>/dev/null | grep -c '^###' || true)
+        dt_count=${dt_count:-0}
+        if [ "$dt_count" -lt 3 ] 2>/dev/null; then
             echo "  ✗ $f: only $dt_count decision tree(s) (need \u22653)"
             dt_failures=$((dt_failures + 1))
         fi
