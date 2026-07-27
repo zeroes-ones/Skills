@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-27T16:52:26Z
+# Generated: 2026-07-27T19:10:21Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    2ffa88d18657473000302c4c0ec8381774440e43
+# Commit:    1c268bf8568676486abd44e48d0cf8c7661de67a
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -11,6 +11,7 @@ e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/comm
 ac4b4761266c8fe143a57bc552ba67398ca6f03c8bdae9a0fcb784ff9017f16b  .githooks/pre-push
 655cdc9a64ff46197ba7f06f1553b88b5ffae74c7f4c4138dd545ac5dd4814eb  scripts/_compile_skill.py
 158880b0bd253ee05757d80e778650d4740e3ea569d9c4a88d6ee929833ad5f8  scripts/agent-handshake.sh
+9d91f796f00241b759b968f6795710b9c54ac88d2122bb023f4ced689b2c0f33  scripts/audit-library.py
 5e967a4ccc318b31d0af47e02174382a23afa24dd767f44e70174cff25be087a  scripts/behavioral-evals.py
 83e5bc2f876a6d31cc3fc9c54cbafbddb83bce9158f28780dcb83dbe8c236efe  scripts/calculate-roi.sh
 b34d876e8dd8148c56a17d28b0e160abb1fa5d78648be4f6c2f06e99315991aa  scripts/compile-skills.sh
