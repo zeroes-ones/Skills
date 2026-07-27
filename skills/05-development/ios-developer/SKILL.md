@@ -22,6 +22,7 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
+    - apple-hig-expert
     - mobile-architecture-patterns
     - system-architect
     - ui-ux-designer
@@ -53,6 +54,7 @@ Always classify the user's intent before executing. Match against the table belo
 | A6  | "main actor warning," "data race"       | § Concurrency Decision Tree          |
 | A7  | "VoiceOver not reading," "a11y"         | § Core Workflow → Accessibility      |
 | A8  | "UIKit in SwiftUI" or vice versa        | § UIKit-SwiftUI Bridging             |
+| A9  | "HIG audit," "HIG compliance," "Apple design review" | → `apple-hig-expert` |
 
 **Intent route tree:**
 
@@ -66,6 +68,7 @@ User asks about iOS
 ├── "concurrency" / "actor" / "race"       → A6 → Concurrency tree
 ├── "accessibility" / "VoiceOver" / "a11y" → A7 → Accessibility workflow
 ├── "UIKit in SwiftUI" / "bridge"          → A8 → Bridging reference
+├── "HIG audit" / "HIG compliance" / "Apple design" → A9 → `apple-hig-expert`
 └── none of above → Ask clarifying question about target iOS version, pattern, or screen
 ```
 
@@ -195,6 +198,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 | Scenario | Coordinate With | Handoff Artifact |
 |----------|----------------|------------------|
+| Apple HIG compliance audit for iOS screens | `apple-hig-expert` | HIG scorecard (100-point scale) + violation list with fixes |
 | UI/UX design specs for a screen | `ui-ux-designer` | Figma link or design token JSON |
 | Backend API contract for a mobile endpoint | `api-designer` | OpenAPI 3.1 spec with mobile-specific pagination |
 | System architecture for data sync strategy | `system-architect` | C4 Container diagram showing mobile ↔ cloud boundary |
@@ -209,6 +213,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
+| `apple-hig-expert` | HIG compliance scorecard, semantic color mappings, accessibility specs, Liquid Glass patterns | Before finalizing any UI implementation — audit against HIG to avoid rework |
 | `system-architect` | Architecture decisions, technology constraints, system boundaries | Before implementing features that cross system boundaries |
 | `api-designer` | API contracts, versioning strategy, rate limiting, error handling | Before building API-consuming code |
 
@@ -230,6 +235,8 @@ When you detect these patterns, speak up with dollar-quantified impact:
 | `DispatchQueue.main.async` for networking | "You're blocking the main thread. Switch to `async/await` with proper actor isolation." | **$60K** (performance + review rejection) |
 | Hardcoded deployment target too aggressive | "Dropping iOS 15 loses 12% of users. Set `IPHONEOS_DEPLOYMENT_TARGET = 16.0` at most aggressive." | **$200K+** (market reach) |
 | No privacy manifest (PrivacyInfo.xcprivacy) | "App will be rejected starting May 2024. Create `PrivacyInfo.xcprivacy` with required API reasons." | **$150K** (delayed launch) |
+| Hardcoded hex colors in SwiftUI (`Color(hex: "#...")`) | "Colors won't adapt to Dark Mode or Liquid Glass. Use semantic colors: `.label`, `.secondaryLabel`, `.systemBackground`. Run `apple-hig-expert/scripts/hig_checker.py` to audit." | **$100K** (Dark Mode support + HIG rejection risk) |
+| Interactive elements under 44x44 pt (`.frame(width: 32)`) | "HIG requires 44x44 pt minimum tap targets. Expand with `.contentShape(Rectangle().size(width: 44, height: 44))`." | **$80K** (usability + App Store rejection risk) |
 
 ---
 
@@ -429,9 +436,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ---
 
-## Operating at Different Levels
-
-#
+## Operating at Different Levels (Continued)
 
 ## Solo Developer
 - Build directly in Xcode with auto-signing
@@ -485,6 +490,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
 2. **After each major decision:** Append to the ledger:
+
    ```json
    {
      "timestamp": "ISO-8601",
@@ -497,6 +503,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "reversible": true
    }
    ```
+
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 

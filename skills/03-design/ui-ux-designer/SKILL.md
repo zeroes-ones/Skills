@@ -29,7 +29,11 @@ chain:
   - ux-researcher
   feeds_into:
   - accessibility-auditor
+  - apple-hig-expert
+  - fintech-ui-designer
   - frontend-developer
+  - game-ui-designer
+  - healthcare-ui-designer
   - idea-to-spec
   - medical-illustrator
   - mobile-developer
@@ -58,6 +62,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Build a design system (tokens, components, governance) → Start at "Core Workflow > Phase 1"
@@ -68,9 +73,13 @@ What are you trying to do?
 ├── Need usability testing or user research? → `ux-researcher`
 ├── Need brand identity or visual design tokens? → `brand-guidelines`
 ├── Need accessibility audit or WCAG compliance? → `accessibility-auditor`
+├── Need Apple HIG compliance (iOS/macOS/watchOS/visionOS)? → `apple-hig-expert`
+├── Designing a game UI (HUD, menus, controller navigation)? → `game-ui-designer`
+├── Designing a fintech UI (trading, banking, payments)? → `fintech-ui-designer`
+├── Designing a healthcare UI (clinical, patient portal, medical device)? → `healthcare-ui-designer`
 └── Not sure? → Describe the problem in plain language and I'll route you
-
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -320,7 +329,10 @@ Irreconcilable UX vs. technical constraint (design requires capability that arch
 
 Minor design drift (spacing off by 2px, wrong shade in one state)
   └── `frontend-developer` fixes directly. `ui-ux-designer` informed via design review. No escalation needed.
+
 ```
+
+
 
 ## Proactive Triggers
 

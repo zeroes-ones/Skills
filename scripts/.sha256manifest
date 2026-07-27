@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-27T00:15:49Z
+# Generated: 2026-07-27T02:03:23Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    f7d61c21cfa49b551cc75363d12e7e6efaead431
+# Commit:    dc1f6fc773048f5e75b9032934f5dcae99447626
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -48,6 +48,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/02-prod
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/02-product/product-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/02-product/ux-researcher/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/accessibility-auditor/scripts/verify-skill.sh
+5c427d00cea690174f19a9dca16e44446469ffc1ac4987cf5ad9b72e8b2bbcc5  skills/03-design/apple-hig-expert/scripts/hig_checker.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/brand-guidelines/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/ui-ux-designer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/api-designer/scripts/verify-skill.sh
@@ -77,6 +78,7 @@ c096433b47a0f50259b002df186696b3635bf8c50bb876da09e4eee4b6f82dc8  skills/05-deve
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/localization-engineer/scripts/verify-skill.sh
 25ee822f9c4c132793257be880fdba015b2af5e0dbf1bc1f61e1300aa37916ec  skills/05-development/macos-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/mobile-developer/scripts/verify-skill.sh
+8fd01b5e0e8418e6a694b3ab8669eae6bf63b6b3f8a1dd858340679352f9b0bb  skills/05-development/mock-data-sync/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/05-development/personal-productivity-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/prototype/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/source-driven-development/scripts/verify-skill.sh
@@ -140,6 +142,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-grow
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/devrel-advocate/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/growth-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/seo-specialist/scripts/verify-skill.sh
+363ce202b76fe9e8aa2facdf2156c14e4e8544cb42f33c3323d39b5860d23321  skills/11-legal/gdpr-privacy/_gen.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/gdpr-privacy/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/legal-advisor/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/regulatory-specialist/scripts/verify-skill.sh
@@ -147,6 +150,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-oper
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/event-planner/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/12-operations/handoff/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/project-manager/scripts/verify-skill.sh
+fcfd3aa30497c4cf5c2b715e7b260f5e2d7b2a6dfe9f7f780bf2d87cc85495b0  skills/12-operations/scrum-master/_write_skill.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/scrum-master/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/12-operations/teach/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/technical-program-manager/scripts/verify-skill.sh

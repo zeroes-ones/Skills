@@ -25,7 +25,10 @@ chain:
   consumes_from:
   - product-manager
   feeds_into:
+  - fintech-ui-designer
   - frontend-developer
+  - game-ui-designer
+  - healthcare-ui-designer
   - idea-to-spec
   - patient-experience-researcher
   - patient-health-educator
@@ -56,6 +59,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Understand users (personas, journey maps, mental models) → Jump to "Core Workflow" — Phase 2 & 3
@@ -67,8 +71,8 @@ What are you trying to do?
 ├── Need feature prioritization or roadmap planning? → `product-manager`
 ├── Need product-market fit or competitive positioning? → `product-strategist`
 └── Not sure? → Describe the problem in plain language and I'll route you
-
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Anti-Rationalization — No Excuses
@@ -350,6 +354,9 @@ UX research findings are useless if they don't change what gets built. Coordinat
 | `idea-to-spec` | User needs, mental models, task flows, pain points with severity ratings, accessibility requirements | Specs miss critical user context — features built that users don't need |
 | `ui-ux-designer` | Usability test results with severity ratings (1-4), design recommendations traced to observed behavior, participant quotes with video timestamps | Designs repeat known usability mistakes — redesign cycles |
 | `product-manager` | Research synthesis report, evidence-based feature recommendations, user segment insights, behavioral patterns | PM prioritizes features without user evidence — backlog driven by loudest voice |
+| `game-ui-designer` | Game UX testing results: player behavior, frustration points, controller ergonomics, comprehension of HUD elements | Game UI designed without player evidence — HUD ignored or confusing, menus frustrate |
+| `fintech-ui-designer` | Fintech usability findings: transaction comprehension, fee clarity, data trust, decision confidence | Fintech UI shipped without user testing — trust erosion, transaction errors, churn |
+| `healthcare-ui-designer` | Clinical usability results: task completion time, error rates, clinician satisfaction, patient comprehension | Clinical UI without usability evidence — clinician burnout, medication errors, patient harm |
 
 ### Communication Triggers — When to Proactively Notify
 
@@ -386,7 +393,10 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 | Research plan has no quantitative component — purely qualitative interviews with no behavioral data triangulation | Propose mixed-methods approach: pair interviews with analytics data (funnel drop-offs, feature adoption, session replays). Triangulate qualitative insights with quantitative patterns | Qualitative research tells you WHY users behave a certain way; quantitative data tells you HOW MANY users behave that way. Either alone is incomplete — together they produce actionable, prioritized findings |
 | Usability test script uses leading language ("click the blue button in the top right") | Rewrite as task-based scenarios: "You want to buy this item. Go ahead." Leading scripts produce confirmation, not discovery. Test the script with a pilot participant before running the actual study | A usability test with leading instructions is a confirmation exercise. Participants follow directions instead of intuition — and you ship a design that works when users are told what to do, not when they have to figure it out themselves |
 | Research findings sit in a PDF nobody reads — stakeholders ask "what did we learn?" 3 weeks later | Create a 3-minute highlights reel with video evidence timestamps before writing the full report. Share with stakeholders within 48 hours of the last session. Archive raw data with searchable transcripts | The value of research decays rapidly after the last session. Stakeholders absorb video evidence 10x faster than written reports. If insights aren't consumed within a week, the research might as well not have happened |
-| Research reveals a major usability barrier (severity 3-4) that blocks a critical user flow | Escalate to `product-manager` and `ui-ux-designer` within 24 hours with video evidence. Propose a design sprint to resolve before implementation proceeds. Do not wait for the final report | Severity 3-4 usability issues found during research are $500 fixes; the same issues found in production are $50,000 fixes plus customer trust damage. Early escalation saves sprints and reputation |
+| Research reveals major usability barrier (severity 3-4) that blocks a critical user flow | Escalate to `product-manager` and `ui-ux-designer` within 24 hours with video evidence. Propose a design sprint to resolve before implementation proceeds. Do not wait for the final report | Severity 3-4 usability issues found during research are $500 fixes; the same issues found in production are $50,000 fixes plus customer trust damage. Early escalation saves sprints and reputation |
+| Game UX testing reveals players can't read HUD during combat | Flag to `game-ui-designer` and `game-developer`: peripheral readability failure. Test HUD with 500ms glance test. Redesign element size, position, or contrast. | A HUD that fails during combat makes the game unplayable. This is severity-4 for games — ship-blocking. |
+| Fintech usability test shows users don't understand fees | Flag to `fintech-ui-designer`: fee disclosure clarity failure. Redesign review step to itemize all fees before confirm. Test with financial literacy spectrum. | Hidden or confusing fees are the #1 cause of fintech churn and regulatory complaints. |
+| Clinical usability test shows medication error risk | Flag to `healthcare-ui-designer` and `hipaa-technical-implementation`: medication display safety risk. Implement Tall Man lettering, barcode confirmation, interaction checking. Pause feature rollout. | Medication errors in UI design can cause patient harm. This is an ethical stop-work trigger. |
 
 
 ## State Log
