@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "security-reviewer",
+  "description": "Per-skill evaluation for security-reviewer \u2014 validates trigger routing, STRIDE threat modeling, OWASP Top 10 coverage, CVSS grading, and structured reports.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-security-review",
+      "category": "trigger_routing",
+      "input": "Review this authentication microservice for security vulnerabilities",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "STRIDE",
+            "OWASP",
+            "threat model"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-owasp",
+      "category": "trigger_routing",
+      "input": "Check this API for OWASP Top 10 vulnerabilities like injection and broken auth",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "injection",
+            "authentication",
+            "OWASP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-jwt-review",
+      "category": "trigger_routing",
+      "input": "Audit our JWT token implementation for security best practices",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "JWT",
+            "token",
+            "expiration",
+            "signing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-pentest",
+      "category": "negative_trigger",
+      "input": "Run a live penetration test against production at api.example.com",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "security-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-code-review",
+      "category": "negative_trigger",
+      "input": "Review this pull request for code quality, naming, and formatting",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "security-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "output-stride",
+      "category": "anti_pattern_compliance",
+      "input": "Analyze this user profile service for security threats",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Spoofing",
+            "Tampering",
+            "Repudiation",
+            "Information Disclosure",
+            "Denial of Service",
+            "Elevation of Privilege"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cvss-grading",
+      "category": "checklist_coverage",
+      "input": "Report a stored XSS vulnerability found in the comment form",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "CVSS",
+            "severity",
+            "score",
+            "vector"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "structured-report",
+      "category": "output_quality",
+      "input": "Produce a security review report for the payment processing module",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "finding",
+            "remediation",
+            "CVSS",
+            "confidence"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "looks secure",
+            "no issues found"
+          ]
+        }
+      ]
+    }
+  ]
+}
