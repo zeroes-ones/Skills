@@ -135,6 +135,7 @@ Define what the skill does before writing a single line.
 4. DRAFT THE DESCRIPTION (one paragraph)
    |-- Format: "Use when [triggers]. Handles [capabilities]. Do NOT use for [boundaries]."
 ```
+
   Complete when: Triggers are external situations recognizable by the user without knowing how the skill works, capabilities list covers what the skill handles with clear boundaries, and "Do NOT use for" exclusions are specific enough to prevent misrouting.
 
 ### Phase 2: Design the Information Hierarchy
@@ -155,6 +156,7 @@ Structure the skill for progressive disclosure.
    |-- Linked reference files in references/ directory
    |-- Detailed guides, templates, examples, calculators
 ```
+
   Complete when: Information hierarchy designed with steps for primary workflow (procedural/checkable), reference for lookup data, templates for scaffolding, and resources for external links — each tier positioned correctly per progressive disclosure priority.
 
 ### Phase 3: Write Steps with Completion Criteria
@@ -174,6 +176,7 @@ Structure the skill for progressive disclosure.
    |-- Auto-Route: filesystem condition → immediate action
    |-- Intent Route: user question → directed jump to section
 ```
+
   Complete when: Primary workflow has ordered phases with numbered steps, each step includes a checkable completion criterion, and 3+ decision trees cover all common branching decisions with ASCII-art format.
 
 ### Phase 4: Add Anti-Rationalization
@@ -196,6 +199,7 @@ Preempt the model's tendency to rationalize away constraints.
    |-- Conditions that fire automatically
    |-- Each trigger: detectable condition → automatic response
 ```
+
   Complete when: 5-7 ground rules in table format with negative constraints, mechanical (grep-able) triggers, and violation responses; "There Is No Step 5" section with 3+ priority rules; and HARD GATE checklist with minimum 4 pre-delivery checks.
 
 ## <!-- STANDARD: 3min --> Decision Trees
@@ -387,10 +391,10 @@ This skill maintains a **decision ledger** for skill authoring sessions.
 
 ### Anti-Drift Check
 
-- [ ] Have I read the state log from the previous session?
-- [ ] Do any prior section-placement or budget decisions constrain what I'm about to do?
-- [ ] Is my approach consistent with the 12-section template?
-- [ ] If I'm contradicting a prior decision, have I documented WHY?
+* [ ] Have I read the state log from the previous session?
+* [ ] Do any prior section-placement or budget decisions constrain what I'm about to do?
+* [ ] Is my approach consistent with the 12-section template?
+* [ ] If I'm contradicting a prior decision, have I documented WHY?
 
 ## Proactive Triggers
 
@@ -406,6 +410,7 @@ This skill maintains a **decision ledger** for skill authoring sessions.
 ## What Good Looks Like
 
 ### Before (Novice Skill)
+
 ```markdown
 # My Skill
 This skill helps you do things.
@@ -423,6 +428,7 @@ This skill helps you do things.
 Problems: No triggers, no boundaries, no completion criteria, no-op tips, no ground rules, no gotchas, no decision trees, no references.
 
 ### After (Great Skill)
+
 ```markdown
 ---
 name: example-skill
@@ -468,7 +474,7 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
-## References
+## References (example)
 * ref-example.md
 ```
 
@@ -512,14 +518,14 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 
 ## <!-- DEEP: 10+min --> Verification
 
-- [ ] **Description audit:** "Use when / Handles / Do NOT use" format. No process language. Triggers are situations.
-- [ ] **Ground rules enforceable:** Every ground rule has a mechanical trigger.
-- [ ] **Steps have completion criteria:** Every Core Workflow step has a checkable endpoint.
-- [ ] **No duplication:** Zero sentences >15 words appearing more than once.
-- [ ] **No-op score <5%:** DELETE count / total sentences < 0.05.
-- [ ] **Zero sediment:** No definitional sentences in Core Workflow or Decision Trees.
-- [ ] **Token budget:** Body content <500 lines.
-- [ ] **References resolve:** All 8 reference links point to existing files.
+* [ ] **Description audit:** "Use when / Handles / Do NOT use" format. No process language. Triggers are situations.
+* [ ] **Ground rules enforceable:** Every ground rule has a mechanical trigger.
+* [ ] **Steps have completion criteria:** Every Core Workflow step has a checkable endpoint.
+* [ ] **No duplication:** Zero sentences >15 words appearing more than once.
+* [ ] **No-op score <5%:** DELETE count / total sentences < 0.05.
+* [ ] **Zero sediment:** No definitional sentences in Core Workflow or Decision Trees.
+* [ ] **Token budget:** Body content <500 lines.
+* [ ] **References resolve:** All 8 reference links point to existing files.
 - [ ] **Portability:** Portability target declared. No vendor-specific frontmatter.
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`.
 
