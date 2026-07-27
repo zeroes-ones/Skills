@@ -526,8 +526,8 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 * [ ] **Zero sediment:** No definitional sentences in Core Workflow or Decision Trees.
 * [ ] **Token budget:** Body content <500 lines.
 * [ ] **References resolve:** All 8 reference links point to existing files.
-- [ ] **Portability:** Portability target declared. No vendor-specific frontmatter.
-- [ ] **Verification script passes:** Run `scripts/verify-skill.sh`.
+* [ ] **Portability:** Portability target declared. No vendor-specific frontmatter.
+* [ ] **Verification script passes:** Run `scripts/verify-skill.sh`.
 
 ## References
 
