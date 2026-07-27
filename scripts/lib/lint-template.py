@@ -30,7 +30,6 @@ REQUIRED_SECTIONS = {
     'Deliberate Practice',
     'References',
     'Gotchas',
-    'Anti-Hallucination',
     'Verification',
     'Error Recovery',
     'State Log',
@@ -103,10 +102,16 @@ class SkillChecker:
             self.errors.append(f"Missing required sections: {', '.join(sorted(missing))}")
 
     def check_anti_hallucination(self):
-        """Must have all 4 anti-hallucination guardrail phrases."""
+        """Must have all 4 guardrail phrases. ## Anti-Hallucination heading checked for level correctness."""
+        # Content check: all 4 phrases must be present (blocking)
         missing = [p for p in ANTI_HALLUCINATION_PHRASES if p not in self.content]
         if missing:
             self.errors.append(f"Missing anti-hallucination guardrails: {', '.join(missing)}")
+        # Heading level check: if present, must be ## not ### (catches the automation-engineer bug)
+        if re.search(r'^###\s+Anti-Hallucination', self.body, re.MULTILINE):
+            self.errors.append("Anti-Hallucination heading must be '## Anti-Hallucination' (level-2), not '###' (level-3)")
+        elif not re.search(r'^## Anti-Hallucination\s*$', self.body, re.MULTILINE):
+            self.warnings.append("Missing '## Anti-Hallucination' section (ensure guardrail phrases are in a dedicated level-2 section)")
 
     def check_gotchas_quantified(self):
         """Must have at least 5 dollar-quantified gotchas."""
@@ -142,31 +147,37 @@ class SkillChecker:
         if '| Upstream Skill' not in self.body:
             self.errors.append("Missing Cross-Skill Coordination upstream table (| Upstream Skill | ... |)")
 
+    def _parse_frontmatter(self):
+        """Parse YAML frontmatter and return dict, or None on failure."""
+        parts = re.split(r'^---\s*$', self.content, maxsplit=2, flags=re.MULTILINE)
+        if len(parts) < 3:
+            return None
+        try:
+            import yaml
+            return yaml.safe_load(parts[1]) or {}
+        except Exception:
+            return None
+
     def check_description_triggers(self):
         """Description must have 'Use when', 'Handles', and 'Do NOT use'."""
-        parts = re.split(r'^---\s*$', self.content, maxsplit=2, flags=re.MULTILINE)
-        if len(parts) < 3:
-            return  # Already caught by YAML linter
-        desc_match = re.search(r'description:\s*>\s*\n((?:\s+.+\n?)*)', parts[1])
-        if desc_match:
-            desc = desc_match.group(1)
-            for phrase in ['Use when', 'Handles', 'Do NOT use']:
-                if phrase not in desc:
-                    self.errors.append(f"Description missing '{phrase}' trigger phrase")
+        fm = self._parse_frontmatter()
+        if fm is None or 'description' not in fm:
+            return
+        desc = str(fm['description'])
+        for phrase in ['Use when', 'Handles', 'Do NOT use']:
+            if phrase not in desc:
+                self.errors.append(f"Description missing '{phrase}' trigger phrase")
 
     def check_description_length(self):
-        """Description must be ≤1024 characters."""
-        parts = re.split(r'^---\s*$', self.content, maxsplit=2, flags=re.MULTILINE)
-        if len(parts) < 3:
+        """Description must be ≤1024 characters. Warn at ≥900 chars (safety margin)."""
+        fm = self._parse_frontmatter()
+        if fm is None or 'description' not in fm:
             return
-        # Extract description from YAML (simplified — YAML linter does the full parse)
-        desc_match = re.search(r'description:\s*>\s*\n((?:\s+.+\n?)*)', parts[1])
-        if desc_match:
-            desc = desc_match.group(1)
-            # Clean up YAML block scalar formatting
-            desc = re.sub(r'\n\s+', ' ', desc).strip()
-            if len(desc) > 1024:
-                self.errors.append(f"Description is {len(desc)} characters (maximum 1024)")
+        desc = str(fm['description'])
+        if len(desc) > 1024:
+            self.errors.append(f"Description is {len(desc)} characters (maximum 1024)")
+        elif len(desc) >= 900:
+            self.warnings.append(f"Description is {len(desc)} characters (approaching 1024 limit, trim to stay safe)")
 
     def check_name_matches_dir(self):
         """name field must match parent directory name."""

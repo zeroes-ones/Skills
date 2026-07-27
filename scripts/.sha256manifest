@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-27T03:24:41Z
+# Generated: 2026-07-27T04:11:01Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    ce9d432d853363411a700b9ebe03b8962c9d7ad3
+# Commit:    c0fdf450584660b26e2bac6c28080ecc1627c6b0
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -22,8 +22,8 @@ a9a1c622d551381a1fb5b9883b76656ae031671c48b147e7d94863c05ef4e610  scripts/instal
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
 0bb1042e1e108645dc1a862cea231e7dc7be7c08552f5d9bf3274a30555ae34f  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
-8f4cd34f2647ac59aff06f36f68f983c67b7b3bef20ad4e23988610e6df0ff2f  scripts/lib/lint-template.py
-cf34fea8d883548261a536460e3deaa65773bcae368f3c9c0cfe608eb2deaaa0  scripts/lib/lint-yaml.py
+df631242e6f3955c24021094e541abc100ae26c1980c3da99db9fe7a066c8dc0  scripts/lib/lint-template.py
+803942ce420e2fd140d7ad6ec02d79328fa404dc33b85febddad8853e83df1c3  scripts/lib/lint-yaml.py
 5f2ffb808c267412a2fe61d40a51fa5ebaf76836bcc32a191f02202200b7a5b0  scripts/lint.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
 43e2dd04db8e3efd598ac7ae8a891e1915bad4e33bea753fc50c3d5aa5e89702  scripts/run-evals.sh
@@ -57,6 +57,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-arch
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/database-designer/scripts/verify-skill.sh
 fd1a37efb948b55d4c6944b31d04e3cbfa0dc5222ec7149e90831933ba5ec5e1  skills/04-architecture/desktop-architecture-patterns/scripts/verify-skill.sh
 7994bba26a14b04a32ff372fe85c806be403e9f89bb6708a8e218c077aa48f0c  skills/04-architecture/event-driven-architect/scripts/verify-skill.sh
+33497d66c0e783978f30dc44327482ab39fe54edd637c607f4df21644d2edf8d  skills/04-architecture/feature-flag-architect/scripts/verify-skill.sh
 f9b06af4b2e9aa369435002dee2b2880f217d666d7f0a119609678f0649b7cd0  skills/04-architecture/mobile-architecture-patterns/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/networking-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/polyrepo-strategy/scripts/verify-skill.sh

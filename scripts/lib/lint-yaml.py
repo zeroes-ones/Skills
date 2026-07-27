@@ -103,6 +103,25 @@ def check_description_length(filepath, lines):
     return errors
 
 
+@rule("YML010", "warning", "Description is {length} chars (approaching 1024 limit — trim to stay safe)")
+def check_description_length_warning(filepath, lines):
+    """Warn when description is ≥900 characters (approaching the 1024 limit)."""
+    errors = []
+    content = ''.join(lines)
+    parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+    if len(parts) < 3:
+        return errors
+    try:
+        fm = yaml.safe_load(parts[1])
+        if isinstance(fm, dict) and 'description' in fm:
+            desc = fm['description']
+            if desc and len(str(desc)) >= 900 and len(str(desc)) <= 1024:
+                errors.append((1, f"Description is {len(str(desc))} chars (approaching 1024 limit — trim to stay safe)"))
+    except Exception:
+        pass
+    return errors
+
+
 @rule("YML005", "error", "name '{name}' does not match directory '{dirname}'")
 def check_name_matches_directory(filepath, lines):
     """The name field should match the parent directory name."""
