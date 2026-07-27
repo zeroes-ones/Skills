@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-27T02:03:23Z
+# Generated: 2026-07-27T03:24:41Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    dc1f6fc773048f5e75b9032934f5dcae99447626
+# Commit:    ce9d432d853363411a700b9ebe03b8962c9d7ad3
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -50,6 +50,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/02-prod
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/accessibility-auditor/scripts/verify-skill.sh
 5c427d00cea690174f19a9dca16e44446469ffc1ac4987cf5ad9b72e8b2bbcc5  skills/03-design/apple-hig-expert/scripts/hig_checker.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/brand-guidelines/scripts/verify-skill.sh
+eb5c4563134c83608f4e53b737fce5ba8b0484bea4cdf9421d71740e06848c3d  skills/03-design/material-design-expert/scripts/md3_checker.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/ui-ux-designer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/api-designer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/codebase-design/scripts/verify-skill.sh

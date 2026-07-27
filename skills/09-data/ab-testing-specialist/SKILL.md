@@ -29,6 +29,7 @@ chain:
   consumes_from:
     - data-scientist
     - analytics-engineer
+    - feature-flag-architect
   feeds_into:
     - growth-engineer
     - product-manager

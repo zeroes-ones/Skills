@@ -35,6 +35,7 @@ chain:
   - game-ui-designer
   - healthcare-ui-designer
   - idea-to-spec
+  - material-design-expert
   - medical-illustrator
   - mobile-developer
   - ux-writer
@@ -77,6 +78,7 @@ What are you trying to do?
 ├── Designing a game UI (HUD, menus, controller navigation)? → `game-ui-designer`
 ├── Designing a fintech UI (trading, banking, payments)? → `fintech-ui-designer`
 ├── Designing a healthcare UI (clinical, patient portal, medical device)? → `healthcare-ui-designer`
+├── Need Material Design 3 compliance (Android/Wear OS/TV/Auto)? → `material-design-expert`
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 

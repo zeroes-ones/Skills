@@ -34,6 +34,7 @@ chain:
   - chaos-engineer
   - database-designer
   - documentation-engineer
+  - feature-flag-architect
   - engineering-manager
   - hipaa-technical-implementation
   - idea-to-spec

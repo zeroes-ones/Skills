@@ -32,6 +32,7 @@ chain:
   - backend-developer
   - brand-guidelines
   - code-reviewer
+  - feature-flag-architect
   - idea-to-spec
   - llm-engineer
   - localization-engineer
