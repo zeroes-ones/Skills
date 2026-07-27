@@ -5,7 +5,18 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**210+ skills across 28 domains. 1,675 chain edges with 0 asymmetries. 2,085+ reference documents. 5 personas, 3 hook types, 8 cross-tool commands, 3-tier evals, npm distribution.**
+**214 skills across 29 domains. 1,675 chain edges with 0 asymmetries. 9.9/10 quality (domain-calibrated).**
+
+### 🚀 Quick Links
+
+| Document | What It Is |
+|----------|------------|
+| **[QUICKSTART.md](QUICKSTART.md)** | 5-minute getting started — install, invoke, chain, ship |
+| **[USAGE-GUIDE.md](USAGE-GUIDE.md)** | Comprehensive: skill anatomy, chaining, error decoders, patterns, tips |
+| **[examples/](examples/)** | Real projects: solo SaaS, team platform, trading system |
+| **[PROJECT-BOOTSTRAP.md](PROJECT-BOOTSTRAP.md)** | Phase-by-phase: idea → production, all 106 skills mapped |
+| **[SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md)** | Quality bar + external reviewer scoring rubric |
+| **[COORDINATION-MATRIX.md](COORDINATION-MATRIX.md)** | Full dependency graph with 1,675 symmetric edges |
 
 ### Cross-Skill Chain System
 
@@ -90,22 +101,24 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 ## Quality Status
 
-**All 188 skills rated 10/10** with full section coverage across 12 required core sections:
+**Library rating: 9.9/10** (domain-calibrated). Run `python3 scripts/audit-library.py` to verify.
+
+All 214 skills have full section coverage across 12 required core sections:
 
 | Section | Coverage | Description |
 |---------|----------|-------------|
-| Route the Request | 188/188 | Entry-point router directing to correct skill/mode |
-| Ground Rules — Read Before Anything Else | 188/188 | Non-negotiable rules with mechanical triggers and violation responses |
-| The Expert's Mindset | 188/188 | Mental models, what masters know, cognitive bias awareness |
-| Operating at Different Levels | 188/188 | Solo → Small → Medium → Enterprise scale depth |
-| When to Use | 188/188 | Decision table: use this skill vs alternatives |
-| Decision Trees | 188/188 | Branching logic for key design/architecture choices |
-| Core Workflow | 188/188 | Phased workflow with time estimates and completion criteria |
-| Cross-Skill Coordination | 188/188 | Upstream/downstream tables, communication triggers, escalation paths |
-| Proactive Triggers | 188/188 | Trigger → Action → Why for events requiring immediate attention |
-| What Good Looks Like | 188/188 | Concrete aspirational outcome statement |
-| Deliberate Practice | 188/188 | Exercises to build instinct before production use |
-| References | 188/188 | Deep reference documents and external sources |
+| Route the Request | 210/214 | Entry-point router directing to correct skill/mode |
+| Ground Rules — Read Before Anything Else | 211/214 | Non-negotiable rules with mechanical triggers and violation responses |
+| The Expert's Mindset | 214/214 | Mental models, what masters know, cognitive bias awareness |
+| Operating at Different Levels | 212/214 | L1 Apprentice → L5 Transformative scale depth |
+| When to Use | 210/214 | Decision table: use this skill vs alternatives |
+| Decision Trees | 211/214 | Branching logic for key design/architecture choices |
+| Core Workflow | 211/214 | Phased workflow with time estimates and completion criteria |
+| Cross-Skill Coordination | 212/214 | Upstream/downstream tables, communication triggers, escalation paths |
+| Proactive Triggers | 214/214 | Trigger → Action → Why for events requiring immediate attention |
+| What Good Looks Like | 214/214 | Concrete aspirational outcome statement |
+| Deliberate Practice | 214/214 | Exercises to build instinct before production use |
+| References | 214/214 | Deep reference documents and external sources |
 
 **Beyond the 12 core sections**, every skill also includes:
 - **Error Recovery** — Symptom → Root Cause → Fix → Lesson decoder (5+ war stories)
@@ -113,7 +126,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 - **Verification Guardrails** — Self-check checklist the agent runs before delivering work
 - **Anti-Hungination** — "NOT VERIFIED" + "Flag your knowledge cutoff" guardrails
 
-**Chain symmetry:** 1,675 edges with **0 asymmetries** — verified programmatically.
+**Chain symmetry:** 1,675 edges with **0 asymmetries** — verified programmatically via `python3 scripts/audit-library.py`.
 
 ## Personas — The "Who" Layer
 
@@ -258,7 +271,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 188 skills in current project (team/company default) |
+| `skills-init` | Activate all 214 skills in current project (team/company default) |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
@@ -276,8 +289,8 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 188 skills
-skills-init               # All 27 domains, 188 skills, full lifecycle coverage
+# Startup or team project — full 214 skills
+skills-init               # All 29 domains, 214 skills, full lifecycle coverage
 
 ```
 
@@ -334,7 +347,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`TECH-STACK-DECISIONS.md`](TECH-STACK-DECISIONS.md) | Technology selection by project archetype with cost projections |
 | [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — greenfield and brownfield paths |
 | [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 2,000+ sub-skills across all domains with industry variations |
-| [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | 10/10 grading rubric with progressive disclosure, error recovery, state logs, and 12 governance gates |
+| [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | Quality bar, domain-calibrated scoring rubric, and external reviewer guide |
 | [`personas/README.md`](personas/README.md) | Persona architecture — 3-layer design, parallel fan-out, merge patterns |
 | [`hooks/SIMPLIFY-IGNORE.md`](hooks/SIMPLIFY-IGNORE.md) | Code block protection — marking sections as immutable during simplification |
 | [`hooks/SDD-CACHE.md`](hooks/SDD-CACHE.md) | WebFetch cache with HTTP revalidation |
@@ -413,7 +426,7 @@ git config core.hooksPath .githooks
 
 ## Contributing
 
-1. Read [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) — the 10/10 quality bar
+1. Read [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) — the quality bar and domain-calibrated scoring
 2. Read [`AGNOSTIC-PRINCIPLES.md`](AGNOSTIC-PRINCIPLES.md) — universal by default, specific by reference
 3. Read [`SCALE-DEPTH-FRAMEWORK.md`](SCALE-DEPTH-FRAMEWORK.md) — every skill covers Solo→Small→Medium→Enterprise
 4. Follow the four-layer architecture: SKILL.md + scripts/ + references/ + assets/
