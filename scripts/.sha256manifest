@@ -1,14 +1,14 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-27T20:12:53Z
+# Generated: 2026-07-27T20:50:32Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    f56a43d2584b107edd14c128a01d3aa2cea66d5a
+# Commit:    9f5fc273d87a42942550dfea9b8cb810c6ab97f4
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
 e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
 7b55414957c9c15102d548ac2f1d1cb819e1dd2d4f2651427647cce5f1afee3e  .githooks/pre-commit
-ac4b4761266c8fe143a57bc552ba67398ca6f03c8bdae9a0fcb784ff9017f16b  .githooks/pre-push
+ef8c6e4ace23f0c4d14b8865f2e543c4ea94b2d8850bfd0241e695e461e940a7  .githooks/pre-push
 655cdc9a64ff46197ba7f06f1553b88b5ffae74c7f4c4138dd545ac5dd4814eb  scripts/_compile_skill.py
 158880b0bd253ee05757d80e778650d4740e3ea569d9c4a88d6ee929833ad5f8  scripts/agent-handshake.sh
 9d91f796f00241b759b968f6795710b9c54ac88d2122bb023f4ced689b2c0f33  scripts/audit-library.py
@@ -23,10 +23,11 @@ a9a1c622d551381a1fb5b9883b76656ae031671c48b147e7d94863c05ef4e610  scripts/instal
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
 0bb1042e1e108645dc1a862cea231e7dc7be7c08552f5d9bf3274a30555ae34f  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
-03e9fc3ced22daf6930dc34765955619d1b505b6677e45bf64e783990dc62c99  scripts/lib/lint-template.py
+34616440c7e3a5d1b2d7871aef8b3cd9501dad1e672e907912705f2d5da7e2b0  scripts/lib/lint-template.py
 803942ce420e2fd140d7ad6ec02d79328fa404dc33b85febddad8853e83df1c3  scripts/lib/lint-yaml.py
 5f2ffb808c267412a2fe61d40a51fa5ebaf76836bcc32a191f02202200b7a5b0  scripts/lint.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
+cdd17275dda1185db4c7521f5d43b9fed51b9638c4ba0ad24381d574009cf843  scripts/run-ci-locally.sh
 ecb22092ccd8296b87add0817298eb117b09f67c7ff6648c7c96e23a9ee253a2  scripts/run-evals.sh
 fd1b88f2e6e0491d653c161745eef606b6b047196c524d7aefe4ae021ed8feea  scripts/runtime-version-detect.sh
 0903dd20ea08299f40eaadad44bf39188e2282eb7dea8a16852385299ed9eb4a  scripts/sandbox-exec.sh

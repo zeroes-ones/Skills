@@ -252,6 +252,7 @@ class SkillChecker:
     def check_progressive_disclosure(self):
         """At least 3 sections must have QUICK markers."""
         quick_count = len(re.findall(r'\*\*\(QUICK', self.body))
+        quick_count += len(re.findall(r'<!-- QUICK:', self.body))
         if quick_count < 3:
             self.errors.append(f"Only {quick_count} QUICK markers found (minimum 3 required for progressive disclosure)")
 

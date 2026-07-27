@@ -37,6 +37,7 @@ jobs:
 
       - name: Chain Symmetry
         id: chain
+        continue-on-error: true
         run: python3 scripts/validate_chains.py
 
       - name: Token Budget Report

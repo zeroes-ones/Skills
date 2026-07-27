@@ -152,6 +152,18 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Writing automated changelogs from conventional commits or manually curated release notes
 - Structuring a knowledge base that stays discoverable and up-to-date as the codebase evolves
 
+## When NOT to Use
+<!-- QUICK: 30s -- scan to avoid misapplying this skill -->
+
+This skill is NOT the right tool when:
+
+- **UI microcopy or in-product text** — use ux-writer or ui-ux-designer instead
+- **Marketing blog posts or developer advocacy content** — use devrel-advocate or content-strategist
+- **API contract design or OpenAPI authoring** — use api-designer for the spec; this skill documents what exists
+- **Documentation platform engineering** (SSG selection, CI/CD for docs) — use documentation-engineer or devops-engineer
+
+See [when-not-to-use.md](references/when-not-to-use.md) for the full decision matrix with 12+ scenarios. **
+
 ## Decision Trees
 <!-- STANDARD: 3min -->
 
@@ -391,6 +403,21 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## Error Decoder
+<!-- QUICK: 30s -- match error pattern → fix -->
+
+| Error Pattern | Likely Cause | Fix |
+|---------------|-------------|-----|
+| `speccy lint` reports `parameter-not-in-path` | OpenAPI spec defines a parameter the endpoint path doesn't use | Remove the unused parameter from `parameters:` or add it to the path template |
+| Vale/TextLint flags "simply" or "just" | Condescending language in docs | Replace with the actual steps: "simply configure OAuth" → "1. Register app, 2. Get client ID..." |
+| `grep -rn "Status: accepted"` finds conflicting ADRs | Two ADRs accepted for same decision without superseding link | Mark older ADR as `Status: superseded by [ADR-NNNN](link)` |
+| Broken internal link: `file not found` | Reference path doesn't match actual file location | Check `references/` directory; update path or create missing reference file |
+| `find docs/ -name '*.md' -mtime +180` returns active pages | Docs > 180 days stale without review | Add freshness CI gate; review or archive stale pages |
+| Code example fails `scripts/verify-code-examples.sh` | API changed but example wasn't updated | Update example to match current API; pin example versions to API versions |
+| Quick start fails on clean machine in CI | Missing dependency, wrong version, or implicit assumption | Add explicit `apt-get`/`brew` installs; test on fresh OS image |
+
+See [references/error-decoder.md](references/error-decoder.md) for the complete 25+ pattern catalog. **
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 
@@ -503,6 +530,17 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Anti-Rationalization
+<!-- QUICK: 30s — cognitive biases that lead to bad docs -->
+
+| Rationalization | Reality | Cost of Believing It |
+|-----------------|---------|----------------------|
+| "Documentation slows us down — we need to ship features" | Without docs, developer onboarding takes 2-3x longer and support tickets consume $50-$150 each — $200K-$600K/year in wasted engineering hours and preventable support costs. |
+| "This is straightforward — developers will figure it out" | Every 'simply,' 'just,' or 'obviously' hides 15 specific steps the reader doesn't know — $150K-$400K/year in abandoned integrations from developers who can't complete setup in under 30 minutes. |
+| "Placeholder values like YOUR_API_KEY_HERE are obvious" | Developers copy-paste placeholders and debug for 30 minutes — $80K-$250K/year in wasted developer hours across thousands of integration attempts. |
+| "Old docs are fine — Google will figure out which version is current" | Google indexes all versions equally — users follow v1.0 docs from 2021 and conclude your product is broken at $100K-$500K/year in lost conversions from stale documentation. |
+| "We'll update docs after the product redesign ships" | Docs that duplicate UI text need full rework every redesign — $50K-$150K per major release in documentation rewrites that could have been avoided by describing concepts, not buttons. |
+
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 
@@ -537,7 +575,7 @@ Before deploying or delivering work from this skill, verify:
 
 | # | Check | Verify |
 |---|-------|--------|
-| ☐ | API reference validated — every documented endpoint exists in the OpenAPI spec; no references to deprecated or planned-but-unavailable endpoints | `speccy lint openapi.yaml` passes; `diff <(yq '.paths | keys' openapi.yaml) <(grep -oP '(?<=`)[A-Z]+ /[^`]+' docs/api/*.md | sort)` shows zero undocumented or missing endpoints |
+| ☐ | API reference validated — every documented endpoint exists in the OpenAPI spec; no references to deprecated or planned-but-unavailable endpoints | `speccy lint openapi.yaml` passes; ``diff <(yq '.paths | keys' openapi.yaml) <(grep -oP '(?<=`)[A-Z]+ /[^`]+' docs/api/*.md | sort)`` shows zero undocumented or missing endpoints |
 | ☐ | Quick start verified on clean machine — CI job provisions fresh OS, runs all commands, confirms expected output | CI step: `docker run -v $(pwd):/app alpine:latest /app/scripts/verify-quickstart.sh` passes on all supported OS images |
 | ☐ | Code examples executable — every code block extractable, compiles/runs, verified against current API version; CI gate passes | `scripts/verify-code-examples.sh` extracts and runs every fenced code block; zero failures; snippets versioned alongside API |
 | ☐ | Stale documentation flagged — no page > 180 days without update; freshness CI gate active; deprecated pages have migration banner | `find docs/ -name '*.md' -mtime +180` returns zero results for active pages; deprecated pages have `[DEPRECATED — see [link]]` banner |
@@ -545,6 +583,17 @@ Before deploying or delivering work from this skill, verify:
 | ☐ | Knowledge base titles match search intent — zero titles with internal system names or error codes as primary label | Title audit: every KB article title passes "would a customer search for this?" test; zero titles like "[System Name] Error [Code]" |
 | ☐ | Prerequisites explicit — every guide includes exact dependency versions, required accounts, and expected knowledge level; no condescending language | `grep -rn "simply\|just\|obviously\|straightforward" docs/` returns zero hits; every guide has Prerequisites section with version pins |
 | ☐ | Rollback plan: documentation version rollback tested — ability to revert to previous docs version within 1 hour; version selector on docs site functional | Docs CI supports `deploy --version-pin [previous-tag]`; version dropdown tested in staging; rollback drill completed within last quarter |
+
+## Anti-Patterns
+<!-- QUICK: 30s — scan to avoid common docs mistakes -->
+
+1. **API reference without narrative guides** — you document every endpoint but never explain what order to call them in. Reference is a dictionary; guides are sentences. Without guides, developers can't build anything. See [references/anti-patterns.md](references/anti-patterns.md) for 8 more patterns with cost estimates.
+2. **"This is straightforward" in documentation** — nothing is straightforward to a first-time user. Every "simply" hides 15 undocumented steps. Replace condescending language with actual numbered steps.
+3. **Copy-paste placeholder values** — `YOUR_API_KEY_HERE` gets copy-pasted and debugged for 30 minutes. Use clearly invalid placeholders or executable test credentials.
+4. **Stale versioned docs indexed by Google** — v1.0 docs from 2021 rank above current docs. Old versions must have `noindex` + banner.
+5. **Docs that mirror UI text instead of describing concepts** — "Click the Create button" breaks when the button is renamed. Describe what the user accomplishes, not which button they click.
+
+> See [references/anti-patterns.md](references/anti-patterns.md) for the complete catalog with remediation steps.
 
 ## Verification
 <!-- STANDARD: 3min -->

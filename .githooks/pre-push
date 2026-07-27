@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Pre-push: Full skills validation + Copilot co-author gate — blocks push on
-# any failure. This runs the same scripts as CI/CD to ensure consistent gates.
+# Pre-push: CI Mirror Gate — blocks push on any CI-mirrored failure.
+# Delegates to scripts/run-ci-locally.sh which mirrors .github/workflows/validate.yml
 # ==============================================================================
 set -euo pipefail
 
@@ -11,65 +11,37 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Pre-push: Full skills governance gate"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}  Pre-push: CI Mirror Gate${NC}"
+echo -e "${GREEN}  Running scripts/run-ci-locally.sh${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 # ── Gate 0: Copilot co-author check (blocking) ───────────────────────────
-echo "[0/4] Copilot co-author trailer check..."
+echo ""
+echo "[0] Copilot co-author trailer check..."
 while read -r local_ref local_sha remote_ref remote_sha; do
     if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
         continue  # Branch being deleted
     fi
-    # Determine the range of commits being pushed
     if git rev-parse -q --verify "$remote_sha" >/dev/null 2>&1; then
         range="${remote_sha}..${local_sha}"
     else
-        range="$local_sha"  # New branch, check all commits
+        range="$local_sha"
     fi
     copilot_count=$(git log "$range" --format='%B' --grep='Co-authored-by.*Copilot' -i --oneline 2>/dev/null | wc -l | tr -d ' ')
     if [ "${copilot_count:-0}" -gt 0 ]; then
-        echo -e "  ${RED}✗${NC} Found ${copilot_count} commit(s) with Copilot co-author trailers in push range"
-        echo "  Run: git filter-branch -f --msg-filter \"sed '/^Co-authored-by:.*Copilot/Id'\" main"
-        echo "  to clean up existing commits, or amend the offending commits."
+        echo -e "  ${RED}✗${NC} Found ${copilot_count} commit(s) with Copilot co-author trailers"
+        echo "  Amend offending commits or run: git filter-branch -f --msg-filter \"sed '/^Co-authored-by:.*Copilot/Id'\" main"
         exit 1
     fi
 done
-echo -e "  ${GREEN}✓${NC} No Copilot co-author trailers in push"
+echo -e "  ${GREEN}✓${NC} No Copilot co-author trailers"
 
-# ── Gate 1: Script integrity (blocking) ──────────────────────────────────
-echo "[1/4] Script integrity verification..."
-if [ -f "$REPO_ROOT/scripts/verify-script-integrity.sh" ]; then
-    bash "$REPO_ROOT/scripts/verify-script-integrity.sh" || {
-        echo "❌ Script integrity check FAILED — push blocked."
-        echo "   Run: ./scripts/generate-sha256-manifest.sh to update the manifest."
-        exit 1
-    }
-else
-    echo "⚠️  verify-script-integrity.sh not found — skipping"
-fi
-
-# ── Gate 2: Full skills validation ───────────────────────────────────────
+# ── Gate 1: CI Mirror (same as GitHub Actions) ──────────────────────────
 echo ""
-echo "[2/4] Skills validation suite..."
-if [ -f "$REPO_ROOT/scripts/validate-skills.sh" ]; then
-    bash "$REPO_ROOT/scripts/validate-skills.sh"
+if [ -f "$REPO_ROOT/scripts/run-ci-locally.sh" ]; then
+    bash "$REPO_ROOT/scripts/run-ci-locally.sh" "$@"
 else
-    echo "⚠️  validate-skills.sh not found — skipping pre-push check"
-    exit 0
+    echo "❌ scripts/run-ci-locally.sh not found — push blocked."
+    exit 1
 fi
-
-# ── Gate 3: Behavioral evals ─────────────────────────────────────────────
-echo ""
-echo "[3/4] Behavioral eval suite..."
-if [ -f "$REPO_ROOT/scripts/behavioral-evals.py" ]; then
-    python3 "$REPO_ROOT/scripts/behavioral-evals.py" --ci 2>/dev/null || {
-        echo "⚠️  Behavioral evals had warnings (non-blocking for pre-push)"
-    }
-else
-    echo "⚠️  behavioral-evals.py not found — skipping"
-fi
-
-echo ""
-echo "✅ All pre-push gates passed."
