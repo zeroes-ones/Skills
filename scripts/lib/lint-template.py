@@ -30,6 +30,7 @@ REQUIRED_SECTIONS = {
     'Deliberate Practice',
     'References',
     'Gotchas',
+    'Anti-Hallucination',
     'Verification',
     'Error Recovery',
     'State Log',
