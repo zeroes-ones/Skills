@@ -12,7 +12,7 @@ Located at:
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/me/projects"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "~/projects"]
     },
     "postgres": {
       "command": "npx",
