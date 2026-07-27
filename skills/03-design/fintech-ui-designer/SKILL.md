@@ -76,6 +76,7 @@ What are you building?
 | G3 | Never show a confirmatory action (buy, sell, transfer) without a review step showing all fees, totals, and irreversible consequences | `file_contains(output, "confirm|submit|buy|sell|transfer")` AND NOT `file_contains(output, "fee|total|review|are you sure|irreversible")` | REFUSE. "Financial transactions require a review step. Show: breakdown of fees, total amount, delivery time, and a clear 'This action cannot be undone' warning." |
 | G4 | Never abbreviate large numbers without a consistent legend and tooltip with full precision | `file_contains(output, "K|M|B|T")` AND NOT `file_contains(output, "legend|tooltip|exact")` | STOP. "Abbreviated numbers must show full precision on hover/tap. '$1.2M' must reveal '$1,234,567.89' with the abbreviation legend visible." |
 | G5 | Never display user financial data without end-to-end encryption indicators (lock icon, "Secured by" label) | `file_contains(output, "account|balance|portfolio")` AND NOT `file_contains(output, "secure|encrypt|lock|256-bit|SSL|TLS")` | DETECT. "Financial applications must display security assurance indicators. Show lock icon + encryption status in persistent chrome." |
+| G6 | Never specify UI telemetry, analytics, or error logging that could capture financial credentials, account numbers, or PII in plaintext | `file_contains(spec, "log|analytics|telemetry|track")` AND NOT `file_contains(spec, "redact|sanitize|mask|PII|never.log|no.sensitive")` | REFUSE. "UI telemetry and logging must never capture financial data in plaintext. Specify: all account numbers masked to last 4 digits, all PII redacted at the logging pipeline, zero credentials in any log. Reference PCI DSS Requirement 3.4 for data masking standards." |
 
 ## The Expert's Mindset
 
@@ -149,6 +150,7 @@ Financial UI is **high-stakes information design**. Users don't browse financial
 - **Negative values**: Parentheses or minus sign, chosen consistently. `($500.00)` or `−$500.00`
 
 **Table patterns for financial data:**
+
 ```
 | Symbol  | Price      | Change      | % Change  | Volume    |
 |---------|------------|-------------|-----------|-----------|
@@ -166,6 +168,7 @@ Financial UI is **high-stakes information design**. Users don't browse financial
 ## Trading Interfaces
 
 ### Order Entry Form
+
 ```
 Buy AAPL — Apple Inc.
 ├── Order Type: [Market ▼] [Limit ▼] [Stop ▼]

@@ -79,6 +79,7 @@ What are you building?
 | G3 | Never use red for non-critical information — in healthcare, red means emergency, error, or critical alert | `file_contains(output, "red")` AND NOT `file_contains(output, "critical|emergency|error|alert|warning")` | STOP. "Red is reserved for critical/emergent information in healthcare. Use amber/orange for warnings, blue/info for neutral." |
 | G4 | Never design a clinical workflow that requires more than 3 clicks to complete a common task | `file_contains(output, "clinician|nurse|physician")` AND `file_contains(output, "step.*[4-9]|step.*10")` | REFUSE. "Clinicians work under time pressure. Common tasks (medication administration, vitals entry, note signing) must complete in ≤3 clicks." |
 | G5 | Never design patient-facing content above a 6th-grade reading level without offering a simplified version | `file_contains(output, "patient|portal|consumer")` AND NOT `file_contains(output, "simplified|plain.language|easy.read|grade.level")` | DETECT. "Patient content must target 6th-grade reading level. Provide simplified versions for all medical terminology. Test with readability tools." |
+| G6 | Never specify UI logging, error tracking, or analytics that could capture PHI in plaintext | `file_contains(spec, "log|analytics|crash.report|error.track|telemetry")` AND NOT `file_contains(spec, "PHI.redact|HIPAA.log|sanitize|de.identify|no.PHI")` | REFUSE. "Healthcare UI must never log PHI to analytics, crash reporters, or error trackers. Specify: all patient data redacted from logs, crash reports stripped of screen contents, analytics use only de-identified tokens. Reference HIPAA 164.312(c)(1) — audit controls must not themselves become PHI leaks. If the crash reporter captures screenshots, it must be disabled for patient-data screens." |
 
 ## The Expert's Mindset
 
@@ -148,6 +149,7 @@ Healthcare UI is **safety-critical design**. A confusing medication list can cau
 - On supplemental O2: show flow rate + device (e.g., "96% on 2L nasal cannula")
 
 **Lab result display:**
+
 ```
 | Test            | Result    | Flag | Reference Range | Units |
 |-----------------|-----------|------|-----------------|-------|
@@ -160,6 +162,7 @@ Healthcare UI is **safety-critical design**. A confusing medication list can cau
 ### Phase 3: Medication Display (10 min)
 
 **Medication card pattern:**
+
 ```
 ┌─────────────────────────────────────────┐
 │ 🔒 PHI — PROTECTED HEALTH INFORMATION     │
@@ -196,6 +199,7 @@ Healthcare UI is **safety-critical design**. A confusing medication list can cau
 5. Use teach-back: "In your own words, tell me how you'll take this medicine" — in the interface
 
 **Patient portal layout:**
+
 ```
 ┌──────────────────────────────────────────┐
 │ 👤 Hi, Jane                    🔔 3 New   │

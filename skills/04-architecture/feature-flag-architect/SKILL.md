@@ -63,6 +63,12 @@ chain:
 
 **G5: Mobile apps have one flag evaluation per app launch against the store.** Unlike web/backend, mobile flags can't be updated instantly — app store review creates a 1-14 day delay. Design for stale flag states. Every mobile flag must have a default value that is safe for the entire review window.
 
+**G6: Log every flag evaluation with trace context.** Every flag evaluation must produce a structured log line containing `flag_name`, `evaluation_result`, `evaluation_reason` (targeting match, default, override, error), `correlation_id`, and `evaluation_latency_ms`. Without these logs, flag-related incidents become undebuggable — you can't answer "who saw what and when" during a kill-switch event. Use the SDK's built-in evaluation logger; never hand-roll.
+
+**G7: Flag context must never contain PII, credentials, or secrets.** Flag evaluation context (user attributes, targeting rules, custom properties) flows through the flag evaluation pipeline and appears in debug logs, audit trails, and analytics exports. Never pass `email`, `phone`, `password`, `token`, `ssn`, `credit_card`, `full_name`, or `date_of_birth` as flag context attributes. Use opaque identifiers (`user_id`, `session_id`) and derive targeting attributes server-side. A flag context with `{"email": "user@example.com"}` will end up in Datadog, Segment, and every analytics warehouse.
+
+**G8: Debug flag resolution locally before any environment promotion.** Every flag must be debuggable in a local environment with the exact same evaluation logic as production. The flag SDK's local evaluation mode (offline mode, local override file) is mandatory — if you can't reproduce a flag state on your machine, you can't debug a production incident. Run through all targeting rules locally before opening a PR.
+
 ---
 
 ## Expert's Mindset
@@ -234,6 +240,8 @@ chain:
 | Flag SDK outage takes down app | Blocking flag evaluation at startup; no timeout | Non-blocking evaluation with safe default; circuit breaker on SDK |
 | Wrong flag state in production | Environment-specific flag config mismatch | Flag config as code; same deployment pipeline as application code |
 | Flag removal breaks because tests only tested flag=ON | "Flag is always ON in production, why test OFF?" | CI gate: both states tested before merge |
+| PII in flag evaluation context leaks to logging/analytics | `user_context = {"email": user.email, "plan": user.plan}` passed to flag SDK | Never pass PII in flag context. Use `user_id` + server-side derived attributes. Audit flag context with `grep -rE 'email\|phone\|name\|dob\|ssn\|token'` |
+| Flag state undebuggable in production incident | No structured flag evaluation logs; no correlation ID | G6: structured logging with `flag_name`, `result`, `reason`, `correlation_id` on every evaluation |
 
 ---
 
