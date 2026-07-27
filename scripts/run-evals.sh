@@ -3,8 +3,12 @@
 # Eval Harness Runner — executes scenarios from evals/evals.json
 #
 # Usage:
-#   ./scripts/run-evals.sh              # Run all suites
+#   ./scripts/run-evals.sh              # Run all suites (Tier 1)
 #   ./scripts/run-evals.sh --suite frontmatter-compliance  # Single suite
+#   ./scripts/run-evals.sh --tier 1     # Tier 1: structural validation
+#   ./scripts/run-evals.sh --tier 2     # Tier 2: TF-IDF routing evals
+#   ./scripts/run-evals.sh --tier 3     # Tier 3: behavioral evals
+#   ./scripts/run-evals.sh --tier all   # All tiers
 #   ./scripts/run-evals.sh --json       # JSON output for CI
 #   ./scripts/run-evals.sh --summary    # Summary only
 #
@@ -23,12 +27,14 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 TARGET_SUITE=""
+TIER="1"
 OUTPUT_MODE="text"
 SUMMARY_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --suite) TARGET_SUITE="$2"; shift 2 ;;
+        --tier) TIER="$2"; shift 2 ;;
         --json) OUTPUT_MODE="json"; shift ;;
         --summary) SUMMARY_ONLY=true; shift ;;
         *) echo "Unknown flag: $1"; exit 1 ;;
@@ -79,6 +85,9 @@ if [[ -n "$TARGET_SUITE" ]]; then
 else
     SUITE_FILTER=".suites[]"
 fi
+
+# Tier 1: Structural validation (evals.json scenarios)
+if [[ "$TIER" == "1" || "$TIER" == "all" ]]; then
 
 if [[ "$OUTPUT_MODE" == "json" ]]; then
     echo '{ "results": ['
@@ -147,6 +156,7 @@ if [[ "$OUTPUT_MODE" == "json" ]]; then
     echo "\"summary\": {\"total\": $total, \"passed\": $passed, \"failed\": $failed, \"skipped\": $skipped}"
     echo '}'
 fi
+fi  # Tier 1
 
 # ---------------------------------------------------------------------------
 # Summary
@@ -157,9 +167,41 @@ echo "  Eval Results: $total scenarios"
 echo -e "  ${GREEN}PASS${NC}: $passed  ${RED}FAIL${NC}: $failed  ${YELLOW}SKIP${NC}: $skipped"
 echo "========================================"
 
-if [[ $failed -gt 0 ]]; then
+# ---------------------------------------------------------------------------
+# Tier 2: TF-IDF Routing Evals
+# ---------------------------------------------------------------------------
+if [[ "$TIER" == "2" || "$TIER" == "all" ]]; then
+    echo ""
+    echo "--- Tier 2: TF-IDF Routing Evals ---"
+    if node "$SCRIPT_DIR/run-routing-evals.js" 2>&1; then
+        tier2_rc=0
+    else
+        tier2_rc=$?
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Tier 3: Behavioral Evals
+# ---------------------------------------------------------------------------
+if [[ "$TIER" == "3" || "$TIER" == "all" ]]; then
+    echo ""
+    echo "--- Tier 3: Behavioral Evals ---"
+    if node "$SCRIPT_DIR/run-behavioral-evals.js" 2>&1; then
+        tier3_rc=0
+    else
+        tier3_rc=$?
+    fi
+fi
+
+# Aggregate exit code
+final_rc=0
+if [[ $failed -gt 0 ]]; then final_rc=1; fi
+if [[ -n "${tier2_rc:-}" && $tier2_rc -ne 0 ]]; then final_rc=1; fi
+if [[ -n "${tier3_rc:-}" && $tier3_rc -ne 0 ]]; then final_rc=1; fi
+
+if [[ $final_rc -ne 0 ]]; then
     echo -e "${RED}Some scenarios failed.${NC}"
-    exit 1
+    exit $final_rc
 fi
 
 if [[ $skipped -gt 0 ]]; then

@@ -1,0 +1,88 @@
+name: Test Plugin Install
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/install.sh'
+      - 'scripts/init-project.sh'
+      - 'package.json'
+      - '.claude-plugin/**'
+      - '.cursor-plugin/**'
+      - '.claude/commands/**'
+      - '.gemini/commands/**'
+      - '.copilot/commands/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/install.sh'
+      - 'scripts/init-project.sh'
+      - 'package.json'
+      - '.claude-plugin/**'
+      - '.cursor-plugin/**'
+
+jobs:
+  test-shell-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test install script
+        run: |
+          bash scripts/install.sh --dry-run || echo "Dry-run mode not supported — checking syntax"
+          bash -n scripts/install.sh
+          bash -n scripts/init-project.sh
+
+  test-npm-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate package.json
+        run: |
+          node -e "const pkg = require('./package.json'); console.log('Package:', pkg.name, pkg.version); console.log('Bins:', Object.keys(pkg.bin).join(', '));"
+      - name: Check bin scripts exist
+        run: |
+          for bin in skills-init skills-update skills-validate skills-lint; do
+            script=$(node -e "console.log(require('./package.json').bin['$bin'])")
+            if [ ! -f "$script" ]; then echo "ERROR: $script not found for $bin"; exit 1; fi
+            echo "✓ $bin → $script"
+          done
+
+  test-command-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate command parity
+        run: node scripts/validate-commands.js
+
+  test-plugin-manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate plugin JSON files
+        run: |
+          for f in .claude-plugin/marketplace.json .claude-plugin/plugin.json .cursor-plugin/marketplace.json; do
+            if [ -f "$f" ]; then
+              node -e "JSON.parse(require('fs').readFileSync('$f','utf-8')); console.log('✓ $f valid')"
+            fi
+          done
+      - name: Validate hooks.json
+        run: |
+          if [ -f hooks/hooks.json ]; then
+            node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf-8')); console.log('✓ hooks/hooks.json valid')"
+          fi
+
+  test-hooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run hook tests
+        run: |
+          chmod +x hooks/*.sh
+          bash hooks/session-start-test.sh
+          bash hooks/simplify-ignore-test.sh

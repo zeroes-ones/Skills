@@ -1,0 +1,13 @@
+description = "Audit web application performance against Core Web Vitals thresholds."
+
+prompt = """
+Measure Core Web Vitals (LCP, INP, CLS), analyze bundle size, evaluate network efficiency, and identify rendering bottlenecks.
+
+Workflow:
+1. Invoke web-perf-auditor persona with performance-engineer skill
+2. Measure Core Web Vitals: LCP < 2.5s, INP < 200ms, CLS < 0.1
+3. Analyze: bundle size, code splitting, image optimization, font loading, render-blocking
+4. Server-side: query performance, API latency, caching effectiveness
+
+Output: Performance audit with current metrics vs targets, root causes, and prioritized fixes.
+"""

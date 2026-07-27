@@ -1,0 +1,12 @@
+description = "Generate a specification from an idea or requirement. Routes through brainstorming → idea-to-spec → product-manager."
+
+prompt = """
+Route the user's idea through the idea-to-spec skill to produce a structured Product Requirements Document (PRD) with data model, API contract, and screen inventory.
+
+Workflow:
+1. Invoke brainstorming skill to refine the idea (Socratic interview pattern)
+2. Invoke idea-to-spec skill to produce the structured PRD
+3. Invoke product-manager to prioritize features and create work items
+
+Output: PRD with problem statement, user stories, data model, API contracts, screen inventory, acceptance criteria, and "Not Doing" list.
+"""

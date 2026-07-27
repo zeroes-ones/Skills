@@ -30,6 +30,7 @@ This bootstrap guide covers the full 106-skill lifecycle. If you started with `-
 **Goal:** Validate the idea before writing a single line of code.
 
 ### Step 0.1: Market & Business Validation
+
 ```
 Invoke: ceo-strategist → business-strategist
 ```
@@ -46,6 +47,7 @@ Invoke: ceo-strategist → business-strategist
 **Gate:** Market > $100M TAM? Unit economics work at scale? → Proceed to 0.2 or kill idea
 
 ### Step 0.2: Technical Feasibility
+
 ```
 Invoke: cto-advisor → system-architect
 ```
@@ -68,6 +70,7 @@ Invoke: cto-advisor → system-architect
 **Goal:** Define WHAT to build and WHO it's for.
 
 ### Step 1.1: User Research
+
 ```
 Invoke: ux-researcher
 ```
@@ -82,6 +85,7 @@ Invoke: ux-researcher
 **Outputs:** 2-3 personas, Current-state journey map, Problem validation evidence
 
 ### Step 1.2: Product Definition
+
 ```
 Invoke: product-manager → idea-to-spec
 ```
@@ -97,6 +101,7 @@ Invoke: product-manager → idea-to-spec
 **Gate:** MVP scope < 4 weeks? Clear pass/fail success criteria? → Proceed to Phase 2
 
 ### Step 1.3: PRD Creation
+
 ```
 Invoke: idea-to-spec > Use prd-template.md asset
 ```
@@ -110,6 +115,7 @@ Invoke: idea-to-spec > Use prd-template.md asset
 **Goal:** Design the user experience before building.
 
 ### Step 2.1: UX Design
+
 ```
 Invoke: ui-ux-designer
 ```
@@ -121,6 +127,7 @@ Invoke: ui-ux-designer
 | How does it work on mobile? | Responsive breakpoint strategy | `ui-ux-designer > Responsive Design` |
 
 ### Step 2.2: Accessibility Foundation
+
 ```
 Invoke: accessibility-auditor
 ```
@@ -132,6 +139,7 @@ Invoke: accessibility-auditor
 | Color contrast? | All color pairs meet 4.5:1 minimum | `accessibility-auditor > Color Contrast` |
 
 ### Step 2.3: Brand Foundation
+
 ```
 Invoke: brand-guidelines
 ```
@@ -145,6 +153,7 @@ Invoke: brand-guidelines
 **Goal:** Design the technical foundation.
 
 ### Step 3.1: System Architecture
+
 ```
 Invoke: system-architect
 ```
@@ -159,6 +168,7 @@ Invoke: system-architect
 **Outputs:** C4 Context + Container diagrams, 3-5 ADRs, Risk matrix
 
 ### Step 3.2: API Design
+
 ```
 Invoke: api-designer
 ```
@@ -173,6 +183,7 @@ Invoke: api-designer
 **Outputs:** OpenAPI 3.1 spec, API versioning strategy, Error handling standard
 
 ### Step 3.3: Database Design
+
 ```
 Invoke: database-designer
 ```
@@ -192,6 +203,7 @@ Invoke: database-designer
 **Goal:** Build the MVP.
 
 ### Step 4.1: Backend
+
 ```
 Invoke: backend-developer
 ```
@@ -204,9 +216,11 @@ Invoke: backend-developer
 | Error handling | Circuit breakers, structured error responses |
 
 ### Step 4.2: Frontend
+
 ```
 Invoke: frontend-developer
 ```
+
 *Or for mobile-first products:* `mobile-developer`
 
 | Implementation | Stack Considerations |
@@ -217,6 +231,7 @@ Invoke: frontend-developer
 | Forms | React Hook Form + Zod validation |
 
 ### Step 4.3: Mobile (if applicable)
+
 ```
 Invoke: mobile-developer
 ```
@@ -227,6 +242,7 @@ Invoke: mobile-developer
 | Native? | Swift + Kotlin (GPU, AR, hardware-heavy) |
 
 ### Step 4.4: Fullstack Integration
+
 ```
 Invoke: fullstack-developer
 ```
@@ -240,12 +256,15 @@ Invoke: fullstack-developer
 **Goal:** Verify the product works, is secure, and performs.
 
 ### Step 5.1: Code Review
+
 ```
 Invoke: code-reviewer
 ```
+
 Review all code against: security > correctness > performance > maintainability dimensions.
 
 ### Step 5.2: Testing
+
 ```
 Invoke: qa-engineer
 ```
@@ -258,6 +277,7 @@ Invoke: qa-engineer
 | Performance | k6, Lighthouse | Before launch |
 
 ### Step 5.3: Security Review
+
 ```
 Invoke: security-reviewer → security-engineer
 ```
@@ -276,6 +296,7 @@ Invoke: security-reviewer → security-engineer
 **Goal:** Deploy, monitor, and operate.
 
 ### Step 6.1: CI/CD Pipeline
+
 ```
 Invoke: ci-cd-builder
 ```
@@ -288,6 +309,7 @@ Invoke: ci-cd-builder
 | Deploy | Preview (per PR) → Staging → Production |
 
 ### Step 6.2: Infrastructure
+
 ```
 Invoke: devops-engineer → docker-kubernetes → cloud-architect
 ```
@@ -299,6 +321,7 @@ Invoke: devops-engineer → docker-kubernetes → cloud-architect
 | Scale (100K+) | EKS / GKE — full K8s |
 
 ### Step 6.3: Observability
+
 ```
 Invoke: observability-engineer
 ```
@@ -313,6 +336,7 @@ Invoke: observability-engineer
 ## Phase 7: Launch (Days 30-35)
 
 ### Step 7.1: Launch Planning
+
 ```
 Invoke: product-manager > Launch Planning section
 ```
@@ -330,9 +354,11 @@ Invoke: product-manager > Launch Planning section
 - [ ] Analytics tracking verified (`analytics-engineer`)
 
 ### Step 7.2: Launch Execution
+
 ```
 Invoke: ci-cd-builder > Deployment Strategy section
 ```
+
 - Canary: 5% traffic → monitor 10 min → 25% → 50% → 100%
 - Auto-rollback if: error rate > 0.1% OR p95 latency +20%
 
@@ -341,13 +367,16 @@ Invoke: ci-cd-builder > Deployment Strategy section
 ## Phase 8: Growth & Iteration (Ongoing)
 
 ### Step 8.1: Post-Launch Analysis
+
 ```
 Invoke: analytics-engineer → product-manager
 ```
+
 - Compare actual metrics vs launch success criteria
 - Identify top 3 friction points from analytics
 
 ### Step 8.2: Growth Engineering
+
 ```
 Invoke: growth-engineer → seo-specialist
 ```
@@ -360,9 +389,11 @@ Invoke: growth-engineer → seo-specialist
 | Viral/referral loops | `growth-engineer > Growth Loops` |
 
 ### Step 8.3: Continuous Improvement
+
 ```
 Monthly cycle: analytics-engineer → product-manager → code-reviewer → qa-engineer
 ```
+
 - Review metrics → Prioritize improvements → Implement → Verify → Repeat
 
 ---
@@ -444,3 +475,117 @@ To minimize token consumption when bootstrapping a project:
 ---
 
 *This guide should be the first thing loaded when starting any new project. It maps the entire lifecycle.*
+
+---
+
+## Brownfield Adoption: Adding Skills to an Existing Project
+
+When adopting skills in an existing codebase (brownfield), follow a phased approach that minimizes disruption while progressively increasing coverage. Unlike greenfield projects, brownfield adoption must respect existing architecture, team workflows, and production stability.
+
+### Phase 1: Context & Read-Only (Week 1-2)
+
+**Goal:** Agents understand the codebase without modifying anything.
+
+```
+Invoke: using-agent-skills → context-engineering → source-driven-development
+```
+
+| Skill | Reason | Risk |
+|-------|--------|------|
+| `using-agent-skills` | Meta-router ensures agents discover the right skills | Zero — read-only |
+| `context-engineering` | Teaches agents to build context from project files | Zero — read-only |
+| `source-driven-development` | Grounds agents in official docs, not training data | Zero — read-only |
+| `debugging-and-error-recovery` | Systematic debugging without code changes | Low — diagnosis only |
+
+**Success criteria:** Agent can explain the codebase structure, identify the tech stack, and locate key modules without modifying files.
+
+### Phase 2: Tests Before Changes (Week 3-4)
+
+**Goal:** Build a safety net before allowing code modifications.
+
+```
+Invoke: tdd-guide → qa-engineer → code-reviewer (read-only persona)
+```
+
+| Skill | Reason | Risk |
+|-------|--------|------|
+| `tdd-guide` | Write tests for existing code before changing it | Low — only adds test files |
+| `qa-engineer` | Test strategy for the existing architecture | Low — analytics only |
+| `code-reviewer` | Read-only review of proposed changes | Zero — no code writes |
+
+**Rule:** No code change without a test. This builds coverage on existing code before modification begins.
+
+**Success criteria:** Test coverage at target threshold. Agent can write tests that pass against existing code.
+
+### Phase 3: Full Lifecycle for New Features (Week 5-8)
+
+**Goal:** Prove the skill chain on new code within the brownfield project.
+
+```
+Invoke: fullstack-developer → backend-developer → frontend-developer
+       api-designer → database-designer → code-reviewer
+```
+
+| Skill | Reason | Risk |
+|-------|--------|------|
+| `brownfield-adoption-planner` | Phase-gate risk assessment before each new feature | Low — planning only |
+| `api-designer` | API contracts for new endpoints (existing APIs untouched) | Low — design only |
+| `backend-developer` | New backend code with feature flags | Medium — new code only |
+| `frontend-developer` | New frontend with feature flags | Medium — new code only |
+| `incremental-implementation` | Thin vertical slices, each independently revertible | Medium — contained |
+
+**Rules:**
+- Only NEW features use the full skill chain
+- Existing code paths are NOT refactored
+- Feature flags default to OFF
+- Each slice is independently committable and revertible
+
+**Success criteria:** 3+ new features shipped using the full skill chain. Zero regressions in existing functionality.
+
+### Phase 4: Pay-Down & Observability (Week 9+)
+
+**Goal:** Extend full skill coverage to existing code and infrastructure.
+
+```
+Invoke: observability-engineer → performance-engineer → security-engineer
+       deprecation-engineer → migration-architect → chaos-engineer
+```
+
+| Skill | Reason | Risk |
+|-------|--------|------|
+| `observability-engineer` | Add structured logging, metrics, tracing to existing services | Medium — adds instrumentation |
+| `performance-engineer` | Profile and optimize existing hot paths | Medium — optimization changes |
+| `security-engineer` | Threat model and harden existing infrastructure | High — security changes |
+| `deprecation-engineer` | Safe removal of legacy code paths | Medium — deletes code |
+| `migration-architect` | Strangler fig pattern for gradual modernization | High — architectural changes |
+| `chaos-engineer` | Resilience testing on existing services | Medium — test only |
+
+**Convergence:** By end of Phase 4, the brownfield project reaches the same steady state as a greenfield project — all 210 skills active, full lifecycle coverage.
+
+### Risk Assessment Per Phase
+
+| Phase | Disruption Risk | Benefit Velocity | Rollback Difficulty |
+|-------|----------------|-----------------|-------------------|
+| 1: Context | None | Understanding | Trivial — just stop using skills |
+| 2: Tests | Low | Safety net | Easy — remove test files |
+| 3: New Features | Medium | Velocity | Medium — feature flags enable rollback |
+| 4: Pay-Down | High | Quality/Reliability | Hard — architectural changes compound |
+
+### Industry Adjustments
+
+| Industry | Phase 2 Addition | Phase 3 Addition | Phase 4 Priority |
+|----------|-----------------|-----------------|------------------|
+| **Healthcare** | `hipaa-technical-implementation` | BAA review per feature | `compliance-officer` FIRST |
+| **Fintech** | `security-reviewer` + PCI checklist | `api-designer` for PII boundaries | `compliance-officer` + `security-engineer` |
+| **Government** | `accessibility-auditor` + Section 508 | `accessibility-testing` per feature | `compliance-officer` FIRST |
+| **Gaming** | `performance-engineer` for frame budget | `game-developer` for new features | `performance-engineer` + `chaos-engineer` |
+| **E-commerce** | `performance-engineer` for checkout path | `accessibility-auditor` per feature | `security-engineer` for PCI |
+
+### When NOT to Use Brownfield Path
+
+Skip brownfield adoption (start fresh) when:
+- Codebase has < 1,000 lines and minimal dependencies
+- No active users or production traffic
+- The existing architecture needs a complete rewrite (strangler fig path is more expensive than rebuild)
+- Team is willing to absorb short-term disruption for long-term gains
+- Compliance requirements demand a clean start (certain FDA, PCI, or FedRAMP scenarios)

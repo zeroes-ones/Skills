@@ -1,0 +1,195 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "description": "Tier 3 behavioral evaluations — seed scenarios validating agent output against skill constraints, anti-patterns, checklists, and token budgets. Record agent output into each scenario to enable automated validation.",
+  "suites": [
+    {
+      "id": "behavioral-checklist-coverage",
+      "description": "Agent output satisfies production checklist items from the invoked skill",
+      "scenarios": [
+        {
+          "id": "checklist-backend-auth",
+          "type": "checklist_coverage",
+          "skill": "backend-developer",
+          "input": "Implement a user login endpoint with JWT authentication",
+          "expected_behavior": "Output includes rate limiting, password hashing, token expiry, input validation, and error responses",
+          "validation": [
+            { "label": "rate limiting", "patterns": ["rate limit", "throttle", "429"] },
+            { "label": "password hashing", "patterns": ["bcrypt", "hash", "argon2", "scrypt"] },
+            { "label": "token expiry", "patterns": ["expir", "expires_in", "ttl", "JWT_EXPIRATION"] },
+            { "label": "input validation", "patterns": ["validat", "sanitiz", "pydantic", "joi", "zod"] },
+            { "label": "error responses", "patterns": ["error response", "401", "400", "status code"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "checklist-frontend-form",
+          "type": "checklist_coverage",
+          "skill": "frontend-developer",
+          "input": "Build a form component with email and password fields for a login page",
+          "expected_behavior": "Output includes aria labels, keyboard navigation, focus management, error announcements, and color contrast",
+          "validation": [
+            { "label": "aria labels", "patterns": ["aria-label", "aria-labelledby", "aria-describedby"] },
+            { "label": "keyboard navigation", "patterns": ["tabIndex", "onKeyDown", "keyboard", "Enter key"] },
+            { "label": "focus management", "patterns": ["useRef", "focus()", "autoFocus", "focus-visible"] },
+            { "label": "error announcements", "patterns": ["aria-live", "role=\"alert\"", "error message"] },
+            { "label": "form labels", "patterns": ["<label", "htmlFor", "Label"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "checklist-shipping-canary",
+          "type": "checklist_coverage",
+          "skill": "shipping-and-launch",
+          "input": "Plan a zero-downtime deployment of our payment service",
+          "expected_behavior": "Output includes canary deployment, feature flags, health checks, rollback plan, and monitoring",
+          "validation": [
+            { "label": "canary deployment", "patterns": ["canary", "gradual", "traffic shifting", "percentage"] },
+            { "label": "feature flags", "patterns": ["feature flag", "toggle", "launchdarkly", "config"] },
+            { "label": "health checks", "patterns": ["health check", "readiness", "liveness", "/health"] },
+            { "label": "rollback plan", "patterns": ["rollback", "revert", "backout", "fallback"] },
+            { "label": "monitoring", "patterns": ["monitor", "alert", "dashboard", "grafana", "datadog"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "behavioral-anti-pattern-avoidance",
+      "description": "Agent output must not contain known anti-patterns from the skill definition",
+      "scenarios": [
+        {
+          "id": "no-hardcoded-credentials",
+          "type": "anti_pattern_avoidance",
+          "skill": "backend-developer",
+          "input": "Generate a database connection config for a Node.js app",
+          "expected_behavior": "Output uses environment variables, not hardcoded credentials",
+          "validation": [
+            { "label": "hardcoded password", "patterns": ["password = \"", "password: \"", "password='", "secret = \""] },
+            { "label": "hardcoded API key", "patterns": ["api_key = \"", "apiKey: \"", "API_KEY = \""] },
+            { "label": "hardcoded connection string", "patterns": ["mongodb://admin:password", "postgres://user:pass"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "no-xss-uncontrolled-input",
+          "type": "anti_pattern_avoidance",
+          "skill": "frontend-developer",
+          "input": "Create a component that renders user-submitted content",
+          "expected_behavior": "Output uses sanitization, not dangerouslySetInnerHTML without DOMPurify",
+          "validation": [
+            { "label": "dangerouslySetInnerHTML without sanitization", "patterns": ["dangerouslySetInnerHTML"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "no-plaintext-secrets-in-repo",
+          "type": "anti_pattern_avoidance",
+          "skill": "security-reviewer",
+          "input": "Where should I store the JWT secret for my app?",
+          "expected_behavior": "Agent says use .env or secrets manager, never in code repo",
+          "validation": [
+            { "label": "secrets in code", "patterns": ["const secret =", "const JWT_SECRET =", "in the codebase"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "no-dry-pipelines",
+          "type": "anti_pattern_avoidance",
+          "skill": "ci-cd-builder",
+          "input": "Set up a CI workflow for a monorepo with 3 services",
+          "expected_behavior": "Output uses reusable workflows, not copy-pasted jobs",
+          "validation": [
+            { "label": "copy-paste CI", "patterns": ["duplicate", "copy-paste", "repeat for each"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "behavioral-negative-constraints",
+      "description": "Agent must respect Do NOT use for... boundaries from skill definitions",
+      "scenarios": [
+        {
+          "id": "code-reviewer-no-edit",
+          "type": "negative_constraint",
+          "skill": "code-reviewer",
+          "input": "Review the auth module and fix any issues you find",
+          "expected_behavior": "Agent reviews but does NOT modify code (code-reviewer is read-only)",
+          "validation": [
+            { "label": "code changes", "patterns": ["Here's the fixed code", "I've updated", "I changed", "replace with"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "ui-ux-no-brand-work",
+          "type": "negative_constraint",
+          "skill": "ui-ux-designer",
+          "input": "Create a new logo and brand identity for our company",
+          "expected_behavior": "Agent routes to brand-guidelines, not UI/UX designer",
+          "validation": [
+            { "label": "brand work by ui-ux", "patterns": ["logo design", "brand identity", "color palette for brand"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "product-manager-no-tech-arch",
+          "type": "negative_constraint",
+          "skill": "product-manager",
+          "input": "Should we use microservices or a monolith for our new feature?",
+          "expected_behavior": "Agent does NOT make architecture decisions (routes to system-architect or cto-advisor)",
+          "validation": [
+            { "label": "architecture decision by PM", "patterns": ["use microservices", "go with a monolith", "choose PostgreSQL"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "behavioral-token-discipline",
+      "description": "Agent output respects declared token budgets from skill definitions",
+      "scenarios": [
+        {
+          "id": "token-code-review-concise",
+          "type": "token_budget",
+          "skill": "code-reviewer",
+          "input": "Review this 50-line auth module",
+          "expected_behavior": "Output stays within code-reviewer token budget",
+          "validation": 2500,
+          "recorded_output": null,
+          "weight": 0.5
+        },
+        {
+          "id": "token-using-skills-concise",
+          "type": "token_budget",
+          "skill": "using-agent-skills",
+          "input": "What skill should I use to build a REST API?",
+          "expected_behavior": "Output stays within using-agent-skills 2000 token budget",
+          "validation": 2000,
+          "recorded_output": null,
+          "weight": 0.5
+        },
+        {
+          "id": "token-persona-orchestrator-std",
+          "type": "token_budget",
+          "skill": "agent-persona-orchestrator",
+          "input": "Orchestrate code-reviewer + security-auditor personas for a PR review",
+          "expected_behavior": "Output stays within persona-orchestrator 3000 token budget",
+          "validation": 3000,
+          "recorded_output": null,
+          "weight": 0.5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+description = "Prepare and execute production deployment with parallel fan-out verification."
+
+prompt = """
+Run pre-launch checklist, stage rollouts, feature flag management, and launch-day monitoring. Uses parallel fan-out of code-reviewer, security-auditor, and test-engineer personas.
+
+Workflow:
+1. Parallel fan-out: Spawn code-reviewer, security-auditor, test-engineer personas
+2. Merge results: Aggregate findings from all three
+3. Gate check: If all pass → proceed. If any fail → report and block
+4. Invoke shipping-and-launch skill for deployment execution
+5. Staged rollout: canary 5% → 10min → 25% → 10min → 100%
+
+Output: Deployed feature with monitoring, rollback procedures, and launch-day runbook.
+"""

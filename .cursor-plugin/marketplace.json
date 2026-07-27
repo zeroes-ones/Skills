@@ -1,0 +1,14 @@
+{
+  "name": "zeroes-ones-skills",
+  "version": "2.0.0",
+  "description": "210 agent-agnostic skills for Cursor — full company lifecycle coverage",
+  "author": "Sandeep Kumar Penchala",
+  "publisher": "zeroes-ones",
+  "license": "MIT",
+  "repository": "https://github.com/zeroes-ones/Skills",
+  "skills": {
+    "directory": "skills",
+    "count": 210
+  },
+  "keywords": ["ai-skills", "cursor-skills", "code-review", "development", "architecture"]
+}

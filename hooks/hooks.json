@@ -1,0 +1,40 @@
+{
+  "$schema": "https://agentskills.io/schemas/hooks/v1",
+  "version": "1.0.0",
+  "description": "Hook registrations for zeroes-ones/Skills — session-start injection, code protection, and caching infrastructure.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "name": "inject-meta-router",
+        "description": "Injects using-agent-skills meta-router into every session so agents always know how to discover skills",
+        "script": "hooks/session-start.sh",
+        "timeout_ms": 3000
+      }
+    ],
+    "PreToolUse": [
+      {
+        "name": "simplify-ignore",
+        "description": "Protects code blocks marked with simplify-ignore-start/end from accidental modification during code simplification",
+        "script": "hooks/simplify-ignore.sh",
+        "tool_match": ["Read", "Edit", "Write"],
+        "timeout_ms": 5000
+      },
+      {
+        "name": "sdd-cache-pre",
+        "description": "Checks WebFetch cache with HTTP revalidation (If-None-Match/If-Modified-Since) to skip redundant fetches",
+        "script": "hooks/sdd-cache-pre.sh",
+        "tool_match": ["WebFetch"],
+        "timeout_ms": 5000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "name": "sdd-cache-post",
+        "description": "Stores WebFetch responses with ETag/Last-Modified validators for future cache revalidation",
+        "script": "hooks/sdd-cache-post.sh",
+        "tool_match": ["WebFetch"],
+        "timeout_ms": 5000
+      }
+    ]
+  }
+}

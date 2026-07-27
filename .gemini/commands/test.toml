@@ -1,0 +1,14 @@
+description = "Write and run tests following TDD methodology. Routes through tdd-guide → qa-engineer."
+
+prompt = """
+Implement test-driven development: write failing tests first, then implement, then refactor. Follow the test pyramid (80% unit, 15% integration, 5% E2E).
+
+Workflow:
+1. Invoke tdd-guide skill for Red-Green-Refactor workflow
+2. Write failing tests that define expected behavior
+3. Implement minimal code to pass tests
+4. Refactor while keeping tests green
+5. Invoke qa-engineer for test quality review
+
+Output: Passing test suite with coverage report. DAMP over DRY in test descriptions.
+"""

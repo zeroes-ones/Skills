@@ -1,0 +1,27 @@
+{
+  "name": "zeroes-ones-skills",
+  "displayName": "Skills Library — 210 Agent Skills",
+  "description": "Comprehensive skills library covering the full company lifecycle — CEO vision, product strategy, architecture, development, quality, security, devops, data, growth, legal, operations, and more. 188 skills across 27 domains with 1,675 symmetric chain edges.",
+  "version": "2.0.0",
+  "publisher": "zeroes-ones",
+  "repository": "https://github.com/zeroes-ones/Skills",
+  "license": "MIT",
+  "icon": "icon.png",
+  "categories": ["Skills", "Development", "Productivity"],
+  "keywords": [
+    "skills",
+    "agent-skills",
+    "code-review",
+    "security",
+    "architecture",
+    "devops",
+    "product-management",
+    "ai-engineering",
+    "fullstack",
+    "backend",
+    "frontend",
+    "mobile"
+  ],
+  "homepage": "https://github.com/zeroes-ones/Skills#readme",
+  "documentation": "https://github.com/zeroes-ones/Skills/blob/main/README.md"
+}

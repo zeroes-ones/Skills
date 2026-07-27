@@ -1,0 +1,122 @@
+name: Skill Gap Report
+description: Report when a skill's guidance was wrong, outdated, or incomplete for your use case
+title: "[Skill Gap] <skill-name>: <brief description>"
+labels: ["skill-gap", "triage"]
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Which skill failed?
+      description: The skill that produced incorrect, outdated, or incomplete guidance
+      options:
+        - agent-persona-orchestrator
+        - using-agent-skills
+        - incremental-implementation
+        - brownfield-adoption-planner
+        - ceo-strategist
+        - cto-advisor
+        - business-strategist
+        - product-strategist
+        - product-manager
+        - ux-researcher
+        - idea-to-spec
+        - ui-ux-designer
+        - accessibility-auditor
+        - system-architect
+        - api-designer
+        - database-designer
+        - networking-engineer
+        - backend-developer
+        - frontend-developer
+        - fullstack-developer
+        - mobile-developer
+        - ios-developer
+        - android-developer
+        - code-reviewer
+        - qa-engineer
+        - security-reviewer
+        - tdd-guide
+        - debugging-and-error-recovery
+        - code-simplification
+        - ci-cd-builder
+        - docker-kubernetes
+        - cloud-architect
+        - observability-engineer
+        - devops-engineer
+        - platform-engineer
+        - site-reliability-engineer
+        - security-engineer
+        - compliance-officer
+        - incident-responder
+        - data-engineer
+        - analytics-engineer
+        - ml-ai-engineer
+        - data-scientist
+        - llm-engineer
+        - context-engineering
+        - source-driven-development
+        - doubt-driven-development
+        - performance-engineer
+        - documentation-engineer
+        - shipping-and-launch
+        - Other (specify below)
+    validations:
+      required: true
+  - type: textarea
+    id: excerpt
+    attributes:
+      label: What guidance was given?
+      description: Quote the specific guidance that was wrong, outdated, or incomplete
+      placeholder: "The skill said to use X pattern, which resulted in..."
+    validations:
+      required: true
+  - type: textarea
+    id: project_context
+    attributes:
+      label: Project context
+      description: What were you building? What stage, team size, industry, tech stack?
+      placeholder: |
+        - Project: B2B SaaS dashboard
+        - Team: 5 developers
+        - Stack: Next.js, PostgreSQL, Prisma
+        - Stage: Post-MVP, pre-launch
+    validations:
+      required: true
+  - type: textarea
+    id: what_failed
+    attributes:
+      label: What went wrong?
+      description: What was the actual outcome? Error messages, unexpected behavior, production issues?
+    validations:
+      required: true
+  - type: textarea
+    id: what_worked
+    attributes:
+      label: What did you do instead?
+      description: What alternative approach worked? This helps us improve the skill.
+    validations:
+      required: true
+  - type: dropdown
+    id: gap_type
+    attributes:
+      label: Type of gap
+      options:
+        - Wrong guidance (the skill gave incorrect advice)
+        - Outdated (the skill references deprecated APIs/packages/versions)
+        - Missing coverage (the skill doesn't cover this scenario)
+        - Ecosystem mismatch (the skill assumes a different tech stack)
+        - Scale mismatch (the skill's advice doesn't work at my scale)
+        - Industry-specific gap (the skill is too generic for my industry)
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I checked the skill's `references/` directory for industry-specific guidance
+          required: true
+        - label: I verified this isn't covered by a sub-skill or alternative skill
+          required: true
+        - label: I can provide a minimal reproduction or concrete example
+          required: false

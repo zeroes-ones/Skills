@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**188 skills across 27 domains. 1,675 chain edges with 0 asymmetries. 2,085+ reference documents. 11+ asset templates.**
+**210+ skills across 28 domains. 1,675 chain edges with 0 asymmetries. 2,085+ reference documents. 5 personas, 3 hook types, 8 cross-tool commands, 3-tier evals, npm distribution.**
 
 ### Cross-Skill Chain System
 
@@ -15,6 +15,7 @@ Every skill declares its place in the dependency graph via YAML `chain:` blocks:
 chain:
   consumes_from: [api-designer, database-designer]   # What must complete BEFORE this skill
   feeds_into: [frontend-developer, code-reviewer, qa-engineer]  # What needs this skill's output NEXT
+
 ```
 
 If `backend-developer` feeds into `code-reviewer`, then `code-reviewer` consumes from `backend-developer`. All 1,130 edges are **bidirectionally symmetric** — verified programmatically with 0 asymmetries. See [`COORDINATION-MATRIX.md`](COORDINATION-MATRIX.md) for the full phase-by-phase dependency map.
@@ -48,6 +49,7 @@ skill-name/
 └── assets/               # Templates, samples, configurations
     ├── template.md
     └── sample.json
+
 ```
 
 The `chain:` block in YAML frontmatter declares each skill's upstream/downstream dependencies. Skills coordinate via specific decision gates and shared artifacts — not vague "talk to X" references. All 1,675 chain edges are symmetric across the 188-skill graph.
@@ -113,6 +115,89 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 **Chain symmetry:** 1,675 edges with **0 asymmetries** — verified programmatically.
 
+## Personas — The "Who" Layer
+
+Skills define *how* to do work. Personas define *who* does the work. This 3-layer architecture adds role-based enforcement on top of skills:
+
+```
+Layer 3: Commands (/review, /build, /test) → The "when"
+Layer 2: Personas (code-reviewer, security-auditor) → The "who"
+Layer 1: Skills (210+ SKILL.md files) → The "how"
+
+```
+
+| Persona | Role | Allowed Tools | Default Skills |
+|---------|------|--------------|----------------|
+| **code-reviewer** | Read-only reviewer. No code changes | Read, Grep, Glob | code-reviewer, code-simplification |
+| **security-auditor** | Security-focused auditor | Read, Grep, Glob, Bash (read-only) | security-reviewer, appsec-engineer |
+| **test-engineer** | Test-first engineer. Write tests before code | Read, Write, Edit, Bash | tdd-guide, qa-engineer |
+| **web-perf-auditor** | Performance optimization | Read, Grep, Bash (profile) | performance-engineer, web-perf-auditor |
+
+**Rules:** Personas cannot invoke other personas. Run multiple personas in parallel fan-out, then merge results. See `personas/README.md`.
+
+## Hooks — Automatic Skill Injection
+
+Three hook types trigger skills automatically based on agent events:
+
+| Hook | Trigger | Action |
+|------|---------|--------|
+| **session-start** | Agent session begins | Injects `using-agent-skills` meta-router for skill discovery |
+| **simplify-ignore** | Code simplification runs | Protects marked code blocks from accidental deletion |
+| **sdd-cache** | WebFetch call | Caches responses with HTTP revalidation headers |
+
+Hooks are registered in `hooks/hooks.json` and activated per-agent. See `hooks/` directory.
+
+## Command Wrappers — One Command, Every Tool
+
+Eight slash commands work identically across Claude Code, Gemini CLI, and Copilot CLI:
+
+| Command | Routes To | Best For |
+|---------|-----------|----------|
+| `/spec` | idea-to-spec | Feature specification from rough ideas |
+| `/plan` | project-manager + scrum-master | Sprint planning and backlog grooming |
+| `/build` | fullstack-developer + backend-developer + frontend-developer | Implementation |
+| `/test` | tdd-guide + qa-engineer | Test-first development |
+| `/review` | code-reviewer persona | Read-only code review |
+| `/code-simplify` | code-simplification | Simplify without breaking |
+| `/webperf` | performance-engineer + web-perf-auditor persona | Performance audit |
+| `/ship` | shipping-and-launch + release-manager | Production release |
+
+**Parity verified:** `scripts/validate-commands.js` checks all 3 tool directories have identical command coverage.
+
+## 3-Tier Evaluation System
+
+| Tier | What It Tests | Tool | Status |
+|------|--------------|------|--------|
+| **Tier 1** | Structural validation — frontmatter, sections, chain symmetry | `scripts/run-evals.sh` | 34/43 pass |
+| **Tier 2** | TF-IDF routing precision — do prompts route to correct skills? | `scripts/run-routing-evals.js` | 68.8% rank-1 |
+| **Tier 3** | Behavioral evals — headless agent output against expectations | `scripts/run-behavioral-evals.js` | 13 seed scenarios |
+
+Run: `./scripts/run-evals.sh --tier all`
+
+## Distribution — npm & Shell
+
+```bash
+# Shell install (one command)
+curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
+
+# npm install
+npx @zeroes-ones/skills init
+
+```
+
+## Brownfield Adoption
+
+Existing project? See [`COMPARISON.md`](COMPARISON.md) and the `brownfield-adoption-planner` skill — 4-phase gated rollout starting with read-only safety skills, zero risk to production code.
+
+## New & Notable Skills
+
+| Skill | Domain | Purpose |
+|-------|--------|---------|
+| `using-agent-skills` | Framework | Meta-router — ASCII decision tree mapping tasks → skills |
+| `agent-persona-orchestrator` | Framework | Persona lifecycle: fan-out, merge, conflict resolution |
+| `incremental-implementation` | Development | Vertical slices, feature flags, atomic commits |
+| `brownfield-adoption-planner` | Specialized | Phased skill adoption into legacy codebases |
+
 ## Usage
 
 ### Quick Start — Invoking a Skill
@@ -126,6 +211,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 # Cursor
 @skill-{skill-name}
+
 ```
 
 **Example workflow — idea to production (full lifecycle):**
@@ -139,16 +225,21 @@ ceo-strategist → idea-to-spec → product-manager → ux-researcher
 → ci-cd-builder → docker-kubernetes → cloud-architect → observability-engineer
 → performance-engineer → chaos-engineer → security-engineer → compliance-officer
 → legal-advisor → gdpr-privacy → documentation-engineer → technical-writer
+
 ```
 
 ### Booting a New Project from Scratch
 
 See [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) for the full 10-phase navigation guide — which skills to invoke at each phase, what order, and why.
 
+**Brownfield (existing project)?** Use `brownfield-adoption-planner` — 4-phase gated rollout: read-only safety skills → context + characterization tests → development for new features → devops/observability. Zero risk to production code on day one.
+
 Minimal path for an MVP:
+
 ```
 ceo-strategist → product-manager → ui-ux-designer → system-architect
 → backend-developer → frontend-developer → code-reviewer → ci-cd-builder
+
 ```
 
 ## Deployment — One Command, All Projects
@@ -160,6 +251,7 @@ Skills are deployed once globally via symlinks — every project (existing and n
 ```bash
 # One-time global install
 curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
+
 ```
 
 This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for all your agents, installs convenience commands, and sets up auto-activation for new projects.
@@ -186,6 +278,7 @@ skills-init --grow        # 18 skills: adds system design, API design, UX, backe
 
 # Startup or team project — full 188 skills
 skills-init               # All 27 domains, 188 skills, full lifecycle coverage
+
 ```
 
 **Auto-activation:** When you `cd` into any git repo, the shell prompts you to activate skills. It auto-detects the right tier based on your project location and structure.
@@ -193,11 +286,13 @@ skills-init               # All 27 domains, 188 skills, full lifecycle coverage
 ### Using Skills in Any Project
 
 Then in your agent:
+
 ```
 /ceo-strategist      # Start with strategy
 /product-manager     # Define the product
 /system-architect    # Design the architecture
 /backend-developer   # Build it
+
 ```
 
 ### Supported Agents
@@ -214,6 +309,7 @@ Then in your agent:
 
 ```bash
 skills-update   # Pulls latest from GitHub — all symlinked projects see changes instantly
+
 ```
 
 ### Troubleshooting
@@ -231,16 +327,21 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | Document | Purpose |
 |----------|---------|
 | [`AGNOSTIC-PRINCIPLES.md`](AGNOSTIC-PRINCIPLES.md) | Universal skill design — domain-agnostic, industry-agnostic, project-agnostic |
+| [`COMPARISON.md`](COMPARISON.md) | Competitive comparison — vs addyosmani/agent-skills, Pocock's Superpowers |
 | [`SCALE-DEPTH-FRAMEWORK.md`](SCALE-DEPTH-FRAMEWORK.md) | Solo → Small → Medium → Enterprise depth pattern for every skill |
 | [`COORDINATION-MATRIX.md`](COORDINATION-MATRIX.md) | Cross-skill coordination — who talks to whom, when, and why |
 | [`WISDOM-FRAMEWORK.md`](WISDOM-FRAMEWORK.md) | MVP-first, cost-effective, token-efficient decision making |
 | [`TECH-STACK-DECISIONS.md`](TECH-STACK-DECISIONS.md) | Technology selection by project archetype with cost projections |
-| [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — which skills to invoke at each of 10 phases |
+| [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — greenfield and brownfield paths |
 | [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 2,000+ sub-skills across all domains with industry variations |
 | [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | 10/10 grading rubric with progressive disclosure, error recovery, state logs, and 12 governance gates |
+| [`personas/README.md`](personas/README.md) | Persona architecture — 3-layer design, parallel fan-out, merge patterns |
+| [`hooks/SIMPLIFY-IGNORE.md`](hooks/SIMPLIFY-IGNORE.md) | Code block protection — marking sections as immutable during simplification |
+| [`hooks/SDD-CACHE.md`](hooks/SDD-CACHE.md) | WebFetch cache with HTTP revalidation |
 | [`scripts/lint.sh`](scripts/lint.sh) | Master lint runner — 5 categories (files, markdown, yaml, shell, template) with --fix, --json, --ci |
-| [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates (sections, frontmatter, chains, anti-hallucination) |
-| [`scripts/run-evals.sh`](scripts/run-evals.sh) | Automated evaluation harness — 43+ scenarios verifying skill correctness against dummy projects |
+| [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates |
+| [`scripts/run-evals.sh`](scripts/run-evals.sh) | 3-tier evaluation harness — structural, routing, behavioral |
+| [`scripts/validate-commands.js`](scripts/validate-commands.js) | Cross-tool command parity validator |
 | [`.githooks/pre-commit`](.githooks/pre-commit) | Git pre-commit hook — 13-gate lint & validate before every commit |
 
 ## Linting & Validation
@@ -270,6 +371,7 @@ The repository has a comprehensive, zero-dependency linting system that enforces
 
 # Template compliance check (14 sections, anti-hallucination, gotchas, decision trees)
 ./scripts/lint.sh --category template
+
 ```
 
 ### Lint Categories
@@ -306,6 +408,7 @@ The `.githooks/pre-commit` hook runs a 13-gate system on every commit:
 
 ```bash
 git config core.hooksPath .githooks
+
 ```
 
 ## Contributing

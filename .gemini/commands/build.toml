@@ -1,0 +1,14 @@
+description = "Implement tasks from the plan using thin vertical slices. Routes through incremental-implementation → fullstack-developer."
+
+prompt = """
+Execute the plan with incremental implementation. Each task is a thin vertical slice — no horizontal layer development. Feature flags wrap new code. Every slice is independently committable.
+
+Workflow:
+1. Load the plan from /planning
+2. Invoke incremental-implementation skill
+3. Invoke domain-specific developer skill
+4. Each slice: implement → test → commit → next
+5. Invoke code-reviewer after each significant slice
+
+Output: Working, tested, committed code in independently-reviewable commits.
+"""

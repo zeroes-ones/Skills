@@ -1,0 +1,13 @@
+description = "Simplify code while preserving behavior using Chesterton's Fence principle."
+
+prompt = """
+Apply Chesterton's Fence principle: understand why code exists before removing it. Make incremental, behavior-preserving simplifications, each verified by tests.
+
+Workflow:
+1. Invoke code-simplification skill
+2. Identify 5 categories: dead code, over-abstraction, complexity, duplication, inconsistency
+3. Each change: simplify → test → verify behavior preserved → commit
+4. Use hooks/simplify-ignore.sh to protect marked blocks
+
+Output: Cleaner code with fewer lines, fewer abstractions, and preserved behavior.
+"""

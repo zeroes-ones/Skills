@@ -1,0 +1,24 @@
+{
+  "name": "zeroes-ones-skills",
+  "version": "2.0.0",
+  "description": "210 agent-agnostic skills library",
+  "author": "Sandeep Kumar Penchala",
+  "license": "MIT",
+  "skills": {
+    "directory": "skills",
+    "count": 210,
+    "domains": 28
+  },
+  "hooks": {
+    "directory": "hooks",
+    "config": "hooks/hooks.json"
+  },
+  "personas": {
+    "directory": "personas",
+    "count": 4
+  },
+  "commands": {
+    "directory": ".claude/commands",
+    "count": 8
+  }
+}

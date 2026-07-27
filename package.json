@@ -1,0 +1,58 @@
+{
+  "name": "@zeroes-ones/skills",
+  "version": "2.0.0",
+  "description": "210 agent-agnostic skills covering the full company lifecycle — from CEO vision through architecture, development, security, compliance, and operations.",
+  "license": "MIT",
+  "author": "Sandeep Kumar Penchala",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zeroes-ones/Skills"
+  },
+  "homepage": "https://github.com/zeroes-ones/Skills#readme",
+  "keywords": [
+    "ai-skills",
+    "agent-skills",
+    "claude-code",
+    "copilot-cli",
+    "cursor",
+    "gemini-cli",
+    "codex",
+    "skills-library",
+    "software-engineering",
+    "product-development",
+    "code-review",
+    "security",
+    "devops"
+  ],
+  "bin": {
+    "skills-init": "./scripts/init-project.sh",
+    "skills-update": "./scripts/install.sh",
+    "skills-validate": "./scripts/validate-skills.sh",
+    "skills-lint": "./scripts/lint.sh"
+  },
+  "files": [
+    "skills/",
+    "scripts/",
+    "personas/",
+    "hooks/",
+    "docs/",
+    "evals/",
+    "AGNOSTIC-PRINCIPLES.md",
+    "COORDINATION-MATRIX.md",
+    "PROJECT-BOOTSTRAP.md",
+    "SCALE-DEPTH-FRAMEWORK.md",
+    "SKILL-QUALITY-STANDARDS.md",
+    "SUB-SKILL-MAP.md",
+    "WISDOM-FRAMEWORK.md",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "test": "bash scripts/run-evals.sh",
+    "lint": "bash scripts/lint.sh --all",
+    "validate": "bash scripts/validate-skills.sh",
+    "prepublishOnly": "bash scripts/lint.sh --all && bash scripts/validate-skills.sh"
+  }
+}

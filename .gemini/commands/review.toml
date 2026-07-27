@@ -1,0 +1,13 @@
+description = "Review code for bugs, security, architecture, and maintainability. Routes through code-reviewer persona."
+
+prompt = """
+Run a comprehensive code review covering correctness, readability, architecture, security, and performance. Uses the code-reviewer persona for read-only analysis.
+
+Workflow:
+1. Invoke code-reviewer persona (read-only) with code-reviewer skill
+2. Five-axis review: Correctness, Readability, Architecture, Security, Performance
+3. Report findings with severity: CRITICAL, REQUIRED, NIT
+4. Invoke security-reviewer for security-specific deep dive
+
+Output: Structured review with actionable findings. No code modifications — findings only.
+"""

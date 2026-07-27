@@ -1,0 +1,393 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "description": "Tier 2 routing evaluations — tests TF-IDF skill routing precision against realistic user prompts drawn from common engineering, product, design, and strategy scenarios.",
+  "suites": [
+    {
+      "id": "routing-core-development",
+      "description": "Core development routing: backend, frontend, fullstack, API, database",
+      "scenarios": [
+        {
+          "id": "route-backend-api",
+          "input": "Build me a REST API with FastAPI for user authentication with JWT tokens",
+          "expected": "backend-developer",
+          "must_not_route": ["frontend-developer", "product-manager"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-frontend-react",
+          "input": "Create a React dashboard with Tailwind CSS, dark mode, and responsive charts",
+          "expected": "frontend-developer",
+          "must_not_route": ["backend-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-fullstack-nextjs",
+          "input": "Build a fullstack Next.js app with server actions, Prisma ORM, and PostgreSQL",
+          "expected": "fullstack-developer",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-database-schema",
+          "input": "Design a normalized database schema for a multi-tenant SaaS platform",
+          "expected": "database-designer",
+          "must_not_route": ["backend-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-api-design",
+          "input": "Design a GraphQL API with proper error handling, pagination, and versioning strategy",
+          "expected": "api-designer",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-mobile-app",
+          "input": "Build a cross-platform mobile app with offline sync and push notifications",
+          "expected": "mobile-developer",
+          "must_not_route": ["frontend-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-ios-swiftui",
+          "input": "Create an iOS app with SwiftUI, Core Data, and WidgetKit extensions",
+          "expected": "ios-developer",
+          "must_not_route": ["android-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-android-compose",
+          "input": "Build an Android app using Jetpack Compose with Room database and WorkManager",
+          "expected": "android-developer",
+          "must_not_route": ["ios-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "routing-devops-infra",
+      "description": "DevOps and infrastructure routing: CI/CD, Docker, monitoring, SRE, cloud",
+      "scenarios": [
+        {
+          "id": "route-cicd-pipeline",
+          "input": "Set up a CI/CD pipeline with GitHub Actions, Docker builds, and staging deployment",
+          "expected": "ci-cd-builder",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-docker-kubernetes",
+          "input": "Containerize microservices and deploy to Kubernetes with Helm charts and ingress",
+          "expected": "docker-kubernetes",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-observability",
+          "input": "Set up observability: metrics, logging, traces with OpenTelemetry and Grafana dashboards",
+          "expected": "observability-engineer",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-sre-slos",
+          "input": "Define SLOs, error budgets, and on-call runbooks for a production payment service",
+          "expected": "site-reliability-engineer",
+          "must_not_route": ["devops-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-cloud-aws",
+          "input": "Architect a multi-region AWS deployment with VPC, RDS, Lambda, and CloudFront",
+          "expected": "cloud-architect",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-fintech-market-data",
+          "input": "Build a real-time market data ingestion pipeline with order book normalization",
+          "expected": "market-data-engineer",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "routing-quality-security",
+      "description": "Quality and security routing: code review, testing, security audit, vulnerability",
+      "scenarios": [
+        {
+          "id": "route-code-review-pr",
+          "input": "Review this pull request for bugs, logic errors, and maintainability issues",
+          "expected": "code-reviewer",
+          "must_not_route": ["security-reviewer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-security-audit",
+          "input": "Audit this authentication flow for OWASP vulnerabilities and token handling flaws",
+          "expected": "security-reviewer",
+          "must_not_route": ["code-reviewer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-tdd-unit-tests",
+          "input": "Write unit tests for a payment processing service following TDD principles",
+          "expected": "tdd-guide",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-qa-e2e",
+          "input": "Create an end-to-end test suite with Cypress for the checkout flow",
+          "expected": "qa-engineer",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-debugging-crash",
+          "input": "Debug a production crash in Node.js — heap out of memory, need root cause analysis",
+          "expected": "debugging-and-error-recovery",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-code-simplify",
+          "input": "Refactor this overly complex function — reduce cognitive complexity from 25 to under 10",
+          "expected": "code-simplification",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "routing-product-strategy",
+      "description": "Product, strategy, and business routing: PRD, roadmap, strategy, funding",
+      "scenarios": [
+        {
+          "id": "route-product-prd",
+          "input": "Write a PRD for a mobile payment feature with RICE prioritization and acceptance criteria",
+          "expected": "product-manager",
+          "must_not_route": ["project-manager"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-idea-to-spec",
+          "input": "Transform this rough product idea into a structured engineering specification with data models",
+          "expected": "idea-to-spec",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-ceo-fundraising",
+          "input": "Prepare a Series A pitch deck, financial model, and cap table for investors",
+          "expected": "ceo-strategist",
+          "must_not_route": ["fp-and-a-analyst"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-cto-build-vs-buy",
+          "input": "Evaluate build-vs-buy for our authentication system — Okta vs custom implementation",
+          "expected": "cto-advisor",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-business-model",
+          "input": "Design a B2B SaaS pricing model with tiered plans, usage-based billing, and annual contracts",
+          "expected": "business-strategist",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-system-architecture",
+          "input": "Design a microservices architecture for an event-driven e-commerce platform at scale",
+          "expected": "system-architect",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-release-planning",
+          "input": "Plan a zero-downtime canary deployment with feature flags and automated rollback",
+          "expected": "shipping-and-launch",
+          "must_not_route": ["release-manager"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "routing-design-ux",
+      "description": "Design and UX routing: design systems, accessibility, brand, UI patterns",
+      "scenarios": [
+        {
+          "id": "route-design-system",
+          "input": "Build a design system with design tokens, component library, and Figma handoff specs",
+          "expected": "ui-ux-designer",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-brand-identity",
+          "input": "Design a complete brand identity: logo, color palette, typography, and brand guidelines",
+          "expected": "brand-guidelines",
+          "must_not_route": ["ui-ux-designer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-accessibility-audit",
+          "input": "Audit our web app for WCAG 2.2 AA compliance with screen reader testing",
+          "expected": "accessibility-auditor",
+          "must_not_route": ["ui-ux-designer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-ux-research",
+          "input": "Run user interviews, create personas, and map customer journeys for a healthcare app",
+          "expected": "ux-researcher",
+          "must_not_route": [],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-fintech-ui",
+          "input": "Design a trading dashboard UI with real-time order book, candlestick charts, and P&L widgets",
+          "expected": "fintech-ui-designer",
+          "must_not_route": ["ui-ux-designer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "route-game-ui",
+          "input": "Design a HUD and menu system for an FPS game with cross-platform controller support",
+          "expected": "game-ui-designer",
+          "must_not_route": ["ui-ux-designer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "id": "routing-meta-disambiguation",
+      "description": "Meta-routing: disambiguation between closely related skills",
+      "scenarios": [
+        {
+          "id": "disambiguate-code-review-vs-security",
+          "input": "Look at this code for potential issues",
+          "expected": "code-reviewer",
+          "must_not_route": [],
+          "allow_top_n": 5,
+          "weight": 0.5
+        },
+        {
+          "id": "disambiguate-pm-vs-scrum",
+          "input": "Help me plan the next sprint and prioritize the backlog",
+          "expected": "scrum-master",
+          "must_not_route": [],
+          "allow_top_n": 5,
+          "weight": 0.5
+        },
+        {
+          "id": "disambiguate-devops-vs-platform",
+          "input": "Set up infrastructure for deploying microservices to production",
+          "expected": "platform-engineer",
+          "must_not_route": [],
+          "allow_top_n": 5,
+          "weight": 0.5
+        },
+        {
+          "id": "disambiguate-frontend-vs-website",
+          "input": "Build a marketing landing page with CMS integration and SEO optimization",
+          "expected": "website-builder",
+          "must_not_route": [],
+          "allow_top_n": 5,
+          "weight": 0.5
+        },
+        {
+          "id": "disambiguate-fpanda-vs-treasury",
+          "input": "Model cash flow projections and runway for the next 24 months",
+          "expected": "fp-and-a-analyst",
+          "must_not_route": [],
+          "allow_top_n": 5,
+          "weight": 0.5
+        },
+        {
+          "id": "disambiguate-ml-vs-data-science",
+          "input": "Build a recommendation system with collaborative filtering and A/B test its impact",
+          "expected": "ml-engineer",
+          "must_not_route": [],
+          "allow_top_n": 5,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "routing-negative-triggers",
+      "description": "Negative routing: tasks that should NOT route to certain skills (Do NOT use for... enforcement)",
+      "scenarios": [
+        {
+          "id": "not-code-review-for-ui-feedback",
+          "input": "Give me feedback on this button's visual design and color contrast",
+          "expected": "ui-ux-designer",
+          "must_not_route": ["code-reviewer"],
+          "allow_top_n": 5,
+          "weight": 1.0
+        },
+        {
+          "id": "not-security-for-perf",
+          "input": "My page load is slow — optimize Core Web Vitals and reduce JavaScript bundle size",
+          "expected": "performance-engineer",
+          "must_not_route": ["security-reviewer"],
+          "allow_top_n": 5,
+          "weight": 1.0
+        },
+        {
+          "id": "not-product-for-tech-arch",
+          "input": "Should we use PostgreSQL or MongoDB for this microservice?",
+          "expected": "database-designer",
+          "must_not_route": ["product-manager"],
+          "allow_top_n": 5,
+          "weight": 1.0
+        },
+        {
+          "id": "not-designer-for-brand",
+          "input": "Create a logo and brand identity for our startup",
+          "expected": "brand-guidelines",
+          "must_not_route": ["ui-ux-designer"],
+          "allow_top_n": 5,
+          "weight": 1.0
+        }
+      ]
+    }
+  ]
+}
