@@ -39,15 +39,17 @@ chain:
     - ci-cd-builder
     - devops-engineer
   consumes_from:
-    - product-strategist
-    - ui-ux-designer
-    - content-strategist
     - api-designer
     - backend-developer
     - brand-guidelines
+    - content-strategist
     - domain-modeling
-    - ux-researcher
+    - performance-engineer
+    - product-strategist
+    - qa-engineer
     - security-reviewer
+    - ui-ux-designer
+    - ux-researcher
 ---
 
 # Website Builder

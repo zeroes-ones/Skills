@@ -25,35 +25,36 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
-  - accessibility-auditor
-  - accessibility-testing
-  - algorithmic-trader
-  - api-designer
-  - backend-developer
-  - brand-guidelines
-  - code-reviewer
-  - feature-flag-architect
-  - idea-to-spec
-  - llm-engineer
-  - localization-engineer
-  - monorepo-manager
-  - platform-engineer
-  - staff-engineer
-  - tdd-guide
-  - ui-ux-designer
-  - ux-researcher
-  - ux-writer
+    - accessibility-auditor
+    - accessibility-testing
+    - algorithmic-trader
+    - api-designer
+    - backend-developer
+    - brand-guidelines
+    - code-reviewer
+    - feature-flag-architect
+    - idea-to-spec
+    - llm-engineer
+    - localization-engineer
+    - monorepo-manager
+    - platform-engineer
+    - qa-engineer
+    - staff-engineer
+    - tdd-guide
+    - ui-ux-designer
+    - ux-researcher
+    - ux-writer
   feeds_into:
-  - accessibility-auditor
-  - code-reviewer
-  - devrel-advocate
-  - fullstack-developer
-  - growth-engineer
-  - localization-engineer
-  - qa-engineer
-  - seo-specialist
-  - tdd-guide
-  - translation-manager
+    - accessibility-auditor
+    - code-reviewer
+    - devrel-advocate
+    - fullstack-developer
+    - growth-engineer
+    - localization-engineer
+    - qa-engineer
+    - seo-specialist
+    - tdd-guide
+    - translation-manager
 ---
 # Frontend Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

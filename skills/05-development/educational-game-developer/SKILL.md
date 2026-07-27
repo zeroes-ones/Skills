@@ -31,14 +31,15 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - game-developer
-    - frontend-developer
-    - mobile-developer
-    - ui-ux-designer
-    - ux-researcher
     - accessibility-auditor
     - content-strategist
+    - frontend-developer
+    - game-developer
+    - mobile-developer
     - product-manager
+    - qa-engineer
+    - ui-ux-designer
+    - ux-researcher
   feeds_into:
     - qa-engineer
     - accessibility-testing

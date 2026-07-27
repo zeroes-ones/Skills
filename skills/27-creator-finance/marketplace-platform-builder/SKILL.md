@@ -34,14 +34,17 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - saas-monetization-strategist
-    - fintech-app-developer
-    - backend-developer
-    - fullstack-developer
     - api-designer
+    - backend-developer
     - database-designer
-    - system-architect
+    - fintech-app-developer
+    - fullstack-developer
+    - performance-engineer
+    - qa-engineer
+    - saas-monetization-strategist
     - security-engineer
+    - security-reviewer
+    - system-architect
   feeds_into:
     - qa-engineer
     - security-reviewer

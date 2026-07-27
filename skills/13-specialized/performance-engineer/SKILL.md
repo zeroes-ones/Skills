@@ -1,23 +1,21 @@
 ---
 name: performance-engineer
-description: >
-  Use when profiling application performance, diagnosing bottlenecks, running load tests,
-  or establishing performance budgets and SLOs. Handles performance profiling (flame graphs,
-  CPU/memory/I/O analysis), load testing (k6, wrk, Artillery), frontend optimization (Core Web
-  Vitals, bundle analysis), database query optimization, caching strategies, and performance
-  budget enforcement. Do NOT use for infrastructure provisioning, CI/CD optimization, or security
-  auditing.
+description: 'Use when profiling application performance, diagnosing bottlenecks, running load tests, or establishing performance budgets and SLOs. Handles performance profiling (flame graphs, CPU/memory/I/O
+  analysis), load testing (k6, wrk, Artillery), frontend optimization (Core Web Vitals, bundle analysis), database query optimization, caching strategies, and performance budget enforcement. Do NOT use
+  for infrastructure provisioning, CI/CD optimization, or security auditing.
+
+  '
 license: MIT
 allowed-tools: Read Grep Glob
 tags:
-  - performance-engineer
-  - profiling
-  - flame-graphs
-  - load-testing
-  - k6
-  - core-web-vitals
-  - caching
-  - optimization
+- performance-engineer
+- profiling
+- flame-graphs
+- load-testing
+- k6
+- core-web-vitals
+- caching
+- optimization
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
@@ -26,15 +24,34 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - android-developer
   - backend-developer
+  - civic-tech-developer
   - database-designer
+  - desktop-developer
   - embedded-engineer
+  - fintech-app-developer
+  - game-developer
+  - game-networking-developer
+  - macos-developer
+  - marketplace-platform-builder
   - observability-engineer
+  - website-builder
   feeds_into:
+  - android-developer
   - backend-developer
+  - civic-tech-developer
+  - desktop-developer
   - devops-engineer
+  - embedded-engineer
+  - fintech-app-developer
+  - game-developer
+  - game-networking-developer
   - hardware-architect
+  - macos-developer
+  - marketplace-platform-builder
   - site-reliability-engineer
+  - website-builder
 ---
 # Performance Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

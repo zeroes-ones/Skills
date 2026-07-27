@@ -32,13 +32,14 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - game-developer
-    - prototype
-    - mobile-developer
     - frontend-developer
+    - fullstack-developer
+    - game-developer
+    - mobile-developer
+    - prototype
+    - qa-engineer
     - ui-ux-designer
     - ux-researcher
-    - fullstack-developer
   feeds_into:
     - qa-engineer
     - growth-engineer

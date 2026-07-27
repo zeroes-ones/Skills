@@ -9,13 +9,16 @@ tags: [android, kotlin, jetpack-compose, mobile, play-store, gradle, material-de
 token_budget: 4500
 chain:
   consumes_from:
-    - mobile-developer
-    - mobile-architecture-patterns
-    - ui-ux-designer
-    - material-design-expert
-    - feature-flag-architect
-    - backend-developer
     - accessibility-auditor
+    - backend-developer
+    - feature-flag-architect
+    - material-design-expert
+    - mobile-architecture-patterns
+    - mobile-developer
+    - performance-engineer
+    - qa-engineer
+    - security-reviewer
+    - ui-ux-designer
   feeds_into:
   - automation-engineer
   - qa-engineer

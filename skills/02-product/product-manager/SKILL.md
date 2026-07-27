@@ -23,40 +23,41 @@ updated: 2026-07-23
 token_budget: 2430
 chain:
   consumes_from:
-  - account-manager
-  - ai-safety-engineer
-  - ai-safety-health-reviewer
-  - analytics-engineer
-  - bizdev-manager
-  - clinical-informatics-specialist
-  - customer-success-manager
-  - customer-support-engineer
-  - growth-engineer
-  - health-regulatory-submission
-  - llm-engineer
-  - patient-experience-researcher
-  - product-strategist
-  - sales-engineer
-  - ux-researcher
+    - account-manager
+    - ai-safety-engineer
+    - ai-safety-health-reviewer
+    - analytics-engineer
+    - bizdev-manager
+    - clinical-informatics-specialist
+    - customer-success-manager
+    - customer-support-engineer
+    - growth-engineer
+    - health-regulatory-submission
+    - llm-engineer
+    - patient-experience-researcher
+    - product-strategist
+    - qa-engineer
+    - sales-engineer
+    - ux-researcher
   feeds_into:
-  - content-strategist
-  - customer-success-manager
-  - customer-support-engineer
-  - director-engineering
-  - engineering-manager
-  - health-regulatory-submission
-  - idea-to-spec
-  - partnerships-manager
-  - product-marketing-manager
-  - project-manager
-  - qa-engineer
-  - sales-engineer
-  - scrum-master
-  - system-architect
-  - technical-writer
-  - ui-ux-designer
-  - ux-researcher
-  - ux-writer
+    - content-strategist
+    - customer-success-manager
+    - customer-support-engineer
+    - director-engineering
+    - engineering-manager
+    - health-regulatory-submission
+    - idea-to-spec
+    - partnerships-manager
+    - product-marketing-manager
+    - project-manager
+    - qa-engineer
+    - sales-engineer
+    - scrum-master
+    - system-architect
+    - technical-writer
+    - ui-ux-designer
+    - ux-researcher
+    - ux-writer
 ---
 # Product Manager
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

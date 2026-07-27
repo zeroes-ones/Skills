@@ -35,13 +35,14 @@ token_budget: 5000
 chain:
   consumes_from:
     - accessibility-auditor
-    - ui-ux-designer
-    - ux-researcher
-    - mobile-developer
-    - frontend-developer
-    - ios-developer
     - android-developer
     - backend-developer
+    - frontend-developer
+    - ios-developer
+    - mobile-developer
+    - qa-engineer
+    - ui-ux-designer
+    - ux-researcher
   feeds_into:
     - accessibility-testing
     - qa-engineer

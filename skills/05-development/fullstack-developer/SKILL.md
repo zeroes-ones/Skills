@@ -24,17 +24,19 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
-  - api-designer
-  - backend-developer
-  - database-designer
-  - frontend-developer
-  - tdd-guide
+    - api-designer
+    - backend-developer
+    - database-designer
+    - frontend-developer
+    - qa-engineer
+    - security-reviewer
+    - tdd-guide
   feeds_into:
-  - api-test-suite-builder
-  - devops-engineer
-  - qa-engineer
-  - security-reviewer
-  - tdd-guide
+    - api-test-suite-builder
+    - devops-engineer
+    - qa-engineer
+    - security-reviewer
+    - tdd-guide
 ---
 # Fullstack Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

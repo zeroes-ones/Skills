@@ -32,10 +32,10 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
-  - security-engineer
+    - security-engineer
+    - security-reviewer
   feeds_into:
-  - security-reviewer
-  alternatives: []
+    - security-reviewer
 portability: 'works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
   '

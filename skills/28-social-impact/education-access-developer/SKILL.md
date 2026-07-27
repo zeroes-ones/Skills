@@ -34,14 +34,15 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - mobile-developer
-    - frontend-developer
-    - backend-developer
     - accessibility-auditor
-    - ux-researcher
+    - backend-developer
     - content-strategist
+    - frontend-developer
     - localization-engineer
+    - mobile-developer
+    - qa-engineer
     - translation-manager
+    - ux-researcher
   feeds_into:
     - qa-engineer
     - accessibility-testing

@@ -24,19 +24,22 @@ tags:
 token_budget: 3000
 chain:
   consumes_from:
-  - api-test-suite-builder
-  - backend-developer
-  - frontend-developer
-  - incident-responder
-  - qa-engineer
-  - security-reviewer
-  - staff-engineer
-  - tdd-guide
+    - api-test-suite-builder
+    - backend-developer
+    - frontend-developer
+    - incident-responder
+    - qa-engineer
+    - security-reviewer
+    - staff-engineer
+    - tdd-guide
   feeds_into:
-  - backend-developer
-  - frontend-developer
-  - qa-engineer
-  - tdd-guide
+    - api-test-suite-builder
+    - backend-developer
+    - frontend-developer
+    - qa-engineer
+    - security-reviewer
+    - staff-engineer
+    - tdd-guide
 ---
 # Code Reviewer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

@@ -32,20 +32,21 @@ updated: 2026-07-24
 token_budget: 3200
 chain:
   consumes_from:
-  - security-engineer
-  - incident-responder
-  - observability-engineer
-  - networking-engineer
-  - devops-engineer
-  - cloud-architect
+    - cloud-architect
+    - devops-engineer
+    - incident-responder
+    - networking-engineer
+    - observability-engineer
+    - security-engineer
+    - security-reviewer
   feeds_into:
-  - security-engineer
-  - incident-responder
-  - cto-advisor
-  - ceo-strategist
-  - security-reviewer
-  - observability-engineer
-  - compliance-officer
+    - ceo-strategist
+    - compliance-officer
+    - cto-advisor
+    - incident-responder
+    - observability-engineer
+    - security-engineer
+    - security-reviewer
 ---
 # Threat Intelligence Analyst
 

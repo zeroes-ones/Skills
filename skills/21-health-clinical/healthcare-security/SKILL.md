@@ -41,16 +41,17 @@ tags:
   - dicom
 chain:
   consumes_from:
-    - security-engineer
-    - hipaa-technical-implementation
-    - compliance-officer
-    - cloud-architect
-    - networking-engineer
-    - system-architect
-    - database-designer
     - api-designer
+    - cloud-architect
+    - compliance-officer
+    - database-designer
+    - hipaa-technical-implementation
     - legal-advisor
+    - networking-engineer
     - regulatory-specialist
+    - security-engineer
+    - security-reviewer
+    - system-architect
   feeds_into:
     - incident-responder
     - cloud-security

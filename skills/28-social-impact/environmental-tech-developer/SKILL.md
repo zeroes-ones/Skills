@@ -33,13 +33,14 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - backend-developer
     - data-engineer
     - data-visualization-engineer
-    - mobile-developer
-    - frontend-developer
-    - backend-developer
     - database-designer
     - embedded-engineer
+    - frontend-developer
+    - mobile-developer
+    - qa-engineer
     - system-architect
   feeds_into:
     - qa-engineer

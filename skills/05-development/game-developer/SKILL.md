@@ -35,6 +35,8 @@ chain:
     - game-engine-architect
     - game-ui-designer
     - gameplay-programmer
+    - performance-engineer
+    - qa-engineer
   feeds_into:
     - qa-engineer
     - performance-engineer

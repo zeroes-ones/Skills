@@ -33,14 +33,15 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - mobile-developer
-    - frontend-developer
     - backend-developer
-    - fullstack-developer
     - civic-tech-developer
     - event-planner
-    - ux-researcher
+    - frontend-developer
+    - fullstack-developer
+    - mobile-developer
+    - qa-engineer
     - security-engineer
+    - ux-researcher
   feeds_into:
     - qa-engineer
     - civic-tech-developer

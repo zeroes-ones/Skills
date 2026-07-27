@@ -26,31 +26,32 @@ updated: 2026-07-23
 token_budget: 2835
 chain:
   consumes_from:
-  - automation-engineer
-  - cloud-architect
-  - compliance-officer
-  - devops-engineer
-  - gdpr-privacy
-  - hipaa-technical-implementation
-  - incident-responder
-  - privacy-engineer
-  - system-architect
+    - automation-engineer
+    - cloud-architect
+    - compliance-officer
+    - devops-engineer
+    - gdpr-privacy
+    - hipaa-technical-implementation
+    - incident-responder
+    - privacy-engineer
+    - security-reviewer
+    - system-architect
   feeds_into:
-  - automation-engineer
-  - backend-developer
-  - ci-cd-builder
-  - cloud-architect
-  - compliance-officer
-  - cto-advisor
-  - devops-engineer
-  - firmware-developer
-  - hipaa-technical-implementation
-  - incident-responder
-  - networking-engineer
-  - privacy-engineer
-  - security-reviewer
-  - system-architect
-  - trust-safety-engineer
+    - automation-engineer
+    - backend-developer
+    - ci-cd-builder
+    - cloud-architect
+    - compliance-officer
+    - cto-advisor
+    - devops-engineer
+    - firmware-developer
+    - hipaa-technical-implementation
+    - incident-responder
+    - networking-engineer
+    - privacy-engineer
+    - security-reviewer
+    - system-architect
+    - trust-safety-engineer
 ---
 # Security Engineer
 

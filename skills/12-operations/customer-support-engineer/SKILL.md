@@ -24,13 +24,14 @@ updated: 2026-07-23
 token_budget: 3420
 chain:
   consumes_from:
-  - backend-developer
-  - observability-engineer
-  - product-manager
+    - backend-developer
+    - observability-engineer
+    - product-manager
+    - qa-engineer
   feeds_into:
-  - product-manager
-  - qa-engineer
-  - account-manager
+    - account-manager
+    - product-manager
+    - qa-engineer
 ---
 # Customer Support Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

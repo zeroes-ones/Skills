@@ -24,15 +24,16 @@ tags:
 token_budget: 3800
 chain:
   consumes_from:
-  - api-designer
-  - backend-developer
-  - fullstack-developer
-  - qa-engineer
-  - security-reviewer
+    - api-designer
+    - backend-developer
+    - code-reviewer
+    - fullstack-developer
+    - qa-engineer
+    - security-reviewer
   feeds_into:
-  - ci-cd-builder
-  - code-reviewer
-  - qa-engineer
+    - ci-cd-builder
+    - code-reviewer
+    - qa-engineer
 ---
 # API Test Suite Builder
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

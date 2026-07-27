@@ -12,10 +12,12 @@ tags: [desktop, electron, tauri, wpf, qt, cross-platform, native]
 token_budget: 4500
 chain:
   consumes_from:
-    - frontend-developer
     - backend-developer
-    - system-architect
+    - frontend-developer
+    - performance-engineer
+    - qa-engineer
     - security-reviewer
+    - system-architect
   feeds_into:
   - automation-engineer
   - qa-engineer

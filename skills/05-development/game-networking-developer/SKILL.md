@@ -9,11 +9,13 @@ tags: [game-networking, multiplayer, client-server, udp, prediction, synchroniza
 token_budget: 4500
 chain:
   consumes_from:
-    - game-developer
-    - gameplay-programmer
-    - game-engine-architect
     - backend-developer
+    - game-developer
+    - game-engine-architect
+    - gameplay-programmer
     - networking-engineer
+    - performance-engineer
+    - qa-engineer
   feeds_into:
     - game-developer
     - qa-engineer

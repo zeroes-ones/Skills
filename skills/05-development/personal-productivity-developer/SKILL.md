@@ -33,13 +33,14 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - frontend-developer
-    - mobile-developer
     - backend-developer
-    - ui-ux-designer
     - database-designer
-    - ux-researcher
+    - frontend-developer
     - fullstack-developer
+    - mobile-developer
+    - qa-engineer
+    - ui-ux-designer
+    - ux-researcher
     - website-builder
   feeds_into:
     - qa-engineer

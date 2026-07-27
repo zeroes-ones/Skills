@@ -25,6 +25,8 @@ chain:
     - apple-hig-expert
     - feature-flag-architect
     - mobile-architecture-patterns
+    - qa-engineer
+    - security-reviewer
     - system-architect
     - ui-ux-designer
   feeds_into:

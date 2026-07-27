@@ -24,21 +24,22 @@ updated: 2026-07-23
 token_budget: 2280
 chain:
   consumes_from:
-  - brand-guidelines
-  - product-manager
-  - ux-researcher
+    - accessibility-auditor
+    - brand-guidelines
+    - product-manager
+    - ux-researcher
   feeds_into:
-  - accessibility-auditor
-  - apple-hig-expert
-  - fintech-ui-designer
-  - frontend-developer
-  - game-ui-designer
-  - healthcare-ui-designer
-  - idea-to-spec
-  - material-design-expert
-  - medical-illustrator
-  - mobile-developer
-  - ux-writer
+    - accessibility-auditor
+    - apple-hig-expert
+    - fintech-ui-designer
+    - frontend-developer
+    - game-ui-designer
+    - healthcare-ui-designer
+    - idea-to-spec
+    - material-design-expert
+    - medical-illustrator
+    - mobile-developer
+    - ux-writer
 ---
 # UI/UX Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

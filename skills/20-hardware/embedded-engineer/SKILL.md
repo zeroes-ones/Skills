@@ -34,16 +34,16 @@ dependencies:
   permissions: []
 chain:
   consumes_from:
-  - backend-developer
-  - firmware-developer
-  - hardware-architect
+    - backend-developer
+    - firmware-developer
+    - hardware-architect
+    - performance-engineer
+    - qa-engineer
   feeds_into:
-  - firmware-developer
-  - hardware-architect
-  - performance-engineer
-  - qa-engineer
-  alternatives:
-  - firmware-developer
+    - firmware-developer
+    - hardware-architect
+    - performance-engineer
+    - qa-engineer
 ---
 # Embedded Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

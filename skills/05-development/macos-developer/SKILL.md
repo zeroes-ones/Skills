@@ -17,16 +17,19 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
-  - apple-hig-expert
-  - desktop-developer
-  - desktop-architecture-patterns
-  - ui-ux-designer
-  - backend-developer
-  - system-architect
+    - apple-hig-expert
+    - backend-developer
+    - desktop-architecture-patterns
+    - desktop-developer
+    - performance-engineer
+    - qa-engineer
+    - security-reviewer
+    - system-architect
+    - ui-ux-designer
   feeds_into:
-  - qa-engineer
-  - security-reviewer
-  - performance-engineer
+    - performance-engineer
+    - qa-engineer
+    - security-reviewer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 

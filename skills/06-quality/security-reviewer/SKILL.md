@@ -1,12 +1,10 @@
 ---
 name: security-reviewer
-description: >
-  Use when performing security-focused code reviews, conducting STRIDE threat
-  modeling, auditing authentication and authorization, reviewing data protection
-  and encryption, or assessing API security posture. Handles OWASP Top 10 per-language
-  patterns, dependency and container security, IaC hardening, and CVSS-aligned
-  severity grading. Do NOT use for general code review, penetration testing execution,
-  compliance auditing, or incident response.
+description: 'Use when performing security-focused code reviews, conducting STRIDE threat modeling, auditing authentication and authorization, reviewing data protection and encryption, or assessing API
+  security posture. Handles OWASP Top 10 per-language patterns, dependency and container security, IaC hardening, and CVSS-aligned severity grading. Do NOT use for general code review, penetration testing
+  execution, compliance auditing, or incident response.
+
+  '
 author: Sandeep Kumar Penchala
 license: MIT
 allowed-tools: Read Grep Glob
@@ -26,19 +24,44 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - android-developer
   - backend-developer
+  - code-reviewer
+  - creator-economy-builder
   - devops-engineer
+  - fintech-app-developer
   - firmware-developer
   - fullstack-developer
+  - healthcare-security
+  - ios-developer
+  - macos-developer
+  - marketplace-platform-builder
   - mobile-developer
+  - offensive-security
   - qa-engineer
+  - secure-api-design
   - security-engineer
+  - threat-intelligence
   feeds_into:
+  - android-developer
   - api-test-suite-builder
   - backend-developer
   - code-reviewer
+  - creator-economy-builder
+  - fintech-app-developer
+  - firmware-developer
+  - fullstack-developer
+  - healthcare-security
   - incident-responder
+  - ios-developer
+  - macos-developer
+  - marketplace-platform-builder
+  - mobile-developer
+  - offensive-security
   - qa-engineer
+  - secure-api-design
+  - security-engineer
+  - threat-intelligence
 ---
 # Security Reviewer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

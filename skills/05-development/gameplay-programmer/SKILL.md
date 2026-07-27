@@ -9,10 +9,11 @@ tags: [gameplay, game-development, unity, unreal, cpp, csharp, game-design]
 token_budget: 4500
 chain:
   consumes_from:
+    - backend-developer
     - game-developer
     - game-engine-architect
-    - backend-developer
     - performance-engineer
+    - qa-engineer
   feeds_into:
     - game-developer
     - game-networking-developer

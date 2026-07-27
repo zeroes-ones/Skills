@@ -23,17 +23,18 @@ updated: 2026-07-23
 token_budget: 2190
 chain:
   consumes_from:
-  - product-manager
-  - system-architect
-  - ui-ux-designer
-  - ux-researcher
+    - product-manager
+    - qa-engineer
+    - system-architect
+    - ui-ux-designer
+    - ux-researcher
   feeds_into:
-  - api-designer
-  - backend-developer
-  - database-designer
-  - frontend-developer
-  - qa-engineer
-  - tdd-guide
+    - api-designer
+    - backend-developer
+    - database-designer
+    - frontend-developer
+    - qa-engineer
+    - tdd-guide
 ---
 # Idea to Spec
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

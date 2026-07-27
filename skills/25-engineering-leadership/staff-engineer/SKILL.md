@@ -27,9 +27,10 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - backend-developer
+    - code-reviewer
     - engineering-manager
     - system-architect
-    - backend-developer
   feeds_into:
     - system-architect
     - backend-developer

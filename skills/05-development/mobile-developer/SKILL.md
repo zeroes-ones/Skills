@@ -24,21 +24,23 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
-  - accessibility-testing
-  - api-designer
-  - backend-developer
-  - localization-engineer
-  - feature-flag-architect
-  - material-design-expert
-  - tdd-guide
-  - ui-ux-designer
+    - accessibility-testing
+    - api-designer
+    - backend-developer
+    - feature-flag-architect
+    - localization-engineer
+    - material-design-expert
+    - qa-engineer
+    - security-reviewer
+    - tdd-guide
+    - ui-ux-designer
   feeds_into:
-  - apple-hig-expert
-  - automation-engineer
-  - localization-engineer
-  - qa-engineer
-  - security-reviewer
-  - translation-manager
+    - apple-hig-expert
+    - automation-engineer
+    - localization-engineer
+    - qa-engineer
+    - security-reviewer
+    - translation-manager
 ---
 # Mobile Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

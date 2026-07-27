@@ -1,12 +1,10 @@
 ---
 name: qa-engineer
-description: >
-  Use when designing test strategies, implementing test automation frameworks,
-  configuring Playwright or Cypress for e2e testing, setting up performance testing
-  with k6, or establishing coverage goals and quality metrics. Handles test pyramid
-  design, API contract testing, test data management, and CI integration for
-  continuous quality. Do NOT use for accessibility-specific testing, security
-  auditing, code review, or production incident response.
+description: 'Use when designing test strategies, implementing test automation frameworks, configuring Playwright or Cypress for e2e testing, setting up performance testing with k6, or establishing coverage
+  goals and quality metrics. Handles test pyramid design, API contract testing, test data management, and CI integration for continuous quality. Do NOT use for accessibility-specific testing, security auditing,
+  code review, or production incident response.
+
+  '
 author: Sandeep Kumar Penchala
 license: MIT
 type: quality
@@ -25,35 +23,85 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - access-tech-developer
   - accessibility-auditor
   - accessibility-testing
+  - android-developer
   - api-designer
   - api-test-suite-builder
   - backend-developer
+  - casual-game-developer
   - ci-cd-builder
+  - civic-tech-developer
   - code-reviewer
+  - community-organizing-tech
+  - creator-economy-builder
   - customer-support-engineer
+  - desktop-developer
+  - education-access-developer
+  - educational-game-developer
   - embedded-engineer
-  - firmware-developer
+  - environmental-tech-developer
   - feature-flag-architect
+  - fintech-app-developer
+  - firmware-developer
   - frontend-developer
   - fullstack-developer
+  - game-developer
+  - game-networking-developer
+  - gameplay-programmer
   - idea-to-spec
+  - ios-developer
   - localization-engineer
+  - macos-developer
+  - marketplace-platform-builder
+  - micro-saas-developer
   - mobile-developer
+  - personal-productivity-developer
   - product-manager
   - security-reviewer
   - tdd-guide
   - translation-manager
+  - website-builder
   feeds_into:
+  - access-tech-developer
   - accessibility-testing
+  - android-developer
   - api-test-suite-builder
+  - backend-developer
+  - browser-testing-with-devtools
+  - casual-game-developer
   - ci-cd-builder
+  - civic-tech-developer
   - code-reviewer
+  - community-organizing-tech
+  - creator-economy-builder
+  - customer-support-engineer
+  - desktop-developer
   - devops-engineer
+  - education-access-developer
+  - educational-game-developer
+  - embedded-engineer
+  - environmental-tech-developer
+  - fintech-app-developer
+  - firmware-developer
+  - frontend-developer
+  - fullstack-developer
+  - game-developer
+  - game-networking-developer
+  - gameplay-programmer
+  - idea-to-spec
+  - ios-developer
+  - macos-developer
+  - marketplace-platform-builder
+  - micro-saas-developer
+  - mobile-developer
+  - personal-productivity-developer
+  - product-manager
   - release-manager
   - security-reviewer
   - tdd-guide
+  - website-builder
 ---
 # QA Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

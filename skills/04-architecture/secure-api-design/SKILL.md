@@ -33,11 +33,11 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
-  - api-designer
+    - api-designer
+    - security-reviewer
   feeds_into:
-  - backend-developer
-  - security-reviewer
-  alternatives: []
+    - backend-developer
+    - security-reviewer
 ---
 # Secure API Design
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.

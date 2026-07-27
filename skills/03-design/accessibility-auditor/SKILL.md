@@ -1,13 +1,10 @@
 ---
 name: accessibility-auditor
-description: >
-  Use when auditing digital products for WCAG 2.2 compliance, testing with assistive
-  technologies, evaluating semantic HTML, or assessing legal exposure under ADA,
-  Section 508, or EN 301 549. Handles automated auditing (axe-core, pa11y,
-  Lighthouse), screen reader testing (VoiceOver, NVDA, JAWS), focus management
-  audits, accessible forms validation, and remediation prioritization. Do NOT use
-  for implementing accessibility fixes, general UI design, or non-digital
-  accessibility consulting.
+description: 'Use when auditing digital products for WCAG 2.2 compliance, testing with assistive technologies, evaluating semantic HTML, or assessing legal exposure under ADA, Section 508, or EN 301 549.
+  Handles automated auditing (axe-core, pa11y, Lighthouse), screen reader testing (VoiceOver, NVDA, JAWS), focus management audits, accessible forms validation, and remediation prioritization. Do NOT use
+  for implementing accessibility fixes, general UI design, or non-digital accessibility consulting.
+
+  '
 license: MIT
 allowed-tools: Read Grep Glob
 tags:
@@ -27,14 +24,22 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - access-tech-developer
   - accessibility-testing
+  - apple-hig-expert
   - frontend-developer
+  - material-design-expert
   - ui-ux-designer
   feeds_into:
+  - access-tech-developer
   - accessibility-testing
+  - apple-hig-expert
+  - browser-testing-with-devtools
   - frontend-developer
   - legal-advisor
+  - material-design-expert
   - qa-engineer
+  - ui-ux-designer
 ---
 # Accessibility Auditor
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

@@ -35,12 +35,15 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - backend-developer
     - api-designer
+    - backend-developer
+    - compliance-officer
     - database-designer
     - financial-security
+    - performance-engineer
+    - qa-engineer
     - security-engineer
-    - compliance-officer
+    - security-reviewer
   feeds_into:
     - qa-engineer
     - security-reviewer
