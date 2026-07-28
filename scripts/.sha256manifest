@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-27T20:50:32Z
+# Generated: 2026-07-28T18:28:28Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    9f5fc273d87a42942550dfea9b8cb810c6ab97f4
+# Commit:    9229aa12f1fed550a6ad12211b0e3d3db9a4d8e6
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -154,6 +154,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/content-strategist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/devrel-advocate/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/growth-engineer/scripts/verify-skill.sh
+525c7f2a9e9a3b272c82b83dc3731e6471a4783828d11c289f4325e60beef0e5  skills/10-growth/llm-search-optimizer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/seo-specialist/scripts/verify-skill.sh
 363ce202b76fe9e8aa2facdf2156c14e4e8544cb42f33c3323d39b5860d23321  skills/11-legal/gdpr-privacy/_gen.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/gdpr-privacy/scripts/verify-skill.sh
