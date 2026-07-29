@@ -1,5 +1,6 @@
 ---
 name: enterprise-pricing-strategist
+token_budget: 3000
 description: >
   Use when designing enterprise-tier pricing models, creating custom quote workflows, modeling volume
   discounts, structuring ROI-based pricing for B2B SaaS, negotiating enterprise contracts, designing

@@ -1,5 +1,6 @@
 ---
 name: ad-monetization-engineer
+token_budget: 3000
 description: >
   Use when designing ad-based revenue models for digital products, implementing ad tech stacks
   (header bidding, programmatic, direct-sold), optimizing ad unit placement and viewability,

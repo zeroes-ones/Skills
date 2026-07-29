@@ -1,5 +1,6 @@
 ---
 name: mission-driven-growth-strategist
+token_budget: 3000
 description: >
   Use when designing theory of change frameworks, measuring social impact (IRIS+, SDG, B Impact Assessment),
   structuring social enterprise legal entities (B Corp, L3C, benefit corporation, CIC), designing hybrid

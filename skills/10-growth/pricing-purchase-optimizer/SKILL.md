@@ -1,5 +1,6 @@
 ---
 license: MIT
+token_budget: 3000
 name: pricing-purchase-optimizer
 description: >
   Use when optimizing SaaS pricing pages for conversion rate improvement,

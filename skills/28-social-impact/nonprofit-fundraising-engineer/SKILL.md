@@ -1,5 +1,6 @@
 ---
 license: MIT
+token_budget: 3000
 name: nonprofit-fundraising-engineer
 description: >
   Use when building or optimizing online donation platforms, implementing
@@ -478,18 +479,18 @@ Complete when: All 10 verification checks pass, test donation processed end-to-e
 
 Before launching any fundraising feature, verify:
 
-- [ ] Donation form tested on mobile (iOS Safari, Android Chrome) and desktop (Chrome, Firefox, Safari, Edge)
-- [ ] Test donation processed for $1.00 — payment captured, receipt delivered, CRM synced
-- [ ] Test recurring donation created, first charge processed, receipt for recurring clearly distinct from one-time
-- [ ] Test recurring payment failure → retry → success cycle
-- [ ] Test recurring cancellation → subscription properly cancelled, not just paused
-- [ ] Test matching gift lookup with real company name from Double the Donation test API
-- [ ] PCI-DSS SAQ-A self-assessment completed (if using Stripe Elements or equivalent)
-- [ ] Tax receipt template reviewed by CPA or nonprofit attorney
-- [ ] Payment processor nonprofit pricing confirmed in writing
-- [ ] CRM field mapping documented with data dictionary
-- [ ] Load test: 100 concurrent donations processed without errors or duplicates
-- [ ] Rollback plan documented: how to refund, revert CRM records, and notify donors if deployment fails
+* [ ] Donation form tested on mobile (iOS Safari, Android Chrome) and desktop (Chrome, Firefox, Safari, Edge)
+* [ ] Test donation processed for $1.00 — payment captured, receipt delivered, CRM synced
+* [ ] Test recurring donation created, first charge processed, receipt for recurring clearly distinct from one-time
+* [ ] Test recurring payment failure → retry → success cycle
+* [ ] Test recurring cancellation → subscription properly cancelled, not just paused
+* [ ] Test matching gift lookup with real company name from Double the Donation test API
+* [ ] PCI-DSS SAQ-A self-assessment completed (if using Stripe Elements or equivalent)
+* [ ] Tax receipt template reviewed by CPA or nonprofit attorney
+* [ ] Payment processor nonprofit pricing confirmed in writing
+* [ ] CRM field mapping documented with data dictionary
+* [ ] Load test: 100 concurrent donations processed without errors or duplicates
+* [ ] Rollback plan documented: how to refund, revert CRM records, and notify donors if deployment fails
 
 <!-- QUICK: 30s -->
 ## Deliberate Practice
