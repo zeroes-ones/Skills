@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-28T18:28:28Z
+# Generated: 2026-07-29T22:00:30Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    9229aa12f1fed550a6ad12211b0e3d3db9a4d8e6
+# Commit:    734f34e38fe35c8c8cafbd6ad6587e86b56a357d
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -43,6 +43,7 @@ d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/00-fram
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/business-strategist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/ceo-strategist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/cto-advisor/scripts/verify-skill.sh
+91f4126687c7cb20f9a23a96c496aefa9df8fdc1ecadb31388338e4dc0a9c949  skills/01-strategy/enterprise-pricing-strategist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/product-strategist/scripts/verify-skill.sh
 d443d284924b6ac2ac402f82fbde1977368f023a9cac701efcaeefeb6ea3b7a7  skills/01-strategy/roi-gate/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/02-product/brainstorming/scripts/verify-skill.sh
@@ -151,10 +152,12 @@ b69df3247eedf076c63862697c705f82f8f2bcea3b6e203053147f779fb86e94  skills/09-data
 147da0546bed6e51a3d6d07c41f9e97e064d51e3846e917411a9df7ca6869c3d  skills/09-data/ml-engineer/scripts/verify_data.py
 f0cf0a24dea01a7ab258b422d3eac66b7c5cd061706b7c87a9f608505476dcc7  skills/09-data/ml-engineer/scripts/verify_reproducibility.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data/ml-engineer/scripts/verify-skill.sh
+e6b6d485a7b45dd9ea0d37c916c3aeea49a36a4eddeec84f8b43c7b16355322d  skills/10-growth/ad-monetization-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/content-strategist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/devrel-advocate/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/growth-engineer/scripts/verify-skill.sh
 525c7f2a9e9a3b272c82b83dc3731e6471a4783828d11c289f4325e60beef0e5  skills/10-growth/llm-search-optimizer/scripts/verify-skill.sh
+4d149764db47480f0f9c91a2cdee41062bac2100657b9b535cff72a2c923fed5  skills/10-growth/pricing-purchase-optimizer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-growth/seo-specialist/scripts/verify-skill.sh
 363ce202b76fe9e8aa2facdf2156c14e4e8544cb42f33c3323d39b5860d23321  skills/11-legal/gdpr-privacy/_gen.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/gdpr-privacy/scripts/verify-skill.sh
@@ -281,3 +284,5 @@ d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-soci
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/community-organizing-tech/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/education-access-developer/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/environmental-tech-developer/scripts/verify-skill.sh
+aeb41a655b73b01f4d4ccb486e56014f5fe734d1f8a7b39e49d0df30eae478ef  skills/28-social-impact/mission-driven-growth-strategist/scripts/verify-skill.sh
+b4dd5e9d382ef5809cd13ba93ea9dff18cfa2ef93c174386deac2413fb4710b7  skills/28-social-impact/nonprofit-fundraising-engineer/scripts/verify-skill.sh
