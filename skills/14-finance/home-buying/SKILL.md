@@ -26,6 +26,7 @@ tags:
   - property
 token_budget: 5000
 chain:
+  type: symmetric
   consumes_from:
     - personal-finance
     - accountant
@@ -59,8 +60,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -87,7 +86,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Home Buying Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -97,8 +95,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Calculate the true cost of ownership, not just PITI.** Property taxes (1-3% of value/year), insurance (0.5-1%), maintenance (1-2% of value/year), HOA fees, utilities, and opportunity cost of down payment. PITI is ~70% of true cost. | [HIDDEN_COST] A $2,500/month PITI becomes $3,800/month actual cost after taxes, insurance, maintenance, and HOA. The gap between PITI and true cost is where new homeowners get financially trapped. | Property tax records, insurance quotes, maintenance cost estimators |
 | **RP-F4** | **Verify the rent-vs-buy breakeven.** Compute: (annual rent × rent inflation) vs. (annual ownership cost − equity buildup + transaction costs). In high-cost markets, renting and investing the difference often beats buying. | [OWNERSHIP_BIAS] The cultural pressure to buy ignores math. In markets where price-to-rent ratio > 20, renting + investing the down payment often outperforms buying over 10+ year horizons. | Rent-vs-buy calculators, price-to-rent ratio data, investment return assumptions |
 | **RP-F5** | **Check for first-time homebuyer programs, grants, and tax incentives.** Down payment assistance (up to 5% of purchase price), mortgage credit certificates (20% of interest as tax credit), state-specific programs. Many programs go unused because buyers don't know they exist. | [PROGRAM_BLINDNESS] Thousands of dollars in grants and tax credits go unclaimed because the maze of programs is hard to navigate. A 30-minute search can find $5,000-$15,000 in assistance. | State housing finance agency websites, HUD programs, mortgage credit certificate programs |
-
-
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->

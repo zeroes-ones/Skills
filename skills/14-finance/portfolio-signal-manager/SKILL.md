@@ -29,6 +29,7 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 4500
 chain:
+  type: downstream
   consumes_from:
     - technical-signals-engineer
     - fundamental-analyst
@@ -74,8 +75,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -102,7 +101,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Portfolio Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -112,8 +110,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Rebalance check: are current allocations within tolerance bands?** Compare target weights vs. actual weights. Positions that have drifted >20% from target need rebalancing evaluation (cost vs. drift risk). | [DRIFT_RISK] A 5% tactical allocation that grows to 15% through outperformance has become a 15% strategic bet without a decision. Rebalancing isn't about locking in profits — it's about maintaining intended risk exposure. | Position sizing sheet, allocation targets, tax-impact analysis |
 | **RP-F4** | **Assess liquidity of all holdings.** For each position: what % of ADV does the position represent? If any position > 5% of ADV, exiting will move the market against you. | [LIQUIDITY_TRAP] A profitable position you can't exit without crashing the price is not a position — it's a hostage situation. Liquidity risk is the most underestimated portfolio risk. | ADV data, bid-ask spread history, depth of market |
 | **RP-F5** | **Stress-test the portfolio against the last 3 regime shifts.** Apply the portfolio composition to: (a) the most recent correction (-10%), (b) the most recent bear market (-20%), (c) the most recent crash (-30%+). Document max portfolio drawdown in each. | [REGIME_FRAGILITY] A portfolio optimized for the current regime is fragile by definition. Regime-agnostic portfolios survive; regime-optimized portfolios get destroyed when the regime changes — which it always does. | Historical regime dates, strategy backtest data, composite portfolio P&L simulation |
-
-
 
 ## Route the Request
 
@@ -160,7 +156,6 @@ What portfolio management task?
 ## Anti-Hallucination
 **Admit uncertainty** when synthesizing across domains. **Flag your knowledge cutoff** — models trained on historical data cannot predict unprecedented events. **Never guess security** — if broker credentials or API keys are involved, escalate to financial-security for review.
 
-
 <!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
@@ -172,13 +167,11 @@ What portfolio management task?
 | "These two ETFs both say BUY — SPY and VOO are different products from different issuers." | SPY and VOO both track the S&P 500. Holding both is holding the same thing twice with different expense ratios. ETF overlap >90% by holdings weight = same position. You're paying two expense ratios for one exposure. **Cost: $100-$500/year in duplicate fees. Always check holdings overlap before adding a new ETF to an existing position.** |
 | "The portfolio is diversified — 20 stocks across 8 sectors." | If 12 of those 20 stocks have beta >1.3 to SPY, and 8 of 20 are tech or tech-adjacent (Amazon is "consumer discretionary," Google is "communication services," but both move with tech), your 8-sector diversification is actually 3 real sectors with high beta. **Cost: $100K-$500K in "diversified" portfolios that crash together. Diversify by factor exposure, not GICS sector labels.** |
 
-
 ## The Expert's Mindset
 
 <!-- STANDARD: 3min -->
 
 World-class portfolio management requires seeing the entire system, not individual trades. The portfolio manager's job is allocation, not prediction. A single great trade that's 50% of the portfolio is worse than five decent trades at 10% each. Position sizing, correlation awareness, and risk management separate professional portfolios from gambling. Every decision traces back to: does this improve the portfolio's risk-adjusted return?
-
 
 ## Operating at Different Levels
 
@@ -192,7 +185,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | **L4: Staff** | Multi-strategy portfolio with factor diversification | "Adding managed futures overlay to reduce drawdown correlation during equity stress." |
 | **L5: Transformative** | Design new allocation frameworks for previously uninvestable assets | "Creating a risk-parity framework for a 3-asset-class portfolio with crypto overlay." |
 
-
 ## When to Use
 
 <!-- QUICK: 30s -->
@@ -203,7 +195,6 @@ World-class portfolio management requires seeing the entire system, not individu
 - You need to connect a broker account via MCP for live portfolio sync
 - Portfolio drawdown triggers require systematic responses
 - Correlation matrix shows diversification is degrading
-
 
 ## When NOT to Use
 
@@ -216,7 +207,6 @@ World-class portfolio management requires seeing the entire system, not individu
 - You're backtesting a single strategy — use data-scientist
 - Your portfolio has fewer than 3 positions — the coordination overhead exceeds the benefit
 
-
 ## Best Practices
 
 <!-- STANDARD: 3min -->
@@ -227,7 +217,6 @@ World-class portfolio management requires seeing the entire system, not individu
 4. Test circuit breakers in paper trading before live deployment — breakers that don't fire are worse than no breakers
 5. Rebalance on a calendar, not just on signals — silent drift kills diversification
 6. Keep 5% in reserve — the best signal in the world is useless without buying power
-
 
 7. Track signal accuracy monthly — a signal that degrades from 60% to 51% accuracy is just noise
 8. Document every parameter change — lookback windows, thresholds, scoring weights all need version control
@@ -243,7 +232,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | Duplicate orders despite idempotency | Key collision or atomicity failure | Use atomic set operations for dedup. Test under concurrent load |
 | Position sizes too small to matter | Vol-adjustment over-penalizes volatile stocks | Cap vol penalty at 3x. Positions < $1K skipped |
 | Signal conflicts always resolve same way | Calibration drift — one source's confidence is inflated | Recalibrate both sources against historical accuracy |
-
 
 ## Anti-Patterns
 
@@ -269,7 +257,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | `circuit_breakers.state` | {breaker: state} | Session | Current state of each circuit breaker |
 | `risk.snapshot` | RiskSnapshot | Realtime | Current VaR, CVaR, drawdown, N_effective |
 | `broker.connection_state` | enum | Session | Current MCP broker connection state machine position |
-
 
 ## Core Workflow
 

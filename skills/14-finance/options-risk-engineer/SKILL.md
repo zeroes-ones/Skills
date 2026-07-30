@@ -28,6 +28,7 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 4000
 chain:
+  type: symmetric
   consumes_from:
     - options-strategist
     - quantitative-analyst
@@ -69,8 +70,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -97,7 +96,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Risk Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -107,8 +105,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Verify margin requirements under stress.** What happens to margin requirements if VIX doubles? If correlation collapses? If the portfolio takes a 3-sigma hit? | [MARGIN_CALL] Margin requirements expand precisely when capital is scarce. A strategy that uses 60% of margin today may use 180% during a crash — triggering forced liquidations at the worst possible price. | Broker margin formulas, SPAN/portfolio margin documentation, VIX-margin correlation data |
 | **RP-F4** | **Check for pin risk and expiration concentration.** Are multiple positions expiring on the same date? Are any short strikes within 2% of current price on expiration day? | [PIN_CATASTROPHE] A short option $0.01 OTM at Friday close can gap $5 against you by Monday. The last $0.05 of premium is NEVER worth the gap risk. | Options chain, expiration calendar, position delta-at-expiration |
 | **RP-F5** | **Compute the portfolio convexity profile.** Is the overall portfolio long gamma (profits accelerate on large moves) or short gamma (losses accelerate)? Short gamma portfolios MUST have stop-losses — unlimited loss is not theoretical. | [CONVEXITY_ASYM] Short gamma portfolios (iron condors, credit spreads, naked options) carry tail risk that standard deviation-based measures miss entirely. A 4-sigma move in a short-gamma portfolio is NOT a 1-in-10,000-year event — it happens every 5-10 years. | Greeks surface, strategy convexity table, historical drawdown data |
-
-
 
 ## Route the Request
 
@@ -312,7 +308,6 @@ World-class options risk management is about understanding what kills you — an
 | `risk.vaR` | VaRResult | Daily | 1-day VaR(95%, 99%), CVaR(95%, 99%) computed with non-linear payoff handling |
 | `risk.max_drawdown_est` | float | Session | Estimated maximum drawdown in next 30 days based on current Greeks and IV |
 
-
 ## Core Workflow
 
 ### Phase 0: Portfolio Greek Snapshot (5min)
@@ -370,7 +365,6 @@ World-class options risk management is about understanding what kills you — an
 2. **Apply event responses**: Earnings >15% NAV → close/hedge. FDA on any position >2% NAV → close. FOMC → cut delta 50%, close short gamma.
 3. Complete when: Event calendar populated. P&L impact computed [COMPUTED] for all material events. Response actions documented.
    - Full event calendar, P&L formula, response matrix → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-7-event-risk-assessment--full-detail)
-
 
 ## Decision Trees
 
@@ -525,7 +519,6 @@ Before deploying options-risk-engineer with live positions:
 | Assigned on a short call the day before a $1.50 dividend | The call's time premium ($0.08) was less than the dividend ($1.50). Exercising the call to capture the dividend yielded $1.42 in risk-free profit for the call holder. This was entirely predictable | Check every short call's ex-div date against expiration. If dividend > remaining time premium, assignment probability >85% [ESTIMATED]. Close or roll before the ex-div date. The market knows about dividends — option prices reflect it, but early exercise is path-dependent | **Dividends drive early assignment, not moneyness.** An OTM call won't be exercised for dividends. An ITM call will be exercised if the dividend exceeds the time premium. Track ex-div dates as carefully as expiration dates |
 | Portfolio VaR(95%) = $8,500. Actual loss on a bad day = $31,000 | VaR was computed assuming normal distribution and linear instruments. Options have non-linear payoffs — a 3-sigma move causes 5-10× the loss that normal VaR predicts. The portfolio had short gamma and short vega — both amplify losses in extreme moves | Use historical simulation VaR with full option repricing. For portfolios with significant short gamma or short vega, report Stress VaR (worst case from historical scenarios) alongside statistical VaR. If Stress VaR > 3× statistical VaR, you have tail risk that statistical VaR misses | **VaR lies about options risk.** Normal-distribution VaR understates options portfolio risk by 30-60%. If you're managing options risk with standard VaR, you're driving with a speedometer that reads half of actual speed |
 | Closed a pin-risk position at 3:55 PM ET with a limit order at mid. Order didn't fill. Assigned over the weekend | Market makers widen spreads in the final minutes of expiration day. A limit order at mid in a 0.30/1.20 market has near-zero fill probability. You "tried" to close but didn't actually close — the outcome is the same as not trying | For pin-risk closures on expiration day: use market orders after 3:30 PM ET. The slippage cost ($30-60 on a $0.30/1.20 spread) is less than the cost of assignment ($5K-$50K unwanted stock position). Accept the slippage as insurance cost | **"Trying to close" is not the same as closing.** In the final 30 minutes, fills are all that matter. A limit order that doesn't fill provides zero protection. Use market orders or accept assignment |
-
 
 ## Verification Guardrails
 

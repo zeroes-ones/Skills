@@ -26,6 +26,15 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+    - portfolio-signal-manager
+    - technical-signals-engineer
+    - commodities-analyst
+    - crypto-trader
+    - forex-trader
+    - fixed-income-analyst
+    - futures-trader
+    - options-strategist
+    - financial-security
     - quantitative-analyst
     - market-data-engineer
     - system-architect
@@ -73,8 +82,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -89,6 +96,7 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
 ```
@@ -101,7 +109,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Trading Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -111,8 +118,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Check exchange rules and circuit breakers.** Verify that strategy parameters (DTE, strike width, position size) comply with exchange limits, margin requirements, and circuit breaker thresholds. | [EXCHANGE_REJECTION] Strategies that violate exchange rules fail silently in simulation and catastrophically in production. A position too large for the market maker to fill = partial fill at worst price. | Exchange rulebooks, broker API limits, Reg T/portfolio margin rules |
 | **RP-F4** | **Stress-test against historical tail events.** Run the strategy against March 2020, October 1987, August 2015 flash crash, and 2008 financial crisis data. Document max drawdown in each. | [TAIL_BLINDNESS] A strategy that never saw a crash in backtest WILL face one in production. Historical tail events are the cheapest stress tests available — use them. | Historical market data, VIX spike periods, flash crash dates |
 | **RP-F5** | **Verify strategy capacity.** Compute estimated market impact at current position size. If AUM/strategy capacity > 50%, returns will degrade from slippage alone. | [CAPACITY_CEILING] A market-neutral strategy that works at $500K may break at $50M. Market impact is nonlinear — doubling size more than doubles impact. | Average daily volume (ADV), bid-ask spread as % of price, depth of book |
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -170,7 +175,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 
 | # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
 |---|-------------------|---------------------------------------------|-------------------|
-| **R1** | **REFUSE to generate a trade entry without a stop-loss.** Every position must have a predefined exit price before entry. A trade without a stop-loss is not a strategy — it is gambling. | Trigger: generated code creates an order (`order = Order(` or `api.submit_order(` or `create_order(`) without a corresponding `stop_loss` or `stop_price` parameter within 10 lines | STOP. Insert bracket order: `parent_order = Order(symbol, qty, 'buy', 'market'); stop_loss = Order(symbol, qty, 'sell', 'stop', stop_price=entry * (1 - 2*ATR/entry)); take_profit = Order(symbol, qty, 'sell', 'limit', limit_price=entry * 1.05); api.submit_bracket(parent_order, stop_loss, take_profit)` |
+| **R1** | **REFUSE to generate a trade entry without a liquidity-grab-aware stop-loss.** Every position must have a predefined exit price before entry, placed through all 6 anti-grab layers (regime-adjusted multiplier, swing-low buffer, round-number avoidance, VWAP floor, safety check, audit trail). A naive `2x ATR` stop without these protections is gambling — market makers hunt exactly that level. | Trigger: generated code creates an order (`order = Order(` or `api.submit_order(` or `create_order(`) without a corresponding `stop_loss` or `stop_price` parameter within 10 lines, OR uses `stop_loss = entry - (2 * ATR)` without calling `compute_stop_loss()` | STOP. Insert: `initial_stop, stop_audit = compute_stop_loss(entry_price, atr, swing_low, round_step, vix, vwap_band_low, macro_stop_mult); bracket_order = api.submit_bracket(parent_order, stop_loss=initial_stop, take_profit=tier_1_target)` — must run through all 6 grab-protection layers. |
 | **R2** | **REFUSE to present backtest results without a 30% haircut.** Survivorship bias, look-ahead bias, and in-sample overfitting inflate backtest returns. Always reduce Sharpe, win rate, and CAGR by 30% for realistic forward expectations. | Trigger: generated output reports "Sharpe ratio=X.X" or "CAGR=Y%" or "win rate=Z%" without immediately following text like "haircut" or "adjusted" or "forward estimate" | STOP. Append: "**⚠️ Forward Estimate (30% haircut):** Sharpe ~{X*0.7:.1f}, CAGR ~{Y*0.7:.1f}%, Win Rate ~{Z*0.7:.0f}%. If the strategy does not survive this haircut, it is not production-ready." |
 | **R3** | **REFUSE to average down on a losing position.** Adding to a position that is underwater ("the signal was strong") is how accounts blow up. UOA signals have a shelf life — if price moves against you, smart money already exited. | Trigger: generated code adds to an existing position without checking `if position.pnl > 0:` or `if position.unrealized_pnl > 0` before the add | STOP. Insert guard: `if position.unrealized_pnl < 0: logger.warning(f'NOT adding to losing position {symbol}. PnL={position.unrealized_pnl}. Signal ignored.'); return` — Never add to a losing position. |
 | **R4** | **REFUSE to ignore position correlation in portfolio sizing.** Five UOA signals on five tickers in the same sector are one leveraged bet. Position-level risk limits are an illusion without daily correlation monitoring. | Trigger: generated portfolio code creates >3 positions without computing `returns.corr()` or `np.corrcoef()` and checking `max_corr > 0.7` | STOP. Insert: `corr_matrix = returns.corr(); high_corr_pairs = [(i,j) for i in corr_matrix.columns for j in corr_matrix.columns if i<j and corr_matrix.loc[i,j] > 0.7]; if high_corr_pairs: logger.warning(f'High correlation pairs: {high_corr_pairs}. Reduce exposure or drop newest positions.')` |
@@ -178,6 +183,8 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN about broker API calls without idempotency keys.** Retried orders can double-fill. A rejected bracket order means the stop-loss never activates. Every order submission MUST have idempotency protection. | Trigger: generated code calls `api.submit_order(` or `broker.place_order(` or `create_order(` without an `idempotency_key` or `client_order_id` parameter | WARN: Insert `client_order_id = f"{signal_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"`. Add comment: `# Idempotency key prevents double-submission on retry. Broker must reject duplicate client_order_id.` |
 | **R7** | **DETECT and WARN about backtests that use closing mid-prices for fills.** Mid-prices assume infinite liquidity at zero spread — reality is crossing the spread on every trade. | Trigger: generated backtest code contains `df['close']` or `df['adj_close']` as the fill price without adding/subtracting half the spread: `fill_price = close - spread/2 if sell else close + spread/2` | WARN: Insert `spread = (df['ask'] - df['bid']).mean(); fill_price = df['close'] + np.sign(side) * spread/2`. Add comment: `# WARNING: Using mid-prices overestimates returns by transaction costs. Real fills cross the spread.` |
 | **R8** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| **R10** | **REFUSE to execute a stop-loss exit without running the 5-layer liquidity grab detector first.** A stop trigger is not automatically an exit. Run `is_liquidity_grab()` with wick/body, close-below, volume, time-of-day, and multi-timeframe checks before deciding EXIT vs HOLD vs WIDEN_AND_HOLD. | Trigger: generated exit code calls `api.submit_order(side='sell'...)` or `close_position()` immediately after `if price <= stop_loss` or `if price <= trailing_stop` without calling `is_liquidity_grab()` first | STOP. Insert grab detector call: `is_grab, action, reason = is_liquidity_grab(trigger_price, stop_type, bars_1m, bars_5m, avg_vol_20d, premarket, postmarket, seconds_since_open); if action != 'EXIT': return None  # hold or widen, not a real breakdown`. |
+| **R11** | **REFUSE to enter a trade within 2 hours of a red-flag macro event (FOMC, CPI, NFP). Within 24 hours, halve size and widen stops 1.5x.** Macro events cause 2-4x normal intraday volatility — any signal edge is noise against central bank or economic data releases. | Trigger: generated entry code calls `api.submit_order(` or `create_order(` without first checking `hours_to_next_macro_event() <= 2 and is_red_flag_event()` | STOP. Insert macro gate check: `hours = hours_to_next_macro_event(); if hours <= 2 and is_red_flag_event(): return SignalDecision.REJECT; elif hours <= 24 and is_high_impact_event(): signal['adjusted_size'] *= 0.5; signal['stop_multiplier'] = 1.5`. |
 | **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
@@ -241,6 +248,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 Full detail → references/algorithmic-trader-computations.md
 
 ### DT1: Execution Method → Full detail in references
+
 ```
 Order size >10% ADV? → YES → TWAP/VWAP (minimize impact). Split across day.
   ↓ NO
@@ -250,11 +258,13 @@ Urgency HIGH? → Smart router + marketable limit. Urgency LOW → Iceberg, hide
 ```
 
 ### DT2: Slippage Response → Full detail in references
+
 ```
 Slippage >2x expected? → YES → PAUSE. Review: market moving? Wide spread? Routing issue?
   ↓ NO                                                ↓
 Continue ✓                                     Adjust: switch venue, change limit price, or abort.
 ```
+
 ## Gotchas
 <!-- STANDARD: 3min -->
 
@@ -300,4 +310,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-

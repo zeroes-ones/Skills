@@ -9,10 +9,10 @@ description: >
   quantitative-analyst), FX forward pricing (route to forex-trader),
   mortgage underwriting (route to accountant), or corporate credit ratings
   (route to financial-security).
+token_budget: 6000
 chain: symmetric
 consumes_from: [macro-strategist, market-data-engineer, quantitative-analyst]
-provides_to: [portfolio-signal-manager, algorithmic-trader, treasury-manager]
-token_budget: 6000
+provides_to: [portfolio-signal-manager, algorithmic-trader, macro-strategist]
 ---
 
 # Fixed Income Analyst

@@ -24,6 +24,7 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  type: symmetric
   consumes_from:
     - market-data-engineer
     - data-scientist
@@ -67,8 +68,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -95,7 +94,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Quantitative Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -105,8 +103,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Compute position sizing via Kelly Criterion.** f* = (bp − q) / b. Cap at 25% Kelly for real execution. Regime-adjust: 25% Kelly in bull, 15% in correction, 10% in bear, 5% in crash. | [OVERBETTING] Full Kelly is optimal for log-utility in theory and ruinous in practice. Parameter uncertainty, non-normal returns, and gap risk make full Kelly a path to eventual blow-up. 25% Kelly is the practical maximum. | Kelly calculator, strategy win rate and win/loss ratio data |
 | **RP-F4** | **Validate that the Greeks tell a coherent story.** Delta ≈ directional exposure. Gamma ≈ acceleration (how fast delta changes). Theta ≈ daily cost of holding. Vega ≈ IV sensitivity. A position with positive gamma, negative theta, and high vega is a long vol position — confirm this aligns with the strategy thesis. | [GREEKS_CONTRADICTION] A strategy that claims to be "directionally neutral" but has net delta of +0.30 on a $100K notional has $30K of directional exposure. The Greeks don't lie — they reveal what the strategy ACTUALLY does vs. what it CLAIMS to do. | Greeks calculator, position summary, strategy thesis document |
 | **RP-F5** | **Check for early exercise and assignment risk.** American-style options can be exercised at any time. Check: dividends (calls exercised pre-ex-div), hard-to-borrow (puts exercised to capture borrow rebate), deep ITM (assignment probability rises with moneyness). | [EARLY_EXERCISE] Early assignment transforms a defined-risk spread into an undefined-risk short stock position overnight. A short call assigned on ex-div eve = you owe the dividend. | Dividend calendar, short interest data, ITM depth analysis |
-
-
 
 ## Route the Request
 

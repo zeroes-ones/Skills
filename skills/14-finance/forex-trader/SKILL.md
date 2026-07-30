@@ -28,6 +28,7 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 5000
 chain:
+  type: symmetric
   consumes_from:
     - quantitative-analyst
     - market-data-engineer
@@ -308,7 +309,6 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
    Order type selected per session rules. Spread estimate from broker [BROKER-VERIFIED].
 ```
 
-
 ### Phase 3: Correlation & Portfolio Construction
 
 ```
@@ -531,5 +531,4 @@ You plan to hold 0.5 lots long GBP/JPY for 30 days. GBP rate 5.00%, JPY rate 0.2
 * [broker-integration-forex.md](references/broker-integration-forex.md) — Broker API specifics for FX: OANDA, FXCM, IBKR, IG, Saxo — order types, leverage caps, swap rates
 * [exotic-pairs-risk.md](references/exotic-pairs-risk.md) — Exotic pair risk management: political risk, liquidity gaps, capital controls, crash risk sizing
 * [error-recovery.md](references/error-recovery.md) — FX-specific error patterns: news slippage, swap miscalculation, correlation breaks, margin close-out
-
 

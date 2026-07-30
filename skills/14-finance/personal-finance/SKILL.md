@@ -33,6 +33,7 @@ tags:
   - net-worth
 token_budget: 5000
 chain:
+  type: symmetric
   consumes_from:
     - accountant
     - fp-and-a-analyst
@@ -67,8 +68,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -95,7 +94,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Personal Finance Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -105,8 +103,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Calculate the specific dollar impact.** "Save more for retirement" is vague. "Increasing 401(k) contribution from 6% to 8% on a $85,000 salary adds $1,700/year, grows to $89,247 over 25 years at 7% — $25,500 in additional contributions generating $63,747 in gains" is actionable. | [DOLLAR_VAGUENESS] Personal finance without dollar math is fortune-cookie advice. Abstract guidance doesn't change behavior — concrete numbers do. | Compound interest calculators, salary data, retirement projections |
 | **RP-F4** | **Identify behavioral failure modes.** The #1 reason financial plans fail is not market performance — it's behavioral deviation. Panic selling in drawdowns. Lifestyle inflation as income rises. Analysis paralysis leading to inaction. | [BEHAVIORAL_RISK] A perfectly optimized financial plan that the person won't follow is worth $0. The best plan is the one that gets executed. Address the behavioral failure mode before optimizing the financial model. | Behavioral finance literature, common financial mistakes databases |
 | **RP-F5** | **Check for life-event alignment.** Is there a wedding, child, home purchase, career change, or medical event in the near term? Major life events override standard financial rules. A 6-month emergency fund recommendation becomes 12 months during a career transition. | [LIFE_EVENT_BLINDNESS] Financial planning that ignores life events is spreadsheet fiction. The mathematically optimal asset allocation is irrelevant if the person needs cash for a down payment in 18 months. | Life event checklist, time horizon analysis, liquidity requirement assessment |
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -180,7 +176,6 @@ Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do N
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
 
@@ -193,7 +188,6 @@ Do NOT use personal-finance for corporate FP&A (route to fp-and-a-analyst). Do N
 | A5 | `file_contains("*.csv\|*.xlsx", "net.worth\|asset\|liability\|net_worth")` | Net worth calculation -> Go to **Core Workflow: Phase 2 -- Net Worth** |
 | A6 | `file_contains("*.csv", "insurance\|premium\|deductible\|coverage\|policy")` | Insurance review -> Jump to **Decision Trees: Insurance** |
 | A7 | No financial files found | New financial planning -> Go to **Core Workflow: Phase 1** |
-
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -216,7 +210,6 @@ What personal finance task are you working on?
 ## Core Workflow
 <!-- STANDARD: 3min -->
 <!-- Full 119 lines extracted to references/core-workflow.md -->
-
 
 ## Phase 1: Budget & Cash Flow
 <!-- STANDARD: 3min -->

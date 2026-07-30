@@ -30,6 +30,7 @@ tags:
   - secure-enclave
 token_budget: 4500
 chain:
+  type: symmetric
   consumes_from:
     - security-engineer
     - compliance-officer
@@ -64,8 +65,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -92,7 +91,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Financial Security Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -102,8 +100,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Analyze transaction velocity and pattern anomalies.** Normal: 3 transactions/day, $200 avg. Suspicious: 15 transactions/day, $50 avg (structuring). Velocity × amount × deviation from baseline = anomaly score. | [VELOCITY_BLINDNESS] Single-transaction monitoring misses structuring. The aggregate pattern across time reveals what individual transactions hide. | Transaction monitoring system, velocity baselines, peer group comparisons |
 | **RP-F4** | **Verify device fingerprinting and behavioral biometrics.** Is the device known? Is the typing pattern consistent with the account holder? Does the geolocation match the billing address? | [DEVICE_SPOOF] Stolen credentials + VPN + device emulator = perfect mimicry of the legitimate user. Device fingerprinting catches what credentials alone miss. | Device fingerprint database, behavioral biometric baselines, geolocation logs |
 | **RP-F5** | **Stress-test fraud detection against adversarial adaptation.** Fraudsters adapt to detection rules in 2-4 weeks. A rule that caught 90% of fraud last month catches 70% this month and 40% next month. | [ADVERSARIAL_DECAY] Static rules decay. The half-life of a fraud detection rule is ~6 weeks. Without continuous adaptation, detection degrades from prevention to post-mortem. | Rule performance over time, adversarial pattern evolution, ML model drift metrics |
-
-
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->
@@ -164,7 +160,6 @@ Do NOT use financial-security for general application security (route to securit
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
 
@@ -177,7 +172,6 @@ Do NOT use financial-security for general application security (route to securit
 | A5 | `file_contains("*.md\|*.txt", "FFIEC\|NYDFS\|DORA\|GLBA\|CAT\|regulatory")` | Regulatory assessment → Jump to **Decision Trees: Financial Regulations** |
 | A6 | `file_contains("*.log\|*.txt", "breach\|card.data\|PAN.exposure\|payment.compromise")` | Breach response → Jump to **Decision Trees: Payment Card Breach** |
 | A7 | No financial security files found | New financial security → Go to **Core Workflow: Phase 1** |
-
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -200,7 +194,6 @@ What financial security task are you working on?
 ## Core Workflow
 <!-- STANDARD: 3min -->
 <!-- Full 104 lines extracted to references/core-workflow.md -->
-
 
 ## Phase 1: PCI DSS 4.0 Compliance
 <!-- STANDARD: 3min -->

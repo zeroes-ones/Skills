@@ -31,6 +31,7 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 4000
 chain:
+  type: symmetric
   consumes_from:
     - quantitative-analyst
     - market-data-engineer

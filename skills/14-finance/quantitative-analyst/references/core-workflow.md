@@ -17,6 +17,8 @@
 
 **Output**: Cleaned options trade log with `is_valid`, `rejection_reason` columns.
 
+Complete when: All 6 validation checks (stale quote, bad print, dividend-adjusted chain, earnings blackout, bid-ask spread sanity, volume-to-OI sanity) executed. Cleaned trade log produced with every row classified as valid or rejected with a specific rejection_reason. Zero bad prints or stale quotes in the output dataset.
+
 <!-- DEEP: 10+min -->
 ### Phase 2: UOA Detection (10-20 min)
 <!-- DEEP: Full UOA pipeline — this is the core differentiator -->
@@ -107,6 +109,8 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 
 **Output**: `uoa_signals` DataFrame with one row per detected unusual trade.
 
+Complete when: All 7 UOA detection steps applied (premium threshold, OI comparison, avg volume comparison, condition code classification, side determination, multi-leg detection, sector/ETF context). `uoa_signals` DataFrame produced with side, intent, position_type, and OI ratio for every flagged trade. Zero false positives from lottery flow (<7 DTE, <0.20 delta).
+
 <!-- DEEP: 10+min -->
 ### Phase 3: Greeks Analysis (10-15 min)
 <!-- DEEP: Full Greeks computation and interpretation -->
@@ -126,6 +130,8 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 6. **Greeks validation**: Cross-check computed Greeks against data provider values (if available). Flag discrepancies > 5% for Delta, > 10% for Gamma/Theta/Vega — indicates different pricing model assumptions (rates, dividends, or wrong underlying price).
 
 **Output**: `greeks_analysis` DataFrame with IV, all five Greeks, IV rank/percentile, skew metrics, and term structure for every UOA-flagged strike.
+
+Complete when: IV computed (Newton-Raphson with bisection fallback) for every flagged strike. All 5 Greeks (Δ, Γ, Θ, ν, ρ) calculated and validated against data provider values (<5% discrepancy). IV rank, IV percentile, IV skew (25Δ risk reversal), and term structure (30d/90d forward ratio) computed. Greeks snapshots ready for signal generation.
 
 <!-- DEEP: 10+min -->
 ### Phase 4: Signal Generation (5-10 min)
@@ -189,6 +195,8 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 
 **Output**: `trade_signals.json` — one structured signal per UOA detection, ready for algorithmic-trader consumption.
 
+Complete when: Signal Classification Matrix applied to every UOA detection. Each signal has: signal_id, ticker, signal (STRONG_BUY/BUY/WEAK_BUY/NEUTRAL/FADE/IGNORE), confidence (HIGH/MEDIUM/LOW/NONE), structured entry trigger (type, condition, entry_price, stop_loss, take_profit), greeks_snapshot, evidence array, and risks array. Lottery flow (<7 DTE deep OTM) filtered to IGNORE. Pre-earnings signals downgraded. OI confirmation gate applied.
+
 <!-- DEEP: 10+min -->
 ### Phase 5: Signal Delivery (2-5 min)
 **Goal**: Package signals for downstream consumption by algorithmic-trader skill.
@@ -201,4 +209,6 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 5. **Risk warnings**: Attach global risk context — VIX level, macro event calendar (FOMC, CPI), sector rotation signals.
 
 **Output**: `signal_batch_YYYY-MM-DD.json` ready for handoff.
+
+Complete when: Signals deduplicated (15-min window, highest premium kept). Ranking applied (confidence then premium). `signal_batch_YYYY-MM-DD.json` delivered in exact schema consumed by algorithmic-trader. Summary statistics reported (total signals, STRONG BUY count, aggregate premium, top-5 tickers, sector distribution). Global risk context attached (VIX, macro calendar, sector rotation signals).
 

@@ -9,10 +9,10 @@ description: >
   commodity-equity nexus. Do NOT use for commodity futures execution (route
   to futures-trader), FX trading (route to forex-trader), or equity valuation
   (route to quantitative-analyst).
+token_budget: 5500
 chain: symmetric
 consumes_from: [macro-strategist, market-data-engineer, futures-trader]
 provides_to: [portfolio-signal-manager, algorithmic-trader]
-token_budget: 5500
 ---
 
 # Commodities Analyst

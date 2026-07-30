@@ -103,6 +103,8 @@ CREATE TABLE ticker_master (
 
 **What good looks like:** All 4+ data sources cataloged with endpoint URLs and auth methods. Schema in Git with versioned migration files. Test data for `AAPL`, `SPY`, `TSLA`, and `NVDA` loads successfully. Ticker master populated with 5+ years of historical symbols including delisted tickers.
 
+Complete when: Source catalog inventoried with endpoint URLs, auth methods, and rate limits. Core options_flow hypertable created with TimescaleDB partitioning, all indexes in place. Corporate actions schema with split/dividend/merger/ticker_change support. Point-in-time ticker master populated with 5+ years of symbols including delisted. Test data loads and validates for AAPL, SPY, TSLA, NVDA.
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~30 min): Real-Time Streaming Pipeline
 <!-- STANDARD: 3min -->
@@ -223,6 +225,8 @@ class MarketDataRateLimiter:
 **War story — Infinite Retention Disaster:** A team configured `retention_ms: -1` on `options.flow.raw` intending to preserve all raw data indefinitely for audit purposes. After 6 months, the Kafka cluster reached 98% disk usage and the 3 AM pages began. Root cause analysis revealed: uncompressed JSON at 50K messages/sec × 500 bytes/msg = 25 MB/sec × 86,400 sec/day = 2.16 TB/day × 180 days = 389 TB. Fix applied: (1) switched raw topic to 7-day retention, (2) adopted Avro encoding with Confluent Schema Registry (90% size reduction), (3) created enriched topic with 90-day retention as the durable store. Lesson: Never use infinite retention on unbounded streams. Log-compacted topics (for reference data like corporate actions) are the sole exception.
 
 **What good looks like:** WebSocket feed → Kafka → Faust stream processor → TimescaleDB pipeline processing 50K+ msgs/sec with < 500ms end-to-end latency. Backpressure handled gracefully (consumer pause, not crash). DLQ has < 0.01% of messages. Rate limiter never triggers cost budget alert during normal operation.
+
+Complete when: Kafka/Redpanda topics created with appropriate partitions, replication, retention, and compression. Faust stream processor deployed with field validation, corporate action adjustment, and DLQ routing. Token-bucket rate limiter active with vendor-specific tiers (Polygon, Unusual Whales, CBOE). End-to-end latency < 500ms at 50K msgs/sec. DLQ error rate < 0.01%.
 
 <!-- DEEP: 10+min -->
 ### Phase 3 (~25 min): Corporate Actions Normalization
@@ -350,6 +354,8 @@ def process_daily_corporate_actions(as_of: date):
 **War story — The $50K Dividend Adjustment:** A quant fund ran a backtest showing extraordinary returns from selling deep-ITM puts on a high-dividend utility stock. They deployed $500K in capital. On day one, they lost $50K. Root cause: the options data pipeline ingested raw prices without adjusting for a $2.50/share special dividend. Post-dividend, the stock dropped $2.50, making the deep-ITM puts substantially more expensive to close than the backtest predicted. The pipeline had stored the *pre-dividend* stock price alongside the *post-dividend* option price, creating an artificial arbitrage. Fix: implemented mandatory dividend adjustment as a non-bypassable step in the ETL, with automated reconciliation checks comparing adjusted prices to exchange-reported settlement prices.
 
 **What good looks like:** All corporate actions applied within 1 hour of announcement. Historical data queryable correctly at any point in time — querying AAPL options on 2019-06-15 returns split-adjusted strikes that match what actually traded that day. Daily reconciliation shows zero unadjusted positions. Backtests no longer produce phantom arbitrage opportunities.
+
+Complete when: Stock split adjustment applied (strike, contract multiplier, premium) and verified with zero impact on post-split data. Cash dividend adjustment applied to forward price and delta calculations. Ticker change/merger handler processes symbol mapping end-to-end. Daily corporate actions processor runs with alerting for unapplied actions >1 business day old.
 
 <!-- DEEP: 10+min -->
 ### Phase 4 (~20 min): Historical Data Warehousing
@@ -482,6 +488,8 @@ retention_policy:
 
 **What good looks like:** Daily Parquet exports complete within 2 hours of market close (by 18:00 ET). ClickHouse materialized views refresh within 5 minutes of new data arrival. Any date range 2010-2025 queryable in < 3 seconds via Athena/DuckDB. Row counts match source with zero discrepancies. Seven years of tick data occupies < 50 TB on S3 with ZSTD-9 compression.
 
+Complete when: Daily Parquet export from TimescaleDB to S3 completes with Hive-style partitioning (year/month/day/ticker). Row count integrity verified (Parquet == source). ClickHouse materialized views (IV surface, volume profile) created and refreshing. Retention lifecycle policy applied (hot 30d → warm 365d → cold 7y → delete). Any date range 2010-2025 queryable in <3 seconds.
+
 <!-- DEEP: 10+min -->
 ### Phase 5 (~15 min): Data Quality Monitoring & Alerting
 <!-- STANDARD: 3min -->
@@ -568,4 +576,6 @@ ORDER BY volume_diff DESC;
 ```
 
 **What good looks like:** Quality dashboard shows all-green across stale detection, arbitrage checks, volume sanity, and cross-source reconciliation. Alerts fire within 2 minutes of anomaly detection. All violations investigated and root-caused within 15 minutes. Weekly quality reports show < 0.01% data error rate.
+
+Complete when: Stale quote detection active (alert if >5 min stale during market hours). Put-call parity arbitrage detection running (flags data errors where parity error >5% of spot). Volume/OI sanity checks live (spike detection >10x, zero-volume gap detection). Cross-source reconciliation between Unusual Whales and Polygon shows <15% volume discrepancy. All alerts fire within 2 minutes. Weekly error rate <0.01%.
 

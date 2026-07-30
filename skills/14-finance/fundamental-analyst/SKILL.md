@@ -31,6 +31,7 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 4000
 chain:
+  type: symmetric
   consumes_from:
     - market-data-engineer
     - data-scientist
@@ -70,8 +71,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -98,7 +97,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Fundamental Analysis Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -108,8 +106,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Assess competitive moat durability.** Porter's Five Forces on the specific business: barriers to entry, supplier power, buyer power, substitution threat, competitive intensity. A wide moat deteriorating is more dangerous than no moat at all — it means the market is overpaying for a fading advantage. | [MOAT_MIRAGE] "Wide moat" is not a permanent certification. Moats erode: technological disruption, regulatory change, new entrants, changing consumer behavior. A moat assessment from 2020 may be obsolete in 2025. | Industry reports, competitor analysis, technology disruption timelines |
 | **RP-F4** | **Reverse-engineer the DCF assumptions.** What growth rate and terminal value are priced in at current market price? If the implied growth rate exceeds GDP growth + inflation by 3%+, the market is pricing in dominance that may not materialize. | [DCF_ASSUMPTION_BLINDNESS] A DCF is only as good as its assumptions. The market price IS a DCF — reverse it to see what assumptions are embedded. If those assumptions are unreasonable, the price is unreasonable. | Reverse DCF model, GDP growth forecasts, inflation expectations |
 | **RP-F5** | **Cross-check against the three most dangerous words in investing: "this time is different."** For every bullish thesis, find the historical analog where the same thesis was applied and failed. If no analog exists, the thesis is either genuinely novel (rare) or the historical search was insufficient (common). | [HISTORICAL_AMNESIA] Every bubble has been accompanied by a "this time is different" narrative. The four most expensive words in finance. Historical analogs are the cheapest reality check available. | Financial history databases, bubble case studies, "This Time Is Different" (Reinhart & Rogoff) |
-
-
 
 ## Route the Request
 
@@ -156,7 +152,6 @@ What fundamental analysis task?
 ## Anti-Hallucination
 **Admit uncertainty** when synthesizing across domains. **Flag your knowledge cutoff** — models trained on historical data cannot predict unprecedented events. **Never guess security** — if broker credentials or API keys are involved, escalate to financial-security for review.
 
-
 <!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
@@ -168,13 +163,11 @@ What fundamental analysis task?
 | "The Piotroski F-Score is 8 — this is a high-quality company." | Piotroski F-Score uses ROA, not ROE, so it misses leverage magnification. A company with F-Score 8 and debt/equity of 3.5x (hidden by high ROA from asset-light model) is one recession away from a liquidity crisis. F-Score was designed for deep value stocks with high BM ratios — not for growth companies. **Cost: $40K-$200K in "high quality" companies that collapse under leverage. Triangulate F-Score with Altman Z-Score and debt/equity.** |
 | "The ETF has a 0.03% expense ratio and tracks the S&P 500 perfectly." | The ETF uses sampling (holds 480 of 500 stocks) and had a tracking error of 0.15% last year in volatile markets. The 0.03% expense ratio is real but the 0.15% tracking error is 5x larger and invisible in the prospectus. In a 20% up year, you lost 0.18% to costs, not 0.03%. **Cost: $5K-$50K in hidden tracking error drag compounded over years. Always verify tracking error against the stated benchmark, not just the expense ratio.** |
 
-
 ## The Expert's Mindset
 
 <!-- STANDARD: 3min -->
 
 World-class portfolio management requires seeing the entire system, not individual trades. The portfolio manager's job is allocation, not prediction. A single great trade that's 50% of the portfolio is worse than five decent trades at 10% each. Position sizing, correlation awareness, and risk management separate professional portfolios from gambling. Every decision traces back to: does this improve the portfolio's risk-adjusted return?
-
 
 ## Operating at Different Levels
 
@@ -188,7 +181,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | **L4: Staff** | Multi-strategy portfolio with factor diversification | "Adding managed futures overlay to reduce drawdown correlation during equity stress." |
 | **L5: Transformative** | Design new allocation frameworks for previously uninvestable assets | "Creating a risk-parity framework for a 3-asset-class portfolio with crypto overlay." |
 
-
 ## When to Use
 
 <!-- QUICK: 30s -->
@@ -199,7 +191,6 @@ World-class portfolio management requires seeing the entire system, not individu
 - You need to connect a broker account via MCP for live portfolio sync
 - Portfolio drawdown triggers require systematic responses
 - Correlation matrix shows diversification is degrading
-
 
 ## When NOT to Use
 
@@ -212,7 +203,6 @@ World-class portfolio management requires seeing the entire system, not individu
 - You're backtesting a single strategy — use data-scientist
 - Your portfolio has fewer than 3 positions — the coordination overhead exceeds the benefit
 
-
 ## Best Practices
 
 <!-- STANDARD: 3min -->
@@ -223,7 +213,6 @@ World-class portfolio management requires seeing the entire system, not individu
 4. Test circuit breakers in paper trading before live deployment — breakers that don't fire are worse than no breakers
 5. Rebalance on a calendar, not just on signals — silent drift kills diversification
 6. Keep 5% in reserve — the best signal in the world is useless without buying power
-
 
 7. Track signal accuracy monthly — a signal that degrades from 60% to 51% accuracy is just noise
 8. Document every parameter change — lookback windows, thresholds, scoring weights all need version control
@@ -239,7 +228,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | Duplicate orders despite idempotency | Key collision or atomicity failure | Use atomic set operations for dedup. Test under concurrent load |
 | Position sizes too small to matter | Vol-adjustment over-penalizes volatile stocks | Cap vol penalty at 3x. Positions < $1K skipped |
 | Signal conflicts always resolve same way | Calibration drift — one source's confidence is inflated | Recalibrate both sources against historical accuracy |
-
 
 ## Anti-Patterns
 
@@ -265,7 +253,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | `circuit_breakers.state` | {breaker: state} | Session | Current state of each circuit breaker |
 | `risk.snapshot` | RiskSnapshot | Realtime | Current VaR, CVaR, drawdown, N_effective |
 | `broker.connection_state` | enum | Session | Current MCP broker connection state machine position |
-
 
 ## Core Workflow
 
@@ -340,7 +327,6 @@ Better opportunity found (≥20% more upside)? → YES → SWAP
 | `market-data-engineer` | SEC filing feeds, financial statement data, earnings calendars | Before any DCF or quality score — stale filings produce stale valuations |
 | `quantitative-analyst` | Statistical significance testing, factor model validation, sector benchmarking | When building multi-factor quality models or validating valuation accuracy |
 | `financial-security` | Data source integrity checks, insider trading screens, material non-public information guardrails | Before incorporating any non-public data or pre-release filings |
-
 
 <!-- STANDARD: 2min -->
 
@@ -474,7 +460,6 @@ Problems solved: adjusted/normalized earnings, median comparables, quality trian
 4. Backtest: Take fundamentals from 3 years ago and predict today's stock price — measure your error rate
 5. Red-flag drill: Find 10 companies that later had accounting scandals. Would your checks have caught them?
 
-
 ## Proactive Triggers
 
 <!-- STANDARD: 3min -->
@@ -486,7 +471,6 @@ Problems solved: adjusted/normalized earnings, median comparables, quality trian
 | Auditor change announced | Downgrade quality score 2 points pending review; flag for risks | Immediate |
 | Peer company flagged for accounting issues | Audit tracked companies in same sector with same auditor | 48h |
 | No signal generated for 30 days | Scan for stale data; verify financial data sources are current | 7 days |
-
 
 ## Anti-Rationalization
 

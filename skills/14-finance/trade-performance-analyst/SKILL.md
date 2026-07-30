@@ -4,18 +4,18 @@ description: >
   Use when analyzing trading performance, constructing trade journals, computing risk-adjusted return metrics (Sharpe, Sortino, Calmar, MAR), performing attribution analysis, detecting behavioral biases in trade logs, modeling drawdown dynamics, or building performance dashboards.
   Handles comprehensive performance measurement (absolute return, risk-adjusted metrics, benchmark-relative attribution), trade journaling frameworks with behavioral tagging, drawdown analysis (depth, duration, recovery time), factor attribution (market beta, size, value, momentum, quality, industry), execution quality measurement (slippage, market impact, VWAP), behavioral bias detection (disposition effect, revenge trading, anchoring), and performance reporting for stakeholders.
   Do NOT use for trade signal generation (route to portfolio-signal-manager), trade execution (route to algorithmic-trader), strategy design (route to quantitative-analyst), or macro regime analysis (route to macro-strategist).
-chain: symmetric
-consumes_from:
   - algorithmic-trader
   - portfolio-signal-manager
   - crypto-trader
   - futures-trader
   - forex-trader
-provides_to:
   - quantitative-analyst
   - portfolio-signal-manager
   - ceo-strategist
 token_budget: 500
+chain: symmetric
+consumes_from: [portfolio-signal-manager, algorithmic-trader]
+provides_to: [portfolio-signal-manager]
 portability: spec-level
 ---
 

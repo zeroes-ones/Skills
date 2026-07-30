@@ -24,6 +24,7 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  type: upstream
   consumes_from:
     - data-engineer
     - database-reliability-engineer
@@ -65,8 +66,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -93,7 +92,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Market Data Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -103,8 +101,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Assess survivorship bias.** Are backtest symbols still listed today? Stocks that went bankrupt, were delisted, or acquired are absent from current symbol lists — making historical returns look BETTER than reality. | [SURVIVORSHIP_BIAS] Using only currently-listed symbols adds 1-2% annually to backtest returns. A strategy that shows +12% on survivorship-biased data may be +10% (or worse) in reality. | Delisted securities database, historical index constituents, CRSP/Compustat |
 | **RP-F4** | **Verify tick precision and timestamp granularity.** Options data at minute resolution hides 90%+ of actual trades. Sub-second timestamps matter for: fill probability estimation, slippage modeling, and signal latency measurement. | [RESOLUTION_BLINDNESS] A strategy that works on 1-minute bars may fail on tick data. The difference between the high of the minute and the actual trade price = hidden slippage. | Tick data archives, exchange timestamp specifications, fill reports |
 | **RP-F5** | **Calculate data pipeline latency and reliability.** Measure: ingestion-to-availability latency (target: <100ms for real-time), uptime (target: 99.9%+), and data loss rate (target: <0.01%). Pipeline failure during market hours = blind trading. | [PIPELINE_BLINDNESS] A trading system without data is a car without headlights at night. Every minute of pipeline downtime during market hours is a minute of unmonitored risk. | Pipeline monitoring dashboard, latency histograms, incident reports |
-
-
 
 ## Route the Request
 

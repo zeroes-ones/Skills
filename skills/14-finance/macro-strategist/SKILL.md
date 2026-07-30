@@ -4,17 +4,17 @@ description: >
   Use when designing cross-asset macro strategy, analyzing central bank policy impacts, constructing regime-based allocation frameworks, interpreting global liquidity conditions, modeling inflation-growth scenarios, or building intermarket signals.
   Handles macro regime classification (expansion, contraction, stagflation, goldilocks), central bank reaction function modeling (Fed, ECB, BOJ, PBoC), global liquidity measurement (G4 central bank balance sheets, real rates, credit impulse), intermarket ratio analysis (equity/bond, copper/gold, HYG/TLT), risk-on/risk-off frameworks, currency war and competitive devaluation analysis, and macro scenario stress testing.
   Do NOT use for individual security selection (route to portfolio-signal-manager), trade execution (route to algorithmic-trader), single-asset analysis (route to the relevant asset skill), or trade journaling (route to trade-performance-analyst).
-chain: symmetric
-consumes_from:
   - fixed-income-analyst
   - forex-trader
   - commodities-analyst
-provides_to:
   - portfolio-signal-manager
   - crypto-trader
   - quantitative-analyst
   - ceo-strategist
 token_budget: 550
+chain: symmetric
+consumes_from: [market-data-engineer, fixed-income-analyst, forex-trader]
+provides_to: [commodities-analyst, fundamental-analyst, quantitative-analyst, portfolio-signal-manager, futures-trader, crypto-trader, forex-trader, fixed-income-analyst, personal-finance, home-buying]
 portability: spec-level
 ---
 

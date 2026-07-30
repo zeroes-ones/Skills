@@ -32,6 +32,7 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 4000
 chain:
+  type: symmetric
   consumes_from:
     - market-data-engineer
     - fundamental-analyst
@@ -73,8 +74,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -101,7 +100,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
 ### Technical Domain Extension — Execute These ADDITIONAL Research Steps
 
 | # | Research Step | Why It Matters | Where to Look |
@@ -111,8 +109,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | **RP-F3** | **Quantify indicator lag.** Moving average crossovers lag price by MA_period/2 on average. A 50-day SMA crossover signal is ~25 days late. MACD (12/26/9) introduces ~9-13 periods of lag. | [LAG_PENALTY] Lag transforms "buy low" into "buy after the move already happened." The profit left on the table by indicator lag is often larger than the profit captured by the signal. | Indicator lag calculations, lead-lag analysis against price |
 | **RP-F4** | **Detect the current regime before applying indicators.** Trend-following indicators (MACD, moving averages) fail in ranges. Mean-reversion indicators (RSI, Bollinger Bands) fail in trends. Applying the wrong indicator family to the current regime destroys alpha. | [REGIME_MISMATCH] The #1 misuse of technical analysis: applying trending indicators to a ranging market (whipsaw losses) or mean-reversion indicators in a trending market (fading a freight train). Regime detection FIRST, indicator selection SECOND. | Pattern Recognition Engine §Regime Detection, ADX readings, volatility regime classification |
 | **RP-F5** | **Backtest each signal against out-of-sample data.** A signal that worked in 2020-2023 may fail in 2024-2026. Markets adapt. Walk-forward testing reveals signal decay. | [OVERFITTING] Technical indicators have parameters. Optimizing parameters on historical data without out-of-sample validation is curve-fitting. The optimal RSI period for 2020 is not the optimal period for 2025. | Walk-forward backtest framework, parameter stability analysis |
-
-
 
 ## Route the Request
 
@@ -161,7 +157,6 @@ What technical analysis task?
 ## Anti-Hallucination
 **Admit uncertainty** when synthesizing across domains. **Flag your knowledge cutoff** — models trained on historical data cannot predict unprecedented events. **Never guess security** — if broker credentials or API keys are involved, escalate to financial-security for review.
 
-
 <!-- STANDARD: 3min -->
 
 | Rationalization | Reality |
@@ -173,13 +168,11 @@ What technical analysis task?
 | "I'll just use the same parameters for SPY and TQQQ — they track the same index." | TQQQ is 3x leveraged. A 3% NDX move = 9% TQQQ move. Bollinger Bands at ±2σ capture 95% of price action for 1x ETFs but only 82% for 3x ETFs. Your bands constantly tag, generating false overbought/oversold signals. RSI on TQQQ hits 70/30 4x more often than QQQ. **Cost: $20K-$100K in false signals per year. Leveraged ETFs need wider bands (±2.5σ), longer momentum lookback (21-period RSI), and decay-adjusted stops.** |
 | "The signal fires on Friday at 3:55 PM — I'll place the order now." | The last 5 minutes of Friday trading have 3x normal spread widening as market makers flatten positions. Your fill is 0.3-0.8% worse than the signal price. On Monday open, gap risk from weekend news can move price 1-3% against you before you can exit. **Cost: $500-$5,000 per Friday-late entry from slippage + gap risk. Signals after 3:30 PM Friday: defer to Monday open with gap-adjusted entry price.** |
 
-
 ## The Expert's Mindset
 
 <!-- STANDARD: 3min -->
 
 World-class portfolio management requires seeing the entire system, not individual trades. The portfolio manager's job is allocation, not prediction. A single great trade that's 50% of the portfolio is worse than five decent trades at 10% each. Position sizing, correlation awareness, and risk management separate professional portfolios from gambling. Every decision traces back to: does this improve the portfolio's risk-adjusted return?
-
 
 ## Operating at Different Levels
 
@@ -193,7 +186,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | **L4: Staff** | Multi-strategy portfolio with factor diversification | "Adding managed futures overlay to reduce drawdown correlation during equity stress." |
 | **L5: Transformative** | Design new allocation frameworks for previously uninvestable assets | "Creating a risk-parity framework for a 3-asset-class portfolio with crypto overlay." |
 
-
 ## When to Use
 
 <!-- QUICK: 30s -->
@@ -204,7 +196,6 @@ World-class portfolio management requires seeing the entire system, not individu
 - You need to connect a broker account via MCP for live portfolio sync
 - Portfolio drawdown triggers require systematic responses
 - Correlation matrix shows diversification is degrading
-
 
 ## When NOT to Use
 
@@ -217,7 +208,6 @@ World-class portfolio management requires seeing the entire system, not individu
 - You're backtesting a single strategy — use data-scientist
 - Your portfolio has fewer than 3 positions — the coordination overhead exceeds the benefit
 
-
 ## Best Practices
 
 <!-- STANDARD: 3min -->
@@ -228,7 +218,6 @@ World-class portfolio management requires seeing the entire system, not individu
 4. Test circuit breakers in paper trading before live deployment — breakers that don't fire are worse than no breakers
 5. Rebalance on a calendar, not just on signals — silent drift kills diversification
 6. Keep 5% in reserve — the best signal in the world is useless without buying power
-
 
 7. Track signal accuracy monthly — a signal that degrades from 60% to 51% accuracy is just noise
 8. Document every parameter change — lookback windows, thresholds, scoring weights all need version control
@@ -244,7 +233,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | Duplicate orders despite idempotency | Key collision or atomicity failure | Use atomic set operations for dedup. Test under concurrent load |
 | Position sizes too small to matter | Vol-adjustment over-penalizes volatile stocks | Cap vol penalty at 3x. Positions < $1K skipped |
 | Signal conflicts always resolve same way | Calibration drift — one source's confidence is inflated | Recalibrate both sources against historical accuracy |
-
 
 ## Anti-Patterns
 
@@ -270,7 +258,6 @@ World-class portfolio management requires seeing the entire system, not individu
 | `circuit_breakers.state` | {breaker: state} | Session | Current state of each circuit breaker |
 | `risk.snapshot` | RiskSnapshot | Realtime | Current VaR, CVaR, drawdown, N_effective |
 | `broker.connection_state` | enum | Session | Current MCP broker connection state machine position |
-
 
 ## Core Workflow
 
@@ -354,7 +341,6 @@ Mixed/neutral → Flag as UNCERTAIN. Do NOT force direction. Wait for confluence
 | `market-data-engineer` | Real-time OHLCV data, dividend-adjusted prices, split history | Before computing any indicator — stale or unadjusted data invalidates all signals |
 | `quantitative-analyst` | Backtesting frameworks, statistical validation methods, regime detection | When optimizing lookback windows or validating signal accuracy against historical data |
 | `financial-security` | Broker API security review, credential validation, rate-limit compliance | Before connecting any real trading account via MCP |
-
 
 <!-- STANDARD: 2min -->
 
@@ -483,7 +469,6 @@ Problems solved: correct formulas, multi-cluster, regime-aware, time-frame align
 4. Correlation stress test: Run a 5-ticker portfolio through all indicators and identify which pairs produce redundant signals
 5. Divergence hunting: Manually spot RSI-MACD and price-RSI divergences on 20 random charts before trusting the algorithm
 
-
 ## Proactive Triggers
 
 <!-- STANDARD: 3min -->
@@ -495,7 +480,6 @@ Problems solved: correct formulas, multi-cluster, regime-aware, time-frame align
 | Signal density drops below 1/week | Tweak thresholds or broaden scan universe | 7 days |
 | Conflicting signals >30% of tickers | Re-evaluate indicator weighting; flag for fundamental-analyst review | 24h |
 | Missing reference data | Report which data source failed and which indicator is degraded | Immediate |
-
 
 ## Anti-Rationalization
 

@@ -29,6 +29,7 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 5500
 chain:
+  type: symmetric
   consumes_from:
     - commodities-analyst
     - quantitative-analyst
@@ -255,7 +256,6 @@ World-class futures trading is about understanding the machinery — contract sp
 | Stop-loss filled 20 ticks below trigger | Stop order became market order in a fast market. The 20-tick gap is the difference between your stop price and the next available bid during the flush. Stops are risk mitigation, not price guarantees | Use stop-limit orders with appropriate limit width (5-10 ticks beyond stop). Accept that gap moves through stops are unhedgeable — position size accordingly |
 | Physical delivery notice received on long CL | Held long Crude Oil futures past First Notice Day. CME's delivery system assigned a delivery notice. Broker auto-liquidated at penalty pricing | Never hold physical-delivery contracts past FND. Cash-settled contracts (ES, NQ) — fine. Physical (CL, GC, NG, grains) — close 5+ days before FND |
 
-
 ## Anti-Patterns
 
 | Anti-Pattern | Why It Fails | Fix |
@@ -474,5 +474,4 @@ For each scenario, select the correct order type and session: (a) Entering long 
 * [broker-integration-futures.md](references/broker-integration-futures.md) — Broker API specifics for futures: IBKR futures orders, Schwab futures, order types, SPAN pulls
 * [tax-treatment.md](references/tax-treatment.md) — Section 1256 60/40 treatment, mark-to-market rules, wash sale inapplicability, Form 6781 filing requirements
 * [error-recovery.md](references/error-recovery.md) — Futures-specific error patterns: margin call response, gap-through-stop recovery, delivery notice handling, roll error correction
-
 

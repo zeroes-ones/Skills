@@ -4,16 +4,16 @@ description: >
   Use when trading or analyzing cryptocurrency markets — perpetual futures, funding rates, spot execution, on-chain data, DeFi yield strategies, exchange risk evaluation, stablecoin mechanics, or crypto-native risk management.
   Handles perpetual swap mechanics (funding rate arbitrage, basis trading, mark vs index price), spot execution across CEX/DEX venues, on-chain data integration (wallet flows, staking yields, TVL, gas), DeFi strategy modeling (LP provision, lending, restaking), exchange due diligence, stablecoin depeg risk, and crypto-volatility calibration.
   Do NOT use for traditional futures (route to futures-trader), traditional forex (route to forex-trader), macroeconomic regime design (route to macro-strategist), or trade journaling/performance attribution (route to trade-performance-analyst).
-chain: symmetric
-consumes_from:
   - macro-strategist
   - trade-performance-analyst
   - portfolio-signal-manager
-provides_to:
   - algorithmic-trader
   - quantitative-analyst
   - portfolio-signal-manager
 token_budget: 550
+chain: symmetric
+consumes_from: [market-data-engineer, macro-strategist, technical-signals-engineer, financial-security]
+provides_to: [portfolio-signal-manager, algorithmic-trader]
 portability: spec-level
 ---
 
