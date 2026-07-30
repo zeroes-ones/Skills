@@ -600,16 +600,16 @@ Signal generated → validate before output
 
 Before delivering work, verify:
 
-* [ ] **All indicators use correct formulas:** RSI = Wilder smoothing, MACD = EMA(12)-EMA(26) with EMA(9) signal, BB = SMA(20)±2σ, ATR = Wilder smoothed
-* [ ] **No single-indicator signals:** Every buy/sell output references ≥2 indicator clusters from different families
-* [ ] **ETF parameter adjustment:** Leveraged ETFs use BB(20, 2.5) and RSI(21); inverse ETFs reverse signal direction
-* [ ] **Earnings window check:** Signals within [-2, +2] days of earnings are suppressed for individual stocks
-* [ ] **Sufficient data check:** len(close) ≥ lookback_period for all computed indicators
-* [ ] **Gap adjustment applied:** Entry prices adjusted for gaps >2%; gaps >5% suppress the signal
-* [ ] **Regime alignment verified:** Signal direction matches detected market regime (trending/ranging/volatile)
-* [ ] **Time-frame alignment:** Signal direction does not contradict weekly chart trend
-* [ ] **Volume confirmation on crossovers:** SMA crossovers require volume > SMA(volume, 20)
-* [ ] **Signal output structure complete:** Every signal JSON has all required fields from Phase 5
+- [ ] **All indicators use correct formulas:** RSI = Wilder smoothing, MACD = EMA(12)-EMA(26) with EMA(9) signal, BB = SMA(20)±2σ, ATR = Wilder smoothed
+- [ ] **No single-indicator signals:** Every buy/sell output references ≥2 indicator clusters from different families
+- [ ] **ETF parameter adjustment:** Leveraged ETFs use BB(20, 2.5) and RSI(21); inverse ETFs reverse signal direction
+- [ ] **Earnings window check:** Signals within [-2, +2] days of earnings are suppressed for individual stocks
+- [ ] **Sufficient data check:** len(close) ≥ lookback_period for all computed indicators
+- [ ] **Gap adjustment applied:** Entry prices adjusted for gaps >2%; gaps >5% suppress the signal
+- [ ] **Regime alignment verified:** Signal direction matches detected market regime (trending/ranging/volatile)
+- [ ] **Time-frame alignment:** Signal direction does not contradict weekly chart trend
+- [ ] **Volume confirmation on crossovers:** SMA crossovers require volume > SMA(volume, 20)
+- [ ] **Signal output structure complete:** Every signal JSON has all required fields from Phase 5
 
 If any checkbox fails, revise before delivering. [VERIFIED]
 
@@ -627,18 +627,18 @@ If any checkbox fails, revise before delivering. [VERIFIED]
 - [ ] CR11: All indicator computations reproduced independently — two runs, same result
 - [ ] CR12: Anti-hallucination guardrails: all outputs tagged [VERIFIED] or [ESTIMATED]
 
-* [ ] **[R1]** RSI computed with 14+ periods (Wilder smoothing), not simple average
-* [ ] **[R2]** Every signal confirmed by ≥2 indicator clusters from different families
-* [ ] **[R3]** ETF parameters differ from stock parameters (leveraged: wider bands, longer RSI)
-* [ ] **[R4]** Earnings windows suppressed for individual stocks
-* [ ] **[R5]** Sufficient data history verified before all MA computations
-* [ ] **[R6]** Golden/death cross requires volume + 3-session confirmation
-* [ ] **[R7]** Indicator formulas match references/indicator-formulas.md exactly
-* [ ] **[R8]** Signal JSON output includes ALL required fields from Phase 5 schema
-* [ ] **[R9]** Regime detection (ADX + SMA slope) completed before signal generation
-* [ ] **[R10]** Weekly time-frame alignment verified (no counter-trend signals)
-* [ ] **[R11]** Gap and corporate action adjustments applied
-* [ ] **[R12]** Low-float/low-volume stocks flagged with reduced confidence
+- [ ] **[R1]** RSI computed with 14+ periods (Wilder smoothing), not simple average
+- [ ] **[R2]** Every signal confirmed by ≥2 indicator clusters from different families
+- [ ] **[R3]** ETF parameters differ from stock parameters (leveraged: wider bands, longer RSI)
+- [ ] **[R4]** Earnings windows suppressed for individual stocks
+- [ ] **[R5]** Sufficient data history verified before all MA computations
+- [ ] **[R6]** Golden/death cross requires volume + 3-session confirmation
+- [ ] **[R7]** Indicator formulas match references/indicator-formulas.md exactly
+- [ ] **[R8]** Signal JSON output includes ALL required fields from Phase 5 schema
+- [ ] **[R9]** Regime detection (ADX + SMA slope) completed before signal generation
+- [ ] **[R10]** Weekly time-frame alignment verified (no counter-trend signals)
+- [ ] **[R11]** Gap and corporate action adjustments applied
+- [ ] **[R12]** Low-float/low-volume stocks flagged with reduced confidence
 
 ## Error Recovery
 

@@ -540,16 +540,16 @@ ETF type?
 
 Before delivering work, verify:
 
-* [ ] **Valuation is a range, not a point:** Bear/Base/Bull scenarios with explicit assumptions for each
-* [ ] **3+ years of financials analyzed:** Minimum 3 fiscal years of all three statements
-* [ ] **GAAP EPS reconciled to Adjusted EPS:** One-time items isolated, difference quantified
-* [ ] **All three quality scores computed:** Piotroski F-Score, Altman Z-Score, Beneish M-Score
-* [ ] **Medians used for comparables:** Mean reported alongside median; >20% divergence flagged
-* [ ] **Red flags investigated:** FCF-negative, high leverage, earnings manipulation checked
-* [ ] **Terminal value < 70% of total EV:** If exceeded, forecast extended or exit multiple used
-* [ ] **SBC treated as expense:** Owner Earnings = FCF - SBC reported alongside GAAP FCF
-* [ ] **Organic growth decomposed:** Revenue growth split into organic + acquisition + FX
-* [ ] **ETF screening uses fundamentals:** Expense ratio + tracking error primary, not trailing returns
+- [ ] **Valuation is a range, not a point:** Bear/Base/Bull scenarios with explicit assumptions for each
+- [ ] **3+ years of financials analyzed:** Minimum 3 fiscal years of all three statements
+- [ ] **GAAP EPS reconciled to Adjusted EPS:** One-time items isolated, difference quantified
+- [ ] **All three quality scores computed:** Piotroski F-Score, Altman Z-Score, Beneish M-Score
+- [ ] **Medians used for comparables:** Mean reported alongside median; >20% divergence flagged
+- [ ] **Red flags investigated:** FCF-negative, high leverage, earnings manipulation checked
+- [ ] **Terminal value < 70% of total EV:** If exceeded, forecast extended or exit multiple used
+- [ ] **SBC treated as expense:** Owner Earnings = FCF - SBC reported alongside GAAP FCF
+- [ ] **Organic growth decomposed:** Revenue growth split into organic + acquisition + FX
+- [ ] **ETF screening uses fundamentals:** Expense ratio + tracking error primary, not trailing returns
 
 If any checkbox fails, revise before delivering. [VERIFIED]
 
@@ -567,18 +567,18 @@ If any checkbox fails, revise before delivering. [VERIFIED]
 - [ ] CR11: All indicator computations reproduced independently — two runs, same result
 - [ ] CR12: Anti-hallucination guardrails: all outputs tagged [VERIFIED] or [ESTIMATED]
 
-* [ ] **[R1]** Fair value expressed as bear/base/bull range, not single point
-* [ ] **[R2]** Minimum 3 years of financial statements analyzed
-* [ ] **[R3]** Adjusted PE computed alongside GAAP PE; one-time items flagged
-* [ ] **[R4]** ETF screens use expense ratio + tracking error as primary sort
-* [ ] **[R5]** F-Score, Z-Score, M-Score all computed (quality triangulation)
-* [ ] **[R6]** FCF-negative for 2+ years → no buy without documented thesis
-* [ ] **[R7]** Non-GAAP metrics reconciled to GAAP with bridge table
-* [ ] **[R8]** Comparables use median, not mean; outlier distortion flagged
-* [ ] **[R9]** Owner Earnings (FCF - SBC) reported for tech companies
-* [ ] **[R10]** Terminal value < 70% of EV; if not, methodology adjusted
-* [ ] **[R11]** Revenue growth decomposed into organic + acquisition + FX
-* [ ] **[R12]** All red flags documented in signal output warnings
+- [ ] **[R1]** Fair value expressed as bear/base/bull range, not single point
+- [ ] **[R2]** Minimum 3 years of financial statements analyzed
+- [ ] **[R3]** Adjusted PE computed alongside GAAP PE; one-time items flagged
+- [ ] **[R4]** ETF screens use expense ratio + tracking error as primary sort
+- [ ] **[R5]** F-Score, Z-Score, M-Score all computed (quality triangulation)
+- [ ] **[R6]** FCF-negative for 2+ years → no buy without documented thesis
+- [ ] **[R7]** Non-GAAP metrics reconciled to GAAP with bridge table
+- [ ] **[R8]** Comparables use median, not mean; outlier distortion flagged
+- [ ] **[R9]** Owner Earnings (FCF - SBC) reported for tech companies
+- [ ] **[R10]** Terminal value < 70% of EV; if not, methodology adjusted
+- [ ] **[R11]** Revenue growth decomposed into organic + acquisition + FX
+- [ ] **[R12]** All red flags documented in signal output warnings
 
 ## Error Recovery
 
@@ -634,14 +634,14 @@ Problems solved: adjusted/normalized earnings, median comparables, quality trian
 
 ## References
 
-* [valuation-methods.md](references/valuation-methods.md) — DCF construction, comparable analysis, Graham Number, sector-specific methods
-* [financial-ratios.md](references/financial-ratios.md) — Complete ratio catalog: profitability, health, efficiency, valuation with formulas
-* [quality-scores.md](references/quality-scores.md) — Piotroski F-Score, Altman Z-Score, Beneish M-Score: computation and interpretation
-* [earnings-quality.md](references/earnings-quality.md) — Detecting manipulation: accruals, revenue recognition, SBC, one-time items
-* [dividend-analysis.md](references/dividend-analysis.md) — Dividend sustainability, payout ratios, growth modeling, cut risk
-* [etf-fundamentals.md](references/etf-fundamentals.md) — Expense ratios, tracking error, AUM, holdings analysis, thematic ETF risks
-* [red-flags-checklist.md](references/red-flags-checklist.md) — Catalog of accounting red flags with historical case studies (Enron, Wirecard, Luckin)
-* [screening-methodology.md](references/screening-methodology.md) — Multi-factor screening design, composite scoring, sector-specific adjustments
+- [valuation-methods.md](references/valuation-methods.md) — DCF construction, comparable analysis, Graham Number, sector-specific methods
+- [financial-ratios.md](references/financial-ratios.md) — Complete ratio catalog: profitability, health, efficiency, valuation with formulas
+- [quality-scores.md](references/quality-scores.md) — Piotroski F-Score, Altman Z-Score, Beneish M-Score: computation and interpretation
+- [earnings-quality.md](references/earnings-quality.md) — Detecting manipulation: accruals, revenue recognition, SBC, one-time items
+- [dividend-analysis.md](references/dividend-analysis.md) — Dividend sustainability, payout ratios, growth modeling, cut risk
+- [etf-fundamentals.md](references/etf-fundamentals.md) — Expense ratios, tracking error, AUM, holdings analysis, thematic ETF risks
+- [red-flags-checklist.md](references/red-flags-checklist.md) — Catalog of accounting red flags with historical case studies (Enron, Wirecard, Luckin)
+- [screening-methodology.md](references/screening-methodology.md) — Multi-factor screening design, composite scoring, sector-specific adjustments
 
 ## Deliberate Practice
 
