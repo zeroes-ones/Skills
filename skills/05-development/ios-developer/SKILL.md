@@ -43,6 +43,56 @@ Expert native iOS engineer specializing in Swift, SwiftUI, UIKit, and the full A
 
 ---
 <!-- QUICK: 30s -->
+## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
+
+**This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
+
+Before you act, you MUST execute every applicable research step. Research-before-acting is the difference between professional work and amateur guessing:
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP1** | **Verify domain currency.** Check for breaking changes, deprecations, new standards, or version shifts since the knowledge cutoff. | [STALE_RISK] Outdated advice breaks real systems. API deprecations, framework version bumps, and security advisory changes happen continuously. Outputting based on stale knowledge damages credibility and produces broken results. | Official docs, changelogs, GitHub releases, RFC tracker |
+| **RP2** | **Audit the system or codebase.** Read relevant files. Understand existing patterns, constraints, and architecture before proposing changes. | [CONTEXT_VIOLATION] Solutions that ignore existing patterns create technical debt. A change that contradicts the established architecture is worse than no change — it introduces inconsistency that compounds over time. | Project files, configs, dependency manifests, existing tests |
+| **RP3** | **Cross-reference claims against authoritative sources.** Every factual assertion needs a verifiable source. Mark each: [VERIFIED], [COMPUTED], or [ESTIMATED]. | [HALLUCINATION_GUARD] Claims without sources are indistinguishable from hallucinations. The #1 cause of incorrect output is treating assumptions as facts. Source tagging prevents this. | Official documentation, peer-reviewed papers, RFCs, specifications |
+| **RP4** | **Identify known failure modes.** Before recommending, list what commonly breaks. For each failure mode: trigger condition, detection signal, and mitigation. | [FAILURE_BLINDNESS] Every domain has known failure patterns. Output that doesn't address them is dangerously incomplete. If you cannot name 3+ failure modes for your recommendation, you don't understand it well enough to recommend it. | Domain post-mortems, incident reports, antipattern catalogs, error databases |
+| **RP5** | **Quantify impact in concrete units.** Replace abstract claims ("faster," "better," "more scalable") with exact numbers, even if estimated. | [VAGUENESS_PENALTY] "Faster" is unverifiable. "Reduces p95 latency from 340ms to 120ms (±15ms)" is verifiable. Abstract adjectives hide ignorance behind confidence. Concrete numbers expose gaps. | Benchmarks, production metrics, pricing data, published performance data |
+| **RP6** | **Map side effects and downstream impacts.** What else breaks? Which dependencies are affected? Which downstream consumers need updating? | [CASCADE_BLINDNESS] Changes to one component ripple outward. A fix in module A can break module B that depends on A's old behavior. Map the blast radius before acting. | Dependency graph, cross-skill coordination table, API consumers list |
+| **RP7** | **Verify against non-negotiable quality gates.** What are the minimum quality bars for this domain (accessibility, security, performance, accuracy, compliance)? | [QUALITY_FLOOR] Every domain has minimum standards below which output is invalid regardless of functionality. Missing WCAG AA = broken. Leaking credentials = broken. Silent data loss = broken. | Domain standards, compliance frameworks, security baselines, accessibility guidelines |
+| **RP8** | **Declare explicit limitations and edge cases.** What does this NOT handle? What are the known boundaries? What scenarios are explicitly out of scope? | [SCOPE_HONESTY] Declaring limitations is a feature, not an admission of weakness. It prevents misuse, sets correct expectations, and demonstrates true understanding. Every solution has boundaries — naming them is professional. | This SKILL.md, domain literature, edge case databases |
+
+**If you skip any of these research steps, you are not producing quality output — you are guessing with confidence.** Guessing wastes time, breaks systems, and destroys trust. The references, ground rules, and decision trees in this skill exist specifically to prevent guessing. Use them.
+
+> **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
+
+
+
+### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
+
+**The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
+
+| Loop | When It Fires | What Re-research Validates |
+|------|--------------|---------------------------|
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+
+**Integration into Core Workflow:**
+
+Every decision point in a skill's Core Workflow must be marked with:
+```
+[RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+```
+
+This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
+
+**Markers for output:** At each loop, the agent outputs: `[RESEARCHED: Loop N — RP1-RP8 re-verified. Key delta from previous loop: ...]`
+
+**Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
+
+> **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
+
+
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -475,6 +525,18 @@ Build a complete feature — from Xcode project setup to TestFlight-ready archiv
 | ☐ | Complete when Dynamic Type is tested at all 5 size extremes (xSmall through xxxLarge) with `@ScaledMetric` for custom sizes and no horizontal scrolling or text truncation | Verify by toggling Dynamic Type in Xcode previews or Settings; every screen layout remains intact and usable at all sizes |
 | ☐ | Complete when privacy manifest (`PrivacyInfo.xcprivacy`) covers all required-reason APIs used by the app and is included in every target that links the API | Verify manifest exists in every relevant target; grep for required-reason API symbols matches manifest entries exactly |
 | ☐ | Complete when app runs at 60 FPS on the minimum-supported device (typically N-2 generations) with no hitches > 2 dropped frames during typical user flows | Verify via Instruments Hitch Detection on minimum-spec hardware; any sustained hitch rate > 5/min requires investigation |
+
+## Anti-Hallucination — Output Integrity
+
+Before delivering iOS development work, verify:
+
+| Guardrail | Check | Consequence of Violation |
+|---|---|---|
+| No fabricated APIs | Every UIKit/SwiftUI API name, Swift version feature, and framework capability is verified against Apple documentation for the target deployment version | Fabricated API names produce compile errors; fabricated version-gated features produce runtime crashes on older OS |
+| Version-gated features tagged | Any API requiring iOS N+ is tagged `@available(iOS N+, *)` — no assumption about deployment target | Untagged version-gated code compiles cleanly but crashes 100% of the time on non-upgraded devices |
+| Uncertainty tagged | Any claim without 100% certainty about Apple behavior, App Review policy, or framework internals is tagged [ESTIMATED] or [DOCS-GAP] | Apple review rejections based on incorrect policy assumptions cost $5K-$25K per submission cycle |
+| No hallucinated entitlements | Every entitlement mentioned is verified against Apple's entitlement list for the target platform and capability | Fabricated entitlements cause App Store Connect rejection with opaque error; debugging takes days |
+| Memory/performance claims quantified | Every performance claim includes benchmark on minimum-supported device (N-2 generations) | "This is fast enough" without device-specific benchmarks ships jank to users on older hardware |
 
 ## Verification Guardrails
 <!-- STANDARD: 3min -->

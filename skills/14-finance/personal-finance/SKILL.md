@@ -46,6 +46,67 @@ chain:
 
 End-to-end personal financial planning and optimization -- from emergency fund establishment through retirement withdrawal strategy. Covers budgeting, debt management, investing, tax optimization, insurance, estate planning, and financial independence (FIRE). Focus on evidence-based, mathematically sound personal finance -- no hype, no speculation, no get-rich-quick schemes.
 <!-- QUICK: 30s -->
+## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
+
+**This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
+
+Before you act, you MUST execute every applicable research step. Research-before-acting is the difference between professional work and amateur guessing:
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP1** | **Verify domain currency.** Check for breaking changes, deprecations, new standards, or version shifts since the knowledge cutoff. | [STALE_RISK] Outdated advice breaks real systems. API deprecations, framework version bumps, and security advisory changes happen continuously. Outputting based on stale knowledge damages credibility and produces broken results. | Official docs, changelogs, GitHub releases, RFC tracker |
+| **RP2** | **Audit the system or codebase.** Read relevant files. Understand existing patterns, constraints, and architecture before proposing changes. | [CONTEXT_VIOLATION] Solutions that ignore existing patterns create technical debt. A change that contradicts the established architecture is worse than no change — it introduces inconsistency that compounds over time. | Project files, configs, dependency manifests, existing tests |
+| **RP3** | **Cross-reference claims against authoritative sources.** Every factual assertion needs a verifiable source. Mark each: [VERIFIED], [COMPUTED], or [ESTIMATED]. | [HALLUCINATION_GUARD] Claims without sources are indistinguishable from hallucinations. The #1 cause of incorrect output is treating assumptions as facts. Source tagging prevents this. | Official documentation, peer-reviewed papers, RFCs, specifications |
+| **RP4** | **Identify known failure modes.** Before recommending, list what commonly breaks. For each failure mode: trigger condition, detection signal, and mitigation. | [FAILURE_BLINDNESS] Every domain has known failure patterns. Output that doesn't address them is dangerously incomplete. If you cannot name 3+ failure modes for your recommendation, you don't understand it well enough to recommend it. | Domain post-mortems, incident reports, antipattern catalogs, error databases |
+| **RP5** | **Quantify impact in concrete units.** Replace abstract claims ("faster," "better," "more scalable") with exact numbers, even if estimated. | [VAGUENESS_PENALTY] "Faster" is unverifiable. "Reduces p95 latency from 340ms to 120ms (±15ms)" is verifiable. Abstract adjectives hide ignorance behind confidence. Concrete numbers expose gaps. | Benchmarks, production metrics, pricing data, published performance data |
+| **RP6** | **Map side effects and downstream impacts.** What else breaks? Which dependencies are affected? Which downstream consumers need updating? | [CASCADE_BLINDNESS] Changes to one component ripple outward. A fix in module A can break module B that depends on A's old behavior. Map the blast radius before acting. | Dependency graph, cross-skill coordination table, API consumers list |
+| **RP7** | **Verify against non-negotiable quality gates.** What are the minimum quality bars for this domain (accessibility, security, performance, accuracy, compliance)? | [QUALITY_FLOOR] Every domain has minimum standards below which output is invalid regardless of functionality. Missing WCAG AA = broken. Leaking credentials = broken. Silent data loss = broken. | Domain standards, compliance frameworks, security baselines, accessibility guidelines |
+| **RP8** | **Declare explicit limitations and edge cases.** What does this NOT handle? What are the known boundaries? What scenarios are explicitly out of scope? | [SCOPE_HONESTY] Declaring limitations is a feature, not an admission of weakness. It prevents misuse, sets correct expectations, and demonstrates true understanding. Every solution has boundaries — naming them is professional. | This SKILL.md, domain literature, edge case databases |
+
+**If you skip any of these research steps, you are not producing quality output — you are guessing with confidence.** Guessing wastes time, breaks systems, and destroys trust. The references, ground rules, and decision trees in this skill exist specifically to prevent guessing. Use them.
+
+> **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
+
+
+
+### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
+
+**The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
+
+| Loop | When It Fires | What Re-research Validates |
+|------|--------------|---------------------------|
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+
+**Integration into Core Workflow:**
+
+Every decision point in a skill's Core Workflow must be marked with:
+```
+[RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+```
+
+This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
+
+**Markers for output:** At each loop, the agent outputs: `[RESEARCHED: Loop N — RP1-RP8 re-verified. Key delta from previous loop: ...]`
+
+**Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
+
+> **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
+
+
+### Personal Finance Domain Extension — Execute These ADDITIONAL Research Steps
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP-F1** | **Verify current tax brackets, contribution limits, and deduction thresholds.** 401(k) limits, IRA limits, HSA limits, standard deduction, tax brackets — all indexed to inflation and change annually. | [TAX_STALENESS] Recommending last year's contribution limits costs real dollars. A $500 over-contribution triggers 6% excise tax annually until corrected. | IRS publications, tax code updates, contribution limit trackers |
+| **RP-F2** | **Check current interest rate environment.** Mortgage rates, savings account APYs, CD rates, bond yields, Fed funds rate expectations. A "refinance now" recommendation at 6.5% mortgage rates may be terrible advice if rates are trending to 5.5%. | [RATE_CONTEXT] Personal finance advice is rate-dependent. "Pay off mortgage early" at 3% is mathematically suboptimal vs. investing. At 7%, it becomes a guaranteed 7% return. Same advice, different rates, opposite conclusions. | Fed funds futures, yield curve, mortgage rate indices, savings rate aggregators |
+| **RP-F3** | **Calculate the specific dollar impact.** "Save more for retirement" is vague. "Increasing 401(k) contribution from 6% to 8% on a $85,000 salary adds $1,700/year, grows to $89,247 over 25 years at 7% — $25,500 in additional contributions generating $63,747 in gains" is actionable. | [DOLLAR_VAGUENESS] Personal finance without dollar math is fortune-cookie advice. Abstract guidance doesn't change behavior — concrete numbers do. | Compound interest calculators, salary data, retirement projections |
+| **RP-F4** | **Identify behavioral failure modes.** The #1 reason financial plans fail is not market performance — it's behavioral deviation. Panic selling in drawdowns. Lifestyle inflation as income rises. Analysis paralysis leading to inaction. | [BEHAVIORAL_RISK] A perfectly optimized financial plan that the person won't follow is worth $0. The best plan is the one that gets executed. Address the behavioral failure mode before optimizing the financial model. | Behavioral finance literature, common financial mistakes databases |
+| **RP-F5** | **Check for life-event alignment.** Is there a wedding, child, home purchase, career change, or medical event in the near term? Major life events override standard financial rules. A 6-month emergency fund recommendation becomes 12 months during a career transition. | [LIFE_EVENT_BLINDNESS] Financial planning that ignores life events is spreadsheet fiction. The mathematically optimal asset allocation is irrelevant if the person needs cash for a down payment in 18 months. | Life event checklist, time horizon analysis, liquidity requirement assessment |
+
+
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->

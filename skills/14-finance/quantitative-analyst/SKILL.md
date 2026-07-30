@@ -42,6 +42,67 @@ Options market intelligence through quantitative rigor. Build pricing models, co
 detect unusual options activity (UOA), construct implied volatility surfaces, validate put-call parity, analyze
 volatility smile/skew, and generate actionable trade signals from options flow anomalies. This skill translates
 raw options market data into structured, confidence-calibrated trade signals ready for algorithmic consumption.
+## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
+
+**This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
+
+Before you act, you MUST execute every applicable research step. Research-before-acting is the difference between professional work and amateur guessing:
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP1** | **Verify domain currency.** Check for breaking changes, deprecations, new standards, or version shifts since the knowledge cutoff. | [STALE_RISK] Outdated advice breaks real systems. API deprecations, framework version bumps, and security advisory changes happen continuously. Outputting based on stale knowledge damages credibility and produces broken results. | Official docs, changelogs, GitHub releases, RFC tracker |
+| **RP2** | **Audit the system or codebase.** Read relevant files. Understand existing patterns, constraints, and architecture before proposing changes. | [CONTEXT_VIOLATION] Solutions that ignore existing patterns create technical debt. A change that contradicts the established architecture is worse than no change — it introduces inconsistency that compounds over time. | Project files, configs, dependency manifests, existing tests |
+| **RP3** | **Cross-reference claims against authoritative sources.** Every factual assertion needs a verifiable source. Mark each: [VERIFIED], [COMPUTED], or [ESTIMATED]. | [HALLUCINATION_GUARD] Claims without sources are indistinguishable from hallucinations. The #1 cause of incorrect output is treating assumptions as facts. Source tagging prevents this. | Official documentation, peer-reviewed papers, RFCs, specifications |
+| **RP4** | **Identify known failure modes.** Before recommending, list what commonly breaks. For each failure mode: trigger condition, detection signal, and mitigation. | [FAILURE_BLINDNESS] Every domain has known failure patterns. Output that doesn't address them is dangerously incomplete. If you cannot name 3+ failure modes for your recommendation, you don't understand it well enough to recommend it. | Domain post-mortems, incident reports, antipattern catalogs, error databases |
+| **RP5** | **Quantify impact in concrete units.** Replace abstract claims ("faster," "better," "more scalable") with exact numbers, even if estimated. | [VAGUENESS_PENALTY] "Faster" is unverifiable. "Reduces p95 latency from 340ms to 120ms (±15ms)" is verifiable. Abstract adjectives hide ignorance behind confidence. Concrete numbers expose gaps. | Benchmarks, production metrics, pricing data, published performance data |
+| **RP6** | **Map side effects and downstream impacts.** What else breaks? Which dependencies are affected? Which downstream consumers need updating? | [CASCADE_BLINDNESS] Changes to one component ripple outward. A fix in module A can break module B that depends on A's old behavior. Map the blast radius before acting. | Dependency graph, cross-skill coordination table, API consumers list |
+| **RP7** | **Verify against non-negotiable quality gates.** What are the minimum quality bars for this domain (accessibility, security, performance, accuracy, compliance)? | [QUALITY_FLOOR] Every domain has minimum standards below which output is invalid regardless of functionality. Missing WCAG AA = broken. Leaking credentials = broken. Silent data loss = broken. | Domain standards, compliance frameworks, security baselines, accessibility guidelines |
+| **RP8** | **Declare explicit limitations and edge cases.** What does this NOT handle? What are the known boundaries? What scenarios are explicitly out of scope? | [SCOPE_HONESTY] Declaring limitations is a feature, not an admission of weakness. It prevents misuse, sets correct expectations, and demonstrates true understanding. Every solution has boundaries — naming them is professional. | This SKILL.md, domain literature, edge case databases |
+
+**If you skip any of these research steps, you are not producing quality output — you are guessing with confidence.** Guessing wastes time, breaks systems, and destroys trust. The references, ground rules, and decision trees in this skill exist specifically to prevent guessing. Use them.
+
+> **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
+
+
+
+### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
+
+**The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
+
+| Loop | When It Fires | What Re-research Validates |
+|------|--------------|---------------------------|
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+
+**Integration into Core Workflow:**
+
+Every decision point in a skill's Core Workflow must be marked with:
+```
+[RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+```
+
+This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
+
+**Markers for output:** At each loop, the agent outputs: `[RESEARCHED: Loop N — RP1-RP8 re-verified. Key delta from previous loop: ...]`
+
+**Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
+
+> **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
+
+
+### Quantitative Domain Extension — Execute These ADDITIONAL Research Steps
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP-F1** | **Calibrate the pricing model.** Verify: risk-free rate (current Treasury yield for matching tenor), dividend yield (trailing + forward consensus), and implied borrow cost (hard-to-borrow fee schedule). Mispricing by 50bp on any input compounds across the position. | [GARBAGE_IN] The most elegant pricing model with wrong inputs produces garbage. A Black-Scholes price using the wrong risk-free rate is mathematically correct and financially wrong. | Treasury yield curve, dividend calendars, broker borrow fee schedules |
+| **RP-F2** | **Construct the full volatility surface.** Plot IV by strike and expiration. Check for: skew (OTM puts vs. OTM calls), term structure (contango vs. backwardation), and smile/smirk asymmetry. | [FLAT_VOL_FALLACY] Treating volatility as a single number ignores the surface. The ATM IV might be 25% while the 25-delta put IV is 32% — that 7-point skew is where edge lives or dies. | Options chains across all strikes and expirations, vol surface visualization |
+| **RP-F3** | **Compute position sizing via Kelly Criterion.** f* = (bp − q) / b. Cap at 25% Kelly for real execution. Regime-adjust: 25% Kelly in bull, 15% in correction, 10% in bear, 5% in crash. | [OVERBETTING] Full Kelly is optimal for log-utility in theory and ruinous in practice. Parameter uncertainty, non-normal returns, and gap risk make full Kelly a path to eventual blow-up. 25% Kelly is the practical maximum. | Kelly calculator, strategy win rate and win/loss ratio data |
+| **RP-F4** | **Validate that the Greeks tell a coherent story.** Delta ≈ directional exposure. Gamma ≈ acceleration (how fast delta changes). Theta ≈ daily cost of holding. Vega ≈ IV sensitivity. A position with positive gamma, negative theta, and high vega is a long vol position — confirm this aligns with the strategy thesis. | [GREEKS_CONTRADICTION] A strategy that claims to be "directionally neutral" but has net delta of +0.30 on a $100K notional has $30K of directional exposure. The Greeks don't lie — they reveal what the strategy ACTUALLY does vs. what it CLAIMS to do. | Greeks calculator, position summary, strategy thesis document |
+| **RP-F5** | **Check for early exercise and assignment risk.** American-style options can be exercised at any time. Check: dividends (calls exercised pre-ex-div), hard-to-borrow (puts exercised to capture borrow rebate), deep ITM (assignment probability rises with moneyness). | [EARLY_EXERCISE] Early assignment transforms a defined-risk spread into an undefined-risk short stock position overnight. A short call assigned on ex-div eve = you owe the dividend. | Dividend calendar, short interest data, ITM depth analysis |
+
+
 
 ## Route the Request
 
@@ -619,3 +680,4 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
+- **Volatility Term Structure & VIX Futures**: See [volatility-term-structure.md](references/volatility-term-structure.md) — VIX futures curve, contango/backwardation, VRP, roll yield, calendar spread edge, strategy selection framework, early warning system

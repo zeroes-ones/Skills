@@ -39,6 +39,67 @@ chain:
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Ingest, normalize, store, and serve financial market data at production scale. This skill covers options flow ingestion from Unusual Whales REST/WebSocket, CBOE LiveVol, Polygon.io Options API, and Bloomberg Terminal/API; real-time streaming via Kafka/Redpanda with stream processing; tick data storage in TimescaleDB (hot) and ClickHouse (analytics); corporate actions normalization (splits, dividends, mergers, ticker changes); dividend/split-adjusted options chains; historical data warehousing in Parquet on S3; data quality rules for stale quotes, arbitrage violations, and volume/OI discrepancies; and market-hours-aware scheduling. Every decision here is backed by war stories from production options pipelines — including the $50K dividend-adjustment loss and the survivorship-bias backtest disaster.
+## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
+
+**This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
+
+Before you act, you MUST execute every applicable research step. Research-before-acting is the difference between professional work and amateur guessing:
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP1** | **Verify domain currency.** Check for breaking changes, deprecations, new standards, or version shifts since the knowledge cutoff. | [STALE_RISK] Outdated advice breaks real systems. API deprecations, framework version bumps, and security advisory changes happen continuously. Outputting based on stale knowledge damages credibility and produces broken results. | Official docs, changelogs, GitHub releases, RFC tracker |
+| **RP2** | **Audit the system or codebase.** Read relevant files. Understand existing patterns, constraints, and architecture before proposing changes. | [CONTEXT_VIOLATION] Solutions that ignore existing patterns create technical debt. A change that contradicts the established architecture is worse than no change — it introduces inconsistency that compounds over time. | Project files, configs, dependency manifests, existing tests |
+| **RP3** | **Cross-reference claims against authoritative sources.** Every factual assertion needs a verifiable source. Mark each: [VERIFIED], [COMPUTED], or [ESTIMATED]. | [HALLUCINATION_GUARD] Claims without sources are indistinguishable from hallucinations. The #1 cause of incorrect output is treating assumptions as facts. Source tagging prevents this. | Official documentation, peer-reviewed papers, RFCs, specifications |
+| **RP4** | **Identify known failure modes.** Before recommending, list what commonly breaks. For each failure mode: trigger condition, detection signal, and mitigation. | [FAILURE_BLINDNESS] Every domain has known failure patterns. Output that doesn't address them is dangerously incomplete. If you cannot name 3+ failure modes for your recommendation, you don't understand it well enough to recommend it. | Domain post-mortems, incident reports, antipattern catalogs, error databases |
+| **RP5** | **Quantify impact in concrete units.** Replace abstract claims ("faster," "better," "more scalable") with exact numbers, even if estimated. | [VAGUENESS_PENALTY] "Faster" is unverifiable. "Reduces p95 latency from 340ms to 120ms (±15ms)" is verifiable. Abstract adjectives hide ignorance behind confidence. Concrete numbers expose gaps. | Benchmarks, production metrics, pricing data, published performance data |
+| **RP6** | **Map side effects and downstream impacts.** What else breaks? Which dependencies are affected? Which downstream consumers need updating? | [CASCADE_BLINDNESS] Changes to one component ripple outward. A fix in module A can break module B that depends on A's old behavior. Map the blast radius before acting. | Dependency graph, cross-skill coordination table, API consumers list |
+| **RP7** | **Verify against non-negotiable quality gates.** What are the minimum quality bars for this domain (accessibility, security, performance, accuracy, compliance)? | [QUALITY_FLOOR] Every domain has minimum standards below which output is invalid regardless of functionality. Missing WCAG AA = broken. Leaking credentials = broken. Silent data loss = broken. | Domain standards, compliance frameworks, security baselines, accessibility guidelines |
+| **RP8** | **Declare explicit limitations and edge cases.** What does this NOT handle? What are the known boundaries? What scenarios are explicitly out of scope? | [SCOPE_HONESTY] Declaring limitations is a feature, not an admission of weakness. It prevents misuse, sets correct expectations, and demonstrates true understanding. Every solution has boundaries — naming them is professional. | This SKILL.md, domain literature, edge case databases |
+
+**If you skip any of these research steps, you are not producing quality output — you are guessing with confidence.** Guessing wastes time, breaks systems, and destroys trust. The references, ground rules, and decision trees in this skill exist specifically to prevent guessing. Use them.
+
+> **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
+
+
+
+### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
+
+**The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
+
+| Loop | When It Fires | What Re-research Validates |
+|------|--------------|---------------------------|
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+
+**Integration into Core Workflow:**
+
+Every decision point in a skill's Core Workflow must be marked with:
+```
+[RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+```
+
+This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
+
+**Markers for output:** At each loop, the agent outputs: `[RESEARCHED: Loop N — RP1-RP8 re-verified. Key delta from previous loop: ...]`
+
+**Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
+
+> **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
+
+
+### Market Data Domain Extension — Execute These ADDITIONAL Research Steps
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP-F1** | **Validate data quality: check for missing ticks, duplicate bars, timestamp gaps, and price outliers.** A single bad tick (price = $0.01 for one millisecond) can corrupt an entire backtest. | [GARBAGE_IN_GARBAGE_OUT] Data quality issues are the silent killers of production trading systems. A strategy that "works" on dirty data works on fiction. Every data quality issue that reaches production is a future P&L loss waiting to happen. | Data quality dashboard, tick-level audit logs, outlier detection reports |
+| **RP-F2** | **Handle corporate actions: splits, dividends, mergers, spin-offs, symbol changes.** A 2:1 stock split that isn't adjusted makes the stock look like it dropped 50% overnight — triggering every stop-loss and generating false signals. | [CORPORATE_ACTION_BOMB] Unadjusted corporate actions are the #1 source of backtest-contamination. A single unadjusted split can make a losing strategy look profitable or vice versa. | Corporate action calendar, adjustment factor database, exchange bulletins |
+| **RP-F3** | **Assess survivorship bias.** Are backtest symbols still listed today? Stocks that went bankrupt, were delisted, or acquired are absent from current symbol lists — making historical returns look BETTER than reality. | [SURVIVORSHIP_BIAS] Using only currently-listed symbols adds 1-2% annually to backtest returns. A strategy that shows +12% on survivorship-biased data may be +10% (or worse) in reality. | Delisted securities database, historical index constituents, CRSP/Compustat |
+| **RP-F4** | **Verify tick precision and timestamp granularity.** Options data at minute resolution hides 90%+ of actual trades. Sub-second timestamps matter for: fill probability estimation, slippage modeling, and signal latency measurement. | [RESOLUTION_BLINDNESS] A strategy that works on 1-minute bars may fail on tick data. The difference between the high of the minute and the actual trade price = hidden slippage. | Tick data archives, exchange timestamp specifications, fill reports |
+| **RP-F5** | **Calculate data pipeline latency and reliability.** Measure: ingestion-to-availability latency (target: <100ms for real-time), uptime (target: 99.9%+), and data loss rate (target: <0.01%). Pipeline failure during market hours = blind trading. | [PIPELINE_BLINDNESS] A trading system without data is a car without headlights at night. Every minute of pipeline downtime during market hours is a minute of unmonitored risk. | Pipeline monitoring dashboard, latency histograms, incident reports |
+
+
 
 ## Route the Request
 

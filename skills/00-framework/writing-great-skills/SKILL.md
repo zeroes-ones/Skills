@@ -393,14 +393,14 @@ This skill maintains a **decision ledger** for skill authoring sessions.
 
 * [ ] Have I read the state log from the previous session?
 * [ ] Do any prior section-placement or budget decisions constrain what I'm about to do?
-* [ ] Is my approach consistent with the 12-section template?
+* [ ] Is my approach consistent with the 13-section template (including RESEARCH_PREREQUISITE)?
 * [ ] If I'm contradicting a prior decision, have I documented WHY?
 
 ## Proactive Triggers
 
 | # | Trigger Condition | Auto-Response |
 |---|------------------|---------------|
-| P1 | `grep -c "^## " SKILL.md` returns <12 | [ALERT] Skill missing required sections. Map against the 12-section template. |
+| P1 | `grep -c "^## " SKILL.md` returns <13 | [ALERT] Skill missing required sections. Map against the 13-section template (including RESEARCH_PREREQUISITE). |
 | P2 | `grep -c "Mechanical Trigger" SKILL.md` returns 0 | [FAIL] Ground rules lack mechanical triggers. Every constraint needs a grep-able detection condition. |
 | P3 | `wc -l SKILL.md | awk '{print $1}'` > 600 | [WARN] Skill >20% over token budget. Run no-op test and sediment check. |
 | P4 | Description contains "first", "then", "step", "start by" | [FIX] Process language in description. Rewrite to triggers-only format. |
@@ -444,6 +444,35 @@ description: >
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
 | R1 | REFUSE to [bad action]... | Trigger: [grep-able condition] | STOP. "[exact response]" |
+
+## RESEARCH_PREREQUISITE — Execute Iteratively at Every Decision Point
+
+> **This is a HARD GATE, not a one-time step. Research fires at every decision point — entry, adjustment, exit, and post-mortem. Skip any loop = invalid output.**
+
+| # | Research Step | Why It Matters | Source |
+|---|--------------|----------------|--------|
+| **RP1** | **Verify domain currency.** Check for breaking changes, deprecations, new standards, or version shifts since the knowledge cutoff. | [STALE_RISK] Outdated advice breaks real systems. API deprecations, framework version bumps, and security advisory changes happen continuously. | Official docs, changelogs, GitHub releases |
+| **RP2** | **Audit the system or codebase.** Read relevant files. Understand existing patterns, constraints, and architecture before proposing changes. | [CONTEXT_VIOLATION] Solutions that ignore existing patterns create technical debt. | Project files, configs, dependency manifests |
+| **RP3** | **Cross-reference claims against authoritative sources.** Every factual assertion needs a verifiable source tagged: [VERIFIED], [COMPUTED], or [ESTIMATED]. | [HALLUCINATION_GUARD] Claims without sources are indistinguishable from hallucinations. | Official documentation, peer-reviewed papers, specifications |
+| **RP4** | **Identify known failure modes.** Before recommending, list what commonly breaks. For each: trigger condition, detection signal, mitigation. | [FAILURE_BLINDNESS] If you cannot name 3+ failure modes for your recommendation, you don't understand it well enough to recommend it. | Domain post-mortems, antipattern catalogs |
+| **RP5** | **Quantify impact in concrete units.** Replace abstract claims ("faster", "better") with exact numbers, even if estimated. | [VAGUENESS_PENALTY] "Faster" is unverifiable. "Reduces p95 latency from 340ms to 120ms" is verifiable. | Benchmarks, pricing data, production metrics |
+| **RP6** | **Map side effects and downstream impacts.** What else breaks? Which dependencies are affected? Which downstream consumers need updating? | [CASCADE_BLINDNESS] Changes to one component ripple outward. Map the blast radius before acting. | Dependency graph, cross-skill coordination table |
+| **RP7** | **Verify against non-negotiable quality gates.** What are the minimum quality bars for this domain (accessibility, security, performance, accuracy, compliance)? | [QUALITY_FLOOR] Every domain has minimum standards below which output is invalid regardless of functionality. | Domain standards, compliance frameworks, security baselines |
+| **RP8** | **Declare explicit limitations and edge cases.** What does this NOT handle? What are the known boundaries? What scenarios are explicitly out of scope? | [SCOPE_HONESTY] Declaring limitations prevents misuse, sets correct expectations, and demonstrates true understanding. | This SKILL.md, domain literature |
+
+**🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry:**
+
+The RP1-RP8 cycle above fires at:
+1. **Pre-action research** — before producing any output, strategy, recommendation, or code
+2. **Mid-action re-research** — at every adjustment, scale-out, phase transition, or significant state change
+3. **Pre-exit/escalation research** — before closing, handing off, escalating, or declaring completion
+4. **Post-action research** — after completion: what happened vs. what was expected? Feed learnings back
+
+Each loop re-verifies ALL RP steps against current state. A decision made in Loop 1 may be invalid by Loop 3 because the context changed. The research loop catches this.
+
+**To include in every skill's Core Workflow:** mark decision points with `[RESEARCH LOOP: re-execute RP1-RP8 before proceeding]` to trigger re-research.
+
+> **Compliance:** For each decision point, output a `[RESEARCHED: Loop N — RP steps verified. Key finding: ...]` marker. Unresearched decisions are guesses. Guesses are invalid output.
 
 ## Core Workflow
 ### Phase 1: [Name]

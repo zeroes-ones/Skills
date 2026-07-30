@@ -43,6 +43,67 @@ chain:
 
 End-to-end financial services security — from PCI DSS compliance and cardholder data protection to fraud detection, KYC/AML programs, payment API hardening, open banking security, and financial regulatory cybersecurity. Every recommendation is traceable to a specific regulatory requirement (PCI DSS 4.0 requirement number, FFIEC CAT domain, PSD2 SCA article, FinCEN rule) with implementation-level detail.
 <!-- QUICK: 30s -->
+## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
+
+**This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
+
+Before you act, you MUST execute every applicable research step. Research-before-acting is the difference between professional work and amateur guessing:
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP1** | **Verify domain currency.** Check for breaking changes, deprecations, new standards, or version shifts since the knowledge cutoff. | [STALE_RISK] Outdated advice breaks real systems. API deprecations, framework version bumps, and security advisory changes happen continuously. Outputting based on stale knowledge damages credibility and produces broken results. | Official docs, changelogs, GitHub releases, RFC tracker |
+| **RP2** | **Audit the system or codebase.** Read relevant files. Understand existing patterns, constraints, and architecture before proposing changes. | [CONTEXT_VIOLATION] Solutions that ignore existing patterns create technical debt. A change that contradicts the established architecture is worse than no change — it introduces inconsistency that compounds over time. | Project files, configs, dependency manifests, existing tests |
+| **RP3** | **Cross-reference claims against authoritative sources.** Every factual assertion needs a verifiable source. Mark each: [VERIFIED], [COMPUTED], or [ESTIMATED]. | [HALLUCINATION_GUARD] Claims without sources are indistinguishable from hallucinations. The #1 cause of incorrect output is treating assumptions as facts. Source tagging prevents this. | Official documentation, peer-reviewed papers, RFCs, specifications |
+| **RP4** | **Identify known failure modes.** Before recommending, list what commonly breaks. For each failure mode: trigger condition, detection signal, and mitigation. | [FAILURE_BLINDNESS] Every domain has known failure patterns. Output that doesn't address them is dangerously incomplete. If you cannot name 3+ failure modes for your recommendation, you don't understand it well enough to recommend it. | Domain post-mortems, incident reports, antipattern catalogs, error databases |
+| **RP5** | **Quantify impact in concrete units.** Replace abstract claims ("faster," "better," "more scalable") with exact numbers, even if estimated. | [VAGUENESS_PENALTY] "Faster" is unverifiable. "Reduces p95 latency from 340ms to 120ms (±15ms)" is verifiable. Abstract adjectives hide ignorance behind confidence. Concrete numbers expose gaps. | Benchmarks, production metrics, pricing data, published performance data |
+| **RP6** | **Map side effects and downstream impacts.** What else breaks? Which dependencies are affected? Which downstream consumers need updating? | [CASCADE_BLINDNESS] Changes to one component ripple outward. A fix in module A can break module B that depends on A's old behavior. Map the blast radius before acting. | Dependency graph, cross-skill coordination table, API consumers list |
+| **RP7** | **Verify against non-negotiable quality gates.** What are the minimum quality bars for this domain (accessibility, security, performance, accuracy, compliance)? | [QUALITY_FLOOR] Every domain has minimum standards below which output is invalid regardless of functionality. Missing WCAG AA = broken. Leaking credentials = broken. Silent data loss = broken. | Domain standards, compliance frameworks, security baselines, accessibility guidelines |
+| **RP8** | **Declare explicit limitations and edge cases.** What does this NOT handle? What are the known boundaries? What scenarios are explicitly out of scope? | [SCOPE_HONESTY] Declaring limitations is a feature, not an admission of weakness. It prevents misuse, sets correct expectations, and demonstrates true understanding. Every solution has boundaries — naming them is professional. | This SKILL.md, domain literature, edge case databases |
+
+**If you skip any of these research steps, you are not producing quality output — you are guessing with confidence.** Guessing wastes time, breaks systems, and destroys trust. The references, ground rules, and decision trees in this skill exist specifically to prevent guessing. Use them.
+
+> **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
+
+
+
+### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
+
+**The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
+
+| Loop | When It Fires | What Re-research Validates |
+|------|--------------|---------------------------|
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+
+**Integration into Core Workflow:**
+
+Every decision point in a skill's Core Workflow must be marked with:
+```
+[RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+```
+
+This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
+
+**Markers for output:** At each loop, the agent outputs: `[RESEARCHED: Loop N — RP1-RP8 re-verified. Key delta from previous loop: ...]`
+
+**Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
+
+> **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
+
+
+### Financial Security Domain Extension — Execute These ADDITIONAL Research Steps
+
+| # | Research Step | Why It Matters | Where to Look |
+|---|--------------|----------------|----------------|
+| **RP-F1** | **Map the fraud taxonomy for the transaction type.** Wire fraud, ACH fraud, check fraud, card-not-present, account takeover, synthetic identity — each has distinct patterns and detection signatures. | [PATTERN_BLINDNESS] Generic fraud detection catches ~40% of fraud. Pattern-specific detection catches ~85%. The 45% gap is the cost of treating all fraud as the same problem. | Fraud taxonomy database, industry fraud reports, regulatory alerts |
+| **RP-F2** | **Check AML/KYC requirements for the jurisdiction and transaction size.** CTR threshold ($10,000), SAR triggers, PEP screening, sanctions list checks. Missing a SAR filing = personal criminal liability. | [COMPLIANCE_GAP] AML failures are not "compliance issues" — they are federal crimes. The cost of a missed SAR is measured in prison time, not dollars. | FinCEN regulations, OFAC SDN list, jurisdictional AML requirements |
+| **RP-F3** | **Analyze transaction velocity and pattern anomalies.** Normal: 3 transactions/day, $200 avg. Suspicious: 15 transactions/day, $50 avg (structuring). Velocity × amount × deviation from baseline = anomaly score. | [VELOCITY_BLINDNESS] Single-transaction monitoring misses structuring. The aggregate pattern across time reveals what individual transactions hide. | Transaction monitoring system, velocity baselines, peer group comparisons |
+| **RP-F4** | **Verify device fingerprinting and behavioral biometrics.** Is the device known? Is the typing pattern consistent with the account holder? Does the geolocation match the billing address? | [DEVICE_SPOOF] Stolen credentials + VPN + device emulator = perfect mimicry of the legitimate user. Device fingerprinting catches what credentials alone miss. | Device fingerprint database, behavioral biometric baselines, geolocation logs |
+| **RP-F5** | **Stress-test fraud detection against adversarial adaptation.** Fraudsters adapt to detection rules in 2-4 weeks. A rule that caught 90% of fraud last month catches 70% this month and 40% next month. | [ADVERSARIAL_DECAY] Static rules decay. The half-life of a fraud detection rule is ~6 weeks. Without continuous adaptation, detection degrades from prevention to post-mortem. | Rule performance over time, adversarial pattern evolution, ML model drift metrics |
+
+
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->

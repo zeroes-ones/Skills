@@ -2,7 +2,7 @@
 # ==============================================================================
 # Pre-commit: Comprehensive Lint & Validate
 # ==============================================================================
-# Runs 13 gates on all staged files before any commit is accepted:
+# Runs 15 gates on all staged files before any commit is accepted:
 #
 #   G0  Script integrity (SHA256 manifest)
 #   G1  File format (UTF-8, LF, trailing whitespace, final newline, tabs)
@@ -17,6 +17,8 @@
 #   G10 Reference link integrity (all references/*.md resolve)
 #   G11 Verify script existence (scripts/verify-skill.sh + references/)
 #   G12 Portability target declaration
+#   G13 Example validation (real-world backtest-verified examples)
+#   G14 Deep research gate (data provenance, regime coverage, pattern engine, failure modes)
 #
 # Target: <5 seconds for typical commits. Full suite runs in pre-push.
 # ==============================================================================
@@ -44,7 +46,7 @@ warnings=0
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Pre-commit: 13-Gate Lint & Validate"
+echo "  Pre-commit: 15-Gate Lint, Validate & Deep Research"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -295,6 +297,36 @@ sys.exit(min(errs, 1))
         fail "G12 Portability target — $port_failures skill(s) missing declaration"
         errors=$((errors + 1))
     fi
+
+    # ── G13: Example validation (new skills must have real-world examples) ──
+    if [ -f "$REPO_ROOT/scripts/lib/validate-skill-examples.sh" ]; then
+        example_output=$(bash "$REPO_ROOT/scripts/lib/validate-skill-examples.sh" --changed --no-color --errors-only 2>&1) && ex_ok=true || ex_ok=false
+        if $ex_ok; then
+            pass "G13 Example validation (real-world backtest example present)"
+        else
+            fail "G13 Example validation — new/missing skills require backtest-verified examples"
+            echo "$example_output" | head -15
+            errors=$((errors + 1))
+        fi
+    else
+        warn "G13 Example validation script not found — skipping"
+        warnings=$((warnings + 1))
+    fi
+
+    # ── G14: Deep research gate — data provenance, regimes, pattern engine ──
+    if [ -f "$REPO_ROOT/scripts/lib/deep-research-gate.sh" ]; then
+        research_output=$(bash "$REPO_ROOT/scripts/lib/deep-research-gate.sh" --changed --no-color 2>&1) && research_ok=true || research_ok=false
+        if $research_ok; then
+            pass "G14 Deep research gate (provenance, regime coverage, pattern engine, failure modes)"
+        else
+            fail "G14 Deep research gate — insufficient research depth. Provenance tags, regime coverage, and pattern engine required."
+            echo "$research_output" | grep -E 'BLOCK|WARN|PASS' | head -20
+            errors=$((errors + 1))
+        fi
+    else
+        warn "G14 Deep research gate script not found — skipping"
+        warnings=$((warnings + 1))
+    fi
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -303,7 +335,7 @@ fi
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if [ "$errors" -eq 0 ] && [ "$warnings" -eq 0 ]; then
-    echo -e "  ${GREEN}✅ All 13 pre-commit gates passed${NC}"
+    echo -e "  ${GREEN}✅ All 15 pre-commit gates passed${NC}"
 elif [ "$errors" -eq 0 ]; then
     echo -e "  ${YELLOW}⚠  All gates passed with $warnings warning(s)${NC}"
 else

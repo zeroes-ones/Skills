@@ -47,6 +47,23 @@ if [[ -f "$SCRIPT_DIR/run-evals.sh" ]]; then
     bash "$SCRIPT_DIR/run-evals.sh" --summary 2>&1 | tail -5 || true
 fi
 
+# ── G13: Example validation (new skills must have real-world examples) ──
+if [[ -f "$SCRIPT_DIR/lib/validate-skill-examples.sh" ]]; then
+    example_output=$(bash "$SCRIPT_DIR/lib/validate-skill-examples.sh" --changed --no-color --errors-only 2>&1) && ex_ok=true || ex_ok=false
+    if $ex_ok; then
+        echo "  G13 Example validation: PASSED"
+    else
+        echo "  ❌ G13 Example validation FAILED — new/missing skills require backtest-verified examples"
+        echo "$example_output" | head -15
+        echo ""
+        echo "╔══════════════════════════════════════════╗"
+        echo "║  ❌ COMMIT BLOCKED (G13 Example Check)    ║"
+        echo "║  Fix the failures above and try again.   ║"
+        echo "╚══════════════════════════════════════════╝"
+        exit 1
+    fi
+fi
+
 echo ""
 echo "╔══════════════════════════════════════════╗"
 echo "║  ✅ All gates passed. Commit allowed.     ║"
