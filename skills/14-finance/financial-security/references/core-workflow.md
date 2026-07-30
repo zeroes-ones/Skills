@@ -3,6 +3,7 @@
 ### Phase 1: PCI DSS 4.0 Compliance
 
 ```
+
 1. SCOPE THE CARDHOLDER DATA ENVIRONMENT (CDE)
    |-- Identify all systems that store, process, or transmit cardholder data (CHD) or sensitive authentication data (SAD)
    |-- CDE includes: application servers, databases, network devices, security services, logging systems
@@ -55,11 +56,13 @@
    |-- Prioritize: (1) compliance killers (CVV/track data stored, no firewall, default passwords),
    |   (2) scope-reducing quick wins (implement tokenization, segment network), (3) systemic controls (logging, monitoring, policies)
    |-- Track in GRC tool with automated evidence collection where possible
+
 ```
 
 ### Phase 2: Fraud Detection Architecture
 
 ```
+
 1. DESIGN SIGNAL PIPELINE
    |-- Signals are atomic facts extracted from each transaction event:
    |   |-- Transaction signals: amount, currency, merchant category code (MCC), time, payment method
@@ -100,4 +103,5 @@
    |-- Actions: ALLOW (low risk), CHALLENGE (step-up auth — SCA, OTP, biometric), BLOCK (high confidence fraud)
    |-- Score thresholds: dynamically tuned based on fraud rate targets and false positive tolerance
    |-- Feedback loop: chargeback data ingested within 24 hours, false positive reports within 1 hour
+
 ```

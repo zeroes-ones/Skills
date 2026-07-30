@@ -32,6 +32,7 @@
 7. **Sector/ETF context**: Cross-reference the underlying with its sector ETF performance. Sector tailwind (+2% on week) amplifies bullish call signals; sector headwind dampens them.
 
 **Python pseudocode for UOA detection:**
+
 ```python
 def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
                oi: pd.DataFrame, min_premium: float = 1_000_000,
@@ -101,6 +102,7 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
             })
 
     return pd.DataFrame(signals)
+
 ```
 
 **Output**: `uoa_signals` DataFrame with one row per detected unusual trade.
@@ -150,6 +152,7 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 5. **Size-to-float check**: Premium / market_cap > 0.1% on mid-caps ($2B-$10B) = extraordinary. For mega-caps (>$200B), threshold relaxes to premium > $10M.
 
 **Entry trigger output format:**
+
 ```json
 {
   "signal_id": "UOA-2026-07-21-XYZ",
@@ -181,6 +184,7 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
     "Position size: $5.2M on $4B market cap = 0.13% (significant)"
   ]
 }
+
 ```
 
 **Output**: `trade_signals.json` — one structured signal per UOA detection, ready for algorithmic-trader consumption.

@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-29T22:00:30Z
+# Generated: 2026-07-30T14:18:21Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    734f34e38fe35c8c8cafbd6ad6587e86b56a357d
+# Commit:    74d1b5cc44eed06df534143eb5584ac8d522664b
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -38,6 +38,7 @@ e30826411b84e2d4402143670ff88d6821e2635b762d964fcc3015595228cc56  scripts/skill-
 c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
 5c424d382f57745f0dfd43a6fb30ccc4adf6989ed5c7b299176dcc56af6c6bed  scripts/validate-skills.sh
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
+0d0e277f8dbc788d3c564ed6c8238635dab3cbc4c8f8c826762d9331171d738f  skills/00-framework/cross-skill-communication/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/00-framework/skill-levels/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/00-framework/writing-great-skills/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/business-strategist/scripts/verify-skill.sh
@@ -189,6 +190,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-spec
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/performance-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/algorithmic-trader/scripts/verify-skill.sh
 896942676ebfd76016722947a75ab63821647e181dcf3dc488cc3324086b3d1a  skills/14-finance/financial-security/scripts/verify-skill.sh
+1ec13f8140c5631462d6549852b6d8a986cfdc74b411381b03e1ffd7ebbcd0f6  skills/14-finance/fundamental-analyst/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/home-buying/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/market-data-engineer/scripts/verify-skill.sh
 6eb79679b35601fa934285de854fb8ba2df7d100d43ad8ae40791f91a63f99a3  skills/14-finance/personal-finance/scripts/calculate_net_worth.py
@@ -196,7 +198,9 @@ a445cdb8cbbccb98cdd07ff8530f1ccd14f5c8d44b0b222350e68af8772cb790  skills/14-fina
 0483e7ce8d8643919243ea63de50d04d9a34de68411245ddefe0085eda98744b  skills/14-finance/personal-finance/scripts/fire_calculator.py
 302977648be7db2f938c7321ebf177f0cf9ed649fbaad0e72bb13b900aac6441  skills/14-finance/personal-finance/scripts/retirement_projector.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/personal-finance/scripts/verify-skill.sh
+aac623f3872c26d2ae2832b49795ba0733ff5c566a306c907714f3d3b55ad3df  skills/14-finance/portfolio-signal-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/quantitative-analyst/scripts/verify-skill.sh
+8e7f307c4fef18f2806164d89b945be7992458204dfddb7ef2781eb8357d8762  skills/14-finance/technical-signals-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/bizdev-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/demand-generation/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/marketing-manager/scripts/verify-skill.sh

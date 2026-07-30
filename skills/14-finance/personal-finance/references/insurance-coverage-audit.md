@@ -15,6 +15,7 @@
 ## Life Insurance: Needs Analysis
 
 ```
+
 Immediate Needs:
   Funeral costs:                    $10,000-$15,000
   Outstanding debts:                $__________ (mortgage, loans, credit cards)
@@ -29,6 +30,7 @@ Ongoing Needs:
 Total Life Insurance Need:          $__________
 Current Coverage:                   $__________
 GAP:                                $__________
+
 ```
 
 **Rule of thumb:** 10-12x annual income. More accurate: DIME method (Debt + Income + Mortgage + Education).
@@ -48,6 +50,7 @@ GAP:                                $__________
 ## Disability Insurance
 
 ```
+
 Your most valuable asset is your future income:
   Age 30, $80K income, 35 years to retirement = $2.8M in future earnings
 
@@ -59,17 +62,20 @@ Wait for elimination period: 90 days (use emergency fund)
 Benefit period: to age 65-67
 
 Coverage gap: Group LTD covers $__________, Individual DI adds $__________
+
 ```
 
 ## Umbrella Insurance
 
 ```
+
 Net worth (excluding primary home equity): $__________
 Current liability coverage (auto + home):  $__________
 Umbrella recommendation: $1M-$2M coverage (cost: $150-$300/year per $1M)
 
 Rule: Umbrella coverage >= Net worth minus primary home equity
   (protects assets from lawsuits exceeding auto/home liability limits)
+
 ```
 
 ## When to Self-Insure

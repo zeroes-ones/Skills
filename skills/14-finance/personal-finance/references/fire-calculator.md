@@ -3,11 +3,13 @@
 ## The Core Formula
 
 ```
+
 FI Number = Annual Expenses x 25 (for 4% rule, 30yr retirement)
           = Annual Expenses x 30 (for 3.33% rule, 40+ year retirement)
           = Annual Expenses x 33 (for 3% rule, perpetual withdrawal)
 
 Years to FI = LN((FI Number x Rate of Return / Savings per Year) + 1) / LN(1 + Rate of Return)
+
 ```
 
 ## Savings Rate to Years-to-FI Table
@@ -31,6 +33,7 @@ Assumes 7% real return (10% nominal - 3% inflation), starting from $0 net worth.
 ## Coast FIRE Calculator
 
 ```
+
 Coast FIRE Number = FI Number / (1 + Expected Return)^Years to Traditional Retirement
 
 Example:
@@ -42,11 +45,13 @@ Example:
 
   If current investments >= $276,400: You have reached Coast FIRE.
   No additional contributions needed to reach FI by 65.
+
 ```
 
 ## FIRE Type Calculator
 
 ```
+
 Current annual expenses: $________
 Target annual expenses in retirement: $________
 
@@ -63,6 +68,7 @@ Projected FI date: ________ (age ____)
 Coast FIRE: Already reached? ___ (Yes/No)
   If not, Coast FI number: $________
   Expected Coast FI date: ________
+
 ```
 
 ## Withdrawal Rate Safety

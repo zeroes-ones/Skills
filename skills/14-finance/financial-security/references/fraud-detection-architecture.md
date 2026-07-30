@@ -6,7 +6,9 @@ for real-time financial fraud detection with <200ms p99 latency.
 ## Signal Pipeline Architecture
 
 ```
+
 Transaction Events -> Signal Collection -> Feature Engineering -> Scoring -> Decision
+
 ```
 
 ### Signal Categories
@@ -25,6 +27,7 @@ Transaction Events -> Signal Collection -> Feature Engineering -> Scoring -> Dec
 Velocity is the highest-signal fraud indicator. Implement before any ML.
 
 ```
+
 Window-based velocity per dimension:
   Account-level:    count of [tx, login, add-card, change-address] in [1m, 10m, 1h, 24h, 7d]
   Device-level:     distinct accounts per device fingerprint in [1h, 24h, 7d]
@@ -40,6 +43,7 @@ Threshold strategy:
     Z > 5.0 -> block
   This adapts to each user's normal behavior — a power user making 50 tx/day
   is not flagged, but a user jumping from 2 to 20 tx/day is.
+
 ```
 
 ## ML Scoring

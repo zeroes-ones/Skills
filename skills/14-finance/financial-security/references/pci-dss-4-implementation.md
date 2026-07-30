@@ -24,12 +24,14 @@ cardholder data (CHD) or sensitive authentication data (SAD), plus
 connected-to components that can impact CDE security.
 
 ```
+
 Scoping methodology:
 1. Identify all CHD/SAD flows (data flow diagram)
 2. Identify systems that store, process, or transmit CHD/SAD
 3. Identify connected-to systems (AD, monitoring, patching, security)
 4. Verify segmentation between CDE and non-CDE (penetration test)
 5. Document scope in a network diagram with justification
+
 ```
 
 ## 12 Requirements Summary

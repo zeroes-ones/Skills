@@ -3,6 +3,7 @@
 ## Net Worth Statement Template
 
 ```
+
 Date: _______________
 
 ASSETS
@@ -56,6 +57,7 @@ TOTAL LIABILITIES:                   $__________
 NET WORTH (Assets - Liabilities):    $__________
 
 Change from Last Quarter:            $__________   (___%)
+
 ```
 
 ## Key Ratios

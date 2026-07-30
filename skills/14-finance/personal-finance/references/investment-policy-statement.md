@@ -5,11 +5,13 @@ An IPS is your investing constitution -- it prevents emotional decisions during 
 ## Section 1: Investment Philosophy
 
 ```
+
 I believe that markets are efficient and that low-cost, broad-market index funds
 provide the best risk-adjusted returns for long-term investors. I do not attempt
 to time the market or pick individual winning stocks. I accept that markets will
 decline 30-50% multiple times during my investing lifetime, and I commit to
 staying invested through these declines.
+
 ```
 
 ## Section 2: Goals & Time Horizons
@@ -24,6 +26,7 @@ staying invested through these declines.
 ## Section 3: Asset Allocation
 
 ```
+
 Overall Portfolio:
   Stocks: ____% (US: ____% / International: ____%)
   Bonds: ____%
@@ -34,6 +37,7 @@ Glide Path (age-based adjustments):
   Age 40-50: Stock ____% / Bond ____%
   Age 50-60: Stock ____% / Bond ____%
   Age 60+:   Stock ____% / Bond ____%
+
 ```
 
 ## Section 4: Fund Selection

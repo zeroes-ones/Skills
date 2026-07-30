@@ -10,6 +10,7 @@ Avalanche always minimizes total interest paid. Snowball provides psychological 
 ## Quick Comparison
 
 ```
+
 Enter your debts:
   Debt 1: $________ at ____% APR, minimum payment $________
   Debt 2: $________ at ____% APR, minimum payment $________
@@ -28,6 +29,7 @@ SNOWBALL (Smallest Balance First):
   Months to debt-free: ________
 
 Extra cost of snowball: $________
+
 ```
 
 ## Example Comparison
@@ -42,6 +44,7 @@ Extra cost of snowball: $________
 ## Balance Transfer Evaluation
 
 ```
+
 Current debt: $________ at ____% APR
 Balance transfer offer: ____% APR for ____ months, ____% transfer fee
 
@@ -52,6 +55,7 @@ Total savings vs staying: $________
 
 IF you can pay off within promo period -> ACCEPT
 IF you cannot -> DECLINE (rate jumps to ____% after promo)
+
 ```
 
 ## Debt Payoff Priority Matrix

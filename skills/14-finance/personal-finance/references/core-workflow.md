@@ -5,6 +5,7 @@
 Execute in order. Do not skip steps.
 
 ```
+
 1. TRACK CURRENT SPENDING (30 days minimum)
    |-- Pull last 3 months of bank/credit card statements
    |-- Categorize every transaction: Housing, Food, Transport, Healthcare, Debt, Entertainment, Savings, Other
@@ -35,11 +36,13 @@ Execute in order. Do not skip steps.
    |-- Auto-transfer to retirement accounts on payday
    |-- Auto-bill pay for fixed expenses (rent, utilities, insurance)
    |-- Manual review: only discretionary spending requires conscious decision
+
 ```
 
 ### Phase 2: Net Worth & Financial Health
 
 ```
+
 1. CALCULATE NET WORTH
    |-- Assets: cash (checking, savings), investments (retirement, taxable, crypto at 50% haircut), property (home value, car at KBB trade-in), other (business equity, collectibles conservatively)
    |-- Liabilities: credit cards, student loans, auto loans, mortgage, personal loans, medical debt
@@ -74,11 +77,13 @@ Execute in order. Do not skip steps.
    |-- Mid-term (2-10 years): House down payment, car, business start-up -> conservative mix (60/40 bonds/stocks)
    |-- Long-term (>10 years): Retirement, financial independence -> aggressive (90/10 or 80/20 stocks/bonds)
    |-- Every goal: Specific amount + Target date + Monthly contribution required = plan
+
 ```
 
 ### Phase 3: Investing
 
 ```
+
 1. INVESTING PRIORITY ORDER (Waterfall)
    |-- 1. 401k up to employer match: IMMEDIATE 50-100% return -- no investment beats this
    |-- 2. High-interest debt payoff: Any debt > 8% APR is a guaranteed after-tax return of 8%+
@@ -115,4 +120,5 @@ Execute in order. Do not skip steps.
    |-- Use new contributions to rebalance (buy underweight assets) = tax-free
    |-- In taxable: rebalance with dividends + new money only (avoid capital gains)
    |-- Tax-loss harvesting: sell losers in taxable, buy similar (not identical) fund, deduct up to $3,000/year
+
 ```

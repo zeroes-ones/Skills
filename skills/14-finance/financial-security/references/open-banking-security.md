@@ -79,7 +79,9 @@ PSD2 Article 97: payment service providers must apply SCA when:
 4. TPP obtains OAuth 2.0 client credentials per ASPSP (client_id per ASPSP)
 
 ### Revocation
+
 ```
+
 Revocation triggers:
 - NCA revokes PSD2 authorization → QTSP revokes QWAC within 24h
 - ASPSP detects fraud/misuse → revoke client credentials immediately
@@ -90,4 +92,5 @@ Technical implementation:
 - OCSP stapling: every TPP connection MTLS handshake validates QWAC status
 - JWT access token introspection (RFC 7662): validate OAuth token per request
 - Webhook to NCA registry: monitor for authorization status changes
+
 ```

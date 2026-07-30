@@ -29,6 +29,7 @@
 Assign every dollar. Income minus all allocations = $0.
 
 ```
+
 Monthly Take-Home Pay: $__________
 
 FIXED EXPENSES:
@@ -59,6 +60,7 @@ SAVINGS (pay yourself first):
   Other Goals:            $__________
 
 TOTAL ALLOCATED:          $__________ (must equal take-home pay)
+
 ```
 
 ## Emergency Fund Tiers
@@ -75,6 +77,7 @@ TOTAL ALLOCATED:          $__________ (must equal take-home pay)
 To convert irregular expenses to monthly budget items:
 
 ```
+
 Annual expenses / 12 = monthly sinking fund contribution
 
 Examples:
@@ -84,6 +87,7 @@ Examples:
   Car maintenance ($800/yr):     $67/month
   Home maintenance (1% of value): $X/month
   Property tax ($3,600/yr):     $300/month
+
 ```
 
 This prevents "surprise" expenses -- they are planned.

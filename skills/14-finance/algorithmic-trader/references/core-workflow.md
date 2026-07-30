@@ -38,7 +38,9 @@ def validate_signal(signal: dict, portfolio: Portfolio, market_data: MarketData)
             return SignalDecision.EXPIRED
 
     return SignalDecision.ACCEPT
+
 ```
+
 <!-- DEEP: 10+min -->
 ### Phase 2 (~15 min): Position Sizing
 
@@ -50,14 +52,18 @@ Translate a validated signal into a concrete share/contract count. Position sizi
    - **Volatility-Adjusted**: Position size = (Account Risk $) / (ATR_20 * Multiplier). Larger positions in low-volatility names, smaller in high-vol.
 
 2. **Calculate share quantity**:
+
    ```
+
    account_risk_dollars = portfolio.nav * risk_per_trade_pct
    stop_distance_pct = abs(entry_price - stop_loss_price) / entry_price
    position_value = account_risk_dollars / stop_distance_pct
    shares = floor(position_value / entry_price)
+
    ```
 
 3. **Apply Kelly if win/loss data exists**:
+
    ```python
    def half_kelly_fraction(win_rate: float, avg_win: float, avg_loss: float) -> float:
        b = avg_win / abs(avg_loss)  # win/loss ratio
@@ -70,6 +76,7 @@ Translate a validated signal into a concrete share/contract count. Position sizi
    # b = 8/5 = 1.6, f* = (1.6*0.55 - 0.45)/1.6 = 0.26875
    # Half-Kelly = 13.4% of account... way too aggressive for multi-position portfolio
    # Cap half-Kelly at 5% max position size regardless of formula output
+
    ```
 
 4. **Apply constraints**:
@@ -79,12 +86,16 @@ Translate a validated signal into a concrete share/contract count. Position sizi
    - Min position size: $2,000 (below this, commissions eat the edge)
 
 5. **Size the trim targets**: Pre-compute exit tiers based on entry:
+
    ```
+
    tier_1_target = entry_price * 1.10   # +10% — risk-off trim (sell 25%)
    tier_2_target = entry_price * 1.20   # +20% — scaling trim (sell 25%)
    tier_3_target = entry_price * 1.40   # +40% — runner trim (sell 25%)
    stop_loss = entry_price - (2 * ATR)  # initial hard stop
+
    ```
+
 <!-- DEEP: 10+min -->
 ### Phase 3 (~20 min): Entry Execution
 
@@ -96,7 +107,9 @@ Bridge the gap between model prices and real fills. Slippage, commissions, and t
    - Size >1% of ADV → TWAP/VWAP algorithm to avoid moving the market
 
 2. **Estimate slippage before submitting**:
+
    ```
+
    # Realistic slippage model (from live trading data)
    if market_cap > 100e9:     slippage_pct = 0.02  # mega-cap: 2 bps
    elif market_cap > 10e9:    slippage_pct = 0.05  # large-cap: 5 bps
@@ -108,6 +121,7 @@ Bridge the gap between model prices and real fills. Slippage, commissions, and t
    # For OTM options, add another 2-3%
    if option_moneyness < 0.95:  # OTM
        option_slippage_pct += 2.0
+
    ```
 
 3. **Commission-aware sizing**:
@@ -116,6 +130,7 @@ Bridge the gap between model prices and real fills. Slippage, commissions, and t
    - If estimated commissions > 1% of expected profit, reduce size or skip the trade.
 
 4. **Broker API execution flow** (Alpaca example):
+
    ```python
    import alpaca_trade_api as tradeapi
 
@@ -143,9 +158,11 @@ Bridge the gap between model prices and real fills. Slippage, commissions, and t
    #     limit_price=2.50,
    #     time_in_force='day'
    # )
+
    ```
 
 5. **Duplicate order guard**:
+
    ```python
    # Idempotency via client_order_id
    order_id = f"{signal['id']}_{datetime.utcnow().strftime('%Y%m%d')}"
@@ -153,13 +170,16 @@ Bridge the gap between model prices and real fills. Slippage, commissions, and t
    if existing and existing.status not in ('canceled', 'rejected'):
        return existing  # already submitted, do not duplicate
    api.submit_order(..., client_order_id=order_id)
+
    ```
+
 <!-- DEEP: 10+min -->
 ### Phase 4 (~15 min): Position Management
 
 A live position is not passive — it requires active monitoring and pre-programmed responses to price movement, time decay, and signal degradation.
 
 1. **Trailing stop engine**:
+
    ```python
    def update_trailing_stop(position: Position, current_price: float, atr: float) -> float:
        # 2x ATR trailing stop from highest high since entry
@@ -167,9 +187,11 @@ A live position is not passive — it requires active monitoring and pre-program
        position.trailing_stop = max(position.trailing_stop, new_stop)
        # Stop never moves down — only up for longs, down for shorts
        return position.trailing_stop
+
    ```
 
 2. **Trim execution logic**:
+
    ```python
    def check_trims(position: Position, current_price: float) -> list[Order]:
        orders = []
@@ -193,6 +215,7 @@ A live position is not passive — it requires active monitoring and pre-program
            position.tier_3_executed = True
 
        return orders
+
    ```
 
 3. **Time stop monitor**: If `(datetime.utcnow() - position.entry_time).days >= 5` and the position P&L is between -2% and +5%, the signal has not worked. Exit at market. UOA signals that do not move within 5 trading days almost never become big winners.
@@ -206,16 +229,20 @@ A live position is not passive — it requires active monitoring and pre-program
 Systematic exits prevent emotional decisions. Every exit is pre-planned — the only decision at exit time is whether the pre-planned condition has been met.
 
 1. **Exit trigger hierarchy** (checked in order every 1 minute):
+
    ```
+
    1. Emergency stop: News/event invalidating thesis → Exit 100% market order
    2. Hard stop-loss: price <= stop_loss → Exit 100% market order
    3. Trailing stop: price <= trailing_stop → Exit 100% market order
    4. Time stop: days_held >= 5 AND pnl_pct < 5% → Exit 100% market order
    5. Trim targets: price >= tier_N_target → Sell tier_N quantity
    6. Signal invalidation: original UOA flow reversed → Exit 100%
+
    ```
 
 2. **Portfolio risk dashboard** (real-time calculations):
+
    ```python
    def portfolio_risk_metrics(positions: list[Position], prices: dict) -> dict:
        nav = sum(p.market_value for p in positions) + cash
@@ -249,6 +276,7 @@ Systematic exits prevent emotional decisions. Every exit is pre-planned — the 
            'max_drawdown': max_dd, 'beta': beta,
            'corr_matrix': corr_matrix, 'net_delta': net_delta
        }
+
    ```
 
 3. **Hard circuit breaker**: If account drawdown exceeds 20% from peak NAV:
@@ -265,6 +293,7 @@ Systematic exits prevent emotional decisions. Every exit is pre-planned — the 
 Validate strategies before risking capital. Learn from every trade — winners and losers.
 
 1. **Vectorized backtest** (fast, for strategy exploration):
+
    ```python
    def vectorized_backtest(signals: pd.DataFrame, prices: pd.DataFrame, atr: pd.Series) -> pd.DataFrame:
        # signals columns: date, ticker, signal, entry_price, conviction
@@ -291,6 +320,7 @@ Validate strategies before risking capital. Learn from every trade — winners a
                results.append({'pnl_pct': (future_prices.iloc[-1] - entry) / entry, 'exit_reason': 'time_stop', 'days_held': 20})
 
        return pd.DataFrame(results)
+
    ```
 
 2. **Walk-forward optimization** (the only backtest that matters):
@@ -307,6 +337,7 @@ Validate strategies before risking capital. Learn from every trade — winners a
    - **Regime test**: Run backtest separately on bull (2009-2020), bear (2008, 2020 Q1, 2022), and sideways (2015-2016) markets. A strategy that only works in bull markets will blow up.
 
 4. **Post-trade P&L attribution**:
+
    ```python
    def attribution_report(closed_trades: list[Trade]) -> dict:
        df = pd.DataFrame([t.to_dict() for t in closed_trades])
@@ -324,4 +355,5 @@ Validate strategies before risking capital. Learn from every trade — winners a
            'sector_pnl': df.groupby('sector')['pnl'].sum(),
            'signal_conviction_decay': df.groupby('conviction_bucket')['pnl_pct'].mean()
        }
+
    ```

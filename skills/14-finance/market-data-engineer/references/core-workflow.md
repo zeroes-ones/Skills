@@ -14,6 +14,7 @@
    - **Bloomberg Terminal**: `BDH()` / `BDP()` functions via blpapi Python library — real-time + historical with field codes (e.g., `OPT_CHAIN`, `OPT_GREEKS`).
 
 2. **Core Schema — Options Flow Table (TimescaleDB hypertable)**:
+
 ```sql
 CREATE TABLE options_flow (
     flow_id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -55,9 +56,11 @@ SELECT create_hypertable('options_flow', 'trade_timestamp',
 CREATE INDEX idx_flow_ticker_ts ON options_flow (ticker, trade_timestamp DESC);
 CREATE INDEX idx_flow_underlying_expiry ON options_flow (underlying, expiry);
 CREATE INDEX idx_flow_source ON options_flow (source, trade_timestamp DESC);
+
 ```
 
 3. **Corporate Actions Schema**:
+
 ```sql
 CREATE TABLE corporate_actions (
     action_id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -78,9 +81,11 @@ CREATE TABLE corporate_actions (
 );
 
 CREATE INDEX idx_corp_actions_ticker_date ON corporate_actions (ticker, ex_date);
+
 ```
 
 4. **Point-in-Time Ticker Master**:
+
 ```sql
 CREATE TABLE ticker_master (
     ticker            VARCHAR(10) PRIMARY KEY,
@@ -93,6 +98,7 @@ CREATE TABLE ticker_master (
     is_active         BOOLEAN DEFAULT TRUE,
     updated_at        TIMESTAMPTZ DEFAULT NOW()
 );
+
 ```
 
 **What good looks like:** All 4+ data sources cataloged with endpoint URLs and auth methods. Schema in Git with versioned migration files. Test data for `AAPL`, `SPY`, `TSLA`, and `NVDA` loads successfully. Ticker master populated with 5+ years of historical symbols including delisted tickers.
@@ -101,6 +107,7 @@ CREATE TABLE ticker_master (
 ### Phase 2 (~30 min): Real-Time Streaming Pipeline
 <!-- STANDARD: 3min -->
 1. **Kafka/Redpanda Topic Design**:
+
 ```yaml
 topics:
   options.flow.raw:
@@ -121,9 +128,11 @@ topics:
     partitions: 3
     retention_ms: -1                # forever (log compacted)
     cleanup_policy: compact
+
 ```
 
 2. **Stream Processor — Faust Application**:
+
 ```python
 import faust
 from datetime import datetime
@@ -166,9 +175,11 @@ async def enrich_and_validate(flows):
             flow['error'] = str(e)
             flow['failed_at'] = datetime.utcnow().isoformat()
             await dlq_topic.send(value=flow)
+
 ```
 
 3. **Token-Bucket Rate Limiter**:
+
 ```python
 import time
 import asyncio
@@ -205,6 +216,7 @@ class MarketDataRateLimiter:
             raise RuntimeError(
                 f"Daily cost budget {self.cost_budget} exceeded: {self.daily_cost}"
             )
+
 ```
 
 <!-- DEEP: 10+min -->
@@ -216,6 +228,7 @@ class MarketDataRateLimiter:
 ### Phase 3 (~25 min): Corporate Actions Normalization
 <!-- STANDARD: 3min -->
 1. **Stock Split Adjustment — Options Chain** (NVDA 10:1 split, ex-date 2024-06-10):
+
 ```sql
 -- Pre-split: NVDA trading at $1200, 1500C strike exists
 -- Post-split: NVDA trades at $120, strike adjusts to $150, contract multiplier becomes 1000 shares
@@ -238,9 +251,11 @@ SELECT COUNT(*) FROM options_flow
 WHERE underlying = 'NVDA'
   AND trade_timestamp >= '2024-06-10'
   AND adj_factor != 1.0;  -- should return 0
+
 ```
 
 2. **Cash Dividend Adjustment — Forward Price**:
+
 ```sql
 -- Apple pays $0.25/share dividend, ex-date 2024-02-09
 -- The forward price used in options pricing shifts down by PV of dividend
@@ -254,9 +269,11 @@ SET
 WHERE underlying = 'AAPL'
   AND snapshot_date >= '2024-02-09'
   AND NOT dividend_adjusted;
+
 ```
 
 3. **Ticker Change / Merger Handler** (FB → META, effective 2022-06-09):
+
 ```python
 def handle_ticker_change(old_ticker: str, new_ticker: str,
                          effective_date: str):
@@ -288,9 +305,11 @@ def handle_ticker_change(old_ticker: str, new_ticker: str,
         VALUES (%(old)s, 'ticker_change', %(eff)s,
                 %(new)s, NOW(), 'manual_review')
     """, {'old': old_ticker, 'new': new_ticker, 'eff': effective_date})
+
 ```
 
 4. **Corporate Actions Calendar — Automated Processing**:
+
 ```python
 from datetime import date, timedelta
 
@@ -324,6 +343,7 @@ def process_daily_corporate_actions(as_of: date):
     unapplied = get_unapplied_actions_before(as_of - timedelta(days=1))
     if unapplied:
         alert_pager(f"{len(unapplied)} unapplied corporate actions: {unapplied}")
+
 ```
 
 <!-- DEEP: 10+min -->
@@ -335,6 +355,7 @@ def process_daily_corporate_actions(as_of: date):
 ### Phase 4 (~20 min): Historical Data Warehousing
 <!-- STANDARD: 3min -->
 1. **Daily Parquet Export — TimescaleDB → S3**:
+
 ```python
 import pandas as pd
 import pyarrow as pa
@@ -381,9 +402,11 @@ def export_day_to_parquet(export_date: date):
 
     # Sanity check: date range is correct
     assert df['trade_timestamp'].min().date() == export_date,         f"Date mismatch in export: expected {export_date}"
+
 ```
 
 2. **ClickHouse Analytics Materialized Views**:
+
 ```sql
 -- IV Surface: hourly snapshots of implied volatility by strike/expiry
 CREATE MATERIALIZED VIEW options_iv_surface
@@ -425,9 +448,11 @@ AS SELECT
     count()       AS trade_count
 FROM options_flow
 GROUP BY ticker, trade_hour, option_type, trade_condition;
+
 ```
 
 3. **Retention Lifecycle Policy**:
+
 ```yaml
 retention_policy:
   hot_storage:
@@ -449,6 +474,7 @@ retention_policy:
     backend: N/A
     trigger: after 7 years
     data: tick-level Parquet files
+
 ```
 
 <!-- DEEP: 10+min -->
@@ -460,6 +486,7 @@ retention_policy:
 ### Phase 5 (~15 min): Data Quality Monitoring & Alerting
 <!-- STANDARD: 3min -->
 1. **Stale Quote Detection**:
+
 ```sql
 -- Alert if any active ticker has quotes older than 5 minutes during market hours
 SELECT ticker, COUNT(*) AS stale_count, MAX(snapshot_timestamp) AS last_seen
@@ -470,9 +497,11 @@ WHERE snapshot_timestamp < NOW() - INTERVAL '5 minutes'
 GROUP BY ticker
 HAVING COUNT(*) > 100
 ORDER BY last_seen ASC;
+
 ```
 
 2. **Put-Call Parity Arbitrage Detection**:
+
 ```sql
 -- PCP violation: |C_bid - P_ask - S + K*e^(-rT)| > 0.05*S indicates data error
 WITH parity_check AS (
@@ -491,9 +520,11 @@ FROM parity_check
 WHERE parity_error > underlying_price * 0.05
 ORDER BY parity_error DESC
 LIMIT 100;
+
 ```
 
 3. **Volume/OI Sanity Checks**:
+
 ```sql
 -- Spike detection: daily volume > 10x previous day for same ticker
 WITH daily_vol AS (
@@ -512,9 +543,11 @@ FROM daily_vol
 WHERE total_vol > 10 * LAG(total_vol) OVER (
     PARTITION BY ticker ORDER BY trade_date)
    OR total_vol = 0;  -- complete gap indicates pipeline failure
+
 ```
 
 4. **Cross-Source Reconciliation**:
+
 ```sql
 -- Compare total option volume between Unusual Whales and Polygon.io for top tickers
 SELECT ticker, trade_timestamp::date,
@@ -531,6 +564,7 @@ HAVING ABS(SUM(CASE WHEN source = 'unusual_whales' THEN volume ELSE 0 END) -
                         SUM(CASE WHEN source = 'polygon' THEN volume ELSE 0 END))
 ORDER BY volume_diff DESC;
 -- Alert if any ticker shows >15% volume discrepancy between sources
+
 ```
 
 **What good looks like:** Quality dashboard shows all-green across stale detection, arbitrage checks, volume sanity, and cross-source reconciliation. Alerts fire within 2 minutes of anomaly detection. All violations investigated and root-caused within 15 minutes. Weekly quality reports show < 0.01% data error rate.

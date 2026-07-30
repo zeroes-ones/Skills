@@ -29,6 +29,7 @@ async def create_payment(
         "created_at": utcnow()
     })
     return result
+
 ```
 
 ### Key Requirements
@@ -43,6 +44,7 @@ async def create_payment(
 For transactions requiring two-person authorization:
 
 ### Implementation Pattern
+
 ```python
 def dual_control_required(transaction_amount: Money) -> bool:
     thresholds = business_config.get("dual_control_thresholds", {
@@ -52,6 +54,7 @@ def dual_control_required(transaction_amount: Money) -> bool:
         "JPY": 1_000_000,
     })
     return transaction_amount >= thresholds[transaction_amount.currency]
+
 ```
 
 ### Workflow
@@ -93,6 +96,7 @@ def verify_transaction(transaction: Dict, public_key: PublicKey, signature: byte
         return True
     except InvalidSignature:
         return False
+
 ```
 
 ### What to Sign
@@ -109,6 +113,7 @@ def verify_transaction(transaction: Dict, public_key: PublicKey, signature: byte
 | Outbox Pattern | Write business entity + outbox record in same DB transaction. Separate process reads outbox and publishes events. | Need guaranteed at-least-once delivery |
 
 ### Saga Compensating Transaction Example
+
 ```python
 async def transfer_funds_saga(from_acct, to_acct, amount):
     steps = []
@@ -127,4 +132,5 @@ async def transfer_funds_saga(from_acct, to_acct, amount):
         for compensate in reversed(steps):
             await compensate()
         return Failure(e)
+
 ```

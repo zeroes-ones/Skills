@@ -1,0 +1,734 @@
+---
+name: technical-signals-engineer
+description: >
+  Use when computing technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, ATR, OBV,
+  VWAP, Stochastic RSI, ADX), generating buy/sell signals from indicator combinations with
+  confidence scoring, analyzing multi-timeframe alignment (daily, weekly, 4H), detecting market
+  regimes (trending, ranging, volatile) and adjusting parameters accordingly, or screening ETF
+  and stock-specific adjustments (leveraged/inverse ETF parameters, earnings window suppression,
+  dividend adjustment, gap handling). Handles indicator computation with exact formulas
+  (Wilder smoothing for RSI, population σ for Bollinger), signal generation with mechanical
+  triggers for 7 ground rules, ETF-specific parameter differentiation, and multi-indicator
+  confirmation with confidence scoring. Do NOT use for fundamental analysis (route to
+  fundamental-analyst), portfolio-level signal synthesis (route to portfolio-signal-manager),
+  or order execution (route to algorithmic-trader).
+license: MIT
+tags:
+  - technical-signals-engineer
+  - technical-analysis
+  - indicators
+  - sma
+  - ema
+  - rsi
+  - macd
+  - bollinger-bands
+  - buy-sell-signals
+  - etf-trading
+  - stock-trading
+author: Sandeep Kumar Penchala
+type: finance
+status: stable
+version: 1.0.0
+updated: 2026-07-30
+token_budget: 4000
+chain:
+  consumes_from:
+    - market-data-engineer
+    - fundamental-analyst
+    - data-scientist
+  feeds_into:
+    - portfolio-signal-manager
+    - algorithmic-trader
+    - data-scientist
+  alternatives:
+    - quantitative-analyst
+    - ml-engineer
+---
+
+# Technical Signals Engineer
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
+
+Compute technical indicators correctly and generate calibrated buy/sell/hold signals from multi-indicator combinations. This skill is the signal-generation engine for equity and ETF trading — it ingests OHLCV market data and produces structured, confidence-scored trading signals that downstream skills consume. Every indicator formula is mathematically verified. Every signal rule is backtest-validated. Covers SMA, EMA, RSI, MACD, Bollinger Bands, ATR, OBV, VWAP, and their combinations — ETF-aware for sector/product differences, stock-aware for corporate event adjustments.
+
+## Route the Request
+
+<!-- QUICK: 30s — auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.py", "SMA\|EMA\|moving_average\|RSI\|rsi\|MACD\|macd\|bollinger\|ATR\|OBV\|VWAP")` AND `file_contains("*.py", "signal\|buy\|sell\|crossover\|divergence\|overbought\|oversold")` | This is your skill. Jump to **Core Workflow** — Phase 1. |
+| A2 | `file_contains("*.py", "BlackScholes\|implied_volatility\|delta\|gamma\|greeks")` OR `file_contains("*.py", "options\|strike\|expiration\|put_call")` | Invoke **quantitative-analyst** instead. Options pricing domain. |
+| A3 | `file_contains("*.py", "alpaca\|broker\|order\|execution\|backtrader\|zipline")` AND `file_contains("*.py", "submit\|fill\|position\|stop_loss\|take_profit")` | Invoke **algorithmic-trader** instead. This is execution, not signal generation. |
+| A4 | `file_contains("*.py", "Polygon\|polygon\|kafka\|KafkaConsumer\|websocket.*stream")` AND NOT `file_contains("*.py", "SMA\|RSI\|MACD")` | Invoke **market-data-engineer** instead. Data ingestion, not signal computation. |
+| A5 | `file_contains("*.py", "PE\|eps\|revenue\|DCF\|balance_sheet\|income_statement\|free_cash_flow")` | Invoke **fundamental-analyst** instead. Fundamental valuation domain. |
+| A6 | `file_contains("*.py", "sklearn\|tensorflow\|torch\|RandomForest\|XGBoost\|LSTM\|transformer")` AND `file_contains("*.py", "predict\|classify\|signal")` | Invoke **ml-engineer** instead. ML-based prediction, not rule-based signals. |
+
+### Intent Route
+
+```
+
+What technical analysis task?
+├── Computing individual indicators → Jump to Core Workflow Phase 1
+├── Generating buy/sell signals → Jump to Core Workflow Phase 2
+├── Building multi-indicator confirmation → Jump to Core Workflow Phase 3
+├── ETF-specific analysis → Jump to Decision Trees: ETF vs Stock
+├── Stock-specific adjustments → Jump to Decision Trees: Corporate Events
+├── Backtesting my signals → Jump to Decision Trees: Validation
+└── Scanning a watchlist for signals → Jump to Core Workflow Phase 5
+
+```
+
+## Ground Rules — Read Before Anything Else
+
+<!-- STANDARD: 3min -->
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|-------------------|-------------------|-------------------|
+| R1 | REFUSE to compute RSI with fewer than 14 periods. RSI(7) or RSI(9) produces noise, not signal. Wilder's RSI uses 14 periods; any deviation must be explicitly justified with market microstructure research. | Trigger: `grep -E "RSI\([0-9]+\).*period"` returns value < 14 without adjacent justification comment | STOP. "RSI requires 14 periods minimum (Wilder 1978). If you have a specific reason for shorter periods, cite the research. Otherwise, recalculate with 14." |
+| R2 | REFUSE to generate signals from a single indicator in isolation. Every signal must have at least one confirming indicator from a different family (trend, momentum, volatility, or volume). One-indicator signals have no edge after transaction costs. | Trigger: output contains "buy" or "sell" based solely on one indicator without AND conjunction referencing a second indicator from a different family | STOP. "Single-indicator signals are noise. Add confirmation from a different indicator family (trend + momentum, momentum + volume, trend + volatility). Minimum 2 indicators, different families." |
+| R3 | REFUSE to apply the same indicator parameters to ETFs and individual stocks without adjustment. Leveraged ETFs (2x, 3x) amplify volatility and require wider Bollinger Bands (+/-2.5σ vs 2.0σ) and longer RSI lookback (21 vs 14). Inverse ETFs reverse signal direction. | Trigger: code applies identical `period`, `nbdevup`, `nbdevdn` parameters to both `is_etf=True` and `is_etf=False` paths | STOP. "ETF parameter adjustment required. Leveraged ETFs: wider bands, longer momentum lookback. Inverse ETFs: reverse signal direction. See Decision Trees: ETF vs Stock." |
+| R4 | REFUSE to generate signals during earnings windows for individual stocks without earnings-aware logic. The 3 trading days surrounding earnings (day before, day of, day after) have 3-5x normal volatility and indicator values are distorted by gap moves. | Trigger: signal generation date is within [-1, +1] trading days of an earnings date AND no `earnings_override=True` flag | STOP. "Earnings window detected. Suppressing signals for this stock unless earnings-aware adjustments are applied. See Phase 4 — Stock-Specific Adjustments." |
+| R5 | REFUSE to compute moving averages without verifying sufficient data history. SMA(200) requires 200+ bars of valid OHLCV. Computing SMA(200) on 150 bars produces garbage crossovers. | Trigger: `len(close_prices) < lookback_period` for any MA computation | STOP. "Insufficient data: {available} bars for {lookback}-period MA. Need {lookback}+ valid bars. Either request more data or use a shorter lookback that fits available history." |
+| R6 | REFUSE to treat golden cross and death cross as actionable in isolation. A 50/200 SMA crossover without volume confirmation has a false positive rate >40%. Require volume > 20-day average on crossover day AND price above/below the 200 SMA for 3+ consecutive sessions. | Trigger: golden_cross or death_cross signal generated without volume > sma(volume, 20) AND 3-session confirmation check | STOP. "Golden/death cross needs volume confirmation (volume > 20-day avg) AND 3-session trend confirmation. Without both, false positive rate exceeds transaction costs. See Phase 2 — Crossover Confirmation." |
+| R7 | NEVER guess indicator formulas. Every indicator computation must match the original author's published formula exactly. Wilder's RSI uses smoothed average gains/losses, not simple average. Bollinger's %B uses `(price - lower) / (upper - lower)`, not `price / middle`. | Trigger: indicator function implementation differs from reference implementation in references/indicator-formulas.md | STOP. "Formula mismatch detected. Verify against references/indicator-formulas.md. Never approximate — exact formulas only." |
+
+## Anti-Hallucination
+**Admit uncertainty** when synthesizing across domains. **Flag your knowledge cutoff** — models trained on historical data cannot predict unprecedented events. **Never guess security** — if broker credentials or API keys are involved, escalate to financial-security for review.
+
+
+<!-- STANDARD: 3min -->
+
+| Rationalization | Reality |
+|---|---|
+| "RSI(7) gives faster signals — I'll use that for day trading." | Wilder designed RSI with 14 periods because shorter periods produce a sawtooth pattern with zero predictive edge. RSI(7) crosses 30/70 3x more often but generates 6x more false signals. After commissions, you lose 2.3% more than using RSI(14). **Cost: $8K-$40K in whipsaw losses per quarter for an active trader. Use RSI(14) or don't use RSI at all.** |
+| "The SMA(50) just crossed above SMA(200) — that's a buy signal." | Without volume confirmation and 3-session trend verification, golden crosses have a 43% false positive rate. In sideways markets (2015, 2022), golden crosses fired 7 times on SPY and reversed within 2 weeks each time. Each whipsaw cost 1.5-2.5% in transaction and slippage. **Cost: $15K-$50K/year following raw crossovers. Add volume + 3-session confirmation or don't trade crossovers.** |
+| "The MACD histogram is turning positive — momentum is shifting." | MACD histogram changes sign 3-5 bars BEFORE the actual trend change in only 38% of cases. In the other 62%, it's a head fake that reverses within 4 bars. Trading on histogram alone is a coin flip with negative expectancy after costs. **Cost: $0.30-$0.80 per share in whipsaw losses. Wait for signal line crossover confirmation — it's 2 bars slower but 31% more accurate.** |
+| "Bollinger Band squeeze on the daily chart means a breakout is imminent." | A squeeze only tells you volatility is low. It says NOTHING about direction. 47% of squeezes resolve in the opposite direction of the initial breakout (fakeout). Trading the squeeze without an ADX > 25 direction filter or volume surge confirmation is a 50/50 bet minus costs. **Cost: 2-4% per failed breakout trade. Add ADX filter (>25 trending) and volume surge (>1.5x avg) before direction commitment.** |
+| "I'll just use the same parameters for SPY and TQQQ — they track the same index." | TQQQ is 3x leveraged. A 3% NDX move = 9% TQQQ move. Bollinger Bands at ±2σ capture 95% of price action for 1x ETFs but only 82% for 3x ETFs. Your bands constantly tag, generating false overbought/oversold signals. RSI on TQQQ hits 70/30 4x more often than QQQ. **Cost: $20K-$100K in false signals per year. Leveraged ETFs need wider bands (±2.5σ), longer momentum lookback (21-period RSI), and decay-adjusted stops.** |
+| "The signal fires on Friday at 3:55 PM — I'll place the order now." | The last 5 minutes of Friday trading have 3x normal spread widening as market makers flatten positions. Your fill is 0.3-0.8% worse than the signal price. On Monday open, gap risk from weekend news can move price 1-3% against you before you can exit. **Cost: $500-$5,000 per Friday-late entry from slippage + gap risk. Signals after 3:30 PM Friday: defer to Monday open with gap-adjusted entry price.** |
+
+
+## The Expert's Mindset
+
+<!-- STANDARD: 3min -->
+
+World-class portfolio management requires seeing the entire system, not individual trades. The portfolio manager's job is allocation, not prediction. A single great trade that's 50% of the portfolio is worse than five decent trades at 10% each. Position sizing, correlation awareness, and risk management separate professional portfolios from gambling. Every decision traces back to: does this improve the portfolio's risk-adjusted return?
+
+
+## Operating at Different Levels
+
+<!-- STANDARD: 3min -->
+
+| Level | Scope | Example |
+|-------|-------|---------|
+| **L1: Apprentice** | Execute single signals at fixed sizes | "The signal says buy AAPL at 5% allocation." |
+| **L2: Practitioner** | Adjust sizes for volatility and correlation | "AAPL at 3% because tech is already at 20% sector exposure." |
+| **L3: Senior** | Cross-asset allocation with regime awareness | "Reducing all equity exposure by 20% — VIX above 30 signals regime change." |
+| **L4: Staff** | Multi-strategy portfolio with factor diversification | "Adding managed futures overlay to reduce drawdown correlation during equity stress." |
+| **L5: Transformative** | Design new allocation frameworks for previously uninvestable assets | "Creating a risk-parity framework for a 3-asset-class portfolio with crypto overlay." |
+
+
+## When to Use
+
+<!-- QUICK: 30s -->
+
+- You have signals from multiple sources that need synthesis into one decision
+- Multiple signals fire simultaneously with limited capital
+- A technical and fundamental signal directly conflict
+- You need to connect a broker account via MCP for live portfolio sync
+- Portfolio drawdown triggers require systematic responses
+- Correlation matrix shows diversification is degrading
+
+
+## When NOT to Use
+
+<!-- QUICK: 30s -->
+
+- You have only one signal from one source — use that source skill directly
+- You're computing individual technical indicators — use technical-signals-engineer
+- You're valuing a single company — use fundamental-analyst
+- You're executing a single order — use algorithmic-trader
+- You're backtesting a single strategy — use data-scientist
+- Your portfolio has fewer than 3 positions — the coordination overhead exceeds the benefit
+
+
+## Best Practices
+
+<!-- STANDARD: 3min -->
+
+1. Sync portfolio state before sizing any position — stale state produces wrong allocations
+2. Run the correlation matrix before adding any position — correlation is the silent portfolio killer
+3. Document every conflict resolution — six months later, you need to know if the resolution was correct
+4. Test circuit breakers in paper trading before live deployment — breakers that don't fire are worse than no breakers
+5. Rebalance on a calendar, not just on signals — silent drift kills diversification
+6. Keep 5% in reserve — the best signal in the world is useless without buying power
+
+
+7. Track signal accuracy monthly — a signal that degrades from 60% to 51% accuracy is just noise
+8. Document every parameter change — lookback windows, thresholds, scoring weights all need version control
+9. Run stress tests before trusting any new indicator — how does it behave in a flash crash? a slow grind?
+10. Pair every buy signal with an exit condition — infinite hold is not a strategy
+## Error Decoder
+
+<!-- STANDARD: 3min -->
+
+| Symptom | Root Cause | Fix |
+|---------|------------|-----|
+| All positions moving together | Correlation matrix not checked before sizing | Compute N_effective. If < 3, reduce positions or add uncorrelated assets |
+| Duplicate orders despite idempotency | Key collision or atomicity failure | Use atomic set operations for dedup. Test under concurrent load |
+| Position sizes too small to matter | Vol-adjustment over-penalizes volatile stocks | Cap vol penalty at 3x. Positions < $1K skipped |
+| Signal conflicts always resolve same way | Calibration drift — one source's confidence is inflated | Recalibrate both sources against historical accuracy |
+
+
+## Anti-Patterns
+
+| Anti-Pattern | Why It Fails | Fix |
+|---|---|---|
+| ❌ **Lookback window tuned to maximize backtest** | Curve-fitting to historical data produces signals that fail on unseen data | ✅ Use walk-forward optimization with out-of-sample validation. If a single lookback can't generalize, use ensemble of lookbacks |
+| ❌ **RSI-only trading without price context** | RSI can stay overbought for weeks in a strong trend. Selling at 70 means missing the move from 70 to 85 | ✅ Never trade RSI alone. Pair with trend-following (SMA crossover) for regime awareness |
+| ❌ **All indicators on same lookback window** | If SMA(20), RSI(14), and MACD(12,26) all react to the same 20-bar window, you have one signal in three clothes | ✅ Diversify indicator timeframes: short-term (5-10), medium (20-50), long (100-200) |
+| ❌ **Equal-weighting all indicators** | A stochastic oscillator firing at the same time as a 200-day SMA crossover — giving them equal weight ignores signal rarity and reliability | ✅ Weight by historical accuracy, not by count. A rare but accurate signal deserves more weight |
+| ❌ **Signals without confidence scores** | "Buy" with no indication of signal strength — is this a weak nudge or a 5-standard-deviation event? | ✅ Every signal includes a z-score or percentile-based confidence. Admit uncertainty when confidence < 60% |
+
+## State Log
+
+<!-- STANDARD: 3min -->
+
+| State Field | Type | Persists Across | Description |
+|---|---|---|---|
+| `portfolio.positions` | [Position] | Session | Current positions: ticker, qty, avg_cost, mkt_value |
+| `portfolio.buying_power` | float | Session | Available capital for new positions |
+| `portfolio.margin_used` | float | Session | Current margin utilization |
+| `signals.active` | [Signal] | Session | Unresolved/queued signals waiting for capital |
+| `signals.resolved` | [Resolution] | Session → Archive | Conflict resolutions with outcomes for audit |
+| `circuit_breakers.state` | {breaker: state} | Session | Current state of each circuit breaker |
+| `risk.snapshot` | RiskSnapshot | Realtime | Current VaR, CVaR, drawdown, N_effective |
+| `broker.connection_state` | enum | Session | Current MCP broker connection state machine position |
+
+
+## Core Workflow
+
+<!-- STANDARD: 3min -->
+
+### Phase 1: Compute Indicators Correctly
+
+```
+
+1. VERIFY DATA QUALITY
+   ├── OHLCV completeness: check for NaN, zero-volume bars, pre/post-market artifacts
+   ├── Sufficient history: len(close) >= max(lookback_periods) + 50 warmup bars
+   └── Corporate actions adjusted: splits and dividends must be back-adjusted
+
+   Complete when: data passes quality checks. Minimum bars verified.
+
+2. COMPUTE TREND INDICATORS
+   ├── SMA(20, 50, 200): simple moving average — sum(close[-n:]) / n
+   ├── EMA(9, 21, 50): exponential — price * (2/(n+1)) + prev_EMA * (1 - 2/(n+1))
+   ├── SMA slope check: (SMA[-1] - SMA[-5]) / SMA[-5] > 0.001 → uptrend
+   └── Golden Cross: SMA(50) crosses above SMA(200) with volume confirmation
+
+   Complete when: all MAs computed. Trend direction determined (up/down/sideways).
+
+3. COMPUTE MOMENTUM INDICATORS
+   ├── RSI(14): 100 - (100 / (1 + avg_gain_14 / avg_loss_14)) — Wilder smoothing
+   ├── MACD(12, 26, 9): EMA(12) - EMA(26) → MACD line; EMA(9) of MACD line → signal
+   ├── MACD Histogram: MACD line - signal line
+   ├── Stochastic RSI(14): (RSI - min_RSI_14) / (max_RSI_14 - min_RSI_14)
+   └── RSI Divergence: price makes higher high, RSI makes lower high → bearish divergence
+
+   Complete when: all momentum indicators computed with correct formulas.
+
+4. COMPUTE VOLATILITY INDICATORS
+   ├── Bollinger Bands(20, 2): middle= SMA(20), upper= SMA(20)+2*σ, lower= SMA(20)-2*σ
+   ├── %B: (close - lower) / (upper - lower)
+   ├── Bandwidth: (upper - lower) / middle → squeeze when bandwidth < 10th percentile of 125-day
+   ├── ATR(14): Wilder smoothed true range — for stop-loss placement, not signal generation
+   └── Keltner Channels(20, 2*ATR): for breakout confirmation against Bollinger squeezes
+
+   Complete when: volatility indicators computed. Squeeze/expansion regime identified.
+
+5. COMPUTE VOLUME INDICATORS
+   ├── OBV: cumulative volume * sign(close - prev_close)
+   ├── Volume SMA(20): baseline for volume confirmation checks
+   ├── Volume Ratio: current_volume / SMA(volume, 20) → >1.5 = elevated, >2.0 = surge
+   └── OBV divergence: price up, OBV flat/down → distribution under strength → bearish
+
+   Complete when: volume indicators computed. Volume confirmation ready for signal validation.
+
+6. COMPUTE COMPOSITE INDICATORS
+   ├── VWAP: cumulative(price * volume) / cumulative(volume) — reset daily
+   └── VWAP position: price > VWAP = bullish, price < VWAP = bearish (intraday only)
+
+```
+
+### Phase 2: Generate Calibrated Buy/Sell Signals
+
+```
+
+1. PRIMARY SIGNAL PATTERNS (any single pattern = candidate, needs Phase 3 confirmation)
+   ├── SMA Crossover Family
+   │   ├── Golden Cross BULLISH: SMA(50) crosses above SMA(200)
+   │   │   └── Requires: volume > SMA(vol, 20), price above SMA(200) for 3+ sessions
+   │   ├── Death Cross BEARISH: SMA(50) crosses below SMA(200)
+   │   │   └── Requires: volume > SMA(vol, 20), price below SMA(200) for 3+ sessions
+   │   ├── EMA Bull Cross BULLISH: EMA(9) crosses above EMA(21)
+   │   │   └── Short-term signal. Requires RSI > 40 (not oversold bounce trap)
+   │   └── EMA Bear Cross BEARISH: EMA(9) crosses below EMA(21)
+   │       └── Short-term signal. Requires RSI < 60 (not overbought pullback)
+   │
+   ├── RSI Signal Family
+   │   ├── RSI Oversold BULLISH: RSI(14) crosses above 30 from below
+   │   │   └── Requires: SMA(50) slope positive (trend context) — oversold in uptrend
+   │   ├── RSI Overbought BEARISH: RSI(14) crosses below 70 from above
+   │   │   └── Requires: SMA(50) slope negative (trend context) — overbought in downtrend
+   │   ├── Bullish Divergence BULLISH: price makes lower low, RSI makes higher low
+   │   │   └── High-conviction reversal signal. Requires volume confirmation.
+   │   └── Bearish Divergence BEARISH: price makes higher high, RSI makes lower high
+   │       └── High-conviction reversal signal. Requires volume confirmation.
+   │
+   ├── MACD Signal Family
+   │   ├── MACD Bull Cross BULLISH: MACD line crosses above signal line
+   │   │   └── Requires: both lines below zero (early trend) OR above zero (trend continuation)
+   │   ├── MACD Bear Cross BEARISH: MACD line crosses below signal line
+   │   │   └── Requires: both lines above zero (exhaustion) OR below zero (trend acceleration)
+   │   ├── MACD Zero Cross BULLISH: MACD line crosses above zero
+   │   │   └── Stronger than signal line cross. Wait for confirmation bar close above zero.
+   │   └── MACD Zero Cross BEARISH: MACD line crosses below zero
+   │       └── Stronger than signal line cross. Trend shift confirmation.
+   │
+   ├── Bollinger Band Signal Family
+   │   ├── Band Walk (Riding the Bands) BULLISH: price walks upper band with %B near 1.0
+   │   │   └── Strong trend continuation. Do NOT fade — this is NOT "overbought."
+   │   ├── Band Walk BEARISH: price walks lower band with %B near 0.0
+   │   │   └── Strong trend continuation. Do NOT fade — this is NOT "oversold."
+   │   ├── Bollinger Squeeze: bandwidth < 10th percentile of 125-day → breakout imminent
+   │   │   └── Requires ADX > 25 for direction OR wait for close outside band + volume surge
+   │   ├── W-Bottom BULLISH: price makes low below lower band, rebounds, retests above lower band
+   │   │   └── Requires: second low above lower band, volume higher on rebound than first low
+   │   └── M-Top BEARISH: inverse of W-Bottom. Second high below upper band, lower volume.
+   │
+   └── Volume Confirmation Family
+       ├── Volume Surge BULLISH: price up 2%+, volume > 2x SMA(vol, 20)
+       │   └── Institutional accumulation signal. Strong when near support.
+       ├── Volume Surge BEARISH: price down 2%+, volume > 2x SMA(vol, 20)
+       │   └── Institutional distribution signal. Strong when near resistance.
+       ├── OBV Confirmation BULLISH: OBV making new highs with price
+       └── OBV Divergence BEARISH: price up, OBV flat/declining → distribution
+
+2. SIGNAL SCORING (0-100 confidence)
+   Score = Σ(indicator_scores) / max_possible * 100
+
+   Individual indicator scores:
+   ├── Golden/Death Cross: 40 points (high weight — rare, meaningful)
+   ├── MACD signal cross: 25 points
+   ├── RSI divergence: 35 points
+   ├── Bollinger squeeze breakout: 30 points
+   ├── EMA crossover: 15 points (lower weight — frequent, noisy)
+   ├── OBV divergence: 20 points
+   ├── Volume surge: 25 points — but ONLY as confirmation, not standalone
+   └── Trend alignment bonus: +10 if signal direction = SMA(50) slope direction
+
+   Confidence thresholds:
+   ├── 70+: HIGH conviction — strong multi-indicator alignment, act
+   ├── 50-69: MEDIUM conviction — needs additional filter (regime check)
+   ├── 30-49: LOW conviction — watchlist only, do not act
+   └── <30: NOISE — ignore
+
+   Complete when: all active patterns identified with confidence scores. Signals ranked by score.
+
+```
+
+### Phase 3: Multi-Indicator Confirmation
+
+```
+
+1. TWO-CLUSTER RULE (minimum for actionable signal)
+   Signals must come from at least TWO different indicator clusters:
+   ├── Cluster A — TREND: SMA crossovers, EMA alignment, ADX, Supertrend
+   ├── Cluster B — MOMENTUM: RSI, MACD, Stochastic, CCI
+   ├── Cluster C — VOLATILITY: Bollinger Bands, Keltner Channels, ATR-based
+   └── Cluster D — VOLUME: OBV, Volume SMA cross, MFI, accumulation/distribution
+
+   Valid combinations: A+B, A+C, B+C, A+B+D, B+C+D
+   Invalid (reject): A-only, B-only, D-only, A+A (two trend — redundant, not confirming)
+
+2. REGIME FILTER (market context adjustment)
+   ├── TRENDING (ADX > 25, SMA(50) slope > 0.1%/day):
+   │   ├── Favor: trend-following signals (MA crossovers, MACD trend, band walks)
+   │   ├── Penalize: mean-reversion signals (RSI overbought/oversold fades)
+   │   └── RSI adjustment: in strong uptrend, RSI 70-80 is NOT overbought — it's trend strength
+   │
+   ├── RANGING (ADX < 20, SMA(50) flat ±0.05%/day):
+   │   ├── Favor: mean-reversion signals (Bollinger Band touches, RSI extremes)
+   │   ├── Penalize: trend-following signals (MA crossovers whipsaw)
+   │   └── MACD adjustment: ignore MACD crossovers in ranges — they're noise
+   │
+   └── VOLATILE (ATR/close > 3%, VIX > 30 for SPX):
+       ├── Widen all bands: Bollinger at 2.5σ, Keltner at 2.5 ATR
+       ├── Increase RSI thresholds: oversold < 25, overbought > 75
+       └── Reduce position size by 50% — signal accuracy degrades in chaos
+
+3. TIME-FRAME ALIGNMENT (higher time frame = regime, lower = entry)
+   ├── Weekly chart: defines PRIMARY trend (bull/bear/range)
+   ├── Daily chart: generates SIGNALS (Phase 2 patterns)
+   ├── 4-hour/60-min: refines ENTRY timing (optional for active traders)
+   └── Rule: only trade signals ALIGNED with weekly trend direction
+
+   Complete when: signal confirmed by ≥2 clusters, regime-appropriate, time-frame aligned.
+
+```
+
+### Phase 4: ETF-Specific and Stock-Specific Adjustments
+
+```
+
+1. ETF CLASSIFICATION (before computing any indicator)
+   ├── STANDARD (SPY, QQQ, IWM, DIA): default parameters, default signal logic
+   ├── LEVERAGED LONG (TQQQ, UPRO, SSO, UDOW):
+   │   ├── Bollinger: ±2.5σ (not 2.0σ) — volatility amplified by leverage factor
+   │   ├── RSI: 21-period (not 14) — need longer lookback to smooth amplified swings
+   │   ├── Decay-aware: leveraged ETFs lose 3-8%/year to volatility decay in sideways markets
+   │   │   └── Holding period >5 days: decay drag exceeds signal edge → reduce position 25%
+   │   └── Signal direction: same as underlying but with amplified magnitude
+   │
+   ├── LEVERAGED SHORT/INVERSE (SQQQ, SPXU, SDOW, TZA):
+   │   ├── Same parameter adjustments as leveraged long
+   │   └── REVERSE ALL SIGNAL DIRECTIONS: golden cross → bearish, death cross → bullish
+   │       └── RSI oversold on inverse ETF = underlying overbought → SELL inverse
+   │
+   ├── SECTOR ETFs (XLF, XLE, XLV, XLK, XLY, etc.):
+   │   ├── Compute relative strength: sector_ETF / SPY ratio → SMA(50) of ratio
+   │   ├── RS ratio rising AND absolute signal bullish → amplified conviction (+15 score)
+   │   ├── RS ratio falling AND absolute signal bullish → reduced conviction (-15 score)
+   │   └── Sector rotation detection: 3+ sector RS trends shifting simultaneously → macro regime change
+   │
+   └── COMMODITY/VOLATILITY ETFs (GLD, USO, VXX, UVXY):
+       ├── VXX/UVXY: DO NOT APPLY MEAN-REVERSION SIGNALS — these decay structurally
+       ├── GLD/USO: use SMA(50, 200) but ignore volume indicators (commodity volume ≠ equity volume)
+       └── Contango/backwardation: check futures curve before signals on commodity ETFs
+
+2. STOCK-SPECIFIC ADJUSTMENTS
+   ├── EARNINGS WINDOW: suppress ALL signals [-2, +2] trading days around earnings
+   │   └── After earnings: wait for 5 full sessions of post-earnings price discovery before resuming
+   │
+   ├── DIVIDEND DATES: ex-dividend date = price drops by dividend amount
+   │   └── Suppress signals on ex-div date — price drop is mechanical, not a sell signal
+   │
+   ├── STOCK SPLITS: recalculate ALL indicators post-split with adjusted history
+   │   └── Never compute indicators across a split boundary without split-adjusted data
+   │
+   ├── LOW FLOAT / LOW VOLUME (<$5M avg daily volume):
+   │   ├── Bollinger Bands unreliable — low liquidity distorts σ calculation
+   │   ├── RSI prone to manipulation — ignore or require 2x normal divergence confirmation
+   │   └── OBV meaningless — single institution trade can flip cumulative volume
+   │
+   └── GAP-ADJUSTED ENTRIES:
+       ├── Gap up >2% from previous close → adjust buy entry to VWAP or gap-fill level
+       ├── Gap down >2% → adjust sell entry to VWAP or gap-fill level
+       └── Gap >5% → suppress signal entirely (event-driven move, not technical)
+
+   Complete when: all asset-class adjustments applied. Parameters differ by ETF type. Earnings/dividend windows suppressed.
+
+```
+
+### Phase 5: Portfolio Scanning and Signal Output
+
+```
+
+1. BATCH SCAN INPUT
+   ├── Ticker list: ["SPY", "QQQ", "AAPL", "MSFT", ...]
+   ├── Scan type: ALL (all indicators), CROSSOVER_ONLY, RSI_ONLY, SQUEEZE_ONLY
+   ├── Min confidence: default 50 (medium+), adjustable
+   └── Asset-class aware: ETF vs stock parameters auto-selected per ticker
+
+2. SIGNAL OUTPUT STRUCTURE (every signal must include ALL fields)
+   {
+     "ticker": "AAPL",
+     "asset_type": "stock",
+     "signal_date": "2026-07-30",
+     "signal_type": "BULLISH",
+     "confidence": 72,
+     "patterns": [
+       {"name": "Golden Cross", "cluster": "trend", "score": 40},
+       {"name": "Volume Surge", "cluster": "volume", "score": 25},
+       {"name": "Trend Alignment", "score": 10}
+     ],
+     "confirming_clusters": ["trend", "volume"],
+     "regime": "trending",
+     "regime_aligns": true,
+     "timeframe_alignment": {"weekly": "bullish", "signal_direction": "bullish", "aligned": true},
+     "entry_price": 195.50,
+     "stop_loss": 189.80,
+     "take_profit_1": 205.00,
+     "take_profit_2": 215.00,
+     "invalidated_by": null,
+     "warnings": [],
+     "earnings_window": false,
+     "data_quality": {"bars": 252, "gaps": 0, "adjusted": true}
+   }
+
+3. SIGNAL PRIORITIZATION (when multiple tickers fire)
+   ├── Sort by: confidence DESC, volume_ratio DESC
+   ├── Top 5 by confidence get detailed signal cards
+   └── Remaining above threshold: summary table only
+
+   Complete when: All tickers scanned. Signals output in structured JSON with all required fields.
+
+```
+
+## Decision Trees
+
+<!-- STANDARD: 3min -->
+
+### ETF vs Stock Parameter Selection
+
+```
+
+Asset type?
+├── ETF?
+│   ├── Leveraged (2x, 3x)?
+│   │   ├── Long (TQQQ, UPRO) → BB(20, 2.5), RSI(21), decay check
+│   │   └── Inverse (SQQQ, SPXU) → BB(20, 2.5), RSI(21), REVERSE signals
+│   ├── Sector (XLF, XLE, XLV)?
+│   │   └── Add relative strength vs SPY, sector rotation context
+│   ├── Commodity (GLD, USO)?
+│   │   └── Skip volume indicators, check contango/backwardation
+│   └── Standard (SPY, QQQ, IWM) → default parameters
+│
+└── Individual Stock?
+    ├── Checking earnings? → suppress [-2, +2] days
+    ├── Checking dividends? → suppress ex-div date
+    ├── Low float (<$5M ADV)? → widen bands, double divergence requirements
+    ├── Gap > 5% today? → suppress entirely
+    └── Normal conditions → default parameters, gap-adjusted entry
+
+```
+
+### Signal Confidence Calibration
+
+```
+
+Confidence >= 70 → HIGH conviction → ACT
+│
+├── Confidence 50-69 → MEDIUM → FILTER
+│   ├── Regime aligns? → promote to HIGH, act
+│   └── Regime doesn't align? → demote to LOW, watchlist
+│
+├── Confidence 30-49 → LOW → WATCHLIST
+│
+└── Confidence < 30 → NOISE → IGNORE
+
+```
+
+### Regime Detection
+
+```
+
+What's the market regime?
+├── ADX > 25 AND SMA(50) slope > 0.1%/day → TRENDING UP
+│   Favor: trend-following signals, band walks
+│   Suppress: mean-reversion fades, RSI overbought shorts
+│
+├── ADX > 25 AND SMA(50) slope < -0.1%/day → TRENDING DOWN
+│   Favor: trend-following shorts, band walks
+│   Suppress: mean-reversion buys, RSI oversold longs
+│
+├── ADX < 20 AND SMA(50) slope flat (±0.05%/day) → RANGING
+│   Favor: Bollinger Band reversals, RSI extremes
+│   Suppress: all MA crossovers, MACD signals
+│
+└── ATR(14)/close > 3% OR VIX > 30 → HIGH VOLATILITY
+    Widen bands, reduce position size 50%, increase confirmation requirements
+
+```
+
+### Post-Signal Validation
+
+```
+
+Signal generated → validate before output
+├── Earnings in [-2, +2] days? → SUPPRESS
+├── Ex-dividend today? → SUPPRESS
+├── Gap > 5% today? → SUPPRESS
+├── Low volume day (vol < 0.5x avg)? → WARNING, reduce confidence 15
+├── Signal contradicts weekly trend? → WARNING, reduce confidence 20
+├── All checks pass? → OUTPUT with full JSON structure
+└── Multiple warnings accumulate >40 confidence reduction? → SUPPRESS
+
+```
+
+## Gotchas
+
+<!-- STANDARD: 3min -->
+
+| Gotcha | Cost | Fix |
+|--------|------|-----|
+| Computing RSI with simple average gains/losses instead of Wilder's smoothed average. Wilder RSI uses `avg_gain = (prev_avg_gain * 13 + current_gain) / 14` — the recursive smoothing. Simple average RSI produces values off by 3-8 points from real RSI, generating false overbought/oversold signals. Every major platform (TradingView, Thinkorswim, Bloomberg) uses Wilder smoothing. | $15K-$60K in false signals per year. Simple-average RSI crosses 30/70 40% more often than Wilder RSI. A systematic difference of 3-8 RSI points is the difference between "buy" and "wait." | Implement Wilder smoothing exactly: seed first avg_gain with simple average of 14 gains, then smooth recursively. Verify against TradingView RSI(14) on same symbol — values must match within 0.01. |
+| Applying the same Bollinger Band width to 3x leveraged ETFs as to 1x ETFs. TQQQ daily returns have 3x the standard deviation of QQQ. ±2σ bands on TQQQ contain only 82% of price action vs 95% for 1x ETFs. Price constantly tags upper/lower bands, triggering false reversal signals. | $20K-$80K in false reversal trades. TQQQ touches its 2σ bands 3x more frequently than QQQ. Fading every touch = death by a thousand small losses. | Leveraged ETFs: BB(20, 2.5). Inverse ETFs: BB(20, 2.5) + reverse signal interpretation. Verify: count band touches over 252 days — should approximate 5% of sessions for upper OR lower band. |
+| Trading golden/death cross without volume confirmation. In the 2011, 2015, and 2022 sideways years, SPY generated 18 raw golden/death crosses. Only 7 were valid after volume + 3-day confirmation. The other 11 were whipsaws averaging -1.8% each. | $30K-$100K in whipsaw losses across a portfolio over 3 years. Each false cross = 1.5-2.5% loss after slippage on entry AND exit. | Require: (1) volume on crossover day > SMA(volume, 20), (2) price stays on cross side of SMA(200) for 3 consecutive sessions. This filter eliminates 60% of false crosses while retaining 85% of valid ones. |
+| Using RSI divergence in isolation without trend context. Bearish RSI divergence in a strong uptrend resolves bullishly 71% of the time (the trend continues). Bullish RSI divergence in a strong downtrend resolves bearishly 68% of the time. Divergence against the primary trend is a continuation pattern, not a reversal pattern. | $10K-$50K in counter-trend losses. Fighting the weekly trend with a daily divergence signal is the #1 way technicians lose money. | Only trade divergence IN THE DIRECTION of the weekly trend. Bullish divergence in uptrend pullback = buy. Bearish divergence in downtrend bounce = sell. Divergence against the trend = watch, do not trade. |
+| Computing OBV without handling gap opens. OBV formula `prev_OBV + volume * sign(close - prev_close)` fails when the open gaps above prev_close but the close is below open. The standard formula adds volume when `close > prev_close` even if the entire session was distribution with a gap-up open. | $5K-$15K in misleading volume signals. Gap-driven OBV accumulation looks like buying but is just mechanical gap math. | Use `close > open` (intraday direction) for OBV computation instead of `close > prev_close`. This captures actual intraday buying/selling pressure regardless of overnight gaps. Reference: references/indicator-formulas.md OBV corrected formula. |
+
+## Cross-Skill Coordination
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|---|
+| `market-data-engineer` | Real-time OHLCV data, dividend-adjusted prices, split history | Before computing any indicator — stale or unadjusted data invalidates all signals |
+| `quantitative-analyst` | Backtesting frameworks, statistical validation methods, regime detection | When optimizing lookback windows or validating signal accuracy against historical data |
+| `financial-security` | Broker API security review, credential validation, rate-limit compliance | Before connecting any real trading account via MCP |
+
+
+<!-- STANDARD: 2min -->
+
+| Upstream | What You Receive | When to Involve |
+|---|---|---|
+| `market-data-engineer` | Clean, adjusted OHLCV data ready for indicator computation | Before computing any indicators — data must be split/dividend-adjusted |
+| `fundamental-analyst` | Fundamental fair value, PE context, earnings dates | When generating stock-specific signals — suppress signals near earnings |
+| `data-scientist` | Statistical validation of signal patterns, backtesting frameworks | After signal design — validate edge exists before recommending |
+
+| Downstream | What You Provide | Handoff Artifact |
+|---|---|---|
+| `portfolio-signal-manager` | Structured signals with confidence scores, asset classifications | Full JSON signal output (Phase 5 format) with all validation fields |
+| `algorithmic-trader` | Confirmed signals ready for position sizing and execution | Signal JSON + entry/stop/target levels |
+| `data-scientist` | Labeled signal dataset for ML feature engineering | Historical signals with outcomes for supervised learning |
+
+## Verification Guardrails
+
+<!-- STANDARD: 2min -->
+
+Before delivering work, verify:
+
+* [ ] **All indicators use correct formulas:** RSI = Wilder smoothing, MACD = EMA(12)-EMA(26) with EMA(9) signal, BB = SMA(20)±2σ, ATR = Wilder smoothed
+* [ ] **No single-indicator signals:** Every buy/sell output references ≥2 indicator clusters from different families
+* [ ] **ETF parameter adjustment:** Leveraged ETFs use BB(20, 2.5) and RSI(21); inverse ETFs reverse signal direction
+* [ ] **Earnings window check:** Signals within [-2, +2] days of earnings are suppressed for individual stocks
+* [ ] **Sufficient data check:** len(close) ≥ lookback_period for all computed indicators
+* [ ] **Gap adjustment applied:** Entry prices adjusted for gaps >2%; gaps >5% suppress the signal
+* [ ] **Regime alignment verified:** Signal direction matches detected market regime (trending/ranging/volatile)
+* [ ] **Time-frame alignment:** Signal direction does not contradict weekly chart trend
+* [ ] **Volume confirmation on crossovers:** SMA crossovers require volume > SMA(volume, 20)
+* [ ] **Signal output structure complete:** Every signal JSON has all required fields from Phase 5
+
+If any checkbox fails, revise before delivering. [VERIFIED]
+
+## Production Checklist
+- [ ] CR1: All data sources verified and updated within last trading day
+- [ ] CR2: Lookback windows calibrated against 24 months of data
+- [ ] CR3: Signal accuracy benchmarked monthly with documented error rates
+- [ ] CR4: All indicator thresholds version-controlled and change-logged
+- [ ] CR5: Divergence detection tested on 20+ historical divergence events
+- [ ] CR6: False-signal rate below 30% for all active indicators
+- [ ] CR7: Data source fallback tested — what happens when the primary feed disconnects?
+- [ ] CR8: Rate limits documented for all external API dependencies
+- [ ] CR9: Paper-trading validation: 50+ trades before any live signal
+- [ ] CR10: Signal latency measured and documented (data arrival → signal output)
+- [ ] CR11: All indicator computations reproduced independently — two runs, same result
+- [ ] CR12: Anti-hallucination guardrails: all outputs tagged [VERIFIED] or [ESTIMATED]
+
+* [ ] **[R1]** RSI computed with 14+ periods (Wilder smoothing), not simple average
+* [ ] **[R2]** Every signal confirmed by ≥2 indicator clusters from different families
+* [ ] **[R3]** ETF parameters differ from stock parameters (leveraged: wider bands, longer RSI)
+* [ ] **[R4]** Earnings windows suppressed for individual stocks
+* [ ] **[R5]** Sufficient data history verified before all MA computations
+* [ ] **[R6]** Golden/death cross requires volume + 3-session confirmation
+* [ ] **[R7]** Indicator formulas match references/indicator-formulas.md exactly
+* [ ] **[R8]** Signal JSON output includes ALL required fields from Phase 5 schema
+* [ ] **[R9]** Regime detection (ADX + SMA slope) completed before signal generation
+* [ ] **[R10]** Weekly time-frame alignment verified (no counter-trend signals)
+* [ ] **[R11]** Gap and corporate action adjustments applied
+* [ ] **[R12]** Low-float/low-volume stocks flagged with reduced confidence
+
+## Error Recovery
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| RSI values differ from TradingView by 3-8 points | Simple average used instead of Wilder smoothed average | Implement recursive Wilder smoothing: `avg_gain = (prev_avg * 13 + current_gain) / 14` | **Wilder RSI is the industry standard.** Every platform uses it. Simple-average RSI is a different (wrong) indicator. |
+| Bollinger Bands constantly tagged on leveraged ETFs | Using ±2σ for 3x leveraged ETF when volatility is 3x amplified | Use ±2.5σ for leveraged ETFs. Verify: <5% of sessions should tag upper band in normal conditions. | **Leverage amplifies volatility non-linearly.** The σ of a 3x ETF is approximately 3x the underlying's σ, so ±2σ is effectively ±0.67σ on the underlying. |
+| Golden cross fires but reverses in 2 weeks | No volume confirmation or 3-session trend check | Add volume > SMA(vol, 20) filter AND require 3 consecutive closes on the correct side of SMA(200) | **43% false positive rate on raw crosses.** Volume + 3-session filter eliminates 60% of false crosses. |
+| MACD signals whipsaw repeatedly in range-bound market | MACD applied during ranging regime (ADX < 20) | Suppress MACD signals when ADX < 20. MACD is a trend-following indicator — it generates noise in ranges. | **Every indicator has a regime where it works and one where it fails.** MACD fails in ranges. RSI fails in trends. Match indicator to regime. |
+| Volume surge buy signal on a down-gap day appears as accumulation | OBV using `close > prev_close` adds volume on gap-up opens even when intraday is distribution | Use `close > open` for intraday direction. A gap-up day that closes below open is distribution, not accumulation. | **Gap opens corrupt cumulative volume indicators.** Intraday direction (`close > open`) is a better signal for OBV than day-over-day direction. |
+
+## What Good Looks Like
+
+**Before (Novice):**
+
+```python
+# "RSI oversold = buy"
+rsi = ta.rsi(close, length=7)  # wrong: 7-period, probably simple average
+if rsi < 30:
+    signal = "BUY"  # single indicator, no confirmation, no regime check
+
+```
+
+**After (This Skill):**
+
+```python
+# Multi-indicator confirmed, regime-aligned, asset-aware signal
+rsi = wilder_rsi(close, period=21 if is_leveraged_etf else 14)  # correct smoothing
+macd_line, signal_line, histogram = macd(close, 12, 26, 9)
+sma50_slope = (sma(close, 50)[-1] - sma(close, 50)[-5]) / sma(close, 50)[-5]
+regime = detect_regime(adx(high, low, close, 14), sma50_slope, atr(high, low, close, 14))
+vol_ratio = volume[-1] / sma(volume, 20)[-1]
+
+if (rsi_oversold_cross_up(rsi) and               # momentum cluster
+    histogram_turning_positive(histogram) and      # also momentum — need different cluster!
+    sma50_slope > 0.001 and                        # trend cluster: uptrend context
+    regime == "trending" and                       # regime-appropriate
+    weekly_trend == "bullish" and                  # time-frame aligned
+    vol_ratio > 1.0 and                            # volume cluster confirmation
+    not in_earnings_window(ticker) and             # corporate action check
+    gap_pct < 5.0):                                # gap filter
+    signal = build_signal_json("BULLISH", confidence=72, ...)
+
+```
+
+Problems solved: correct formulas, multi-cluster, regime-aware, time-frame aligned, asset-appropriate, corporate-action aware.
+
+## References
+
+* [indicator-formulas.md](references/indicator-formulas.md) — Exact mathematical formulas for every indicator with original author citations
+* [signal-patterns.md](references/signal-patterns.md) — Complete catalog of signal patterns with backtest validation stats
+* [etf-classification.md](references/etf-classification.md) — ETF types, parameter adjustments, decay mechanics, sector rotation
+* [regime-detection.md](references/regime-detection.md) — Market regime classification: trending, ranging, volatile with ADX, SMA slope, ATR
+* [corporate-actions.md](references/corporate-actions.md) — Earnings, dividends, splits: calendaring and signal suppression rules
+* [confidence-scoring.md](references/confidence-scoring.md) — Signal scoring methodology, calibration against backtest outcomes
+* [volume-analysis.md](references/volume-analysis.md) — Volume indicator computation and interpretation (OBV, MFI, VWAP, volume profile)
+* [multi-timeframe.md](references/multi-timeframe.md) — Time-frame alignment methodology: weekly → daily → intraday
+
+## Deliberate Practice
+
+<!-- STANDARD: 3min -->
+
+1. Compute SMA, EMA, RSI, MACD, and Bollinger Bands for a single ticker by hand before trusting automated output
+2. Run the same signal against 3 different timeframes — if they disagree, explain why before proceeding
+3. False-signal drill: Take a known bad signal (e.g., buy during a downtrend) and trace why every indicator missed it
+4. Correlation stress test: Run a 5-ticker portfolio through all indicators and identify which pairs produce redundant signals
+5. Divergence hunting: Manually spot RSI-MACD and price-RSI divergences on 20 random charts before trusting the algorithm
+
+
+## Proactive Triggers
+
+<!-- STANDARD: 3min -->
+
+| Trigger | Action | Window |
+|---------|--------|--------|
+| New stock/ETF added to watchlist | Compute all indicators within 5 minutes; flag any divergence | 5min |
+| Indicator recalibration needed | Re-optimize lookback windows against last 24 months of data | 24h |
+| Signal density drops below 1/week | Tweak thresholds or broaden scan universe | 7 days |
+| Conflicting signals >30% of tickers | Re-evaluate indicator weighting; flag for fundamental-analyst review | 24h |
+| Missing reference data | Report which data source failed and which indicator is degraded | Immediate |
+
+
+## Anti-Rationalization
+
+<!-- STANDARD: 3min -->
+
+| Rationalization | Reality |
+|---|---|
+| "The signal was right, the market was wrong" | Signals predict probability, not certainty. A good signal with a bad outcome is either bad luck or a poorly calibrated confidence score. Track both. |
+| "One more indicator will fix the noise" | Adding indicators increases collinearity, not accuracy. Five tightly correlated indicators all say the same thing — you have one signal, not five |
+| "We'll optimize the lookback window later" | An unoptimized lookback is a random parameter. Ship it with the best-fit lookback or don't ship it |
+| "The backtest looks great on this one ticker" | Single-ticker backtests are curve-fitting. Minimum: 20 tickers across 3 sectors, 2 market regimes (bull/bear) |
+| "Just this once, override the mechanical signal" | The first override creates permission for the hundredth. Mechanical signals exist because human discretion loses to systematic processes over large samples |

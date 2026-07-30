@@ -19,7 +19,9 @@ from accessing workloads.
 ## AWS Nitro Enclaves
 
 ### Architecture
+
 ```
+
 +-----------------------------------+
 | Parent EC2 Instance               |
 |  +-----------------------------+  |
@@ -37,6 +39,7 @@ from accessing workloads.
 +-----------------------------------+
            ↓ Cryptographic Attestation
     AWS Nitro Hypervisor verifies enclave is running approved code
+
 ```
 
 ### Use Case: PCI DSS Payment Processing
@@ -55,6 +58,7 @@ enclave_result = vsock_send(ENCLAVE_CID, {
 # Enclave decrypts card data, processes payment, returns auth code
 # Card data NEVER in plaintext on parent instance
 auth_code = enclave_result["auth_code"]
+
 ```
 
 ### Attestation Flow
@@ -101,6 +105,7 @@ auth_code = enclave_result["auth_code"]
 - Attestation reports verifiable by Google Attestation Service
 
 ### Finance-Specific Patterns
+
 ```yaml
 AML Workload:
   VM: GCP Confidential VM (AMD SEV), Shielded Boot, vTPM
@@ -113,6 +118,7 @@ Payment Processing:
   Attestation: verify enclave identity before sending card data
   Key material: injected via attestation-verified channel
   Logging: censored — no PAN, CVV, full track in logs
+
 ```
 
 ## Hardware-Based Attestation for Financial Algorithms
@@ -128,7 +134,9 @@ Payment Processing:
 5. Enclave processes data, returns results, never exposes model or raw data
 
 ### Audit Trail
+
 ```
+
 Every enclave launch generates:
 - Attestation document (cryptographically signed by hardware root of trust)
 - PCR values: cryptographic hashes of boot chain
@@ -139,4 +147,5 @@ Regulator can cryptographically verify:
 1. Enclave was real hardware (not emulated/simulated)
 2. Enclave ran approved code (PCR matches known-good hash)
 3. No modification occurred after attestation
+
 ```
