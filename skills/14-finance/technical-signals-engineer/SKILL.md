@@ -688,14 +688,14 @@ Problems solved: correct formulas, multi-cluster, regime-aware, time-frame align
 
 ## References
 
-* [indicator-formulas.md](references/indicator-formulas.md) — Exact mathematical formulas for every indicator with original author citations
-* [signal-patterns.md](references/signal-patterns.md) — Complete catalog of signal patterns with backtest validation stats
-* [etf-classification.md](references/etf-classification.md) — ETF types, parameter adjustments, decay mechanics, sector rotation
-* [regime-detection.md](references/regime-detection.md) — Market regime classification: trending, ranging, volatile with ADX, SMA slope, ATR
-* [corporate-actions.md](references/corporate-actions.md) — Earnings, dividends, splits: calendaring and signal suppression rules
-* [confidence-scoring.md](references/confidence-scoring.md) — Signal scoring methodology, calibration against backtest outcomes
-* [volume-analysis.md](references/volume-analysis.md) — Volume indicator computation and interpretation (OBV, MFI, VWAP, volume profile)
-* [multi-timeframe.md](references/multi-timeframe.md) — Time-frame alignment methodology: weekly → daily → intraday
+- [indicator-formulas.md](references/indicator-formulas.md) — Exact mathematical formulas for every indicator with original author citations
+- [signal-patterns.md](references/signal-patterns.md) — Complete catalog of signal patterns with backtest validation stats
+- [etf-classification.md](references/etf-classification.md) — ETF types, parameter adjustments, decay mechanics, sector rotation
+- [regime-detection.md](references/regime-detection.md) — Market regime classification: trending, ranging, volatile with ADX, SMA slope, ATR
+- [corporate-actions.md](references/corporate-actions.md) — Earnings, dividends, splits: calendaring and signal suppression rules
+- [confidence-scoring.md](references/confidence-scoring.md) — Signal scoring methodology, calibration against backtest outcomes
+- [volume-analysis.md](references/volume-analysis.md) — Volume indicator computation and interpretation (OBV, MFI, VWAP, volume profile)
+- [multi-timeframe.md](references/multi-timeframe.md) — Time-frame alignment methodology: weekly → daily → intraday
 
 ## Deliberate Practice
 
