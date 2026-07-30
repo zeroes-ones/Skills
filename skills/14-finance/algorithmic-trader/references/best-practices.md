@@ -12,3 +12,4 @@
 - **Run a "paper clone" of live strategies.** Mirror your live strategy in a paper account with the same signals, same sizing, same timing. Divergence between paper and live P&L reveals execution problems — slippage you did not model, fills you are not getting, latency you did not measure.
 - **Never override the circuit breaker.** If max drawdown is 20% and you are at 19.5%, you are already past the point where you should have reduced size. The circuit breaker exists because you will be wrong about when to stop. Trust the breaker — it is smarter than you are during a losing streak.
 - **Correlation matrix is a daily check, not an annual review.** UOA signals cluster. A massive call-buying day in tech can give you 10 "independent" signals that are all the same bet. Recompute sector and factor correlations daily. Max 30% in any correlated bucket, no exceptions.
+

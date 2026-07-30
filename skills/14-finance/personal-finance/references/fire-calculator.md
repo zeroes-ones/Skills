@@ -84,3 +84,4 @@ Coast FIRE: Already reached? ___ (Yes/No)
 Source: Trinity Study extension, Monte Carlo simulations with 75% stocks / 25% bonds.
 
 **Recommendation:** Use 3.5% for retirements >40 years, 4% for traditional 30-year retirement, 3% for multi-generational wealth.
+

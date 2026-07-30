@@ -31,3 +31,4 @@ Difference 0.03% vs 0.75% = $14,267 lost to fees.
 - Duration matching: duration ≈ years until you need the money
 - Credit quality distribution: % below investment grade
 - Average maturity: longer maturity = higher rate sensitivity
+

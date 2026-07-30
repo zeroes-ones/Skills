@@ -28,3 +28,4 @@
 
 ## Decision Rule
 Any ONE of these flags = investigate deeper. Two+ flags = walk away. There are 10,000+ investable securities — no need to buy companies with red flags.
+

@@ -263,3 +263,4 @@ The highest-probability outcomes are losses. This is why straddles are not portf
 | Call worth $13.50, put $0.20 at Feb 2 open | [ESTIMATED ±10%] | Computed from $172 stock, $159 strikes, 8 DTE remaining, IV ~22% |
 | P&L calculations | [COMPUTED] | (Straddle value − cost) × 100 |
 | Commission $0.65/contract | [VERIFIED] | Standard retail commission rate |
+

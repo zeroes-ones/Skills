@@ -275,3 +275,4 @@ The strategy descriptions and market behaviors in this file are based on princip
 
 ### Never Guess
 If asked for a strategy recommendation on a ticker not analyzed, or for a backtest not run, state: "I don't have data on that ticker/setup. I can describe the strategy framework, but I cannot validate its application to this specific case without running the analysis." Never fabricate price data, IV values, or trade outcomes.
+

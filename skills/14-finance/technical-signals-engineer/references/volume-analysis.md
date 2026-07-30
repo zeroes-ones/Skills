@@ -47,3 +47,4 @@ vol_ratio = volume / SMA(volume, 20)
 - Price < VWAP: intraday bearish, sellers in control
 - VWAP is the institutional execution benchmark — reversion to VWAP is mean reversion to where most volume traded
 - Best use: intraday entry refinement (buy pullbacks to VWAP in uptrends)
+

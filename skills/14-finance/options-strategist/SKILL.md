@@ -1,16 +1,18 @@
 ---
 name: options-strategist
 description: >
-  Use when selecting, designing, or constructing options trading strategies based on market
-  conditions, implied volatility rank, directional conviction, unusual options activity signals,
-  and capital constraints. Handles strategy selection framework across 17+ strategies (covered calls,
-  cash-secured puts, vertical spreads, iron condors, butterflies, calendars, diagonals, straddles,
-  strangles, collars, ratio spreads, backspreads, jade lizards, broken wing butterflies, synthetic
-  positions, long calls/puts, long straddles/strangles, debit spreads, protective puts),
-  risk-first leg construction with delta-based and IV-skew-based strike selection,
-  UOA-informed strategy decisions, adjustment and exit rule design, and payoff analysis.
-  Do NOT use for options pricing model implementation, Greeks computation, trade execution,
-  or portfolio-level risk monitoring.
+  Use when the user asks which options strategy fits their market outlook, IV environment,
+  directional conviction, or capital constraints; when the user has a thesis (bullish/bearish/
+  neutral/volatile) and needs it translated into a specific options structure; when the user
+  asks "what strategy should I use for [ticker/scenario]"; or when the user needs to compare
+  strategy candidates against market regime, risk tolerance, and account size. Handles strategy
+  selection across 17+ structures (covered calls, cash-secured puts, vertical spreads, iron
+  condors, butterflies, calendars, diagonals, straddles, strangles, collars, ratio spreads,
+  backspreads, jade lizards, broken wing butterflies, synthetic positions, long calls/puts,
+  debit spreads, protective puts), risk-first leg construction with delta-based and IV-skew-based
+  strike selection, UOA-informed strategy decisions, adjustment and exit rule design, and payoff
+  analysis. Do NOT use for options pricing model implementation, Greeks computation, trade
+  execution, or portfolio-level risk monitoring.
 license: MIT
 tags:
   - options-strategist
@@ -206,418 +208,33 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
-**(QUICK)**
+<!-- STANDARD: 3min -->
 
-<!-- QUICK: 30s — follow the ASCII tree to your scenario -->
-
-### Strategy Selection by IV Rank + Directional Conviction
-
+### DT1: Strategy Selection → Full detail in references/options-strategist-computations.md
 ```
-                         ┌──────────────────────────────────┐
-                         │ START: Given IV Rank &            │
-                         │ Directional Conviction            │
-                         └──────────────┬───────────────────┘
-                                        │
-                          ┌─────────────▼────────────────────┐
-                          │ What is the IV Rank?              │
-                          └──┬──────────┬──────────┬─────────┘
-                             │          │          │
-                    ┌────────▼──┐ ┌─────▼───┐ ┌───▼────────┐
-                    │ 0-25 LOW  │ │ 26-50   │ │ 51-100 HIGH│
-                    │           │ │ NORMAL  │ │            │
-                    └──┬────────┘ └──┬──────┘ └──┬─────────┘
-                       │             │            │
-          ┌────────────▼──┐  ┌──────▼──────┐ ┌───▼──────────────┐
-          │ Direction?     │  │ Direction?  │  │ Direction?       │
-          └─┬────┬────┬───┘  └─┬────┬─────┘  └─┬────┬─────┬────┘
-            │    │    │       │    │          │    │     │
-     ┌──────▼┐ ┌▼──┐┌▼──┐ ┌─▼──┐┌▼─┐┌▼──┐ ┌─▼──┐┌▼─┐┌▼──┐
-     │BULLISH│ │BEAR│ │NEU│ │BULL││BEAR│ │NEU│ │BULL││BEAR│ │NEU│
-     └──┬────┘ └┬───┘ └┬──┘ └┬───┘└┬──┘ └┬──┘ └┬───┘└┬──┘ └┬──┘
-        │       │      │     │     │     │      │    │     │
-   ┌────▼────┐┌▼────┐┌▼──┐┌▼──┐┌▼──┐┌▼───┐┌▼──┐┌▼───┐┌▼──┐
-   │Bull Call││Bear ││Long││Bull││Bear││Iron ││Bull││Bear ││Iron│
-   │Debit    ││Put  ││Stra││Put ││Call││Con- ││Put ││Call ││Con-│
-   │Spread   ││Debit││ddle││Cre-││Cre-││dor  ││Cre-││Cre- ││dor │
-   │or       ││Sprd ││/   ││dit ││dit ││or   ││dit ││dit  ││(wide│
-   │Long Call││or   ││Stran││Sprd││Sprd││Short││Sprd││Sprd ││wings│
-   │Calendar ││Long ││gle ││or  ││or  ││Stran││(agg-││(agg-││) or │
-   │         ││Put  ││    ││CSP ││Cov-││gle  ││ress-││ress-││Short │
-   │         ││Cal. ││    ││    ││ered││     ││ive  ││ive  ││Stran-│
-   │         ││     ││    ││    ││Call││     ││delta││delta││gle  │
-   └─────────┘└─────┘└────┘└────┘└────┘└─────┘└─────┘└─────┘└─────┘
+IV rank >50? → YES → Credit strategies (sell premium). Iron condor, strangle, credit spread.
+  ↓ NO              Check: bull or bear? → Bull: covered call, bull put. Bear: bear call, debit put.
+IV rank <25? → YES → Debit strategies (buy premium). Long calls/puts, debit spreads, calendars.
+  ↓ NO (25-50)
+Directional conviction? → HIGH → Debit spread aligned. LOW → Neutral: iron condor, butterfly, calendar.
 ```
 
-**Key Principle:** Low IV = BUY premium (debit strategies, calendars). High IV = SELL premium (credit strategies, naked options). Direction determines which side — IV determines whether debit or credit.
-
-**UOA Override (shown in tree above):** When UOA signals conflict with the IV-based selection:
-- UOA CALL sweeps + IV HIGH → Bull Put Spread (not Call Debit Spread). Direction via puts — sell premium.
-- UOA PUT sweeps + IV LOW → Bear Put Spread (not Bear Call Spread). Direction via puts — buy cheap premium.
-
-### Strike Selection Method Decision Tree
-
+### DT2: Adjustment Decision → Full detail in references/options-strategist-computations.md
 ```
-                         ┌──────────────────────────────────┐
-                         │ START: Select Strike Selection    │
-                         │ Method for Strategy               │
-                         └──────────────┬───────────────────┘
-                                        │
-                          ┌─────────────▼────────────────────┐
-                          │ Do you have UOA data with         │
-                          │ clear strike concentration?       │
-                          └──┬──────────────────────┬────────┘
-                             │ YES                  │ NO
-                    ┌────────▼──────────┐   ┌───────▼──────────────┐
-                    │ UOA-INFORMED      │   │ What type of strategy?│
-                    │ Place strikes at/ │   └──┬────────┬──────────┘
-                    │ near UOA concen-  │      │        │
-                    │ tration zone.     │ ┌────▼──┐ ┌───▼──────────┐
-                    │ Anchor: highest   │ │NEUTRAL│ │DIRECTIONAL    │
-                    │ volume strike.    │ │(condor│ │(vertical,     │
-                    │ Cushion: 0.5-1.0% │ │strad- │ │covered call,  │
-                    │ of stock price.   │ │dle)   │ │CSP)           │
-                    └───────────────────┘ └──┬────┘ └──┬───────────┘
-                                            │         │
-                                   ┌────────▼──┐ ┌───▼──────────────┐
-                                   │ IV SKEW    │ │ Is IV rank       │
-                                   │ PRESENT?   │ │ elevated (>50)?  │
-                                   └──┬────┬────┘ └──┬──────────┬────┘
-                                      │YES │NO       │YES       │NO
-                              ┌───────▼┐ ┌──▼────┐ ┌─▼────────┐ ┌─▼──────────┐
-                              │STANDARD│ │DELTA- │ │DELTA-BASED│ │TECHNICAL   │
-                              │DEVIA-  │ │BASED  │ │Favor wider│ │LEVELS      │
-                              │TION    │ │16-20  │ │strikes at │ │Support/    │
-                              │1 SD =  │ │delta  │ │30-35 delta│ │resistance  │
-                              │68% prob│ │each   │ │to collect │ │with 0.5-1% │
-                              │Use when│ │side   │ │more prem. │ │cushion.    │
-                              │skew ≠  │ │       │ │           │ │Combine w/  │
-                              │delta   │ │       │ │           │ │delta check │
-                              └────────┘ └───────┘ └───────────┘ └────────────┘
+Position tested (delta >0.30 short)? → YES → Loss >50% max? → YES → CLOSE. Take the loss.
+  ↓ NO                                                          ↓ NO
+Monitor only ✓                                                  Roll untested side, add hedge, or invert.
 ```
 
-**Which method when:**
-- **UOA-Informed:** ALWAYS preferred when UOA data with strike concentration is available. Smart money already picked the strike.
-- **Standard Deviation:** Best for neutral strategies (iron condors, strangles) when put/call skew makes delta ≠ probability.
-- **Delta-Based:** Best for directional strategies when skew is normal. Fast, systematic, backtestable.
-- **Technical Levels:** Best for covered calls and CSPs where you want to avoid assignment at key levels.
-
-### Adjustment Decision Tree
-
+### DT3: Exit Decision → Full detail in references/options-strategist-computations.md
 ```
-                         ┌──────────────────────────────────┐
-                         │ START: Position is under          │
-                         │ pressure or needs management      │
-                         └──────────────┬───────────────────┘
-                                        │
-                          ┌─────────────▼────────────────────┐
-                          │ Is the original thesis still      │
-                          │ VALID?                            │
-                          └──┬──────────────────────┬────────┘
-                             │ YES                  │ NO
-                    ┌────────▼──────────┐   ┌───────▼──────────┐
-                    │ Has the position   │   │ CLOSE IMMEDIATELY│
-                    │ breached its stop? │   │ Thesis invalid = │
-                    └──┬──────────┬──────┘   │ no reason to    │
-                       │YES       │NO        │ stay. Take loss.│
-                  ┌────▼───┐  ┌───▼────────┐ └─────────────────┘
-                  │ CLOSE  │  │ Can you roll│
-                  │ at stop│  │ for credit  │
-                  │ loss.  │  │ or ≤$0.15   │
-                  │ System │  │ debit?      │
-                  │ worked.│  └──┬──────┬───┘
-                  └────────┘     │YES   │NO
-                           ┌─────▼──┐ ┌─▼──────────────┐
-                           │ ROLL   │ │ CLOSE: Cost of  │
-                           │ Extend │ │ rolling exceeds │
-                           │ DTE,   │ │ benefit of      │
-                           │ adjust │ │ staying. Take   │
-                           │ strikes│ │ planned loss.   │
-                           │ if nec.│ └─────────────────┘
-                           └──┬─────┘
-                              │
-                     ┌────────▼──────────────┐
-                     │ Is DTE < 14 AND stock │
-                     │ near short strike?    │
-                     └──┬──────────────┬─────┘
-                        │YES           │NO
-                   ┌────▼────┐   ┌─────▼──────────┐
-                   │ CLOSE   │   │ HOLD to close. │
-                   │ Gamma   │   │ Theta will     │
-                   │ risk is │   │ finish the     │
-                   │ extreme.│   │ position. Set  │
-                   │ Protect │   │ 21-DTE close   │
-                   │ profits.│   │ alert.         │
-                   └─────────┘   └────────────────┘
+Profit ≥50% max? → YES → CLOSE. Don't hold for last 50%. Gamma risk > theta reward.
+  ↓ NO
+Loss ≥ stop? → YES → CLOSE. No hoping.
+  ↓ NO
+DTE <21? → YES → CLOSE or ROLL. Theta decay too slow.
+  ↓ NO → HOLD ✓
 ```
-
-**Adjustment Rules by Strategy:**
-- **Credit Spreads:** Roll untested side toward tested side = widen profit zone. If both sides tested, close.
-- **Iron Condors:** Roll untested side to collect more credit. If both sides tested, invert to iron fly or close.
-- **Calendars:** If stock gaps through strike, close immediately — gamma flips negative and theta flips negative.
-- **Covered Calls:** If stock approaches strike, roll up and out for credit. If stock blows through, let it get called.
-- **Butterflies:** Do not adjust. The narrow profit peak means adjustments rarely work. Close at 50% loss or 25% gain.
-
-## Core Workflow
-**(STANDARD)**
-
-<!-- STANDARD: 5min overview — skim the phases, read your target phase in detail -->
-
-<!-- DEEP: 10+min -->
-### Phase 1: Assess Market Conditions (~5 min)
-<!-- DEEP: Full assessment protocol — read before any strategy selection -->
-**Goal:** Gather and validate all inputs needed for strategy selection.
-
-**Steps:**
-1. **IV Rank/Percentile Check:** Determine IV rank (current IV relative to 1-year range). Classify: Low (0-25), Normal (26-50), Elevated (51-80), Extreme (81-100). This is the PRIMARY strategy driver.
-2. **IV Term Structure:** Compare front-month IV to back-month IV. Contango (back > front), backwardation (front > back), or flat. This determines calendar/diagonal viability.
-3. **IV Skew Assessment:** Check 25-delta call IV vs 25-delta put IV. Normal skew (puts richer), reverse skew (calls richer). This determines which side offers better premium.
-4. **Directional Conviction Level:** Assess from UOA signals, technical analysis, and fundamentals. Assign: STRONG, MODERATE, WEAK, or NEUTRAL.
-5. **UOA Signal Validation:** If UOA is a primary input, validate: OI ratio (>2 = opening, <0.5 = closing), multi-leg detection (within 60s window), earnings proximity, sector alignment.
-6. **Event Calendar Check:** Catalog earnings, FDA dates, Fed meetings, economic releases within the intended DTE window. Any binary event → strategy must be event-aware.
-7. **Liquidity Check:** Verify underlying ADV > 500K shares, option OI > 1,000 contracts at target strikes, bid-ask spread < 5% of option price.
-8. **Capital Assessment:** Determine available capital, buying power, margin requirements. Classify account tier: Small (<$10K), Medium ($10K-$100K), Large ($100K+).
-
-**Output:** Market Conditions Card with IV rank, term structure, skew assessment, conviction level, UOA summary, event risks, and capital tier.
-
-  Complete when: All 8 data points are populated AND any missing data is flagged with "UNKNOWN — strategy selection degraded without this input." No strategy is selected until Phase 1 is complete.
-  Complete when: IV rank, term structure, and skew are assessed. Event calendar is checked against intended DTE. UOA signals (if present) are validated for OI ratio and multi-leg detection.
-
-<!-- DEEP: 10+min -->
-### Phase 2: Strategy Selection (~10 min)
-<!-- DEEP: Full strategy selection protocol -->
-**Goal:** Select the optimal strategy from 15+ candidates based on the Phase 1 conditions.
-
-**Steps:**
-1. **Consult Strategy Selection Matrix:** Cross-reference IV Rank (low/normal/high) with Directional Conviction (bullish/bearish/neutral) in the master matrix (see references/strategy-selection-matrix.md). This yields the primary strategy CLASS (debit spread, credit spread, iron condor, calendar, etc.).
-2. **Apply UOA Overrides:** If UOA signals are present, check for overrides:
-   - UOA bullish + IV high → switch to credit strategy (bull put spread) even if matrix says debit
-   - UOA bearish + IV low → switch to debit strategy (bear put spread)
-   - Multi-leg UOA detected → consider mirroring the exact structure
-   - Dark pool block → extend DTE to 60-90 days
-3. **Capital Constraint Filter:** Eliminate strategies that exceed account limits:
-   - < $10K: undefined-risk strategies eliminated (naked options, short strangles)
-   - $10K-$50K: ratio spreads, backspreads eliminated
-   - All tiers: max loss per trade capped at 2-5% of account per R3
-4. **Event Risk Filter:** If earnings within DTE, eliminate strategies that are destroyed by gap moves (debit spreads become 100% loss on gaps; credit spreads become max loss). Consider earnings-specific strategies (iron condor capturing IV crush, butterfly).
-5. **Strategy Comparison (Top 2):** For the top 2 candidate strategies, compute:
-   - Max profit / Max loss ratio
-   - Probability of profit (approximate)
-   - IV impact direction (long vega vs short vega — does it align with IV rank?)
-   - Breakeven width (as % of stock price)
-   - Commission impact (number of legs × contracts)
-6. **Final Selection:** Select the strategy with the highest expected value given all constraints. Document WHY this strategy over the runner-up.
-
-**Output:** Strategy Selection Card with selected strategy, runner-up, selection rationale, IV/strategy alignment check.
-
-  Complete when: Strategy is selected with documented rationale, runner-up is identified, and rejection reasons for all other strategy classes are noted. Strategy passes R4 (IV/strategy alignment check).
-  Complete when: Strategy comparison between top 2 candidates is documented with max profit/loss ratio, probability of profit, and IV impact direction for each. Final selection is justified with quantified expected value.
-
-<!-- DEEP: 10+min -->
-### Phase 3: Leg Construction (~15 min)
-<!-- DEEP: Full leg construction protocol -->
-**Goal:** Construct the specific option legs — strikes, expirations, quantities — for the selected strategy.
-
-**Steps:**
-1. **Strike Selection Method Choice:** Choose from the 4 methods (UOA-informed, delta-based, standard deviation, technical levels) per the Strike Selection Decision Tree. UOA-informed is ALWAYS preferred when available.
-2. **Short Strike Placement:** For credit spreads: 25-30 delta (standard) or 30-35 delta (aggressive, high IV). For iron condors: 16-20 delta each side (standard). For covered calls: 25-30 delta (income) or 15-20 delta (keep stock).
-3. **Long/Wing Strike Placement:** For defined-risk spreads: 10-15 delta protective wing, 10-15 points wider than short for iron condors. Wing width determines max loss — ensure it fits capital constraints.
-4. **DTE Selection:** 
-   - Credit strategies: 30-45 DTE (theta sweet spot)
-   - Debit strategies: 30-60 DTE (time for thesis to play out)
-   - Iron condors: 30-45 DTE (theta + manageable gamma)
-   - Calendars: front 30, back 60 (or front 14, back 45 for events)
-   - Earnings plays: front-month covering earnings date
-5. **Contract Quantity:** Calculate: `max_contracts = floor(0.05 × account_value / max_loss_per_contract)`. For undefined-risk strategies, size based on notional exposure, not margin requirement. Never exceed 5% max loss per R3.
-6. **Risk Profile Calculation:** For EVERY leg construction, compute and output:
-   - Max loss (total dollar amount)
-   - Max profit (total dollar amount)
-   - Breakeven(s) at expiration
-   - Probability of profit (approximate, based on short strike delta for credit spreads)
-   - IV impact direction (net vega — long or short? positive or negative on IV change?)
-   - Commission estimate (legs × contracts × rate)
-7. **Pin Risk Assessment:** For credit spreads and iron condors: verify that the plan includes closing before expiration. Document pin risk exposure if held through expiration.
-
-**Output:** Complete trade plan with specific strikes, expirations, contract quantities, risk profile, and commission estimate.
-
-  Complete when: Every leg has a specific strike and expiration. Risk profile is fully quantified. Contract quantity respects capital constraints and R3. Pin risk is assessed and mitigated.
-  Complete when: Risk profile card is complete with all 7 line items (max loss, max profit, breakeven, probability of profit, IV impact, commission estimate, pin risk assessment). No "[TBD]" or "~" placeholders remain — every number is explicit.
-
-<!-- DEEP: 10+min -->
-### Phase 4: Risk Validation (~5 min)
-<!-- DEEP: Full risk validation — the \"trust but verify\" phase -->
-**Goal:** Validate that the constructed strategy does not violate any risk rules and is appropriate for the account and market conditions.
-
-**Steps:**
-1. **Ground Rules Compliance Check:** Run through R1-R8. Every rule must pass or have a documented override with justification.
-2. **Correlation Check:** Does this position correlate with existing positions? If adding to an existing sector > 30% of portfolio, reduce size or skip.
-3. **Event Re-check:** Re-verify no new events (earnings announcements, FDA dates, Fed speeches) appeared since Phase 1.
-4. **Liquidity Re-check:** Confirm bid-ask spreads haven't widened beyond acceptable thresholds.
-5. **Max Drawdown Scenario:** Model the worst realistic scenario and verify account can survive it: "If the underlying gaps 10% against us overnight, what's the max loss?" If the answer exceeds your 5% per-trade limit, the strategy is too large.
-6. **Strategy Soundness Checklist:**
-   - [ ] Strategy class matches IV environment (debit for low IV, credit for high IV)
-   - [ ] Strike width is appropriate for account size
-   - [ ] DTE selection matches thesis timeframe + theta optimization
-   - [ ] Profit target is achievable (not > max profit, not so small fees eat it)
-   - [ ] Stop-loss is at a level that avoids death-by-commission (if stop is $0.20 wide and commission is $0.65/contract, a round-trip costs $1.30 = 6.5 contracts just to break even on the stop)
-   - [ ] Exit plan is defined with 3 triggers: profit, stop, time
-
-**Output:** Risk Validation Report — pass/fail on all checks with remediation if needed.
-
-  Complete when: All 6 validation steps pass. Any failure is documented with remediation. Strategy is confirmed ready for execution.
-
-<!-- DEEP: 10+min -->
-### Phase 5: Adjustment & Exit Rules (~5 min)
-<!-- DEEP: Full exit management design -->
-**Goal:** Design the complete exit management plan before the trade is entered.
-
-**Steps:**
-1. **Profit Target:** Set at 50% of max credit (credit spreads, iron condors) or 50% of max profit (debit spreads, calendars). Exception: covered calls and CSPs at 80-90% of max credit. Record the exact dollar amount and GTC order logic.
-2. **Stop-Loss:** Set at 2× credit received (credit strategies) or 100% of debit paid (debit strategies). Record exact dollar amount. Set hard stop — not mental.
-3. **Time Stop:** Set at 21 DTE for all strategies. If trade is not at profit target by 21 DTE, evaluate for early close. Rationale: gamma risk increases exponentially in final 3 weeks.
-4. **Adjustment Triggers:** Define specific conditions for rolling vs. closing:
-   - Stock within X% of short strike → evaluate roll
-   - Thesis invalidated → close immediately
-   - Max roll count: 2 rolls maximum, then accept assignment or take loss
-5. **Post-Exit Protocol:** After any exit (profit, stop, time), record in trade journal: entry reason, strategy, exit reason, P&L, MAE, MFE, and lesson. This data is more valuable than the P&L — it drives strategy refinement.
-
-**Output:** Exit Management Plan with exact trigger prices, GTC order logic where applicable, and post-exit journal template.
-
-  Complete when: Profit target, stop-loss, and time stop are all defined with exact prices. Adjustment triggers are specific and measurable. Maximum 2 rolls permitted.
-
-## Best Practices
-
-1. **Start every strategy selection by assessing IV rank, not by picking a direction.** IV rank determines whether you should be buying or selling premium. Direction is secondary. A correct directional call with the wrong IV approach (buying calls at IV rank 90) still loses money.
-
-2. **Always compare your chosen strategy against the 2 next-best alternatives.** If you cannot articulate why a bull put spread is better than a bull call spread or a covered call for THIS specific setup, you are pattern-matching, not strategizing. Write the comparison — it forces clarity.
-
-3. **Compute the credit-to-loss ratio, not the absolute premium.** A $2.00 credit on a $10-wide spread (0.20 ratio) is worse than a $1.20 credit on a $5-wide spread (0.24 ratio). The ratio, not the dollar amount, determines expected value.
-
-4. **Size every trade so max loss ≤ 5% of account value.** This is the single most important risk rule. Five consecutive full losses = 23% drawdown — painful but survivable. One 25% loss = potential account blow-up from which recovery requires a 33% gain.
-
-5. **Close credit spreads and iron condors by 3:30 PM ET on expiration day if the stock is within 2% of any short strike.** The last $0.05 of premium is NEVER worth the gap risk. Pin risk has destroyed more accounts than any other options failure mode.
-
-6. **The 50% profit rule: close credit spreads and iron condors at 50% of max credit.** The first 50% of profit is easier than the second 50%. You're taking on proportionally more gamma risk for proportionally less remaining premium. Redeploy capital to a new 30-45 DTE position with fresh theta.
-
-7. **UOA without OI ratio and multi-leg detection is noise, not signal.** A $5M call sweep with OI ratio of 0.2 is closing activity — the signal is bearish, not bullish. Without OI context, 30%+ of directional UOA signals are misclassified. Never trade UOA without OI validation.
-
-8. **When comparing strategies, always compute expected value, not just max profit.** EV = (probability of profit × max profit) − (probability of loss × max loss). A strategy with 85% probability of $100 profit and 15% probability of $200 loss has EV = $55. A strategy with 60% probability of $300 profit and 40% of $150 loss has EV = $120. The higher-probability trade is worse in expectation.
-
-9. **The 21-day rule: evaluate ALL options positions at 21 DTE for early close.** Gamma risk increases exponentially from 21 days to expiration. Theta has already done most of its work. The remaining time premium is rarely worth the exponentially increasing gamma risk.
-
-10. **Post every closed trade to a journal with: entry reason, strategy, exit reason, P&L, MAE, MFE, and lesson.** Over 100 trades, patterns emerge that you cannot see trade-by-trade. Your journal reveals: which IV regimes you win in, whether your profit targets are too tight or loose, and whether you exit winners too early or losers too late.
-
-11. **Earnings within DTE transforms the trade.** A 45-DTE strategy with earnings in 14 days is not a 45-day trade — it is a binary event trade with a 31-day tail. Adjust sizing, strategy, and expectations accordingly. Halve position size or switch to an earnings-specific structure.
-
-12. **Diversify by strategy type, not just by ticker.** Five iron condors on five different stocks are one strategy — they all lose in a trending market. Mix: 1-2 directional spreads, 1-2 neutral condors, 0-1 time spread. Diversification across strategy types provides true non-correlation.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Bull call spread bought at IV rank 85 loses 60% even though stock rose 3% | IV dropped from 85 to 50 after entry. Vega loss on the long call (~$0.15/1% IV) overwhelmed the $0.08 delta gain from the 3% stock move. The strategy was right directionally but wrong for the IV environment. | Replace with bull put spread: same bullish direction, but vega-short — IV crush ADDS to profit instead of destroying it. If IV rank > 50, express bullishness through put sales, not call purchases. | Direction and volatility are independent decisions. You must win on BOTH to profit on a debit spread. Credit spreads only require you to win on direction — IV decline is tailwind, not headwind. |
-| Iron condor with $5 wings collected $1.65 credit — stock gapped through the call wing on earnings, losing $3,350 | Earnings was in 5 days but was not flagged. The iron condor was entered as a "30-day neutral trade" but was actually an earnings play. The $1.65 credit had zero chance against a 3-sigma earnings gap. | Never hold iron condors through earnings. If earnings is within DTE, either: (a) skip the trade entirely, (b) reduce size to 25% of normal and widen wings to 2×, or (c) switch to an earnings butterfly targeting the expected move. | Earnings is a binary event. No amount of credit compensates for unlimited gap risk. The iron condor's max loss is the entire wing width minus credit — and gap moves deliver exactly that. |
-| CSP sold on a stock at $50 strike. Stock broke 200-SMA and dropped to $38 — assigned $12 below market. CSP premium was $1.20. | CSP was sold on a stock in a confirmed downtrend (below 200-SMA, lower lows). The $1.20 premium was a fraction of the $12/share loss on assignment. The trader was yield-chasing, not strategizing. | Only sell CSPs on stocks above the 200-SMA AND that you want to own for 6+ months. If the stock is below the 200-SMA, do not sell CSPs — you are catching a falling knife with a premium band-aid. | CSP premium is compensation for taking assignment risk. If the stock is in freefall, no premium is large enough. The 200-SMA is the cheapest trend filter in finance — use it. |
-| Debit spread held through expiration — short leg expired OTM, long leg also OTM. Full debit lost. But 2 weeks earlier, spread was at 60% profit. Trader held for "the full amount." | Greed. The position was at 60% profit at 21 DTE — the trader's own exit rules said "close at 50%." The trader ignored the exit plan, hoping for 100%. The stock reversed in the final 10 days and the spread went to zero. | Follow exit rules mechanically. 50% profit target on debit spreads is 50% for a reason: the first 50% is easier. Set GTC closing orders at 50% profit at entry time — remove the emotional decision. | "Take profit early" is a cliche for a reason. Options are decaying assets — the longer you hold, the more time works against you (for debit spreads). Lock in profits and redeploy. |
-| Trader rolled a credit spread for a $0.30 debit when stock breached the short strike. Rolled again the next week for $0.45. Now in for $0.75 on a trade that originally collected $0.80. | Sunk cost fallacy. Each roll was a new trade being entered at a worse price. The trader should have closed at the first breach (2× credit stop-loss = $1.60 loss) instead of accumulating $0.75 in debits on a dying position. | Maximum 2 rolls. After that, close. Each roll is a NEW trade — evaluate it as such. If you wouldn't enter the rolled position fresh, don't roll into it. Rolling to "avoid the loss" is a loss in slow motion. | Rolling is not a fix — it's a new trade. Your accumulated debit is gone. The only question: at current prices, is this a good trade? If no, close. The market doesn't care about your cost basis. |
-
-## Cross-Skill Coordination
-
-<!-- STANDARD: 3min — how this skill chains with others in the finance domain and beyond -->
-
-| Upstream Skill | What You Receive | When to Involve |
-
-| Upstream Skill | What You Receive | When to Involve |
-|-------|-----------------|----------------------|
-| **quantitative-analyst** | UOA signals (direction, conviction, premium, DTE, IV rank, OI ratio, multi-leg detection); IV surface data; volatility skew analysis; put-call parity validation | Primary input for strategy selection. UOA direction + conviction drives the directional leg of strategy selection. IV rank and term structure determine debit vs. credit. Multi-leg UOA detection may suggest mirroring a specific structure. |
-| **market-data-engineer** | Clean options chains (strikes, expirations, bid/ask, OI, volume); corporate actions (dividends, splits); earnings calendar; real-time quotes | Data for leg construction: which strikes exist, what are the bid-ask spreads, is OI sufficient at the target strikes. Earnings calendar for Phase 1 event checking. **Decision gate:** Is data freshness < 60s? → proceed with UOA-informed strategies. |
-| **technical-signals-engineer** | Support/resistance levels; moving averages (20-EMA, 50-SMA, 200-SMA); trend strength indicators; RSI levels; volume profile | Strike placement using technical levels (Method 3). 200-SMA check for CSP eligibility. RSI for entry timing. Support/resistance for short strike placement in credit spreads. **Artifact:** key technical levels for strike anchoring. |
-| **fundamental-analyst** | Quality scores; DCF fair value estimates; financial health metrics; red flags checklist | Stock selection filter: only construct strategies on fundamentally sound underlyings. Wheel strategy requires stocks you want to own — fundamental analyst validates this. Red flags override any UOA signal. **Decision gate:** Is the stock fundamentally sound (quality score > 50)? → proceed. Otherwise, skip regardless of UOA. |
-
-### Feeds Into
-
-| Skill | What It Produces | Coordination |
-|-------|-----------------|-------------|
-| **algorithmic-trader** | Complete trade plan: strategy type, strikes, expirations, contract count, entry conditions, exit rules (profit target, stop-loss, time stop), adjustment triggers | The strategist delivers the WHAT and WHY. The algorithmic-trader handles the HOW: order routing, bracket orders, position tracking, execution algorithms. The trade plan is the contract between strategist and executor. |
-| **portfolio-signal-manager** | Strategy-level risk profile (max loss, probability of profit, IV sensitivity); strategy type for correlation matrix (directional vs. neutral vs. time); position sizing in account % | Portfolio manager resolves conflicts between multiple strategies (e.g., a bull put spread on XYZ and a bear call spread on the same sector ETF). Ensures diversification across strategy types. **Artifact:** strategy risk card for portfolio integration. |
-| **options-risk-engineer** | Strategy risk exposures: delta, gamma, theta, vega profiles; stress test scenarios (gap risk, IV shock, correlation breakdown); margin requirements | Risk engineer validates that the strategist's risk assessment is complete. Runs Monte Carlo simulations on the constructed portfolio of strategies. Identifies hidden concentrations (five "independent" trades that are all short puts). |
-
-## Proactive Triggers
-
-<!-- QUICK: 30s — when to proactively notify stakeholders -->
-
-| Trigger | Action | Window |
-|---------|--------|--------|
-| IV rank crosses above 75 on a stock with open credit positions | Review all short-premium positions. Widen stop-losses by 50% to account for higher gap risk. Do NOT enter new credit positions — IV is telling you the market expects larger moves. | 30 min |
-| UOA sweep detected with premium > $5M and OI ratio > 2 | Validate signal with quantitative-analyst. If confirmed STRONG, override standard strategy selection: deploy faster (same-day or next-day entry). Time decay of UOA edge: 2-4 hours for sweeps. | 15 min |
-| Multiple open positions approaching short strikes across correlated underlyings | Correlation crisis: close the smallest position immediately. Reduce remaining positions by 50%. "Five iron condors in tech" = one position with 5× risk. | 1 hour |
-| Earnings announced within DTE of an open strategy that was NOT designed as an earnings play | Close or reduce position by 75%. The strategy's risk profile is now dominated by a binary event it was not constructed for. The remaining 25% is a lottery ticket — treat it as such. | Immediate |
-| Strategy's max drawdown scenario materializes (e.g., 3-sigma gap against position) | Execute emergency exit plan. Do NOT "wait to see if it comes back." Max loss is max loss — exceeding it turns a planned loss into an unplanned catastrophe. | Immediate |
-| Sector ETF breaks below 200-SMA while holding bullish strategies in that sector | Downgrade ALL bullish strategies in that sector by 2 conviction levels. STRONG → WEAK, MODERATE → CLOSE. The sector tide is going out — individual stock strength will not save you. | 4 hours |
-| Account drawdown reaches 15% from peak | Halve all position sizes. No new positions until drawdown recovers to 10%. Focus on capital preservation, not recovery — "making it back" is the mindset that turns 15% into 50%. | End of trading day |
-| Options exchange announces rule change affecting strategy viability (e.g., 0DTE expansion, margin changes) | Halt all affected strategies. Review new rules against strategy assumptions. Adjust position sizing, DTE selection, or strategy type as needed. | 24 hours |
-
-## What Good Looks Like
-
-<!-- STANDARD: 2min — the bar for production-quality strategy design -->
-
-A 10/10 options strategist output reads like a professional trading desk recommendation. Here is what distinguishes excellent from adequate:
-
-**Excellent strategy recommendation:**
-> "**Bull Put Spread — XYZ Corp ($175, IV Rank 62)** | Direction: Bullish (UOA-confirmed) | DTE: 38 days
-> **Construction:** Sell $165 put (25-delta), Buy $155 put (10-delta). $10-wide spread. Net credit: $2.85 per spread.
-> **Risk Profile:** Max profit: $285/spread (credit received). Max loss: $715/spread ($10 width − $2.85 credit). Breakeven at expiration: $162.15. Probability of profit: ~75%. IV impact: vega-short (−0.12 per spread) — IV crush is tailwind.
-> **Sizing:** 3 spreads. Total max loss: $2,145 (4.3% of $50K account). Total credit: $855.
-> **Rationale:** IV rank 62 favors credit strategies. UOA shows $3.2M call sweeps at $170-$175 with OI ratio 2.3 (opening). Technicals: stock bounced off 50-SMA with RSI 48 (not overbought). Sector ETF (XLK) +1.3% this week — aligned.
-> **Exit Plan:** Profit target: $1.42 credit (50% of max). Stop-loss: $5.70 debit (2× credit). Time stop: close at 21 DTE if not at profit target. Pin risk: close by 3:30 PM ET on expiration day — no exceptions.
-> **Failure Modes:** (1) Earnings in 42 days — outside DTE, low risk. (2) Gap below $155 on macro event — max loss of $715/spread. (3) IV crush after entry — helps this trade (vega-short). (4) Early assignment if $165 put goes ITM before ex-div date (none within DTE). (5) Correlation: 2 other tech positions — sector exposure at 28%, just under 30% limit."
-
-**Adequate (but not excellent):**
-> "XYZ looks bullish based on call flow. Sell a put spread — maybe the $165/$155 for a credit. Should be fine."
-
-The difference: **specificity, quantification, multi-dimensional analysis, named failure modes, and a complete exit plan that exists before entry.** An excellent recommendation leaves nothing to interpretation — every number, every date, every condition is explicit.
-
-Key quality markers:
-- Every number has units and context ($285 credit per spread, not just "about $300")
-- Risk is quantified in both dollars AND percentage of account
-- The IV environment is explicitly connected to the strategy choice ("IV rank 62 → credit spread because we sell premium when IV is elevated")
-- UOA is integrated, not appended ("UOA call sweeps at $170-$175" → $165 short put is BELOW UOA zone, not above it — conservative strike placement)
-- Failure modes are named with specific conditions, not hand-waved ("gap risk" → "gap below $155 on macro event")
-- Exit plan precedes entry — profit target, stop, time stop all defined
-
-## Deliberate Practice
-
-```mermaid
-graph LR
-    A[Select Strategy] --> B[Document<br/>rationale & alternatives] --> C[Review<br/>outcome vs. expectation] --> D[Refine<br/>decision framework] --> A
-
-```
-
-1. **Strategy Selection Sprint:** Take 10 random market snapshots (different IV ranks, different sectors, different UOA signals). For each, select the optimal strategy in 2 minutes and document the rationale. After 10, review: did you consistently follow the IV-first principle? Did UOA override appropriately? Where did you default to a "favorite" strategy instead of the optimal one? Frequency: Weekly.
-
-2. **Post-Mortem Deep Dive:** Take your last 20 closed trades. For each loser, identify: was the strategy wrong or the execution wrong? If the strategy was right but IV crushed it, you have an IV/strategy mismatch pattern. If the strategy was wrong but direction was right, you used debit when credit was called for. Categorize every loss into: strategy error, sizing error, exit error, or random (within expected loss distribution). Frequency: Monthly.
-
-3. **Reverse Engineer Institutional Flow:** Take a day of UOA data. Identify the 3 largest flow events. For each, construct the exact strategy you believe the institution deployed (strikes, structure, likely rationale). Then paper-trade those strategies for 30 days. Compare your interpretation vs. what actually happened. This builds the muscle of reading institutional intent from raw flow data. Frequency: Weekly.
-
-4. **Constraint Gauntlet:** Design a strategy for the same market conditions under 5 different constraints: (a) $5K account, (b) $100K account with no margin, (c) portfolio margin with unlimited risk, (d) earnings in 10 days, (e) can only hold for 14 days max. The SAME market view should produce 5 DIFFERENT strategies. If you get the same answer for all 5, you are not truly adapting to constraints. Frequency: Monthly.
-
-5. **Strategy Failure Mode Mapping:** Take a strategy you use frequently (e.g., bull put spread). Map ALL failure modes: (a) gap down through both strikes, (b) IV expansion after entry, (c) early assignment pre-dividend, (d) pin at short strike on expiration, (e) correlation breakdown (multiple spreads tested simultaneously), (f) liquidity freeze (can't exit), (g) rolling death spiral, (h) thesis invalidation. For each, write the exact conditions and the exact mitigation. If you cannot name 5+ failure modes for a strategy, you do not understand it well enough to trade it. Frequency: Once per strategy, review quarterly.
-
-**The One Highest-Leverage Activity:** Every month, take your 3 worst trades and write a 1-page post-mortem: what conditions existed, why you selected the strategy you did, what you missed, and what rule you will add to prevent recurrence. Share it with another trader. Teaching what you learned from losing is the fastest path to mastery.
-
-## References
-
-Detailed reference material loaded on demand:
-
-- **Strategy Selection Matrix**: See [strategy-selection-matrix.md](references/strategy-selection-matrix.md) — IV rank × directional conviction → optimal strategy
-- **Strike Selection Methods**: See [strike-selection-methods.md](references/strike-selection-methods.md) — Delta-based, SD-based, technical, UOA-informed
-- **Covered Calls & CSPs**: See [covered-calls-and-csps.md](references/covered-calls-and-csps.md) — Wheel strategy construction and optimization
-- **Vertical Spreads**: See [vertical-spreads.md](references/vertical-spreads.md) — All four verticals, strike width, failure modes
-- **Iron Condors & Butterflies**: See [iron-condors-and-butterflies.md](references/iron-condors-and-butterflies.md) — Neutral strategies, wing width, break-even optimization
-- **Calendars & Diagonals**: See [calendars-and-diagonals.md](references/calendars-and-diagonals.md) — Time spreads, vega exposure, term structure exploitation
-- **Adjustment & Exit Rules**: See [adjustment-and-exit-rules.md](references/adjustment-and-exit-rules.md) — When to roll, when to close, profit targets, stops
-- **UOA Strategy Integration**: See [uoa-strategy-integration.md](references/uoa-strategy-integration.md) — How unusual options activity drives strategy selection and strike placement
-- **Long Options Strategies**: See [long-options-strategies.md](references/long-options-strategies.md) — Complete coverage of long calls, long puts, debit spreads, straddles, strangles, backspreads, protective puts, and the long-vs-short strategy selection matrix
-
 ## Gotchas
 
 <!-- DEEP: 10+min — these are the expensive mistakes. Read every one. -->
@@ -743,3 +360,4 @@ This skill operates in a domain where fabricated numbers lose real money. A hall
 - **Never guess security or regulatory configurations.** If asked about pattern day trader (PDT) rules, portfolio margin eligibility, wash sale rules across options legs, or exchange position limits, do NOT provide a "reasonable answer." Say: "Regulatory requirements for options trading — including PDT rules, portfolio margin eligibility thresholds, and wash sale treatment of multi-leg options — must be verified against current FINRA Rule 4210, SEC regulations, and IRS Publication 550. I cannot provide definitive regulatory guidance. Consult a qualified professional or the official regulatory sources."
 - **Distinguish between what you know and what you infer.** Every output element must be marked: [VERIFIED] — derived from explicit user-provided data or reference files; [COMPUTED] — calculated from verified inputs using documented formulas; [ESTIMATED] — approximated from typical market behavior (e.g., "probability of profit ≈ 1 − short delta"); [UNKNOWN] — information you need but do not have. The trader must know which numbers are exact and which are estimates. Trading on an estimate believing it's exact is how a "high-probability" trade becomes a max-loss surprise.
 - **Every strategy output is a hypothesis, not a prediction.** Frame every recommendation as: "Given these conditions (IV rank X, UOA signal Y, technical setup Z), the optimal strategy is [strategy] with [parameters]. This strategy succeeds if [specific conditions hold] and fails if [specific conditions break]. The expected value is positive only if the probability of profit estimate is accurate — and probability estimates are based on historical distributions that may not reflect current conditions." A strategy recommendation is a structured bet, not a guarantee. Make the bet's terms explicit.
+

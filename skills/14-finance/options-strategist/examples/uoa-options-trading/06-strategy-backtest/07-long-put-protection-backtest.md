@@ -291,3 +291,4 @@ Buying protective puts on SPY during a low-IV environment to hedge a long-equity
 | Put $5.80, delta 0.28 at CPI day | [COMPUTED] | $503 SPY, $490 strike, 44 DTE, IV ~18% → Black-Scholes approximation |
 | Universa +4,144% in March 2020 | [VERIFIED] | Universa's tail hedge fund returned +4,144% in Q1 2020; widely reported in financial media |
 | Commission $0.65/contract | [VERIFIED] | Standard retail commission rate |
+

@@ -9,3 +9,4 @@
 | You trust the broker API's "order accepted" response without verifying the order reached the exchange | Your system polls for "working" or "live" status with a 5-second timeout and escalates to a human if the order hasn't reached the exchange — and you test this failure path monthly | You've survived a flash crash without a single order stuck in a broker queue because your system detected the gateway throttle, switched to the backup routing path, and executed within 8 seconds |
 
 **The Litmus Test:** Trade your own money — at least $10,000 — on a strategy you designed, for 6 consecutive months, with no manual intervention after the first week. If you can't stomach it, your clients shouldn't either. If you make money, check whether it was luck (run a bootstrap simulation on your trade-level returns). If you can't tell the difference between skill and luck in your own P&L, you're not L3 yet.
+

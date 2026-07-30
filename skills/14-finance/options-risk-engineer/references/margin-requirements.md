@@ -129,3 +129,4 @@ Options BP drops non-linearly: a 10% portfolio drawdown reduces BP by more than 
 2. **Earnings volatility expansion**: Margin requirements spike through earnings. A position manageable pre-earnings becomes a margin call post-earnings due to IV expansion, not price movement [BROKER-VERIFIED].
 3. **Concentration penalty**: PM accounts with >50% in single underlying may face additional margin add-ons. TDA applies concentration charges; IBKR may restrict PM benefits [BROKER-VERIFIED].
 4. **Portfolio Margin recalc**: PM recalculates continuously intraday. A midday spike in volatility increases theoretical losses, increasing margin requirements in real time. You may be fine at 10:00 AM and in a deficit at 2:00 PM [BROKER-VERIFIED].
+

@@ -89,3 +89,4 @@ Self-insure when: (1) you can afford the loss without lifestyle impact, (2) the 
 | Pet insurance | Can afford $5-10K emergency (self-insure with pet emergency fund) |
 | Cell phone insurance | Can afford replacement ($500-1000), premium >$15/month |
 | Rental car insurance | Credit card covers it, or auto policy extends to rentals |
+

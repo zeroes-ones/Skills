@@ -147,3 +147,4 @@ Structural error — if the short call is assigned, the long call does not fully
 
 ### 5. Rolling the Short Leg for Debits (Diagonal/Calendar)
 Each roll for a debit erodes the net credit base. After 3 debit rolls on a $1.50 credit position, you've paid $2.00+ in rolls for a position that was supposed to be an income strategy. **Prevention:** Hard rule — maximum 2 rolls total. If the position can't be rolled for credit on the third expiration, close it.
+

@@ -32,3 +32,4 @@ Accruals Ratio = (NI - OCF) / Total Assets. >5% = investigate.
 - Material weakness in internal controls
 - Late filings (10-K, 10-Q extensions)
 - Restatements of prior financials
+

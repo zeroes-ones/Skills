@@ -118,3 +118,4 @@ This 3-pronged hedge covers the three crisis drivers: vol spikes (VIX), price de
 - **Weekly**: Recalculate hedge cost vs portfolio value. Has the drag increased?
 - **Monthly**: Evaluate hedge performance on backtested scenarios. Adjust allocation if regime changed.
 - **Quarterly**: Full hedge review. Roll expiring hedges. Rebalance across hedge instruments.
+

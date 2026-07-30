@@ -201,3 +201,4 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 5. **Risk warnings**: Attach global risk context — VIX level, macro event calendar (FOMC, CPI), sector rotation signals.
 
 **Output**: `signal_batch_YYYY-MM-DD.json` ready for handoff.
+

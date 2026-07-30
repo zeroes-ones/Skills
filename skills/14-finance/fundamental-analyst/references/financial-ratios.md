@@ -44,3 +44,4 @@
 - Payout Ratio = Dividends / Net Income (<60% sustainable)
 - FCF Payout Ratio = Dividends / FCF (if >100%, dividends debt-financed)
 - Dividend Coverage = EPS / Dividend per Share (>2.0 safe)
+

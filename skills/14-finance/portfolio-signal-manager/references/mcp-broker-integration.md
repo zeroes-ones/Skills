@@ -32,3 +32,4 @@ DISCONNECTED → AUTHENTICATING → CONNECTED → SYNCING → READY → EXECUTIN
 | IBKR | OAuth + Gateway | Varies | Gateway must be running locally |
 | Schwab | OAuth | 120/min | Token refresh every 30 min |
 | Robinhood | OAuth | 100/min | No official API; use with caution |
+

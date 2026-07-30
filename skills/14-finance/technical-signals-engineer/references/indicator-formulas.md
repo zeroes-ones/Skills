@@ -137,3 +137,4 @@ ADX = EMA(14, DX)
 
 Source: Welles Wilder, _New Concepts in Technical Trading Systems_ (1978), pp. 35-50.
 All EMAs use Wilder smoothing (same as RSI/ATR).
+

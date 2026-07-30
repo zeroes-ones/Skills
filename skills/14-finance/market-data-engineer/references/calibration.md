@@ -9,3 +9,4 @@
 | You model pipeline costs on average daily volume and are surprised by the invoice every month | You model costs on 99th-percentile volume with per-vendor rate limiters and budget alerts — and you haven't had a surprise overage in 12 months | You've negotiated a multi-vendor data contract that saved 40% vs list pricing because you knew your exact peak throughput, redundancy requirements, and latency SLA per feed |
 
 **The Litmus Test:** Take a random trading day from 3 years ago (not a day you've tested before). Ingest the raw data from two different vendors. Adjust for corporate actions. Produce a Parquet dataset. Now have a quant run their standard analysis pipeline on your data and the same analysis on Bloomberg terminal data. If any derived number differs by more than 0.1%, you have a pipeline bug. If you can't do this in under 4 hours for a single ticker, your pipeline isn't production-grade.
+

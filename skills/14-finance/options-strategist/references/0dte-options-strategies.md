@@ -456,3 +456,4 @@ This market structure evolves rapidly. Before trading 0DTE, verify:
 - **options-risk-engineer/references/pin-risk-detection.md** — Assignment probability by moneyness, broker auto-close behaviors, weekend gap risk
 - **options-strategist/references/iron-condors-and-butterflies.md** — General butterfly/condor construction and adjustment protocols
 - **options-strategist/references/strategy-selection-matrix.md** — Framework for selecting strategies based on IV rank and directional conviction
+

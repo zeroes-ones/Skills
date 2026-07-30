@@ -52,3 +52,4 @@ Position[i] = Risk_Budget[i] / Asset_Vol[i]
 | Equal weight without vol adjustment | High-vol stocks dominate risk contribution | Apply volatility adjustment |
 | Ignoring correlation in sizing | 5 "different" positions = 1 effective bet | Check pairwise correlations |
 | No position cap | Single position can exceed 10% | Hard cap at 10% of portfolio |
+

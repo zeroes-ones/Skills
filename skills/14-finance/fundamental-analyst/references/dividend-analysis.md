@@ -28,3 +28,4 @@
 - Debt increasing while dividend maintained
 - CEO/CFO departure (new management often cuts to "reset" expectations)
 - Industry peers cutting dividends (sector-wide stress)
+

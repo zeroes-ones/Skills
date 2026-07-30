@@ -127,3 +127,4 @@ Weekly report fields to generate [COMPUTED from broker API positions]:
 - Flag: any limit violation (single underlying > 15%, sector > 25%, expiration > 30%)
 - Flag: any pairwise correlation > 0.85 that wasn't there last week
 
+

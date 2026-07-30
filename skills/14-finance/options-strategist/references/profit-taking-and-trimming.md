@@ -201,3 +201,4 @@ ENTRY → Confirm ALL conditions (UOA + IV + Technical) → Open → Set GTC sto
 ---
 
 *Every trigger in this document is [COMMON-PRACTICE] unless tagged [VERIFIED] with a specific source. Verification tags indicate confirmation against broker documentation, exchange rules, or published backtest results.*
+

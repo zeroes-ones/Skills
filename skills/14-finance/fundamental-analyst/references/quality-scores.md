@@ -48,3 +48,4 @@ M = -4.84 + 0.92×DSRI + 0.528×GMI + 0.404×AQI + 0.892×SGI + 0.115×DEPI - 0.
 - TATA: Total Accruals to Total Assets (high accruals = low earnings quality)
 
 M > -2.22: Likely manipulator. M > -1.78: High probability manipulation.
+

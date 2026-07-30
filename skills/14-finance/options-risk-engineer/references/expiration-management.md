@@ -106,3 +106,4 @@ At 0DTE final hour, a $0.50 SPY move shifts an ATM option from 0.50 delta to ~0.
 7. **Friday 3:00 PM ET**: All positions should be closed or DEFINITELY intentional holds
 8. **Saturday**: Review assignment notifications from broker
 9. **Monday**: Deal with any resulting stock positions
+

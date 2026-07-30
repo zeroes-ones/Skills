@@ -126,3 +126,4 @@ When Unusual Options Activity (UOA) conflicts with the IV-based recommendation:
 8. **Set exit rules** → apply profit targets and stop-losses per adjustment-and-exit-rules.md
 
 [INFERRED] This matrix is calibrated for single-stock options on US equities with market cap > $2B and average daily option volume > 1,000 contracts. For index options (SPX, NDX, RUT), shift POP targets upward by 5 percentage points due to lower volatility-of-volatility and the absence of single-stock gap risk (earnings, guidance, M&A). For ETFs, use single-stock parameters but with a 3-point POP adjustment.
+

@@ -11,3 +11,4 @@
 - **Sector context amplifies or dampens signals** — A bullish call sweep on a stock whose sector ETF is down 3% on the week is fighting the tape. Sector tailwind (+2%+) upgrades signal confidence; sector headwind (−2%+) downgrades it.
 - **Position sizing scales with conviction, not premium size** — A $10M block trade by an institution repositioning is less directional than a $1.5M sweep executed aggressively across exchanges. Signal classification (STRONG/BUY/WEAK) should drive position sizing, not raw premium.
 - **Backtest your signal filters before trading them live** — Run your UOA detection pipeline on 6 months of historical data. Measure: (a) win rate by signal strength, (b) average return by DTE bucket, (c) false positive rate around earnings. If STRONG BUY signals don't outperform BUY signals historically, your classification is broken.
+

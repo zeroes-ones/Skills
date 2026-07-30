@@ -106,3 +106,4 @@ Gramm-Leach-Bliley Act — applies to "financial institutions" broadly defined
 - Cryptography: key management lifecycle, certificate management, HSMs
 - Third-party management: outsourced services, cloud providers
 - Online financial services: strong authentication (2FA minimum), transaction signing
+

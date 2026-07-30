@@ -69,3 +69,4 @@ IF you cannot -> DECLINE (rate jumps to ____% after promo)
 | Auto loan | 4-8% | MEDIUM | Pay on schedule |
 | Federal student loan | 3-7% | LOW | Minimum payments, explore IDR/PSLF |
 | Mortgage | 3-7% | LOWEST | Pay on schedule, tax-deductible interest |
+

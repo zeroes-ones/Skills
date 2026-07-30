@@ -14,3 +14,4 @@
 <!-- DEEP: 10+min -->
 - **Use ZSTD compression level 9 for Parquet archives.** ZSTD-9 achieves 30-40% smaller files than Snappy for financial time-series data. For 7 years of tick data at 50 TB raw, that is the difference between $2,000/month and $3,200/month on S3 Intelligent-Tiering. Decompression speed penalty is negligible (< 5%) for Athena queries that scan pre-pruned partitions.
 - **Schedule all jobs in Eastern Time with holiday awareness.** Use `pandas_market_calendars` or `exchange_calendars` library. Never hardcode `0 9 * * 1-5` in cron — that runs on Good Friday, July 3 half-days, and misses post-holiday catch-up windows. Instead: `trading_calendar.is_trading_day(date)` before every pipeline run.
+

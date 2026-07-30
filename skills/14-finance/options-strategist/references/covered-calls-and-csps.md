@@ -146,3 +146,4 @@ Target 15–30% annualized in normal IV. Above 40% = unsustainable. Below 10% = 
 - Cash reserve: 10–15% minimum
 - Post-assignment stop: sell shares if 10% below adjusted cost basis
 - Max consecutive rolls: 2 per position
+

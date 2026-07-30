@@ -124,3 +124,4 @@ Mag-stripe Fallback Attack (requires chip cards to also have magstripe):
     If Service Code says chip but magstripe read → flag as potential counterfeit
 
 ```
+

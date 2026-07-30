@@ -50,3 +50,4 @@ This improves average entry by 0.5-1.5% vs. entering at signal bar close.
 | Bearish | Bullish | IGNORE — counter-trend bounce trap |
 | Sideways | Bullish | FILTER — regime check, 50% size |
 | Sideways | Bearish | FILTER — regime check, 50% size |
+

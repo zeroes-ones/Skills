@@ -41,3 +41,4 @@ slope < -0.001: meaningful downtrend
 | RSI Divergence | Fair | Excellent | Poor |
 | BB Mean Reversion | Poor (fade trends) | Excellent | Fair (wider bands) |
 | Volume Surge | Good | Good | Good |
+

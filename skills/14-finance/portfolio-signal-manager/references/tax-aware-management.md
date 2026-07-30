@@ -33,3 +33,4 @@ If >80% of needed sells are short-term gains:
   If still short-term after 30 days: execute anyway, flag tax impact
 
 ```
+

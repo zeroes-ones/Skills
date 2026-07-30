@@ -141,3 +141,4 @@ After every closed trade, document:
 6. **Net return on capital deployed (%):** (P&L / Max Loss) × 100 — performance metric
 
 [COMMON-PRACTICE] Traders who journal every trade and review monthly outperform those who don't by an estimated 15–20% annually. The review process identifies recurring errors (exiting too early, ignoring stops, over-sizing) that cost more than any single trade.
+

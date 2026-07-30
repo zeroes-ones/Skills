@@ -89,7 +89,7 @@ But above IV Rank 50:
 - Row 3 (IV Rank 52, short): +1.5% — works but weak
 - No long premium data above IV Rank 50 exists in our dataset
 
-At IV Rank 50+, premium is EXPENSIVE. Buying it means you need an even bigger move to overcome the inflated cost. The AMZN straddle (Row 5) at IV Rank 35 returned +44% on an 8.2% move. At IV Rank 60, the same straddle would cost ~$14-16 (vs $9.50) and the same 8.2% move returns only +13%. 
+At IV Rank 50+, premium is EXPENSIVE. Buying it means you need an even bigger move to overcome the inflated cost. The AMZN straddle (Row 5) at IV Rank 35 returned +44% on an 8.2% move. At IV Rank 60, the same straddle would cost ~$14-16 (vs $9.50) and the same 8.2% move returns only +13%.
 
 **[COMPUTED]** The breakeven move for a straddle scales linearly with IV. At IV Rank 35, breakeven = ±6.0%. At IV Rank 60, breakeven = ±9.5%. Historical AMZN earnings moves average ±6.2% — the trade would lose money on an AVERAGE move at IV Rank 60. The edge disappears.
 
@@ -200,7 +200,7 @@ Bull ──► Correction ──► Bear ──► Crash
   │    SPY breaks      SPY breaks   VIX > 40
   │    50-SMA          200-SMA      AND
   │    VIX > 20        VIX > 28     SPY -20% from high
-  │                              
+  │
   └──── Recovery ◄─── Recovery ◄─── Recovery
        SPY reclaims    SPY reclaims   VIX < 25
        200-SMA         50-SMA         SPY reclaims
@@ -420,3 +420,4 @@ All thresholds are [COMPUTED] from the 19-row pattern recognition matrix, which 
 The Kelly Criterion calculations assume returns are normally distributed within regime — options returns are NOT normally distributed (they have fat tails and are bounded on one side). The Kelly fractions should be treated as directional guidance, not precise allocation targets.
 
 **Knowledge cutoff:** Post-2024 market data not included. The engine has no data on how strategies performed in market conditions after the knowledge cutoff. All regime detection signals (200-SMA, VIX, IV Rank) are publicly available and objectively calculable — the engine makes no predictions, only classifications based on current observable data.
+

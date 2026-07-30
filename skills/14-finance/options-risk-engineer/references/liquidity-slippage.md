@@ -140,3 +140,4 @@ Scenario: 20 contracts of an AAPL OTM put. Displayed market: bid $1.80, ask $1.9
 Expected fill: $1.83 (mid + $0.02 toward ask). Realized slippage: $0.02 × 100 × 20 = $40 per side = $80 round-trip. On a $3,700 position, that's 2.2% in slippage alone [COMPUTED].
 
 If the expected edge on this trade was 10% ($370), slippage consumes 22% of it. Still profitable, but meaningfully reduced [COMPUTED].
+

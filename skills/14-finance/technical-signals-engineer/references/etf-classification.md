@@ -57,3 +57,4 @@ Sector rotation detected when 3+ sectors shift RS trend direction simultaneously
 - Volume indicators (OBV, volume ratio) are RELIABLE for equity ETFs but UNRELIABLE for commodity ETFs
 - Commodity volume represents speculative flow, not accumulation/distribution
 - Check contango/backwardation for oil (USO) and VIX futures curve for VXX
+

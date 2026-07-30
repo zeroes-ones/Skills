@@ -15,3 +15,4 @@
 When regime and signal strength both point the same way, resolution is usually correct.
 When they point opposite ways (strong tech in ranging market), 50/50 weighting is safer.
 The HOLD decision (conflict unresolved) is undervalued — it preserves capital for clearer opportunities.
+

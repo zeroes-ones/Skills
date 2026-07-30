@@ -122,3 +122,4 @@ Cost of rolling early: ~$0.05-0.10 slippage per contract × 52 weeks. On a 10-co
 
 This is insurance with a ~10:1 to 100:1 expected value. You cannot afford NOT to manage pin risk [COMPUTED].
 
+

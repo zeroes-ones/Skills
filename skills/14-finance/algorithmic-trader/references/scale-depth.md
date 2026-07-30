@@ -33,3 +33,4 @@
 | Solo \u2192 Small | Automated strategy profitable for 3+ months, AUM >$100K | Move from manual to automated execution; add basic backtesting; formalize entry/exit rules |
 | Small \u2192 Medium | Multi-strategy, AUM >$2M, >10 signals/day | Add portfolio-level risk controls; implement real-time monitoring; hire dedicated operations |
 | Medium \u2192 Enterprise | Institutional counterparties, regulatory requirements, AUM >$50M | Colocate; implement smart order routing; build compliance framework; hire risk and compliance team |
+

@@ -212,3 +212,4 @@ The following strategy × condition combinations lack backtest coverage and shou
 | Trade outcomes | [ESTIMATED ±5%] — realistic given price paths and option mechanics |
 | Commission costs | [VERIFIED] — $0.65/contract standard retail rate |
 | Universa +4,144% claim | [VERIFIED] — widely reported in financial media, Q1 2020 |
+

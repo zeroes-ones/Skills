@@ -136,3 +136,4 @@ Before entry, validate with ≥ 2 of 4 methods:
 | All 4 disagree | Pass — underlying not suitable for options currently |
 
 [COMMON-PRACTICE] Professional traders validate every trade with delta + expected move at minimum. Technical and skew methods fine-tune, not override, the quantitative foundation. [VERIFIED] The minimum 2-method validation rule is standard at proprietary trading firms — single-method strike selection is explicitly prohibited in most firm risk manuals.
+

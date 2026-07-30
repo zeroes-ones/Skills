@@ -52,3 +52,4 @@ Interpretation:
 | 2022 Rate Hike | -19% | Growth -30%, Value -7% | 35 | -13% |
 | Tech Crash | QQQ -33% | Tech → 1.0 | 45 | +2% |
 | Flash Crash | -9% in 30min | Normal | 40 | +1% |
+

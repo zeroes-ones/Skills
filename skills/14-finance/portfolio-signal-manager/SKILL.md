@@ -34,10 +34,17 @@ chain:
     - fundamental-analyst
     - algorithmic-trader
     - market-data-engineer
+    - macro-strategist
+    - trade-performance-analyst
+    - futures-trader
+    - forex-trader
+    - commodities-analyst
+    - crypto-trader
   feeds_into:
     - algorithmic-trader
     - data-scientist
     - observability-engineer
+    - trade-performance-analyst
   alternatives:
     - data-scientist
 ---
@@ -266,635 +273,148 @@ World-class portfolio management requires seeing the entire system, not individu
 
 ## Core Workflow
 
-<!-- STANDARD: 3min -->
+<!-- STANDARD: 5min — Full computation details → references/portfolio-engine-computations.md -->
 
 ### Phase 0: MCP Broker Connection (State Machine)
 
-```
+1. Establish broker connection via MCP: DISCONNECTED → AUTHENTICATING → CONNECTED → SYNCING → READY → EXECUTING → RECONCILING.
+   |-- Authenticate: OAuth/API key. Retry 3× (1s, 5s, 25s exponential backoff).
+   |-- Sync: positions, orders, account (buying_power, margin). Reconcile discrepancies >$100.
+   |-- Ready when: sync <60s old, idempotency keys active, circuit breaker armed (5 rejects/60s → halt).
+   |-- Execute: submit with idempotency key. Timeout 30s market / 300s limit. On timeout→query, do NOT resubmit.
+   |-- Reconcile: post-execution slippage, T+2 settlement, daily full reconciliation.
 
-1. CONNECTION STATE MACHINE (8 states, all must be handled)
-   DISCONNECTED → AUTHENTICATING → CONNECTED → SYNCING → READY → EXECUTING → RECONCILING → DISCONNECTED
-
-   AUTHENTICATING:
-   ├── OAuth token exchange or API key validation
-   ├── Token expiry tracking: refresh 5 min before expiry
-   └── Failure: retry 3x with exponential backoff (1s, 5s, 25s), then alert
-
-   CONNECTED:
-   ├── WebSocket for real-time order/position updates
-   ├── Heartbeat: ping every 30s, reconnect if no pong in 60s
-   └── Rate limit tracking: remaining requests per minute
-
-   SYNCING:
-   ├── Download positions: ticker, quantity, avg_cost, market_value, unrealized_pnl
-   ├── Download orders: pending, filled (today), rejected
-   ├── Download account: buying_power, margin_used, margin_limit, portfolio_value
-   └── Reconcile: compare broker positions vs local state, flag discrepancies >$100
-
-   READY:
-   ├── Portfolio state current (sync < 60s old)
-   ├── Buying power known
-   ├── Idempotency key generator active
-   └── Circuit breaker configured (max 5 rejected orders in 60s → halt)
-
-   EXECUTING:
-   ├── Submit order with idempotency key
-   ├── Await fill confirmation (timeout 30s for market, 300s for limit)
-   ├── On fill: update local position immediately
-   ├── On reject: log reason, do NOT retry without investigation
-   └── On timeout: query order status, do NOT resubmit (idempotency protects)
-
-   RECONCILING:
-   ├── Post-execution: compare expected vs actual fill price (slippage check)
-   ├── Post-settlement: verify T+2 settlement completed
-   └── Daily: full position reconciliation broker vs local
-
-2. MCP INTERFACE CONTRACT (what the broker MCP server must expose)
-   Tools:
-   ├── get_account() → Account(buying_power, margin, portfolio_value, day_trades_left)
-   ├── get_positions() → [Position(ticker, qty, avg_cost, mkt_value, unrealized_pnl)]
-   ├── get_orders(status="open|filled|rejected") → [Order(id, ticker, side, qty, filled_qty, status)]
-   ├── place_order(ticker, side, qty, type, limit_price, idempotency_key) → Order
-   ├── cancel_order(order_id) → bool
-   └── get_order_status(order_id) → Order
-
-   Resources (optional but recommended):
-   ├── broker://{broker_id}/account — live account snapshot
-   ├── broker://{broker_id}/positions — live positions snapshot
-   └── broker://{broker_id}/orders — live orders snapshot
-
-   Complete when: MCP connection in READY state. Portfolio synced. Idempotency keys configured.
-
-```
+   Complete when: MCP in READY state. Portfolio synced. Idempotency keys configured.
+   Full state machine + MCP contract → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-0-mcp-broker-connection-state-machine)
 
 ### Phase 1: Signal Ingestion & Conflict Resolution
 
-```
+1. INGEST standardized JSON from technical-signals-engineer and fundamental-analyst.
+   |-- Technical signal: ticker, direction, confidence (breakdown: indicator_alignment, volume_confirmation, regime_support, timeframe_alignment), indicators, caveats.
+   |-- Fundamental signal: ticker, direction, confidence (breakdown: valuation_margin, quality_triangulation, earnings_quality, comparable_alignment), DCF range, quality scores, red_flags.
 
-1. SIGNAL INGESTION CONTRACT (standardized input from source skills)
+2. DETECT conflicts per ticker:
+   |-- AGREE → proceed to sizing. HOLD vs ACTION → treat HOLD as "don't add." BUY vs SELL → Weighted Decision Matrix.
 
-   Input from technical-signals-engineer:
-   {
-     "source": "technical-signals-engineer",
-     "signal_id": "tech-20260730-0421",
-     "ticker": "AAPL",
-     "timestamp": "2026-07-30T14:21:00Z",
-     "direction": "BUY",
-     "confidence": 78,
-     "confidence_breakdown": {
-       "indicator_alignment": 85,    # % of indicators agreeing
-       "volume_confirmation": 72,    # volume supports the move
-       "regime_support": 65,         # current regime favors this
-       "timeframe_alignment": 80     # multi-timeframe agreement
-     },
-     "indicators": {
-       "primary": ["SMA_50_200_cross", "RSI_oversold_reversal"],
-       "confirming": ["MACD_bullish_cross", "OBV_rising"],
-       "cautioning": ["BB_squeeze_breakout_unconfirmed"]
-     },
-     "regime": "trending",
-     "parameters_used": {"rsi_period": 14, "bb_std": 2.0, "macd_fast": 12, "macd_slow": 26},
-     "caveats": ["Near earnings (+5 trading days)", "Gap up 2 days ago"],
-     "raw_confidence_after_caveats": 78
-   }
+3. RESOLVE via Weighted Decision Matrix:
+   |-- Calibrate: tech × 0.85, fund × 0.90 (different scale biases).
+   |-- Regime weights: Trending (65/35 tech/fund), Ranging (35/65), Volatile (50/50), Earnings week (25/75).
+   |-- Decision_Score = (Cal_tech × Tech_W × Dir) + (Cal_fund × Fund_W × Dir), Dir: BUY=+1, HOLD=0, SELL=-1.
+   |-- Thresholds: >+15=BUY, +5 to +15=BUY_WCAUTION, -5 to +5=HOLD, -5 to -15=SELL_WCAUTION, <-15=SELL.
+   |-- Caution: 50% size cap, 1.5× ATR stop, review in 5 days.
 
-   Input from fundamental-analyst:
-   {
-     "source": "fundamental-analyst",
-     "signal_id": "fund-20260730-1135",
-     "ticker": "AAPL",
-     "timestamp": "2026-07-30T11:35:00Z",
-     "direction": "HOLD",
-     "confidence": 62,
-     "confidence_breakdown": {
-       "valuation_margin": 45,       # DCF vs market price spread
-       "quality_triangulation": 78,  # F-Score + Z-Score + M-Score avg
-       "earnings_quality": 70,       # FCF/NI ratio, accruals
-       "comparable_alignment": 55    # vs industry median
-     },
-     "valuation": {
-       "dcf_range": {"bear": 165, "base": 195, "bull": 230},
-       "current_price": 198,
-       "margin_of_safety": -0.015,   # negative = above base case
-       "comparables_median_pe": 31.5,
-       "company_pe": 34.2
-     },
-     "quality_scores": {
-       "piotroski_f_score": 7,
-       "altman_z_score": 6.8,
-       "beneish_m_score": -2.4
-     },
-     "red_flags": [],
-     "caveats": ["Premium to comparables", "Near top of DCF range"]
-   }
+4. DOCUMENT: Every resolution has ticker, conflict_type, decision_score, breakdown, rationale, risk_constraints.
 
-2. CONFLICT DETECTION
-   For each ticker with signals from both sources:
-   ├── Both AGREE (both BUY, both SELL, both HOLD) → skip conflict resolution, proceed to sizing
-   ├── One HOLD, other ACTION (BUY/SELL) → treat HOLD as "don't add" not "oppose"
-   └── DIRECT CONFLICT (one BUY, other SELL) → enter WEIGHTED DECISION MATRIX
-
-3. WEIGHTED DECISION MATRIX (for direct conflicts)
-
-   Step 1: Calibrate confidence scores (different systems, different scales)
-   ├── Technical confidence calibration factor: 0.85 (tends to overstate by ~15% in backtests)
-   ├── Fundamental confidence calibration factor: 0.90 (tends to overstate by ~10%)
-   └── Calibrated_tech = raw_tech_confidence × 0.85
-       Calibrated_fund = raw_fund_confidence × 0.90
-
-   Step 2: Apply regime-dependent source weighting
-   ├── Trending regime (ADX > 25):    Technicals weight = 0.65, Fundamentals weight = 0.35
-   ├── Ranging regime (ADX < 20):     Technicals weight = 0.35, Fundamentals weight = 0.65
-   ├── Volatile regime (VIX > 30):    Technicals weight = 0.50, Fundamentals weight = 0.50
-   └── Earnings week (+/- 5 days):    Technicals weight = 0.25, Fundamentals weight = 0.75
-
-   Step 3: Compute weighted decision score
-   Decision_Score = (Calibrated_tech × Tech_Weight × Tech_Direction) +
-                    (Calibrated_fund × Fund_Weight × Fund_Direction)
-   Where Direction: BUY=+1, HOLD=0, SELL=-1
-
-   Step 4: Decision thresholds
-   ├── Decision_Score > +15 → BUY  (strongly favors buy)
-   ├── Decision_Score +5 to +15  → BUY_WITH_CAUTION (lean buy but flag risk)
-   ├── Decision_Score -5 to +5   → HOLD (conflict unresolved, do nothing)
-   ├── Decision_Score -5 to -15  → SELL_WITH_CAUTION (lean sell)
-   └── Decision_Score < -15 → SELL (strongly favors sell)
-
-   Step 5: For BUY_WITH_CAUTION or SELL_WITH_CAUTION — apply additional gates
-   ├── Position size capped at 50% of normal allocation
-   ├── Must set tighter stop-loss (1.5× ATR vs normal 2× ATR)
-   └── Flag for review after 5 trading days
-
-4. CONFLICT RESOLUTION DOCUMENTATION (every resolution is audit-trailed)
-   {
-     "ticker": "AAPL",
-     "conflict": "BUY vs HOLD",
-     "decision": "BUY_WITH_CAUTION",
-     "decision_score": 11.2,
-     "breakdown": {
-       "tech_calibrated": 66.3,
-       "fund_calibrated": 55.8,
-       "regime": "trending",
-       "tech_weight_applied": 0.65,
-       "fund_weight_applied": 0.35
-     },
-     "rationale": "Technicals dominate in trending regime. Fundamentals don't say SELL — they say 'not cheap.' Trending regime supports following technicals with reduced size.",
-     "risk_constraints": {
-       "max_position_pct": 0.05,    # 50% of normal 10%
-       "stop_loss_atr_multiple": 1.5,
-       "review_date": "2026-08-06"
-     }
-   }
-
-   Complete when: All incoming signals have a resolution (AGREE/CONFLICT_RESOLVED).
-   Every conflict has a Decision_Score and documented rationale.
-
-```
+   Complete when: All signals resolved (AGREE/CONFLICT_RESOLVED). Decision_Score + rationale for every conflict.
+   Full JSON contracts + decision matrix → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-1-signal-ingestion--conflict-resolution)
 
 ### Phase 2: Position Sizing
 
-```
+1. CALCULATE Available_Capital = min(cash×2, margin_limit) − current_exposure − max(portfolio×0.05, $5K). Queue if ≤0.
 
-1. CAPITAL POOL CALCULATION
-   Buying_Power = min(Account.cash * 2, Account.margin_limit)  # Reg T margin
-   Reserved_Capital = max(Portfolio_Value * 0.05, $5,000)  # 5% always in reserve
-   Available_Capital = Buying_Power - Current_Exposure - Reserved_Capital
+2. TRIAGE: Rank signals by Signal_Priority = (Conf×0.5) + (Quality/100×0.3) + (Regime×0.2). Allocate top-down.
 
-   If Available_Capital <= 0: queue signals, trigger capital alert, STOP.
+3. SIZE — Method A (vol-adjusted 1/N, default): Vol_Weight = 1/(asset_vol/median_vol), caps 10% portfolio/$25K.
+   Method B (Kelly): f* = (bp−q)/b, Half-Kelly f*/2. Requires >50 trades, win_rate >0.45.
+   Method C (Risk-Parity): Position = Risk_Budget / Asset_30d_Vol. Rebalance at >20% drift.
 
-2. SIGNAL TRIAGE (when more signals than capital)
-   Rank all resolved signals by:
+4. OVERRIDES: Earnings ±5d→50% cut, Caution→50% cut, sector>25%→reduce, VIX>35→40% cut, drawdown>15%→HALT.
 
-   Signal_Priority_Score = (Calibrated_Confidence * 0.5) +        # how sure
-                           (Quality_Triangulation_Score/100 * 0.3) + # how solid the company
-                           (Regime_Compatibility * 0.2)            # how well it fits current market
-
-   Sort descending. Allocate capital top-down until Available_Capital exhausted.
-
-   Tiebreaker: prefer ETFs over individual stocks (diversification), prefer
-               lower sector concentration (already-weighted sectors get deprioritized).
-
-3. POSITION SIZING METHOD (per selected signal)
-
-   Base_Position = Available_Capital × (1 / N_Selected_Signals)  # 1/N baseline
-
-   Size Method A — Volatility-Adjusted 1/N (default, use when no Kelly):
-   ├── Vol_Weight = 1 / (Asset_30d_Volatility / Median_Volatility_Across_All_Selected)
-   ├── Adjusted_Position = Base_Position × Vol_Weight
-   ├── Cap: Adjusted_Position ≤ min(Portfolio_Value × 0.10, $25,000) per position
-   └── Cap: Leveraged ETF position ≤ Portfolio_Value × 0.05
-
-   Size Method B — Kelly Criterion (use when: >50 trades history, win_rate known):
-   ├── f* = (bp - q) / b  where b = avg_win/avg_loss, p = win_rate, q = 1-p
-   ├── Half-Kelly: f = f* / 2  (standard practice — full Kelly is too aggressive)
-   ├── Adjusted_Position = Portfolio_Value × f
-   ├── REQUIREMENT: >50 historical trades for this ticker+strategy AND p > 0.45
-   └── If requirements not met: FALL BACK to Method A with WARNING
-
-   Size Method C — Risk-Parity (use when: portfolio-level rebalancing):
-   ├── Risk_Budget = Available_Capital × (1 / N_Selected)
-   ├── Position = Risk_Budget / Asset_30d_Volatility
-   └── Rebalance: if drift > 20% from target weight, trigger rebalance
-
-4. POSITION SIZING OVERRIDES AND EMERGENCY DOWNSIZES
-
-   | Condition | Action |
-   |-----------|--------|
-   | ETF holdings overlap > 90% with existing position | Size = 0, raise "Duplicate Exposure" flag |
-   | Stock is within +/- 5 days of earnings | Reduce size by 50% |
-   | Signal is BUY_WITH_CAUTION or SELL_WITH_CAUTION | Reduce size by 50% |
-   | Sector exposure would exceed 25% with this position | Reduce to keep sector ≤ 25% or skip |
-   | Position would be < $1,000 after sizing | Skip (too small to be worth commissions/slippage) |
-   | VIX > 35 (extreme fear) | Reduce ALL new positions by 40% |
-   | Portfolio drawdown > 15% from peak | HALT all new positions. Only allow defensive exits. |
-
-5. OUTPUT: SIZED SIGNAL QUEUE
-   [
-     {"rank": 1, "ticker": "AAPL", "direction": "BUY", "decision": "AGREE",
-      "position_size": "$8,200", "pct_portfolio": 0.82, "method": "vol-adjusted-1/N",
-      "stop_loss": "$185.40", "take_profit": "$215.00", "limit_price": "$198.50"},
-     {"rank": 2, "ticker": "MSFT", "direction": "BUY", "decision": "BUY_WITH_CAUTION",
-      "position_size": "$4,100", "pct_portfolio": 0.41, "method": "vol-adjusted-1/N (50% caution haircut)",
-      "stop_loss": "$430.00", "take_profit": "$475.00", "limit_price": "$448.00"},
-     ...
-   ]
-
-   Complete when: Every selected signal has a sized position within capital constraints.
-   No position exceeds 10% portfolio cap. Sector concentrations checked.
-
-```
+   Complete when: Every selected signal sized within capital. No position >10% cap. Sectors checked.
+   Full formulas + output schema → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-2-position-sizing)
 
 ### Phase 3: Portfolio Risk Monitoring
 
-```
+1. DASHBOARD (every 60s): Total Value, Beta Exposure (>1.5×=alert), VaR/CVaR(95%), Max Drawdown (5-10%=yellow, 10-15%=orange, 15-20%=red, >20%=EMERGENCY), Sharpe (trailing 90d), N_effective (<3=diversification failure).
 
-1. REAL-TIME RISK DASHBOARD (recompute every 60 seconds or on new fill)
+2. AUTOMATED RESPONSES: VaR>4%→reduce 25%, 2 consecutive -2% days→halt, N_effective<3→reduce leverage 50%, single position -15%→auto-close, margin>80%→reduce to 60%, broker disconnect>2min→cancel all orders.
 
-   Portfolio-Level:
-   ├── Total Value: $∑(position.mkt_value)
-   ├── Beta-Weighted Exposure: $∑(position.mkt_value × position.beta)
-   │   └── If Beta_Exposure > Portfolio_Value × 1.5: "Over-exposed to market risk"
-   ├── VaR(95%, 1-day): $Value_At_Risk computed via historical simulation (252-day window)
-   │   └── If VaR > Portfolio_Value × 0.03: "VaR Alert — 3% daily risk threshold breached"
-   ├── CVaR(95%): $Expected shortfall beyond VaR (always > VaR, often 1.3-1.5x)
-   ├── Max Drawdown from Peak: −XX.X%
-   │   ├── Drawdown 5-10%: Yellow alert (consider reducing position sizes)
-   │   ├── Drawdown 10-15%: Orange alert (halt new buys, tighten stops)
-   │   ├── Drawdown 15-20%: Red alert (exit signal for weakest 50% of positions)
-   │   └── Drawdown >20%: EMERGENCY (liquidate all, investigate root cause)
-   ├── Sharpe Ratio (trailing 90-day): Risk-free = 3-month T-bill
-   │   └── Sharpe < 0: "Negative risk-adjusted returns — strategy underperforms cash"
-   └── Correlation Matrix (trailing 60-day, rolling):
-       ├── If any pair correlation > 0.80: "High correlation pair: {A}, {B}"
-       ├── Recompute effective N: N_effective = (sum of eigenvalues)² / sum(eigenvalues²)
-       └── If N_effective < 3 for portfolio of 10+ stocks: "Diversification failure"
+3. STRESS TEST (weekly): 2008, 2020-COVID, 2022-rate-hike, Tech-crash, Liquidity-crisis, Flash-crash. Any >40% drawdown → REDUCE LEVERAGE.
 
-   Sector-Level:
-   ├── Sector_Exposure[sector] = $∑(position.mkt_value) / Portfolio_Value per sector
-   ├── If Sector_Exposure > 0.25: "SECTOR LIMIT BREACHED: {sector} at {pct}%"
-   └── Factor exposure heatmap: Beta, Size, Value, Momentum, Quality, Low Vol
-
-   Position-Level:
-   ├── Each position: current P&L, P&L%, days held, signal age (stale if >20 trading days)
-   ├── Stale signal (age > 20 days): request signal refresh from source skill
-   ├── Stop-loss proximity: if price within 1.5× ATR of stop, flag "Stop-Loss Imminent"
-   └── Gap risk: if position has earnings in next 10 days, flag "Earnings Gap Risk"
-
-2. AUTOMATED RISK RESPONSES (configurable thresholds)
-
-   | Trigger | Response |
-   |---------|----------|
-   | VaR(95%) > 4% of portfolio | Email/SMS alert. Reduce all position sizes by 25%. |
-   | Two consecutive days with -2% loss | Halt new positions. Review all open signals. |
-   | Correlation matrix N_effective drops below 3 | Reduce leverage by 50%. Sell highest-correlated pair. |
-   | Any single position P&L > -15% | Auto-close position. Post-mortem required before re-entry. |
-   | Margin used > 80% of margin limit | Reduce margin exposure to <60%. Sell weakest positions. |
-   | Broker API disconnection > 2 minutes | Cancel all open orders. Do not submit new orders. |
-
-3. STRESS TESTING (weekly, or on request)
-
-   Run portfolio through these scenarios:
-   ├── 2008-style: SPY -38%, Correlation → 1.0, VIX → 80
-   ├── 2020-COVID: SPY -34% in 23 days, VIX → 82, bonds +5%
-   ├── 2022-rate-hike: SPY -19%, Growth -30%, Value -7%
-   ├── Tech-crash: QQQ -33%, correlation within tech → 1.0
-   ├── Liquidity-crisis: Spreads 5x, no fills on limit orders > ATR
-   └── Flash-crash: SPY -9% in 30 minutes, circuit-breakers triggered
-
-   For each scenario: report estimated drawdown, max margin call, days to recovery.
-   If any scenario produces drawdown > 40%: REDUCE LEVERAGE IMMEDIATELY.
-
-   Complete when: Risk dashboard populated. All thresholds configured.
-   Stress tests run and worst-case drawdown known.
-
-```
+   Complete when: Dashboard populated. Thresholds configured. Worst-case drawdown known.
+   Full dashboard + responses + scenarios → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-3-portfolio-risk-monitoring)
 
 ### Phase 4: Correlation-Aware Portfolio Construction
 
-```
+1. PRE-ALLOCATION: Pairwise correlation check. >0.80→flag, >0.95 same index→REJECT. Sector >25%→reduce or reject.
 
-1. PRE-ALLOCATION CORRELATION CHECK
-   Before finalizing any position, compute pairwise correlations of the candidate
-   with every existing position (trailing 60 days, daily returns):
+2. DIVERSIFICATION: N_effective = (Σλᵢ)²/(Σλᵢ²). <5 with 10+ positions = undiversified.
 
-   For each candidate ticker:
-   ├── Compute correlation with each existing position
-   ├── If any correlation > 0.80: flag "High correlation: {candidate} with {existing} (r={x.xx})"
-   │   └── If candidate and existing track the same index/ETF with r > 0.95: REJECT (duplicate)
-   ├── Compute sector after adding candidate
-   └── If sector > 25%: either reduce other sector positions or reject candidate
+3. MIX: Min 20% ETFs, max 40% single stocks, max 10% leveraged, max 5% single leveraged.
 
-2. EFFECTIVE DIVERSIFICATION CALCULATION
-   Current N_effective = how many "independent bets" you're really making
+4. REBALANCE: Calendar quarterly, drift >20%, signal conflict, VIX 20→30. Execution: sells first, limit at mid.
+   Tax-aware: prefer loss lots, prefer >1yr held, defer if >80% short-term gains.
 
-   Method: Principal Component Analysis on returns covariance matrix
-   N_effective = (Σ λᵢ)² / (Σ λᵢ²)  where λᵢ are eigenvalues
+   Complete when: Correlation checked. N_effective computed. Sector limits enforced. Rebalance triggers set.
+   Full checks + tax-aware logic → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-4-correlation-aware-portfolio-construction)
 
-   If N_effective < 5 with 10+ positions: "Portfolio is undiversified.
-   Adding more correlated positions increases costs without reducing risk."
+### Phase 5: Signal-to-Execution Pipeline
 
-3. ETF vs STOCK MIX OPTIMIZATION
-   ├── Minimum 20% in broad-market ETFs (SPY, VTI, BND) for core ballast
-   ├── Maximum 40% in single-stock positions (non-ETF)
-   ├── Maximum 10% in leveraged/inverse ETFs total
-   └── Maximum 5% in any single leveraged ETF
+1. PUSH handlers: regimeChanged→recalculate weights. redFlagDetected→IMMEDIATE close. dataQualityDegraded→HALT. executionAlert→update slippage model.
 
-4. REBALANCE TRIGGERS
-   ├── Calendar: quarterly rebalance (Jan, Apr, Jul, Oct 1st trading day)
-   ├── Drift: any position > 20% from target weight → rebalance
-   ├── Signal: new high-confidence signal conflicts with existing position → review
-   └── Regime: VIX moves from <20 to >30 (calm → turbulent) → defensive rebalance
+2. PULL requests: reScoreRequest (stale>20d). valuationUpdateRequest (price>10% from base). dataRefreshRequest (stale>60s).
 
-   Rebalance execution:
-   ├── Calculate target weights from latest signals + sizing
-   ├── Determine sells first (to free capital), then buys
-   ├── Execute sells before buys (never assume sell will fill at expected price)
-   └── Use limit orders at mid-price for rebalancing (not market orders)
+3. CIRCUIT BREAKERS: 5+ rejects/60s→HALT. 3+ stop-loss/session→HALT. >$5K P&L swing→PAUSE. Margin call→REDUCE 50%. API error>10%→HALT. Gap>3 ATR→market close.
 
-5. TAX-AWARE REBALANCING (for taxable accounts)
-   ├── Prefer selling lots with losses (tax-loss harvesting)
-   ├── Prefer selling lots held >1 year (long-term cap gains)
-   ├── Defer rebalancing if >80% of needed sells are short-term gains (wait for long-term)
-   └── Flag: "Tax-aware: rebalancing deferred. Next review: {date}"
+4. COMPLETION: [VERIFIED] broker READY, conflicts resolved, positions ≤10%, sectors ≤25%, N_effective >3, stops set, idempotency keys active, circuits armed, stress tests run.
 
-   Complete when: Correlation matrix checked for all candidates.
-   N_effective computed. Sector limits enforced. Rebalance triggers configured.
+   Complete when: All VERIFIED items checked. Circuit breakers armed. Pipeline ready.
+   Full protocol + breakers → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-5-signal-to-execution-pipeline)
 
-```
-
-### Phase 5: Full Signal-to-Execution Pipeline
-
-```
-
-1. END-TO-END FLOW (all phases integrated)
-
-   External Skills                    Portfolio Signal Manager              External Skills
-   ┌──────────────┐                   ┌─────────────────────┐              ┌──────────────────┐
-   │tech-signals  │───signal JSON────→│                     │              │                  │
-   │engineer      │                   │  PHASE 0: MCP Sync  │              │  Broker MCP      │
-   └──────────────┘                   │  PHASE 1: Resolve   │────orders──→│  Server          │
-                                      │  PHASE 2: Size      │              │                  │
-   ┌──────────────┐                   │  PHASE 3: Monitor   │              └──────────────────┘
-   │fundamental   │───signal JSON────→│  PHASE 4: Construct │              ┌──────────────────┐
-   │analyst       │                   │                     │              │  algorithmic-    │
-   └──────────────┘                   │  OUTPUT: Sized,     │──executed──→│  trader           │
-                                      │  correlated, risk-  │              │  (execution)     │
-   ┌──────────────┐                   │  managed orders     │              └──────────────────┘
-   │market-data   │───corp actions───→│                     │
-   │engineer      │                   └─────────────────────┘
-   └──────────────┘
-
-2. BIDIRECTIONAL COMMUNICATION PROTOCOL (this is what makes it an orchestrator)
-
-   PUSH NOTIFICATIONS RECEIVED (from upstream skills):
-   ├── technical-signals-engineer → "regimeChanged": trading → ranging → volatile
-   │   Action: recalculate all position weightings, adjust stop-loss ATR multiples
-   ├── fundamental-analyst → "redFlagDetected": M-Score > -1.78, earnings fraud suspected
-   │   Action: IMMEDIATE close of position (skip queue). Suppress all new signals for this ticker.
-   ├── market-data-engineer → "corporateAction": dividend, split, merger, spinoff
-   │   Action: adjust position sizing (splits), flag tax implications (dividends),
-   │           freeze trading during merger arb periods
-   ├── market-data-engineer → "dataQualityDegraded": price feed stale > 5 minutes
-   │   Action: HALT all new orders. Mark all signals > 5 min old as stale.
-   └── algorithmic-trader → "executionAlert": fill significantly different from expected
-       Action: adjust future position sizing assumptions. Flag slippage model update.
-
-   PULL REQUESTS SENT (to upstream skills):
-   ├── → technical-signals-engineer: "reScoreRequest"
-   │   When: regime changed since signal generated; signal age > 20 days;
-   │         portfolio manager wants signal with different parameters
-   │   Payload: ticker, original_signal_id, new_parameters (optional)
-   │   Expected response: updated signal JSON with current confidence
-   ├── → fundamental-analyst: "valuationUpdateRequest"
-   │   When: stock has moved >10% since valuation; earnings released since analysis;
-   │         red flag surfaced in cross-check
-   │   Payload: ticker, original_signal_id, event_triggering_update
-   │   Expected response: updated valuation range + quality scores
-   └── → market-data-engineer: "dataRefreshRequest"
-       When: signals reference stale prices (>60 seconds old)
-       Payload: tickers[], data_fields[]
-       Expected response: fresh OHLCV data
-
-   FEEDBACK LOOPS (bidirectional):
-   ├── PM → FA: "Your DCF range for AAPL was $165-$230. Stock is now at $240.
-   │             Re-evaluate with current data. Was the range wrong or did thesis change?"
-   │   FA → PM: Updated valuation or thesis-confirmation with justification.
-   │
-   ├── PM → TSE: "Your SMA crossover signal fired but volume was 40% below average.
-   │             Re-score with volume penalty applied."
-   │   TSE → PM: Re-scored signal with volume-adjusted confidence.
-   │
-   └── AT → PM: "Order #1234 filled at $198.75 vs expected $198.50. Slippage: 0.13%.
-   │            Recurring pattern on NASDAQ stocks in first 30 minutes."
-       PM → sizing model: Update slippage assumption for NASDAQ from 0.05% to 0.15%.
-
-3. CIRCUIT BREAKERS (last line of defense)
-
-   │ Failure | Threshold | Action |
-   │---------|-----------|--------|
-   │ Rejected orders in 60 seconds | >5 | HALT. Investigate. Do not resubmit. |
-   │ Consecutive stop-loss triggers | >3 in same session | HALT. Market regime check. |
-   │ P&L swing (unrealized) | >$5,000 in <5 minutes | PAUSE new orders. Check news. |
-   │ Broker margin call | Any | IMMEDIATE position reduction. Sell weakest 50%. |
-   │ API error rate | >10% of requests | HALT. Connection integrity check. |
-   │ Price gap (>3 ATR) on open position | Any | Close position at market. Gap is news-driven, not strategy-driven. |
-
-4. COMPLETION CHECKLIST
-   [VERIFIED] MCP broker connection in READY state
-   [VERIFIED] All incoming signals have conflict resolution (AGREE or RESOLVED)
-   [VERIFIED] No position >10% of portfolio (or 5% for leveraged ETFs)
-   [VERIFIED] No sector >25% of portfolio
-   [VERIFIED] N_effective computed and >3
-   [VERIFIED] Stop-losses set for all positions (1.5-2× ATR from entry)
-   [VERIFIED] Idempotency keys generated for all new orders
-   [VERIFIED] Circuit breakers armed
-   [VERIFIED] Stress tests run (6 scenarios), worst-case drawdown known
-
-```
-
-
-   Complete when: [VERIFIED] All positions sized within capital constraints.
-   Complete when: [VERIFIED] Correlation matrix checked and N_effective > 3.
-   Complete when: [VERIFIED] Circuit breakers armed and tested.
-   Complete when: [VERIFIED] Broker connection in READY state.
-   Complete when: [VERIFIED] No sector exceeds 25% exposure.
-   Complete when: [VERIFIED] Stop-losses set for all open positions.
 ## Decision Trees
 
-<!-- STANDARD: 3min -->
-
 ### DT1: Signal Source Credibility
-
 ```
-
-Which signal source do I trust more for this decision?
-├── Signal sources AGREE → Trust both. Full confidence. Proceed to sizing.
-├── Signal sources CONFLICT (buy vs sell) → Weighted Decision Matrix (Phase 1, Step 2-4)
-│   ├── Trending regime → Technicals weighted 65%
-│   ├── Ranging regime → Fundamentals weighted 65%
-│   ├── Earnings week → Fundamentals weighted 75% (technicals unreliable near earnings)
-│   └── VIX > 30 → Equal weighting (both unreliable in chaos)
-├── Only one source has signal → Use that source but:
-│   ├── Cap confidence at 60% (single-source signals are weaker)
-│   ├── Require minimum 55% confidence to act
-│   └── Position size capped at 50% of normal
-└── Neither source has signal → No action. Wait for signal.
-
-   Always ask: "Is one source's confidence calibrated differently?"
-   Technical signals average 10-15% higher raw confidence than fundamentals
-   in backtests — this is a measurement artifact, not higher accuracy.
-
+Sources AGREE → full confidence. CONFLICT → Weighted Decision Matrix (Tre:65%, Ran:65% fund, Earn:75% fund, VIX>30:50/50).
+Single source → cap confidence 40%, min 55% to act, size 50%. Neither → wait.
 ```
 
 ### DT2: Position Size Decision
-
 ```
-
-How much capital for this signal?
-├── Available capital > $1,000 → proceed to sizing method selection
-│   ├── Have >50 historical trades for this ticker+strategy? → Kelly (half)
-│   │   └── Win rate > 0.45? → Kelly
-│   │       └── Win rate ≤ 0.45 → Volatility-adjusted 1/N (Kelly invalid with p≤0.45)
-│   └── Don't have trade history → Volatility-adjusted 1/N (default)
-├── Signal confidence < 55% → Skip (below action threshold)
-├── Signal is BUY_WITH_CAUTION or SELL_WITH_CAUTION → 50% haircut on position size
-├── Earnings within ±5 days → 50% haircut on position size
-├── Sector concentration would exceed 25% → Reduce to fit or skip
-├── Position would be < $1,000 → Skip (commissions/slippage erase edge)
-└── Available capital exhausted → Queue signal for next available capital round
-
+Capital>K → method: >50 trades+win>0.45→Kelly | else→1/N. Conf<55%→skip. Caution→50% cut. Earn±5d→50% cut.
+Sector>25%→reduce/skip. Size<K→skip. Capital depleted→queue.
 ```
 
 ### DT3: When to Override a Signal
-
 ```
-
-Should I override the automated decision?
-├── External event (unscheduled news, analyst downgrade, FDA decision) → OVERRIDE
-│   └── Model doesn't know about events it wasn't trained on. Human override required.
-├── Liquidity crisis (bid-ask spread >5× normal, no volume on Level 2) → OVERRIDE
-│   └── Sizing models assume normal liquidity. Abnormal liquidity = skip all orders.
-├── Personal conviction ("I just feel this is wrong") → REJECT OVERRIDE
-│   └── If you have a specific reason, add it to the model. "Feeling" is not a reason.
-├── Model says BUY at 85 confidence but you remember a similar setup that failed → INVESTIGATE
-│   └── Find that trade in history. Check if conditions match. If yes, add as caution flag.
-└── News headline contradicts signal but you can't verify source → HOLD, VERIFY, THEN DECIDE
-    └── Never override on unverified information. False news moves markets for minutes.
-
+External event (news, downgrade, FDA) → OVERRIDE. Liquidity crisis (spread>5×, no L2) → OVERRIDE.
+Personal conviction → REJECT. Similar failed setup → INVESTIGATE (find trade, check match).
+Unverified headline → HOLD, VERIFY, THEN DECIDE.
 ```
 
 ### DT4: Portfolio in Distress
-
 ```
-
-Portfolio drawdown is at -12%. What now?
-├── Drawdown < 10% → Normal. Monitor. No action needed.
-├── Drawdown 10-15% → ORANGE ALERT
-│   ├── Halt ALL new buy orders
-│   ├── Tighten stops on all positions (reduce from 2× ATR to 1.5× ATR)
-│   ├── Check: is this sector-specific or market-wide?
-│   │   ├── Sector-specific → Exit weakest 50% of positions in that sector
-│   │   └── Market-wide → Reduce all positions by 25%. Raise cash to 25%+ of portfolio.
-│   └── Review correlation matrix: has everything gone to 1.0?
-├── Drawdown 15-20% → RED ALERT
-│   ├── Liquidate all positions opened in last 5 trading days (newest first)
-│   ├── Reduce remaining positions by 50%
-│   ├── Cancel all open orders
-│   └── Mandatory 48-hour cooling-off period (no new orders)
-└── Drawdown >20% → EMERGENCY
-    ├── LIQUIDATE EVERYTHING. Market orders acceptable.
-    ├── Post-mortem required: what broke? Model, execution, or market?
-    ├── Do not resume trading until root cause identified AND fixed
-    └── Minimum 5-trading-day lockout after root cause fix
-
+Drawdown<10%→normal. 10-15%→ORANGE: halt buys, 1.5× ATR stops, sector→exit 50%, market-wide→reduce 25%.
+15-20%→RED: liquidate newest 5d, reduce rest 50%, cancel orders, 48h cool-off.
+>20%→EMERGENCY: liquidate all, post-mortem, 5-day lockout.
 ```
 
 ## Cross-Skill Coordination
 
-<!-- STANDARD: 5min — BIDIRECTIONAL: this skill is the orchestrator -->
-
-### Upstream (Data & Signals Flow In)
-
-| Upstream Skill | What You Receive | Communication Trigger | Your Response |
-|---|---|---|---|
-| `technical-signals-engineer` | Structured signal JSON: ticker, direction, confidence, confidence_breakdown, indicators, regime, parameters_used, caveats | **PUSH:** Signal generated. **PUSH:** Regime changed (trending→ranging→volatile). **PULL:** reScoreRequest sent by you when signal stale or parameter change needed | Regime change → recalculate all position weights. reScoreRequest → send when signal_age > 20 days or portfolio manager wants different RSI/BB parameters |
-| `fundamental-analyst` | Structured signal JSON: ticker, direction, confidence, valuation range, quality scores, red_flags | **PUSH:** Red flag detected (M-Score triggered). **PUSH:** Valuation range updated after earnings. **PULL:** valuationUpdateRequest sent when price moves >10% from base case | Red flag → IMMEDIATE position close + trading halt for that ticker. Valuation update → recalculate margin of safety; if now negative, reduce position |
-| `algorithmic-trader` | Execution confirmations: fill price, slippage, partial fills, rejections, order status | **PUSH:** Execution alert (slippage > expected, partial fill, rejected). **PUSH:** Broker connectivity status change | Slippage pattern → update sizing model assumptions. Rejection pattern → investigate root cause before resubmitting |
-| `market-data-engineer` | Corporate actions, data quality alerts, price feed status, dividend dates, earnings calendars | **PUSH:** Corporate action detected (split, dividend, merger). **PUSH:** Data quality degraded (stale feed). **PUSH:** Earnings date approaching | Corporate action → adjust position sizing, flag tax events. Data degraded → halt new orders, mark signals stale. Earnings approaching → apply 50% size reduction |
-| `data-scientist` | Backtest results, strategy performance metrics, signal accuracy statistics, regime classification models | **PUSH:** Strategy backtest complete with Sharpe, max_drawdown, win_rate. **PULL:** requestBacktest sent for new strategy combinations | Backtest results → calibrate confidence scores (update calibration factors). Poor performance → deprecate strategy |
-
-### Downstream (Decisions Flow Out)
-
-| Downstream Skill | What You Send | Communication Trigger | Expected Response |
-|---|---|---|---|
-| `algorithmic-trader` | Sized, correlated, risk-managed order queue: [{ticker, direction, qty, limit_price, stop_loss, take_profit, idempotency_key}] | **PUSH:** Order queue ready after Phase 2 sizing. **PUSH:** Emergency close order (circuit breaker triggered) | Order confirmation with fill details. Rejection with reason code. Timeout notification |
-
-### Lateral (Peer Coordination — Same Layer)
-
-| Peer Skill | Coordination Scenario | Protocol |
+### Upstream (Data In)
+| Skill | Receives | Triggers |
 |---|---|---|
-| `technical-signals-engineer` ← → `fundamental-analyst` (mediated by you) | Signal conflict: tech says BUY, fund says SELL | PM mediates via Weighted Decision Matrix (Phase 1). PM may request re-score from either source with adjusted parameters. PM documents resolution rationale. Neither source overrides the other directly. |
-| `observability-engineer` | Portfolio monitoring dashboard, alert pipeline, P&L tracking | PM pushes metrics: portfolio_value, VaR, drawdown, N_effective, margin_used. Observability pushes: alert thresholds breached, dashboard needs refresh. |
+| `technical-signals-engineer` | Signal JSON: ticker, direction, confidence, indicators, regime | PUSH: signal, regime change. PULL: reScoreRequest (stale>20d) |
+| `fundamental-analyst` | Signal JSON: valuation, quality_scores, red_flags | PUSH: red flag → IMMEDIATE close. PULL: valuationUpdateRequest (price>10%) |
+| `algorithmic-trader` | Fill/slippage/rejection confirmations | PUSH: execution alert → update sizing model |
+| `market-data-engineer` | Corp actions, data quality, earnings | PUSH: corp action→adjust sizing, degraded→HALT, earnings→50% cut |
+| `data-scientist` | Backtest results, strategy metrics | PUSH: backtest→calibrate confidences |
 
-### Escalation Path
+### Downstream (Decisions Out)
+| Skill | Sends | Triggers |
+|---|---|---|
+| `algorithmic-trader` | Sized, risk-managed order queue [{ticker, direction, qty, limit, stop, tp, idemp_key}] | PUSH: queue ready (Phase 2), emergency close (circuit breaker) |
 
+### Escalation
+```
+Minor (confidence change) → Log + next rebalance
+Moderate (regime change, conflict) → Recalculate, document
+Major (red flag, data degraded) → HALT affected, notify human
+Critical (broker disconnect, margin call) → EMERGENCY shutdown
 ```
 
-Issue detected by source skill
-         │
-         ▼
-   PUSH notification to portfolio-signal-manager
-         │
-         ├── Minor (confidence change, parameter update) → Log + adjust with next rebalance
-         ├── Moderate (regime change, signal conflict) → Immediate recalculation, document
-         ├── Major (red flag, data quality degraded) → HALT affected positions, notify human
-         └── Critical (broker disconnect, margin call, circuit breaker) → EMERGENCY shutdown
-
-```
-
-### Communication Contract (bidirectional integrity)
-
-Every inter-skill message must include:
-
-```json
-{
-  "message_id": "uuid",
-  "source_skill": "portfolio-signal-manager",
-  "target_skill": "technical-signals-engineer",
-  "message_type": "reScoreRequest",
-  "timestamp": "ISO8601",
-  "correlation_id": "references_original_signal_id",
-  "payload": {},
-  "expected_response_type": "signalJSON",
-  "timeout_seconds": 30
-}
-
-```
-
-Response timeout handling:
-├── < 5 seconds: Normal. Process response.
-├── 5-30 seconds: Flag "Slow Response — {skill} may be overloaded."
-└── > 30 seconds: TIMEOUT. Proceed without that source's input. Flag in final report.
+### Communication Contract
+Every message: {message_id, source_skill, target_skill, message_type, timestamp, correlation_id, payload, expected_response_type, timeout_seconds}. Timeout <5s=normal, 5-30s=flag slow, >30s=proceed without source.
 
 ## Production Checklist
 - [ ] CR1: All data sources verified and updated within last trading day
@@ -1049,3 +569,4 @@ The following reference files are loaded on demand when deeper context is needed
 3. Conflict simulation: Generate 50 signal pairs where technical and fundamental disagree. Run the weighted decision matrix. Compare outcomes
 4. Circuit-breaker fire drill: Simulate a 20% drawdown. Does every breaker fire? Does the portfolio stop losing money?
 5. Broker outage simulation: Disconnect the MCP broker mid-order. Can the portfolio recover without orphaned positions?
+

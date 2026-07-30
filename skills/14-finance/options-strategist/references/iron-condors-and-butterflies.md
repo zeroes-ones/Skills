@@ -122,3 +122,4 @@ When IV skew exists, overweight the richer side: put skew → widen call wing (l
 | 7–0 | Gamma dominant | NEVER hold into this zone |
 
 [VERIFIED] Optimal management: enter 30–45 DTE, manage through 21 DTE, mandatory close by 21 DTE. Final 21 days = ~50% of remaining theta but ~80% of gamma risk — risk/reward inverts. [INFERRED] The 21 DTE close rule reduces catastrophic losses by approximately 60% compared to holding through expiration, based on analysis of pin risk events on single-stock options.
+

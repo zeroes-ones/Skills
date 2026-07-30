@@ -403,3 +403,4 @@ Cost comparison — hedging $100,000 SPY position:
 6. **Calendar spreads exploit the IV term structure edge.** Enter only when near-month IV > far-month IV (backwardation in single-stock term structure) OR when the IV differential is modest in contango.
 
 7. **The monitoring protocol is mechanical.** No discretion. F1−F2 > 0 → close. F1−F2 < −0.50 → normal. F1−F2 between −0.50 and 0 → caution. This is the entire decision framework.
+

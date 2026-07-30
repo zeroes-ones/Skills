@@ -211,255 +211,47 @@ What financial security task are you working on?
 > 📎 **[references/core-workflow.md](references/core-workflow.md)** — 104 lines of detailed guidance
 
 ## Decision Trees
+
 <!-- STANDARD: 3min -->
+Full implementation detail → references/financial-security-implementations.md
 
-### Decision Tree 1: PCI DSS Scoping
-
-        ┌── INPUT: Does the system touch cardholder data?
-        │
-   ┌────┴────────────┐
-   │                 │
-   ▼                 ▼
-In CDE            Outside CDE
-   │                 │
-   ▼                 ▼
-Full PCI DSS       Connected or
-assessment        segmentable?
-   │            ┌───┴───┐
-   ▼            │       │
-SAQ D/RoC       ▼       ▼
-validate all  Connected  Isolated
-12 requirements  │         │
-                 ▼         ▼
-              In scope   Out of scope
-              SAQ D-SP   No assessment
-              segment
-              with firewall
-
-### Decision Tree 2: Fraud Detection Stack Selection
-
-        ┌── INPUT: What is your fraud detection maturity?
-        │
-   ┌────┴────────────────────┐
-   │                         │
-   ▼                         ▼
-Launching (no labels)       Scaling (have chargeback data)
-   │                         │
-   ▼                         ▼
-Rule-based detection        ML + Rules hybrid
-Velocity, device, geo       XGBoost supervised + rules fallback
-   │                         │
-   ▼                         ▼
-Score < 20 → ALLOW          A/B test ML against
-Score 20-60 → CHALLENGE     rules-only baseline
-Score > 60 → BLOCK          Deploy winner to production
-   │                         │
-   ▼                         ▼
-Collect labels 6-8 weeks    Add graph ML for fraud rings
-before transitioning        when cross-account patterns emerge
-
-### Decision Tree 3: KYC Risk Tier Assignment
-
-        ┌── INPUT: New customer — assess onboarding risk
-        │
-   ┌────┴────────────┬──────────┬──────────┐
-   │                 │          │          │
-   ▼                 ▼          ▼          ▼
-PEP or              FATF      Sanctions   High-risk
-close associate     country   list hit    industry
-   │                 │          │          │
-   ▼                 ▼          ▼          ▼
-EDD required        EDD        BLOCK +    EDD
-Verify source       required   file SAR   required
-of wealth/funds     Enhanced               │
-   │                monitoring             ▼
-   ▼                   │              Verify UBOs
-Senior mgmt           ▼              (≥25% ownership)
-approval for       Periodic          Ongoing review
-PEP onboarding     review 6-12mo     every 6-12 months
-
-
-## Fraud Detection Architecture
-<!-- STANDARD: 3min -->
-
+### DT1: Security Architecture Selection → references/financial-security-implementations.md
+```
+PCI DSS 4.0 scope? → YES → Determine SAQ type. Full assessment or Self-Assessment?
+  ↓
+Payment data stored/processed/transmitted? → Map CDE. Segment network. Apply compensating controls where encryption impossible.
+  ↓
+Cloud or on-prem? → Cloud: shared responsibility model. On-prem: physical + logical controls.
+  ↓ → Select architecture. Apply defense-in-depth across all layers.
 ```
 
-Fraud signal stack — from detection to decision:
-|-- Rule-based detection (deterministic, explainable, fast to deploy)
-|   |-- Velocity: per-account tx count in rolling windows [1m, 10m, 1h, 24h]
-|   |-- Device: same fingerprint across accounts, emulator detection, rooted/jailbroken device
-|   |-- Geo: impossible travel, high-risk country IP, IP-address mismatch (>100mi)
-|   |-- Payment: BIN-country mismatch, card testing pattern ($0.00 -> $1.00 -> $5.00 micro-transactions)
-|   |-- Account: age < 24h + high-velocity = high risk, email domain age < 30 days
-|-- ML anomaly detection (probabilistic, adapts to new patterns)
-|   |-- Supervised: XGBoost/LightGBM trained on chargeback-labeled data
-|   |-- Unsupervised: isolation forest for zero-day fraud patterns (no labels needed)
-|   |-- Graph ML: node embeddings (account, device, IP) -> link prediction for fraud ring detection
-|-- Real-time scoring:
-|   |-- Thresholds: score < 20 -> ALLOW | 20-60 -> CHALLENGE (step-up) | > 60 -> BLOCK
-|   |-- Dynamic thresholds: auto-tune based on approval rate targets and fraud rate tolerance
-|   |-- Fallback: if ML service is down -> degrade to rules-only (graceful degradation)
+### Fraud Detection → references/financial-security-implementations.md
+1. Real-time: transaction scoring, velocity checks, device fingerprinting, behavioral analytics, ML models. Rules engine + anomaly detection.
+   |-- Complete when: Detection pipeline defined. Rule thresholds set. ML model validated.
 
-Fraud typology -> Detection pattern mapping:
-|-- Card testing: micro-transactions ($0-5) in rapid succession -> velocity + amount pattern
-|-- Account takeover: new device + IP + location for aged account -> device fingerprint change
-|-- Synthetic identity: thin credit file + mismatch across data sources -> identity graph depth
-|-- Triangulation fraud: different shipping vs billing address + reshipper address database
-|-- Friendly fraud (1st party): customer disputes legitimate charge -> behavioral analysis
-```
+### KYC/AML Program → references/financial-security-implementations.md
+1. CIP (Customer Identification), CDD (Customer Due Diligence), EDD (Enhanced Due Diligence for high-risk). SAR filing thresholds. PEP/sanctions screening.
+   |-- Complete when: KYC tiers defined. CDD/EDD triggers. SAR process documented.
 
+### Payment API Security → references/financial-security-implementations.md
+1. OWASP API Top 10. Auth: OAuth 2.0 + mTLS. Rate limiting. Input validation. Encryption in transit (TLS 1.2+). PSD2/FAPI compliance for open banking.
+   |-- Complete when: Auth flows secure. Rate limits configured. TLS compliance verified.
 
-## KYC/AML Program Design
-<!-- STANDARD: 3min -->
+### Open Banking (PSD2/PSD3 + FAPI) → references/financial-security-implementations.md
+1. FAPI 2.0: PAR, JARM, DPoP. Consent management. TPP registration. SCA (Strong Customer Authentication).
+   |-- Complete when: FAPI profile applied. Consent lifecycle managed. SCA implemented.
 
-```
+### Payment Infrastructure → references/financial-security-implementations.md
+1. HSM key management. PIN security (PCI PIN). Tokenization (PCI TSP). 3DS/EMV 3DS. SWIFT CSP.
+   |-- Complete when: HSM deployed. Tokenization active. 3DS flow tested.
 
-CDD (Customer Due Diligence) — All Customers:
-|-- Identity verification: government ID + selfie liveness check + address verification
-|-- Business customers: identify beneficial owners (>=25% ownership or control)
-|-- Risk rating: assign risk tier (Low/Medium/High) based on:
-|   |-- Geography: FATF high-risk/non-cooperative jurisdictions
-|   |-- Business type: MSBs, casinos, crypto exchanges, precious metals dealers = high risk
-|   |-- Product: cross-border wires, private banking, correspondent banking = higher risk
-|   |-- Delivery channel: non-face-to-face onboarding = higher risk
+### Regulatory Cybersecurity → references/financial-security-implementations.md
+1. NYDFS 500, GLBA, SOX, GDPR financial provisions. Incident reporting timelines (72hr GDPR, 36hr PSD2, 24hr Fed). Board reporting.
+   |-- Complete when: Regulation-to-control mapping complete. Reporting timelines documented.
 
-EDD (Enhanced Due Diligence) — High-Risk Customers Only:
-|-- Source of wealth: verify with documentation (tax returns, bank statements, business records)
-|-- Source of funds: specific transaction funding source (not just "savings")
-|-- Adverse media screening: negative news search in local language + English
-|-- PEP check: Politically Exposed Person + family members + close associates
-|   |-- PEPs are NOT automatically prohibited — EDD is required, not denial
-|   |-- Senior management approval for PEP onboarding
-
-Sanctions Screening:
-|-- Screen against: OFAC SDN List (US), UN Consolidated List, EU Consolidated List, UK HMT, local country lists
-|-- Screening points: onboarding, transaction (real-time or batch), periodic rescreening (daily/weekly)
-|-- Match handling: exact match -> block + report | partial/fuzzy match -> manual review
-
-Transaction Monitoring for AML:
-|-- Structuring detection: multiple transactions just below reporting threshold ($10,000 CTR threshold)
-|-- Layering detection: rapid movement through multiple accounts, jurisdictions, asset types
-|-- Integration detection: unexplained wealth — sudden large deposits inconsistent with profile
-|-- SAR filing: suspicious activity -> file within 30 days (extendable to 60 with documentation)
-   |-- Even if investigation is incomplete, file with what you know
-   |-- Safe harbor: SAR filing protects filer from civil liability
-```
-
-
-## Payment API Security
-<!-- STANDARD: 3min -->
-
-```
-
-Idempotency Architecture (REQUIRED for all payment endpoints):
-|-- Client generates idempotency key: UUID v4 per unique payment intent
-|-- POST /payments with header Idempotency-Key: {key}
-|-- Server behavior:
-|   |-- First request with key: process payment, store (key, response, status_code), return response
-|   |-- Subsequent requests with same key: return cached response, same HTTP status code
-|   |-- Key collision (same key, different request body): return 422 Conflict
-|-- Key scope: per merchant account (not global — prevents cross-merchant DoS)
-|-- Key TTL: 24 hours minimum (long enough for client retry logic)
-
-Dual Control / Four-Eyes Principle:
-|-- High-value transactions > $10,000 require two authorized approvers
-|-- Same approver cannot both initiate and approve (separation of duty)
-|-- Implementation: state machine (PENDING -> APPROVED_BY_A -> APPROVED_BY_B -> EXECUTED)
-
-Transaction Signing (Non-Repudiation):
-|-- Each transaction signed by sender's private key: ECDSA P-256 or Ed25519
-|-- Signature covers: amount, currency, recipient, timestamp, nonce
-|-- Verification at each hop: gateway, processor, settlement — signature chain intact
-```
-
-
-## Open Banking Security (PSD2/PSD3 + FAPI)
-<!-- STANDARD: 3min -->
-
-```
-
-Strong Customer Authentication (SCA) — PSD2 Article 97:
-|-- Dynamic linking: authentication code must be specific to amount + payee
-|   |-- MUST: display "Pay $1,250.00 to Acme Corp?" with amount-specific code
-|-- Two independent factors from:
-|   |-- Knowledge: password, PIN | Possession: TOTP, FIDO2 key | Inherence: fingerprint, face
-|-- Exemptions: low-value <€30, whitelisted beneficiaries, recurring, low-risk, corporate payments
-
-FAPI Security Profiles:
-|-- FAPI 1.0 Advanced (current PSD2): OAuth 2.0 + OIDC, private_key_jwt, PAR, JARM, MTLS/DPoP
-|-- FAPI 2.0 (PSD3 direction): DPoP sender constraining, RAR (Rich Authorization Requests), grant management
-|-- eIDAS Certificates: QWAC for TLS client auth, QSealC for request signing, QTSP issuance
-|-- TPP revocation: OCSP/CRL checking before every API call
-```
-
-
-## Payment Infrastructure Security
-<!-- STANDARD: 3min -->
-
-```
-
-ISO 8583 Message Security:
-|-- MAC protects message integrity between acquirer and issuer
-|-- Key hierarchy: ZMK (key exchange) -> ZPK (PIN encryption)
-|-- Field-level: PIN block (ISO 9564 Format 0/1/3), track data encryption
-
-HSM Architecture (Thales Payshield / Utimaco):
-|-- PIN translation: HSM decrypts with ZPK -> encrypts with issuer's ZPK
-|-- PIN verification: PVV (PIN Verification Value) or IBM 3624 offset
-|-- CVV/CVC generation: from PAN + expiration + service code + CVK pair
-|-- Key ceremony: dual control, split knowledge (m-of-n shares), tamper-evident bags
-|-- Compliance: FIPS 140-2 Level 3 minimum, PCI PTS HSM certification
-
-EMV Security:
-|-- Offline Data Auth: SDA (weak, cloneable) -> DDA (challenge-response, stronger) -> CDA (strongest)
-|-- Chip authentication: dynamic cryptogram (ARQC) per transaction
-|-- Contactless: limit without CVM, relay attack mitigation via timing-based proximity checks
-```
-
-
-## Financial Regulatory Cybersecurity
-<!-- STANDARD: 3min -->
-
-```
-
-US Regulatory Landscape:
-|-- FFIEC CAT: 5 domains, 5 maturity levels (Baseline to Innovative), self-assessment
-|-- NYDFS 23 NYCRR 500: annual certification, CISO, risk assessment, pen testing, 72h incident notification
-|-- GLBA Safeguards Rule: applies to non-bank financial institutions (fintech, lenders)
-
-EU Regulatory Landscape:
-|-- DORA (Digital Operational Resilience Act) — Effective Jan 2025:
-|   |-- ICT risk management, major incident reporting, TLPT (threat-led penetration testing),
-|       critical third-party provider oversight, cyber threat information sharing
-|-- DORA applies to: banks, payment institutions, e-money, investment firms, crypto-asset providers, insurers
-```
-
-
-## Payment Card Breach Response
-<!-- STANDARD: 3min -->
-
-```
-
-T=0: Breach Awareness:
-|-- Engage PCI Forensic Investigator (PFI) — do NOT investigate internally first
-|-- Preserve forensic evidence: disk images, memory dumps, network captures
-|-- Stop data loss but do NOT power off systems (loses memory forensics)
-
-T=0-24h: Containment + Assessment:
-|-- Scope: systems with cardholder data during compromise window
-|-- Data at risk: PANs, expiration dates, cardholder names — if track/CVV exposed, highest severity
-|-- Document: timeline, affected systems, data elements, containment actions
-
-T=24-72h: Card Brand Notification:
-|-- Visa: 3 business days | Mastercard: immediately | Others: per brand rules
-|-- Provide: acquiring BINs, compromise window, estimated cards at risk, containment status
-
-Post-Breach:
-|-- PFI investigation report, remediation per findings, re-certification (new ROC/AOC)
-|-- State breach notification (30-60 days typical), data subject notification
-|-- Uplift: monthly scans, pen testing, enhanced monitoring
-```
-
+### Breach Response → references/financial-security-implementations.md
+1. Contain → Investigate → Notify (regulator + affected parties per timeline) → Remediate → Post-mortem → Attestation.
+   |-- Complete when: IR plan tested. Notification templates prepared. Forensic retainer active.
 ## Error Recovery
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
@@ -509,62 +301,14 @@ If a command or approach fails, follow this escalation path before giving up:
 | P6 | SCA implementation AND only SMS OTP for possession factor | [WARN] SMS OTP vulnerable to SIM swap. Add app-based TOTP or FIDO2/WebAuthn as primary possession factor for high-value transactions. |
 
 ## State Log
-<!-- DEEP: 10+min -->
-<!-- STANDARD: 3min -->
 
-This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+Schema: session_id, compliance_scope, pci_level, regulations_applicable, controls_reviewed, gaps_identified, remediation_plan.
 
-
-## How the State Log Works
-<!-- STANDARD: 3min -->
-<!-- AGENT: Read this before starting work, update after each phase -->
-
-1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
-2. **After each major decision:** Append to the ledger:
-   ```json
-
-   {
-     "timestamp": "ISO-8601",
-     "skill": "financial-security",
-     "phase": "Phase 3: Implementation",
-     "decision": "What was decided",
-     "rationale": "Why this choice over alternatives",
-     "constraints": ["constraint-1", "constraint-2"],
-     "alternatives_considered": ["alt-1", "alt-2"],
-     "reversible": true
-   }
-
-   ```
-
-3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
-4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
-
-
-## State Log Schema
-<!-- STANDARD: 3min -->
-
-| Field | Purpose | Example |
-|-------|---------|---------|
-| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
-| `skill` | Which skill made it | `"backend-developer"` |
-| `phase` | Which workflow phase | `"Phase 3: API Design"` |
-| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
-| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
-| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
-| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
-| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
-
-
-## Anti-Drift Check
-<!-- STANDARD: 3min -->
-<!-- AGENT: Run this check at the start of each new phase -->
-
-Before beginning a new phase, verify:
-- [ ] Have I read the state log from the previous session?
-- [ ] Do any prior decisions constrain what I'm about to do?
-- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
-- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
-
+### Anti-Drift Check
+* [ ] Previous session's compliance gaps addressed?
+* [ ] Regulatory changes since last review? (PCI DSS 4.0.1, PSD3 effective dates)
+* [ ] All third-party risk assessments current?
+* [ ] Incident response tested within last 6 months?
 ## What Good Looks Like
 <!-- STANDARD: 3min -->
 
@@ -625,52 +369,17 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
 ```
 
 ## Gotchas
+
 <!-- DEEP: 10+min -->
-<!-- STANDARD: 3min -->
 
--
-
-## PCI DSS Gotchas
-<!-- STANDARD: 3min -->
-
-- **Assuming a cloud provider's PCI compliance makes you compliant.** AWS/Azure/GCP are PCI DSS compliant as infrastructure — but you are responsible for compliance *in* the cloud. The shared responsibility model means: cloud provider secures the physical data center and hypervisor (Req 9), you secure your AMI configurations, network ACLs, IAM policies, and application code (Req 1-8, 10-12). **Total cost: $100K-$500K in remediation costs + $50K-$200K in fines when you fail your assessment because someone assumed "AWS is PCI compliant so we are."**
-
-- **CDE scope creep — the "just this one integration" problem.** Start with a small CDE (payment app + DB). Marketing wants transaction data in Salesforce. Support wants it in Zendesk. Analytics wants raw data in Snowflake. Each integration expands the CDE and adds 50+ new PCI requirements. CDE scope naturally grows unless actively constrained. **Total cost: $200K-$1M in additional compliance costs per year per expanded system. Each new system in CDE adds ~$50K-$100K in annual assessment and maintenance costs.**
-
-- **Storing cardholder data "just in case" for analytics or chargebacks.** Every stored PAN is a liability under PCI DSS. Tokenization eliminates this: use network tokens (Visa VTS, Mastercard MDES), acquirer tokens, or gateway tokens. The only PAN you need is the BIN + last 4 for customer recognition. **Total cost: $1M-$10M in breach costs if PANs are exposed versus $0 in breach liability if only tokens are exposed (tokens are worthless outside your merchant account).**
-
-
-## Fraud Detection Gotchas
-<!-- STANDARD: 3min -->
-
-- **Static velocity thresholds that don't adapt to user behavior.** A rule "block >5 transactions/hour" works until a legitimate user makes 6 purchases during a flash sale. False positives cost more than fraud — a blocked legitimate customer has a 30% chance of never returning. Use Z-score against rolling 30-day average instead of fixed thresholds. **Total cost: $500K-$2M/year in lost customer lifetime value from false positive blocks.**
-
-- **ML model trained on biased historical data.** If your historical fraud labels are biased (e.g., more investigations triggered in certain ZIP codes), the ML model learns and amplifies that bias. Fraud models can become de facto redlining tools. Monitor approval rates by protected demographic dimensions — if any group has approval rate <90% of population average, investigate. **Total cost: $5M-$50M in regulatory fines (fair lending violations) + class action lawsuits + reputational damage.**
-
-
-## KYC/AML Gotchas
-<!-- STANDARD: 3min -->
-
-- **Treating PEP screening as a one-time onboarding check.** PEP status changes — a customer becomes a PEP mid-relationship (elected official, appointed minister, promoted executive at state-owned enterprise). Periodic rescreening (minimum: annually, high-risk: quarterly) catches status changes. **Total cost: $500K-$5M in fines for failure to detect PEP post-onboarding + reputational damage from banking a sanctioned PEP.**
-
-- **SAR filing deadlines are absolute — "we're still investigating" is not a defense.** The 30-day clock starts when you identify suspicious activity, not when the investigation is complete. File a preliminary SAR with what you know, then file a supplemental SAR within 30 days with additional findings. FinCEN and other FIUs penalize late filings regardless of eventual completeness. **Total cost: $500K-$5M per late SAR + heightened regulatory scrutiny (potential monitorship, $1M-$10M/year).**
-
-
-## Open Banking Gotchas
-<!-- STANDARD: 3min -->
-
-- **Implementing SCA without dynamic linking.** Requesting "Enter your OTP: 123456" without displaying the transaction amount and payee fails PSD2 dynamic linking. A customer entering 123456 thinking they are paying Amazon $25 could actually be authorizing a $2,500 payment to a fraudster. The authentication code must be transaction-specific. **Total cost: $1M-$5M in fraud losses from SCA bypass + regulatory enforcement for non-compliant SCA.**
-
-- **FAPI 1.0 Advanced certificate validation without CRL/OCSP checking.** TPPs are identified by eIDAS certificates. If a TPP's certificate is revoked (security breach, license revocation, bankruptcy), failing to check CRL/OCSP means the revoked TPP continues accessing customer accounts. Certificate validation at every API call is non-negotiable. **Total cost: $2M-$10M in fraud losses from unauthorized access by revoked TPP + regulatory fines for access control failure.**
-
-
-## Payment API Gotchas
-<!-- STANDARD: 3min -->
-
-- **Using database transactions as idempotency.** A DB-level unique constraint on transaction_id prevents duplicate writes but does NOT return the original response. The client retrying sees "409 Conflict" instead of the original "200 OK" with the payment result. The client assumes failure and initiates a refund or chargeback. Idempotency requires returning the stored response, not just preventing duplicates. **Total cost: $100K-$500K in operational overhead from confused clients, unnecessary chargebacks, and reconciliation nightmares.**
-
-- **Deploying transaction signing without clock synchronization.** Digital signatures include a timestamp to prevent replay. If the signing server's clock drifts by 5 minutes, all signatures appear expired or future-dated. Transaction signing infrastructure needs NTP with <1 second accuracy and monotonic clock for ordering. **Total cost: $1M-$5M in transaction processing outage per hour of downtime — payment systems cannot "degrade gracefully" when signing fails.**
-
+| Category | Gotcha | Cost | Mitigation |
+|----------|--------|------|------------|
+| PCI DSS | Assuming cloud provider = PCI compliant. Shared responsibility. Provider = infrastructure compliant, you = application/data compliant. | $50K-$500K fines + suspension of card processing. | Map CDE across every layer. Verify provider AOC covers your scope. |
+| FRAUD | ML model drift — models trained on 2019 data miss 2025 fraud patterns. Retrain quarterly minimum. | $1M-$10M in undetected fraud losses. | Continuous monitoring. Automated retraining pipeline. Champion/challenger. |
+| KYC/AML | Over-relying on third-party KYC providers without independent verification. Provider misses PEP → your liability. | $10M-$500M in regulatory fines. | Independent risk scoring. Dual-source verification for high-risk. |
+| OPEN BANKING | FAPI non-compliance — using OAuth 2.0 without FAPI profile (PAR, JARM) in open banking contexts. | Regulatory rejection. PSD3 fines. | Implement FAPI 2.0 profile. Verify with conformance suite. |
+| PAYMENT API | Missing idempotency keys — duplicate charges in retry scenarios. | $100K-$1M in customer refunds + reputational damage. | Idempotency on all POST/PUT. Unique keys per request. |
+| BREACH | Slow notification — fines escalate per day. 72hr GDPR = hard deadline. | $20M or 4% global revenue. | Pre-approved templates. Automated notification pipeline. |
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 
@@ -758,3 +467,4 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [/references/financial-regulations.md](references/financial-regulations.md) — FFIEC CAT, NYDFS, DORA, GLBA compliance mapping
 - [/references/secure-enclave-finance.md](references/secure-enclave-finance.md) — Nitro Enclaves, confidential computing for payments and KYC
 - [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Verify all 14 required sections, ground rules, decision trees, gotchas, and references
+

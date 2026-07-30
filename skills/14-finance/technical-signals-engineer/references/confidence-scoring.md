@@ -49,3 +49,4 @@ Break-even win rate: ~52% at 1.5:1 reward/risk with 0.15% costs.
 
 Calibrated against SPY, QQQ, AAPL, MSFT, GOOGL daily data 2010-2025.
 All backtests use walk-forward methodology (train 2010-2019, validate 2020-2022, test 2023-2025).
+

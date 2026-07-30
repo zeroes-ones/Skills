@@ -100,3 +100,4 @@
 - **Condition:** Price up, OBV flat/declining OR Price down, OBV flat/rising
 - **Accuracy:** 64% for predicting trend change within 10 days
 - **Lead time:** OBV diverges 5-15 days before price trend change
+

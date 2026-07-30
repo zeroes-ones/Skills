@@ -25,3 +25,4 @@
 3. Position sizing: did sizing method improve risk-adjusted returns?
 4. Circuit breakers: did they fire at the right times?
 5. Tax impact: after-tax returns vs pre-tax
+

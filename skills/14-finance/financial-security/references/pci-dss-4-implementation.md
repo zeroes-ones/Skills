@@ -108,3 +108,4 @@ Scoping methodology:
 - Security awareness training: annually, role-specific
 - Incident response plan: tested annually
 - Third-party service provider management: due diligence, PCI validation
+

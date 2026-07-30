@@ -40,3 +40,4 @@ Ex-dividend price adjustment: stock drops by dividend amount at open. This mecha
 | Avg Daily Volume | < $5M | Flag: BB unreliable, OBV meaningless |
 | Float | < 20M shares | Flag: manipulation-prone, double divergence requirements |
 | Bid-Ask Spread | > 0.5% | Flag: slippage eats signal edge, reduce confidence 25 |
+

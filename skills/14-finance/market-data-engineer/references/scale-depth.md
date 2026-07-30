@@ -33,3 +33,4 @@
 | Solo \u2192 Small | Reliable data needed for trading decisions, >5 data sources | Move from batch to streaming; add Kafka; formalize schema management |
 | Small \u2192 Medium | Multi-asset coverage, tick-level requirements, AUM >$10M | Add ClickHouse for analytics; implement data quality SLAs; hire dedicated data engineer |
 | Medium \u2192 Enterprise | Regulatory requirements (SEC CAT), internal data products, >$100M AUM | Implement full data governance; build data marketplace; hire compliance and data ops teams |
+

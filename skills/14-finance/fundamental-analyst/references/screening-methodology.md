@@ -31,3 +31,4 @@ After running screen, decompose performance:
 - Quarterly rebalance: standard (aligns with earnings releases)
 - Monthly: more trading costs, marginal improvement
 - Annual: stale — factor decay at 6+ months
+

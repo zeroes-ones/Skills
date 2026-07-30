@@ -294,3 +294,4 @@ Is SPY below 200-SMA?
 All VIX, SPY, and individual stock price levels are based on publicly available historical data. Option prices are [COMPUTED] using Black-Scholes with period-appropriate implied volatility (sourced from CBOE VIX and historical IV data). Exact bid-ask spreads during crash periods were abnormally wide ($1-$5+ on SPY options) — actual execution prices could have varied significantly from mid-market computations. The strategy P&L tables are MODELED outcomes, not actual fills. No strategy guarantees profits in any market regime.
 
 **Knowledge cutoff:** Market structure changes. Post-2024 data (if any) is not reflected. Always verify current VIX, IV Rank, and 200-SMA status before making any trading decisions.
+

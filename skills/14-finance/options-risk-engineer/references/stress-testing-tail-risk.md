@@ -18,7 +18,7 @@ Apply these historical scenarios to current portfolio [VERIFIED]:
 - ATM SPX puts: went from ~$2 to $50+ — 25x price increase [VERIFIED]
 - Portfolio impact: Any short put position goes catastrophic. A short 0.15-delta SPX put becomes 1.00 delta and deep ITM. Loss = (strike - new_spot) × 100 × contracts minus credit received [COMPUTED]
 
-### Scenario 2: 2008 Global Financial Crisis  
+### Scenario 2: 2008 Global Financial Crisis
 - SPX: -50% over 17 months (October 2007 → March 2009)
 - VIX: peaked at 89.53 on October 24, 2008 [VERIFIED]
 - All correlations → 1.0. Any diversification thesis failed.
@@ -122,3 +122,4 @@ worst_case_portfolio_drawdown_pct = max(portfolio_loss / NAV) across all scenari
 ```
 
 If this number exceeds your maximum tolerable loss, reduce position sizes. No amount of cleverness in strike selection or entry timing changes the mathematics of being short options in a tail event. The only defense is position sizing [VERIFIED].
+

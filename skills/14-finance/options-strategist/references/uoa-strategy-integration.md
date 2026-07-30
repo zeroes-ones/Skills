@@ -146,3 +146,4 @@ Before acting on any UOA signal, verify:
 4. **Liquid Strikes vs. Illiquid Strikes:** UOA on strikes with open interest > 1,000 contracts is reliable. UOA on strikes with OI < 100 is noise — a single retail trader with a large account can create an "unusual" print. Minimum OI threshold: 500 contracts.
 
 5. **Time of Day:** UOA in the first 30 minutes (market open) and last 30 minutes (market close) carries the most weight. Midday flow (11 AM – 2 PM ET) is statistically less predictive — it's often hedging or position adjustments, not new conviction.
+

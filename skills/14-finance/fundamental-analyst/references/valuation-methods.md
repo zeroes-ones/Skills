@@ -42,3 +42,4 @@ Not applicable to: growth companies, financials, negative earnings
 - SaaS: EV/Revenue with growth-adjusted multiple (Rule of 40)
 - Biotech (pre-revenue): rNPV with probability of success per trial phase
 - Energy/Cyclicals: Mid-cycle normalized earnings, EV/EBITDA, P/NAV
+

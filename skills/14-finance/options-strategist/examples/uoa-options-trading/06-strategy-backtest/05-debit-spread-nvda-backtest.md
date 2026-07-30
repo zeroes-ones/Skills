@@ -274,3 +274,4 @@ A bull call debit spread on NVDA during a low-IV, high-conviction setup. This ba
 **Loop 4 Gate Decision: ARCHIVE.** Full trade documented. Learnings extracted. Pattern database updated. Ready for next trade.
 
 > **The Iterative Research Loop is what separates professional trading from gambling.** Every decision point — entry, adjustment, scale-out, exit — triggers a full research re-cycle. The research at entry is validated or invalidated by subsequent research loops. A trade that starts with perfect research but makes mid-trade decisions without re-research is not a researched trade — it's a researched entry followed by guessing.
+

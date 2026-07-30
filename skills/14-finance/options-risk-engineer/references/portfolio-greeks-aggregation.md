@@ -131,3 +131,4 @@ Daily risk report fields [BROKER-VERIFIED pull from API]:
 - Charm impact for positions ≤ 7 DTE
 - Any Greek exceeding limit threshold
 
+

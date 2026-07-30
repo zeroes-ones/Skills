@@ -32,3 +32,4 @@ Examples:
 - SPY vs VOO: 99.5% overlap → Same position
 - QQQ vs XLK: 65% overlap → Significant duplication
 - SPY vs BND: <1% overlap → True diversification
+

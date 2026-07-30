@@ -33,9 +33,11 @@ chain:
     - quantitative-analyst
     - market-data-engineer
     - portfolio-signal-manager
+    - futures-trader
   feeds_into:
     - algorithmic-trader
     - portfolio-signal-manager
+    - futures-trader
   alternatives:
     - portfolio-signal-manager
   examples:
@@ -313,740 +315,61 @@ World-class options risk management is about understanding what kills you — an
 
 ## Core Workflow
 
-<!-- STANDARD: 3min -->
+### Phase 0: Portfolio Greek Snapshot (5min)
 
-### Phase 0: Portfolio Greek Snapshot
+1. **Aggregate all Greeks** from quantitative-analyst output per position. Compute net Delta, Gamma, Theta, Vega, Vanna, Charm. Normalize to NAV. Profile GEX at ±1%, ±2%, ±5% underlying moves.
+2. **Enforce Greek limits**: Net Delta ±50% NAV, Net Gamma ±5% NAV/1%, Net Vega ±5% NAV/1pt IV, Min Theta (positive preferred).
+3. Complete when: All portfolio Greeks computed [COMPUTED] with NAV normalization. Greek limits checked. GEX profile charted.
+   - Full formulas and examples → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-0-portfolio-greek-snapshot--full-detail)
 
-```
-1. GREEK AGGREGATION — NOT SIMPLE SUMMATION
+### Phase 1: Pin Risk & Assignment Detection (5min)
 
-   For each position, pull individual Greeks from quantitative-analyst output:
-   {
-     "position_id": "AAPL-250C-20260821",
-     "ticker": "AAPL",
-     "type": "LONG_CALL",
-     "strike": 250,
-     "expiration": "2026-08-21",
-     "quantity": 5,
-     "underlying_price": 248.50 [BROKER-VERIFIED via market-data-engineer],
-     "individual_greeks": {
-       "delta": 0.48,
-       "gamma": 0.032,
-       "theta": -0.12,
-       "vega": 0.28,
-       "vanna": 0.008,
-       "charm": -0.003
-     }
-   }
+1. **Compute Pin Risk Score** for all short options with DTE ≤ 7: `distance_component × dte_multiplier × position_factor`. Score ≥60 = close/roll immediately. Score 40-59 = close at next opportunity.
+2. **Check assignment triggers**: Dividend arbitrage on calls, deep ITM puts with <$0.05 time premium, ITM >$2.00 near expiration. Apply pre-close rules.
+3. Complete when: All short options ≤5 DTE scored. ITM shorts have assignment probability [ESTIMATED] with error bounds. Pre-close recommendations for scores ≥40.
+   - Full scoring matrices and triggers → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-1-pin-risk--assignment-detection--full-detail)
 
-   PORTFOLIO-LEVEL AGGREGATION (per Greek):
-   
-   Net Delta = Σ(position.delta × position.quantity × contract_multiplier × underlying_price)
-   → "Net Delta = +$47,520 [COMPUTED] — equivalent to owning 191 shares of AAPL at $248.50"
+### Phase 2: Expiration Risk Management (3min)
 
-   Net Gamma = Σ(position.gamma × position.quantity × contract_multiplier × underlying_price / 100)
-   → "Net Gamma = +$1,260/1% [COMPUTED] — portfolio delta increases by $1,260 for every 1% AAPL rises"
-   → GEX Range: At AAPL+2% ($253.47): gamma = +$1,580/1% | At AAPL-2% ($243.53): gamma = +$980/1%
+1. **Classify positions by DTE zone**: >21 (normal), 14-21 (plan), 7-14 (gamma acceleration), 3-7 (active), 0-3 (critical), 0 DTE (continuous). Apply DTE-appropriate actions.
+2. **Classify by settlement type**: Physical delivery (most equity) vs cash-settled (SPX/NDX/VIX). Apply Friday expiration protocol. Enforce 0DTE rules (max 2% NAV, continuous monitoring, hard stops).
+3. Complete when: DTE calendar populated. Settlement classification complete. All ≤3 DTE positions have close/roll/expire decision documented.
+   - Full DTE rules, settlement guide, 0DTE rules → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-2-expiration-risk-management--full-detail)
 
-   Net Theta = Σ(position.theta × position.quantity × contract_multiplier)
-   → "Net Theta = +$85/day [COMPUTED] (0.0085% of $1M NAV) — portfolio collects $85 per day in time decay"
-   → Theta/NAV assessment: <0.005%/day = negligible, 0.01-0.03%/day = healthy, >0.05%/day = excessive short premium
+### Phase 3: Margin & Capital Efficiency (5min)
 
-   Net Vega = Σ(position.vega × position.quantity × contract_multiplier)
-   → "Net Vega = +$3,200/1% IV [COMPUTED] (0.32% of NAV) — portfolio gains $3,200 for every 1-point IV increase"
-   → Vega stress: if VIX rises 10 points and IVs expand 5 points → P&L impact = $3,200 × 5 = +$16,000
+1. **Detect margin regime**: Reg T (standard), Portfolio Margin (≥$110K), SPAN (futures). Compute margin per strategy. Calculate margin call distance = (NAV - maintenance) / NAV.
+2. **Compute Buying Power Reduction**: BPR = margin_required / buying_power_total. Green <30%, Yellow 30-50%, Orange 50-70%, Red >70%.
+3. Complete when: Margin computed [COMPUTED] and verified [BROKER-VERIFIED]. Margin call distance known. BPR known. For PM: stress scenarios simulated.
+   - Full margin tables, formulas, examples → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-3-margin--capital-efficiency--full-detail)
 
-   Vanna = d(Delta)/d(IV) — how delta changes as IV changes
-   → "Net Vanna = +$420/%IV [COMPUTED] — if IV rises 5 points, portfolio delta increases by $2,100"
-   → Critical for large positions: vanna >0 means delta exposure increases in volatile markets
+### Phase 4: Liquidity & Slippage Assessment (3min)
 
-   Charm = d(Delta)/d(Time) — how delta changes as time passes (also called delta bleed)
-   → "Net Charm = -$180/day [COMPUTED] — portfolio delta decays by $180 per day purely from time passage"
-   → Important near expiration: charm accelerates in final week
+1. **Score liquidity** per position: bid-ask spread (% of mid), open interest, position size vs OI. Estimate entry/exit slippage [ESTIMATED].
+2. **Enforce position size caps**: `min(Kelly_vol_size, 5% of 20d dollar volume, 5% of OI)`. Flag illiquid positions (spread >10% or OI <100) — DO NOT TRADE.
+3. Complete when: Liquidity score per position. Slippage estimated [ESTIMATED]. Positions adjusted for OI limits. Illiquid positions flagged.
+   - Full scoring matrices, slippage tables → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-4-liquidity--slippage--full-detail)
 
-2. GREEK LIMIT ENFORCEMENT
+### Phase 5: Options as Hedging Instruments (5min)
 
-   | Limit | Threshold | Consequence if Breached |
-   |-------|-----------|------------------------|
-   | Max Net Delta | ±50% of NAV | Beyond this, portfolio is directional, not options-neutral |
-   | Max Net Gamma | ±5% of NAV per 1% move | Beyond this, portfolio risk profile changes too rapidly |
-   | Max Net Vega | ±5% of NAV per 1-point IV | Beyond this, vol moves dominate P&L |
-   | Min Net Theta | Positive (collecting) preferred; negative > -0.02%/day requires hedge justification | Negative theta = paying for protection; must be intentional |
-   | Max Vanna/Delta | Vanna > 2× daily theta signals vol-leverage risk | Rising vol increases directional exposure |
+1. **Match hedge to risk**: Single-stock downside → protective puts/collars. Portfolio decline → index puts. Tail risk → deep OTM puts/VIX calls. Calculate annual hedge cost as % NAV.
+2. **Evaluate delta hedging**: Hedge when net delta > ±50% NAV. Choose frequency (daily/weekly/threshold) and instrument (shares/futures/options).
+3. Complete when: Hedge strategy selected and sized. Annual cost quantified [COMPUTED]. Delta hedging frequency determined.
+   - Full hedge comparison, cost examples, delta hedge guide → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-5-options-as-hedging-instruments--full-detail)
 
-   Complete when: All portfolio Greeks computed [COMPUTED] with NAV normalization.
-   Greek limits checked against configurable thresholds. 
-   GEX profile charted at ±1%, ±2%, ±5% underlying moves.
+### Phase 6: Correlation & Concentration Risk (3min)
 
-```
+1. **Compute ticker-level notional**: Sum long + |short| option notional + stock value per ticker. Limit: <10% NAV per ticker.
+2. **Check concentration**: Expiration week (<30% of positions), sector (<25% NAV). Simulate crash correlation (r → 1.0) — VaR increases 2-3×.
+3. Complete when: Ticker notional computed. Expiration and sector concentration checked. Crash correlation scenario simulated.
+   - Full concentration rules, crash correlation analysis → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-6-correlation--concentration--full-detail)
 
-### Phase 1: Pin Risk & Assignment Detection
+### Phase 7: Event Risk Assessment (3min)
 
-```
-1. PIN RISK DETECTION (daily starting at 7 DTE, hourly at 3 DTE, continuously on 0 DTE)
-
-   For each short option position:
-   
-   Step 1: Distance-to-Strike
-   ├── distance_pct = |underlying_price - strike| / underlying_price × 100
-   ├── distance_pct ≤ 0.5% → PIN RISK RED ALERT (strike is dangerous)
-   ├── distance_pct 0.5-1.5% → PIN RISK YELLOW ALERT (monitor closely)
-   └── distance_pct > 1.5% → No immediate pin risk
-
-   Step 2: DTE Acceleration Factor
-   ├── DTE = 0 (expiration day): gamma → ∞, pin risk → MAXIMUM
-   │   Every $0.01 move changes delta by 0.05-0.20 near ATM
-   ├── DTE 1-2: gamma is 3-5× normal, pin risk is HIGH
-   ├── DTE 3-5: gamma is 1.5-2× normal, pin risk is MODERATE
-   └── DTE > 5: gamma is elevated but manageable
-
-   Step 3: Pin Risk Score (0-100)
-   Pin_Risk_Score = distance_component × dte_multiplier × position_factor
-   
-   distance_component:
-   ├── 0-0.25% away: 90
-   ├── 0.25-0.5% away: 70
-   ├── 0.5-1.0% away: 40
-   ├── 1.0-1.5% away: 20
-   └── >1.5% away: 5
-
-   dte_multiplier:
-   ├── DTE=0: 1.5 (expiration day gamma spike)
-   ├── DTE=1: 1.3
-   ├── DTE=2: 1.1
-   ├── DTE=3-5: 1.0
-   └── DTE>5: 0.7
-
-   position_factor:
-   ├── Short naked call: 1.3 (unlimited risk if assigned)
-   ├── Short naked put: 1.1 (defined risk to zero, but large)
-   ├── Short vertical spread: 0.7 (defined risk, but max loss possible)
-   └── Short covered call: 0.4 (stock covers assignment; risk is opportunity cost)
-
-   Pin Risk Score ≥ 60 → REQUIRED ACTION: close or roll immediately
-   Pin Risk Score 40-59 → RECOMMENDED ACTION: close or roll at next opportunity
-   Pin Risk Score 20-39 → MONITOR: set price alert at strike ±0.5%
-
-2. ASSIGNMENT RISK DETECTION (American-style options only)
-
-   EARLY ASSIGNMENT TRIGGERS (any ONE triggers assessment):
-
-   ├── CALL: Stock goes ex-dividend before expiration AND dividend > remaining time premium
-   │   Assignment_Probability = f(dividend - time_premium)
-   │   If dividend > time_premium by $0.10+: 85%+ [ESTIMATED ±10%] assignment probability
-   │   If dividend > time_premium by $0.05-$0.10: 60-85% [ESTIMATED ±15%]
-   │   "IBM 140C: dividend $1.66, time_premium $0.12 — assignment is $1.54 profitable.
-   │    Assignment probability = 92% [ESTIMATED ±8%] on day before ex-div."
-
-   ├── PUT: Deep ITM put (>$2.00 ITM) with time premium < $0.05
-   │   "Deep ITM puts have near-zero time premium — the holder exercises to close
-   │    their short stock position and free up capital. Assignment probability = 75% [ESTIMATED ±20%]"
-
-   ├── ITM by >$2.00 with DTE < 3: 70%+ assignment probability regardless of dividends
-   │   Rationale: time premium is negligible, exercise locks in intrinsic value
-
-   └── Special situations: merger arbitrage, tender offers, structured payout events
-       Assignment probability is event-dependent — flag but don't estimate
-
-   PRE-CLOSE RULES (automated):
-   
-   | Condition | Action |
-   |-----------|--------|
-   | Short call ITM by >$0.50 AND ex-div within 3 days | CLOSE OR ROLL IMMEDIATELY. Do not wait. |
-   | Short put ITM by >$2.00 AND DTE < 3 | CLOSE OR ROLL. Assignment risk too high. |
-   | Pin Risk Score ≥ 60 | CLOSE at market. Accept slippage. Pin risk binary outcomes are worse. |
-   | Pin Risk Score 40-59 AND DTE ≤ 2 | CLOSE with limit order at mid. Cancel and use market if unfilled in 5 min. |
-   | Short option ITM at 3:30 PM ET on expiration day | If physical delivery: CLOSE unless you WANT the stock position. If cash-settled: OK to let expire. |
-
-   Complete when: All short options with DTE ≤ 5 have pin risk score computed.
-   All ITM short options have assignment probability estimated [ESTIMATED] with error bounds.
-   Pre-close recommendations generated for positions scoring ≥40.
-
-```
-
-### Phase 2: Expiration Risk Management
-
-```
-1. DTE-BASED ACTION RULES
-
-   | DTE Range | Action Required | Rationale |
-   |-----------|----------------|-----------|
-   | >21 DTE | Normal risk monitoring | Gamma is manageable. Time decay is linear. |
-   | 14-21 DTE | Begin expiration planning | Start evaluating: close, roll, or let expire? |
-   | 7-14 DTE | Gamma acceleration zone | Gamma increases ~2× from 14 to 7 DTE. Tighten risk limits. |
-   | 3-7 DTE | Active management zone | Gamma is 3-5× normal. Pin risk active. Assignment risk rising. |
-   | 0-3 DTE | CRITICAL zone | Every hour matters. Gamma → ∞. Pin risk → MAXIMUM. |
-   | 0 DTE | Expiration day protocol | Continuous monitoring. Immediate action on any alert. |
-
-2. ITM AT EXPIRATION — WHAT ACTUALLY HAPPENS
-
-   Physical Delivery Options (most equity options):
-   ├── LONG CALL expiring ITM → You BUY 100 shares per contract at strike price
-   │   └── Need cash to cover. If you don't have cash → broker may auto-close before close
-   ├── SHORT CALL expiring ITM → You SELL 100 shares per contract at strike price
-   │   └── If you don't own shares → you go SHORT stock with unlimited risk
-   ├── LONG PUT expiring ITM → You SELL 100 shares per contract at strike price
-   │   └── If you don't own shares → you go SHORT stock
-   └── SHORT PUT expiring ITM → You BUY 100 shares per contract at strike price
-       └── Need cash. If insufficient → broker auto-closes OR margin call
-
-   Cash-Settled Options (SPX, NDX, RUT, VIX, most index options):
-   ├── ITM at expiration → cash credit/debit = (settlement_price - strike) × multiplier
-   └── No stock delivery. No weekend gap risk. No pin risk on stock position.
-
-   KEY CHECK: For every ticker in the portfolio, know whether options are PHYSICAL or CASH-SETTLED.
-   Physical settlement on a Friday → stock position over the weekend → gap risk on Monday open.
-   Cash settlement on Friday → cash in account by Monday morning → no gap risk.
-
-3. FRIDAY EXPIRATION PROTOCOL
-
-   Friday is the most dangerous expiration day:
-   
-   ├── Options expire Saturday (technically), but last trading day is Friday
-   ├── Assignment notification comes Saturday morning (brokers process overnight)
-   ├── Stock appears in account Monday morning — AFTER weekend gap risk
-   └── If stock gaps 10% over weekend, you wake up Monday with a 10% loss on an unwanted position
-
-   FRIDAY RULES:
-   ├── ITM short options with physical delivery → CLOSE by 3:00 PM ET Friday
-   │   Exception: only if you explicitly WANT the stock position
-   ├── ITM long options with physical delivery and insufficient capital → CLOSE by 3:30 PM ET
-   │   Brokers auto-close at 3:00-3:30 PM if insufficient funds — at unfavorable prices
-   ├── Cash-settled index options → safe to let expire (no delivery risk)
-   └── Do not sell new options expiring same day after 2:00 PM ET — gamma too extreme
-
-4. 0DTE RISK (Same-Day Expiration)
-
-   Gamma on 0DTE options is extreme:
-   ├── ATM 0DTE option gamma is 10-50× larger than 30-DTE equivalent
-   ├── An OTM option can go from $0.05 to $3.00 in 15 minutes on a 1% move
-   └── Position sizing for 0DTE must be ≤25% of normal size
-
-   0DTE Rules:
-   ├── Maximum notional exposure: 2% of NAV per 0DTE position
-   ├── Must be monitored continuously (every 60 seconds minimum)
-   ├── Hard stop-loss: exit at -50% of premium paid (directional) or -100% of credit received (credit spreads)
-   └── No 0DTE short naked options — defined risk spreads only
-
-   Complete when: DTE calendar populated for all positions.
-   Physical vs cash-settled classification complete for all tickers.
-   Friday expiration protocol reviewed and action items generated.
-   All positions with DTE ≤ 3 have explicit close/roll/expire decision documented.
-
-```
-
-### Phase 3: Margin & Capital Efficiency
-
-```
-1. REGIME DETECTION — Which Margin Rules Apply?
-
-   ├── Standard Reg T account → Reg T Margin (50% initial, 25% maintenance for equities)
-   │   Options margin varies by strategy type
-   ├── Portfolio Margin account (≥$110K minimum equity) → PM Rules
-   │   Theoretical stress test: ±15% on broad-based indices, ±20% on single stocks
-   └── Futures options in a futures account → SPAN Margin
-       Risk array analysis — 16 scenarios per contract
-
-2. REG T MARGIN BY STRATEGY TYPE [COMPUTED]
-
-   | Strategy | Initial Margin | Maintenance Margin |
-   |----------|---------------|-------------------|
-   | Long Call/Put | 100% of premium | None (fully paid) |
-   | Short Naked Call | 100% of premium + 20% of underlying - OTM amount | Same as initial |
-   | Short Naked Put | 100% of premium + 20% of underlying - OTM amount | Same as initial |
-   | Covered Call | Stock margin + option premium (stock covers call) | Stock maintenance margin |
-   | Bull Call Spread | Debit paid (max loss defined) | None beyond debit |
-   | Bear Put Spread | Debit paid (max loss defined) | None beyond debit |
-   | Bull Put Spread (credit) | Width of spread × 100 - credit received | Same as initial |
-   | Bear Call Spread (credit) | Width of spread × 100 - credit received | Same as initial |
-   | Iron Condor | Max(put_spread_margin, call_spread_margin) | Same |
-   | Short Straddle/Strangle | Sum of naked call margin + naked put margin | Same |
-
-   Example: Short AAPL 250 Put, AAPL at $248.50
-   ├── Premium received: $3.50 × 100 = $350
-   ├── 20% of underlying: 20% × $24,850 = $4,970
-   ├── OTM amount: ($250 - $248.50) × 100 = $150
-   ├── Reg T Margin = $350 + $4,970 - $150 = $5,170 [COMPUTED]
-   └── Notional exposure = $25,000 — margin is 20.7% of notional
-
-3. PORTFOLIO MARGIN (PM) — Theoretical Stress Test [COMPUTED]
-
-   PM margin = max loss across stress scenarios for the entire portfolio:
-   
-   Broad-Based Index Products (SPX, NDX, RUT):
-   ├── Stress scenario: ±15% price move
-   ├── For options: reprice at stressed underlying levels using theoretical model
-   └── Margin = max loss across all scenarios
-
-   Single Stocks & Narrow-Based Indices:
-   ├── Stress scenario: ±20% price move
-   └── Same methodology as broad-based
-
-   PM vs Reg T Comparison:
-   ├── Defined-risk strategies (verticals, iron condors): PM ≈ Reg T (minimal difference)
-   ├── Naked options: PM can be 40-60% LOWER than Reg T → significant capital efficiency
-   ├── Hedged portfolios: PM recognizes offsetting positions → 50-70% lower margin
-   └── Concentrated portfolios: PM can be HIGHER than Reg T → penalizes concentration
-
-   PM Capital Efficiency Check:
-   ├── PM_ratio = PM_margin / RegT_margin
-   ├── PM_ratio < 0.6: Good — PM provides meaningful relief [COMPUTED]
-   ├── PM_ratio 0.6-0.8: Moderate — PM helps but not dramatically
-   └── PM_ratio > 0.9: PM doesn't help much — strategy is already capital-efficient or concentrated
-
-4. SPAN MARGIN (Futures Options)
-
-   SPAN uses risk arrays: 16 profit/loss scenarios per contract
-   ├── Scenarios cover: underlying ±, volatility ±, time decay
-   ├── Margin = max(scanning_risk - intermonth_spread_credit, short_option_minimum)
-   └── Not covered in detail here — invoke quantitative-analyst for SPAN computation
-
-5. MARGIN CALL TRIGGER DISTANCE [COMPUTED]
-
-   Margin_Call_Distance = (NAV - Maintenance_Margin_Required) / NAV
-   
-   ├── Distance > 20%: Green — comfortable buffer
-   ├── Distance 10-20%: Yellow — monitoring required
-   ├── Distance 5-10%: Orange — prepare liquidation plan, identify which positions to close first
-   └── Distance < 5%: Red — IMMEDIATE action required. Reduce exposure now.
-
-   "Current margin utilization: 62% [BROKER-VERIFIED].
-    Margin call triggers at 100%. At current portfolio volatility (1.8% daily [COMPUTED]),
-    a 3.8% adverse move would trigger a margin call [ESTIMATED ±1.2%]."
-
-6. BUYING POWER REDUCTION
-
-   Options_BPR = margin_required / buying_power_total
-   
-   ├── BPR < 30%: Healthy — ample capacity for adjustments
-   ├── BPR 30-50%: Cautious — limited room for adding positions
-   ├── BPR 50-70%: Tight — positions must earn their capital cost
-   └── BPR > 70%: DANGER — no capacity for adverse moves; forced liquidation imminent
-
-   Complete when: Margin computed under applicable regimes [COMPUTED] and verified against broker [BROKER-VERIFIED].
-   Margin call distance calculated. Buying power reduction known.
-   For PM accounts: stress scenarios simulated and worst-case margin quantified.
-
-```
-
-### Phase 4: Liquidity & Slippage Assessment
-
-```
-1. LIQUIDITY SCORING (per position)
-
-   Liquidity_Score = f(bid_ask_spread, open_interest, volume, position_size_vs_OI)
-   
-   Bid-Ask Spread Component:
-   ├── Spread < 2% of mid: Green (highly liquid, e.g., SPY weeklies)
-   ├── Spread 2-5% of mid: Yellow (moderate liquidity, acceptable for small positions)
-   ├── Spread 5-10% of mid: Orange (poor liquidity, slippage will hurt)
-   └── Spread > 10% of mid: Red (illiquid — effectively untradeable at size)
-
-   Open Interest (OI) Component:
-   ├── OI > 10,000: Deep market — large positions feasible
-   ├── OI 1,000-10,000: Adequate market — moderate positions OK
-   ├── OI 100-1,000: Thin market — small positions only
-   └── OI < 100: Illiquid — do not trade
-
-   Position Size vs OI:
-   ├── Position < 1% of OI: No market impact expected
-   ├── Position 1-5% of OI: Minor impact — may move the market slightly
-   ├── Position 5-10% of OI: Significant impact — you ARE a market mover
-   └── Position > 10% of OI: EXCESSIVE — you ARE the market; exiting will be painful
-
-2. SLIPPAGE ESTIMATION [ESTIMATED]
-
-   Entry Slippage = (expected_fill - midprice) / midprice for buy; (midprice - expected_fill) / midprice for sell
-
-   For liquid options (spread < 2%):
-   ├── Market order: 0.5-1.5% slippage [ESTIMATED ±0.5%]
-   ├── Limit order at mid: 0.2-0.8% improvement over market [ESTIMATED ±0.3%]
-   └── Best practice: Use limit orders at mid ± spread/4
-
-   For moderate liquidity (spread 2-5%):
-   ├── Market order: 2-5% slippage [ESTIMATED ±2%]
-   ├── Limit order: may not fill at mid; expect to pay half spread
-   └── Best practice: Enter at bid (for sells) or ask (for buys); accept the spread cost
-
-   For illiquid options (spread > 10%):
-   ├── Round-trip cost can exceed 20% of premium
-   ├── Recommendation: DO NOT TRADE. Find a more liquid alternative.
-   └── If must trade: size for exit difficulty — assume you CANNOT exit before expiration
-
-3. POSITION SIZING WITH LIQUIDITY CONSTRAINTS
-
-   Max_Position_Size = min(
-     Kelly_or_vol_sized_amount,
-     5% of 20-day average dollar volume,
-     5% of total open interest
-   )
-
-   "AAPL 250C: OI = 48,000, 20-day avg vol = $2.3M, Kelly size = $12,000. 
-    Max by liquidity = min($12,000, $115,000, OI_limit not binding).
-    Liquidity check: PASS [COMPUTED] — entry and exit feasible without market impact."
-
-   For illiquid positions:
-   "TSLA 350P with 2027 expiry: OI = 85, spread = 14% of mid. 
-    Any position > 4 contracts (>2 contracts to be safe) means you may not be able to exit.
-    Either reduce size to 2 contracts or choose a more liquid strike/expiry."
-
-   Complete when: Liquidity score computed for every position.
-   Slippage estimated [ESTIMATED] for entry and exit. Position sizes adjusted for OI limits.
-   Illiquid positions flagged with exit-risk warning.
-```
-
-Phase 0-4 have been appended. Now Phase 5-8 in the next chunk.
-
-
-### Phase 5: Options as Hedging Instruments
-
-```
-1. HEDGE SELECTION FRAMEWORK
-
-   What are you hedging against?
-   ├── Single-stock downside (earnings, sector rotation, specific risk) → Protective puts, collars on that stock
-   ├── Portfolio-wide decline (market crash, recession) → Index puts (SPY, QQQ), VIX calls
-   ├── Tail risk (3+ sigma events) → Deep OTM puts, put backspreads, VIX calls
-   ├── Correlation breakdown (diversification failure in crisis) → VIX futures, variance swaps
-   ├── Interest rate risk (bond portfolio, rate-sensitive stocks) → Interest rate options, Treasury futures options
-   └── Volatility expansion (short vega portfolio) → Long VIX calls, long straddles on indices
-
-2. PROTECTIVE PUTS — Single Stock Protection
-
-   Cost-Benefit Analysis:
-   
-   For a 100-share AAPL position at $248.50:
-   
-   Option A: ATM Put (250 strike, 60 DTE)
-   ├── Cost: $8.50 × 100 = $850 (3.4% of position value) [ESTIMATED based on current IV]
-   ├── Protection: All losses below $250 (full protection below strike)
-   ├── Break-even: Stock must rise to $258.50 to recover put cost
-   └── Annual cost: ~20% of position value if rolled every 60 days [COMPUTED]
-
-   Option B: 5% OTM Put (236 strike, 60 DTE)
-   ├── Cost: $3.20 × 100 = $320 (1.3% of position value) [ESTIMATED]
-   ├── Protection: Losses below $236 (first 5% loss is unhedged)
-   ├── Break-even: Stock must rise to $251.70 to recover put cost
-   └── Annual cost: ~8% of position value [COMPUTED]
-
-   Option C: Put Spread (250/220, 60 DTE) — cheaper but capped protection
-   ├── Cost: $8.50 - $2.80 = $5.70 × 100 = $570 (2.3% of position) [ESTIMATED]
-   ├── Protection: $250 to $220 ($3,000 max protection); losses below $220 are unhedged
-   └── Annual cost: ~14% [COMPUTED] — lower than full put, but tail risk remains
-
-   HEDGE COST RULE:
-   ├── Hedge cost < 2% of position value annually: Sustainable — maintain indefinitely
-   ├── Hedge cost 2-5% of position value annually: Expensive — use selectively, during high-risk periods
-   ├── Hedge cost > 5% of position value annually: PROHIBITIVE — hedge cost exceeds expected return
-   └── Alternative: Collar (sell call to fund put) or put spread (cheaper but capped)
-
-3. COLLAR STRATEGY — Zero-Cost or Low-Cost Protection
-
-   Standard Collar: Long OTM Put + Short OTM Call on owned stock
-   
-   Construction:
-   ├── Long 5% OTM put (e.g., AAPL 236P) → cost = $3.20
-   ├── Short 5% OTM call (e.g., AAPL 261C) → credit = $3.20 [ESTIMATED]
-   └── Net cost = $0 → ZERO-COST COLLAR
-   
-   Trade-off:
-   ├── Downside protected below put strike → AAPL losses capped at ~5%
-   ├── Upside capped above call strike → AAPL gains capped at ~5%
-   └── "You trade unlimited upside for defined downside — it's insurance with an opportunity cost"
-
-   Put Spread Collar (cheaper but keeps more upside):
-   ├── Long 5% OTM put (236P): cost $3.20
-   ├── Sell 15% OTM call (286C): credit $1.10 (farther OTM = less credit)
-   ├── Sell 10% OTM put (224P): credit $0.90 (creates put spread)
-   └── Net cost: $3.20 - $1.10 - $0.90 = $1.20 → LOW-COST COLLAR with wider upside cap
-
-4. TAIL RISK HEDGING — Portfolio-Level Protection
-
-   Approach 1: OTM Index Puts (standard tail hedge)
-   ├── Buy 20-30% OTM SPY puts, 3-6 month expiry, roll at 30 DTE
-   ├── Cost: 1-3% of NAV annually depending on strike distance [ESTIMATED]
-   ├── Protection: Kicks in after 20-30% market decline
-   ├── Problem: Expensive in low-vol environments; cheap after crashes (buy high, sell low)
-   └── Sizing: Allocate 1-3% of NAV to put premiums annually
-
-   Approach 2: Put Backspread (sell ATM put, buy 2× OTM puts)
-   ├── Credit or small debit; profits from large downside moves
-   ├── Loses money in moderate declines (ATM put loses, OTM puts don't gain enough)
-   └── Best for: Hedging tail risk while collecting premium in normal markets
-
-   Approach 3: VIX Calls (volatility spike protection)
-   ├── VIX spikes during crashes (2020: VIX from 15 to 82 in 30 days)
-   ├── 30-60 DTE VIX calls 20-30 points OTM: cost 0.5-1% of NAV [ESTIMATED]
-   ├── Advantage: Pays off EXACTLY when everything else is losing money
-   └── Disadvantage: Expensive, decays rapidly, no intrinsic value (VIX is mean-reverting)
-
-   TAIL HEDGE PERFORMANCE CHECK:
-   ├── Did the hedge appreciate >5× cost during the last >2% market down day? If no, re-evaluate.
-   ├── Tail hedges lose money 95% of the time and make money 5% of the time.
-   └── Budget: 1-3% of NAV annually is the cost of crash insurance. Accept it or accept the risk.
-
-5. DELTA HEDGING — Dynamic Position Neutralization
-
-   When to Delta Hedge:
-   ├── Portfolio net delta exceeds ±50% of NAV → delta hedge required
-   ├── Earnings announcement on large position → delta hedge through the event
-   ├── Weekend before major macro event (FOMC, election) → reduce delta exposure
-   └── Not needed for small positions (<5% NAV) where transaction costs exceed benefit
-
-   Hedging Frequency Decision:
-   ├── Daily rebalancing: Costs ~0.05% in spreads + commissions. Appropriate for >$500K portfolios.
-   ├── Weekly rebalancing: Costs ~0.02% weekly. Appropriate for $100K-$500K portfolios.
-   ├── Threshold-based: Rebalance when delta drifts >2% of NAV. Most cost-effective.
-   └── "Rebalancing frequency should match the speed at which gamma changes your delta.
-       If net gamma = $1,200/1%, a 2% move changes delta by $2,400 — rebalance at 1% thresholds."
-
-   Delta Hedge Instruments:
-   ├── Short/long underlying shares: Cheapest, but uses capital
-   ├── Short/long futures: Capital-efficient (margin ~5-10%), continuous market
-   ├── Short/long opposite option: Introduces new Greeks — be careful
-   └── Never use illiquid instruments for dynamic hedging — you need to adjust quickly
-
-   Complete when: Hedge strategy selected and sized based on risk being hedged.
-   Cost of hedge quantified as % of NAV annually [COMPUTED].
-   Delta hedging frequency determined based on gamma and portfolio size.
-
-```
-
-### Phase 6: Correlation & Concentration Risk
-
-```
-1. OPTIONS-SPECIFIC CORRELATION RISK
-
-   Unlike equity portfolios, options add correlation through:
-   
-   ├── Same underlying across multiple option positions → Perfectly correlated
-   │   "5 AAPL options across different strikes/expirations = 5 positions on 1 ticker"
-   │   Aggregate all option notional and stock notional per ticker
-   
-   ├── Same expiration date across different tickers → Gamma correlation event
-   │   "If MSFT, AAPL, GOOGL all have options expiring this Friday, gamma from all three
-   │    amplifies simultaneously on any market move. This is a GAMMA CONCENTRATION event."
-   
-   ├── Sector correlation via underlying stocks
-   │   "Calls on MSFT + AAPL + GOOGL = triple tech exposure. If tech drops 5%,
-   │    all three option positions lose value simultaneously. The positions are not independent."
-   
-   └── Volatility correlation — all options vega moves together on VIX spikes
-       "When VIX jumps from 15 to 30, ALL option IVs expand. A short vega portfolio loses
-        on every position simultaneously. Vega diversification is near-impossible during vol events."
-
-2. TICKER-LEVEL CONCENTRATION (Options Notional + Stock)
-
-   For each ticker:
-   ├── Total_Notional = Σ(long option notional) + |Σ(short option notional)| + stock_value
-   │   Short option notional uses absolute value because risk is from exposure, not direction
-   ├── Ticker_Exposure = Total_Notional / Portfolio_NAV
-   └── If Ticker_Exposure > 10%: CONCENTRATION ALERT
-
-   "AAPL: Long 5× 250C (notional $125K) + Short 3× 230P (notional $69K) + 200 shares ($49.7K)
-    = Total notional $243.7K / $1M NAV = 24.4% > 10% LIMIT.
-    Reduce exposure by closing 2 calls and 1 put. Target: <10% per ticker."
-
-3. EXPIRATION CONCENTRATION
-
-   │ Expiration Week | % of Positions | Alert |
-   │-----------------|---------------|-------|
-   │ This week | 45% | RED — Gamma concentration. Diversify immediately. |
-   │ Next week | 30% | ORANGE — Approaching limit. |
-   │ Week 3 | 15% | GREEN |
-   │ Week 4+ | 10% | GREEN |
-
-   Rule: No more than 30% of positions expiring in any single week.
-   Rationale: A sharp move during one week shouldn't trigger gamma events on >30% of portfolio.
-
-4. SECTOR CONCENTRATION (Options-Aware)
-
-   │ Sector | Equity Exposure | Options Notional | Total | Limit |
-   │--------|----------------|-----------------|-------|-------|
-   │ Tech | $150K (15%) | $200K (20%) | $350K (35%) | 25% → BREACHED |
-   │ Finance | $80K (8%) | $40K (4%) | $120K (12%) | OK |
-   │ Healthcare | $60K (6%) | $30K (3%) | $90K (9%) | OK |
-
-   Options notional can double or triple sector exposure vs what equity-only analysis shows.
-
-5. CRASH CORRELATION RISK
-
-   Normal_Market_Correlation ≠ Crash_Correlation
-   
-   ├── In normal markets, SPY and QQQ correlation is ~0.85
-   ├── In crashes, correlation → 0.95-1.0
-   └── "Every hedging analysis must include a correlation→1.0 scenario"
-
-   Correlation Breakdown Test:
-   For each pair of highly correlated positions (r > 0.80):
-   ├── Normal: Portfolio risk is diversified — N_effective = 4.5
-   ├── Crash (r → 1.0): Portfolio risk CONCENTRATES — N_effective drops to 1.3
-   └── Impact: VaR increases by 2-3× in crash mode [ESTIMATED]
-
-   Complete when: Ticker-level notional exposure computed for all positions.
-   Expiration concentration checked — no week >30%. Sector exposure checked — no sector >25%.
-   Crash correlation scenario simulated with correlation→1.0.
-
-```
-
-### Phase 7: Event Risk Assessment
-
-```
-1. KNOWN EVENT CALENDAR
-
-   For each ticker in the portfolio, check upcoming events:
-   
-   EARNINGS EVENTS:
-   ├── Earnings announcement within ±10 days → EVENT RISK ACTIVE
-   ├── IV typically rises into earnings (vol run-up), then crushes post-announcement
-   │   "AAPL IV is 35 vs normal 22 — 60% vol premium from earnings uncertainty"
-   ├── Post-earnings gap: average absolute move = 1.5-3× the implied move priced by straddle
-   └── Risk: Long options lose IV crush (vega loss). Short options face gap risk (gamma loss).
-
-   FDA/REGULATORY DECISIONS:
-   ├── Binary outcomes: drug approved = +50-200%, rejected = -50-80%
-   ├── Standard options pricing CANNOT price binary risk — IV underestimates actual risk
-   └── "Do not sell options on biotech tickers with pending FDA decisions.
-        The IV looks attractive but it's not compensating you for binary risk — it's underpricing it."
-
-   FOMC/ECONOMIC EVENTS:
-   ├── Affects entire portfolio, not just specific tickers
-   ├── Rate decisions affect: financials (+/-), growth stocks (-/+), bonds (±), VIX (±)
-   └── Pre-FOMC risk reduction: cut delta by 50%, close short gamma positions
-
-   MERGER ARBITRAGE:
-   ├── Spread between current price and deal price represents deal-break risk
-   ├── Options on merger targets have distorted pricing — IV reflects binary outcome
-   └── Do not sell options through merger close dates
-
-2. EVENT RISK QUANTIFICATION
-
-   For each upcoming event:
-
-   Implied Move = ATM straddle price / underlying price × 100
-   "AAPL 250 straddle costs $12.50 → Implied move = $12.50/$248.50 = 5.0% [COMPUTED]
-    Historical average post-earnings move = 4.2%. Market is pricing slightly higher uncertainty."
-
-   Event P&L Impact:
-   ├── Delta impact: position delta × implied_move_dollars
-   ├── Gamma impact: gamma × (implied_move)² / 2
-   ├── Vega impact: vega × expected_IV_change (typically -30% to -50% of pre-event premium)
-   └── Total event P&L = delta_impact + gamma_impact + vega_impact + theta
-
-   "AAPL earnings: Portfolio has +$12K delta × 5% implied move = ±$600 delta impact [COMPUTED]
-    Plus vega loss of ~$900 from IV crush [ESTIMATED ±$200].
-    Total event risk: ±$1,500 (0.15% of NAV) — ACCEPTABLE."
-
-3. EVENT RISK RESPONSES
-
-   | Event Type | Risk Level | Recommended Action |
-   |-----------|-----------|-------------------|
-   | Earnings on <5% of NAV positions | Low | Monitor. No position changes needed. |
-   | Earnings on 5-15% of NAV positions | Moderate | Reduce position size by 50% OR hedge with straddle/strangle purchase |
-   | Earnings on >15% of NAV | High | Close or fully hedge. Binary earnings risk on large positions is gambling. |
-   | FDA decision on any position >2% NAV | High | Close. Binary biotech risk is lottery, not trading. |
-   | FOMC with large rate-sensitive positions | Moderate | Reduce delta by 50%. Close short gamma positions. |
-   | Merger vote with position | Varies | Close if deal-break would cause >5% portfolio loss. |
-
-4. UNKNOWN EVENT RISK (Black Swan)
-
-   Cannot be predicted. Can only be survived.
-   
-   Protection:
-   ├── Keep position sizes within limits (10% per ticker, 25% per sector)
-   ├── Maintain margin buffer (>30% unused buying power)
-   ├── Diversify expirations (no single-week gamma cluster)
-   ├── Keep tail hedges active (1-3% NAV annual budget)
-   └── Never be the largest position in any illiquid option
-
-   Complete when: Event calendar populated for all portfolio tickers.
-   Event P&L impact estimated [ESTIMATED] for each upcoming event.
-   Risk responses generated for events exceeding thresholds.
-
-```
-
-### Phase 8: Tail Risk Quantification & Stress Testing
-
-```
-1. VaR WITH OPTIONS — Non-Linear Payoffs Break Normal VaR
-
-   Traditional VaR assumes normal returns and linear payoffs. Options violate both.
-
-   APPROACH: Historical Simulation VaR (handles non-linear payoffs)
-   
-   Method:
-   1. Collect 252 days of historical returns for each underlying
-   2. For each historical day, reprice the option portfolio using that day's returns
-      (requires quantitative-analyst for option repricing at different underlying levels)
-   3. Sort the 252 simulated portfolio P&Ls
-   4. VaR(95%) = 5th percentile loss | VaR(99%) = 2.5th percentile (≈ 2nd worst day)
-
-   "VaR(95%, 1-day) = $8,500 [COMPUTED via historical simulation, 252-day window]
-    — there is a 5% chance of losing >$8,500 (0.85% of $1M NAV) on any given day.
-    VaR(99%, 1-day) = $18,200 [COMPUTED] — the 1% worst-case daily loss."
-
-   Why NOT Parametric VaR for Options:
-   ├── Parametric VaR = μ + z_α × σ — assumes normal distribution, linear instruments
-   ├── Options are convex — losses are bounded for longs, unlimited for shorts
-   ├── A short straddle has a narrow range of profitability and extreme loss potential
-   └── Parametric VaR understates options risk by 30-60% [ESTIMATED]
-
-   CVaR (Expected Shortfall):
-   ├── "CVaR(95%) = $12,400 [COMPUTED] — on the 5% worst days, the average loss is $12,400"
-   ├── CVaR is always ≥ VaR and better captures tail risk
-   └── For options portfolios, CVaR/VaR ratio > 1.5 signals heavy tail risk
-
-2. STRESS TESTING — Historical Crash Scenarios
-
-   Run portfolio through these scenarios with full option repricing:
-
-   | Scenario | Underlying Move | VIX Move | IV Change | Correlation | Key Risk |
-   |----------|----------------|----------|-----------|-------------|----------|
-   | 1987 Crash (Black Monday) | SPX -20% in 1 day | VIX → 150 | IV +50 points | All → 1.0 | Short puts destroyed. Short calls on indices gain but not enough. |
-   | 2008 Financial Crisis | SPX -38% over months | VIX → 80 | IV +40 points | All → 0.9 | Rolling bear market. Short puts lose. Long puts save portfolios. |
-   | 2020 COVID Crash | SPX -34% in 23 days | VIX → 82 | IV +45 points | All → 0.95 | Speed kills. Circuit breakers trigger. Liquidity vanishes for hours. |
-   | 2022 Rate Hike | QQQ -33%, Value -7% | VIX → 35 | IV +15 points | Growth stocks → 0.95 | Not a crash — a rotation. Tech-heavy options portfolios destroyed. |
-   | 2018 Volmageddon | SPX -4% but VIX +115% | VIX → 50 | IV +30 points | Vol products blow up | Short vol strategies annihilated. XIV went to zero. |
-   | Flash Crash | SPX -9% in 30 min | VIX spikes | IV +20 points | Liquidity → 0 | Market orders fill at absurd prices. Limit orders don't fill. |
-
-   For each scenario, report:
-   ├── Estimated portfolio P&L [COMPUTED]
-   ├── Margin requirement after the move [ESTIMATED]
-   ├── Margin call? (YES/NO)
-   ├── Survivable without forced liquidation?
-   └── Recovery time estimate
-
-   "1987 Scenario: Portfolio P&L = -$145,000 (-14.5% of NAV) [COMPUTED].
-    Margin requirement increases to $480,000 vs current $350,000 — MARGIN CALL at broker.
-    Liquidation of 3 weakest positions required. Recovery: ~4 months at normal returns."
-
-3. MAXIMUM DRAWDOWN ESTIMATION
-
-   Max_Drawdown_30d = estimated maximum peak-to-trough decline over next 30 days
-
-   Method: Monte Carlo simulation with 10,000 paths
-   ├── Underlying follows geometric Brownian motion with current IV
-   ├── Options repriced at each simulation step
-   ├── Portfolio P&L tracked along each path
-   └── Max drawdown = average of worst 1% of paths [ESTIMATED]
-
-   "Max 30-day drawdown estimate = 12.8% of NAV [ESTIMATED ±3% at 95% confidence].
-    Worst 1% of simulated paths: drawdown > 22%. This exceeds the 15% drawdown halt threshold.
-    RECOMMENDATION: Reduce short gamma exposure or add protective puts to cap at 15%."
-
-4. STRESS TEST ACCEPTANCE CRITERIA
-
-   ├── Worst-case historical scenario drawdown < 25% of NAV → ACCEPTABLE
-   ├── Worst-case historical scenario drawdown 25-40% → CONCERNING — add hedges
-   ├── Worst-case historical scenario drawdown > 40% → UNACCEPTABLE — reduce risk now
-   └── Any scenario triggers margin call → UNACCEPTABLE — reduce margin utilization
-
-   Complete when: VaR and CVaR computed via historical simulation [COMPUTED].
-   All 6 stress scenarios simulated with full option repricing.
-   Max drawdown estimated via Monte Carlo [ESTIMATED].
-   Stress test results compared against acceptance criteria.
-   If any scenario fails criteria, risk reduction plan documented.
-```
+1. **Map event calendar**: Earnings (±10 days), FDA decisions, FOMC, merger close dates. For each event on positions >2% NAV: compute implied move (straddle price / underlying) and event P&L impact = delta + gamma + vega + theta.
+2. **Apply event responses**: Earnings >15% NAV → close/hedge. FDA on any position >2% NAV → close. FOMC → cut delta 50%, close short gamma.
+3. Complete when: Event calendar populated. P&L impact computed [COMPUTED] for all material events. Response actions documented.
+   - Full event calendar, P&L formula, response matrix → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-7-event-risk-assessment--full-detail)
 
 
 ## Decision Trees
@@ -1056,217 +379,86 @@ Phase 0-4 have been appended. Now Phase 5-8 in the next chunk.
 ### DT1: Should I Close This Position Before Expiration?
 
 ```
-
-Is DTE ≤ 5?
+DTE ≤ 5?
 ├── NO → Normal monitoring. Revisit at 7 DTE.
-└── YES → Is the position short an option?
-    ├── NO (long only) → Is the option ITM?
-    │   ├── NO → Option expires worthless. No action needed EXCEPT:
-    │   │   └── Is this a tail hedge (protective put)? If yes, ROLL to maintain protection.
-    │   └── YES → Will you have sufficient capital for exercise/assignment?
-    │       ├── YES + you WANT the stock → Let expire. Accept delivery.
-    │       ├── YES + you DON'T want the stock → CLOSE before 3:00 PM ET expiration day.
-    │       └── NO (insufficient capital) → CLOSE IMMEDIATELY. Broker will auto-close at worse price.
-    └── YES (short option) → Is the short strike within 1% of current price?
-        ├── YES (Pin Risk Zone) → Is Pin Risk Score ≥ 60?
-        │   ├── YES → CLOSE IMMEDIATELY at market. Slippage cost < binary loss from pin.
-        │   └── NO (Score 20-59) → Close with limit order at mid. If unfilled in 30 min, use market.
-        └── NO (safely OTM) → Is the option ITM?
-            ├── NO → Let expire worthless BUT:
-            │   └── Set alert at strike - 1%. If price approaches, re-enter this decision tree.
-            └── YES → Is this cash-settled (index options)?
-                ├── YES → Let expire. Cash settles automatically. No delivery risk.
-                └── NO (physical delivery) → Do you want the resulting stock position?
-                    ├── YES (short put → want to buy stock at strike) → Let expire. Accept assignment.
-                    ├── YES (short call, own stock → want to sell at strike) → Let expire. Deliver shares.
-                    └── NO → CLOSE by 3:00 PM ET Friday. Do not hold through expiration.
-
+└── YES → Short option?
+    ├── NO (long) → ITM? YES+cash→let expire | YES-capital→close | NO→expires worthless (roll if tail hedge)
+    └── YES (short) → Within 1% of strike?
+        ├── YES → Pin Risk ≥60? YES→close market | NO→close limit, market if unfilled
+        └── NO → ITM? NO→alert at strike-1% | YES→cash-settled? let expire | physical? want stock? YES→accept | NO→close 3PM Fri
 ```
 
 ### DT2: Margin Call Risk — Immediate Action Required
 
 ```
-
-Current margin utilization at what level?
-├── < 50% → Normal. No action needed.
-├── 50-70% → Caution zone. Identify which positions to close first if needed.
-├── 70-85% → PREPARE LIQUIDATION PLAN
-│   ├── Rank positions by: (capital required) / (risk reduced). Close expensive, low-benefit positions first.
-│   ├── Identify: which positions have the highest margin requirement per unit of risk?
-│   └── Do NOT add new positions. All new capital goes to buffer.
-└── > 85% → IMMINENT MARGIN CALL RISK
-    ├── Is Portfolio Margin available (account >$110K)?
-    │   ├── YES, on Reg T → Switch to PM immediately if not already. PM typically reduces margin 20-50%.
-    │   └── NO or already on PM → EMERGENCY LIQUIDATION
-    │       ├── Step 1: Close all positions with DTE < 7 (highest gamma, most margin-intensive)
-    │       ├── Step 2: Close naked short options (highest margin requirement)
-    │       ├── Step 3: Close positions on most concentrated ticker (>10% NAV)
-    │       └── Step 4: If still >85%, close all positions >5% NAV until margin < 50%
-    └── MARGIN CALL DISTANCE: How much adverse move triggers a call?
-        ├── < 2% move → CRITICAL. Any adverse day triggers liquidation. Reduce NOW.
-        ├── 2-5% move → DANGEROUS. A single bad day causes trouble. Reduce exposure.
-        ├── 5-10% move → MANAGEABLE. You have some buffer. Monitor closely.
-        └── > 10% move → COMFORTABLE. Unlikely to be margin-called without a crash.
-
-    Always ask: "If I get margin-called, what positions will the broker liquidate first?"
-    Brokers liquidate: naked options first, then largest positions, at market prices.
-    YOU choose what to close — the broker's choice will be worse.
-
+Margin utilization?
+├── <50% → Normal.
+├── 50-70% → Caution. Rank positions for liquidation priority.
+├── 70-85% → Prepare plan. Close expensive low-benefit positions. No new positions.
+└── >85% → IMMINENT CALL. PM available? YES→switch to PM (20-50% relief) | NO→LIQUIDATE:
+    DTE<7 first → naked shorts → concentrated ticker → all >5% NAV until <50%.
+    Call distance: <2% move=critical | 2-5%=dangerous | 5-10%=manageable | >10%=comfortable
 ```
 
 ### DT3: Is My Hedge Working?
 
 ```
-
-Portfolio declined X% this week. Did the hedge perform?
-├── Hedge appreciated >0.8 × hedge_delta × portfolio_decline → HEDGE WORKING
-│   └── Maintain. Rebalance if delta ratio has drifted >20%.
-├── Hedge appreciated 0.3-0.8 × expected → HEDGE PARTIALLY WORKING
-│   ├── Why the underperformance?
-│   │   ├── Correlation breakdown: hedge instrument ≠ what's declining
-│   │   │   → Swap hedge to better-correlated instrument
-│   │   ├── Volatility regime change: IV dropped despite price decline
-│   │   │   → Use VIX calls instead of puts for vol-independent protection
-│   │   └── Theta decay eating hedge value → Roll to longer DTE
-│   └── Adjust hedge composition based on diagnosis.
-└── Hedge appreciated <0.3 × expected OR lost money → HEDGE FAILURE
-    ├── DIAGNOSE: Run correlation analysis during the decline period
-    ├── Was this a correlation→1.0 event? → The hedge CAN'T work in this regime.
-    │   All assets fall together. Only VIX calls and cash survive.
-    ├── Was the hedge too far OTM? → Bought 30% OTM puts, market fell 20%. Hedge didn't activate.
-    │   → Buy closer strikes (15-20% OTM) even though they cost more.
-    └── Complete hedge post-mortem. Document what failed. Prevent recurrence.
-
+Hedge appreciated vs expected (0.8 × hedge_delta × portfolio_decline)?
+├── >0.8× → WORKING. Maintain. Rebalance if delta drift >20%.
+├── 0.3-0.8× → PARTIAL. Diagnose: correlation breakdown? vol regime change? theta decay? Adjust.
+└── <0.3× → FAILURE. Post-mortem: correlation→1.0 event? too far OTM? Document and fix.
 ```
 
 ### DT4: Volatility Regime — Should I Change Risk Limits?
 
 ```
+VIX level?
+├── <15 (Complacent) → Reduce short vega. Buy tail hedges (cheap). Normal sizing.
+├── 15-25 (Normal) → Standard limits. Monitor VIX term structure.
+├── 25-35 (Elevated) → Reduce size 30%. Tighten stops. Buffer >50%.
+└── >35 (Extreme) → HALT new positions. Close DTE<7. Delta→near-zero. >50→consider cash.
 
-Current VIX level vs 30-day average?
-├── VIX < 15 (Low Vol — Complacency Zone)
-│   ├── Gamma risk is LOW — option prices move predictably
-│   ├── Vega risk is ASYMMETRIC — IV can only go UP from here
-│   ├── Action: Reduce short vega exposure. A vol spike from low levels is violent.
-│   ├── Action: This is the time to BUY tail hedges (cheap in low vol)
-│   └── Action: Normal position sizing. No vol-based adjustments needed.
-├── VIX 15-25 (Normal Vol)
-│   ├── Standard risk limits apply. Normal hedging behavior.
-│   └── Action: Monitor VIX term structure. Contango is normal; backwardation is warning.
-├── VIX 25-35 (Elevated Vol — Caution Zone)
-│   ├── Gamma risk is ELEVATED — daily moves are larger, gamma amplifies them
-│   ├── Action: Reduce position sizes by 30%. Tighten stop-losses.
-│   ├── Action: Increase margin buffer to >50% unused buying power.
-│   └── Action: Check VIX term structure. Backwardation = market expects continued turbulence.
-└── VIX > 35 (Extreme Vol — Survival Mode)
-    ├── Gamma risk is EXTREME — positions can go from ITM to deep OTM (or vice versa) intraday
-    ├── Action: HALT all new positions. Only manage existing positions.
-    ├── Action: Close ALL positions with DTE < 7 — gamma is unmanageable.
-    ├── Action: Reduce portfolio delta to near-zero (<10% of NAV).
-    ├── Action: Verify tail hedges are active and ITM or near-ITM.
-    └── Action: If VIX > 50, consider going to cash except for tail hedges.
+### DT5: Which Margin Regime?
 
 ```
-
-### DT5: Which Margin Regime Should I Use?
-
-```
-
-Account Equity and Type?
-├── Account equity < $110K → Reg T ONLY
-│   ├── Strategy margin follows Reg T rules (see Phase 3)
-│   ├── No cross-margining benefits
-│   └── Capital efficiency is limited; defined-risk strategies are more capital-friendly
-├── Account equity ≥ $110K → Portfolio Margin ELIGIBLE
-│   ├── Is PM enabled on the account?
-│   │   ├── NO → Request PM activation. Until approved, use Reg T.
-│   │   └── YES → Use PM for capital efficiency. Reg T is the floor.
-│   ├── Compare PM vs Reg T for CURRENT portfolio:
-│   │   ├── PM < 70% of Reg T → PM provides meaningful relief. Use PM.
-│   │   ├── PM 70-90% of Reg T → PM helps moderately. Use PM but know it's not a huge difference.
-│   │   └── PM > 90% of Reg T → PM doesn't help. Portfolio may be too concentrated.
-│   └── PM Risk: Broker can increase PM requirements during high volatility.
-│       Maintain Reg T awareness as the statutory floor you can fall back to.
-└── Futures options in futures account → SPAN Margin
-    ├── SPAN is risk-based (16 scenarios), typically more capital-efficient than Reg T
-    ├── Cross-margining: futures + futures options in same account = lower combined margin
-    └── Cannot mix with equity options margin regimes
-
+Account equity?
+├── <$110K → Reg T only. Defined-risk strategies preferred.
+├── ≥$110K, PM enabled → Use PM. Compare PM vs RegT: PM<70% RegT=good relief | >90%=doesn't help
+├── ≥$110K, PM not enabled → Request PM. Use Reg T until approved.
+└── Futures account → SPAN (16 scenarios). Cross-margining with futures.
 ```
 
 ## Cross-Skill Coordination
 
-<!-- STANDARD: 5min — BIDIRECTIONAL -->
+### Upstream (Data In)
 
-### Upstream (Data & Analysis Flow In)
-
-| Upstream Skill | What You Receive | Communication Trigger | Your Response |
-|---|---|---|---|
-| `quantitative-analyst` | Individual option Greeks (delta, gamma, theta, vega, vanna, charm), IV surface data, option repricing under stress scenarios, UOA (unusual options activity) alerts | **PUSH:** Greek computation complete for each position. **PUSH:** IV surface updated (significant change). **PULL:** requestRepricing — send when stress testing requires repricing at stressed levels | Greeks received → aggregate into portfolio-level Greeks (Phase 0). IV surface change → recompute vega exposure across all positions. Large UOA → check if it conflicts with existing risk profile |
-| `options-strategist` | Strategy recommendations: ticker, strategy_type, strikes, expirations, position_sizes, adjustment_triggers, max_loss, max_profit | **PUSH:** New strategy recommendation generated. **PUSH:** Adjustment recommendation for existing position. **PULL:** requestRiskCheck — strategist sends before finalizing recommendation | New strategy → compute projected portfolio Greeks with position added, margin impact [COMPUTED], and stress test impact. Adjustment → recompute portfolio Greeks post-adjustment. Flag if adjustment increases risk beyond limits |
-| `market-data-engineer` | Real-time underlying prices, options chains with bid/ask, corporate actions (splits, dividends, mergers), earnings calendars, data quality alerts | **PUSH:** Price update for held underlyings. **PUSH:** Corporate action detected. **PUSH:** Earnings date approaching. **PUSH:** Data quality degraded | Price update → recompute Greeks, check pin risk, update GEX profile. Corporate action → adjust option contract specifications, recalculate Greeks. Earnings approaching → flag event risk, recommend position reduction. Data degraded → halt new risk computations until data quality restored |
-| `portfolio-signal-manager` | Equity portfolio composition, current positions, sector exposure, correlation matrix, drawdown status | **PUSH:** Portfolio rebalance signal. **PUSH:** Drawdown alert (Phase 3 distress signals). **PULL:** requestPortfolioState when options risk needs equity context | Rebalance signal → recompute combined equity+options risk. Drawdown alert → check options positions for correlated losses, tighten stops. Portfolio state received → compute true combined exposure (equity + options notional) |
-
-### Downstream (Risk Decisions Flow Out)
-
-| Downstream Skill | What You Send | Communication Trigger | Expected Response |
-|---|---|---|---|
-| `algorithmic-trader` | Risk-validated trade instructions: close/roll orders for pin risk, hedge execution orders, margin-reduction liquidation orders | **PUSH:** Close/roll order needed (pin risk score ≥ 60). **PUSH:** Hedge adjustment trade (delta drift > limit). **PUSH:** Emergency liquidation (margin call imminent, circuit breaker triggered) | Order confirmation with fill details. Slippage report for risk model calibration. Rejection with reason for risk re-evaluation |
-| `options-strategist` | Risk constraints for strategy design: max notional per ticker, margin budget remaining, concentration limits, current Greek profile | **PUSH:** Updated risk budget after portfolio change. **PUSH:** Risk limit breached — strategist must adjust existing positions. **PULL:** strategyRiskCheck response | Strategist designs within risk constraints. Adjustment recommendation for breached limits |
-| `portfolio-signal-manager` | Combined equity+options risk: total notional exposure per ticker, combined sector concentration, options-amplified VaR/CVaR, hedge effectiveness score | **PUSH:** Options risk snapshot integrated into overall portfolio risk. **PUSH:** Hedge effectiveness report after market moves | Portfolio manager adjusts equity allocations based on options risk overlay |
-
-### Lateral (Peer Coordination)
-
-| Peer Skill | Coordination Scenario | Protocol |
+| Skill | Receives | Triggers |
 |---|---|---|
-| `options-strategist` ↔ `quantitative-analyst` (mediated by you) | Strategy design meets risk reality: strategist proposes a position, you compute the risk impact, quantitative-analyst provides the Greeks | You receive strategy → request Greeks from quantitative-analyst → compute risk → return risk assessment to strategist. If risk exceeds limits, strategist must redesign or override with justification |
-| `algorithmic-trader` | Execution quality feeds back into risk models: actual slippage vs estimated, fill probability for limit orders | Trader reports execution metrics → you update slippage models and liquidity assumptions. If actual slippage > estimated by 2×, flag risk model recalibration |
+| `quantitative-analyst` | Individual option Greeks, IV surface, UOA alerts | PUSH: Greek update, IV surface change. PULL: requestRepricing → stress testing |
+| `options-strategist` | Strategy recommendations with strikes/expirations/sizes | PUSH: New/adjustment rec. PULL: requestRiskCheck before finalizing |
+| `market-data-engineer` | Prices, chains, corporate actions, earnings, data quality | PUSH: Price/corp action/earnings/data degradation. React per Phase 7 |
+| `portfolio-signal-manager` | Equity portfolio, sector exposure, correlation matrix, drawdown | PUSH: Rebalance signal, drawdown alert. PULL: requestPortfolioState |
 
-### Escalation Path
+### Downstream (Risk Out)
+
+| Skill | Sends | Triggers |
+|---|---|---|
+| `algorithmic-trader` | Close/roll orders, hedge trades, liquidation orders | PUSH: Pin risk≥60, delta drift>limit, margin call imminent |
+| `options-strategist` | Risk constraints: max notional, margin budget, concentration limits | PUSH: Updated risk budget, limit breach |
+| `portfolio-signal-manager` | Combined equity+options risk: notional, sector, VaR/CVaR, hedge score | PUSH: Risk snapshot, hedge effectiveness report |
+
+### Escalation
 
 ```
-
-Risk event detected by options-risk-engineer
-         │
-         ▼
-    Risk severity classification
-         │
-         ├── LOW (Greek limit near threshold, minor concentration) → Log + flag in next report
-         ├── MODERATE (Pin risk score 40-59, margin utilization > 60%) → Notify portfolio-signal-manager
-         ├── HIGH (Pin risk score ≥ 60, margin call distance < 5%, event risk on >15% NAV) → 
-         │   PUSH close/roll recommendation to algorithmic-trader. Notify human.
-         └── CRITICAL (Margin call imminent, hedge failure during crash, liquidation required) →
-             EMERGENCY response: liquidate positions per pre-defined priority.
-             Notify all downstream skills. Halt all new trading.
-             Post-mortem required before resumption.
-
+LOW (near threshold) → Log + flag report
+MODERATE (pin 40-59, margin>60%) → Notify portfolio-signal-manager
+HIGH (pin≥60, margin call<5%, event risk>15% NAV) → Close/roll to algorithmic-trader. Notify human.
+CRITICAL (call imminent, hedge failure, liquidation) → Liquidate per priority. Halt trading. Post-mortem required.
 ```
 
 ### Communication Contract
 
-Every inter-skill message must include:
-
-```json
-{
-  "message_id": "uuid",
-  "source_skill": "options-risk-engineer",
-  "target_skill": "algorithmic-trader|options-strategist|portfolio-signal-manager|quantitative-analyst",
-  "message_type": "riskAlert|closeOrder|marginWarning|hedgeAdjustment|greekSnapshot",
-  "timestamp": "ISO8601",
-  "correlation_id": "references_position_id_or_event_id",
-  "payload": {
-    "risk_level": "LOW|MODERATE|HIGH|CRITICAL",
-    "risk_numbers": [
-      {"value": 84750, "unit": "USD", "description": "Net Delta", "provenance": "COMPUTED"},
-      {"value": 0.82, "unit": "probability", "description": "Assignment Risk", "provenance": "ESTIMATED", "error_bound": "±12%"}
-    ],
-    "recommended_action": "description",
-    "urgency": "immediate|today|this_week"
-  },
-  "expected_response_type": "acknowledgment|orderConfirmation|strategyAdjustment",
-  "timeout_seconds": 30
-}
-```
+Every inter-skill message: `{message_id, source_skill, target_skill, message_type, timestamp, correlation_id, payload: {risk_level, risk_numbers: [{value, unit, description, provenance}, ...], recommended_action, urgency}, expected_response_type, timeout_seconds}`
 
 ## Production Checklist
 
@@ -1352,18 +544,14 @@ Before deploying options-risk-engineer with live positions:
 
 ## What Good Looks Like
 
-<!-- STANDARD: 3min -->
-
-A world-class options risk management system:
-
-- **Every risk number is traceable to its source.** You can look at "Net Delta = +$42,500 [COMPUTED]" and trace it back: position-level deltas from quantitative-analyst, underlying prices from market-data-engineer at 14:30:15 ET, aggregation formula: Σ(delta × quantity × multiplier × price). The audit trail is complete and reproducible.
-- **You are never surprised by gamma.** The GEX profile is known at ±1%, ±2%, ±5% underlying moves. When the stock moves 3%, you already know what the portfolio delta will become — because you computed it before the move happened.
-- **Pin risk is detected before it becomes a problem.** At 7 DTE, every short option position is flagged and monitored. At 3 DTE, pin risk scores are updated hourly. Nothing within 0.5% of a short strike at 3:00 PM on expiration day survives — it gets closed, even at a small loss, because assignment is worse.
-- **Margin is a known quantity, not a surprise.** Both Reg T and Portfolio Margin are computed before any trade. The projected margin at DTE=3 is known when the trade is at DTE=30. Margin call distance is monitored continuously. You know exactly how much adverse move you can survive before a call.
-- **Hedges are tested before they're needed.** Every hedge is stress-tested in correlation→1.0 scenario. Hedge effectiveness is measured after every >3% market decline. A hedge that doesn't work is identified and reconfigured BEFORE the next decline, not during it.
-- **Stress tests use real option repricing, not approximations.** Each historical scenario reprices every position at the stressed underlying level with full Greek recalculation. The 1987 scenario shows what would actually happen, not what a linear model predicts.
-- **Liquidity risk is priced into position sizing.** No position exceeds 5% of average daily volume or 5% of open interest. Exit feasibility is confirmed before entry. An illiquid option is flagged as "effectively untradeable at size" — and the position is sized accordingly.
-- **The risk engineer can answer one question definitively:** "What is the maximum this portfolio can lose in one day, and is that acceptable?" The answer includes a dollar amount, a confidence interval, the scenario that produces it, and the recovery plan.
+- **Every risk number traceable to source:** Audit trail from position-level Greeks → portfolio aggregation → provenance tag
+- **Never surprised by gamma:** GEX profile known at ±1%/±2%/±5% moves before they happen
+- **Pin risk detected early:** 7 DTE monitoring, 3 DTE hourly updates, nothing near short strike at 3PM expiration day
+- **Margin known, not discovered:** Both Reg T and PM computed pre-trade. Projected DTE=3 margin known at DTE=30. Call distance monitored continuously
+- **Hedges tested before needed:** Every hedge stress-tested in correlation→1.0 scenario. Effectiveness measured after >3% declines
+- **Stress tests use real option repricing:** Full Greek recalculation per scenario, not linear approximations
+- **Liquidity priced into sizing:** No position >5% ADV or >5% OI. Exit feasibility confirmed before entry
+- **Maximum daily loss answerable:** "What's the max this portfolio can lose in one day?" — dollar amount, confidence interval, scenario, recovery plan
 
 ## References
 
@@ -1410,3 +598,4 @@ The following reference files are loaded on demand when deeper context is needed
 6. **Assignment Risk Backtest:** Find 20 historical instances of early assignment (dividend-capture on calls, deep-ITM puts). Would the assignment risk detection algorithm have flagged them? What was the false negative rate?
 7. **Liquidity Failure Drill:** Pick an illiquid option in your portfolio (spread >10%). Simulate needing to exit the entire position in one day. What's the estimated slippage? Could you actually exit? If not, why is the position this size?
 8. **0DTE Gamma Experience:** On an expiration Friday (paper trading only), track an ATM option in the final hour. Watch gamma explode as DTE→0. Map the delta change per $0.10 underlying move. This visceral experience teaches more than any formula.
+

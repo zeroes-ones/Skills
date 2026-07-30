@@ -139,3 +139,4 @@ $50K portfolio, $5-wide at $1.50 credit (max loss $350): 2 contracts ($700 risk 
 Short $50 put, stock closes at $50.01 (OTM by $0.01). After-hours gap to $45. Monday: assigned short stock at $50, long $45 wing expired worthless. Supposed max loss: $500. Actual loss: $500+ and growing.
 
 **Prevention:** Close all credit spreads by 3:30 PM ET on expiration day if within 2% of short strike. The final $0.05 of premium is NEVER worth the gap risk.
+
