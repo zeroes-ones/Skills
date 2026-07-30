@@ -65,12 +65,12 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
 
-| Loop | When It Fires | What Re-research Validates |
-|------|--------------|---------------------------|
-| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
-| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
-| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
-| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+| Loop | When It Fires | What Re-research Validates | TV safe zones exist because screen edges get cropped — 5% margin on all sides. |
+|------|--------------|---------------------------| Menu navigation without a focus stack loses the player — always return to last-focused element. |
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations | Bitmap fonts don't scale to 4K — SDF fonts render crisply at any resolution. |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? | Hue-shifting alone is not a colorblind mode — add shape, pattern, or text differentiation. |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? | TV safe zones exist because screen edges get cropped — 5% margin on all sides. |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? | Menu navigation without a focus stack loses the player — always return to last-focused element. |
 
 **Integration into Core Workflow:**
 
@@ -94,11 +94,11 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 ### Auto-Route
 
-| # | Condition | Action |
-|---|-----------|--------|
-| A1 | `file_contains("*.unity", "Canvas")` OR `file_contains("*.unity", "uGUI")` | Unity UI project. Jump to **Core Workflow → Phase 2 (Implementation)**. |
-| A2 | `file_exists("*.umap")` OR `file_exists("*.uasset")` | Unreal Engine project. Jump to **references/unreal-umg-patterns.md**. |
-| A3 | `file_exists("*.tscn")` AND `file_contains("*.tscn", "Control")` | Godot project. Jump to **references/godot-ui-patterns.md**. |
+| # | Condition | Action | Bitmap fonts don't scale to 4K — SDF fonts render crisply at any resolution. |
+|---|-----------|-------- Hue-shifting alone is not a colorblind mode — add shape, pattern, or text differentiation. | TV safe zones exist because screen edges get cropped — 5% margin on all sides. |
+| A1 | `file_contains("*.unity", "Canvas")` OR `file_contains("*.unity", "uGUI")` | Unity UI project. Jump to **Core Workflow → Phase 2 (Implementation)**. | Menu navigation without a focus stack loses the player — always return to last-focused element. |
+| A2 | `file_exists("*.umap")` OR `file_exists("*.uasset")` | Unreal Engine project. Jump to **references/unreal-umg-patterns.md**. | Bitmap fonts don't scale to 4K — SDF fonts render crisply at any resolution. |
+| A3 | `file_exists("*.tscn")` AND `file_contains("*.tscn", "Control")` | Godot project. Jump to **references/godot-ui-patterns.md**. | Hue-shifting alone is not a colorblind mode — add shape, pattern, or text differentiation. |
 | A4 | `file_contains("*.css", "game-ui|hud|menu")` | Web game UI. Jump to **Core Workflow → Phase 2 → Web Game UI**. |
 
 ### Intent Route
@@ -409,12 +409,12 @@ Test with all three types: **Protanopia** (red-blind), **Deuteranopia** (green-b
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| HUD cropped on some TVs | Fixed pixel layout without safe zone | Add 5% margin on all sides. Use engine's safe zone API. Test on CRT and modern TVs. |
-| Controller loses focus in nested menu | Focus manager doesn't remember parent state | Implement focus stack: push on enter, pop on back. Always return to last-focused element in parent. |
-| Text unreadable at 4K | Bitmap font at fixed size, not SDF | Switch to SDF (Signed Distance Field) fonts or Distance Field text rendering. |
-| Colorblind mode doesn't help | Only hue-shifted colors, no shape/pattern differentiation | Add icon variations, patterns, or text labels alongside color changes. Test with actual colorblind simulation tools. |
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|---------|
+| HUD cropped on some TVs | Fixed pixel layout without safe zone | Add 5% margin on all sides. Use engine's safe zone API. Test on CRT and modern TVs. | TV safe zones exist because screen edges get cropped — 5% margin on all sides. |
+| Controller loses focus in nested menu | Focus manager doesn't remember parent state | Implement focus stack: push on enter, pop on back. Always return to last-focused element in parent. | Menu navigation without a focus stack loses the player — always return to last-focused element. |
+| Text unreadable at 4K | Bitmap font at fixed size, not SDF | Switch to SDF (Signed Distance Field) fonts or Distance Field text rendering. | Bitmap fonts don't scale to 4K — SDF fonts render crisply at any resolution. |
+| Colorblind mode doesn't help | Only hue-shifted colors, no shape/pattern differentiation | Add icon variations, patterns, or text labels alongside color changes. Test with actual colorblind simulation tools. | Hue-shifting alone is not a colorblind mode — add shape, pattern, or text differentiation. |
 
 ## Best Practices
 

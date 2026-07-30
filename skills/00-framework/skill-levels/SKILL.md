@@ -564,6 +564,17 @@ Before delivering work, the agent must verify:
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+- [VERIFIED] — Confirmed against official documentation or published standards
+- [COMMON-PRACTICE] — Widely used in the industry
+- [INFERRED] — Reasonable extrapolation from general principles
+- [UNKNOWN] — Requires verification against specific context
+
 ## References
 
 Detailed reference material loaded on demand:

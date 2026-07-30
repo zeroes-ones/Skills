@@ -446,11 +446,13 @@ Team is upset. Rollback took two days because we didn't plan it."
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-1. **Phase gate failed, team wants to proceed anyway:** Escalate to engineering manager. Gates are not optional. Cost of skipping: erosion of the entire adoption framework.
-2. **Skill-generated code caused a production incident:** Rollback the phase. Post-mortem with security-reviewer present. The skill is not to blame — the phase gate was insufficient. Strengthen the gate. Cost: one to three days.
-3. **Team champion left the organization:** Pause adoption. Identify new champion. Run teach skill with new champion. Restart from current phase. Cost: one to two weeks.
-4. **Characterization tests reveal undocumented behavior:** This is expected and GOOD. Document the behavior. Consult product-manager if behavior contradicts spec. Cost: one to two days per finding.
-5. **Legacy dependency blocks Phase 3:** Dependency cannot be upgraded. Escalate to system-architect for containment strategy. Phase 3 may be deferred for that module. Cost: ongoing but contained.
+| Issue | Fix | Lesson |
+|-------|-----|--------|
+| Phase gate failed, team wants to proceed anyway | Escalate to engineering manager. Gates are not optional. Cost of skipping: erosion of the entire adoption framework. | Gates that are optional are not gates — enforce them or the adoption framework collapses |
+| Skill-generated code caused a production incident | Rollback the phase. Post-mortem with security-reviewer present. The skill is not to blame — the phase gate was insufficient. Strengthen the gate. Cost: one to three days. | A production incident is a gate failure, not a skill failure — strengthen the safety net, do not blame the tool |
+| Team champion left the organization | Pause adoption. Identify new champion. Run teach skill with new champion. Restart from current phase. Cost: one to two weeks. | Adoption depends on people, not process — plan for champion departure from day one |
+| Characterization tests reveal undocumented behavior | This is expected and GOOD. Document the behavior. Consult product-manager if behavior contradicts spec. Cost: one to two days per finding. | Surprising behavior in tests is a discovery, not a bug — undocumented systems always hold secrets |
+| Legacy dependency blocks Phase 3 | Dependency cannot be upgraded. Escalate to system-architect for containment strategy. Phase 3 may be deferred for that module. Cost: ongoing but contained. | Legacy dependencies are adoption blockers — identify them in Phase 1, not Phase 3 |
 
 ## State Log
 <!-- DEEP: 10+min -->

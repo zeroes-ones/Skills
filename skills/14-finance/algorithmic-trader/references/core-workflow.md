@@ -912,7 +912,450 @@ A live position is not passive — it requires active monitoring and pre-program
 
 5. **Signal decay tracker**: Monitor whether the original UOA signal conditions still hold. If the unusual activity was a large call buyer and those calls are now being sold (delta hedging unwound), the smart money has exited — you should too.
 
-Complete when: Trailing stop engine is active with VIX-adjusted multiplier and wick-filter guard, updating every 30 seconds. Trim execution logic is armed (T1/T2/T3 targets monitored). Time stop monitor is tracking days-held. Earnings blackout rules are active (48-hour pre-earnings check). Signal decay tracker is polling original UOA conditions. Liquidity grab detector is armed for every stop-trigger candle.
+Complete when: Trailing stop engine is active with VIX-adjusted multiplier and wick-filter guard, updating every 30 seconds. Trim execution logic is armed (T1/T2/T3 targets monitored). Rider trailing is configured: breakeven stop after T1, progressive ATR trail after T2, SAR exhaustion after T3. Pyramid conditions evaluated on pullbacks (add only when >5% gain, volume confirmed, trend intact). Average-down gate has all 13 conditions verified — default is REJECT unless thesis + technical + sizing + backtest ALL pass. Time stop monitor is tracking days-held. Earnings blackout rules are active (48-hour pre-earnings check). Signal decay tracker is polling original UOA conditions. Liquidity grab detector is armed for every stop-trigger candle.
+
+<!-- DEEP: 10+min -->
+### Advanced Position Scaling: Ride Winners, Pyramid, Average Down
+
+Position scaling separates profitable traders from breakeven ones. The trim system (T1/T2/T3) gets you out — this section handles what happens AFTER trims, when to add, and when (if ever) to average down.
+
+#### Part A: Ride Winners — Progressive Trailing After Trims
+
+After T1 trims 25% at +10%, you have 75% remaining. After T2 trims another 25% at +20%, you have 50%. The remaining position is pure profit — but exiting at a fixed T3 price (+40%) leaves money on the table if the trend persists. The solution: after T2, switch from fixed targets to a progressive trailing system.
+
+```python
+from enum import Enum
+import numpy as np
+
+class RunnerState(Enum):
+    PRE_T1 = "pre_t1"       # No trims hit yet — use fixed targets
+    POST_T1 = "post_t1"     # T1 hit, 75% remaining — stop to breakeven
+    POST_T2 = "post_t2"     # T2 hit, 50% remaining — progressive trail
+    POST_T3 = "post_t3"     # T3 approaching, 25% final runner — aggressive trail
+    EXHAUSTED = "exhausted" # Trend ending detected — close remainder
+
+# ─── ATR-based progressive trail ─────────────────────────────────
+
+def rider_trail_settings(state: RunnerState, atr: float, entry_price: float) -> dict:
+    """Return {trail_atr_mult, trail_lookback_bars, hard_exit_condition} per state."""
+    config = {
+        RunnerState.PRE_T1: {
+            'trail_atr_mult': 0.0,       # no trail yet — fixed targets only
+            'trail_lookback': 0,
+            'hard_exit': None,
+            'note': 'Using fixed T1/T2/T3 targets from Phase 2'
+        },
+        RunnerState.POST_T1: {
+            'trail_atr_mult': 1.0,       # tight trail after breakeven move
+            'trail_lookback': 5,         # 5-bar swing high
+            'hard_exit': None,
+            'note': 'Stop to breakeven. Losing on a runner is unacceptable.'
+        },
+        RunnerState.POST_T2: {
+            'trail_atr_mult': 1.5,       # wider — give the trend room
+            'trail_lookback': 10,        # 10-bar swing high
+            'hard_exit': None,
+            'note': 'Progressive trail. Let the trend work.'
+        },
+        RunnerState.POST_T3: {
+            'trail_atr_mult': 1.0,       # tight again — last 25%, protect it
+            'trail_lookback': 5,
+            'hard_exit': 'parabolic_sar_flip',  # exit on trend exhaustion
+            'note': 'FINAL RUNNER. Aggressive protection.'
+        }
+    }
+    return config.get(state, config[RunnerState.PRE_T1])
+
+# ─── Parabolic SAR exhaustion detection ──────────────────────────
+
+def compute_parabolic_sar(
+    highs: np.ndarray, lows: np.ndarray,
+    acceleration_factor: float = 0.02,
+    max_acceleration: float = 0.20
+) -> tuple[np.ndarray, np.ndarray]:
+    """Compute Parabolic SAR for trend exhaustion detection.
+    When SAR flips from below price to above, the uptrend is exhausted.
+    This is the signal to exit the final runner — no fixed price target needed."""
+
+    n = len(highs)
+    sar = np.zeros(n)
+    ep = np.zeros(n)      # extreme point
+    af = np.zeros(n)      # acceleration factor
+    trend = np.zeros(n, dtype=int)  # 1 = uptrend, -1 = downtrend
+
+    # Initialize
+    trend[0] = 1
+    sar[0] = lows[0]
+    ep[0] = highs[0]
+    af[0] = acceleration_factor
+
+    for i in range(1, n):
+        sar[i] = sar[i-1] + af[i-1] * (ep[i-1] - sar[i-1])
+        af[i] = af[i-1]
+        ep[i] = ep[i-1]
+
+        if trend[i-1] == 1:  # Uptrend
+            # SAR must be below the two prior lows
+            sar[i] = min(sar[i], lows[i-1], lows[i-2] if i >= 2 else lows[i-1])
+
+            if highs[i] > ep[i-1]:
+                ep[i] = highs[i]
+                af[i] = min(af[i-1] + acceleration_factor, max_acceleration)
+
+            # Flip to downtrend if price closes below SAR
+            if lows[i] < sar[i]:
+                trend[i] = -1
+                sar[i] = ep[i]
+                ep[i] = lows[i]
+                af[i] = acceleration_factor
+            else:
+                trend[i] = 1
+
+        else:  # Downtrend (but we only care about uptrend exhaustion for long runners)
+            sar[i] = max(sar[i], highs[i-1], highs[i-2] if i >= 2 else highs[i-1])
+
+            if lows[i] < ep[i-1]:
+                ep[i] = lows[i]
+                af[i] = min(af[i-1] + acceleration_factor, max_acceleration)
+
+            # Flip back to uptrend
+            if highs[i] > sar[i]:
+                trend[i] = 1
+                sar[i] = ep[i]
+                ep[i] = highs[i]
+                af[i] = acceleration_factor
+            else:
+                trend[i] = -1
+
+    return sar, trend
+
+def sar_exhaustion_signal(prices: np.ndarray, highs: np.ndarray, lows: np.ndarray) -> dict:
+    """Check if uptrend is exhausting via SAR flip + volume divergence."""
+    sar, trend = compute_parabolic_sar(highs, lows)
+
+    # SAR flip: trend went from 1 to -1 in last 3 bars
+    recent = trend[-3:]
+    flipped = 1 in recent and -1 in recent and recent[-1] == -1
+
+    # Volume divergence: price making new highs but volume declining
+    if len(prices) >= 10:
+        recent_vol = np.diff(prices[-5:])  # price changes
+        vol_declining = (abs(recent_vol[-1]) < abs(recent_vol[-3]) * 0.7)
+    else:
+        vol_declining = False
+
+    # RSI divergence: price higher high, RSI lower high
+    rsi_divergence = False  # compute RSI separately — simplified here
+
+    exhaustion = flipped or (vol_declining and prices[-1] >= max(prices[-5:-1]))
+
+    return {
+        'sar_flipped': flipped,
+        'volume_divergence': vol_declining,
+        'rsi_divergence': rsi_divergence,
+        'exhausted': exhaustion,
+        'action': 'EXIT_RUNNER' if exhaustion else 'HOLD'
+    }
+
+# ─── Ride-winners state machine ──────────────────────────────────
+
+def ride_winners_update(
+    position_entry: float,
+    position_size: float,
+    remaining_size: float,
+    current_price: float,
+    atr: float,
+    highs: np.ndarray,
+    lows: np.ndarray
+) -> dict:
+    """Called every bar after each trim executes. Determines runner state and action."""
+
+    gain_pct = (current_price - position_entry) / position_entry * 100
+    state = RunnerState.PRE_T1
+
+    if gain_pct >= 40:
+        state = RunnerState.POST_T3
+    elif gain_pct >= 20:
+        state = RunnerState.POST_T2
+    elif gain_pct >= 10:
+        state = RunnerState.POST_T1
+
+    trail = rider_trail_settings(state, atr, position_entry)
+
+    # Compute trailing stop level
+    if state == RunnerState.PRE_T1:
+        trail_stop = None  # use fixed targets
+    elif state == RunnerState.POST_T1:
+        trail_stop = position_entry  # breakeven — no excuses
+    else:
+        # Progressive trail: highest high of lookback minus ATR multiplier
+        lookback = trail['trail_lookback']
+        highest = max(highs[-lookback:])
+        trail_stop = highest - (trail['trail_atr_mult'] * atr)
+
+    # If POST_T3, check SAR exhaustion
+    action = 'HOLD'
+    if state == RunnerState.POST_T3:
+        sar_check = sar_exhaustion_signal(
+            np.array([current_price]), highs, lows
+        )
+        if sar_check['exhausted']:
+            action = 'EXIT_RUNNER'
+        elif current_price <= trail_stop:
+            action = 'EXIT_TRAIL'
+    elif trail_stop and current_price <= trail_stop:
+        action = 'EXIT_TRAIL'
+
+    return {
+        'state': state.value,
+        'gain_pct': round(gain_pct, 2),
+        'remaining_pct': round(remaining_size / position_size * 100, 1),
+        'trail_stop': round(trail_stop, 2) if trail_stop else None,
+        'action': action,
+        'note': trail['note']
+    }
+```
+
+**Ride-winners rule**: Once T1 is hit, the stop moves to breakeven — a runner that becomes a loser is unacceptable. Once T2 is hit, stop trailing becomes progressive (ATR-based from swing highs). Once T3 (+40%) approaches, the remaining 25% is a free runner — exit only on SAR exhaustion, never on a fixed price. A trend that runs to +100% should not be exited at +40%.
+
+#### Part B: Pyramid Scale-In — Adding to Confirmed Winners
+
+Adding to a position that's already profitable — with the right sizing — amplifies returns without proportional risk increase. This is the opposite of averaging down.
+
+```python
+@dataclass
+class PyramidCheck:
+    """Gates for adding to a winning position."""
+    # Entry conditions
+    gain_from_entry: float        # current gain % since initial entry
+    volume_confirmation: bool     # add-bar volume > 20-day avg
+    pullback_to_support: bool     # price pulled back to 10-EMA or VWAP
+    trend_intact: bool            # 20-SMA still above 50-SMA
+    no_resistance_nearby: bool    # no major resistance within 2%
+
+    # Sizing
+    current_position_pct: float   # % of NAV currently in this position
+    add_size: float               # proposed add as % of initial position
+    blended_stop: float           # new stop after add (must be tighter)
+    total_position_pct: float     # after add — must not exceed 10% NAV
+
+    @property
+    def can_add(self) -> bool:
+        return all([
+            self.gain_from_entry >= 5.0,       # must be >5% profitable already
+            self.volume_confirmation,           # volume backing the move
+            self.pullback_to_support,           # not chasing — buying the dip
+            self.trend_intact,                  # trend structure intact
+            self.no_resistance_nearby,          # no ceiling 2% away
+            self.total_position_pct <= 10.0,    # NAV cap
+        ])
+
+def evaluate_pyramid_add(
+    position: dict,
+    current_price: float,
+    atr: float,
+    highs_20: np.ndarray,
+    lows_20: np.ndarray,
+    volume_20: np.ndarray,
+    nav: float
+) -> PyramidCheck:
+    """Check if conditions are right to add to a winner."""
+
+    gain = (current_price - position['entry']) / position['entry'] * 100
+
+    # Volume: add-bar volume > 20-day average
+    vol_avg = volume_20.mean()
+    vol_ok = volume_20[-1] > vol_avg
+
+    # Pullback: price within 1 ATR of 10-EMA (buying the dip, not the top)
+    ema_10 = np.mean(highs_20[-10:])  # simplified EMA
+    pullback = abs(current_price - ema_10) < (1.0 * atr)
+
+    # Trend: 20-SMA > 50-SMA
+    sma_20 = highs_20[-20:].mean()
+    sma_50 = highs_20[-50:].mean() if len(highs_20) >= 50 else sma_20 - 1
+    trend_ok = sma_20 > sma_50
+
+    # Resistance: no prior swing high within 2% above
+    swing_high = max(highs_20[-20:])
+    resistance_free = (swing_high - current_price) / current_price > 0.02
+
+    # Sizing: add is 1/2 the initial position size
+    add_size = position['size'] * 0.5
+
+    # Blended stop: compute new average entry and new stop
+    blended_entry = (
+        (position['size'] * position['entry']) + (add_size * current_price)
+    ) / (position['size'] + add_size)
+
+    new_stop, audit = compute_stop_loss(
+        blended_entry, atr,
+        swing_low=min(lows_20[-20:]),
+        round_number_step=0.50,
+        vix=position.get('vix_at_entry', 20),
+        vwap_band_low=current_price - (2 * atr)
+    )
+
+    total_pct = ((position['size'] + add_size) * current_price) / nav * 100
+
+    return PyramidCheck(
+        gain_from_entry=round(gain, 1),
+        volume_confirmation=vol_ok,
+        pullback_to_support=pullback,
+        trend_intact=trend_ok,
+        no_resistance_nearby=resistance_free,
+        current_position_pct=round(position['size'] * current_price / nav * 100, 1),
+        add_size=round(add_size / position['size'] * 100, 1),
+        blended_stop=round(new_stop, 2),
+        total_position_pct=round(total_pct, 1)
+    )
+```
+
+**Pyramid rules**: Add only once per position. Add only when the position is already a winner (>5% gain). Add on a pullback to support, NOT at all-time highs. Each add is 1/2 the original position size. After the add, the stop moves up — blended entry + 2 ATR below. Total position never exceeds 10% NAV.
+
+#### Part C: Strategic Averaging Down — The Narrow Window Where It's Valid
+
+Averaging down kills accounts when done reflexively. But there IS a mathematically valid window — when the original thesis is intact, the price has reached a stronger support level, and volume confirms accumulation rather than distribution.
+
+```python
+@dataclass
+class AverageDownGate:
+    """ALL gates must pass. Averaging down is a privilege, not a reflex."""
+    # Thesis gates
+    original_thesis_intact: bool     # NO fundamental deterioration
+    not_a_gap_down: bool             # gradual decline, not a crash
+    above_200_sma: bool              # structural trend still intact
+
+    # Technical gates
+    at_major_support: bool           # at prior swing low, VWAP band, or 200-SMA
+    volume_expanding: bool           # add-bar volume > 1.5x 20-day avg — accumulation
+    bullish_divergence: bool         # RSI higher low vs price lower low
+    not_near_macro_event: bool       # no FOMC/CPI/NFP within 24h
+
+    # Sizing gates
+    max_one_add: bool                # only one average-down per position
+    add_smaller_than_original: bool  # add ≤ 50% of original position
+    total_risk_within_budget: bool   # (orig+add) risk still ≤ 2% of NAV
+    layered_stop_valid: bool         # blended stop is above VWAP band low
+
+    # Paper trading gate
+    backtested_in_regime: bool       # this exact scenario tested in backtest
+    win_rate_confirmed: bool         # averaging down improved outcomes in backtest
+
+    @property
+    def can_average_down(self) -> bool:
+        return all([
+            self.original_thesis_intact,
+            self.not_a_gap_down,
+            self.above_200_sma,
+            self.at_major_support,
+            self.volume_expanding,
+            self.bullish_divergence,
+            self.not_near_macro_event,
+            self.max_one_add,
+            self.add_smaller_than_original,
+            self.total_risk_within_budget,
+            self.layered_stop_valid,
+            self.backtested_in_regime,
+            self.win_rate_confirmed,
+        ])
+
+def evaluate_average_down(
+    position: dict,
+    current_price: float,
+    atr: float,
+    prices: np.ndarray,
+    volumes: np.ndarray,
+    highs: np.ndarray,
+    lows: np.ndarray,
+    rsi: np.ndarray,
+    vix: float,
+    nav: float
+) -> AverageDownGate:
+    """The ONLY conditions under which averaging down is permitted."""
+
+    entry = position['entry']
+    size = position['size']
+    loss_pct = (current_price - entry) / entry * 100
+
+    # Thesis: check if there's been fundamental deterioration
+    # (in practice, check news sentiment, earnings revisions, insider selling)
+    thesis_intact = position.get('fundamental_deterioration', False) == False
+
+    # Gap down: >5% gap on open = algo caught in structural move, not noise
+    gap_check = abs((prices[-1] - prices[-2]) / prices[-2]) < 0.05 if len(prices) >= 2 else True
+
+    # Above 200-SMA: if broken, the trend structure is damaged
+    sma_200 = prices[-200:].mean() if len(prices) >= 200 else prices[0] - 1
+    above_200 = current_price > sma_200
+
+    # Major support: prior swing low or VWAP -2σ band
+    swing_low_50 = min(lows[-50:]) if len(lows) >= 50 else lows[-1]
+    vwap_2sigma = prices[-20:].mean() - (2 * prices[-20:].std())
+    at_support = (abs(current_price - swing_low_50) < 0.5 * atr or
+                  abs(current_price - vwap_2sigma) < 0.5 * atr)
+
+    # Volume: accumulation signal — expanding volume on the down day
+    vol_avg = volumes[-20:].mean()
+    vol_expanding = volumes[-1] > (1.5 * vol_avg)
+
+    # Bullish divergence: RSI making higher low while price makes lower low
+    rsi_now = rsi[-1]
+    rsi_5ago = rsi[-5]
+    price_now = prices[-1]
+    price_5ago = prices[-5]
+    divergence = (price_now < price_5ago) and (rsi_now > rsi_5ago)
+
+    # Macro gate
+    hours_to_macro = position.get('hours_to_macro', 999)
+    macro_clear = hours_to_macro > 24
+
+    # Sizing: add ≤ 50% of original
+    add_size = size * 0.5
+    total_size = size + add_size
+
+    # Blended entry
+    blended_entry = (size * entry + add_size * current_price) / total_size
+
+    # New stop: compute from blended entry
+    new_stop, audit = compute_stop_loss(
+        blended_entry, atr,
+        swing_low=swing_low_50,
+        round_number_step=0.50,
+        vix=vix,
+        vwap_band_low=vwap_2sigma
+    )
+
+    # Risk check: total loss at new stop ≤ 2% NAV
+    risk_per_share = blended_entry - new_stop
+    total_risk_dollars = risk_per_share * total_size
+    risk_pct_nav = (total_risk_dollars / nav) * 100
+
+    return AverageDownGate(
+        original_thesis_intact=thesis_intact,
+        not_a_gap_down=gap_check,
+        above_200_sma=above_200,
+        at_major_support=at_support,
+        volume_expanding=vol_expanding,
+        bullish_divergence=divergence,
+        not_near_macro_event=macro_clear,
+        max_one_add=not position.get('already_averaged_down', False),
+        add_smaller_than_original=add_size <= size,
+        total_risk_within_budget=risk_pct_nav <= 2.0,
+        layered_stop_valid=len(audit.get('warnings', [])) == 0,
+        backtested_in_regime=position.get('backtested_avg_down', False),
+        win_rate_confirmed=position.get('avg_down_win_rate', 0) > 0.50
+    )
+```
+
+**Average-down gate**: All 13 conditions must pass. A single failure = no add. If the trade goes to stop-loss after averaging down, the position is liquidated entirely — no second chance. The maximum loss is pre-calculated and capped at 2% of NAV.
+
+**Anti-patterns blocked**:
+- "It's down 20%, must be cheap" → rejected (thesis must be intact, at support, volume expanding)
+- "I'll average down then it only needs to recover half" → rejected (add ≤ 50% of original, only once)
+- "The stock is fundamentally sound" → insufficient alone (needs technical confirmation, macro clearance, backtest evidence)
+- Averaging down into a gap down → rejected (structural break, not noise)
+- Averaging down without backtest evidence → rejected (paper trade this pattern first)
 
 <!-- DEEP: 10+min -->
 ### Phase 5 (~15 min): Exit Execution & Risk Monitoring

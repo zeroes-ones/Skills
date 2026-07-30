@@ -488,12 +488,12 @@ Surface these WITHOUT being asked:
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| `hig_checker.py` reports contrast pass but manual review fails | Checked against flat background, but element sits on photo/gradient | Re-run with the busiest region's background color. Add Reduce Transparency mode check. |
-| Design looks great in Light Mode, broken in Dark Mode | Using hardcoded colors instead of semantic colors | Replace all hex `#xxxxxx` with `.systemBackground`, `.label`, `.secondaryLabel`. |
-| Dynamic Type works at default size but clips at largest | Fixed-height containers without `scaledMetric` | Use `.scaledMetric` for padding/insets. Allow text to wrap or truncate gracefully. |
-| Liquid Glass surface is unreadable over photos | Translucency combines with photo noise | Increase material blur, darken the glass, or fall back to opaque surface for that region. |
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| `hig_checker.py` reports contrast pass but manual review fails | Checked against flat background, but element sits on photo/gradient | Re-run with the busiest region's background color. Add Reduce Transparency mode check. | Automated checks cannot account for real-world compositing — always verify contrast against actual use-case backgrounds |
+| Design looks great in Light Mode, broken in Dark Mode | Using hardcoded colors instead of semantic colors | Replace all hex `#xxxxxx` with `.systemBackground`, `.label`, `.secondaryLabel`. | Semantic colors are the only correct approach — hardcoded hex values always break in at least one appearance mode |
+| Dynamic Type works at default size but clips at largest | Fixed-height containers without `scaledMetric` | Use `.scaledMetric` for padding/insets. Allow text to wrap or truncate gracefully. | Accessibility is not optional — test every Dynamic Type step or silently exclude users with visual impairments |
+| Liquid Glass surface is unreadable over photos | Translucency combines with photo noise | Increase material blur, darken the glass, or fall back to opaque surface for that region. | Visual effects degrade over complex backgrounds — test all material styles against real content, not empty canvases |
 
 ## State Log
 <!-- DEEP: 10+min -->

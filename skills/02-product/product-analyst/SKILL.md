@@ -34,6 +34,9 @@ chain:
 ---
 # Product Analyst
 
+> **Quality Standards:** This skill follows the [SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md) framework for consistent quality, research rigor, and structured decision-making.
+
+
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Drive product decisions with data. Covers metric definition, experiment design, cohort analysis, retention modeling, funnel optimization, user segmentation, and product analytics instrumentation.
@@ -510,7 +513,7 @@ NO  → Check error             + user interviews
 | "Funnel shows 50% drop at step 3 but no clue why" | Quantitative funnel tells you WHERE, not WHY. | Add qualitative: session recordings (Hotjar, FullStory), user interviews, exit surveys at funnel step. | Funnels + recordings + interviews = complete picture. Funnels alone = half the answer. |
 | "Dashboard shows metrics but nobody looks at it" | Dashboard measures activity, not outcomes. | Redesign: every tile answers "should we do X?" Add annotations (launches, incidents). Weekly review ritual. | Dashboards without decisions are decoration. Kill or redesign them quarterly. |
 
-## Error Recovery
+## Error Decoder
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 

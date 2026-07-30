@@ -347,6 +347,17 @@ For a strategy with 3+ years of daily returns: overlay returns on 2008, 2020, an
 ### Exercise 5: Benchmark Selection Challenge (10 min)
 A global macro strategy trades equities, bonds, currencies, and commodities. What's the right benchmark? Compare: 60/40 portfolio, risk-parity index, hedge fund index (HFRX Global Macro), or custom composite. How much does benchmark choice change the alpha estimate?
 
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+- [VERIFIED] — Confirmed against official documentation or published standards
+- [COMMON-PRACTICE] — Widely used in the industry
+- [INFERRED] — Reasonable extrapolation from general principles
+- [UNKNOWN] — Requires verification against specific context
+
 ## References
 
 * [performance-metrics-reference.md](references/performance-metrics-reference.md) — Complete formula reference: Sharpe, Sortino, Calmar, MAR, Omega, Treynor, Information Ratio

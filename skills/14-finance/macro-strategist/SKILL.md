@@ -376,6 +376,17 @@ Plot SPY/TLT, Cu/Au, and HYG/TLT over the last 90 days. Are they all pointing in
 ### Exercise 5: Scenario Stress Test (20 min)
 Build a 3-scenario macro outlook (baseline 60%, upside 20%, downside 20%). For each, define the GDP path, inflation path, and Fed path. What's the equity market impact in each? What's the single best hedge for your downside scenario?
 
+## Anti-Hallucination
+<!-- STANDARD: 3min -->
+
+* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+- [VERIFIED] — Confirmed against official documentation or published standards
+- [COMMON-PRACTICE] — Widely used in the industry
+- [INFERRED] — Reasonable extrapolation from general principles
+- [UNKNOWN] — Requires verification against specific context
+
 ## References
 
 * [macro-regime-classification.md](references/macro-regime-classification.md) — Growth-inflation 2x2 matrix methodology, leading/concurrent/lagging indicator taxonomy

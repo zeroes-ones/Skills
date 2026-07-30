@@ -1,0 +1,584 @@
+====================================================================================================
+  SKILL.md COMPREHENSIVE QUALITY AUDIT REPORT
+  Generated: 2026-07-30T16:24:28.654620
+  Total skills audited: 233
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+  SECTION 1: DOMAIN-LEVEL SUMMARY
+----------------------------------------------------------------------------------------------------
+
+Domain                    | Count | YAML Frontmatter     | Route the Request/Qu | Ground Rules         | When to Use / NOT to | Decision Tree        | Core Workflow / Impl | Error Decoder        | Anti-Hallucination   | Best Practices       | Production Checklist | Verification / Verif | Cross-Skill Coordina | What Good Looks Like | References           | Scale Depth / Solo/T
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+00-framework              | 5     | 5/5 (100%)           | 1/5 (20%)            | 2/5 (40%)            | 0/5 (0%)             | 2/5 (40%)            | 2/5 (40%)            | 3/5 (60%)            | 5/5 (100%)           | 0/5 (0%)             | 1/5 (20%)            | 0/5 (0%)             | 3/5 (60%)            | 5/5 (100%)           | 5/5 (100%)           | 2/5 (40%)           
+01-strategy               | 6     | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 5/6 (83%)            | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)          
+02-product                | 6     | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)          
+03-design                 | 8     | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)          
+04-architecture           | 11    | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)        
+05-development            | 24    | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 20/24 (83%)          | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)         | 24/24 (100%)        
+06-quality                | 10    | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)        
+07-devops                 | 17    | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 16/17 (94%)          | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)         | 17/17 (100%)        
+08-security               | 11    | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)         | 11/11 (100%)        
+09-data                   | 8     | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)           | 8/8 (100%)          
+10-growth                 | 7     | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)          
+11-legal                  | 3     | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)          
+12-operations             | 9     | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)           | 9/9 (100%)          
+13-specialized            | 14    | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)         | 14/14 (100%)        
+14-finance                | 18    | 18/18 (100%)         | 15/18 (83%)          | 15/18 (83%)          | 14/18 (78%)          | 15/18 (83%)          | 11/18 (61%)          | 14/18 (78%)          | 18/18 (100%)         | 9/18 (50%)           | 7/18 (39%)           | 7/18 (39%)           | 13/18 (72%)          | 13/18 (72%)          | 17/18 (94%)          | 14/18 (78%)         
+15-sales                  | 6     | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)          
+16-people                 | 6     | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)           | 6/6 (100%)          
+17-customer-success       | 2     | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)          
+18-corporate-finance      | 3     | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)          
+19-governance             | 2     | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)           | 2/2 (100%)          
+20-hardware               | 4     | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)          
+21-health-clinical        | 10    | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 5/10 (50%)           | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)         | 10/10 (100%)        
+22-ai-engineering         | 12    | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)         | 12/12 (100%)        
+23-trust-safety           | 7     | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)          
+24-creative               | 5     | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)          
+25-engineering-leadership | 4     | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)           | 4/4 (100%)          
+26-web3                   | 3     | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 0/3 (0%)             | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)           | 3/3 (100%)          
+27-creator-finance        | 5     | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 3/5 (60%)            | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)           | 5/5 (100%)          
+28-social-impact          | 7     | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 4/7 (57%)            | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)           | 7/7 (100%)          
+
+----------------------------------------------------------------------------------------------------
+  SECTION 2: OVERALL SECTION COMPLIANCE
+----------------------------------------------------------------------------------------------------
+
+Section                              Present  Total      %
+------------------------------------------------------------
+YAML Frontmatter                         233    233  100.0%  ####################
+Route the Request/Query                  226    233   97.0%  ###################
+Ground Rules                             227    233   97.4%  ###################
+When to Use / NOT to Use                 224    233   96.1%  ###################
+Decision Tree                            227    233   97.4%  ###################
+Core Workflow / Implementation           223    233   95.7%  ###################
+Error Decoder                            227    233   97.4%  ###################
+Anti-Hallucination                       233    233  100.0%  ####################
+Best Practices                           214    233   91.8%  ##################
+Production Checklist                     218    233   93.6%  ##################
+Verification / Verify                    203    233   87.1%  #################
+Cross-Skill Coordination                 226    233   97.0%  ###################
+What Good Looks Like                     228    233   97.9%  ###################
+References                               232    233   99.6%  ###################
+Scale Depth / Solo/Team/Org              226    233   97.0%  ###################
+
+----------------------------------------------------------------------------------------------------
+  SECTION 3: ERROR DECODER QUALITY
+----------------------------------------------------------------------------------------------------
+
+  Error Decoder present:     227/233 (97.4%)
+    With Lesson column (4-col): 94/227 (41.4% of present)
+    3-column (no Lesson):       9/227 (4.0% of present)
+    Numbered list:              0/227 (0.0% of present)
+    Missing entirely:           6/233 (2.6%)
+
+----------------------------------------------------------------------------------------------------
+  SECTION 4: GROUND RULES QUALITY
+----------------------------------------------------------------------------------------------------
+
+  Ground Rules present:       227/233 (97.4%)
+  With Mechanical Triggers:   217/227 (95.6% of present)
+  Mentions Negative Constraint: 214/227 (94.3% of present)
+
+----------------------------------------------------------------------------------------------------
+  SECTION 5: ANTI-HALLUCINATION
+----------------------------------------------------------------------------------------------------
+
+  Anti-Hallucination section present: 233/233 (100.0%)
+  [VERIFIED] markers:          233/233 (100.0%)
+  [COMMON-PRACTICE] markers:   205/233 (88.0%)
+  [INFERRED] markers:          205/233 (88.0%)
+  [UNKNOWN] markers:           207/233 (88.8%)
+
+----------------------------------------------------------------------------------------------------
+  SECTION 6: TIME ESTIMATE MARKERS
+----------------------------------------------------------------------------------------------------
+
+  QUICK: 30s:        230/233 (98.7%)
+  STANDARD: 3min:    220/233 (94.4%)
+  DEEP: 10+min:      213/233 (91.4%)
+
+----------------------------------------------------------------------------------------------------
+  SECTION 7: PROGRESSIVE DISCLOSURE (HTML Comments)
+----------------------------------------------------------------------------------------------------
+
+  <!-- QUICK: --> comment:    230/233 (98.7%)
+  <!-- STANDARD: --> comment:  229/233 (98.3%)
+  <!-- DEEP: --> comment:      227/233 (97.4%)
+
+====================================================================================================
+  SECTION 8: OVERALL TEMPLATE ADHERENCE SCORES
+====================================================================================================
+
+  Overall average template adherence: 96.3%
+  Maximum possible sections per skill: 15
+
+  Score Distribution:
+       0-20%:    0 skills 
+      20-40%:    2 skills #
+      40-60%:    4 skills ##
+      60-80%:    8 skills ####
+      80-90%:    3 skills #
+      90-95%:   23 skills ###########
+         95%:    0 skills 
+
+====================================================================================================
+  SECTION 9: GAP ITEMS RANKED BY SEVERITY
+====================================================================================================
+
+  # Section                              Missing  % Missing
+------------------------------------------------------------
+  1 Verification / Verify                     30      12.9%  ####
+  2 Best Practices                            19       8.2%  ##
+  3 Production Checklist                      15       6.4%  ##
+  4 Core Workflow / Implementation            10       4.3%  #
+  5 When to Use / NOT to Use                   9       3.9%  #
+  6 Scale Depth / Solo/Team/Org                7       3.0%  #
+  7 Route the Request/Query                    7       3.0%  #
+  8 Cross-Skill Coordination                   7       3.0%  #
+  9 Ground Rules                               6       2.6%  #
+ 10 Error Decoder                              6       2.6%  #
+ 11 Decision Tree                              6       2.6%  #
+ 12 What Good Looks Like                       5       2.1%  #
+ 13 References                                 1       0.4%  #
+ 14 YAML Frontmatter                           0       0.0%
+ 15 Anti-Hallucination                         0       0.0%
+
+----------------------------------------------------------------------------------------------------
+  BOTTOM 20 SKILLS (lowest adherence)
+----------------------------------------------------------------------------------------------------
+
+  [ 26.7%] 00-framework/agent-persona-orchestrator
+         MISSING: Route the Request/Query
+         MISSING: Ground Rules
+         MISSING: When to Use / NOT to Use
+         MISSING: Decision Tree
+         MISSING: Core Workflow / Implementation
+         MISSING: Error Decoder
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+         MISSING: Cross-Skill Coordination
+         MISSING: Scale Depth / Solo/Team/Org
+
+  [ 33.3%] 00-framework/using-agent-skills
+         MISSING: Route the Request/Query
+         MISSING: Ground Rules
+         MISSING: When to Use / NOT to Use
+         MISSING: Decision Tree
+         MISSING: Core Workflow / Implementation
+         MISSING: Error Decoder
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+         MISSING: Cross-Skill Coordination
+
+  [ 40.0%] 00-framework/skill-levels
+         MISSING: Route the Request/Query
+         MISSING: Ground Rules
+         MISSING: When to Use / NOT to Use
+         MISSING: Decision Tree
+         MISSING: Core Workflow / Implementation
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+         MISSING: Scale Depth / Solo/Team/Org
+
+  [ 40.0%] 14-finance/crypto-trader
+         MISSING: Route the Request/Query
+         MISSING: Ground Rules
+         MISSING: When to Use / NOT to Use
+         MISSING: Decision Tree
+         MISSING: Core Workflow / Implementation
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+         MISSING: Scale Depth / Solo/Team/Org
+
+  [ 40.0%] 14-finance/macro-strategist
+         MISSING: Route the Request/Query
+         MISSING: Ground Rules
+         MISSING: When to Use / NOT to Use
+         MISSING: Decision Tree
+         MISSING: Core Workflow / Implementation
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+         MISSING: Scale Depth / Solo/Team/Org
+
+  [ 40.0%] 14-finance/trade-performance-analyst
+         MISSING: Route the Request/Query
+         MISSING: Ground Rules
+         MISSING: When to Use / NOT to Use
+         MISSING: Decision Tree
+         MISSING: Core Workflow / Implementation
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+         MISSING: Scale Depth / Solo/Team/Org
+
+  [ 60.0%] 14-finance/algorithmic-trader
+         MISSING: Core Workflow / Implementation
+         MISSING: Error Decoder
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Cross-Skill Coordination
+         MISSING: What Good Looks Like
+
+  [ 60.0%] 14-finance/market-data-engineer
+         MISSING: Core Workflow / Implementation
+         MISSING: Error Decoder
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Cross-Skill Coordination
+         MISSING: What Good Looks Like
+
+  [ 60.0%] 14-finance/quantitative-analyst
+         MISSING: Core Workflow / Implementation
+         MISSING: Error Decoder
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Cross-Skill Coordination
+         MISSING: What Good Looks Like
+
+  [ 66.7%] 00-framework/writing-great-skills
+         MISSING: Route the Request/Query
+         MISSING: When to Use / NOT to Use
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+
+  [ 66.7%] 14-finance/commodities-analyst
+         MISSING: When to Use / NOT to Use
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+         MISSING: Scale Depth / Solo/Team/Org
+
+  [ 66.7%] 14-finance/home-buying
+         MISSING: Error Decoder
+         MISSING: Best Practices
+         MISSING: Production Checklist
+         MISSING: Cross-Skill Coordination
+         MISSING: What Good Looks Like
+
+  [ 66.7%] 14-finance/options-strategist
+         MISSING: Core Workflow / Implementation
+         MISSING: Best Practices
+         MISSING: Cross-Skill Coordination
+         MISSING: What Good Looks Like
+         MISSING: References
+
+  [ 73.3%] 00-framework/cross-skill-communication
+         MISSING: When to Use / NOT to Use
+         MISSING: Best Practices
+         MISSING: Verification / Verify
+         MISSING: Scale Depth / Solo/Team/Org
+
+  [ 86.7%] 14-finance/fixed-income-analyst
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+
+  [ 86.7%] 14-finance/forex-trader
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+
+  [ 86.7%] 14-finance/futures-trader
+         MISSING: Production Checklist
+         MISSING: Verification / Verify
+
+  [ 93.3%] 01-strategy/roi-gate
+         MISSING: Verification / Verify
+
+  [ 93.3%] 05-development/educational-game-developer
+         MISSING: Verification / Verify
+
+  [ 93.3%] 05-development/gameplay-programmer
+         MISSING: Verification / Verify
+
+====================================================================================================
+  SECTION 10: FILES MISSING CRITICAL SECTIONS
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+  10a. MISSING Anti-Hallucination section
+----------------------------------------------------------------------------------------------------
+
+      (none — all skills pass)
+      Total: 0 skills
+
+----------------------------------------------------------------------------------------------------
+  10b. Error Decoder WITHOUT Lesson column (should be 4-column table)
+----------------------------------------------------------------------------------------------------
+
+      01-strategy/business-strategist  [4-col table (no Lesson)]
+      01-strategy/ceo-strategist  [4-col table (no Lesson)]
+      01-strategy/cto-advisor  [4-col table (no Lesson)]
+      01-strategy/product-strategist  [4-col table (no Lesson)]
+      03-design/accessibility-auditor  [4-col table (no Lesson)]
+      03-design/brand-guidelines  [4-col table (no Lesson)]
+      03-design/ui-ux-designer  [4-col table (no Lesson)]
+      04-architecture/api-designer  [4-col table (no Lesson)]
+      04-architecture/codebase-design  [4-col table (no Lesson)]
+      04-architecture/database-designer  [4-col table (no Lesson)]
+      04-architecture/desktop-architecture-patterns  [4-col table (no Lesson)]
+      04-architecture/event-driven-architect  [4-col table (no Lesson)]
+      04-architecture/mobile-architecture-patterns  [4-col table (no Lesson)]
+      04-architecture/networking-engineer  [4-col table (no Lesson)]
+      04-architecture/polyrepo-strategy  [4-col table (no Lesson)]
+      04-architecture/secure-api-design  [4-col table (no Lesson)]
+      04-architecture/system-architect  [4-col table (no Lesson)]
+      05-development/android-developer  [4-col table (no Lesson)]
+      05-development/backend-developer  [4-col table (no Lesson)]
+      05-development/blockchain-developer  [4-col table (no Lesson)]
+      05-development/casual-game-developer  [4-col table (no Lesson)]
+      05-development/desktop-developer  [4-col table (no Lesson)]
+      05-development/domain-modeling  [4-col table (no Lesson)]
+      05-development/frontend-developer  [4-col table (no Lesson)]
+      05-development/fullstack-developer  [4-col table (no Lesson)]
+      05-development/game-developer  [4-col table (no Lesson)]
+      05-development/game-networking-developer  [4-col table (no Lesson)]
+      05-development/gameplay-programmer  [4-col table (no Lesson)]
+      05-development/graphql-engineer  [4-col table (no Lesson)]
+      05-development/ios-developer  [4-col table (no Lesson)]
+      05-development/localization-engineer  [4-col table (no Lesson)]
+      05-development/macos-developer  [4-col table (no Lesson)]
+      05-development/mobile-developer  [4-col table (no Lesson)]
+      05-development/mock-data-sync  [4-col table (no Lesson)]
+      05-development/prototype  [4-col table (no Lesson)]
+      05-development/source-driven-development  [4-col table (no Lesson)]
+      05-development/translation-manager  [4-col table (no Lesson)]
+      05-development/website-builder  [unknown format]
+      06-quality/accessibility-testing  [4-col table (no Lesson)]
+      06-quality/api-test-suite-builder  [4-col table (no Lesson)]
+      06-quality/browser-testing-with-devtools  [4-col table (no Lesson)]
+      06-quality/code-reviewer  [4-col table (no Lesson)]
+      06-quality/code-simplification  [4-col table (no Lesson)]
+      06-quality/debugging-and-error-recovery  [4-col table (no Lesson)]
+      06-quality/qa-engineer  [4-col table (no Lesson)]
+      06-quality/security-reviewer  [4-col table (no Lesson)]
+      06-quality/tdd-guide  [4-col table (no Lesson)]
+      06-quality/verification-before-completion  [4-col table (no Lesson)]
+      07-devops/merge-conflict-resolver  [4-col table (no Lesson)]
+      09-data/ab-testing-specialist  [4-col table (no Lesson)]
+      09-data/analytics-engineer  [4-col table (no Lesson)]
+      09-data/data-engineer  [4-col table (no Lesson)]
+      09-data/data-scientist  [4-col table (no Lesson)]
+      09-data/data-visualization-engineer  [4-col table (no Lesson)]
+      09-data/database-reliability-engineer  [4-col table (no Lesson)]
+      09-data/ml-ai-engineer  [4-col table (no Lesson)]
+      10-growth/devrel-advocate  [4-col table (no Lesson)]
+      10-growth/growth-engineer  [4-col table (no Lesson)]
+      10-growth/seo-specialist  [4-col table (no Lesson)]
+      11-legal/gdpr-privacy  [4-col table (no Lesson)]
+      11-legal/legal-advisor  [4-col table (no Lesson)]
+      11-legal/regulatory-specialist  [4-col table (no Lesson)]
+      12-operations/handoff  [4-col table (no Lesson)]
+      12-operations/teach  [4-col table (no Lesson)]
+      12-operations/wayfinder  [4-col table (no Lesson)]
+      13-specialized/agent-handoff-protocol  [4-col table (no Lesson)]
+      13-specialized/cross-agent-skills-packaging  [4-col table (no Lesson)]
+      13-specialized/documentation-engineer  [4-col table (no Lesson)]
+      13-specialized/dynamic-skill-creator  [3-col table]
+      13-specialized/explore-tools  [unknown format]
+      13-specialized/multi-agent-orchestration  [4-col table (no Lesson)]
+      13-specialized/multirepo-designer  [4-col table (no Lesson)]
+      13-specialized/performance-engineer  [4-col table (no Lesson)]
+      14-finance/financial-security  [4-col table (no Lesson)]
+      14-finance/fundamental-analyst  [3-col table]
+      14-finance/futures-trader  [3-col table]
+      14-finance/options-risk-engineer  [3-col table]
+      14-finance/options-strategist  [4-col table (no Lesson)]
+      14-finance/personal-finance  [4-col table (no Lesson)]
+      14-finance/portfolio-signal-manager  [3-col table]
+      14-finance/technical-signals-engineer  [3-col table]
+      15-sales/bizdev-manager  [4-col table (no Lesson)]
+      15-sales/demand-generation  [4-col table (no Lesson)]
+      15-sales/marketing-manager  [4-col table (no Lesson)]
+      15-sales/revops-manager  [4-col table (no Lesson)]
+      15-sales/sales-engineer  [4-col table (no Lesson)]
+      16-people/hr-manager  [4-col table (no Lesson)]
+      16-people/interview-coach  [4-col table (no Lesson)]
+      16-people/job-search-strategist  [4-col table (no Lesson)]
+      16-people/people-ops  [4-col table (no Lesson)]
+      16-people/recruiting  [4-col table (no Lesson)]
+      16-people/resume-writer  [4-col table (no Lesson)]
+      17-customer-success/account-manager  [4-col table (no Lesson)]
+      17-customer-success/customer-success-manager  [4-col table (no Lesson)]
+      18-corporate-finance/accountant  [4-col table (no Lesson)]
+      18-corporate-finance/fp-and-a-analyst  [4-col table (no Lesson)]
+      18-corporate-finance/treasury-manager  [4-col table (no Lesson)]
+      19-governance/board-manager  [4-col table (no Lesson)]
+      19-governance/investor-relations  [4-col table (no Lesson)]
+      20-hardware/embedded-engineer  [4-col table (no Lesson)]
+      20-hardware/firmware-developer  [4-col table (no Lesson)]
+      20-hardware/game-engine-architect  [4-col table (no Lesson)]
+      20-hardware/hardware-architect  [4-col table (no Lesson)]
+      21-health-clinical/clinical-informatics-specialist  [4-col table (no Lesson)]
+      21-health-clinical/community-operations-manager  [4-col table (no Lesson)]
+      21-health-clinical/crisis-response-manager  [4-col table (no Lesson)]
+      21-health-clinical/medical-content-reviewer  [4-col table (no Lesson)]
+      21-health-clinical/patient-experience-researcher  [4-col table (no Lesson)]
+      21-health-clinical/patient-health-educator  [4-col table (no Lesson)]
+      22-ai-engineering/ai-engineer  [4-col table (no Lesson)]
+      22-ai-engineering/ai-safety-engineer  [4-col table (no Lesson)]
+      22-ai-engineering/ai-security  [4-col table (no Lesson)]
+      22-ai-engineering/context-engineering  [4-col table (no Lesson)]
+      22-ai-engineering/llm-engineer  [4-col table (no Lesson)]
+      22-ai-engineering/mlops-engineer  [4-col table (no Lesson)]
+      23-trust-safety/content-policy-manager  [4-col table (no Lesson)]
+      23-trust-safety/data-security  [4-col table (no Lesson)]
+      23-trust-safety/privacy-engineer  [4-col table (no Lesson)]
+      24-creative/email-composer  [4-col table (no Lesson)]
+      24-creative/medical-illustrator  [4-col table (no Lesson)]
+      24-creative/presentation-designer  [4-col table (no Lesson)]
+      24-creative/product-marketing-manager  [4-col table (no Lesson)]
+      24-creative/ux-writer  [4-col table (no Lesson)]
+      25-engineering-leadership/director-engineering  [4-col table (no Lesson)]
+      25-engineering-leadership/engineering-manager  [4-col table (no Lesson)]
+      25-engineering-leadership/staff-engineer  [4-col table (no Lesson)]
+      25-engineering-leadership/vp-engineering  [4-col table (no Lesson)]
+      26-web3/cryptographic-engineer  [4-col table (no Lesson)]
+      26-web3/smart-contract-auditor  [4-col table (no Lesson)]
+      26-web3/zkp-engineer  [4-col table (no Lesson)]
+      28-social-impact/community-organizing-tech  [4-col table (no Lesson)]
+      28-social-impact/education-access-developer  [unknown format]
+      28-social-impact/environmental-tech-developer  [3-col table]
+      Total: 133 skills
+
+----------------------------------------------------------------------------------------------------
+  10c. MISSING Error Decoder entirely
+----------------------------------------------------------------------------------------------------
+
+      00-framework/agent-persona-orchestrator
+      00-framework/using-agent-skills
+      14-finance/algorithmic-trader
+      14-finance/home-buying
+      14-finance/market-data-engineer
+      14-finance/quantitative-analyst
+      Total: 6 skills
+
+----------------------------------------------------------------------------------------------------
+  10d. Ground Rules WITHOUT Mechanical Triggers table
+----------------------------------------------------------------------------------------------------
+
+      04-architecture/desktop-architecture-patterns
+      04-architecture/feature-flag-architect
+      04-architecture/mobile-architecture-patterns
+      05-development/game-networking-developer
+      13-specialized/multi-agent-orchestration
+      22-ai-engineering/mcp-management
+      23-trust-safety/applying-llm-guardrails
+      26-web3/cryptographic-engineer
+      26-web3/smart-contract-auditor
+      26-web3/zkp-engineer
+      Total: 10 skills
+
+----------------------------------------------------------------------------------------------------
+  10e. MISSING Production Checklist section
+----------------------------------------------------------------------------------------------------
+
+      00-framework/agent-persona-orchestrator
+      00-framework/skill-levels
+      00-framework/using-agent-skills
+      00-framework/writing-great-skills
+      14-finance/algorithmic-trader
+      14-finance/commodities-analyst
+      14-finance/crypto-trader
+      14-finance/fixed-income-analyst
+      14-finance/forex-trader
+      14-finance/futures-trader
+      14-finance/home-buying
+      14-finance/macro-strategist
+      14-finance/market-data-engineer
+      14-finance/quantitative-analyst
+      14-finance/trade-performance-analyst
+      Total: 15 skills
+
+----------------------------------------------------------------------------------------------------
+  10f. MISSING Verification / Verify section
+----------------------------------------------------------------------------------------------------
+
+      00-framework/agent-persona-orchestrator
+      00-framework/cross-skill-communication
+      00-framework/skill-levels
+      00-framework/using-agent-skills
+      00-framework/writing-great-skills
+      01-strategy/roi-gate
+      05-development/educational-game-developer
+      05-development/gameplay-programmer
+      05-development/mock-data-sync
+      05-development/personal-productivity-developer
+      07-devops/automation-engineer
+      14-finance/commodities-analyst
+      14-finance/crypto-trader
+      14-finance/fixed-income-analyst
+      14-finance/forex-trader
+      14-finance/fundamental-analyst
+      14-finance/futures-trader
+      14-finance/macro-strategist
+      14-finance/options-risk-engineer
+      14-finance/portfolio-signal-manager
+      14-finance/technical-signals-engineer
+      14-finance/trade-performance-analyst
+      26-web3/cryptographic-engineer
+      26-web3/smart-contract-auditor
+      26-web3/zkp-engineer
+      27-creator-finance/fintech-app-developer
+      27-creator-finance/saas-monetization-strategist
+      28-social-impact/access-tech-developer
+      28-social-impact/civic-tech-developer
+      28-social-impact/education-access-developer
+      Total: 30 skills
+
+----------------------------------------------------------------------------------------------------
+  10g. MISSING Cross-Skill Coordination section
+----------------------------------------------------------------------------------------------------
+
+      00-framework/agent-persona-orchestrator
+      00-framework/using-agent-skills
+      14-finance/algorithmic-trader
+      14-finance/home-buying
+      14-finance/market-data-engineer
+      14-finance/options-strategist
+      14-finance/quantitative-analyst
+      Total: 7 skills
+
+----------------------------------------------------------------------------------------------------
+  10h. MISSING What Good Looks Like section
+----------------------------------------------------------------------------------------------------
+
+      14-finance/algorithmic-trader
+      14-finance/home-buying
+      14-finance/market-data-engineer
+      14-finance/options-strategist
+      14-finance/quantitative-analyst
+      Total: 5 skills
+
+----------------------------------------------------------------------------------------------------
+  10i. MISSING Scale Depth section
+----------------------------------------------------------------------------------------------------
+
+      00-framework/agent-persona-orchestrator
+      00-framework/cross-skill-communication
+      00-framework/skill-levels
+      14-finance/commodities-analyst
+      14-finance/crypto-trader
+      14-finance/macro-strategist
+      14-finance/trade-performance-analyst
+      Total: 7 skills
+
+====================================================================================================
+  QUICK STATS SUMMARY
+====================================================================================================
+
+  Skills with 100% section compliance:   193/233
+  Skills with >=90% compliance:          216/233
+  Skills with 70-89% compliance:         4/233
+  Skills with <70% compliance:           13/233
+
+  Overall score:                         96.3%
+
+====================================================================================================
+  END OF AUDIT REPORT
+====================================================================================================

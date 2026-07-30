@@ -1014,13 +1014,13 @@ Do NOT activate for:
 <!-- STANDARD: 3min -->
 **(STANDARD)**
 
-| Symptom | First Action | If That Fails | Last Resort |
-|---------|-------------|---------------|-------------|
-| Tool/command not found | `which [tool]`. Install via package manager | Check PATH. Symlink if needed | Use functionally equivalent alternative |
-| Offline sync failing | Check Service Worker registration and cache storage. Verify IndexedDB quota | Implement simpler sync strategy (last-write-wins instead of CRDT) | Switch to manual sync trigger with clear user feedback |
-| Content not rendering on low-end device | Test on actual target device (not emulator). Profile memory and CPU | Reduce bundle size. Remove heavy dependencies. Use progressive enhancement | Build separate lightweight version for low-end devices |
-| SMS/USSD integration failing | Check gateway status. Verify short code/keyword registration | Test with different carrier. Implement retry with exponential backoff | Fall back to voice/IVR if SMS is unreliable in target region |
-| Community adoption low despite working tech | Conduct field interviews. Understand actual barriers (literacy, device sharing, data costs) | Co-design with community members. Integrate into existing workflows, don't create new ones | Pivot approach based on field research — technology is only one part of the solution |
+| Symptom | First Action | If That Fails | Last Resort | Lesson |
+|---------|-------------|---------------|-------------|--------|
+| Tool/command not found | `which [tool]`. Install via package manager | Check PATH. Symlink if needed | Use functionally equivalent alternative | A missing tool in your workflow costs time you cannot afford — automate tool setup as part of project initialization |
+| Offline sync failing | Check Service Worker registration and cache storage. Verify IndexedDB quota | Implement simpler sync strategy (last-write-wins instead of CRDT) | Switch to manual sync trigger with clear user feedback | Offline-first requires thorough testing — intermittent connectivity can silently corrupt user data |
+| Content not rendering on low-end device | Test on actual target device (not emulator). Profile memory and CPU | Reduce bundle size. Remove heavy dependencies. Use progressive enhancement | Build separate lightweight version for low-end devices | Emulators lie — test on actual low-end devices or you miss the user experience gap entirely |
+| SMS/USSD integration failing | Check gateway status. Verify short code/keyword registration | Test with different carrier. Implement retry with exponential backoff | Fall back to voice/IVR if SMS is unreliable in target region | SMS infrastructure is unreliable — always design a fallback channel for critical communications |
+| Community adoption low despite working tech | Conduct field interviews. Understand actual barriers (literacy, device sharing, data costs) | Co-design with community members. Integrate into existing workflows, don't create new ones | Pivot approach based on field research — technology is only one part of the solution | Technology adoption problems are rarely technical — understand human context before building another feature |
 
 **Hard failure boundary:** If 3 approaches fail, STOP. In education access work, deploying broken technology can harm trust with communities that already distrust technology. Escalate and involve community partners.
 

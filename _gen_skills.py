@@ -10,7 +10,7 @@ Usage:
   python3 _gen_skills.py event-driven-architect  # generate one
 """
 
-import os, sys
+import os, sys, re
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,6 +37,71 @@ def extract_body(filepath):
     if len(parts) >= 3:
         return parts[2].lstrip("\n")
     return ""
+
+
+def format_skill_name(name):
+    """Convert kebab-case to Title Case for display (e.g., 'event-driven-architect' -> 'Event-Driven Architect')."""
+    return name.replace('-', ' ').title()
+
+
+def transform_body(body, name):
+    """Transform body from old template format to 10/10 template format.
+
+    Transformations:
+      1. ## Error Recovery  ->  ## Error Decoder
+      2. 3-column Symptom|Root Cause|Fix tables -> 4-column with | Lesson |
+      3. Insert SKILL-QUALITY-STANDARDS.md reference at top of body
+      4. Ensure body starts with ``# {name}`` title line
+    """
+    # 4. Ensure body starts with # {name} title line (do this first so #3 can
+    #    find the title)
+    if not re.match(r"^\s*# ", body):
+        display = format_skill_name(name)
+        body = f"# {display}\n\n{body}"
+
+    # 1. Rename "## Error Recovery" -> "## Error Decoder"
+    body = body.replace("## Error Recovery", "## Error Decoder")
+
+    # 2. Add | Lesson | column to 3-column Symptom|Root Cause|Fix tables
+    def _add_lesson_column(m):
+        hdr = m.group(1).rstrip("|").strip()
+        sep = m.group(2).rstrip("|").strip()
+        rows = m.group(3).rstrip()
+        new_hdr = f"{hdr} | Lesson |"
+        new_sep = f"{sep} | --- |"
+        new_rows = []
+        for ln in rows.split("\n"):
+            st = ln.strip()
+            if st:
+                st = st.rstrip("|").strip()
+                new_rows.append(f"{st} | |")
+            else:
+                new_rows.append(st)
+        return f"{new_hdr}\n{new_sep}\n" + "\n".join(new_rows) + "\n"
+
+    table_re = (
+        r"(\|?\s*Symptom\s*\|\s*Root Cause\s*\|\s*Fix\s*\|?)\s*\n"
+        r"(\|?\s*:?-+:?\s*\|\s*:?-+:?\s*\|\s*:?-+:?\s*\|?)\s*\n"
+        r"((?:\|?[^|\n]*\|[^|\n]*\|[^|\n]*\|?\s*\n?)+)"
+    )
+    body = re.sub(table_re, _add_lesson_column, body, flags=re.MULTILINE | re.IGNORECASE)
+
+    # 3. Insert SKILL-QUALITY-STANDARDS.md reference after the title line
+    quality_ref = (
+        "> **Quality Standards:** This skill follows the "
+        "[SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md) "
+        "framework for consistent quality, research rigor, and "
+        "structured decision-making.\n\n"
+    )
+    body = re.sub(
+        r"^(# .+?\n)",
+        r"\1\n" + quality_ref,
+        body,
+        count=1,
+        flags=re.MULTILINE,
+    )
+
+    return body
 
 
 def build_frontmatter(fm):
@@ -127,7 +192,9 @@ def generate(skill_id, skill_def):
     os.makedirs(out_dir, exist_ok=True)
 
     body = extract_body(skill_def["body_source"])
-    if not body:
+    if body:
+        body = transform_body(body, skill_def["fm"]["name"])
+    else:
         body = "\n# SKILL.md body not found - source file missing.\n"
 
     fm = build_frontmatter(skill_def["fm"])

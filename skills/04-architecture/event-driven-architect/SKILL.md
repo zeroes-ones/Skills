@@ -36,6 +36,9 @@ chain:
 ---
 # Event-Driven Architect
 
+> **Quality Standards:** This skill follows the [SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md) framework for consistent quality, research rigor, and structured decision-making.
+
+
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design event-driven systems that decouple producers from consumers. Covers broker selection, event schema design, delivery guarantees, idempotency patterns, event sourcing, CQRS, and debugging distributed consistency problems.
@@ -465,7 +468,7 @@ else:
 9. **Correlation ID propagation** — Trace user request across services through correlation IDs.
 10. **Time-bound consistency** — Define p95 staleness. <200ms = users won't notice. >5s = they will.
 
-## Error Recovery
+## Error Decoder
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 

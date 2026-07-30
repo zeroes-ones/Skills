@@ -69,12 +69,12 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
 
-| Loop | When It Fires | What Re-research Validates |
-|------|--------------|---------------------------|
-| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
-| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
-| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
-| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+| Loop | When It Fires | What Re-research Validates | Fee transparency must come BEFORE confirmation — lost trust never fully returns. |
+|------|--------------|---------------------------| Color is a decoration, not a signal — always pair it with shape, text, and icons. |
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations | Never format money with floating-point math — integer cents prevent display errors. |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? | Real-time data that freezes under load is worse than delayed data — throttle, don't frame-drop. |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? | Fee transparency must come BEFORE confirmation — lost trust never fully returns. |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? | Color is a decoration, not a signal — always pair it with shape, text, and icons. |
 
 **Integration into Core Workflow:**
 
@@ -98,8 +98,8 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 ### Auto-Route
 
-| # | Condition | Action |
-|---|-----------|--------|
+| # | Condition | Action | Never format money with floating-point math — integer cents prevent display errors. |
+|---|-----------|-------- Real-time data that freezes under load is worse than delayed data — throttle, don't frame-drop. |
 | A1 | `file_contains("*.tsx", "candlestick|orderbook|tradingview")` | Trading platform detected. Jump to **Trading Interfaces**. |
 | A2 | `file_contains("*.css", "dashboard")` AND `file_contains("*.tsx", "balance|transaction|account")` | Banking dashboard. Jump to **Core Workflow → Banking UX**. |
 | A3 | `file_exists("*.csv")` AND `file_contains("*.csv", "price|volume|ticker")` | Financial data feed. Jump to **Data Display Patterns**. |
@@ -404,12 +404,12 @@ Buy AAPL — Apple Inc.
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| Users complain about "hidden fees" | Fee breakdown only shown after confirmation, not before | Move fee disclosure BEFORE the confirm button. Show line items. Never use "estimated total" without itemization. |
-| Colorblind users can't tell if they're up or down | Red/green-only gain/loss indicators | Add +/− signs, up/down arrows, and percentage text. Test with colorblind simulators. |
-| Prices showing as "$0.000000" | Floating-point precision error in display | Format all currency to 2 decimal places. Use integer cents internally, format for display. |
-| Real-time chart freezes during volatility | Too many re-renders per second | Throttle updates to 100ms batches. Drop intermediate ticks; show final price for each batch. |
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|---------|
+| Users complain about "hidden fees" | Fee breakdown only shown after confirmation, not before | Move fee disclosure BEFORE the confirm button. Show line items. Never use "estimated total" without itemization. | Fee transparency must come BEFORE confirmation — lost trust never fully returns. |
+| Colorblind users can't tell if they're up or down | Red/green-only gain/loss indicators | Add +/− signs, up/down arrows, and percentage text. Test with colorblind simulators. | Color is a decoration, not a signal — always pair it with shape, text, and icons. |
+| Prices showing as "$0.000000" | Floating-point precision error in display | Format all currency to 2 decimal places. Use integer cents internally, format for display. | Never format money with floating-point math — integer cents prevent display errors. |
+| Real-time chart freezes during volatility | Too many re-renders per second | Throttle updates to 100ms batches. Drop intermediate ticks; show final price for each batch. | Real-time data that freezes under load is worse than delayed data — throttle, don't frame-drop. |
 
 ## Best Practices
 

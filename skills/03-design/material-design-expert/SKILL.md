@@ -53,13 +53,13 @@ Design and audit apps against [Material Design 3](https://m3.material.io) — Go
 
 Before producing any design output, execute this mandatory research step:
 
-| Step | Action | Why |
-|------|--------|-----|
-| 1 | Identify target Android API level and form factor | Different API levels have different MD3 component availability |
-| 2 | Run `web_fetch("https://m3.material.io/components")` for the latest component catalog | New components may exist, old ones may be deprecated |
-| 3 | Check `web_fetch("https://developer.android.com/design/ui/mobile")` for Android-specific design guidance | Google splits MD3 (general) from Android-specific implementation |
-| 4 | If using Dynamic Color, check `web_fetch("https://m3.material.io/styles/color/dynamic-color")` | Dynamic Color behavior changes with Android version |
-| 5 | If targeting Wear OS/TV/Auto, fetch the platform-specific guidelines | Each platform has its own evolving design spec |
+| Step | Action | Why | Theoretical contrast checks against flat colors mislead — always test on real composited backgrounds. |
+|------|--------|-----| Custom-drawn UI elements break under manufacturer overrides — system components survive theming. |
+| 1 | Identify target Android API level and form factor | Different API levels have different MD3 component availability | A single layout at 360dp breaks on tablets — design for all three window size classes upfront. |
+| 2 | Run `web_fetch("https://m3.material.io/components")` for the latest component catalog | New components may exist, old ones may be deprecated | Full Dynamic Color without brand overrides makes your app unrecognizable — override primary. |
+| 3 | Check `web_fetch("https://developer.android.com/design/ui/mobile")` for Android-specific design guidance | Google splits MD3 (general) from Android-specific implementation | Visual layout and accessibility traversal order are independent — set explicit semantics. |
+| 4 | If using Dynamic Color, check `web_fetch("https://m3.material.io/styles/color/dynamic-color")` | Dynamic Color behavior changes with Android version | Predictive back without a registered callback leaves a blank screen — register on view creation. |
+| 5 | If targeting Wear OS/TV/Auto, fetch the platform-specific guidelines | Each platform has its own evolving design spec | Theoretical contrast checks against flat colors mislead — always test on real composited backgrounds. |
 
 **If research fails** (no network, timeouts): flag output with `[TRAINING-DATA]` on every claim, explicitly state: "These guidelines may be outdated. Verify against m3.material.io before implementing."
 
@@ -98,11 +98,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
 
-| Loop | When It Fires | What Re-research Validates |
-|------|--------------|---------------------------|
-| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
-| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
-| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
+| Loop | When It Fires | What Re-research Validates | Custom-drawn UI elements break under manufacturer overrides — system components survive theming. |
+|------|--------------|--------------------------- A single layout at 360dp breaks on tablets — design for all three window size classes upfront. |
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations | Full Dynamic Color without brand overrides makes your app unrecognizable — override primary. |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? | Visual layout and accessibility traversal order are independent — set explicit semantics. |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? | Predictive back without a registered callback leaves a blank screen — register on view creation. |
 | **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
 
 **Integration into Core Workflow:**
@@ -542,14 +542,14 @@ Surface these WITHOUT being asked:
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| `md3_checker.py` contrast passes but manual review on device fails | Checked against flat `surface` color, but actual background is a gradient or image | Use MD3 tokens on their designated surfaces. Custom color pairs must be tested on the actual composited background. |
-| Design looks correct on Pixel, broken on Samsung | Samsung One UI overrides shape, font, and color | Use system components (`MaterialTheme`) — they survive manufacturer transformation. Avoid custom-drawn elements that bypass the theme engine. |
-| Layout breaks on tablet — single column stretched to 10 inches | Missing window size class handling | Add `WindowWidthSizeClass` checks. Use canonical layouts (List-Detail, Supporting Pane) for Medium/Expanded classes. |
-| Dynamic Color makes brand colors unrecognizable | Full adoption of Dynamic Color without brand color override | Override `primary` role with brand color. Keep Dynamic Color for containers and surfaces. |
-| TalkBack reads content in wrong order | Compose layout order ≠ semantic order | Use `Modifier.semantics { isTraversalGroup = true }` and explicit `contentDescription` ordering. |
-| Predictive back shows blank screen | App intercepts back without implementing `OnBackInvokedCallback` | Implement `OnBackInvokedDispatcher` with destination preview. Register the callback during `onViewCreated`. |
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|---------|
+| `md3_checker.py` contrast passes but manual review on device fails | Checked against flat `surface` color, but actual background is a gradient or image | Use MD3 tokens on their designated surfaces. Custom color pairs must be tested on the actual composited background. | Theoretical contrast checks against flat colors mislead — always test on real composited backgrounds. |
+| Design looks correct on Pixel, broken on Samsung | Samsung One UI overrides shape, font, and color | Use system components (`MaterialTheme`) — they survive manufacturer transformation. Avoid custom-drawn elements that bypass the theme engine. | Custom-drawn UI elements break under manufacturer overrides — system components survive theming. |
+| Layout breaks on tablet — single column stretched to 10 inches | Missing window size class handling | Add `WindowWidthSizeClass` checks. Use canonical layouts (List-Detail, Supporting Pane) for Medium/Expanded classes. | A single layout at 360dp breaks on tablets — design for all three window size classes upfront. |
+| Dynamic Color makes brand colors unrecognizable | Full adoption of Dynamic Color without brand color override | Override `primary` role with brand color. Keep Dynamic Color for containers and surfaces. | Full Dynamic Color without brand overrides makes your app unrecognizable — override primary. |
+| TalkBack reads content in wrong order | Compose layout order ≠ semantic order | Use `Modifier.semantics { isTraversalGroup = true }` and explicit `contentDescription` ordering. | Visual layout and accessibility traversal order are independent — set explicit semantics. |
+| Predictive back shows blank screen | App intercepts back without implementing `OnBackInvokedCallback` | Implement `OnBackInvokedDispatcher` with destination preview. Register the callback during `onViewCreated`. | Predictive back without a registered callback leaves a blank screen — register on view creation. |
 
 ## State Log
 <!-- DEEP: 10+min -->

@@ -426,12 +426,12 @@ For FDA-regulated medical devices (Class II/III) and SaMD (Software as a Medical
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| Clinicians ignore all alerts | Undifferentiated alerts — every alert looks equally urgent | Implement 3-tier severity: Critical (red, action required), Warning (amber, aware), Info (blue, reference). Reduce total alert volume by 60%. |
-| Patients don't understand discharge instructions | Content written at medical professional reading level | Rewrite at 6th-grade level. Add teach-back confirmation: "Tell us in your own words what you'll do when you get home." |
-| Wrong medication administered | Drug name confusion (look-alike/sound-alike) | Implement Tall Man lettering. Show drug images. Require barcode scanning confirmation. |
-| PHI exposed on unattended screen | No auto-logout or too-long timeout | 15-minute idle timeout with visible countdown. Auto-logout at 0. Watermark with user identity. |
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Clinicians ignore all alerts | Undifferentiated alerts — every alert looks equally urgent | Implement 3-tier severity: Critical (red, action required), Warning (amber, aware), Info (blue, reference). Reduce total alert volume by 60%. | Alert fatigue is a design failure — undifferentiated alerts train clinicians to ignore everything |
+| Patients don't understand discharge instructions | Content written at medical professional reading level | Rewrite at 6th-grade level. Add teach-back confirmation: "Tell us in your own words what you'll do when you get home." | Health literacy is the designer's responsibility — if a patient cannot act on information, the design has failed |
+| Wrong medication administered | Drug name confusion (look-alike/sound-alike) | Implement Tall Man lettering. Show drug images. Require barcode scanning confirmation. | Medication errors are system design failures — build safeguards at every interaction point, do not rely on vigilance |
+| PHI exposed on unattended screen | No auto-logout or too-long timeout | 15-minute idle timeout with visible countdown. Auto-logout at 0. Watermark with user identity. | Unattended screens are a foreseeable risk — session security must be automatic, not discretionary |
 
 ## Best Practices
 

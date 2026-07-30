@@ -80,12 +80,12 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
 
-| Loop | When It Fires | What Re-research Validates |
-|------|--------------|---------------------------|
-| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations |
-| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? |
-| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? |
-| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? |
+| Loop | When It Fires | What Re-research Validates | Default to safe/old behavior — plan for SDK failure, don't hope for uptime. |
+|------|--------------|---------------------------| A kill switch you don't test on every commit is a kill switch that doesn't work. |
+| **Loop 0: Pre-Action** | Before producing ANY output, code, strategy, or recommendation | Domain currency, codebase audit, source verification, failure modes, quantified impact, side effects, quality gates, limitations | Cache staleness is the silent killer of mobile flags — default safe for max staleness. |
+| **Loop 1: Mid-Action** | At every adjustment, phase transition, scale-out, or significant state change | Has the context changed? Are the original assumptions still valid? Has new information invalidated the Loop 0 conclusions? | Flag targeting is only as good as its input data — stale attributes cause segment bleed. |
+| **Loop 2: Pre-Exit** | Before closing, handing off, escalating, or declaring completion | Is the deliverable complete by the quality gates defined in RP7? Are all limitations declared (RP8)? Have failure modes been addressed (RP4)? | Manual flag changes in staging inevitably drift from prod — treat flag config as code. |
+| **Loop 3: Post-Action** | After completion: compare expected vs. actual outcome | What was the efficiency ratio (actual / theoretical max)? What learnings emerged? What should be fed back into the pattern database for future decisions? | Default to safe/old behavior — plan for SDK failure, don't hope for uptime. |
 
 **Integration into Core Workflow:**
 
@@ -359,11 +359,11 @@ expired flags       flags weekly       branches
 
 Before deploying or delivering work from this skill, verify:
 
-| # | Check | Verify |
-|---|-------|--------|
+| # | Check | Verify | A kill switch you don't test on every commit is a kill switch that doesn't work. |
+|---|-------|-------- Cache staleness is the silent killer of mobile flags — default safe for max staleness. |
 | ☐ | Every flag has both ON and OFF code paths tested independently: at least one test per path per flag; both paths covered before flag reaches staging | `grep -c "flag.*=.*true\|flag.*=.*false"` in test files confirms every flag name appears in both ON and OFF test scenarios |
-| ☐ | Kill switch verified in staging: toggling flag OFF restores old code path within target latency SLA with zero errors in logs | Toggle flag OFF while monitoring production-like traffic in staging → old path activates within SLA; error rate remains at baseline |
-| ☐ | Default flag values safe for all failure modes: SDK unreachable, uninitialized SDK, or SDK returning error — app continues without crash | Simulate SDK outage by blocking flag evaluation endpoint → verify app operates with documented defaults; no feature gates on unavailable flags |
+| ☐ | Kill switch verified in staging: toggling flag OFF restores old code path within target latency SLA with zero errors in logs | Toggle flag OFF while monitoring production-like traffic in staging → old path activates within SLA; error rate remains at baseline | Flag targeting is only as good as its input data — stale attributes cause segment bleed. |
+| ☐ | Default flag values safe for all failure modes: SDK unreachable, uninitialized SDK, or SDK returning error — app continues without crash | Simulate SDK outage by blocking flag evaluation endpoint → verify app operates with documented defaults; no feature gates on unavailable flags | Manual flag changes in staging inevitably drift from prod — treat flag config as code. |
 | ☐ | Flag removal ticket created at flag creation: linked to flag registration, assigned to owner, hard deadline ≤60 days post-100% rollout | Verify ticket exists in issue tracker; CI fails if flag at 100% >30 days with open removal ticket (per Ground Rule G4 enforcement) |
 | ☐ | Every flag evaluation logged with all required fields: flag_name, evaluation_result, evaluation_reason, correlation_id, evaluation_latency_ms | Inspect structured logs from a flag evaluation call; all 5 fields present, populated, and queryable in log aggregation system |
 | ☐ | Flag context verified PII-free: zero email, phone, token, SSN, credit_card, full_name, or date_of_birth in any flag context attribute | Scan/grep flag evaluation codebase → context attributes are only opaque identifiers (user_id, session_id) and server-side derived attributes |
@@ -478,13 +478,13 @@ A feature flag system that meets this standard: (1) Every flag has an owner, rem
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| Feature flag SDK returns 5xx — all flag evaluations fail, app uses defaults | SDK outage or network partition between app and flag service | Verify circuit breaker on SDK client. Check: what is the default when SDK is unreachable? It must be the safe/old behavior. Implement: non-blocking evaluation with timeout (100ms), cached last-known-good state, alert on >1% evaluation failure rate |
-| Flag at 100% for 6 months — old code path deleted, kill switch no-ops | Flag removal process didn't verify both paths still exist before declaring flag "done." Dead code elimination removed the fallback | CI gate: before flag removal, test that both states still work. If old code path has been deleted, flag removal is an emergency — re-implement the old path or accept that kill switch is permanently broken |
-| Mobile app shows wrong feature state for 12 hours after flag change | Firebase Remote Config default cache is 12 hours. Flag change propagated on server but mobile clients won't fetch for 12 more hours | Set minimum fetch interval based on flag criticality: release toggles = 1 hour, kill switches = real-time (force fetch on app foreground). Implement in-app force refresh mechanism. Default values must be safe for maximum staleness window |
-| Flag evaluation returns wrong user segment — enterprise features shown to free users | User attributes used in targeting rules are stale or incorrect. Segment membership computed from cached data | Verify user attribute freshness: when was `user.plan`, `user.team_size`, `user.features` last updated? Implement attribute refresh on login and app foreground. Add debug endpoint: `/debug/flags?user_id=X` shows what flags evaluate to and why |
-| Staging and production have different flag configs — feature works in staging, broken in prod | Flag config not deployed atomically with application code. Staging was manually toggled for testing and never reset | Flag config as code in same repo and deployment pipeline. CI gate: compare staging vs production flag config before deploy — any non-rollout differences fail the deploy. Use flag environment synchronization tooling |
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|---------|
+| Feature flag SDK returns 5xx — all flag evaluations fail, app uses defaults | SDK outage or network partition between app and flag service | Verify circuit breaker on SDK client. Check: what is the default when SDK is unreachable? It must be the safe/old behavior. Implement: non-blocking evaluation with timeout (100ms), cached last-known-good state, alert on >1% evaluation failure rate | Default to safe/old behavior — plan for SDK failure, don't hope for uptime. |
+| Flag at 100% for 6 months — old code path deleted, kill switch no-ops | Flag removal process didn't verify both paths still exist before declaring flag "done." Dead code elimination removed the fallback | CI gate: before flag removal, test that both states still work. If old code path has been deleted, flag removal is an emergency — re-implement the old path or accept that kill switch is permanently broken | A kill switch you don't test on every commit is a kill switch that doesn't work. |
+| Mobile app shows wrong feature state for 12 hours after flag change | Firebase Remote Config default cache is 12 hours. Flag change propagated on server but mobile clients won't fetch for 12 more hours | Set minimum fetch interval based on flag criticality: release toggles = 1 hour, kill switches = real-time (force fetch on app foreground). Implement in-app force refresh mechanism. Default values must be safe for maximum staleness window | Cache staleness is the silent killer of mobile flags — default safe for max staleness. |
+| Flag evaluation returns wrong user segment — enterprise features shown to free users | User attributes used in targeting rules are stale or incorrect. Segment membership computed from cached data | Verify user attribute freshness: when was `user.plan`, `user.team_size`, `user.features` last updated? Implement attribute refresh on login and app foreground. Add debug endpoint: `/debug/flags?user_id=X` shows what flags evaluate to and why | Flag targeting is only as good as its input data — stale attributes cause segment bleed. |
+| Staging and production have different flag configs — feature works in staging, broken in prod | Flag config not deployed atomically with application code. Staging was manually toggled for testing and never reset | Flag config as code in same repo and deployment pipeline. CI gate: compare staging vs production flag config before deploy — any non-rollout differences fail the deploy. Use flag environment synchronization tooling | Manual flag changes in staging inevitably drift from prod — treat flag config as code. |
 
 ## Gotchas
 <!-- DEEP: 10+min -->

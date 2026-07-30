@@ -402,11 +402,13 @@ Before deploying or delivering work from this skill, verify:
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
-1. **Flag accidentally ON for all users:** Flip OFF in config — no deploy needed. Investigate. Never delete the flag.
-2. **VS-2 merged before VS-1:** Revert VS-2. Merge VS-1 first. Cost: about thirty minutes.
-3. **Flag cleanup broke production:** Flag still referenced in dashboard. Re-deploy flag config. Update dashboards. Cost: about one hour.
-4. **Migration incompatible with old code:** Rollback migration. Make column nullable. Re-deploy. Cost: about two hours.
-5. **Flag infrastructure unavailable:** All flags fail CLOSED. Confirm default OFF. Fix infrastructure. Zero user impact.
+| Issue | Fix | Lesson |
+|-------|-----|--------|
+| Flag accidentally ON for all users | Flip OFF in config — no deploy needed. Investigate. Never delete the flag. | Config toggles, not code deploys, are the only safe rollback mechanism |
+| VS-2 merged before VS-1 | Revert VS-2. Merge VS-1 first. Cost: about thirty minutes. | Slice ordering rules exist for a reason — skipping the sequence breaks the dependency chain |
+| Flag cleanup broke production | Flag still referenced in dashboard. Re-deploy flag config. Update dashboards. Cost: about one hour. | A flag at 100% still has dependencies — clean up the control plane before the code |
+| Migration incompatible with old code | Rollback migration. Make column nullable. Re-deploy. Cost: about two hours. | Schema changes are always additive — nullable columns prevent the most common production outage |
+| Flag infrastructure unavailable | All flags fail CLOSED. Confirm default OFF. Fix infrastructure. Zero user impact. | Fail-closed is the only safe flag default — OFF must mean OFF even when the flag system is down |
 
 ## State Log
 <!-- DEEP: 10+min -->
