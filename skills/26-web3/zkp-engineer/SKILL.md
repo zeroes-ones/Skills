@@ -141,34 +141,15 @@ ZKP requirement identified
 ```
 
 <!-- STANDARD: 3min -->
-## Ground Rules — Read Before Anything Else
+## <!-- STANDARD: 3min --> Ground Rules — Read Before Anything Else
 
-* **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
-* **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
-* **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
-
-1. **Never deploy a circuit without under-constraint analysis.** Under-constrained circuits leak witness information and are the #1 source of ZKP exploits ($10M+ historically). Always run automated constraint checking.
-
-2. **Never reuse trusted setup parameters across circuits.** Each circuit needs its own Phase 2 ceremony. Reusing parameters allows cross-circuit proof forgery if the toxic waste is compromised.
-
-3. **Never skip range checks on public inputs.** Every public input must be proven within valid range (bit decomposition or LessThan). Missing range checks allow overflow attacks that bypass protocol invariants.
-
-4. **Never use `<--` without `===` for output signals.** If an output signal is assigned with `<--`, it MUST be followed by a corresponding `===` constraint. An output with only `<--` is unconstrained and can be arbitrarily forged.
-
-5. **Never assume Circom `<==` constrains intermediate signals.** `c <== a + b` constrains `c = a + b` but does NOT constrain whether `a` or `b` themselves are properly formed. Every signal needs its own constraint verification.
-
-6. **Never use `mod` or `%` inside Circom constraint bodies.** Field division is well-defined but modulo behaves differently in finite fields. Use Num2Bits and reassemble for integer-like modulo operations.
-
-7. **Never skip the Powers of Tau beacon contribution.** The final Phase 1 step must use a public random beacon (block hash) to prevent the last participant from knowing the toxic waste.
-
-8. **Never deploy a Solidity verifier without gas benchmarking.** Deploy to testnet first and measure actual gas costs with realistic inputs. Theoretical estimates often underestimate by 2-3x.
-
-9. **Never reuse nullifiers across applications without domain separation.** Nullifier computation must include a unique application scope. Without domain separation, a nullifier from App A can be replayed in App B, breaking privacy.
-
-10. **Admit uncertainty -- never fabricate circuit constraints.** If uncertain about a constraint pattern, say so. A hallucinated constraint can create an exploitable under-constraint that formal verification tools would miss.
-11. **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. Before writing framework-specific code, run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions. If detection succeeds, anchor all API calls to detected versions. If detection fails, request version info from user. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff."
-12. **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. Estimate implementation cost in engineer-hours and compare against annual value of the change. If cost > value, gate fails. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula."
-
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---|---|---|
+| R1 | REFUSE to deploy a circuit without under-constraint analysis. Under-constrained circuits leak witness information and are the #1 source of ZKP exploits ($10M+ historically). Always run automated constraint checking before deployment. | Trigger: ZKP circuit deployment or audit without automated constraint completeness verification | STOP. Respond: "Under-constraint analysis is mandatory before deployment. Run circom compiler with `--check` flags and automated constraint checking. Under-constrained circuits are the #1 source of ZKP exploits ($10M+ historically)." |
+| R2 | REFUSE to reuse trusted setup parameters across circuits. Each circuit needs its own Phase 2 ceremony. Reusing parameters allows cross-circuit proof forgery if the toxic waste is compromised. | Trigger: multiple ZKP circuits using the same trusted setup parameters without per-circuit Phase 2 ceremony | STOP. Respond: "Each circuit requires its own Phase 2 ceremony. Cross-circuit parameter reuse allows proof forgery if toxic waste is compromised. Run separate ceremony per circuit." |
+| R3 | REFUSE to skip range checks on public inputs. Every public input must be proven within valid range (bit decomposition or LessThan). Missing range checks allow overflow attacks that bypass protocol invariants. | Trigger: circuit code where public input signals are used without bit decomposition, range constraint, or LessThan check | STOP. Respond: "Public inputs require range checks. Missing range checks allow overflow attacks that bypass protocol invariants. Use Num2Bits with bit-width constraint or LessThan template for every public input." |
+| R4 | REFUSE to output signals with `<--` without `===` constraint. If an output signal is assigned with `<--`, it MUST be followed by a corresponding `===` constraint. An output with only `<--` is unconstrained and can be arbitrarily forged. | Trigger: Circom code where `signal output` is assigned with `<--` but lacks a corresponding `===` constraint | STOP. Respond: "Output with `<--` but no `===` constraint is unconstrained and forgeable. Add: `expr === out;` after the `<--` assignment. Every output signal must be fully constrained." |
+| R5 | **Admit uncertainty.** When uncertain about ZKP proof system details, circuit language API behavior, or constraint correctness, never fabricate circuit constraints — say so explicitly. A hallucinated constraint can create an exploitable under-constraint that formal verification tools would miss. | Trigger: task involves Circom/Noir/Halo2 circuit code, constraint patterns, or proof system parameter choices where training data may be stale | STOP. Respond: "I am not certain this constraint pattern is correct. My training data ends at [date]. Verify against [Circom docs | Noir docs | Halo2 docs]. A hallucinated constraint can create an exploitable under-constraint that tools miss." |
 <!-- QUICK: 30s -->
 ## The Expert's Mindset
 
@@ -607,16 +588,15 @@ Before deploying or delivering work from this skill, verify:
 | ☐ | Incident response plan documented — verifier upgrade path tested, circuit breaker deployed, vulnerability disclosure timeline with key rotation procedure | Upgrade transaction simulated on testnet; circuit breaker `pauseVerifier()` tested; disclosure timeline with 7-day notification window for critical findings |
 | ☐ | Rollback plan: verifier upgrade mechanism tested — existing proofs remain verifiable post-upgrade; proxy pattern or migration path demonstrated | Pre-upgrade proofs verified against post-upgrade contract on forked mainnet; no proof replay gaps during migration window |
 
-## Verification Guardrails
+## Verification
+<!-- STANDARD: 3min -->
 
-* [ ] No unconstrained signals in the circuit (verified by static analysis and manual review)
-* [ ] Every public input has a range check or other constraint preventing malicious witness injection
-* [ ] Trusted setup ceremony completed with ≥ N independent participants, all attestations verified
-* [ ] Verifier contract bytecode verified on-chain and matches audited source
-* [ ] Fuzz test: 10K+ random valid proofs verified successfully; 10K+ invalid witnesses rejected
-* [ ] Nullifier domain separation: unique application scope in nullifier computation
-* [ ] Incident response plan for proof system vulnerability: verifier upgrade path, circuit breaker, disclosure timeline
-* [ ] All ZKP decisions recorded in State Log with security assumptions documented
+1. **[Storage collision check]** — Verify nullifier storage does not overlap with other application-scoped storage; domain separation enforced in nullifier computation
+2. **[Reentrancy path audit]** — Verify the verifier contract cannot be re-entered during proof verification; Solidity verifier functions must not make external calls during `verifyProof()`
+3. **[Access control verification]** — Verify trusted setup parameters, proving keys, and verification keys have access controls; no unauthorized key replacement
+4. **[Formal verification accuracy]** — Verify any `[VERIFIED]` claim about circuit formal verification (e.g., verified R1CS constraints, verified PLONK gates) references actual zk-SNARK/zk-STARK proof artifacts; no "mathematically proven" assertions without a specification reference
+
+**Pass criteria:** All checks pass before delivering output.
 
 ## References
 

@@ -44,6 +44,15 @@ provides_to: [portfolio-signal-manager, algorithmic-trader, macro-strategist]
 | R5 | REFUSE to treat OAS (option-adjusted spread) and nominal spread as interchangeable for MBS, callables, or structured products. OAS strips the embedded option value; nominal spread doesn't. Using nominal spread on MBS overstates value by 50-200bp. | Trigger: spread quoted for MBS/callable/puttable/structured product without "OAS" qualifier | STOP. "Spread type ambiguous for instrument with embedded options. Specify OAS (option-adjusted) or Z-spread (zero-vol). Nominal spread is misleading for callable/MBS securities." |
 | R6 | REFUSE to use "yield to maturity" for bonds with embedded options. YTM assumes the bond is held to maturity. Callable bonds may be called early; YTW (yield to worst) is the correct metric. | Trigger: YTM quoted for callable/puttable bond or any bond with sinking fund provision | STOP. "YTM inappropriate for instrument with embedded options. Use YTW (yield-to-worst): min(YTM, YTC at each call date). Callable bonds trading above par → YTC is the binding constraint." |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Yield Provenance]** — Verify every yield, spread, or price includes [VERIFIED] or [AS OF YYYY-MM-DD] tag with market source.
+2. **[Duration Specification]** — Verify any duration calculation specifies the type (Macaulay, modified, effective, key rate) and shows the formula.
+3. **[Curve Trade Math]** — Verify curve trades show carry computation, financing cost, and DV01-weighted notional amounts.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 
 ### Provenance Tags

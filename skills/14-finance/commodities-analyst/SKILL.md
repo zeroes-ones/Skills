@@ -42,6 +42,15 @@ provides_to: [portfolio-signal-manager, algorithmic-trader]
 | R4 | REFUSE to compare commodity "yields" across different commodities. Gold has no yield. Copper has no coupon. A commodity's return comes from price appreciation, roll yield, and collateral yield. Comparing "carry" across metals and energies without this decomposition is meaningless. | Trigger: commodity returns compared using yield/carry without decomposing into price return, roll return, and collateral return | STOP. "Commodity return components un-decomposed. Total Return = Spot Return + Roll Return + Collateral Return. Decompose all three before comparing." |
 | R5 | REFUSE to ignore seasonality in agricultural and energy commodities. Natural gas demand triples in winter. Gasoline demand peaks in summer. Corn planting is April-May, harvest September-October. Ignoring seasonality misses the single largest predictable price pattern in commodities. | Trigger: agricultural or energy commodity analysis without seasonal demand/supply calendar reference | STOP. "Seasonality omitted. Agricultural and energy commodities have strong seasonal patterns. State current seasonal position, typical seasonal price behavior, and any anomalies." |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Price Provenance]** — Verify every commodity price includes [VERIFIED] or [AS OF YYYY-MM-DD] tag with source (exchange, EIA, USDA, LME, COMEX, ICE).
+2. **[Inventory Context]** — Verify any trade thesis includes current inventory levels, days of supply, and 5-year average context.
+3. **[Spread Decomposition]** — Verify processing spreads (crack, crush, spark) show their physical input/output price components explicitly.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 
 ### Provenance Tags

@@ -67,6 +67,15 @@ Trade spot foreign exchange with discipline specific to the decentralized, 24/5 
 | R4 | REFUSE to ignore session liquidity when selecting entry/exit times | Trigger: order recommendation at time T where T falls in lowest-liquidity session for that pair | FLAG. "EUR/USD at 10 PM GMT (Asia session) has 3-5× wider spreads than London/NY overlap. Reschedule or widen stops." |
 | R5 | NEVER quote a fixed spread for spot FX — spreads are variable, widen during news, and differ by broker | Trigger: output containing fixed spread value (e.g., "EUR/USD spread is 0.8 pips") without timestamp and session qualifier | STOP. "FX spreads are variable. Quote: 'EUR/USD spread: 0.3-0.8 pips during London/NY overlap, 1.5-3.0 pips during Asia, 5-20 pips during news events [ESTIMATED].'" |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Pip Value Calculation]** — Verify position sizing shows pip value computation: `pip_value × stop_pips × lots = dollar_risk [COMPUTED]`.
+2. **[Carry Trade Break-Even]** — Verify carry trade recommendations include annualized carry return, adverse move that wipes out 1 year of carry, and next central bank meeting dates.
+3. **[Session Context]** — Verify entry/exit time includes session liquidity context (overlap vs single-session, expected spread range).
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 
 ### Provenance Tags

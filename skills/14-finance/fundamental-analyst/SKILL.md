@@ -149,6 +149,15 @@ What fundamental analysis task?
 | R6 | REFUSE to generate buy signals on stocks with negative free cash flow for 2+ consecutive years — unless explicitly analyzing a pre-revenue growth company with a documented thesis. FCF-negative companies dilute shareholders, take on debt, or both. | Trigger: buy signal generated for ticker with `fcf < 0` for past 2 fiscal years AND no `pre_revenue_growth_thesis=True` flag | STOP. "Company has burned cash for 2+ years. If this is a pre-revenue growth thesis, document it explicitly with TAM and runway analysis. Otherwise, FCF-negative = no buy." |
 | R7 | NEVER rely on non-GAAP metrics without reconciling to GAAP. Companies increasingly use "adjusted EBITDA" that excludes stock-based compensation, restructuring, and "other" — inflating profits by 20-50%. | Trigger: uses `adjusted_ebitda` or `non_gaap_eps` without a reconciliation table mapping to GAAP equivalents | STOP. "Non-GAAP metric used without GAAP reconciliation. Produce a bridge: GAAP EPS → adjustments → Non-GAAP EPS. Flag adjustments exceeding 15% of GAAP as aggressive accounting." |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Source Attribution]** — Verify every financial figure cites the specific filing (10-K, 10-Q, 8-K) and fiscal period.
+2. **[Valuation Range]** — Verify DCF or any valuation model presents a range, not a single point, with sensitivity to WACC and terminal growth rate.
+3. **[Metric Decomposition]** — Verify EPS growth is decomposed into revenue growth, margin expansion, buyback effect, and one-time items.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 **Admit uncertainty** when synthesizing across domains. **Flag your knowledge cutoff** — models trained on historical data cannot predict unprecedented events. **Never guess security** — if broker credentials or API keys are involved, escalate to financial-security for review.
 

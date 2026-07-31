@@ -542,18 +542,14 @@ This log must be maintained in `files/roi-gate-state.md`. Each entry must record
 | Treating developer salary as the opportunity cost instead of displaced work value | Inflated ROI (developer salary is a sunk cost — they get paid regardless) | Opportunity cost = value of displaced work, not hourly rate. Developers don't sit idle — they'd work on the next-highest-priority item. If you can't quantify displaced work value, you can't calculate real ROI. |
 | "Everyone else is doing it" as justification without running your own numbers | Cargo-cult engineering that's ROI-negative in your context | Different companies have different revenue-per-engineer, growth trajectories, and tech debt profiles. Run the decision tree with YOUR actual numbers. Only your context matters. |
 
-## Verification Guardrails
+## Verification
+<!-- STANDARD: 3min -->
 
-Before completing any ROI gate analysis, verify:
+1. **[Cost-benefit math check]** — Verify every dollar figure uses the same loaded-cost rate and annual value basis; recalculate NPV to ensure arithmetic consistency
+2. **[Tier classification check]** — Verify the verdict (PROCEED / STOP / BYPASS) matches the decision tree output: payback < 24 months for PROCEED, > 24 months for STOP, security/compliance mandate for BYPASS
+3. **[Assumption traceability]** — Verify every assumption (traffic %, loaded hourly rate, annual value) is tagged [VERIFIED] or [ESTIMATED] with source noted; no implicit assumptions
 
-- [ ] **[VG1]** Every dollar figure is tagged [VERIFIED] or [ESTIMATED] — no naked numbers
-- [ ] **[VG2]** Assumptions are explicit: traffic %, hourly rate source, annual value basis — nothing implicit
-- [ ] **[VG3]** The "do nothing" option is quantified — what is the cost of NOT making this change?
-- [ ] **[VG4]** At least 1 trade-off is documented — what are we giving up?
-- [ ] **[VG5]** For PROCEED verdicts: payback period is calculated and < 24 months
-- [ ] **[VG6]** For STOP verdicts: a higher-ROI alternative is suggested (redirect, not just refuse)
-- [ ] **[VG7]** Security fixes, compliance mandates, and active incidents are correctly bypassing the gate
-- [ ] **[VG8]** Cold-path work is flagged if traffic < 1% and cost > $500
+**Pass criteria:** All checks pass before delivering output.
 
 ## References
 

@@ -907,6 +907,15 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 
 **Hard failure boundary:** If 3 approaches fail, STOP. Accessibility failures exclude real users. Flag and escalate rather than shipping inaccessible code.
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Accessibility compliance]** — Verify WCAG 2.2 AA compliance by testing with automated tools (axe, Lighthouse) and manual screen reader testing (NVDA/VoiceOver)
+2. **[Multi-language consistency]** — Verify all supported languages render correctly without truncation, overlapping text, or missing translations by testing each locale
+3. **[Offline functionality]** — Verify core features work without network connectivity by testing with airplane mode and confirming cached content loads, offline actions queue, and sync resumes on reconnection
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## References
 <!-- STANDARD: 3min -->
 

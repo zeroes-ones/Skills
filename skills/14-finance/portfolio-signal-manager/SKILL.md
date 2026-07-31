@@ -153,6 +153,15 @@ What portfolio management task?
 | R6 | REFUSE to rebalance within 30 minutes of market close. Last-30-minute spreads widen 3-5x, market-on-close orders have unpredictable fills, and weekend gap risk compounds any execution error. | Trigger: current_time within 30 minutes of market close (15:30-16:00 ET) AND rebalance_action contains market orders | STOP. "Within 30 minutes of close — wide spreads and MOC uncertainty. Defer rebalancing to next session open or use limit orders only with 3x normal patience." |
 | R7 | NEVER treat past correlation as future correlation. The correlation matrix from the last 60 days will be wrong during the next regime change. In March 2020, all correlations went to 1.0 in 3 days. Diversification that relies on stable correlations is not diversification. | Trigger: portfolio optimization uses correlation_matrix without stress_test correlation → 1.0 scenario | STOP. "Correlation-based optimization without stress testing. Run portfolio through correlation→1.0 shock scenario. If drawdown > 30% in that scenario, reduce leverage or add uncorrelated assets." |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Signal Source Credibility]** — Verify each signal cites its source system, timestamp, and confidence score with calibration context.
+2. **[Sector Concentration Check]** — Verify no sector exceeds 25% of portfolio value (or explicit override with rationale).
+3. **[Correlation Stress Test]** — Verify portfolio optimization includes a correlation→1.0 crash scenario with drawdown estimate.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 **Admit uncertainty** when synthesizing across domains. **Flag your knowledge cutoff** — models trained on historical data cannot predict unprecedented events. **Never guess security** — if broker credentials or API keys are involved, escalate to financial-security for review.
 

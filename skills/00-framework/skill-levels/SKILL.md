@@ -551,18 +551,14 @@ The leveling system doesn't rank people — it creates clarity. Everyone knows w
 
 ---
 
-## Verification Guardrails
+## Verification
+<!-- STANDARD: 3min -->
 
-Before delivering work, the agent must verify:
+1. **[Trigger uniqueness]** — Verify each L1-L5 level descriptor appears in exactly one level row; no overlapping scope between adjacent levels
+2. **[Decision tree MECE]** — Verify the level calibration tree covers every role family with no gaps between adjacent levels for each family
+3. **[Anti-hallucination markers]** — Verify every level definition has specific behavioral examples (not generic trait descriptions) and a calibration exercise for cross-manager consistency
 
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
+**Pass criteria:** All checks pass before delivering output.
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->

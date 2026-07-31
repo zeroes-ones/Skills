@@ -857,6 +857,15 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Build/compile verification]** — Verify the implementation compiles and runs without errors by executing the project build command and confirming exit code 0
+2. **[Test suite pass]** — Verify all unit, integration, and end-to-end tests pass by running the test suite and confirming zero failures
+3. **[Edge case handling]** — Verify edge cases (empty state, error state, boundary conditions, concurrent access, interrupted operations) are handled with graceful degradation rather than crashes
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## References
 <!-- STANDARD: 3min -->
 

@@ -98,6 +98,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 ## Route the Request
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -139,6 +140,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -->
 These rules apply to *every* response this skill produces. Patient education is clinical intervention — bad education causes harm, not confusion.
@@ -160,6 +162,7 @@ These rules apply to *every* response this skill produces. Patient education is 
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 Master patient health educators carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -181,6 +184,7 @@ Master patient health educators carry a dual responsibility: technical excellenc
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -197,6 +201,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -213,6 +218,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ## Error Recovery
 <!-- STANDARD: 3min -->
 **(STANDARD)**
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -228,6 +234,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s — table of who to talk to when -->
 Patient health education bridges clinical content, instructional design, and patient experience. Every piece of educational content must be clinically accurate, health-literate, and behaviorally effective. Coordination ensures content is medically sound, readable, and drives real behavior change.
@@ -276,6 +283,7 @@ Regulatory concern about education content? → compliance-officer + legal-advis
 
 ## Proactive Triggers
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -290,6 +298,7 @@ Regulatory concern about education content? → compliance-officer + legal-advis
 
 ## Decision Trees
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -430,6 +439,7 @@ Content is for which audience?
 ## Core Workflow
 <!-- STANDARD: 3min -->
 **(STANDARD)**
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
@@ -479,6 +489,7 @@ Complete when: Implementation validated against requirements with traceability m
 
 ## Cross-Skill Integration
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -493,10 +504,12 @@ Complete when: Implementation validated against requirements with traceability m
 
 ## State Log
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 - **A newly diagnosed patient completes the onboarding module** and can correctly explain what hemophilia is, what a bleed feels like, and when to call their doctor. They're connected to a peer mentor within the app.
 - **Adherence improves from 45% to 78% over 12 weeks** after the right barrier is diagnosed and the right intervention deployed. Patients report feeling "more in control" of their condition.
@@ -505,6 +518,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 ```mermaid
 graph LR
@@ -523,6 +537,7 @@ graph LR
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Rationalization | Reality |
 |---|---|
@@ -534,6 +549,7 @@ graph LR
 
 ## Gotchas
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -545,6 +561,7 @@ graph LR
 
 ## Verification
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 - [ ] Readability: all patient materials at ≤ 6th grade reading level (SMOG or Flesch-Kincaid verified)
 - [ ] Teach-back: education protocol includes teach-back step — patient explains care plan in own words
@@ -554,8 +571,13 @@ graph LR
 
 ## Verification Guardrails
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Best Practices
+<!-- STANDARD: 3min -->
+**(STANDARD)**
 
 1. **Assess health literacy before designing content.** Use the Brief Health Literacy Screening Tool (BRIEF) or Single Item Literacy Screener (SILS) at onboarding. Segment patients by literacy level and deliver tiered content: Level 1 patients (low literacy) receive a single daily action; Level 4 patients (high literacy) receive comprehensive tools with self-directed exploration. Designing only for highly literate patients guarantees disengagement from the 36% of US adults with below-basic health literacy.
 2. **Apply the teach-back method as a universal precaution.** After explaining any care concept, ask: "Can you tell me in your own words what you'll do at home?" Never ask "Do you understand?" — patients will always say yes to avoid appearing uninformed. If the patient cannot teach back correctly, re-explain using a different approach and re-assess. The teach-back loop continues until comprehension is confirmed.
@@ -570,6 +592,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Anti-Patterns
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -583,6 +606,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Production Checklist
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -604,6 +628,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Error Decoder
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -616,6 +641,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## References
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 Detailed reference material loaded on demand:
 

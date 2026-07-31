@@ -500,6 +500,15 @@ Problem: Three skills instead of one. api-designer designs contracts, not implem
 
 ---
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Trigger uniqueness]** — Verify every `proactive_trigger` phrase in the decision tree maps to exactly one skill path; no ambiguous triggers that match multiple categories
+2. **[Decision tree MECE]** — Verify the routing tree covers every category node with no overlap between keyword-matching and category-matching branches
+3. **[Anti-hallucination markers]** — Verify every skill reference in the tree has a `ls skills/*/[name]/SKILL.md` checkable path; no skill names that don't resolve in the filesystem
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## References
 
 - **Library root:** `skills/` — 210+ skills by domain

@@ -146,6 +146,15 @@ What futures trading task?
 | R4 | REFUSE to roll futures contracts without computing the calendar spread cost. Rolling "at market" costs 1-3 ticks in spread slippage. Rolling with a limit calendar spread order saves 30-60% of roll cost. Over 12 rolls/year, this is significant. | Trigger: roll_action without calendar_spread_cost_computed | STOP. "Roll cost not computed. Determine: front-month bid/ask, next-month bid/ask, calendar spread mid, spread slippage estimate. Optimal roll: limit calendar spread order at mid + 1 tick. Market roll = guaranteed slippage." |
 | R5 | REFUSE to compute SPAN margin without verifying current exchange scan ranges. SPAN risk arrays are updated weekly by CME Clearing. Using last month's scan range understates margin by 20-50% in high vol. | Trigger: span_margin_computation without verified_scan_range_date within 7 days | STOP. "SPAN scan range not current. CME updates SPAN risk arrays weekly. Verify current scan range for {symbol} at cmegroup.com/clearing. Margin error = forced liquidation at worst price." |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Contract Spec Verifiability]** — Verify every contract specification, margin rate, and multiplier includes a [VERIFIED] date and exchange source (CME, ICE, Eurex).
+2. **[Roll Cost Transparency]** — Verify roll recommendations include the calendar spread cost computation and slippage estimate.
+3. **[Position Sizing Math]** — Verify position sizing shows tick-value awareness: `risk_per_contract = tick_value × stop_distance_in_ticks`.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 
 <!-- STANDARD: 3min — EXTRA CRITICAL for futures -->

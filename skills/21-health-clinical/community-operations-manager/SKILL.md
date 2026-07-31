@@ -92,6 +92,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 ## Route the Request
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -133,6 +134,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -156,6 +158,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 Master community operations managers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -177,6 +180,7 @@ Master community operations managers carry a dual responsibility: technical exce
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -193,6 +197,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a peer mentorship program for newly diagnosed patients matched with experienced patients
@@ -206,6 +211,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -374,6 +380,7 @@ IMMEDIATE:             ▼
 ## Core Workflow
 <!-- STANDARD: 3min -->
 **(STANDARD)**
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~25 min): Peer Mentorship Program Design
@@ -430,6 +437,7 @@ Complete when: Implementation validated against requirements with traceability m
 ## Error Recovery
 <!-- STANDARD: 3min -->
 **(STANDARD)**
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -445,6 +453,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Community operations bridges patients, clinical teams, product, and content. Coordination ensures the community serves patients effectively while maintaining safety, privacy, and alignment with organizational goals.
@@ -503,6 +512,7 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 
 ## Proactive Triggers
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -517,15 +527,18 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 
 ## State Log
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 The community feels alive and safe. Members support each other without staff intervention 80% of the time. Ambassador programs run themselves. Events calendar is full and attended. Community health metrics trend upward. Pharma partners see the community as a model of patient engagement.
 
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 ```mermaid
 graph LR
@@ -544,6 +557,7 @@ graph LR
 
 ## Gotchas
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -555,6 +569,7 @@ graph LR
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Rationalization | Reality |
 |---|---|
@@ -566,6 +581,7 @@ graph LR
 
 ## Verification
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 - [ ] Content safety: medical claims in community posts flagged and reviewed within SLA — misinformation rate < 1%
 - [ ] Engagement quality: supportive-to-argumentative comment ratio tracked — trend stable or improving
@@ -575,8 +591,13 @@ graph LR
 
 ## Verification Guardrails
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Best Practices
+<!-- STANDARD: 3min -->
+**(STANDARD)**
 
 1. **Establish community guidelines before the first member joins.** Guidelines must cover: acceptable content (peer support, shared experience, treatment discussion), prohibited content (medical advice, unverified remedies, harassment, PHI sharing), moderation philosophy (transparency about decisions, appeal process), and consequences (warning → temporary suspension → permanent removal). Publish guidelines publicly and require new members to acknowledge them during onboarding.HIPAA-aware guidelines must explicitly state that sharing identifiable health information in public threads is prohibited and will be removed for member protection.
 2. **Deploy a tiered moderation framework.** Level 1: Automated pre-screening (keyword detection for self-harm, PHI, commercial spam). Level 2: Community flagging (members report concerning content; flags are reviewed within SLA). Level 3: Trained volunteer moderators (handle routine violations, escalate complex cases). Level 4: Professional staff moderators (crisis content, AE reports, legal escalations). Each level must have a defined SLA and escalation trigger.
@@ -591,6 +612,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Anti-Patterns
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -604,6 +626,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Production Checklist
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -625,6 +648,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Error Decoder
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -637,6 +661,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## References
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 Detailed reference material loaded on demand:
 

@@ -367,6 +367,15 @@ Model a portfolio with 30% stablecoin allocation. Simulate: (a) USDC depeg to $0
 ### Exercise 5: Cross-Chain Bridge Cost Analysis (15 min)
 For a $10K USDC transfer ETH → Arbitrum: compare 5 bridge options (native bridge, Across, Stargate, Hop, LayerZero). Time, cost, security incidents. Which wins for speed? For safety? For cost?
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Price Provenance]** — Verify every price, yield, or fee includes a [VERIFIED] or [AS OF YYYY-MM-DD] tag with exchange source.
+2. **[Calculation Transparency]** — Verify any trade math (position size, P&L, funding rate cost, slippage) shows the formula and intermediate values, not just the final number.
+3. **[Risk Disclosure]** — Verify all trade recommendations include a risk disclaimer citing exchange failure, smart contract risk, stablecoin depeg, and liquidity withdrawal risk.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 

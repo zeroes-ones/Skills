@@ -645,23 +645,14 @@ Before deploying or delivering work from this skill, verify:
 | ☐ | Observability instrumentation present: every deploy emits structured event with version, environment, git SHA, triggering actor, and deploy duration | Check structured logs/event bus for deploy events; all required fields populated; deploy event consumed by monitoring dashboards |
 | ☐ | Rollback plan is documented and tested | Rollback runbook exists per service; canary rollback tested in staging within last 30 days; disaster recovery contact list verified current; escalation path tested end-to-end |
 
-## Verification Guardrails
+## Verification
 <!-- STANDARD: 3min -->
 
-Before delivering work, verify:
+1. **[CI step ordering]** — Verify every pipeline's build, test, security-scan, and deploy steps execute in dependency order; no deploy step before tests pass, no scan after deploy
+2. **[Rollback path exists]** — Verify every production deploy pipeline has a documented and tested rollback path (feature flag, canary rollback, or versioned redeploy); no irreversibly destructive steps
+3. **[State log continuity]** — Verify pipeline architecture decisions are recorded in the State Log with rationale, and no prior decisions are contradicted without documented justification
 
-- [ ] **Every pipeline has a rollback path** — feature flag, canary rollback, or versioned redeploy tested and documented
-- [ ] **No secrets in pipeline config** — all credentials in secrets manager, masked in logs, never in YAML/JSON
-- [ ] **Production deploys have approval gates** — protected environments with required reviewers
-- [ ] **Code signing works in CI** — certificates accessible, not expired, signing step verified
-- [ ] **Infrastructure has state locking** — remote backend with locking enabled, no local state files
-- [ ] **Artifacts are versioned and checksummed** — every artifact has unique version, git SHA tag, and SHA256 checksum
-- [ ] **Test coverage enforced** — coverage thresholds active, flaky tests quarantined, security scans block on HIGH/CRITICAL
-- [ ] **Pipeline observability configured** — dashboard shows duration, failure rate, flake rate, DORA metrics with alerting
-- [ ] **Security scans pass** — SAST, DAST, SCA, container scan, secret scan all green before deploy
-- [ ] **SBOM generated per release** — CycloneDX/SPDX attached to release artifacts, vulnerability database checked
-- [ ] **Gotchas reviewed** — all dollar-quantified failure modes documented with fixes and monitoring
-- [ ] **Reference files consulted** — relevant platform-specific patterns checked in references/ directory
+**Pass criteria:** All checks pass before delivering output.
 
 ## Error Recovery
 <!-- DEEP: 10+min -->

@@ -91,6 +91,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 ## Route the Request
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
@@ -132,6 +133,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 These rules apply to *every* response this skill produces.
 
@@ -152,6 +154,7 @@ These rules apply to *every* response this skill produces.
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 Master patient experience researchers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
 
@@ -173,6 +176,7 @@ Master patient experience researchers carry a dual responsibility: technical exc
 
 ## Operating at Different Levels
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Level | Scope | You... |
 |-------|-------|--------|
@@ -189,6 +193,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Mapping patient journeys for chronic conditions (hemophilia, bleeding disorders, rare diseases)
@@ -203,6 +208,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 **(QUICK)**
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -349,6 +355,7 @@ cognitive interviews    debriefing only   item generation
 ## Core Workflow
 <!-- STANDARD: 3min -->
 **(STANDARD)**
+**(STANDARD)**
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~25 min): Patient Journey Mapping for Chronic Conditions
@@ -406,6 +413,7 @@ Complete when: Implementation validated against requirements with traceability m
 ## Error Recovery
 <!-- STANDARD: 3min -->
 **(STANDARD)**
+**(STANDARD)**
 
 If a command or approach fails, follow this escalation path before giving up:
 
@@ -421,6 +429,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 <!-- QUICK: 30s -- table of who to talk to when -->
 Patient experience research informs clinical product design, regulatory strategy, and patient-facing content. Coordination ensures research findings translate into better products without violating patient privacy or regulatory boundaries.
@@ -479,6 +488,7 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 
 ## Proactive Triggers
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Trigger | Action | Why |
 |---|---|---|
@@ -493,15 +503,18 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 
 ## State Log
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 ## What Good Looks Like
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 Research findings directly shape product decisions. Patient voices are present in every sprint review. Research operations scale without sacrificing participant care. Pharma partners cite your patient insights in their regulatory submissions. The research team is as diverse as the patient population.
 
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 ```mermaid
 graph LR
@@ -520,6 +533,7 @@ graph LR
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Rationalization | Reality |
 |---|---|
@@ -531,6 +545,7 @@ graph LR
 
 ## Gotchas
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Gotcha | Cost | Fix |
 |--------|------|-----|
@@ -546,6 +561,7 @@ graph LR
 
 ## Verification
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 - [ ] Interview sample: ≥ 12 participants across relevant demographics (age, condition, treatment stage)
 - [ ] Data saturation: coding shows no new themes emerging in final 3 interviews
@@ -556,8 +572,13 @@ graph LR
 
 ## Verification Guardrails
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Best Practices
+<!-- STANDARD: 3min -->
+**(STANDARD)**
 
 1. **Map patient journeys with emotional waypoints, not just clinical touchpoints.** Augment every journey map with emotional highs and lows using a 1-10 sentiment scale at each step. Capture verbatim patient quotes as emotional evidence. The 45-minute wait in a paper gown, the provider using incomprehensible jargon, the billing confusion — these are where trust is broken or built, not at the clinical milestones.
 2. **Apply experience-based design (EBD) methodology.** Co-design research instruments and interventions with patients, not for them. Convene a patient advisory board with 8-12 members representing the full demographic and clinical spectrum of your target population. Patients must have decision-making authority in the research design, not an advisory-only role.
@@ -572,6 +593,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Anti-Patterns
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect | 🛡️ Auto-Prevent |
 |-----------------|---------------------|-----------|-------------------|
@@ -585,6 +607,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Production Checklist
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 **(STANDARD)**
 
 | ID | Checklist Item | Validation | Auto-Fix |
@@ -606,6 +629,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## Error Decoder
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -618,6 +642,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## References
 <!-- STANDARD: 3min -->
+**(STANDARD)**
 
 Detailed reference material loaded on demand:
 

@@ -85,6 +85,15 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Build/compile verification]** — Verify the implementation compiles and runs without errors by executing the project build command and confirming exit code 0
+2. **[Test suite pass]** — Verify all unit, integration, and end-to-end tests pass by running the test suite and confirming zero failures
+3. **[Edge case handling]** — Verify edge cases (empty state, error state, boundary conditions, concurrent access, interrupted operations) are handled with graceful degradation rather than crashes
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 

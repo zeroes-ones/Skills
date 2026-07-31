@@ -129,30 +129,15 @@ Cryptographic requirement identified
 ```
 
 <!-- STANDARD: 3min -->
-## Ground Rules — Read Before Anything Else
+## <!-- STANDARD: 3min --> Ground Rules — Read Before Anything Else
 
-* **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
-* **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
-* **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
-
-1. **Never roll your own crypto.** Always use formally verified implementations from established libraries (libsodium, OpenSSL, Bouncy Castle). Custom cryptographic code is the #1 source of critical vulnerabilities.
-
-2. **Never hard-code keys, nonces, or entropy seeds.** Keys must come from HSM/KMS with audit trail. Nonces must be cryptographically random per invocation. Entropy must be validated against NIST SP 800-90B.
-
-3. **Favor memory-safe languages for crypto implementations.** C/ASM crypto code is acceptable only for performance-critical paths with formal verification. All other crypto code must be Rust, Go, or higher-level bindings.
-
-4. **PQC migration must start now -- not when quantum breaks RSA.** Hybrid certificates and dual-key exchange should be deployed before production reliance on classical-only schemes becomes entrenched.
-
-5. **Admit uncertainty -- never fabricate API details.** If uncertain about an API method, package version, or configuration syntax, say so explicitly. Never invent a function signature or configuration key. Hallucinated crypto code cannot be distinguished from working code without expert review.
-
-6. **Flag your knowledge cutoff for rapidly evolving crypto domains.** PQC standards, TEE attestation APIs, and FHE compiler toolchains evolve quarterly. State your cutoff date and recommend verifying against current docs.
-
-7. **Never guess security configurations.** If unsure about the correct KDF parameters, AEAD nonce size, or MPC protocol security model, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
-8. **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. Before writing framework-specific code, run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions. If detection succeeds, anchor all API calls to detected versions. If detection fails, request version info from user. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff."
-9. **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. Estimate implementation cost in engineer-hours and compare against annual value of the change. If cost > value, gate fails. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula."
-
-8. **Distinguish what you know from what you infer.** Explicitly mark statements as: [VERIFIED] -- from official docs, [COMMON-PRACTICE] -- widely used but not authoritative, [INFERRED] -- your best guess based on patterns, [UNKNOWN] -- you're unsure.
-
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---|---|---|
+| R1 | REFUSE to roll your own crypto. Always use formally verified implementations from established libraries (libsodium, OpenSSL, Bouncy Castle). Custom cryptographic code is the #1 source of critical vulnerabilities. | Trigger: task involves writing custom encryption, hashing, or signature implementation instead of using a vetted library | STOP. Respond: "Custom crypto implementation is prohibited. Use formally verified library: libsodium for symmetric, OpenSSL for TLS/certificates, Bouncy Castle for Java/JVM. Custom crypto is the #1 source of critical vulnerabilities." |
+| R2 | REFUSE to hard-code keys, nonces, or entropy seeds. Keys must come from HSM/KMS with audit trail. Nonces must be cryptographically random per invocation. Entropy must be validated against NIST SP 800-90B. Hard-coded secrets create undetectable backdoors. | Trigger: code contains hard-coded key material, static nonces, or fixed entropy seeds | STOP. Respond: "Key material must not be hard-coded. Use HSM/KMS for key storage with audit trail. Nonces must be cryptographically random per invocation. Static nonces break IND-CPA security guarantees." |
+| R3 | REFUSE to use memory-unsafe languages for crypto implementations without formal verification. C/ASM crypto code is acceptable only for performance-critical paths with formal verification. All other crypto code must be Rust, Go, or higher-level bindings. | Trigger: crypto implementation in C, C++, or ASM without accompanying formal verification proof | STOP. Respond: "Memory-unsafe languages for crypto require formal verification. Prefer Rust, Go, or higher-level binding. C/ASM without formal verification introduces memory-corruption vulnerabilities that bypass cryptographic security." |
+| R4 | REFUSE to ignore PQC migration for data that must survive 10+ years. Hybrid certificates (ML-KEM + X25519) and dual-key exchange should be deployed before production reliance on classical-only schemes becomes entrenched. Harvest-now-decrypt-later is real. | Trigger: cryptographic system design that uses only classical algorithms (RSA, ECDH) for long-lived data (>10 year security requirement) | STOP. Respond: "Long-lived data requires PQC migration now. Data encrypted today with classical schemes can be decrypted later when quantum computers mature. Deploy hybrid key exchange: ML-KEM-1024 + X25519. See Decision Trees for PQC Migration Path." |
+| R5 | **Admit uncertainty.** When uncertain about cryptographic primitive selection, security parameter choices, or protocol security models, never guess — verify against NIST standards, IETF RFCs, or the relevant academic paper before providing recommendations. | Trigger: task involves selecting curves, key sizes, proof system parameters, or security model assumptions where training data may be stale | STOP. Respond: "I am not certain these security parameters are current. My training data ends at [date]. Verify against [NIST SP 800-series | IETF CFRG | relevant academic papers]. Never guess cryptographic security parameters." |
 <!-- QUICK: 30s -->
 ## The Expert's Mindset
 
@@ -577,18 +562,15 @@ Before deploying or delivering work from this skill, verify:
 | ☐ | Key ceremony documentation complete — participant attestations verified, entropy validated (SP 800-90B), backup shares tested with recovery drill | Signed attestations from every ceremony participant; entropy source validation report; recovery drill log showing successful key reconstruction from threshold shares |
 | ☐ | Rollback plan: cryptographic agility layer tested — algorithm rotation demonstrated within 30 days; downgrade prevention active | `rotate_algorithm("RSA-2048", "ML-DSA-87")` completes end-to-end; protocol negotiation rejects downgrade to weaker algorithms in integration test |
 
-## Verification Guardrails
-
-* [ ] All cryptographic operations use AEAD or stronger (no CBC, no ECB, no unauthenticated modes)
-* [ ] Keys managed via KMS/HSM with audit trail; no keys in source code, config files, or environment variables
-* [ ] Constant-time verification: critical comparison operations pass `dudect` or equivalent TVLA
-* [ ] Test vectors: NIST CAVP or Wycheproof test vectors pass for all implemented algorithms
-* [ ] PQC migration plan documented with algorithm inventory, hybrid deployment strategy, and hard migration date
-* [ ] Side-channel assessment completed: timing, cache-timing, and (for TEE) electromagnetic analysis
-* [ ] Key ceremony documentation: participant attestations, entropy validation, backup share verification
-* [ ] Every cryptographic decision recorded in the State Log with rationale and alternatives considered
-
+## Verification
 <!-- STANDARD: 3min -->
+
+1. **[Storage collision check]** — Verify key material is never stored alongside ciphertext in the same storage slot; audit for deterministic nonce/tag in adjacent fields
+2. **[Reentrancy path audit]** — Verify every state-changing cryptographic operation (key rotation, algorithm switch) uses a checks-effects-interactions pattern; no reentrancy through HSM/coprocessor callbacks
+3. **[Access control verification]** — Verify every key-wrapping and algorithm-selection function has an authorization guard; no unauthorized key export or algorithm downgrade
+4. **[Formal verification accuracy]** — Verify that any `[VERIFIED]` claim about formal verification (e.g., EasyCrypt, F*) references an actual published proof; no "formally verified" assertions without a citation
+
+**Pass criteria:** All checks pass before delivering output.
 ## References
 
 ### Inline Reference Files in `references/`

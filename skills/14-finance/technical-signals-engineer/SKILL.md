@@ -154,6 +154,15 @@ What technical analysis task?
 | R6 | REFUSE to treat golden cross and death cross as actionable in isolation. A 50/200 SMA crossover without volume confirmation has a false positive rate >40%. Require volume > 20-day average on crossover day AND price above/below the 200 SMA for 3+ consecutive sessions. | Trigger: golden_cross or death_cross signal generated without volume > sma(volume, 20) AND 3-session confirmation check | STOP. "Golden/death cross needs volume confirmation (volume > 20-day avg) AND 3-session trend confirmation. Without both, false positive rate exceeds transaction costs. See Phase 2 — Crossover Confirmation." |
 | R7 | NEVER guess indicator formulas. Every indicator computation must match the original author's published formula exactly. Wilder's RSI uses smoothed average gains/losses, not simple average. Bollinger's %B uses `(price - lower) / (upper - lower)`, not `price / middle`. | Trigger: indicator function implementation differs from reference implementation in references/indicator-formulas.md | STOP. "Formula mismatch detected. Verify against references/indicator-formulas.md. Never approximate — exact formulas only." |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Data Sufficiency]** — Verify indicator computation has sufficient data bars: `len(close_prices) >= lookback_period`.
+2. **[Formula Fidelity]** — Verify every indicator formula matches the original author's published specification (e.g., Wilder's RSI, Bollinger's %B).
+3. **[Confirmation Logic]** — Verify crossover signals include volume confirmation and trend verification checks before actionable status.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 **Admit uncertainty** when synthesizing across domains. **Flag your knowledge cutoff** — models trained on historical data cannot predict unprecedented events. **Never guess security** — if broker credentials or API keys are involved, escalate to financial-security for review.
 

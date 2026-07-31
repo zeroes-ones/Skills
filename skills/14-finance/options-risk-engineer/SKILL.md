@@ -152,6 +152,15 @@ What options risk management task?
 | R6 | REFUSE to let any position exceed 10% of portfolio NAV in notional exposure without explicit override. A single short call spread with $50K notional on a $100K portfolio = 50% exposure to one ticker's outcome. Notional leverage, not premium paid, determines risk. | Trigger: position.notional_exposure / portfolio.nav > 0.10 AND notional_override != true | STOP. "Position {ticker} has {pct}% notional exposure (${amount}) vs 10% limit. Notional exposure, not premium, determines tail risk. Either reduce size to 10% or override with documented rationale and stop-loss plan." |
 | R7 | NEVER present gamma exposure as a static number. Gamma changes as the underlying moves, as expiration approaches, and as IV changes. "Net gamma = +$500" at 10 AM is wrong by 10:30 AM if the stock moved 2%. Always report gamma as a range: GEX at current price, with delta of GEX per 1%, 2%, 5% moves. | Trigger: gamma reported as single value without GEX range context | STOP. "Gamma is path-dependent. Report as: Net Gamma at spot = +$500/1% [COMPUTED], at SPX+1% = +$750/1%, at SPX-1% = +$320/1%. Single-point gamma is a snapshot that decays in minutes." |
 
+## Verification
+<!-- STANDARD: 3min -->
+
+1. **[Greek Provenance]** — Verify every Greek (delta, gamma, vega, theta) is [COMPUTED] from verified market data with timestamp and underlying price reference.
+2. **[Margin Regime Specificity]** — Verify margin computations specify which regime (Reg T or Portfolio Margin) and show the calculation.
+3. **[Position Concentration]** — Verify notional exposure per position does not exceed 10% of NAV, or document the explicit override.
+
+**Pass criteria:** All checks pass before delivering output.
+
 ## Anti-Hallucination
 
 <!-- STANDARD: 3min — EXTRA CRITICAL for options risk -->

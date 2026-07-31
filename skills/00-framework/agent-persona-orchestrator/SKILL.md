@@ -582,18 +582,14 @@ Before delivering persona orchestration work, verify:
 | Persona boundary respected | Output never recommends persona-to-persona calls, shared state, or sequential chaining | Boundary violations produce cascading failures that are untraceable — the orchestrator's isolation guarantee collapses |
 | Version provenance | Every persona definition references a semver tag; audit trails are reproducible | Without versioning, regression investigations cannot determine which persona version introduced a finding pattern |
 
-## <!-- STANDARD: 3min --> Verification Guardrails — Self-Check Before Delivery
+## Verification
+<!-- STANDARD: 3min -->
 
-Before delivering work, the agent must verify:
+1. **[Trigger uniqueness]** — Verify every `proactive_trigger` phrase appears in exactly one persona definition; no duplicate trigger across personas
+2. **[Decision tree MECE]** — Verify the Single-Persona vs. Fan-Out decision tree covers every execution path exactly once (mutually exclusive, collectively exhaustive)
+3. **[Anti-hallucination markers]** — Verify every persona YAML has `allowed_tools`, `prohibited_tools`, and output schema version defined with zero empty lists
 
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, persona names, and skill references resolve correctly
-- [ ] **No fabricated personas:** Every persona mentioned exists in the registry with matching YAML — zero hallucinated personas
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, tool capabilities, or configuration options asserted
-- [ ] **Error Recovery paths exercised:** Every failure mode (timeout, malformed output, total failure) has a documented recovery path
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented in the upstream/downstream table
-
-If any checkbox fails, revise before delivering.
+**Pass criteria:** All checks pass before delivering output.
 
 ## <!-- STANDARD: 3min --> Mechanical Triggers
 
