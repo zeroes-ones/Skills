@@ -41,6 +41,8 @@ chain:
     - technical-signals-engineer
     - commodities-analyst
     - macro-strategist
+    - leaps-strategist
+    - swing-options-trader
   alternatives:
     - data-scientist
     - business-strategist
@@ -492,4 +494,3 @@ Problems solved: adjusted/normalized earnings, median comparables, quality trian
 | "We'll use the same multiples as peers" | Peer multiples embed the same market sentiment you're trying to validate against. Use historical range AND peer comparison |
 | "This quarter was a one-off — exclude it" | Every quarter is a one-off until it's a trend. Exclusion requires documented justification and a counterfactual model |
 | "The balance sheet looks clean enough" | Off-balance-sheet items destroyed Enron, GE, and countless others. "Clean enough" means you haven't looked hard enough |
-

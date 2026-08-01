@@ -1,21 +1,23 @@
 ---
 name: trade-performance-analyst
 description: >
-  Use when analyzing trading performance, constructing trade journals, computing risk-adjusted return metrics (Sharpe, Sortino, Calmar, MAR), performing attribution analysis, detecting behavioral biases in trade logs, modeling drawdown dynamics, or building performance dashboards.
-  Handles comprehensive performance measurement (absolute return, risk-adjusted metrics, benchmark-relative attribution), trade journaling frameworks with behavioral tagging, drawdown analysis (depth, duration, recovery time), factor attribution (market beta, size, value, momentum, quality, industry), execution quality measurement (slippage, market impact, VWAP), behavioral bias detection (disposition effect, revenge trading, anchoring), and performance reporting for stakeholders.
-  Do NOT use for trade signal generation (route to portfolio-signal-manager), trade execution (route to algorithmic-trader), strategy design (route to quantitative-analyst), or macro regime analysis (route to macro-strategist).
-  - algorithmic-trader
-  - portfolio-signal-manager
-  - crypto-trader
-  - futures-trader
-  - forex-trader
-  - quantitative-analyst
-  - portfolio-signal-manager
-  - ceo-strategist
+  Use when analyzing trading performance, constructing trade journals, computing
+  risk-adjusted return metrics (Sharpe, Sortino, Calmar, MAR), performing attribution
+  analysis, detecting behavioral biases, modeling drawdown dynamics, or building
+  performance dashboards. Handles performance measurement (absolute, risk-adjusted,
+  benchmark-relative), trade journaling with behavioral tagging, drawdown analysis
+  (depth, duration, recovery), factor attribution (market beta, size, value, momentum,
+  quality), execution quality (slippage, market impact, VWAP), and behavioral bias
+  detection (disposition effect, revenge trading, anchoring). Do NOT use for signal
+  generation (route to portfolio-signal-manager), trade execution (route to
+  algorithmic-trader), strategy design (route to quantitative-analyst), or macro
+  regime analysis (route to macro-strategist).
+license: MIT
 token_budget: 500
-chain: symmetric
-consumes_from: [portfolio-signal-manager, algorithmic-trader]
-provides_to: [portfolio-signal-manager]
+chain:
+  type: symmetric
+  consumes_from: [portfolio-signal-manager, algorithmic-trader, intraday-options-trader, swing-options-trader, options-automation-engineer]
+  feeds_into: [portfolio-signal-manager]
 portability: spec-level
 ---
 
@@ -378,4 +380,3 @@ A global macro strategy trades equities, bonds, currencies, and commodities. Wha
 * [risk-metrics-guide.md](references/risk-metrics-guide.md) — VaR, CVaR, tail risk, EVT for extreme losses, stress testing methodology
 * [small-sample-statistics.md](references/small-sample-statistics.md) — Confidence intervals for performance metrics, minimum sample sizes, statistical power
 * [error-recovery.md](references/error-recovery.md) — Additional patterns: look-ahead bias, data snooping, selection bias, benchmark mismatch
-

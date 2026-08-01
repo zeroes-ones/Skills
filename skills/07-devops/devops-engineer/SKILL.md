@@ -44,6 +44,7 @@ chain:
   - release-manager
   - security-engineer
   - system-architect
+  - options-automation-engineer
   feeds_into:
   - chaos-engineer
   - ci-cd-builder

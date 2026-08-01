@@ -44,6 +44,8 @@ chain:
     - futures-trader
     - forex-trader
     - crypto-trader
+    - intraday-options-trader
+    - swing-options-trader
   alternatives:
     - quantitative-analyst
     - ml-engineer
@@ -501,4 +503,3 @@ Problems solved: correct formulas, multi-cluster, regime-aware, time-frame align
 | "We'll optimize the lookback window later" | An unoptimized lookback is a random parameter. Ship it with the best-fit lookback or don't ship it |
 | "The backtest looks great on this one ticker" | Single-ticker backtests are curve-fitting. Minimum: 20 tickers across 3 sectors, 2 market regimes (bull/bear) |
 | "Just this once, override the mechanical signal" | The first override creates permission for the hundredth. Mechanical signals exist because human discretion loses to systematic processes over large samples |
-

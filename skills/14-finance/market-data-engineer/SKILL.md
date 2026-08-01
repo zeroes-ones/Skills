@@ -38,6 +38,7 @@ chain:
     - futures-trader
     - fixed-income-analyst
     - commodities-analyst
+    - intraday-options-trader
   alternatives:
     - data-engineer
 ---
@@ -280,4 +281,3 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
-

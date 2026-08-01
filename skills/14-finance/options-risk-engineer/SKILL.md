@@ -35,10 +35,16 @@ chain:
     - market-data-engineer
     - portfolio-signal-manager
     - futures-trader
+    - intraday-options-trader
+    - leaps-strategist
   feeds_into:
     - algorithmic-trader
     - portfolio-signal-manager
     - futures-trader
+    - advanced-options-structures
+    - leaps-strategist
+    - options-automation-engineer
+    - volatility-arbitrage-engineer
   alternatives:
     - portfolio-signal-manager
   examples:
@@ -600,4 +606,3 @@ The following reference files are loaded on demand when deeper context is needed
 6. **Assignment Risk Backtest:** Find 20 historical instances of early assignment (dividend-capture on calls, deep-ITM puts). Would the assignment risk detection algorithm have flagged them? What was the false negative rate?
 7. **Liquidity Failure Drill:** Pick an illiquid option in your portfolio (spread >10%). Simulate needing to exit the entire position in one day. What's the estimated slippage? Could you actually exit? If not, why is the position this size?
 8. **0DTE Gamma Experience:** On an expiration Friday (paper trading only), track an ATM option in the final hour. Watch gamma explode as DTE→0. Map the delta change per $0.10 underlying move. This visceral experience teaches more than any formula.
-

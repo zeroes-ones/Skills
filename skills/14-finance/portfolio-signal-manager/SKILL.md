@@ -41,6 +41,11 @@ chain:
     - forex-trader
     - commodities-analyst
     - crypto-trader
+    - advanced-options-structures
+    - leaps-strategist
+    - swing-options-trader
+    - options-automation-engineer
+    - volatility-arbitrage-engineer
   feeds_into:
     - algorithmic-trader
     - data-scientist
@@ -565,4 +570,3 @@ The following reference files are loaded on demand when deeper context is needed
 3. Conflict simulation: Generate 50 signal pairs where technical and fundamental disagree. Run the weighted decision matrix. Compare outcomes
 4. Circuit-breaker fire drill: Simulate a 20% drawdown. Does every breaker fire? Does the portfolio stop losing money?
 5. Broker outage simulation: Disconnect the MCP broker mid-order. Can the portfolio recover without orphaned positions?
-

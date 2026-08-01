@@ -2,17 +2,16 @@
 name: options-strategist
 description: >
   Use when the user asks which options strategy fits their market outlook, IV environment,
-  directional conviction, or capital constraints; when the user has a thesis (bullish/bearish/
-  neutral/volatile) and needs it translated into a specific options structure; when the user
-  asks "what strategy should I use for [ticker/scenario]"; or when the user needs to compare
-  strategy candidates against market regime, risk tolerance, and account size. Handles strategy
-  selection across 17+ structures (covered calls, cash-secured puts, vertical spreads, iron
-  condors, butterflies, calendars, diagonals, straddles, strangles, collars, ratio spreads,
-  backspreads, jade lizards, broken wing butterflies, synthetic positions, long calls/puts,
-  debit spreads, protective puts), risk-first leg construction with delta-based and IV-skew-based
-  strike selection, UOA-informed strategy decisions, adjustment and exit rule design, and payoff
-  analysis. Do NOT use for options pricing model implementation, Greeks computation, trade
-  execution, or portfolio-level risk monitoring.
+  directional conviction, or capital constraints; when the user has a thesis (bullish/
+  bearish/neutral/volatile) and needs it translated into a specific options structure; or
+  when the user needs to compare strategy candidates against market regime, risk tolerance,
+  and account size. Handles strategy selection across 17+ structures (covered calls, CSPs,
+  vertical spreads, iron condors, butterflies, calendars, diagonals, straddles, strangles,
+  collars, ratio spreads, backspreads, jade lizards, broken wing butterflies, synthetics,
+  long calls/puts, debit spreads, protective puts), risk-first leg construction with delta
+  and IV-skew-based strike selection, UOA-informed strategy decisions, adjustment and exit
+  rule design, and payoff analysis. Do NOT use for options pricing model implementation,
+  Greeks computation, trade execution, or portfolio-level risk monitoring.
 license: MIT
 tags:
   - options-strategist
@@ -41,6 +40,12 @@ chain:
     - algorithmic-trader
     - portfolio-signal-manager
     - options-risk-engineer
+    - advanced-options-structures
+    - leaps-strategist
+    - swing-options-trader
+    - intraday-options-trader
+    - options-automation-engineer
+    - volatility-arbitrage-engineer
   alternatives:
     - algorithmic-trader
   examples:
@@ -313,6 +318,19 @@ If a strategy recommendation or construction fails, follow this escalation path 
 
 **Hard failure boundary:** If 3 different strategy constructions all fail to meet risk/reward criteria, STOP. The market conditions do not support an actionable trade at this time. "No trade" is a valid strategy output — preserve capital for better setups.
 
+## When This Skill Isn't Enough — Escalation Gates
+
+This skill covers 17+ standard options structures across 30-90 DTE timeframes. When the user's needs exceed the standard toolkit, escalate to a specialist:
+
+| User Need | Escalate To | Trigger |
+|-----------|------------|---------|
+| Zebra spreads, double diagonals, flyagonals, box spreads, Christmas trees, seagulls, ratio diagonals, or any structure with 4+ legs | `advanced-options-structures` | Strategy has > 3 legs OR user asks for a strategy not in the 17 standard structures |
+| LEAPS, stock replacement with options, PMCC, multi-year options, rho-dominant analysis | `leaps-strategist` | DTE > 180 OR user mentions "LEAPS", "stock replacement", "long-dated" |
+| 0DTE trading, gamma scalping, intraday options timing | `intraday-options-trader` | DTE = 0 OR user mentions "intraday", "0DTE", "gamma scalping", "same-day" |
+| Swing trading (2-30 day holds), trend-following with options, sector rotation via options | `swing-options-trader` | Holding period 2-30 days OR user mentions "swing trade", "multi-day" |
+| Options automation, auto-roll, scanner-to-execution, broker API integration | `options-automation-engineer` | User asks to "automate" or "schedule" options trades OR mentions broker API |
+| Volatility arbitrage, dispersion trading, VIX products, skew/term structure trades | `volatility-arbitrage-engineer` | User asks about vol arb, VIX derivatives, dispersion, or variance risk premium |
+
 ## State Log
 
 <!-- STANDARD: 3min -->
@@ -361,4 +379,3 @@ This skill operates in a domain where fabricated numbers lose real money. A hall
 - **Never guess security or regulatory configurations.** If asked about pattern day trader (PDT) rules, portfolio margin eligibility, wash sale rules across options legs, or exchange position limits, do NOT provide a "reasonable answer." Say: "Regulatory requirements for options trading — including PDT rules, portfolio margin eligibility thresholds, and wash sale treatment of multi-leg options — must be verified against current FINRA Rule 4210, SEC regulations, and IRS Publication 550. I cannot provide definitive regulatory guidance. Consult a qualified professional or the official regulatory sources."
 - **Distinguish between what you know and what you infer.** Every output element must be marked: [VERIFIED] — derived from explicit user-provided data or reference files; [COMPUTED] — calculated from verified inputs using documented formulas; [ESTIMATED] — approximated from typical market behavior (e.g., "probability of profit ≈ 1 − short delta"); [UNKNOWN] — information you need but do not have. The trader must know which numbers are exact and which are estimates. Trading on an estimate believing it's exact is how a "high-probability" trade becomes a max-loss surprise.
 - **Every strategy output is a hypothesis, not a prediction.** Frame every recommendation as: "Given these conditions (IV rank X, UOA signal Y, technical setup Z), the optimal strategy is [strategy] with [parameters]. This strategy succeeds if [specific conditions hold] and fails if [specific conditions break]. The expected value is positive only if the probability of profit estimate is accurate — and probability estimates are based on historical distributions that may not reflect current conditions." A strategy recommendation is a structured bet, not a guarantee. Make the bet's terms explicit.
-

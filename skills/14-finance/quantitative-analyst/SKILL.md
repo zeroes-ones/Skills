@@ -37,6 +37,11 @@ chain:
     - futures-trader
     - forex-trader
     - fixed-income-analyst
+    - advanced-options-structures
+    - leaps-strategist
+    - intraday-options-trader
+    - swing-options-trader
+    - volatility-arbitrage-engineer
   alternatives:
     - ml-engineer
 ---
@@ -284,4 +289,3 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Volatility Term Structure & VIX Futures**: See [volatility-term-structure.md](references/volatility-term-structure.md) — VIX futures curve, contango/backwardation, VRP, roll yield, calendar spread edge, strategy selection framework, early warning system
-

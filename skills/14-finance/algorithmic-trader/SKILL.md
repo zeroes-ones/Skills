@@ -44,11 +44,18 @@ chain:
     - forex-trader
     - crypto-trader
     - macro-strategist
+    - advanced-options-structures
+    - leaps-strategist
+    - intraday-options-trader
+    - swing-options-trader
+    - options-automation-engineer
+    - volatility-arbitrage-engineer
   feeds_into:
     - backend-developer
     - frontend-developer
     - observability-engineer
     - trade-performance-analyst
+    - options-automation-engineer
     - portfolio-signal-manager
   alternatives:
     - ml-engineer
