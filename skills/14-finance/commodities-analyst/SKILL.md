@@ -417,13 +417,13 @@ US corn: beginning stocks 2.2B bu, production 15.0B bu, domestic use 12.5B bu, e
 10yr TIPS yield goes from 1.50% to 2.00%. DXY goes from 104 to 106. Gold was at $2,050. Estimate the new gold price using: ΔGold ≈ -100 × ΔReal_Yield - 15 × ΔDXY.
 
 ## References
-* [energy-complex.md](references/energy-complex.md) — Crude oil benchmarks, natural gas markets, refined products, EIA data guide
-* [metals-markets.md](references/metals-markets.md) — Precious metals drivers, base metals supply chains, LME/COMEX/SHFE exchange data
-* [agricultural-markets.md](references/agricultural-markets.md) — Grain/oilseed balance sheets, WASDE report guide, growing season calendar, weather models
-* [curve-structure-analysis.md](references/curve-structure-analysis.md) — Contango/backwardation, roll yield, total return decomposition, inventory-curve relationship
-* [processing-spreads.md](references/processing-spreads.md) — Crack spread, crush spread, spark spread, margin analysis, seasonal patterns
-* [commodity-cycles.md](references/commodity-cycles.md) — Super-cycles, inventory cycles, leading indicators, inter-commodity ratios
-* [geopolitical-risk.md](references/geopolitical-risk.md) — Strait of Hormuz, Russia/Ukraine grain corridor, OPEC+ politics, sanctions frameworks
-* [seasonality-calendar.md](references/seasonality-calendar.md) — Crop calendars, heating/cooling seasons, refinery turnaround schedules, hurricane season
-* [error-recovery.md](references/error-recovery.md) — Error recovery: weather premium, global vs local balance, secular mean-reversion, curve misunderstanding
+- [energy-complex.md](references/energy-complex.md) — Crude oil benchmarks, natural gas markets, refined products, EIA data guide
+- [metals-markets.md](references/metals-markets.md) — Precious metals drivers, base metals supply chains, LME/COMEX/SHFE exchange data
+- [agricultural-markets.md](references/agricultural-markets.md) — Grain/oilseed balance sheets, WASDE report guide, growing season calendar, weather models
+- [curve-structure-analysis.md](references/curve-structure-analysis.md) — Contango/backwardation, roll yield, total return decomposition, inventory-curve relationship
+- [processing-spreads.md](references/processing-spreads.md) — Crack spread, crush spread, spark spread, margin analysis, seasonal patterns
+- [commodity-cycles.md](references/commodity-cycles.md) — Super-cycles, inventory cycles, leading indicators, inter-commodity ratios
+- [geopolitical-risk.md](references/geopolitical-risk.md) — Strait of Hormuz, Russia/Ukraine grain corridor, OPEC+ politics, sanctions frameworks
+- [seasonality-calendar.md](references/seasonality-calendar.md) — Crop calendars, heating/cooling seasons, refinery turnaround schedules, hurricane season
+- [error-recovery.md](references/error-recovery.md) — Error recovery: weather premium, global vs local balance, secular mean-reversion, curve misunderstanding
 

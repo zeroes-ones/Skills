@@ -474,13 +474,13 @@ Given: Corn commercials net long +350K (3yr mean: +50K, std: 120K), large specs 
 For each scenario, select the correct order type and session: (a) Entering long ES at 10:30 AM CT, (b) Exiting long CL at 3:05 AM CT, (c) Rolling ZC from Sep to Dec at 12:00 PM CT, (d) Emergency exit at 8:32 AM CT during NFP release.
 
 ## References
-* [contract-specifications.md](references/contract-specifications.md) — Contract specs for all major futures: multiplier, tick size, tick value, delivery type, FND/LTD, trading hours, exchange
-* [span-margin-calculator.md](references/span-margin-calculator.md) — SPAN margin computation: risk arrays, scan range, cross-margining rules, exchange minimums
-* [roll-strategy-guide.md](references/roll-strategy-guide.md) — Roll execution: calendar spread orders, timing windows, cost analysis, broker-specific roll mechanics
-* [cot-analysis-framework.md](references/cot-analysis-framework.md) — COT interpretation: categories, positioning extremes, z-score computation, contrarian signal detection
-* [seasonality-calendar.md](references/seasonality-calendar.md) — Commodity seasonality tables: bullish/bearish windows per commodity, transition dates, historical reliability scores
-* [delivery-management.md](references/delivery-management.md) — Physical delivery: FND/LTD calendars, broker auto-liquidation policies, delivery assignment mechanics
-* [broker-integration-futures.md](references/broker-integration-futures.md) — Broker API specifics for futures: IBKR futures orders, Schwab futures, order types, SPAN pulls
-* [tax-treatment.md](references/tax-treatment.md) — Section 1256 60/40 treatment, mark-to-market rules, wash sale inapplicability, Form 6781 filing requirements
-* [error-recovery.md](references/error-recovery.md) — Futures-specific error patterns: margin call response, gap-through-stop recovery, delivery notice handling, roll error correction
+- [contract-specifications.md](references/contract-specifications.md) — Contract specs for all major futures: multiplier, tick size, tick value, delivery type, FND/LTD, trading hours, exchange
+- [span-margin-calculator.md](references/span-margin-calculator.md) — SPAN margin computation: risk arrays, scan range, cross-margining rules, exchange minimums
+- [roll-strategy-guide.md](references/roll-strategy-guide.md) — Roll execution: calendar spread orders, timing windows, cost analysis, broker-specific roll mechanics
+- [cot-analysis-framework.md](references/cot-analysis-framework.md) — COT interpretation: categories, positioning extremes, z-score computation, contrarian signal detection
+- [seasonality-calendar.md](references/seasonality-calendar.md) — Commodity seasonality tables: bullish/bearish windows per commodity, transition dates, historical reliability scores
+- [delivery-management.md](references/delivery-management.md) — Physical delivery: FND/LTD calendars, broker auto-liquidation policies, delivery assignment mechanics
+- [broker-integration-futures.md](references/broker-integration-futures.md) — Broker API specifics for futures: IBKR futures orders, Schwab futures, order types, SPAN pulls
+- [tax-treatment.md](references/tax-treatment.md) — Section 1256 60/40 treatment, mark-to-market rules, wash sale inapplicability, Form 6781 filing requirements
+- [error-recovery.md](references/error-recovery.md) — Futures-specific error patterns: margin call response, gap-through-stop recovery, delivery notice handling, roll error correction
 

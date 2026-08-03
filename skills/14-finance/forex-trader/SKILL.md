@@ -531,13 +531,13 @@ You want to enter EUR/USD at 03:00 GMT, USD/JPY at 14:00 GMT, AUD/USD at 20:00 G
 You plan to hold 0.5 lots long GBP/JPY for 30 days. GBP rate 5.00%, JPY rate 0.25%. Compute daily swap earned and total over 30 days. If the trade makes +2% (in pips) but swap earns $X, what's your total return?
 
 ## References
-* [pip-value-tables.md](references/pip-value-tables.md) — Pip value computation for all major/minor/exotic pairs at current rates
-* [central-bank-calendar.md](references/central-bank-calendar.md) — Meeting schedules, rate decisions, forward guidance frameworks for all G10 + key EM central banks
-* [carry-trade-framework.md](references/carry-trade-framework.md) — Carry trade construction, break-even analysis, swap rate comparison across brokers
-* [session-liquidity-guide.md](references/session-liquidity-guide.md) — Session-based execution: spread profiles, order types, pair-session matching
-* [correlation-matrix.md](references/correlation-matrix.md) — Pair correlation tables, net exposure computation, concentration risk detection
-* [swap-rollover-mechanics.md](references/swap-rollover-mechanics.md) — Swap/rollover: 5 PM ET cutoff, triple Wednesday, broker comparison, Islamic accounts
-* [broker-integration-forex.md](references/broker-integration-forex.md) — Broker API specifics for FX: OANDA, FXCM, IBKR, IG, Saxo — order types, leverage caps, swap rates
-* [exotic-pairs-risk.md](references/exotic-pairs-risk.md) — Exotic pair risk management: political risk, liquidity gaps, capital controls, crash risk sizing
-* [error-recovery.md](references/error-recovery.md) — FX-specific error patterns: news slippage, swap miscalculation, correlation breaks, margin close-out
+- [pip-value-tables.md](references/pip-value-tables.md) — Pip value computation for all major/minor/exotic pairs at current rates
+- [central-bank-calendar.md](references/central-bank-calendar.md) — Meeting schedules, rate decisions, forward guidance frameworks for all G10 + key EM central banks
+- [carry-trade-framework.md](references/carry-trade-framework.md) — Carry trade construction, break-even analysis, swap rate comparison across brokers
+- [session-liquidity-guide.md](references/session-liquidity-guide.md) — Session-based execution: spread profiles, order types, pair-session matching
+- [correlation-matrix.md](references/correlation-matrix.md) — Pair correlation tables, net exposure computation, concentration risk detection
+- [swap-rollover-mechanics.md](references/swap-rollover-mechanics.md) — Swap/rollover: 5 PM ET cutoff, triple Wednesday, broker comparison, Islamic accounts
+- [broker-integration-forex.md](references/broker-integration-forex.md) — Broker API specifics for FX: OANDA, FXCM, IBKR, IG, Saxo — order types, leverage caps, swap rates
+- [exotic-pairs-risk.md](references/exotic-pairs-risk.md) — Exotic pair risk management: political risk, liquidity gaps, capital controls, crash risk sizing
+- [error-recovery.md](references/error-recovery.md) — FX-specific error patterns: news slippage, swap miscalculation, correlation breaks, margin close-out
 

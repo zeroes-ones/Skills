@@ -377,10 +377,10 @@ Records financial snapshots for continuity across sessions. Schema detail → re
 Schema: date, net_worth, income, expenses, savings_rate, debt, emergency_fund_ratio, fI_progress. Snapshot format: key-value pairs date-stamped, stored per session.
 
 ### Anti-Drift Check
-* [ ] Have I read the previous session's final financial snapshot?
-* [ ] Has the user's life situation changed (job, marital status, dependents, location)?
-* [ ] Am I using pre-tax (gross) or post-tax (net) numbers consistently?
-* [ ] Are tax year limits correct for current year (2025 standard: 401k=$23,500, IRA=$7,000, HSA=$4,300/8,550)?
+- [ ] Have I read the previous session's final financial snapshot?
+- [ ] Has the user's life situation changed (job, marital status, dependents, location)?
+- [ ] Am I using pre-tax (gross) or post-tax (net) numbers consistently?
+- [ ] Are tax year limits correct for current year (2025 standard: 401k=$23,500, IRA=$7,000, HSA=$4,300/8,550)?
 ## What Good Looks Like
 <!-- STANDARD: 3min -->
 
