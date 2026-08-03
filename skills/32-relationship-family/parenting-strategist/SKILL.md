@@ -16,7 +16,7 @@ tags:
 - resilience
 - screen-time
 - financial-literacy
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - relationship-architect

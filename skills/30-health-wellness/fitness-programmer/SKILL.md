@@ -17,7 +17,7 @@ tags:
 - home-gym
 - autro-reg
 - training-plans
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - habit-engineer

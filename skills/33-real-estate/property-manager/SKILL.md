@@ -16,7 +16,7 @@ tags:
 - vendor-management
 - rent-pricing
 - compliance
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - real-estate-investor

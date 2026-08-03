@@ -17,7 +17,7 @@ tags:
 - concentrated-positions
 - estate-planner
 - philanthropy
-token_budget: 4500
+token_budget: 8500
 chain:
   consumes_from:
   - tax-strategist

@@ -16,7 +16,7 @@ tags:
 - NOI
 - lease-analysis
 - debt-structuring
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - real-estate-investor

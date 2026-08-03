@@ -16,7 +16,7 @@ tags:
 - zettelkasten
 - deliberate-practice
 - transfer
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - productivity-master

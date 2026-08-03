@@ -17,7 +17,7 @@ tags:
 - concessions
 - meso
 - audit
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - decision-engineer

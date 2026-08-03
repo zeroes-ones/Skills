@@ -16,7 +16,7 @@ tags:
 - habit-tracking
 - accountability
 - nudges
-token_budget: 4000
+token_budget: 9000
 chain:
   consumes_from: []
   examples:

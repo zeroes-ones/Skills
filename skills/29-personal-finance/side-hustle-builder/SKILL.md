@@ -17,7 +17,7 @@ tags:
 - mvp
 - pricing
 - taxes
-token_budget: 4500
+token_budget: 8500
 chain:
   consumes_from:
   - personal-finance

@@ -19,7 +19,7 @@ chain:
   examples:
   - skills/34-philosophy-wisdom/critical-thinker/examples/backtest
   feeds_into: []
-token_budget: 4000
+token_budget: 8500
 ---
 #
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

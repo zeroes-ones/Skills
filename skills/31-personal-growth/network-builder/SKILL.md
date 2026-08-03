@@ -16,7 +16,7 @@ tags:
 - conferences
 - community
 - reciprocity
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - life-architect

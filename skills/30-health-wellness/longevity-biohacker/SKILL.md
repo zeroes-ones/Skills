@@ -17,7 +17,7 @@ tags:
 - NAD
 - VO2max
 - HRV
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - fitness-programmer

@@ -18,7 +18,7 @@ tags:
 - 401k
 - sequence-of-returns
 - pension
-token_budget: 4500
+token_budget: 8500
 chain:
   consumes_from:
   - personal-finance

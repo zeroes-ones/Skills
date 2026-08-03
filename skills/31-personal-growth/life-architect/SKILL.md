@@ -17,7 +17,7 @@ tags:
 - energy
 - values
 - portfolio
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from: []
   examples:

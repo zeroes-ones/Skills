@@ -16,7 +16,7 @@ tags:
 - gut-health
 - meal-planning
 - metabolic-health
-token_budget: 4000
+token_budget: 8500
 chain:
   consumes_from:
   - habit-engineer

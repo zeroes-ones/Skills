@@ -19,7 +19,7 @@ chain:
   examples:
   - skills/35-home-domestic/interior-designer/examples/backtest
   feeds_into: []
-token_budget: 4000
+token_budget: 9000
 ---
 #
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

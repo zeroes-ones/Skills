@@ -18,7 +18,7 @@ tags:
 - 1031
 - mortgage
 - house-hacking
-token_budget: 4500
+token_budget: 8500
 chain:
   consumes_from:
   - personal-finance
