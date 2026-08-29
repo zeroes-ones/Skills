@@ -1,0 +1,180 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "token-efficiency",
+  "description": "Per-skill evaluation for token-efficiency \u2014 validates trigger routing, negative triggers, anti-pattern compliance, checklist coverage, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-token-efficiency-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate token-efficiency for a primary cost-optimization request",
+      "input": "Our LLM bill doubled last month with the same usage \u2014 what should we do first?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "token-efficiency"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measure",
+            "budget",
+            "cache"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-token-efficiency-caching",
+      "category": "trigger_routing",
+      "description": "Agent should route a prompt-caching failure to token-efficiency",
+      "input": "We enabled prompt caching but our hit rate is stuck at 5% \u2014 the docs say it should be higher. What's wrong?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "token-efficiency"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "prefix",
+            "byte"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-token-efficiency-max-tokens",
+      "category": "trigger_routing",
+      "description": "Agent should activate on unbounded output / max_tokens audit",
+      "input": "One of our chat endpoints has no max_tokens and its share of spend keeps climbing \u2014 audit it.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "token-efficiency"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "output",
+            "cap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-token-efficiency-prompt-phrasing",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate token-efficiency for prompt phrasing; route to llm-engineer",
+      "input": "Help me rephrase this system prompt so the model follows instructions more reliably.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "token-efficiency"
+        },
+        {
+          "type": "routed_to",
+          "skill": "llm-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-token-efficiency-model-selection",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate token-efficiency for model/provider selection; route to ai-engineer",
+      "input": "Which model should we pick for our new agent \u2014 compare context windows and providers.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "token-efficiency"
+        },
+        {
+          "type": "routed_to",
+          "skill": "ai-engineer"
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-token-efficiency-compress-before-cache",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must not recommend compression before cache stabilization",
+      "input": "Our prompts are 50K tokens of repeated content. Should we summarize them to save money?",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "compress before stabilizing the cache prefix"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stabilize",
+            "cache"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-token-efficiency-optimize-unmeasured",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to optimize without a measured baseline",
+      "input": "Just make our prompts shorter \u2014 I'm pretty sure that will cut costs enough.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "optimizing unmeasured flow"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measure",
+            "baseline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-token-efficiency-cr-coverage",
+      "category": "checklist_coverage",
+      "description": "Production checklist must gate a cache rollback on hit-rate evidence",
+      "input": "Before we roll out the new caching setup, what must be true?",
+      "expected_behavior": "checklist_applied",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hit rate",
+            "60%",
+            "prefix"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-token-efficiency",
+      "category": "progressive_disclosure",
+      "description": "Agent should offer quick scan before deep-diving into token cost math",
+      "input": "Tell me about token efficiency.",
+      "expected_behavior": "progressive_disclosure",
+      "assertions": [
+        {
+          "type": "progressive_disclosure_applied",
+          "levels": [
+            "QUICK",
+            "STANDARD",
+            "DEEP"
+          ]
+        }
+      ]
+    }
+  ]
+}

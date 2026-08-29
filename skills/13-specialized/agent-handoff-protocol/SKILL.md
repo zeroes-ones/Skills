@@ -24,6 +24,8 @@ chain:
   consumes_from:
   - agent-eval-pipeline
   - multi-agent-orchestration
+  - token-efficiency
+  - context-engineering
   feeds_into:
   - backend-developer
   - system-architect

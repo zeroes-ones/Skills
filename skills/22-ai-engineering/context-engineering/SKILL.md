@@ -8,16 +8,26 @@ description: Use when designing or debugging AI agent context strategies, optimi
   and file-level inclusion/exclusion decisions. Do NOT use for prompt engineering
   (route to llm-engineer), agent architecture design (route to ai-engineer), or model
   selection (route to ai-engineer).
-author: Sandeep Kumar Penchala
 license: MIT
-portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+author: Sandeep Kumar Penchala
+type: ai-engineering
+status: stable
+version: 1.1.0
+updated: 2026-08-29
+tags: [context-engineering, token-budget, context-window, prompt-caching, context-assembly, context-hierarchy]
 token_budget: 4000
 chain:
   consumes_from:
   - context-compaction-strategies
+  - token-efficiency
   feeds_into:
   - multi-agent-orchestration
   - llm-engineer
+  - token-efficiency
+  - dynamic-skill-creator
+  - cross-agent-skills-packaging
+  - agent-handoff-protocol
+portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
 # Context Engineering
 
@@ -44,8 +54,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -60,6 +68,7 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
 ```
@@ -71,8 +80,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -151,6 +158,21 @@ Architecture review of the entire context pipeline. Includes: context window sim
 - Agent architecture, tool selection, or orchestration → route to `ai-engineer`
 - Model selection or provider comparison → route to `ai-engineer`
 - Pure retrieval quality (embedding models, chunking) → route to `ai-engineer`
+- Raw token-cost minimization without context-structure concerns (budgets, caching, compression math) → route to `token-efficiency`
+
+## When NOT to Use **(QUICK)**
+
+Do **NOT** use this skill when the problem is not context structure:
+
+| Trigger | Route Instead | Why |
+|---------|---------------|-----|
+| Prompt phrasing, instruction tuning, few-shot selection | `llm-engineer` | You are editing prompts, not assembling context |
+| Agent architecture, tool selection, orchestration | `ai-engineer` | The design problem is the agent, not its context input |
+| Model selection or provider comparison | `ai-engineer` | Context strategy follows model choice, not the reverse |
+| Pure retrieval quality (embeddings, chunking) | `ai-engineer` | RAG plumbing, not context hierarchy design |
+| Pure token-cost/caching/compression math on fixed content | `token-efficiency` | Cost optimization without context-structure decisions |
+
+**If you are designing what goes INTO the context window — structure, priority, hierarchy, budget — this is the right skill. If you are tuning the model, the prompt text, or the retrieval stack — hand off.**
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -178,6 +200,20 @@ Architecture review of the entire context pipeline. Includes: context window sim
 - "My costs are too high" → Start at "Token Budget Allocation" (Section: Decision Trees)
 - "Agent forgets instructions" → Start at "Conversation Summarization" (Section: Decision Trees)
 - "Designing from scratch" → Start at "Core Workflow" and proceed sequentially
+
+## Anti-Rationalization **(QUICK)**
+
+**AR-01 No Budget, No Context:** You CANNOT assemble a context payload without declaring a token budget first. "The window is 200K, just fit what fits" is how budgets silently blow past 80% utilization and Level 1 rules get truncated. Declare the budget, then pack against it.
+
+**AR-02 No "Just-in-Case" Inclusion:** You CANNOT include a file the task does not reference, no matter how cheap it feels. "It might be useful" is the sentence that burns $375-$850/month on files the agent never reads. Every token must earn its place via relevance score > 0.4.
+
+**AR-03 No Silent Truncation:** You CANNOT let context overflow silently evict Level 1 (rules) or Level 4 (error output). "The model handled it" is a rationalization until the day it silently drops the "always write tests" rule. Hard cap at 80%; evict lowest-scoring Level 3 files first — explicitly, logged, not by overflow.
+
+**AR-04 No Cache-Prefix Churn:** You CANNOT reorder, reformat, or annotate the stable prefix between requests. "It's just a comment" turns a $0.015 cached request into a $0.375 uncached one — 25×. Treat L1/L2 as byte-frozen; any change requires cache-freeze approval.
+
+**AR-05 No Unvalidated Compression:** You CANNOT summarize conversation history or compress context without running a retention check. "The summary looked right" is how decisions and open questions get silently dropped. Validate ≥90% information retention before shipping a summary.
+
+**AR-06 No Handoff Without a Missing-Skill Check:** You CANNOT hand off to a role whose skill does not exist in this library. "Close enough, route it anyway" creates non-deterministic agent behavior. If the target skill is missing, trigger the autonomous skill-creation protocol (Core Workflow, Phase 6) before handing off.
 
 ## Core Workflow
 <!-- STANDARD: 3min -->
@@ -306,6 +342,26 @@ python context_audit.py --check-ground-rules \
   --dedup-threshold 0.85
 
 ```
+
+### Step 6: Autonomous Skill Creation on Handoff
+
+[RESEARCH LOOP: Re-execute RP1-RP8 before proceeding — is the handoff target real, current, and truly missing from the library?]
+
+**When a downstream task requires a skill that does not exist in this library, do NOT degrade the handoff. Create the skill autonomously, then hand off.**
+
+| # | Action | Verify |
+|---|--------|--------|
+| 1 | **Detect the gap.** The handoff target role/domain has no matching skill in `skills/`. | `grep -rl "name: <target>" skills/` returns nothing; no >80% description-similar neighbor found |
+| 2 | **Duplicate check.** Search for near-duplicates by name and description before creating. If an equivalent exists, extend it instead. | `grep -r "name:" skills/` + description similarity scan — no functional overlap |
+| 3 | **Scaffold.** Run `bash scripts/scaffold-skill.sh <domain>/<skill-name>` to generate the 22-section skeleton. | `scripts/verify-skill.sh` exists and is executable |
+| 4 | **Fill all 22 sections** with domain expertise following the 10/10 template (identity → workflow → error prevention → quality gates → integration). | `python3 scripts/lib/lint-template.py` passes with 0 errors |
+| 5 | **Wire the chain symmetrically.** Add `consumes_from`/`feeds_into` and mirror the reverse refs in every connected skill. | `python3 scripts/validate_chains.py` reports 0 asymmetries |
+| 6 | **Validate.** Run `lint-template.py`, `lint-yaml.py`, `lint-markdown.py`, and `bash scripts/validate-skills.sh`. | All gates pass; skill registers in the router |
+| 7 | **Hand off.** Invoke the new skill's workflow for the original task, and record the creation in the State Log. | Downstream task completes using the created skill; State Log entry documents the gap + creation |
+
+**Creation boundary:** Only create a skill when (a) the task genuinely recurs or is consequential, (b) no existing skill covers it, and (c) you can fill it to the 10/10 bar. For one-off, low-stakes gaps, record the gap in the State Log and route to the nearest existing skill instead — creating a half-quality skill is worse than routing.
+
+**Handoff:** Deliver the completed context strategy (or the new skill) to the consuming skill via `cross-agent-skills-packaging` conventions, and confirm the downstream skill's `consumes_from` includes this skill so the graph stays symmetric.
 
 ## Best Practices
 <!-- STANDARD: 3min -->
@@ -564,6 +620,7 @@ If a command or approach fails, follow this escalation path before giving up:
 |-----------|----------|------------------|
 | Agent keeps producing wrong answers despite correct context | `llm-engineer` | Context assembly log + failure examples |
 | Need to redesign how agent tools consume context | `ai-engineer` | Token budget model + level allocation strategy |
+| Pure token-cost, caching, or compression optimization on fixed content | `token-efficiency` | Token budget + cache-prefix audit + compression targets |
 | Context assembly involves DB schema files | `database-designer` | Relevance-scored file manifest |
 | Context includes API contracts | `api-designer` | Token budget for L2 specs |
 | Agent is a code reviewer with context issues | `code-reviewer` | File inclusion strategy for review diffs |
@@ -571,10 +628,20 @@ If a command or approach fails, follow this escalation path before giving up:
 | Diagnosing why agent missed a security vuln due to missing context | `security-reviewer` | Context manifest showing which files were included/excluded |
 | Context includes localization files | `localization-engineer` | File relevance scoring for locale files |
 
+**Skill Creation on Handoff (autonomous):**
+
+| Situation | Trigger | Action |
+|-----------|---------|--------|
+| Downstream task needs a skill that does not exist in the library | No `name:` match + no >80% description-similar neighbor in `skills/` | Run Core Workflow Step 6 — scaffold, fill 22 sections, validate, wire symmetric chain, then hand off |
+| A generated skill must be packaged for cross-agent reuse | Skill must run on Claude Code, Copilot, Gemini CLI, Cursor | Route to `cross-agent-skills-packaging` for portability testing + packaging |
+| Complex multi-step handoff between agent roles | Handoff involves state, unresolved questions, or 3+ skills | Route to `agent-handoff-protocol` for the structured handoff ledger |
+| A skill must be created or recreated from scratch at 10/10 quality | "create/regenerate skill for X" request | Route to `dynamic-skill-creator` (full discovery + generation protocol) |
+
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration patterns, deployment constraints | Before designing AI/ML pipelines |
 | `mlops-engineer` | Model lifecycle, deployment patterns, monitoring requirements | Before deploying ML models to production |
+| `token-efficiency` | Cost-model math, caching economics, compression algorithms | Before setting a token budget or choosing a compression strategy |
 
 ## Proactive Triggers
 <!-- STANDARD: 3min -->
@@ -638,33 +705,16 @@ Result: Agent completes all tasks correctly. Cost: $0.18 for the session.
 
 5. **Cross-model portability test:** Take a context assembly tuned for Claude 200K. Adapt it for GPT-4o 128K without losing task completion quality. Document every compression decision.
 
-## Anti-Patterns
+## Anti-Patterns **(STANDARD)**
 <!-- STANDARD: 3min -->
 
-### Anti-Pattern: Additive Context Packing
-**What it looks like:** Starting with an empty context and adding files one by one as the agent discovers they're needed. The agent requests files reactively, accumulating context over turns without evicting stale content.
-**Why it fails:** Additive packing biases toward files discovered early in the session, not files most relevant to the current task. By turn 10, context contains 30+ files — 60% of which were relevant to turn 2 but not turn 10. Token costs grow linearly with turns while relevance decays.
-**Do this instead:** Use inverse packing: rank all candidate files by relevance score, include top-N that fit within budget, evict files not referenced in 3+ turns. Each turn starts fresh from the full ranked set, not from the previous turn's accumulation.
-
-### Anti-Pattern: Static Token Budget for Dynamic Tasks
-**What it looks like:** Using the same token budget allocation (e.g., "50% for source files") regardless of task type. A debugging session that needs error traces (L4) gets the same budget as a feature implementation that needs specs (L2).
-**Why it fails:** Different tasks have different context needs. Debugging without error traces wastes engineering hours. Feature implementation without specs produces misaligned code. A static budget optimizes for no task well.
-**Do this instead:** Adapt budget by task type: debugging (L4: 15%, L3: 30%), feature implementation (L2: 20%, L3: 35%), code review (L3: 45%, L4: 5%), exploration (L3: 40%, L5: 15%). Task-aware budgeting puts tokens where they produce the most signal.
-
-### Anti-Pattern: Including Entire Directories "Just in Case"
-**What it looks like:** Including an entire `utils/` directory — 15-30 files averaging 500 tokens each — because the agent "might need something from there." No relevance scoring, no dependency analysis, no size consideration.
-**Why it fails:** A typical `utils/` folder burns 7,500-15,000 tokens per request. Across 15,000 requests/month (team of 8), that's $375-$850/month on files the agent never reads. Worse: polluted context causes 15-25% more turns per task due to degraded reasoning.
-**Do this instead:** Dependency-graph-based inclusion. Only include files reachable from the files the agent is actively editing. Relevance-score every candidate. If 60% of context tokens are irrelevant, you're paying double — once for the tokens, once for the degraded reasoning quality.
-
-### Anti-Pattern: Compressing Without Validation
-**What it looks like:** Compressing conversation history or source files (stripping comments, collapsing whitespace) without verifying the compressed content still contains the information the agent needs. A compressed summary of turn 12 omits the specific error code the agent needs.
-**Why it fails:** Compression is lossy by design. Without validation, you trade token savings for information loss — and the information you lose is exactly what the agent needs to solve the problem. A wrong fix based on incomplete context costs more than the tokens you saved.
-**Do this instead:** Validate compression quality: take a 20-turn conversation, write a summary in exactly 500 tokens, have another agent try to answer a question about turn 12 using only your summary. Iterate until accuracy > 90%. Apply the same validation to source file compression.
-
-### Anti-Pattern: Ignoring Cache Prefix Stability
-**What it looks like:** Context assembly varies file ordering between requests — different sort order, different file selection. Every request becomes a cache miss. The L1/L2 static content that should be cached gets re-sent every time.
-**Why it fails:** Uncached 50K token requests cost $0.375 each; cached (with stable prefix) cost $0.015 each. For 500 requests/day: uncached = $187.50/day ($68,437/year), cached = $7.50/day ($2,737/year). That's a 25× cost difference entirely determined by prefix stability.
-**Do this instead:** Deterministic file ordering: priority tier → alphabetical within tier. Keep L1 (rules) and L2 (specs) content identical between requests — never reorder, never reformat. Measure cache hit rate continuously. A 50% cache hit rate saves $33K/year on 500 requests/day.
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| ❌ **Additive context packing** — start empty, add files reactively as the agent asks. By turn 10, 60% of 30+ files were only relevant to turn 2. | ✅ **Inverse packing** — rank all candidates by relevance, include top-N within budget, evict files unreferenced for 3+ turns. Start fresh from the ranked set each turn. |
+| ❌ **Static token budget for all task types** — debugging, feature work, code review all get the same 50% L3 allocation. | ✅ **Task-aware budgets** — debugging (L4: 15%, L3: 30%), feature work (L2: 20%, L3: 35%), code review (L3: 45%), exploration (L3: 40%, L5: 15%). |
+| ❌ **Including entire directories "just in case"** — a whole `utils/` folder because the agent "might need something." Burns $375-$850/month on unread files. | ✅ **Dependency-graph inclusion** — only include files reachable from files the agent is actively editing; relevance-score every candidate ≥ 0.4. |
+| ❌ **Compressing without validation** — strip comments and summarize history, then discover the omitted error code was the answer. | ✅ **Validate retention ≥ 90%** — write a 500-token summary, have a fresh agent answer questions about turn 12 from it alone; iterate until accurate. |
+| ❌ **Ignoring cache-prefix stability** — file ordering varies per request; every request is a cache miss at 25× the cost ($0.375 vs $0.015 on 50K tokens). | ✅ **Deterministic ordering** — priority tier → alphabetical within tier; freeze L1/L2 byte-for-byte; measure hit rate > 60% continuously. |
 
 ### 1. Context Pollution: The Silent Killer ($1,200/month)
 A 10-developer team running 50 agent calls/day each at $0.03/call. If 60% of context tokens are irrelevant (pollution), that's $0.018 wasted per call × 50 calls × 22 days × 10 devs = **$1,188/month in wasted tokens**. Worse: polluted context causes 15-25% more turns per task due to degraded reasoning, doubling the real cost. Fix: mandatory relevance scoring before inclusion. Every file in context must earn its place.
@@ -681,26 +731,27 @@ Agent operating near context window limit (90%+ utilization) has instructions fr
 ### 5. Prompt Caching Failures ($1,500/month)
 Anthropic prompt caching requires a stable prefix (exact byte match). If context assembly varies file ordering between requests, every request becomes a cache miss. At $7.50/M input tokens (uncached) vs $0.30/M (cached) for cached read tokens, a 50K token request costs $0.375 uncached vs $0.015 cached. For 500 requests/day: uncached = **$187.50/day, cached = $7.50/day.** Difference: **$180/day or $3,960/month.** Even a 50% cache hit rate saves $1,980/month. Fix: deterministic file ordering in context assembly. Always sort by priority tier first, then alphabetically within tier. Static content (L1, L2) MUST be the prefix.
 
-## Production Checklist
+## Production Checklist **(STANDARD)**
 <!-- STANDARD: 3min -->
 
 Before any context assembly strategy reaches production, verify:
 
-- [ ] Token budget declared and enforced: `jq '.token_budget' context.json` returns valid allocation per task type
-- [ ] Context utilization < 80% of model window: `python context_audit.py --check-usage` passes
-- [ ] All Level 3 files have relevance scores > 0.4: `python context_audit.py --check-scores` passes
-- [ ] Deduplication pass completed with < 5% duplicate rate: `grep -c "DUPLICATE" context_audit.log`
-- [ ] Conversation history (L5) is summarized, not raw, if turns > 10
-- [ ] Level 1 content (rules) is identical to previous request — cache-friendly prefix preserved
-- [ ] File ordering is deterministic: priority tier → alphabetical within tier
-- [ ] No file in context has been included without being referenced for 3+ turns (stale file check)
-- [ ] Error output (L4) trimmed to last 50 lines + stack trace only — never excluded entirely
-- [ ] Cache hit rate measured and > 60% over last 50 requests
-- [ ] Dollar-cost projection updated for current assembly strategy and compared against alternatives
-- [ ] Task-type-specific budget allocation defined: debugging, feature implementation, code review, exploration
-- [ ] Relevance score decay active: files unreferenced for 3+ turns get 0.5× multiplier
-- [ ] Compression validation completed: summary quality > 90% accuracy on information retention test
-- [ ] Ground Rules 1-8 all passing: `python context_audit.py --check-ground-rules`
+- [ ] **CR1: Token budget declared and enforced** — Verification: `jq '.token_budget' context.json` returns valid allocation per task type
+- [ ] **CR2: Context utilization < 80% of model window** — Verification: `python context_audit.py --check-usage` passes
+- [ ] **CR3: All Level 3 files have relevance scores > 0.4** — Verification: `python context_audit.py --check-scores` passes
+- [ ] **CR4: Deduplication pass completed with < 5% duplicate rate** — Verification: `grep -c "DUPLICATE" context_audit.log`
+- [ ] **CR5: Conversation history (L5) summarized, not raw, if turns > 10** — Verification: raw turn count ≤ 10 in payload; summary preserves all decisions
+- [ ] **CR6: Level 1 content (rules) byte-identical to previous request — cache-friendly prefix preserved** — Verification: `diff` against previous L1 prefix returns zero changes
+- [ ] **CR7: File ordering deterministic: priority tier → alphabetical within tier** — Verification: two assemblies of same input produce byte-identical payloads
+- [ ] **CR8: No stale file included without being referenced for 3+ turns** — Verification: stale-file eviction log shows files removed after 3 idle turns
+- [ ] **CR9: Error output (L4) trimmed to last 50 lines + stack trace — never excluded entirely** — Verification: L4 never exceeds 5% of total budget; stack trace always present
+- [ ] **CR10: Cache hit rate measured and > 60% over last 50 requests** — Verification: `python context_audit.py --check-cache` reports ≥ 60%; prefix freeze enforced
+- [ ] **CR11: Dollar-cost projection updated and compared against alternatives** — Verification: cost dashboard shows projected vs actual; trend flat or declining
+- [ ] **CR12: Task-type-specific budget allocation defined** — Verification: debugging, feature implementation, code review, exploration each have caps
+- [ ] **CR13: Relevance score decay active** — Verification: files unreferenced 3+ turns get 0.5× multiplier; decay log present
+- [ ] **CR14: Compression validation completed** — Verification: summary quality > 90% accuracy on information retention test
+- [ ] **CR15: Ground Rules 1-8 all passing** — Verification: `python context_audit.py --check-ground-rules` returns zero failures
+- [ ] **CR16: Handoff skill gaps resolved** — Verification: any required downstream skill missing from `skills/` was created via Step 6 or the gap is recorded in the State Log
 
 ## Gotchas
 <!-- DEEP: 10+min -->

@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-08-03T04:14:05Z
+# Generated: 2026-08-29T20:00:29Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    ab43ec38cd86168e4fe2bda4e5a8b60be01eca79
+# Commit:    92ef652249e2a035f71e2d3a99cb57b8be35d830
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -268,6 +268,8 @@ f01f49b824d367c1f81436bbf98a4ed39191337f9ddf2038226af535ae99367b  skills/22-ai-e
 42850428e44d5f5f38f7949251cdcf59930ba13d629c2913a66571d69b93a1ab  skills/22-ai-engineering/mlops-engineer/scripts/test_serving.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/22-ai-engineering/mlops-engineer/scripts/verify-skill.sh
 03c4945a85c75c45f03b2f6822307bf58f8fd6bf5ce021c38d1ca9732c6e0023  skills/22-ai-engineering/mlops-engineer/scripts/verify_registry.py
+49f165d0f1bf7767e8696af7101525a33d601c066497854f9626a97bf6bea115  skills/22-ai-engineering/token-efficiency/scripts/token-cost-calculator.py
+349b4e7f70350bbb44a4a95af48c227756fbb0c7c3094cf1d2161c2db2a40df3  skills/22-ai-engineering/token-efficiency/scripts/verify-skill.sh
 5bd83266b0631c8f296632544baf0a1f1829f93e5ab0c8290932edfd627d9ade  skills/23-trust-safety/applying-llm-guardrails/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/23-trust-safety/content-policy-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/23-trust-safety/data-security/scripts/verify-skill.sh

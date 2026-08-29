@@ -19,6 +19,8 @@ chain:
     - agent-eval-pipeline
     - platform-engineer
     - staff-engineer
+    - token-efficiency
+    - context-engineering
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 <!-- QUICK: 30s -->

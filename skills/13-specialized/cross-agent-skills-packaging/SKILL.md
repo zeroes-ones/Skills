@@ -25,6 +25,8 @@ chain:
     - agent-handoff-protocol
     - platform-engineer
     - devops-engineer
+    - token-efficiency
+    - context-engineering
   feeds_into:
     - agent-eval-pipeline
     - ci-cd-builder

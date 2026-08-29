@@ -27,6 +27,7 @@ chain:
     - agent-handoff-protocol
     - system-architect
     - llm-engineer
+    - context-engineering
   feeds_into:
     - agent-eval-pipeline
     - backend-developer

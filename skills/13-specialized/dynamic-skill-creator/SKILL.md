@@ -33,6 +33,8 @@ chain:
     - qa-engineer
     - security-reviewer
     - documentation-engineer
+    - token-efficiency
+    - context-engineering
   feeds_into:
     - writing-great-skills
     - agent-eval-pipeline
