@@ -105,7 +105,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 | # | Rule | Mechanical Trigger | Violation Response |
 |---|------|-------------------|-------------------|
-| R1 | Anchor to the installed Kotlin, Gradle, and library versions first. Read `settings.gradle.kts`, the shared module's `build.gradle.kts`, and the iOS integration method before proposing any code. | Any KMP code proposal without checking the Gradle config and target setup first | Stop. Read the Gradle configs + `shared/` structure; anchor all APIs to the detected versions |
+| R1 | Anchor to the installed Kotlin, Gradle, and library versions first. Read `settings.gradle.kts`, the shared module's `build.gradle.kts`, and the iOS integration method before proposing any code — and run the shared freshness check to confirm the installed versions are current. | Any KMP code proposal without checking the Gradle config and target setup first | Stop. Read the Gradle configs + `shared/` structure; run `bash scripts/lib/library-version-check.sh . --strict`; anchor all APIs to the detected versions |
 | R2 | Never upgrade Kotlin/Gradle or kotlinx libraries without a migration plan. Version bumps break iOS export and library compatibility; plan the upgrade and test matrix first. | A proposed Kotlin/Gradle/kotlinx bump with no migration/rollback plan | Require a migration plan: affected targets, libraries, iOS export, test matrix, rollback |
 | R3 | Respect the target structure — commonMain is only for truly shared code. Platform-specific logic goes in androidMain/iosMain via expect/actual or platform modules. | Platform-specific code (e.g., `java.*`, UIKit) in commonMain | Move to the correct source set or an expect/actual declaration |
 | R4 | Write thread-safe shared code under the new memory model. No reliance on freezing; document concurrency and use proper synchronization for mutable shared state. | Mutable shared state accessed from multiple threads without synchronization | Add synchronization or confine the state; verify with a concurrency test |
@@ -243,7 +243,7 @@ They know **Kotlin/Native is a different Kotlin**. Concurrency (new memory model
 
 ### Phase 1: Anchor — Read Gradle, Structure, and Versions (~15 min)
 
-1. **Do:** Read `settings.gradle.kts`, the shared module's `build.gradle.kts`, `gradle/libs.versions.toml`, and the iOS integration (CocoaPods/SPM/direct). Run `./gradlew :shared:tasks` or check the Kotlin plugin version.
+1. **Do:** Read `settings.gradle.kts`, the shared module's `build.gradle.kts`, `gradle/libs.versions.toml`, and the iOS integration (CocoaPods/SPM/direct). Run `./gradlew :shared:tasks` or check the Kotlin plugin version, then run the shared freshness check: `bash scripts/lib/library-version-check.sh . --strict` (per `scripts/references/library-freshness-policy.md`).
 2. **Verify:** You can state: Kotlin version, Gradle version, targets declared, the hierarchy template in use, and the iOS integration method.
 3. **Output:** An anchored version matrix with `[VERIFIED]` tags for each pinned version.
 
@@ -538,6 +538,7 @@ Shared state "protected" with `freeze()` under the old model behaves differently
 ## Production Checklist **(STANDARD)**
 
 - [ ] **CR1: Version matrix anchored and verified** — Verification: Kotlin/Gradle/kotlinx/Xcode versions documented `[VERIFIED]`; version catalog is the source of truth
+- [ ] **CR1b: Library freshness verified** — Verification: `bash scripts/lib/library-version-check.sh . --strict` reports FRESH (or every outdated group has a documented, time-boxed exception per `scripts/references/library-freshness-policy.md`)
 - [ ] **CR2: Source-set map defined** — Verification: every piece of logic has a named home; no platform-specific code in commonMain (CI-enforced)
 - [ ] **CR3: expect/actual surface small and stable** — Verification: expect inventory documented; both platform actuals exist and match signatures
 - [ ] **CR4: Both targets compile** — Verification: `./gradlew :shared:compileKotlinAndroid` + iOS target compilation succeed on a clean checkout
@@ -571,6 +572,7 @@ Shared state "protected" with `freeze()` under the old model behaves differently
 | # | Complete when... | Verify |
 |---|---|---|
 | ☐ | Complete when the version matrix is anchored: Kotlin, Gradle, kotlinx, and Xcode versions stated `[VERIFIED]` | Verify `./gradlew --version` + Kotlin plugin version + version catalog match the documented matrix |
+| ☐ | Complete when library freshness is verified: `bash scripts/lib/library-version-check.sh . --strict` reports FRESH, or every outdated dependency group carries a documented exception | Verify the checker output; exceptions have an expiry/review date in the State Log |
 | ☐ | Complete when the source-set map is defined: every piece of logic has a named home; commonMain has no platform-specific code | Verify the source-set doc; CI compiles every source set (platform leakage fails the build) |
 | ☐ | Complete when both targets compile and commonTest passes on both: Android + iOS builds green | Verify CI runs both targets; shared tests green on both platforms |
 | ☐ | Complete when the iOS framework exports, links, and a Swift smoke call passes | Verify the export build + smoke call in CI; iOS consumer compiles |
@@ -605,6 +607,7 @@ Shared state "protected" with `freeze()` under the old model behaves differently
 - [Testing Shared Logic](../references/testing-shared-logic.md) — commonTest setup and platform test strategy
 - [Version Matrix Reference](../references/version-matrix.md) — Kotlin/Gradle/kotlinx compatibility and upgrade protocol
 - [Compose Multiplatform](../references/compose-multiplatform.md) — Shared UI strategy and maturity guidance
+- **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---
 

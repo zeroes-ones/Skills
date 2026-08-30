@@ -24,3 +24,11 @@ fi
 
 echo ""
 echo "  Next: check Kotlin/Native <-> Xcode compatibility before any iOS work; run the full CI matrix after upgrades."
+echo "  Then the shared freshness check per the Library Freshness Policy:"
+echo "    bash scripts/lib/library-version-check.sh . --strict"
+
+# Shared freshness check (always-use-updated-libraries enforcement)
+if [ -f "$(cd "$(dirname "$0")/../../.." && pwd)/scripts/lib/library-version-check.sh" ]; then
+    echo ""
+    bash "$(cd "$(dirname "$0")/../../.." && pwd)/scripts/lib/library-version-check.sh" "$ROOT" || true
+fi

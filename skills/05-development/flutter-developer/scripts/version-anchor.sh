@@ -28,3 +28,11 @@ fi
 
 echo ""
 echo "  Next: run 'flutter pub outdated' to surface drift and 'flutter analyze' as the static gate."
+echo "  Then the shared freshness check per the Library Freshness Policy:"
+echo "    bash scripts/lib/library-version-check.sh . --strict"
+
+# Shared freshness check (always-use-updated-libraries enforcement)
+if [ -f "$(cd "$(dirname "$0")/../../.." && pwd)/scripts/lib/library-version-check.sh" ]; then
+    echo ""
+    bash "$(cd "$(dirname "$0")/../../.." && pwd)/scripts/lib/library-version-check.sh" "$ROOT" || true
+fi

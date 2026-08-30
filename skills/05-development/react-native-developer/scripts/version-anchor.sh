@@ -37,4 +37,12 @@ if [ -f "$ROOT/android/gradle.properties" ]; then
 fi
 
 echo ""
-echo "  Next: run 'npx expo install --check' (Expo) or 'npx react-native config' (bare) to verify drift."
+echo "  Next: run 'npx expo install --check' (Expo) or 'npx react-native config' (bare) to verify drift,"
+echo "  and the shared freshness check per the Library Freshness Policy:"
+echo "    bash scripts/lib/library-version-check.sh . --strict"
+
+# Shared freshness check (always-use-updated-libraries enforcement)
+if [ -f "$(cd "$(dirname "$0")/../../.." && pwd)/scripts/lib/library-version-check.sh" ]; then
+    echo ""
+    bash "$(cd "$(dirname "$0")/../../.." && pwd)/scripts/lib/library-version-check.sh" "$ROOT" || true
+fi

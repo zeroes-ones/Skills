@@ -107,7 +107,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 | # | Rule | Mechanical Trigger | Violation Response |
 |---|------|-------------------|-------------------|
-| R1 | Anchor to the installed versions first. Read `package.json`, `app.json`/`app.config.js`, and `npx react-native config` before proposing any code. | Any RN/Expo code proposal without checking the project's versions and config first | Stop. Run `npx expo install --check` or read package.json; anchor all APIs to the detected versions |
+| R1 | Anchor to the installed versions first. Read `package.json`, `app.json`/`app.config.js`, and `npx react-native config` before proposing any code — and run the shared freshness check to confirm the installed versions are current. | Any RN/Expo code proposal without checking the project's versions and config first | Stop. Run `npx expo install --check` + `bash scripts/lib/library-version-check.sh . --strict`; anchor all APIs to the detected versions |
 | R2 | Never upgrade RN core or Expo SDK without a migration plan. Version bumps break native dependencies; plan the interop and test matrix first. | A proposed `npx react-native upgrade` or `npx expo install expo@latest` with no migration/rollback plan | Require a migration plan: affected native modules, test matrix, rollback path, staged rollout |
 | R3 | Respect the New Architecture state of the app. If New Arch is enabled, use Fabric-compatible components and TurboModule patterns; if not, stay on the legacy bridge. | Code that mixes New Arch and legacy bridge patterns in one app | Reconcile with the app's `newArchEnabled` setting; document interop behavior |
 | R4 | Keep JS off the main thread and off the render path. Animations and gestures use the UI thread (Reanimated/Skia); heavy work goes to Hermes workers or native. | Animation logic in `useState`/JS-driven `Animated` for a 60fps path, or blocking work in a render | Move to Reanimated (UI thread) or a worker; verify 60fps with the profiler |
@@ -247,7 +247,7 @@ They know the **version matrix is the product's nervous system**. RN core, Expo 
 
 ### Phase 1: Anchor — Read Versions and Config (~15 min)
 
-1. **Do:** Read `package.json`, `app.json`/`app.config.js`, `babel.config.js`, `metro.config.js`, and the `ios/`/`android/` shells. Run `npx expo install --check` (Expo) or `npx react-native config` (bare) to surface version mismatches.
+1. **Do:** Read `package.json`, `app.json`/`app.config.js`, `babel.config.js`, `metro.config.js`, and the `ios/`/`android/` shells. Run `npx expo install --check` (Expo) or `npx react-native config` (bare) to surface version mismatches, then run the shared freshness check: `bash scripts/lib/library-version-check.sh . --strict` (per `scripts/references/library-freshness-policy.md`).
 2. **Verify:** You can state: RN core version, Expo SDK version (if Expo), New Architecture state (`newArchEnabled` in `app.json` or `gradle.properties`), Hermes state, and the app's native module list.
 3. **Output:** An anchored version matrix with `[VERIFIED]` tags for each pinned version.
 
@@ -553,6 +553,7 @@ A chat app scrolls at 30fps because animations and list re-renders run on the JS
 ## Production Checklist **(STANDARD)**
 
 - [ ] **CR1: Version matrix anchored and verified** — Verification: `npx expo install --check` (Expo) or `npx react-native config` (bare) passes; RN/Expo/Hermes/New-Arch versions documented `[VERIFIED]`
+- [ ] **CR1b: Library freshness verified** — Verification: `bash scripts/lib/library-version-check.sh . --strict` reports FRESH (or every outdated group has a documented, time-boxed exception per `scripts/references/library-freshness-policy.md`)
 - [ ] **CR2: Stack decision documented** — Verification: Expo-vs-bare decision with the native-needs checklist filled in `references/expo-vs-bare-decision.md`
 - [ ] **CR3: New Architecture state reconciled** — Verification: `newArchEnabled` matches the app's actual config; interop layer configured for unmigrated libraries
 - [ ] **CR4: Both platforms build** — Verification: `npx expo run:ios` and `npx expo run:android` (or native equivalents) succeed on a clean checkout
@@ -586,6 +587,7 @@ A chat app scrolls at 30fps because animations and list re-renders run on the JS
 | # | Complete when... | Verify |
 |---|---|---|
 | ☐ | Complete when the version matrix is anchored: RN core, Expo SDK (if Expo), Hermes, New Architecture state all stated `[VERIFIED]` from package.json/app config | Verify `npx expo install --check` or `npx react-native config` output matches the documented matrix |
+| ☐ | Complete when library freshness is verified: `bash scripts/lib/library-version-check.sh . --strict` reports FRESH, or every outdated dependency group carries a documented exception | Verify the checker output; exceptions have an expiry/review date in the State Log |
 | ☐ | Complete when the stack decision is documented: Expo vs bare chosen against a concrete native-needs checklist | Verify the checklist in `references/expo-vs-bare-decision.md` is filled; every native need has a module/plugin answer |
 | ☐ | Complete when both platforms build on a clean checkout: `npx expo run:ios` and `npx expo run:android` succeed | Verify a clean clone builds both platforms; no stale caches or local-only config |
 | ☐ | Complete when unit + E2E tests pass on the matrix: Jest/RNTL green, Detox/Maestro green on both platforms and the oldest supported OS | Verify CI runs the matrix; skipped tests count as failures |
@@ -620,6 +622,7 @@ A chat app scrolls at 30fps because animations and list re-renders run on the JS
 - [OTA and Release Policy](../references/ota-release-policy.md) — EAS Update/CodePush channels, staging, App Store compliance
 - [Version Matrix Reference](../references/version-matrix.md) — RN/Expo/Hermes compatibility rules and upgrade protocol
 - [RN Deployment & Signing](../references/deployment-signing.md) — EAS/Fastlane, code signing, store submission
+- **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---
 

@@ -107,7 +107,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 | # | Rule | Mechanical Trigger | Violation Response |
 |---|------|-------------------|-------------------|
-| R1 | Anchor to the installed Flutter/Dart versions and pubspec first. Read `pubspec.yaml`, the `lib/` structure, and state-management choice before proposing any code. | Any Flutter code proposal without checking pubspec.yaml and the app's architecture first | Stop. Read pubspec.yaml + `lib/` structure; anchor all APIs to the detected versions |
+| R1 | Anchor to the installed Flutter/Dart versions and pubspec first. Read `pubspec.yaml`, the `lib/` structure, and state-management choice before proposing any code — and run the shared freshness check to confirm the installed versions are current. | Any Flutter code proposal without checking pubspec.yaml and the app's architecture first | Stop. Read pubspec.yaml + `lib/` structure; run `bash scripts/lib/library-version-check.sh . --strict`; anchor all APIs to the detected versions |
 | R2 | Never upgrade Flutter or Dart SDK without a migration plan. Version bumps break plugins and deprecate APIs; plan the upgrade and test matrix first. | A proposed `flutter upgrade` or major package bump with no migration/rollback plan | Require a migration plan: affected plugins, breaking changes, test matrix, rollback |
 | R3 | Keep heavy work off the UI isolate. Builds stay cheap, IO/CPU work goes to isolates, platform work stays in platform channels. | Blocking IO or heavy computation inside `build()` or the UI isolate | Move to an isolate (compute/Isolate.run) or async platform work; profile to confirm no jank |
 | R4 | Use the app's state-management stack — don't introduce a second one. Riverpod, Bloc, or Provider; pick per project and stay consistent. | New state code using a different paradigm than the app's established stack | Reconcile with the app's chosen stack; document the boundary |
@@ -246,7 +246,7 @@ They know **the platform boundary is real**. Flutter draws its own pixels, but p
 
 ### Phase 1: Anchor — Read pubspec, Structure, and SDK (~15 min)
 
-1. **Do:** Read `pubspec.yaml`, `lib/` structure, `analysis_options.yaml`, and the `ios/`/`android/` folders. Run `flutter --version` and `flutter pub outdated` to surface drift.
+1. **Do:** Read `pubspec.yaml`, `lib/` structure, `analysis_options.yaml`, and the `ios/`/`android/` folders. Run `flutter --version` and `flutter pub outdated` to surface drift, then run the shared freshness check: `bash scripts/lib/library-version-check.sh . --strict` (per `scripts/references/library-freshness-policy.md`).
 2. **Verify:** You can state: Flutter and Dart versions, the state-management stack, the plugin list, and the platform-channel inventory.
 3. **Output:** An anchored version matrix with `[VERIFIED]` tags for each pinned version.
 
@@ -551,6 +551,7 @@ A chat app parses a 4MB message history JSON on the UI isolate at startup; the a
 ## Production Checklist **(STANDARD)**
 
 - [ ] **CR1: Version matrix anchored and verified** — Verification: `flutter --version` + `flutter pub outdated` documented `[VERIFIED]`; pubspec locked
+- [ ] **CR1b: Library freshness verified** — Verification: `bash scripts/lib/library-version-check.sh . --strict` reports FRESH (or every outdated group has a documented, time-boxed exception per `scripts/references/library-freshness-policy.md`)
 - [ ] **CR2: State-management stack chosen and consistent** — Verification: one paradigm per app; boundaries documented; no mixed paradigms without a documented boundary
 - [ ] **CR3: `flutter analyze` clean with strict lints** — Verification: zero analyzer warnings in CI; `flutter_lints` enabled
 - [ ] **CR4: Both platforms build** — Verification: `flutter build ios` and `flutter build apk --release` succeed on a clean checkout
@@ -584,6 +585,7 @@ A chat app parses a 4MB message history JSON on the UI isolate at startup; the a
 | # | Complete when... | Verify |
 |---|---|---|
 | ☐ | Complete when the version matrix is anchored: Flutter and Dart versions, state stack, and plugin list stated `[VERIFIED]` from pubspec/SDK | Verify `flutter --version` + `flutter pub outdated` output matches the documented matrix |
+| ☐ | Complete when library freshness is verified: `bash scripts/lib/library-version-check.sh . --strict` reports FRESH, or every outdated dependency group carries a documented exception | Verify the checker output; exceptions have an expiry/review date in the State Log |
 | ☐ | Complete when the state-management stack is chosen and consistent: one paradigm per app with documented boundaries | Verify the architecture doc; no mixed paradigms without a documented boundary |
 | ☐ | Complete when both platforms build on a clean checkout: `flutter build ios` and `flutter build apk --release` succeed | Verify clean builds; no stale caches or local-only config |
 | ☐ | Complete when tests pass on the matrix: `flutter test` green, integration tests green on both platforms | Verify CI runs the matrix; skipped tests count as failures |
@@ -618,6 +620,7 @@ A chat app parses a 4MB message history JSON on the UI isolate at startup; the a
 - [Testing Matrix](../references/testing-matrix.md) — Unit/widget/integration test setup and release gates
 - [Version Matrix Reference](../references/version-matrix.md) — Flutter/Dart compatibility and upgrade protocol
 - [Widget Architecture](../references/widget-architecture.md) — Composition, const, rebuild scopes, theming
+- **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---
 
