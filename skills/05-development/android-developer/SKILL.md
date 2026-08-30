@@ -21,7 +21,10 @@ chain:
     - ui-ux-designer
   feeds_into:
   - automation-engineer
+  - flutter-developer
+  - kotlin-multiplatform
   - qa-engineer
+  - react-native-developer
   - security-reviewer
   - performance-engineer
 ---

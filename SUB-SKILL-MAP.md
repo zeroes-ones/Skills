@@ -191,6 +191,9 @@ Each parent skill identifies sub-skills that an agent can dive into iteratively.
 | Sub-Skill | When to Use | Platform |
 |-----------|-------------|----------|
 | `framework-selection` | New mobile project | Native vs React Native vs Flutter vs PWA |
+| `react-native-developer` | RN/Expo implementation | Expo/EAS, New Architecture, native modules, OTA |
+| `flutter-developer` | Flutter implementation | Widgets, state, platform channels, Impeller |
+| `kotlin-multiplatform` | Shared Kotlin logic across platforms | Source sets, expect/actual, iOS interop, Compose Multiplatform |
 | `ios-hig-compliance` | iOS app design | iOS HIG patterns, Dynamic Type, Safe Area, gestures |
 | `material-design` | Android app design | Material 3, dynamic color, adaptive layouts |
 | `offline-first` | Connectivity-challenged apps | SQLite/WatermelonDB, sync engine, conflict resolution |

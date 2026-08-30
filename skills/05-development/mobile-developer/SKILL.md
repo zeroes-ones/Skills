@@ -28,17 +28,23 @@ chain:
     - api-designer
     - backend-developer
     - feature-flag-architect
+    - flutter-developer
+    - kotlin-multiplatform
     - localization-engineer
     - material-design-expert
     - qa-engineer
+    - react-native-developer
     - security-reviewer
     - tdd-guide
     - ui-ux-designer
   feeds_into:
     - apple-hig-expert
     - automation-engineer
+    - flutter-developer
+    - kotlin-multiplatform
     - localization-engineer
     - qa-engineer
+    - react-native-developer
     - security-reviewer
     - translation-manager
 ---
@@ -118,7 +124,10 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 
 | # | Condition | Action |
 |---|-----------|--------|
-| A1 | `file_contains("package.json", "\"react-native\"\|\"expo\"\|\"flutter\"")` OR `file_exists("ios/\|android/\|App.tsx\|pubspec.yaml")` | This is your skill. Jump to **Core Workflow** — Phase 2 (UI Implementation). |
+| A0 | `file_contains("package.json", "\"react-native\"\|\"expo\"")` | Route implementation to **react-native-developer** (Expo/EAS, New Architecture, native modules). This skill handles the stack decision only. |
+| A0b | `file_exists("pubspec.yaml")` AND `file_contains("pubspec.yaml", "flutter")` | Route implementation to **flutter-developer** (widgets, state, channels). This skill handles the stack decision only. |
+| A0c | `file_contains("settings.gradle.kts", "kotlinMultiplatform\|multiplatform")` OR `file_exists("shared/src/commonMain")` | Route implementation to **kotlin-multiplatform** (source sets, expect/actual, iOS interop). This skill handles the stack decision only. |
+| A1 | `file_exists("ios/\|android/\|App.tsx\|*.xcodeproj\|*.xcworkspace")` AND no cross-platform stack detected above | This is your skill. Jump to **Core Workflow** — Phase 2 (UI Implementation). For native-only stacks, also consider `ios-developer`/`android-developer`. |
 | A2 | `file_contains("*", "NSPhotoLibrary\|NSCamera\|Info.plist\|AndroidManifest.*permission")` AND `file_contains("*", "permission.*denied\|permission.*blocked\|shouldShowRequest")` | Jump to **Core Workflow** — Phase 3 (Permissions). |
 | A3 | `file_contains("*", "SQLite\|WatermelonDB\|Realm\|MMKV\|AsyncStorage\|local.*database")` AND `file_contains("*", "offline\|sync\|conflict\|reconcile")` | Jump to **Decision Trees** — Offline-First Strategy. |
 | A4 | `file_contains("*", "APNs\|FCM\|firebase.*messaging\|push.*notification\|content-available")` AND `file_contains("*", "token.*refresh\|onTokenRefresh\|registerForRemote")` | Jump to **Core Workflow** — Phase 4 (Push Notifications). |
@@ -139,7 +148,11 @@ What are you trying to do?
 ├── Integrate a native feature (camera, biometrics, GPS) → Go to "references/native-module-guide.md"
 ├── Optimize performance (60fps, cold start, memory) → Jump to "Core Workflow > Phase 5 (Performance)"
 ├── Submit to App Store or Google Play → Go to "Production Checklist > App Store Submission"
-├── Cross-platform from scratch (React Native/Flutter) → Start at "Decision Trees" then follow Core Workflow
+├── Cross-platform from scratch (React Native/Flutter) → Decide the stack here, then route implementation to react-native-developer or flutter-developer
+├── Share logic across iOS/Android with KMP → Decide the strategy here, then route implementation to kotlin-multiplatform
+├── Deep React Native implementation (Expo, New Architecture, TurboModules) → Route to react-native-developer
+├── Deep Flutter implementation (widgets, state, channels) → Route to flutter-developer
+├── Deep KMP implementation (source sets, expect/actual, iOS export) → Route to kotlin-multiplatform
 ├── Need API contract for mobile → Invoke api-designer skill instead
 ├── Need backend API for mobile → Invoke backend-developer skill instead
 ├── Need mobile UI/UX design → Invoke ui-ux-designer skill instead
@@ -257,8 +270,9 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 - Handling platform-specific design conventions, permissions, biometrics, and hardware APIs
 - Profiling and optimizing cold start time, scroll performance (60fps), memory usage, and binary size
 - Setting up CI/CD pipelines for TestFlight, App Store, Google Play, and over-the-air updates
-- Setting up CI/CD pipelines for TestFlight, App Store, Google Play, and over-the-air updates
 - Implementing security: certificate pinning, secure storage, code obfuscation, root/jailbreak detection
+
+> **Routing note:** this skill owns the stack decision and cross-cutting mobile concerns. Once a cross-platform stack is chosen, route implementation to the specialist: **React Native → `react-native-developer`**, **Flutter → `flutter-developer`**, **Kotlin Multiplatform → `kotlin-multiplatform`**.
 
 ## Decision Trees **(QUICK)**
 <!-- STANDARD: 3min -->
@@ -418,6 +432,8 @@ Before writing a single line of code, select the right technology for the job. T
 - Target includes desktop (macOS, Windows, Linux) or web alongside mobile — single Flutter codebase for all four platforms
 - Anti-pattern: Avoid Flutter for apps that must feel deeply "platform-native" (heavy OS integration, complex share sheets, platform-specific text selection behavior) — Flutter's custom rendering means platform conventions must be manually recreated
 
+**Handoff after the decision:** This skill decides the stack and owns the cross-cutting mobile concerns (offline-first, push, permissions, architecture). Stack-specific implementation hands off to the specialist: **React Native → `react-native-developer`**, **Flutter → `flutter-developer`**, **Kotlin Multiplatform → `kotlin-multiplatform`** (chains are bidirectional — they consume the decision and feed results back). Do not duplicate their deep implementation content here.
+
 **Performance comparison (real-world benchmarks on mid-range device, iPhone 12 / Pixel 6 equivalent):**
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
@@ -479,6 +495,9 @@ If a command or approach fails, follow this escalation path before giving up:
 
 | Downstream Skill | What You Provide | Impact of Delay |
 |---|---|---|
+| `react-native-developer` | Stack decision + cross-cutting mobile concerns | RN implementation starts without the architecture decision |
+| `flutter-developer` | Stack decision + cross-cutting mobile concerns | Flutter implementation starts without the architecture decision |
+| `kotlin-multiplatform` | Sharing strategy + cross-cutting mobile concerns | KMP module design starts without the sharing decision |
 | `qa-engineer` | Device coverage plan (low-end + high-end), Maestro/Detox configuration, offline/connectivity test scenarios | QA can't test without the mobile build and test harness |
 | `security-reviewer` | Biometric auth implementation, Keychain/Keystore patterns, certificate pinning, jailbreak/root detection | Security review can't assess mobile-specific threats without implementation |
 | `localization-engineer` | Platform-specific locale files, App Store/Play Store metadata, mobile formatting constraints | Localization pipeline can't process mobile strings in isolation |

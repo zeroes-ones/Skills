@@ -52,6 +52,7 @@ chain:
     - growth-engineer
     - localization-engineer
     - qa-engineer
+    - react-native-developer
     - seo-specialist
     - tdd-guide
     - translation-manager

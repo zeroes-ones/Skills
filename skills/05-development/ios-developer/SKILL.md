@@ -31,8 +31,10 @@ chain:
     - ui-ux-designer
   feeds_into:
     - automation-engineer
+    - flutter-developer
     - mobile-developer
     - qa-engineer
+    - react-native-developer
     - security-reviewer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).

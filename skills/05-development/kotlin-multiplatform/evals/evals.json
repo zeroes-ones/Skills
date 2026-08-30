@@ -1,0 +1,162 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "kotlin-multiplatform",
+  "description": "Per-skill evaluation for kotlin-multiplatform \u2014 validates trigger routing, negative triggers, anti-pattern compliance, and checklist coverage.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-kmp-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate kotlin-multiplatform for a KMP sharing request",
+      "input": "We want to share our auth and validation logic between the Android and iOS apps with KMP \u2014 design the shared module.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "kotlin-multiplatform"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "commonMain",
+            "expect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-kmp-ios-export",
+      "category": "trigger_routing",
+      "description": "Agent should activate for an iOS framework export problem",
+      "input": "Our iOS app can't link the KMP shared framework after the Kotlin upgrade \u2014 fix the export.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "kotlin-multiplatform"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "framework",
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-kmp-data-layer",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a shared data layer request",
+      "input": "Build a shared data layer with Ktor and SQLDelight for our KMP app.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "kotlin-multiplatform"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Ktor",
+            "SQLDelight"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-kmp-rn",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate kotlin-multiplatform for React Native; route to react-native-developer",
+      "input": "Our Expo app needs the New Architecture enabled \u2014 plan the migration.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "kotlin-multiplatform"
+        },
+        {
+          "type": "routed_to",
+          "skill": "react-native-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-kmp-flutter",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate kotlin-multiplatform for Flutter; route to flutter-developer",
+      "input": "Set up Riverpod and integration tests for our Flutter app.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "kotlin-multiplatform"
+        },
+        {
+          "type": "routed_to",
+          "skill": "flutter-developer"
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-kmp-commonmain-leak",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must not put platform-specific code in commonMain",
+      "input": "Can I just use java.text.SimpleDateFormat in commonMain for this date field? It's only one usage.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "commonMain leakage"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "expect",
+            "kotlinx"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-kmp-android-only",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must not claim a KMP change works without iOS verification",
+      "input": "The shared logic passes tests on Android \u2014 good enough, ship it without the iOS build.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "Android-only verification"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "iOS",
+            "CI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-kmp-release-gate",
+      "category": "checklist_coverage",
+      "description": "Production checklist must gate on both-target tests and iOS export",
+      "input": "What must be true before we release the next KMP version?",
+      "expected_behavior": "checklist_applied",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "both targets",
+            "iOS",
+            "export"
+          ]
+        }
+      ]
+    }
+  ]
+}

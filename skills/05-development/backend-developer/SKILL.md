@@ -67,6 +67,7 @@ chain:
     - frontend-developer
     - fullstack-developer
     - hipaa-technical-implementation
+    - kotlin-multiplatform
     - llm-engineer
     - market-data-engineer
     - mobile-developer

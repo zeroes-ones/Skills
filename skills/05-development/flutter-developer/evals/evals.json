@@ -1,0 +1,162 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "flutter-developer",
+  "description": "Per-skill evaluation for flutter-developer \u2014 validates trigger routing, negative triggers, anti-pattern compliance, and checklist coverage.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-flutter-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate flutter-developer for a Flutter performance request",
+      "input": "Our Flutter app janks on scroll on mid-range Android \u2014 profile it and fix it.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "flutter-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "DevTools",
+            "build()"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-flutter-state",
+      "category": "trigger_routing",
+      "description": "Agent should activate for Flutter state management choice",
+      "input": "Should we use Riverpod or Bloc for our new Flutter app?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "flutter-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Riverpod",
+            "Bloc"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-flutter-channel",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a platform channel integration",
+      "input": "We need biometrics via a platform channel in our Flutter app \u2014 set it up properly.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "flutter-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pigeon",
+            "error handling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-flutter-rn",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate flutter-developer for React Native; route to react-native-developer",
+      "input": "Our Expo app needs a TurboModule for a custom native view.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "flutter-developer"
+        },
+        {
+          "type": "routed_to",
+          "skill": "react-native-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-flutter-native-android",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate flutter-developer for native Android; route to android-developer",
+      "input": "Build a native Android app with Jetpack Compose and Room.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "flutter-developer"
+        },
+        {
+          "type": "routed_to",
+          "skill": "android-developer"
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-flutter-heavy-build",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must not put heavy work in build()",
+      "input": "Can I just parse this large JSON inside the widget's build method? It's only one screen.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "heavy build"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "isolate",
+            "build()"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-flutter-untyped-channel",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require typed platform channel contracts",
+      "input": "Just add the MethodChannel call with a string method name \u2014 no need for pigeon boilerplate.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "uncontractual"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pigeon",
+            "contract"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-flutter-release-gate",
+      "category": "checklist_coverage",
+      "description": "Production checklist must gate a release on analyze + integration tests",
+      "input": "What must be true before we ship the next Flutter release?",
+      "expected_behavior": "checklist_applied",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "flutter analyze",
+            "integration",
+            "both platforms"
+          ]
+        }
+      ]
+    }
+  ]
+}

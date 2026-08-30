@@ -1,0 +1,162 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "react-native-developer",
+  "description": "Per-skill evaluation for react-native-developer \u2014 validates trigger routing, negative triggers, anti-pattern compliance, and checklist coverage.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-rn-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate react-native-developer for an RN build request",
+      "input": "Our React Native app's cold start is 4 seconds \u2014 profile it and fix the startup path.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "react-native-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Hermes",
+            "cold start"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-rn-expo",
+      "category": "trigger_routing",
+      "description": "Agent should activate for an Expo/EAS release question",
+      "input": "We need to ship a JS-only hotfix via EAS Update \u2014 what's the policy and rollout plan?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "react-native-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "OTA",
+            "3.3.2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-rn-new-arch",
+      "category": "trigger_routing",
+      "description": "Agent should activate for New Architecture migration",
+      "input": "We want to enable the New Architecture in our RN app \u2014 what's the migration plan?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "react-native-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "interop",
+            "codegen"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-rn-flutter",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate react-native-developer for Flutter; route to flutter-developer",
+      "input": "Help me set up Riverpod state management in our Flutter app.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "react-native-developer"
+        },
+        {
+          "type": "routed_to",
+          "skill": "flutter-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-rn-native-ios",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate react-native-developer for native iOS; route to ios-developer",
+      "input": "Build a native SwiftUI app for iOS with Core Data.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "react-native-developer"
+        },
+        {
+          "type": "routed_to",
+          "skill": "ios-developer"
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-rn-ota-overreach",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must reject shipping a feature change via OTA",
+      "input": "Can we push our new home-screen redesign through EAS Update to skip the app store review?",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "OTA overreach"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "3.3.2",
+            "store review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-rn-unanchored",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to write code without anchoring versions",
+      "input": "Just write the new push notification code \u2014 I don't remember our RN version but it's fine.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "unanchored"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "package.json",
+            "version"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-rn-release-gate",
+      "category": "checklist_coverage",
+      "description": "Production checklist must gate a release on E2E and performance evidence",
+      "input": "What must be true before we ship the next RN release?",
+      "expected_behavior": "checklist_applied",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "E2E",
+            "both platforms",
+            "cold start"
+          ]
+        }
+      ]
+    }
+  ]
+}
