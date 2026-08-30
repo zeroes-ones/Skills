@@ -19,10 +19,12 @@ token_budget: 4000
 chain:
   consumes_from:
   - context-compaction-strategies
+  - context-optimizer
   - token-efficiency
   feeds_into:
   - multi-agent-orchestration
   - llm-engineer
+  - context-optimizer
   - token-efficiency
   - dynamic-skill-creator
   - cross-agent-skills-packaging

@@ -13,9 +13,11 @@ chain:
   consumes_from:
   - context-engineering
   - context-compaction-strategies
+  - context-optimizer
   - llm-engineer
   feeds_into:
   - context-engineering
+  - context-optimizer
   - dynamic-skill-creator
   - cross-agent-skills-packaging
   - agent-handoff-protocol
@@ -256,9 +258,9 @@ The expert also knows the **correctness cliff**: the cheapest request is the one
 
 ### Phase 1: Measure — Establish the Token & Cost Baseline (~30 min)
 
-1. **Do:** Collect ≥ 100 real requests into `requests.jsonl` (timestamp, model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens, latency, task_type). Run `python scripts/token-cost-calculator.py --analyze requests.jsonl` to get per-task-type averages and totals.
-2. **Verify:** Baseline reproduces the provider bill within ±10% for the sampled period. Token counts come from the provider response `usage` fields, not word estimates.
-3. **Output:** A baseline report: median/mean tokens per task type, $/request, $/day, $/month, cache hit rate, and the top-3 largest cost drivers.
+1. **Do:** Collect ≥ 100 real requests into `requests.jsonl` (timestamp, model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens, latency, task_type). Run `python scripts/token-cost-calculator.py --analyze requests.jsonl` to get per-task-type averages and totals, then `python scripts/token-cost-calculator.py --optimize requests.jsonl` to project per-lever savings and the recommended strategy mix.
+2. **Verify:** Baseline reproduces the provider bill within ±10% for the sampled period. Token counts come from the provider response `usage` fields, not word estimates. Optimize projections are marked `[ESTIMATED]` — they model levers, not measured results.
+3. **Output:** A baseline report: median/mean tokens per task type, $/request, $/day, $/month, cache hit rate, the top-3 largest cost drivers, and a ranked lever-ladder projection (per `references/budget-optimization.md`).
 
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding — pricing verified, baseline reproduces bill]
@@ -335,6 +337,8 @@ The expert also knows the **correctness cliff**: the cheapest request is the one
 9. **Monitor cost trends weekly and alert on > 20% growth.** Cost creep is invisible — no error, no crash. A weekly `python scripts/token-cost-calculator.py --trend` run catches drift before the bill does.
 
 10. **Document every cache-prefix freeze and every trade-off decision.** The engineer who reorders a "harmless" comment in L1 needs to see the freeze approval and the 25× cost consequence. Decision transparency is a cost-control mechanism.
+
+11. **Project the lever ladder before committing to a strategy.** Run `--optimize` on the baseline to rank per-lever savings (cache stabilization first, then reduce, compress, cap). Projections are `[ESTIMATED]`; measure actuals after each lever with `--analyze`. Budget optimization is a ranked plan, not a guess (see `references/budget-optimization.md`).
 
 ---
 
@@ -637,6 +641,8 @@ A routing layer sends easy tasks to a cheap model with a confidence threshold se
 - [Output Token Control](../references/output-token-control.md) — Per-task-type caps, structured output, truncation monitoring
 - [Provider Pricing Matrix](../references/provider-pricing-matrix.md) — Verified input/output/cache pricing with [VERIFIED] dates
 - [Efficiency ROI Worksheet](../references/efficiency-roi-worksheet.md) — Template for dollar-quantified optimization proposals
+- [Budget Optimization](../references/budget-optimization.md) — The lever-ladder projection and ranked strategy mix (`--optimize` mode)
+- [Strategy Comparison](../references/strategy-comparison.md) — Choosing between caching, compression, routing, and distillation per workload
 
 ---
 

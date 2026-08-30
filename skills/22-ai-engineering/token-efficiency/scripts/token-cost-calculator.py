@@ -15,6 +15,8 @@ Usage:
     python3 scripts/token-cost-calculator.py --cache requests.jsonl
     python3 scripts/token-cost-calculator.py --trend jan.jsonl feb.jsonl mar.jsonl
     python3 scripts/token-cost-calculator.py --check-budget budget.json window
+    python3 scripts/token-cost-calculator.py --optimize requests.jsonl
+    python3 scripts/token-cost-calculator.py --optimize r.jsonl --cache-target 0.90 --input-trim 0.2 --output-trim 0.35
     python3 scripts/token-cost-calculator.py --analyze r.jsonl --prices-file prices.json
     python3 scripts/token-cost-calculator.py --analyze r.jsonl --price my-model:2:8:0.2
 
@@ -258,6 +260,73 @@ def check_budget(path, window):
     return 0
 
 
+def optimize(path, prices, explicit_models=None, warned=None,
+             cache_target=0.90, input_trim=0.20, output_trim=0.35):
+    """Project per-lever savings for a baseline and recommend the strategy mix.
+
+    All projections are [ESTIMATED] — they model 'if lever X is applied', not
+    measured results. The lever ladder is fixed: stabilize the cache first, then
+    reduce, then compress, then cap output. Run --analyze after each change to
+    measure actuals.
+    """
+    rows = load_requests(path)
+    if not rows:
+        print(f"  ERROR: no parseable requests in {path}", file=sys.stderr)
+        sys.exit(2)
+
+    current = sum(request_cost(r, prices, explicit_models, warned) for r in rows)
+    total_in = sum(r.get("input_tokens", 0) for r in rows)
+    total_cr = sum(r.get("cache_read_tokens", 0) for r in rows)
+    total_out = sum(r.get("output_tokens", 0) for r in rows)
+    cur_hit = 100.0 * total_cr / max(total_in, 1)
+
+    # Lever 1: cache stabilization — project hit rate rising to cache_target
+    #   current cached-read tokens stay; the rest of input becomes cached reads.
+    input_cost_now = current - sum(r.get("output_tokens", 0) * prices.get(r.get("model", "unknown"), FALLBACK_PRICE)[1] / 1_000_000 for r in rows)
+    new_cr = int(total_in * cache_target)
+    delta_cr = max(new_cr - total_cr, 0)
+    # Approximate: shifting delta_cr tokens from uncached input to cached reads.
+    def _rate(model):
+        return prices.get(model, FALLBACK_PRICE)
+    avg_in = sum(r.get("input_tokens", 0) * _rate(r.get("model", "unknown"))[0] for r in rows) / max(total_in, 1)
+    avg_cr = sum(r.get("cache_read_tokens", 0) * _rate(r.get("model", "unknown"))[2] for r in rows) / max(total_cr, 1) if total_cr else 0
+    cache_saving = delta_cr * (avg_in - avg_cr) / 1_000_000
+
+    # Lever 2: reduce (dedup/exclusion) — trim input_trim fraction of uncached input
+    uncached_in = max(total_in - total_cr, 0)
+    reduce_saving = uncached_in * input_trim * avg_in / 1_000_000
+
+    # Lever 3: compress — trim the remaining uncached input after reduction
+    remaining = max(uncached_in * (1 - input_trim), 0)
+    compress_saving = remaining * input_trim * avg_in / 1_000_000
+
+    # Lever 4: cap output — trim output_trim fraction of output tokens
+    avg_out = sum(r.get("output_tokens", 0) * _rate(r.get("model", "unknown"))[1] for r in rows) / max(total_out, 1)
+    output_saving = total_out * output_trim * avg_out / 1_000_000
+
+    n = len(rows)
+    month_mult = 22.0 * (500.0 / max(n, 1))  # scale to 500 req/day, 22 days
+
+    print(f"Budget optimization projection from {n} requests in {path}")
+    print(f"  Current cost (sample):      ${current:,.2f}")
+    print(f"  Current cache hit rate:     {cur_hit:.1f}%")
+    print()
+    print("  Lever ladder (apply in this order) — [ESTIMATED] projections per month:")
+    print(f"    L1 Stabilize cache (hit rate {cur_hit:.0f}% -> {cache_target*100:.0f}%)  ${cache_saving * month_mult:>10,.2f}")
+    print(f"    L2 Reduce input (dedup/exclude {input_trim*100:.0f}%)                 ${reduce_saving * month_mult:>10,.2f}")
+    print(f"    L3 Compress remaining (retention-gated {input_trim*100:.0f}%)         ${compress_saving * month_mult:>10,.2f}")
+    print(f"    L4 Cap output (trim {output_trim*100:.0f}%)                           ${output_saving * month_mult:>10,.2f}")
+    total = cache_saving + reduce_saving + compress_saving + output_saving
+    print(f"  Combined monthly projection: ${total * month_mult:,.2f}")
+    print()
+    if cur_hit < 60:
+        print("  RECOMMENDATION: fix caching FIRST (L1) — it is the cheapest lever and")
+        print("  compounds the others. Never compress before stabilizing the cache.")
+    print("  NOTE: projections are [ESTIMATED]. Re-run --analyze after each lever to")
+    print("  measure actuals and confirm retention/quality held.")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description="Token efficiency cost calculator")
     ap.add_argument("--analyze", metavar="requests.jsonl")
@@ -265,6 +334,11 @@ def main():
     ap.add_argument("--cache", metavar="requests.jsonl")
     ap.add_argument("--trend", nargs="+", metavar="period.jsonl")
     ap.add_argument("--check-budget", nargs=2, metavar=("budget.json", "WINDOW"))
+    ap.add_argument("--optimize", metavar="requests.jsonl",
+                    help="project per-lever savings and recommend the strategy mix")
+    ap.add_argument("--cache-target", type=float, default=0.90, help="projected hit rate for --optimize (default 0.90)")
+    ap.add_argument("--input-trim", type=float, default=0.20, help="projected input trim for --optimize (default 0.20)")
+    ap.add_argument("--output-trim", type=float, default=0.35, help="projected output trim for --optimize (default 0.35)")
     ap.add_argument("--price", action="append", metavar="model:in:out:cache",
                     help="override pricing, e.g. --price my-model:2:8:0.2 (repeatable)")
     ap.add_argument("--prices-file", metavar="prices.json",
@@ -284,6 +358,10 @@ def main():
         return trend(args.trend, prices, explicit, warned)
     if args.check_budget:
         return check_budget(args.check_budget[0], int(args.check_budget[1]))
+    if args.optimize:
+        return optimize(args.optimize, prices, explicit, warned,
+                        cache_target=args.cache_target, input_trim=args.input_trim,
+                        output_trim=args.output_trim)
     ap.print_help()
     return 2
 

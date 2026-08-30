@@ -369,7 +369,7 @@ Target: 10+ for "great", 8+ for "good", <8 needs work.
 | Auditing a skill collection | All skills in the collection | Quality audit against the 12 dimensions |
 | Designing skill composition | The skills being composed | Defines orchestration pattern, handoff artifacts, invocation conditions |
 
-**Context & Token Discipline for every new skill:** Keep new SKILL.md files token-frugal (honest `token_budget` frontmatter, progressive disclosure QUICK/STANDARD/DEEP, depth over duplication). Do NOT re-implement context or cost strategy inside a new skill — route those concerns to `context-engineering` (context structure, hierarchy, budgets) and `token-efficiency` (cost math, caching, compression, output caps), the universal authorities already wired into the chain graph.
+**Context & Token Discipline for every new skill:** Keep new SKILL.md files token-frugal (honest `token_budget` frontmatter, progressive disclosure QUICK/STANDARD/DEEP, depth over duplication). Do NOT re-implement context or cost strategy inside a new skill — route those concerns to `context-engineering` (context structure, hierarchy, budgets), `context-optimizer` (minimizing the cost of an existing payload), and `token-efficiency` (cost math, caching, compression, output caps), the universal authorities already wired into the chain graph.
 
 ## Error Recovery
 

@@ -506,7 +506,7 @@ No match → DO NOT invent a skill
 | ALL skills in `feeds_into` | Routing intent + original task description | Wrong skill → wasted session. Right skill, wrong level → suboptimal output |
 | `writing-great-skills` | Gap report: "No skill for [need]" | Without gaps, library stagnates |
 
-**Context & Token Discipline routing (applies to every skill):** When a routed task is really about *how much/what goes into the model's context* or *token/cost optimization* — not the domain itself — route to `context-engineering` (context structure, hierarchy, budgets) or `token-efficiency` (cost math, caching, compression, output caps) as supporting skills. Do not let the domain skill improvise context or cost strategy; these two skills are the universal authorities, wired into the chain graph for every agent.
+**Context & Token Discipline routing (applies to every skill):** When a routed task is really about *how much/what goes into the model's context* or *token/cost optimization* — not the domain itself — route to `context-engineering` (context structure, hierarchy, budgets), `context-optimizer` (minimizing the cost of an existing payload while holding quality), or `token-efficiency` (cost math, caching, compression, output caps) as supporting skills. Do not let the domain skill improvise context or cost strategy; these skills are the universal authorities, wired into the chain graph for every agent.
 
 ---
 

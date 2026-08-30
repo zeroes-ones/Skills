@@ -1,0 +1,163 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "context-optimizer",
+  "description": "Per-skill evaluation for context-optimizer \u2014 validates trigger routing, negative triggers, anti-pattern compliance, and checklist coverage.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-co-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate context-optimizer to minimize the cost of an existing payload",
+      "input": "Our support agent's 48K-token prompt is too expensive \u2014 make it cheaper without losing answer quality.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "context-optimizer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measure",
+            "retention",
+            "cache"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-co-budget",
+      "category": "trigger_routing",
+      "description": "Agent should activate for per-task token budget allocation",
+      "input": "Set token budgets per task type for our LLM endpoints \u2014 debugging, codegen, chat, review.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "context-optimizer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budget",
+            "margin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-co-compress",
+      "category": "trigger_routing",
+      "description": "Agent should activate for compress-vs-cache-vs-exclude decisions",
+      "input": "Should we summarize our 50K repeated prefix or cache it? What's cheaper?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "context-optimizer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stabilize",
+            "cache"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-co-hierarchy",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate context-optimizer for hierarchy design; route to context-engineering",
+      "input": "Design the 5-level context hierarchy for our new agent from scratch.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "context-optimizer"
+        },
+        {
+          "type": "routed_to",
+          "skill": "context-engineering"
+        }
+      ]
+    },
+    {
+      "id": "negative-co-pricing",
+      "category": "negative_trigger",
+      "description": "Agent should NOT activate context-optimizer for pricing math; route to token-efficiency",
+      "input": "What's the current per-1M pricing and cache ratio for Claude Sonnet?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "context-optimizer"
+        },
+        {
+          "type": "routed_to",
+          "skill": "token-efficiency"
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-co-compress-before-cache",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must not compress content that could be cached",
+      "input": "Summarize the 50K system prompt and instructions to save tokens.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "compress before caching"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stabilize",
+            "cache"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-co-no-retention",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a retention test before lossy compression",
+      "input": "Just remove the verbose sections from the prompt \u2014 they're obviously boilerplate.",
+      "expected_behavior": "rejects_anti_pattern",
+      "assertions": [
+        {
+          "type": "rejects_anti_pattern",
+          "pattern": "removal without retention"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "retention",
+            "90%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-co-budgets",
+      "category": "checklist_coverage",
+      "description": "Production checklist must gate on measurement, retention, and cache stability",
+      "input": "What must be true before we ship the optimized context payload?",
+      "expected_behavior": "checklist_applied",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "retention",
+            "cache",
+            "budget"
+          ]
+        }
+      ]
+    }
+  ]
+}

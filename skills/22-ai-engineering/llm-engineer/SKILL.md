@@ -36,6 +36,7 @@ chain:
   - ai-engineer
   - mlops-engineer
   - context-engineering
+  - context-optimizer
   feeds_into:
   - ai-safety-engineer
   - ai-safety-health-reviewer
@@ -43,6 +44,7 @@ chain:
   - mlops-engineer
   - product-manager
   - token-efficiency
+  - context-optimizer
 ---
 # LLM & AI Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

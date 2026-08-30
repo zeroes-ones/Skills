@@ -15,12 +15,14 @@ chain:
     - llm-engineer
     - system-architect
     - agent-handoff-protocol
+    - context-optimizer
   feeds_into:
     - agent-eval-pipeline
     - platform-engineer
     - staff-engineer
     - token-efficiency
     - context-engineering
+    - context-optimizer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 <!-- QUICK: 30s -->
@@ -45,8 +47,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -61,6 +61,7 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
 ```
@@ -72,8 +73,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -155,6 +154,20 @@ Architecture review of the entire compaction pipeline. Includes: progressive dis
 - General code performance optimization → route to `performance-engineer`
 - Single-skill, single-turn, well-under-budget invocations
 
+## When NOT to Use **(QUICK)**
+
+Do **NOT** use this skill when the problem is not compaction:
+
+| Trigger | Route Instead | Why |
+|---------|---------------|-----|
+| Prompt phrasing, instruction tuning | `llm-engineer` | You are editing prompts, not compacting context |
+| Minimizing the cost of an EXISTING payload end-to-end | `context-optimizer` | The optimizer owns the lever ladder (measure → reduce → cache → compress → cap) |
+| Token pricing, cost math, cache economics | `token-efficiency` | Cost modeling is that skill's domain |
+| Context hierarchy and structure design | `context-engineering` | Structure design, not compaction |
+| Fine-tuning or RLHF | `ml-ai-engineer` | Model training, not context |
+
+**If your task is compaction algorithms — pruning rules, dual-representation compilation, summarization, attention budgets — this is the right skill. If it is cost optimization of a payload, pricing math, or prompt phrasing — hand off.**
+
 ## Route the Request
 <!-- STANDARD: 3min -->
 
@@ -183,6 +196,20 @@ Architecture review of the entire compaction pipeline. Includes: progressive dis
 - "Building a skill compiler" → Start at "Dual-Representation Compilation" (Core Workflow, Step 5)
 - "Multiple skills conflicting" → Start at "Context Fragmentation Prevention" (Decision Tree 5)
 
+## Anti-Rationalization **(QUICK)**
+
+**AR-01 No Unbounded Skills:** You CANNOT let a skill instruction set exceed its declared budget. "It's only 500 more tokens" is how progressive disclosure collapses and every invocation pays full price.
+
+**AR-02 No Uniform Pruning:** You CANNOT prune every section by the same percentage. "Everyone gives a little" is how 2 critical ground rules get dropped while 5 verbose examples survive. Priority-based eviction only.
+
+**AR-03 No Reactive Compaction:** You CANNOT wait until 95% saturation to compact. "We'll summarize when we hit the limit" is how the summarizer runs on a degraded, nearly-full context. Compact proactively at 70%.
+
+**AR-04 No Compressing Security Constraints:** You CANNOT lossy-compact security or compliance content. "The gist is enough" is how "NEVER store passwords in plaintext" becomes "use secure auth" and the agent picks MD5. Format-only compaction for L1.
+
+**AR-05 No Mid-Turn Compaction:** You CANNOT compact during active generation. "The agent can still answer" is how pruned references produce corrupted output. Compact at turn boundaries after a state-ledger checkpoint.
+
+**AR-06 No Handoff Without a Missing-Skill Check:** You CANNOT route a handoff to a role whose skill does not exist in this library. If the target skill is missing, create it autonomously before handing off.
+
 ## Core Workflow
 <!-- STANDARD: 3min -->
 **(STANDARD)**
@@ -205,7 +232,7 @@ Design the three-tier loading system for every skill:
                                          </branch>
                                          </decision_tree>
 
-## Anti-Patterns                         <gotchas_json>[
+## Embedded Gotchas JSON (Machine-Readable)  <gotchas_json>[
 <!-- STANDARD: 3min -->
 {"id":1,"title":"Over-pruning decisions",
  "impact":"System inconsistency",
@@ -253,6 +280,26 @@ tokens                        required structure,       shapes its response
 Tier 2/3      Lazy-loaded     Detailed examples,        Only loaded when
 references                    gotchas, reference docs   specifically needed
 ```
+
+### Step 7: Skill Creation on Handoff — Fill Missing-Skill Gaps Autonomously
+
+[RESEARCH LOOP: Re-execute RP1-RP8 — is the handoff target real, current, and truly missing from the library?]
+
+**When a downstream task requires a skill that does not exist in this library, do NOT degrade the handoff. Create the skill autonomously, then hand off.**
+
+| # | Action | Verify |
+|---|--------|--------|
+| 1 | **Detect the gap.** The handoff target role/domain has no matching skill in `skills/`. | `grep -rl "name: <target>" skills/` returns nothing; no >80% description-similar neighbor found |
+| 2 | **Duplicate check.** Search for near-duplicates by name and description before creating. If an equivalent exists, extend it instead. | `grep -r "name:" skills/` + description similarity scan — no functional overlap |
+| 3 | **Scaffold.** Run `bash scripts/scaffold-skill.sh <domain>/<skill-name>` to generate the 22-section skeleton. | `scripts/verify-skill.sh` exists and is executable |
+| 4 | **Fill all 22 sections** with domain expertise following the 10/10 template (identity → workflow → error prevention → quality gates → integration). | `python3 scripts/lib/lint-template.py` passes with 0 errors |
+| 5 | **Wire the chain symmetrically.** Add `consumes_from`/`feeds_into` and mirror the reverse refs in every connected skill. | `python3 scripts/validate_chains.py` reports 0 asymmetries |
+| 6 | **Validate.** Run `lint-template.py`, `lint-yaml.py`, `lint-markdown.py`, and `bash scripts/validate-skills.sh`. | All gates pass; skill registers in the router |
+| 7 | **Hand off.** Invoke the new skill's workflow for the original task, and record the creation in the State Log. | Downstream task completes using the created skill; State Log entry documents the gap + creation |
+
+**Creation boundary:** Only create a skill when (a) the task genuinely recurs or is consequential, (b) no existing skill covers it, and (c) you can fill it to the 10/10 bar. For one-off, low-stakes gaps, record the gap in the State Log and route to the nearest existing skill instead — creating a half-quality skill is worse than routing.
+
+**Handoff:** Deliver the compacted skill (or the new skill) to the consuming skill via `cross-agent-skills-packaging` conventions, and confirm the downstream skill's `consumes_from` includes this skill so the graph stays symmetric.
 
 ## Decision Trees
 <!-- STANDARD: 3min -->
@@ -594,23 +641,33 @@ If a command or approach fails, follow this escalation path before giving up:
 
 Before deploying any context compaction pipeline to production, verify ALL of:
 
-1. Progressive disclosure tiers defined for all active skills: Tier 1 (overview), Tier 2 (decision trees), Tier 3 (full gotchas/examples)
-2. Context saturation monitoring active: alerts at 70% (warn), 85% (Tier 3 eviction trigger), 95% (emergency eviction)
-3. Redundancy detection running pre-assembly: sentence embedding dedup at 0.92 threshold, zero duplicates in assembled context
-4. Attention zones verified: guardrails in primacy zone (first 200 tokens), output format in recency zone (last 100 tokens)
-5. No security-critical sections compacted: all "NEVER," "MUST NOT," security, and auth constraints preserved verbatim
-6. Dual-representation compilation validated: behavioral equivalence >= 95% against original markdown, eval suite passing
-7. Compaction logged with recovery path: what was removed, why, when, and how to recover for every compaction event
-8. Unproductive loop detection active: < 3 identical (action, outcome) pairs in any 10-turn window, escalation context injected at halt
-9. Skill conflict detection active: no two active skills share > 3 domain keywords, or namespace prefixing mitigates
-10. State ledger populated: all pruned decisions have recovery path recorded, ledger integrity verified
-11. Context rotation defense tested: all 12 defense patterns validated against multi-turn conversation simulation
-12. Token budget per skill declared and monitored: actual usage tracked against budget, alerts on > 20% variance
-13. Compaction metadata recorded per event: timestamp, tokens before/after, method used, segments affected, recoverability status
-14. Recovery drill completed: simulate need for pruned information, verify successful recovery from ledger or file reference
+- [ ] **CR1: Progressive disclosure tiers defined for all active skills** — Verification: Tier 1 (overview), Tier 2 (decision trees), Tier 3 (full gotchas/examples) mapped per skill
+- [ ] **CR2: Context saturation monitoring active** — Verification: alerts at 70% (warn), 85% (Tier 3 eviction trigger), 95% (emergency eviction)
+- [ ] **CR3: Redundancy detection running pre-assembly** — Verification: sentence embedding dedup at 0.92 threshold, zero duplicates in assembled context
+- [ ] **CR4: Attention zones verified** — Verification: guardrails in primacy zone (first 200 tokens), output format in recency zone (last 100 tokens)
+- [ ] **CR5: No security-critical sections compacted** — Verification: all "NEVER," "MUST NOT," security, and auth constraints preserved verbatim
+- [ ] **CR6: Dual-representation compilation validated** — Verification: behavioral equivalence >= 95% against original markdown, eval suite passing
+- [ ] **CR7: Compaction logged with recovery path** — Verification: what was removed, why, when, and how to recover recorded for every compaction event
+- [ ] **CR8: Unproductive loop detection active** — Verification: < 3 identical (action, outcome) pairs in any 10-turn window, escalation context injected at halt
+- [ ] **CR9: Skill conflict detection active** — Verification: no two active skills share > 3 domain keywords, or namespace prefixing mitigates
+- [ ] **CR10: State ledger populated** — Verification: all pruned decisions have a recovery path recorded, ledger integrity verified
+- [ ] **CR11: Context rotation defense tested** — Verification: all 12 defense patterns validated against multi-turn conversation simulation
+- [ ] **CR12: Token budget per skill declared and monitored** — Verification: actual usage tracked against budget, alerts on > 20% variance
+- [ ] **CR13: Compaction metadata recorded per event** — Verification: timestamp, tokens before/after, method used, segments affected, recoverability status
+- [ ] **CR14: Recovery drill completed** — Verification: simulate need for pruned information, verify successful recovery from ledger or file reference
+- [ ] **CR15: Library freshness verified** — Verification: `bash scripts/lib/library-version-check.sh . --strict` reports FRESH (or documented exceptions per `scripts/references/library-freshness-policy.md`)
 
-## Anti-Patterns
+## Anti-Patterns **(STANDARD)**
 <!-- STANDARD: 3min -->
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| ❌ **Uniform pruning** — removing 30% of tokens from every section; 2 critical ground rules dropped while 5 verbose examples survive. | ✅ **Priority-based eviction** — P10 rules are NEVER evicted; importance × recency × uniqueness scoring, not equal treatment. |
+| ❌ **Lossy security summarization** — "NEVER use ECB; MUST use GCM" becomes "use secure encryption"; the agent picks ECB. | ✅ **Format-only compaction for L1** — security/compliance constraints preserved verbatim; only presentation compacts. |
+| ❌ **Reactive compaction at 95%** — waiting until saturation; the summarizer runs on a degraded, nearly-full context. | ✅ **Proactive compaction at 70%** — better summaries on clean context; 85% Tier-3 eviction, 95% emergency. |
+| ❌ **Compacting mid-turn** — pruning while the agent is generating; output references pruned sections inconsistently. | ✅ **Compaction at turn boundaries** — after a state-ledger checkpoint; never during active generation. |
+| ❌ **Missing state ledger** — removing content with no record; the agent can never recover it. | ✅ **Ledger every pruned decision** — what, why, when, and how to recover; recovery drill in CI. |
+| ❌ **Compressing cacheable content** — summarizing a repeated prefix that could be stabilized and cached at 1/10 the price. | ✅ **Stabilize before compress** — freeze the prefix, measure hit rate, then compact only the unique tail. |
 
 | # | Gotcha | Impact | Cost |
 |---|--------|--------|------|
@@ -671,6 +728,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [summarization-strategies.md](references/summarization-strategies.md) — LLM-based, embedding-based, and rule-based pruning algorithms
 - [attention-dilution-metrics.md](references/attention-dilution-metrics.md) — Primacy/recency effect measurements, lost-in-the-middle quantification
 - [context-pruning-rules.md](references/context-pruning-rules.md) — Priority-based truncation, section-level eviction rules
+- **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 - [conversation-history-compaction.md](references/conversation-history-compaction.md) — Progressive summarization, turn boundary compaction
 - [information-density-scoring.md](references/information-density-scoring.md) — Token importance classification: decisions > constraints > code > examples > prose
 - [compaction-validation.md](references/compaction-validation.md) — Behavioral equivalence testing, semantic drift detection
