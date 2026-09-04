@@ -31,6 +31,7 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - brownfield-adoption-planner
     - technical-writer
     - documentation-engineer
   feeds_into:

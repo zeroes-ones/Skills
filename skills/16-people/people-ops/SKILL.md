@@ -24,10 +24,13 @@ updated: 2026-07-23
 token_budget: 3500
 chain:
   consumes_from:
+    - engineering-leadership-interview-prep
     - hr-manager
     - recruiting
     - legal-advisor
+    - learning-development-lead
   feeds_into:
+    - learning-development-lead
     - hr-manager
     - recruiting
     - engineering-manager

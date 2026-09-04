@@ -27,6 +27,17 @@ updated: 2026-07-23
 token_budget: 2625
 chain:
   consumes_from:
+  - vulnerability-management
+  - using-agent-skills
+  - threat-intelligence
+  - supply-chain-security
+  - healthcare-security
+  - financial-security
+  - doubt-driven-development
+  - data-security
+  - cryptographic-engineer
+  - cloud-security
+  - data-governance-officer
   - automation-engineer
   - gdpr-privacy
   - health-regulatory-submission
@@ -36,6 +47,12 @@ chain:
   - regulatory-specialist
   - security-engineer
   feeds_into:
+  - supply-chain-security
+  - healthcare-security
+  - financial-security
+  - data-security
+  - fintech-app-developer
+  - brownfield-adoption-planner
   - accountant
   - ai-safety-engineer
   - ai-safety-health-reviewer

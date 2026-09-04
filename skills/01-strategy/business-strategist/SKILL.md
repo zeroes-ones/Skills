@@ -24,8 +24,18 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
+  - mission-driven-growth-strategist
   - product-strategist
   feeds_into:
+  - mission-driven-growth-strategist
+  - saas-monetization-strategist
+  - roi-gate
+  - marketing-manager
+  - enterprise-pricing-strategist
+  - brownfield-adoption-planner
+  - bizdev-manager
   - product-strategist
   - ceo-strategist
 ---

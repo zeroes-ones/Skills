@@ -30,6 +30,12 @@ chain:
     - database-reliability-engineer
     - backend-developer
   feeds_into:
+    - technical-signals-engineer
+    - portfolio-signal-manager
+    - options-strategist
+    - options-risk-engineer
+    - macro-strategist
+    - fundamental-analyst
     - algorithmic-trader
     - quantitative-analyst
     - data-scientist
@@ -269,6 +275,38 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [COMMON-PRACTICE] — Widely used in the industry
 - [INFERRED] — Reasonable extrapolation from general principles
 - [UNKNOWN] — Requires verification against specific context
+
+## Best Practices
+
+1. **Store raw and adjusted prices side by side.** Raw price, adjustment factor, adjusted price as three columns. You need the raw for audit trails and the adjusted for analysis. Never lose the raw — you cannot un-adjust da
+2. **Chunk TimescaleDB hypertables by 1-day intervals.** One chunk per day per ticker balances compression efficiency (90%+ savings after day 7) with query performance. Monthly chunks cause inefficient full-chunk scans for
+3. **Use Avro or Protobuf on Kafka, never JSON.** JSON at 50K msg/sec × 500 bytes = 25 MB/sec. Avro with schema registry = 2.5 MB/sec. Over 30 days, that is $2,400 vs $240 in Kafka storage costs. Use Confluent Schema Regist
+4. **Partition Parquet by `year/month/day/ticker` — in that order.** Query pruning eliminates 99.7% of data for single-ticker single-day queries. S3 LIST operations scale with partition count — keep partition fanout under 1
+5. **Rate-limit with deadline awareness.** If ingestion must finish by 9:25 AM ET and it is 9:20 AM: skip non-essential tickers, parallelize across API keys, or fail loudly with a specific alert. Silent partial data is wors
+6. **Run corporate actions processing BEFORE any analytics pipeline.** The analytics dbt models, the quant strategy backtest, and the risk system all depend on adjusted data. Freeze downstream pipelines until adjustments ap
+7. **Maintain a point-in-time ticker master with delisting history.** Store `ticker`, `first_trade_date`, `last_trade_date`, `delisting_reason`, `successor_ticker`. Query historically: filter by `WHERE trade_date BETWEEN fi
+8. **Pre-compute continuous aggregates filtered to market hours.** TimescaleDB continuous aggregates should filter to `EXTRACT(HOUR FROM ts AT TIME ZONE 'America/New_York') BETWEEN 9 AND 16` so dashboards do not show flat l
+
+> Full depth: `references/best-practices.md`
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Feed disconnects silently; strategy trades on a stale tape during market hours | WebSocket handler dropped without reconnect logic; no heartbeat; no secondary source | Automatic reconnection with exponential backoff (1s→16s, max 10 retries); maintain ≥2 independent sources per feed; run disconnect-reconnect drills | A feed is only production-grade when it reconnects by itself — single-source feeds are single points of failure |
+| Historical tick data corrupted after schema migration — strikes off by 1000x | Migration changed `strike_price` from DECIMAL(10,2) to DECIMAL(12,4) and multiplied values instead of casting | Every schema migration needs a pre-migration snapshot/checksum, an idempotency guard, and a post-migration reconciliation against the source | Migrations that cannot be reconciled corrupt the dataset silently — checksum before and after |
+| Vendor bill 3x the estimate during earnings season | Assumed the marketing tier; burst traffic exceeded the soft cap and triggered per-quote overage | Review vendor rate cards quarterly; per-vendor rate limiters with daily cost budgets; cost alerts at 50/75/90% of budget | Marketing tiers are not rate cards — model overage cost before the burst, not after the bill |
+| Price and volume timestamps out of sync across feeds — backtests and live both misaligned | Two vendors timestamp on different clocks; no normalization or synchronization step | Normalize all feeds to one clock (exchange or UTC) at ingestion; record receive-time and event-time separately | Without a canonical clock, every downstream computation inherits the skew |
+| Duplicate ticks inflate volume and warp signals | Reconnect logic replayed the missed window without dedup; no sequence tracking | Track per-feed sequence numbers; deduplicate on reconnect; idempotent ingestion keyed on (source, seq) | Reconnects must be idempotent — replay without dedup double-counts the market |
+
+> Full decoder: `references/error-decoder.md`
+## Production Checklist
+
+Before delivering, verify:
+
+- [ ] **ID:** Checklist Item
+
+> Full checklist with validation commands: `references/checklist.md`
 
 ## References
 

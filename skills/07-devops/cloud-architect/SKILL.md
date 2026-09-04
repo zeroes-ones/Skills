@@ -26,11 +26,21 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
+  - roi-gate
+  - data-security
   - finops-engineer
   - networking-engineer
   - security-engineer
   - system-architect
   feeds_into:
+  - data-security
+  - threat-intelligence
+  - supply-chain-security
+  - iam-architect
+  - healthcare-security
+  - cloud-security
   - automation-engineer
   - devops-engineer
   - docker-kubernetes

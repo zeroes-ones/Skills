@@ -23,6 +23,7 @@ tags: [security, ai, llm, prompt-injection, red-teaming, owasp]
 token_budget: 4500
 chain:
   consumes_from:
+    - applying-llm-guardrails
     - ai-safety-engineer
     - security-engineer
   feeds_into:

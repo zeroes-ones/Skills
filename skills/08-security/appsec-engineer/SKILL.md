@@ -38,6 +38,7 @@ chain:
     - iam-architect
     - security-engineer
   feeds_into:
+    - vulnerability-management
     - security-engineer
     - qa-engineer
   alternatives:

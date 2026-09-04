@@ -727,6 +727,13 @@ A world-class cross-skill communication ecosystem:
 - **New skills ship with communication contracts on day one.** The Phase 2 template is filled before the skill is registered. No skill enters the ecosystem without declaring how it talks to others.
 - **The protocol is invisible when it works, obvious when it doesn't.** Skills communicate without the agent manually bridging gaps. When a message fails, the envelope tells you exactly why: schema mismatch, timeout, circuit open, expired. Debugging is structured, not forensic.
 
+## Best Practices
+
+1. Test every declared communication link: take real output from Skill A, validate it against Skill B's expected input schema. If it fails, either fix output format or fix input expectations
+2. Track degradation_rate per skill. Alert when >5% of pipeline runs use degraded mode for any skill. Degradation is a valid state — silent degradation is not
+3. Add deadline to feedback contract. If producer_action not completed by deadline, escalate to human. Track feedback resolution rate — if <80% within deadline, feedback loop is performative
+4. Add schema compatibility check to validator: for each pair (A→B), validate that A's output schema is a subset of B's expected input schema. Add pattern presence check: each chain link has a declared pattern
+5. Standardize envelope version across repository. Envelope schema is infrastructure — it should evolve slowly and centrally. When envelope bumps MAJOR, ALL skills migrate within the 30-day window. No skill is exempt
 ## References
 
 <!-- STANDARD: 3min -->

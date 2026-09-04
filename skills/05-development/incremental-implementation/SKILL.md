@@ -25,6 +25,7 @@ updated: 2026-07-27
 token_budget: 3500
 chain:
   consumes_from:
+    - brownfield-adoption-planner
     - feature-flag-architect
     - ci-cd-builder
     - tdd-guide

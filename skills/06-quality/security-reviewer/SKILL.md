@@ -24,6 +24,14 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - supply-chain-security
+  - skill-levels
+  - doubt-driven-development
+  - agent-persona-orchestrator
+  - wallet-infrastructure-engineer
+  - defi-protocol-engineer
+  - on-device-ai-engineer
   - android-developer
   - backend-developer
   - code-reviewer
@@ -43,6 +51,12 @@ chain:
   - security-engineer
   - threat-intelligence
   feeds_into:
+  - doubt-driven-development
+  - website-builder
+  - shipping-and-launch
+  - dynamic-skill-creator
+  - desktop-developer
+  - brownfield-adoption-planner
   - android-developer
   - api-test-suite-builder
   - backend-developer

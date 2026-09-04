@@ -26,12 +26,24 @@ updated: 2026-07-23
 token_budget: 3525
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
+  - repo-scaffolding
+  - polyrepo-strategy
+  - multi-agent-orchestration
+  - healthcare-security
+  - dependency-governance
+  - context-compaction-strategies
+  - build-system-design
+  - agent-eval-pipeline
   - automation-engineer
   - cloud-architect
   - devops-engineer
   - docker-kubernetes
   - observability-engineer
   feeds_into:
+  - repo-scaffolding
+  - cross-agent-skills-packaging
   - automation-engineer
   - backend-developer
   - devops-engineer

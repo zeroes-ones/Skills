@@ -32,6 +32,7 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - side-hustle-builder
     - backend-developer
     - fintech-app-developer
     - frontend-developer

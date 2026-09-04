@@ -37,6 +37,7 @@ chain:
   consumes_from:
   - cloud-architect
   feeds_into:
+  - appsec-engineer
   - security-engineer
   alternatives:
   - cloud-security

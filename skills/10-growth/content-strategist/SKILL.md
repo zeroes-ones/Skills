@@ -23,11 +23,23 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - website-builder
+  - micro-saas-developer
+  - llm-search-optimizer
+  - creator-economy-builder
+  - community-organizing-tech
+  - civic-tech-developer
   - devrel-advocate
   - product-manager
   - seo-specialist
   - ux-writer
   feeds_into:
+  - website-builder
+  - llm-search-optimizer
+  - presentation-designer
+  - email-composer
+  - educational-game-developer
+  - education-access-developer
   - devrel-advocate
   - marketing-manager
   - seo-specialist

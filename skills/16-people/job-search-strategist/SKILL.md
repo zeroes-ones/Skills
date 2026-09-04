@@ -28,9 +28,12 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - master-negotiator
     - resume-writer
     - interview-coach
   feeds_into:
+    - resume-writer
+    - interview-coach
     - personal-finance
     - hr-manager
   alternatives: []

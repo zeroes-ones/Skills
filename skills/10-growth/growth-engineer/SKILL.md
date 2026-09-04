@@ -24,6 +24,17 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - saas-monetization-strategist
+  - product-analyst
+  - pricing-purchase-optimizer
+  - micro-saas-developer
+  - marketplace-platform-builder
+  - llm-search-optimizer
+  - environmental-tech-developer
+  - data-visualization-engineer
+  - creator-economy-builder
+  - casual-game-developer
+  - ab-testing-specialist
   - analytics-engineer
   - business-intelligence-engineer
   - customer-success-manager
@@ -33,6 +44,9 @@ chain:
   - revops-manager
   - seo-specialist
   feeds_into:
+  - saas-monetization-strategist
+  - pricing-purchase-optimizer
+  - ad-monetization-engineer
   - demand-generation
   - marketing-manager
   - product-manager

@@ -22,6 +22,7 @@ tags:
 token_budget: 4800
 chain:
   consumes_from:
+    - using-agent-skills
     - code-reviewer
     - security-reviewer
     - system-architect

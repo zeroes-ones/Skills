@@ -25,6 +25,13 @@ tags:
 token_budget: 3500
 chain:
   consumes_from:
+  - website-builder
+  - personal-productivity-developer
+  - educational-game-developer
+  - education-access-developer
+  - community-organizing-tech
+  - civic-tech-developer
+  - access-tech-developer
   - accessibility-auditor
   - ci-cd-builder
   - qa-engineer

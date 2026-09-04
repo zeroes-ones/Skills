@@ -30,6 +30,9 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+  - using-agent-skills
+  - ml-ai-engineer
+  - ai-security
   - ai-safety-engineer
   - backend-developer
   - ml-engineer
@@ -38,6 +41,12 @@ chain:
   - context-engineering
   - context-optimizer
   feeds_into:
+  - ai-engineer
+  - multi-agent-orchestration
+  - context-compaction-strategies
+  - applying-llm-guardrails
+  - agent-eval-pipeline
+  - on-device-ai-engineer
   - ai-safety-engineer
   - ai-safety-health-reviewer
   - frontend-developer

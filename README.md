@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**214 skills across 29 domains. 1,675 chain edges with 0 asymmetries. 9.9/10 quality (domain-calibrated).**
+**295 skills across 37 domains. 9.9/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — the 948 pre-existing asymmetric edges were repaired in a dedicated 2026 pass).
 
 ### 🚀 Quick Links
 
@@ -29,7 +29,7 @@ chain:
 
 ```
 
-If `backend-developer` feeds into `code-reviewer`, then `code-reviewer` consumes from `backend-developer`. All 1,130 edges are **bidirectionally symmetric** — verified programmatically with 0 asymmetries. See [`COORDINATION-MATRIX.md`](COORDINATION-MATRIX.md) for the full phase-by-phase dependency map.
+If `backend-developer` feeds into `code-reviewer`, then `code-reviewer` consumes from `backend-developer`. Chain symmetry is verified programmatically via `scripts/validate_chains.py` — the graph is fully symmetric (0 asymmetries after the 2026 repair pass; see [GAP-ANALYSIS.md](GAP-ANALYSIS.md)).
 
 ## Philosophy
 
@@ -63,7 +63,7 @@ skill-name/
 
 ```
 
-The `chain:` block in YAML frontmatter declares each skill's upstream/downstream dependencies. Skills coordinate via specific decision gates and shared artifacts — not vague "talk to X" references. All 1,675 chain edges are symmetric across the 188-skill graph.
+The `chain:` block in YAML frontmatter declares each skill's upstream/downstream dependencies. Skills coordinate via specific decision gates and shared artifacts — not vague "talk to X" references. Chain symmetry is verified programmatically via `scripts/validate_chains.py` (see the note in the header and [GAP-ANALYSIS.md](GAP-ANALYSIS.md)).
 
 This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while making deep expertise available when needed.
 
@@ -101,9 +101,9 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 ## Quality Status
 
-**Library rating: 9.9/10** (domain-calibrated). Run `python3 scripts/audit-library.py` to verify.
+**Library rating: 9.9/10** (live domain-calibrated audit over 295 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
 
-All 214 skills have full section coverage across 12 required core sections:
+> The "Quality Status" numbers below are from an earlier generation of the audit (214-skill baseline). The authoritative current numbers come from `python3 scripts/audit-library.py` (live) and `skills-audit-report.txt`; see [GAP-ANALYSIS.md](GAP-ANALYSIS.md) for the 2026 delta analysis.
 
 | Section | Coverage | Description |
 |---------|----------|-------------|
@@ -210,6 +210,18 @@ Existing project? See [`COMPARISON.md`](COMPARISON.md) and the `brownfield-adopt
 | `agent-persona-orchestrator` | Framework | Persona lifecycle: fan-out, merge, conflict resolution |
 | `incremental-implementation` | Development | Vertical slices, feature flags, atomic commits |
 | `brownfield-adoption-planner` | Specialized | Phased skill adoption into legacy codebases |
+| `m-and-a-strategist` | Corporate Finance | M&A/corporate development: thesis, diligence, valuation, negotiation, integration |
+| `data-governance-officer` | Data | Ownership, catalog, lineage, quality SLAs, classification, retention policy |
+| `customer-onboarding-specialist` | Customer Success | Time-to-value, adoption, health scores, onboarding-to-renewal handoff |
+| `learning-development-lead` | People | L&D: needs analysis, onboarding/ramp, leadership programs, compliance training, measurement |
+| `residential-real-estate-agent` | Real Estate | CMA pricing, listings, buyer representation, contract-to-close, client practice |
+| `on-device-ai-engineer` | AI Engineering | Local LLMs & edge inference: mobile, desktop, in-browser (WebGPU/WASM), self-hosted backend |
+| `defi-protocol-engineer` | Web3 | AMMs, lending, yield, stablecoins: mechanism spec, invariants, risk models, audit readiness |
+| `wallet-infrastructure-engineer` | Web3 | Self-custody, ERC-4337 smart accounts, MPC/multi-sig, signing safety, recovery |
+| `system-design-interview-prep` | Architecture | 21-concept system-design curriculum: 8-step framework, drills, mock rubric, study plans |
+| `senior-engineer-mode-router` | Framework | Routes the 8 senior-engineer modes (build/refactor/debug/design/perf/clean-arch/multi-agent/UI) to skill chains |
+| `engineering-leadership-interview-prep` | Eng Leadership | EM→CTO leadership interviews: ladder scope, question banks, org/exec cases, mock rubric |
+| `coding-interview-prep` | Development | DSA pattern bank (~25 patterns), 6-step solve framework, timed live-coding mocks with rubric |
 
 ## Usage
 
@@ -271,7 +283,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 214 skills in current project (team/company default) |
+| `skills-init` | Activate all 295 skills in current project (team/company default) |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
@@ -289,8 +301,8 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 214 skills
-skills-init               # All 29 domains, 214 skills, full lifecycle coverage
+# Startup or team project — full 295 skills
+skills-init               # All 37 domains, 295 skills, full lifecycle coverage
 
 ```
 

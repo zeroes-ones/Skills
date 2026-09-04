@@ -27,6 +27,15 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - threat-intelligence
+  - skill-levels
+  - shipping-and-launch
+  - portfolio-signal-manager
+  - mcp-management
+  - incremental-implementation
+  - event-driven-architect
+  - brownfield-adoption-planner
   - algorithmic-trader
   - automation-engineer
   - backend-developer
@@ -36,6 +45,7 @@ chain:
   - platform-engineer
   - site-reliability-engineer
   feeds_into:
+  - threat-intelligence
   - algorithmic-trader
   - chaos-engineer
   - customer-support-engineer

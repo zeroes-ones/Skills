@@ -25,6 +25,8 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - enterprise-pricing-strategist
+  - ad-monetization-engineer
   - account-manager
   - analytics-engineer
   - business-intelligence-engineer

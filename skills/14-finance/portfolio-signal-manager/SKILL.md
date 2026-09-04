@@ -31,6 +31,9 @@ token_budget: 4500
 chain:
   type: downstream
   consumes_from:
+    - options-strategist
+    - options-risk-engineer
+    - fixed-income-analyst
     - technical-signals-engineer
     - fundamental-analyst
     - algorithmic-trader
@@ -47,6 +50,7 @@ chain:
     - options-automation-engineer
     - volatility-arbitrage-engineer
   feeds_into:
+    - options-risk-engineer
     - algorithmic-trader
     - data-scientist
     - observability-engineer

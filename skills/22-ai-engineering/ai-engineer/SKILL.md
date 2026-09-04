@@ -37,7 +37,10 @@ chain:
     - ml-engineer
     - product-manager
     - ui-ux-designer
+    - mlops-engineer
   feeds_into:
+    - trust-safety-engineer
+    - on-device-ai-engineer
     - ai-safety-engineer
     - backend-developer
     - frontend-developer

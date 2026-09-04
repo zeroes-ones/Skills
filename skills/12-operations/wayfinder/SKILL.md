@@ -31,9 +31,11 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - cross-skill-communication
     - project-manager
     - product-manager
     - system-architect
+    - handoff
   feeds_into:
     - project-manager
     - handoff

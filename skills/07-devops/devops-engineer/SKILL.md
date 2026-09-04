@@ -26,6 +26,23 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - zkp-engineer
+  - website-builder
+  - using-agent-skills
+  - supply-chain-security
+  - smart-contract-auditor
+  - skill-levels
+  - roi-gate
+  - mcp-management
+  - healthcare-security
+  - git-workflow
+  - game-networking-developer
+  - explore-tools
+  - event-driven-architect
+  - desktop-developer
+  - data-security
+  - agent-handoff-protocol
+  - agent-eval-pipeline
   - backend-developer
   - chaos-engineer
   - ci-cd-builder
@@ -46,6 +63,12 @@ chain:
   - system-architect
   - options-automation-engineer
   feeds_into:
+  - supply-chain-security
+  - git-workflow
+  - threat-intelligence
+  - multirepo-designer
+  - cross-agent-skills-packaging
+  - cloud-security
   - chaos-engineer
   - ci-cd-builder
   - database-reliability-engineer

@@ -26,6 +26,8 @@ updated: 2026-07-26
 token_budget: 3200
 chain:
   consumes_from:
+    - ux-researcher
+    - material-design-expert
     - ui-ux-designer
     - accessibility-auditor
   feeds_into:

@@ -24,6 +24,10 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - event-driven-architect
+  - agent-persona-orchestrator
+  - senior-engineer-mode-router
   - android-developer
   - backend-developer
   - civic-tech-developer
@@ -38,6 +42,11 @@ chain:
   - observability-engineer
   - website-builder
   feeds_into:
+  - shipping-and-launch
+  - gameplay-programmer
+  - game-engine-architect
+  - build-system-design
+  - browser-testing-with-devtools
   - android-developer
   - backend-developer
   - civic-tech-developer

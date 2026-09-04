@@ -35,6 +35,7 @@ chain:
     - shipping-and-launch
     - ci-cd-builder
   feeds_into:
+    - incremental-implementation
     - mobile-developer
     - android-developer
     - ios-developer

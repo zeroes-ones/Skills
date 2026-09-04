@@ -32,6 +32,7 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
+    - healthcare-security
     - cloud-architect
     - security-engineer
     - devops-engineer

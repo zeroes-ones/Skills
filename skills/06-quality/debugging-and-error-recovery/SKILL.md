@@ -35,6 +35,8 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - using-agent-skills
+    - senior-engineer-mode-router
     - backend-developer
     - frontend-developer
     - code-reviewer
@@ -42,6 +44,7 @@ chain:
     - incident-responder
     - site-reliability-engineer
   feeds_into:
+    - incremental-implementation
     - code-reviewer
     - qa-engineer
     - incident-responder

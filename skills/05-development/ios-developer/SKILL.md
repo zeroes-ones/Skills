@@ -22,6 +22,9 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
+    - using-agent-skills
+    - personal-productivity-developer
+    - on-device-ai-engineer
     - apple-hig-expert
     - feature-flag-architect
     - mobile-architecture-patterns
@@ -30,6 +33,8 @@ chain:
     - system-architect
     - ui-ux-designer
   feeds_into:
+    - mobile-architecture-patterns
+    - access-tech-developer
     - automation-engineer
     - flutter-developer
     - mobile-developer

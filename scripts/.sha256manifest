@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-08-29T20:00:29Z
+# Generated: 2026-09-04T14:23:02Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    92ef652249e2a035f71e2d3a99cb57b8be35d830
+# Commit:    0d80cc53a1c3f3defc13586368a1fce047a4ed0d
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -24,6 +24,7 @@ a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject
 129cab96cfa4784974cc0d539b44d7ee24897cb6fe659e4aca88ab214fef2f94  scripts/install-hooks.sh
 a9a1c622d551381a1fb5b9883b76656ae031671c48b147e7d94863c05ef4e610  scripts/install.sh
 cc63951ce1b92eea4d9fae4af852a57ca4b66a28e34bf5270951dd1372e00fe4  scripts/lib/deep-research-gate.sh
+c0713f12c06d91d78a1b3e7872ca7f3861fbce3d9cbe913640f1fbe8a7297641  scripts/lib/library-version-check.sh
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
 0bb1042e1e108645dc1a862cea231e7dc7be7c08552f5d9bf3274a30555ae34f  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
@@ -44,6 +45,7 @@ e30826411b84e2d4402143670ff88d6821e2635b762d964fcc3015595228cc56  scripts/skill-
 c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 0d0e277f8dbc788d3c564ed6c8238635dab3cbc4c8f8c826762d9331171d738f  skills/00-framework/cross-skill-communication/scripts/verify-skill.sh
+1f5d7e04ad9be786253c37133933083bc4669ee54846860b85697d057c8b6553  skills/00-framework/senior-engineer-mode-router/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/00-framework/skill-levels/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/00-framework/writing-great-skills/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/business-strategist/scripts/verify-skill.sh
@@ -79,13 +81,17 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-arch
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/polyrepo-strategy/scripts/verify-skill.sh
 c81718ee886d8cd72913b7d0a3fd804d67f860f41078aff9ed1887e1758ee531  skills/04-architecture/secure-api-design/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/system-architect/scripts/verify-skill.sh
+2cc5be65c0e8de06b71d904234b955dfcb382d224733e1297b958d1150b47fa0  skills/04-architecture/system-design-interview-prep/scripts/verify-skill.sh
 2b30ea03eb207c4efee30e9e41585fc5327af3d8843c07f4d6be62da5a9fcaa5  skills/05-development/android-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/backend-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/blockchain-developer/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/05-development/casual-game-developer/scripts/verify-skill.sh
+1998fa6d8096c7abac397472df6008e7799ca00663105ef7aa86f6bc0e3ce98a  skills/05-development/coding-interview-prep/scripts/verify-skill.sh
 cb4a64ef2749ffc8fc8e3a1f832ffc451b8442088bafa0c853d37f2dd671cb76  skills/05-development/desktop-developer/scripts/verify-skill.sh
 6b4f7be10af036191ac0d43f5d6854fb06ee7be86b6c80f98b11e8920beb4344  skills/05-development/domain-modeling/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/05-development/educational-game-developer/scripts/verify-skill.sh
+25ef596a89a62013d88ff18a14d67ab6803653561d107762b1488e4baa380dca  skills/05-development/flutter-developer/scripts/verify-skill.sh
+4937004d57b70a36d51b8840988bdfd1f0e06ec2cbd28b841685a12766a6ef62  skills/05-development/flutter-developer/scripts/version-anchor.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/frontend-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/fullstack-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/game-developer/scripts/verify-skill.sh
@@ -94,12 +100,16 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-deve
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/graphql-engineer/scripts/verify-skill.sh
 d35aaafec8060e67f4b2ff5a5e140bad18c41962719b8ab448abe97018db5506  skills/05-development/incremental-implementation/scripts/verify-skill.sh
 c096433b47a0f50259b002df186696b3635bf8c50bb876da09e4eee4b6f82dc8  skills/05-development/ios-developer/scripts/verify-skill.sh
+3be272b66ea365c963c2f3cb3a9d789221236fde15df55953fc5e7be328bb59d  skills/05-development/kotlin-multiplatform/scripts/verify-skill.sh
+989e2c9b8af2d6fb0c919d7eb6a288fd5cb7b08ed94dc45b398d52e2f61d77d2  skills/05-development/kotlin-multiplatform/scripts/version-anchor.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/localization-engineer/scripts/verify-skill.sh
 25ee822f9c4c132793257be880fdba015b2af5e0dbf1bc1f61e1300aa37916ec  skills/05-development/macos-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/mobile-developer/scripts/verify-skill.sh
 8fd01b5e0e8418e6a694b3ab8669eae6bf63b6b3f8a1dd858340679352f9b0bb  skills/05-development/mock-data-sync/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/05-development/personal-productivity-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/prototype/scripts/verify-skill.sh
+2f1211d3819fc50f959266d037186d02e91c53e66ff168a7dd9089d8db60bb54  skills/05-development/react-native-developer/scripts/verify-skill.sh
+b6c308c5d19a5a1477c2ffb22fa4647965890c50d31dfc45cdc0211dfd070d58  skills/05-development/react-native-developer/scripts/version-anchor.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/source-driven-development/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/translation-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/website-builder/scripts/verify-skill.sh
@@ -145,6 +155,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-secu
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data/ab-testing-specialist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data/analytics-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data/data-engineer/scripts/verify-skill.sh
+80cc8a599af5439937bdd825a6851a59020d4a829051d72e7ab78b08d14dbe64  skills/09-data/data-governance-officer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data/data-scientist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data/data-visualization-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/09-data/database-reliability-engineer/scripts/verify-skill.sh
@@ -219,13 +230,16 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sale
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/hr-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/interview-coach/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/job-search-strategist/scripts/verify-skill.sh
+45c30745ab204c1bd58b31c2de610468087b6e1c69bf55d8e2356de3ff77a00f  skills/16-people/learning-development-lead/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/people-ops/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/recruiting/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/resume-writer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/17-customer-success/account-manager/scripts/verify-skill.sh
+da78d308bd50a1098b315e5d2869826d9a8fa72755184095eba940ba792d5da8  skills/17-customer-success/customer-onboarding-specialist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/17-customer-success/customer-success-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/18-corporate-finance/accountant/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/18-corporate-finance/fp-and-a-analyst/scripts/verify-skill.sh
+6eee7fe7851db1d89981432efc86d42e6897e93e04617f53edc3d318b914747d  skills/18-corporate-finance/m-and-a-strategist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/18-corporate-finance/treasury-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/19-governance/board-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/19-governance/investor-relations/scripts/verify-skill.sh
@@ -256,6 +270,8 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/22-ai-e
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/22-ai-engineering/business-intelligence-engineer/scripts/verify-skill.sh
 4148d39b99e8146104018bd16e92550f05036b490f1a4d5d4406619e90839bac  skills/22-ai-engineering/context-compaction-strategies/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/22-ai-engineering/context-engineering/scripts/verify-skill.sh
+29f1bd71b82ca358881fa7024b80822cb8935de35190b3c641a4a049194f1624  skills/22-ai-engineering/context-optimizer/scripts/context-audit.sh
+a3fdec38572b2e33d6d65052ccf4948d01975a4a3724ebccf1e46e4fc170f1ec  skills/22-ai-engineering/context-optimizer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/22-ai-engineering/doubt-driven-development/scripts/verify-skill.sh
 eeec7d18e7df2ae8cc4487329c7464aaa8a1b2969af3dcf59a07a49152e35876  skills/22-ai-engineering/llm-engineer/scripts/check_token_budget.py
 bcca777a9aa3324bb676d916a81c6af4a8eb214065233993fe4e9a978809cab8  skills/22-ai-engineering/llm-engineer/scripts/estimate_cost.py
@@ -268,7 +284,8 @@ f01f49b824d367c1f81436bbf98a4ed39191337f9ddf2038226af535ae99367b  skills/22-ai-e
 42850428e44d5f5f38f7949251cdcf59930ba13d629c2913a66571d69b93a1ab  skills/22-ai-engineering/mlops-engineer/scripts/test_serving.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/22-ai-engineering/mlops-engineer/scripts/verify-skill.sh
 03c4945a85c75c45f03b2f6822307bf58f8fd6bf5ce021c38d1ca9732c6e0023  skills/22-ai-engineering/mlops-engineer/scripts/verify_registry.py
-49f165d0f1bf7767e8696af7101525a33d601c066497854f9626a97bf6bea115  skills/22-ai-engineering/token-efficiency/scripts/token-cost-calculator.py
+db4b2ab24cd67ea3350909e7164962eec40fe6c9808506fcce67595dc373b95a  skills/22-ai-engineering/on-device-ai-engineer/scripts/verify-skill.sh
+198dbce18d2545cf2c9102d01d490aaa931f0e454bb1abcddd2d450715362631  skills/22-ai-engineering/token-efficiency/scripts/token-cost-calculator.py
 349b4e7f70350bbb44a4a95af48c227756fbb0c7c3094cf1d2161c2db2a40df3  skills/22-ai-engineering/token-efficiency/scripts/verify-skill.sh
 5bd83266b0631c8f296632544baf0a1f1829f93e5ab0c8290932edfd627d9ade  skills/23-trust-safety/applying-llm-guardrails/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/23-trust-safety/content-policy-manager/scripts/verify-skill.sh
@@ -283,11 +300,14 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/24-crea
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/24-creative/product-marketing-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/24-creative/ux-writer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/25-engineering-leadership/director-engineering/scripts/verify-skill.sh
+39f7c8d91f3cc634cb19ea4ed941f4f59a0814ba132c4ac5fa777f6d567d164a  skills/25-engineering-leadership/engineering-leadership-interview-prep/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/25-engineering-leadership/engineering-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/25-engineering-leadership/staff-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/25-engineering-leadership/vp-engineering/scripts/verify-skill.sh
 782f3913a8e7df640dc9a12fe5be13e4f43c5b4cfe6dffb47d10d8ecceb7f1ce  skills/26-web3/cryptographic-engineer/scripts/verify-skill.sh
+60f8f0b0f0a71f8ff4b7eb690dbdb4538ce736c3263ea07edab32088d094e4e4  skills/26-web3/defi-protocol-engineer/scripts/verify-skill.sh
 4148d39b99e8146104018bd16e92550f05036b490f1a4d5d4406619e90839bac  skills/26-web3/smart-contract-auditor/scripts/verify-skill.sh
+9f3139246131cd7cb0bcaa8b483c98a0a794827675c94d99137ad11229126340  skills/26-web3/wallet-infrastructure-engineer/scripts/verify-skill.sh
 d22a56e0f24d90418e6dcedb6accce3e4aadf7cf6c98a4f3d261f3222c12d23e  skills/26-web3/zkp-engineer/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/27-creator-finance/creator-economy-builder/scripts/verify-skill.sh
 d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/27-creator-finance/fintech-app-developer/scripts/verify-skill.sh
@@ -329,6 +349,7 @@ d6c62efc7b63d1c0aa49fddb5338f5093bc28c674357af5e3bd3328372bd4671  skills/31-pers
 18a211b37cd521acaa14fc59e5dbb0fdf96069028ba8a9150f1926cf2775d657  skills/32-relationship-family/relationship-architect/scripts/verify-skill.sh
 1858f3c79452664bd030e26c024b1dd81c1490e7d2352dcba02170033397c2cc  skills/33-real-estate/commercial-real-estate-analyst/scripts/verify-skill.sh
 6707e81d0a79f97e71e1634285e1972c46a7a2d354e5ee4cc48bc6abbc0f1293  skills/33-real-estate/property-manager/scripts/verify-skill.sh
+ebcc8e7aa38cfaaf9337d856906466efb9ac6158be3257317b3a49d2ae6dd1db  skills/33-real-estate/residential-real-estate-agent/scripts/verify-skill.sh
 c0bb0cb3696f5128b4a2377f3b3a37219992c48af57ec3a64b75a4144cc938d6  skills/34-philosophy-wisdom/critical-thinker/scripts/verify-skill.sh
 65ebb608f7dde0be491e4e563bee468f611e994f7ac8749836fb05e8271dd5e8  skills/34-philosophy-wisdom/ethics-architect/scripts/verify-skill.sh
 32b511878b732507c52693df0cda0a8ebfedc161a42a24eeb8cdbfa6270cde24  skills/34-philosophy-wisdom/mental-models/scripts/verify-skill.sh

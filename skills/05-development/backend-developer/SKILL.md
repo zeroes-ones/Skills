@@ -28,6 +28,25 @@ updated: 2026-07-23
 token_budget: 5000
 chain:
   consumes_from:
+    - using-agent-skills
+    - supply-chain-security
+    - skill-levels
+    - secure-api-design
+    - roi-gate
+    - prototype
+    - multirepo-designer
+    - multi-agent-orchestration
+    - healthcare-security
+    - explore-tools
+    - event-driven-architect
+    - domain-modeling
+    - data-security
+    - codebase-design
+    - code-simplification
+    - applying-llm-guardrails
+    - ai-engineer
+    - agent-handoff-protocol
+    - on-device-ai-engineer
     - algorithmic-trader
     - api-designer
     - chaos-engineer
@@ -50,6 +69,38 @@ chain:
     - system-architect
     - tdd-guide
   feeds_into:
+    - explore-tools
+    - event-driven-architect
+    - data-security
+    - code-simplification
+    - ai-engineer
+    - zkp-engineer
+    - website-builder
+    - source-driven-development
+    - smart-contract-auditor
+    - saas-monetization-strategist
+    - personal-productivity-developer
+    - mock-data-sync
+    - micro-saas-developer
+    - mcp-management
+    - marketplace-platform-builder
+    - macos-developer
+    - graphql-engineer
+    - gameplay-programmer
+    - game-networking-developer
+    - game-developer
+    - fintech-app-developer
+    - environmental-tech-developer
+    - education-access-developer
+    - desktop-developer
+    - deprecation-engineer
+    - debugging-and-error-recovery
+    - cryptographic-engineer
+    - creator-economy-builder
+    - community-organizing-tech
+    - civic-tech-developer
+    - android-developer
+    - access-tech-developer
     - algorithmic-trader
     - api-designer
     - api-test-suite-builder

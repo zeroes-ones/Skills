@@ -24,11 +24,19 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - roi-gate
+  - explore-tools
   - backend-developer
   - clinical-informatics-specialist
   - database-designer
   - database-reliability-engineer
   feeds_into:
+  - product-analyst
+  - ml-ai-engineer
+  - environmental-tech-developer
+  - ai-engineer
+  - data-governance-officer
   - analytics-engineer
   - automation-engineer
   - business-intelligence-engineer

@@ -24,6 +24,7 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - skill-levels
   - engineering-manager
   - product-manager
   - project-manager

@@ -24,12 +24,18 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - wayfinder
+  - handoff
+  - learning-development-lead
   - engineering-manager
   - product-manager
   - release-manager
   - scrum-master
   - technical-program-manager
   feeds_into:
+  - wayfinder
+  - handoff
+  - event-planner
   - release-manager
   - scrum-master
   - technical-program-manager

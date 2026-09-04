@@ -20,6 +20,7 @@ token_budget: 8500
 chain:
   consumes_from:
   - habit-engineer
+  - fitness-programmer
   feeds_into:
   - fitness-programmer
   - longevity-biohacker

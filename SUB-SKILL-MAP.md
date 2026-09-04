@@ -15,6 +15,16 @@ Each parent skill identifies sub-skills that an agent can dive into iteratively.
 
 ---
 
+## Domain 00: Framework (meta-skills)
+
+> **Skills added in the 2026 interview/mode pass:** `senior-engineer-mode-router` ⭐ — routes the
+> 8 senior-engineer request modes (build/refactor/debug/system-design/perf/clean-arch/multi-agent/UI)
+> to their owning skill chains (see its SKILL.md + references/additional-resources.md).
+
+### Using Agent Skills, Agent Persona Orchestrator, Senior Engineer Mode Router ⭐, Skill Levels, Writing Great Skills
+
+---
+
 ## Domain 01: Strategy & Leadership
 
 ### CEO Strategist
@@ -126,6 +136,10 @@ Each parent skill identifies sub-skills that an agent can dive into iteratively.
 
 ## Domain 04: Architecture
 
+> **Skill added in the 2026 interview pass:** `system-design-interview-prep` ⭐ — 21-concept
+> system-design curriculum (framework, drills, mock rubric) that routes to this domain's
+> concept skills (see its SKILL.md + references/21-concepts-curriculum.md).
+
 ### System Architect
 | Sub-Skill | When to Use | Context |
 |-----------|-------------|---------|
@@ -162,6 +176,10 @@ Each parent skill identifies sub-skills that an agent can dive into iteratively.
 ---
 
 ## Domain 05: Development
+
+> **Skill added in the 2026 interview pass:** `coding-interview-prep` ⭐ — DSA pattern bank
+> (~25 patterns), 6-step solve framework, timed live-coding mocks with rubric (see its SKILL.md
+> + references/pattern-bank.md).
 
 ### Backend Developer
 | Sub-Skill | When to Use | Language/Framework |
@@ -329,6 +347,8 @@ Each parent skill identifies sub-skills that an agent can dive into iteratively.
 
 ## Domain 09: Data & AI
 
+> **Skill added in the library-gap pass:** `data-governance-officer` ⭐ — ownership, catalog, lineage, quality SLAs, classification, and access/retention policy (see its SKILL.md and references/).
+
 ### Data Engineer
 | Sub-Skill | When to Use | Context |
 |-----------|-------------|---------|
@@ -439,6 +459,112 @@ Each parent skill identifies sub-skills that an agent can dive into iteratively.
 
 ### Monorepo Manager, Migration Architect, Performance Engineer, Chaos Engineer, Documentation Engineer
 *(Each has deep sub-skill maps — see respective SKILL.md files)*
+
+---
+
+## Domains 14-37: Finance, Business & Life Domains
+
+*(Each parent SKILL.md below carries its own deep sub-skill maps, decision trees, and reference files — see the respective SKILL.md files. This section indexes the domains so agents can route; skills added in the library-gap pass are marked ⭐.)*
+
+## Domain 14: Finance — Trading & Markets
+
+### Algorithmic Trader, Quantitative Analyst, Options Strategist, Market Data Engineer, etc. *(18+ trading/analysis skills — see respective SKILL.md files)*
+
+## Domain 15: Sales
+
+### Sales Engineer, RevOps Manager, BizDev Manager, Marketing Manager, Demand Generation, Partnerships Manager
+
+## Domain 16: People — HR, Career & Development
+
+### HR Manager, People Ops, Recruiting, Interview Coach, Job Search Strategist, Resume Writer, Learning & Development Lead ⭐
+
+## Domain 17: Customer Success
+
+### Customer Success Manager, Account Manager, Customer Onboarding Specialist ⭐
+
+## Domain 18: Corporate Finance
+
+### Accountant, FP&A Analyst, Treasury Manager, M&A Strategist ⭐
+
+## Domain 19: Governance
+
+### Board Manager, Investor Relations
+
+## Domain 20: Hardware
+
+### Embedded Engineer, Firmware Developer, Hardware Architect, Game Engine Architect
+
+## Domain 21: Health — Clinical
+
+### Clinical Informatics Specialist, Healthcare Security, HIPAA Technical Implementation, Patient Health Educator, etc.
+
+## Domain 22: AI Engineering
+
+> **Skill added in the library-gap pass:** `on-device-ai-engineer` ⭐ — local LLMs & edge inference across mobile, desktop, in-browser (WebGPU/WASM), and self-hosted backend/edge.
+
+### LLM Engineer, AI Engineer, MLOps Engineer, AI Safety Engineer, Context Engineering, Agent Eval Pipeline, etc.
+
+## Domain 23: Trust & Safety
+
+### Trust & Safety Engineer, Content Policy Manager, Privacy Engineer/Engineering, Data Security, Applying LLM Guardrails
+
+## Domain 24: Creative
+
+### UX Writer, Product Marketing Manager, Presentation Designer, Email Composer, Medical Illustrator
+
+## Domain 25: Engineering Leadership
+
+> **Skill added in the 2026 interview pass:** `engineering-leadership-interview-prep` ⭐ — EM→CTO
+> leadership interview prep (ladder scope, question banks, org/exec cases, mock rubric) that
+> routes to this domain's role skills (see its SKILL.md + references/leadership-ladder-interviews.md).
+
+### Staff Engineer, Engineering Manager, Director Engineering, VP Engineering
+
+## Domain 26: Web3
+
+> **Skills added in the library-gap pass:** `defi-protocol-engineer` ⭐ (AMMs, lending, yield, stablecoins) and `wallet-infrastructure-engineer` ⭐ (self-custody, ERC-4337 smart accounts, MPC/multi-sig, signing safety, recovery).
+
+### Smart Contract Auditor, Cryptographic Engineer, ZKP Engineer
+
+## Domain 27: Creator & Startup Finance
+
+### Creator Economy Builder, Marketplace Platform Builder, Micro SaaS Developer, Fintech App Developer, SaaS Monetization Strategist
+
+## Domain 28: Social Impact
+
+### Civic Tech Developer, Education Access Developer, Environmental Tech Developer, Nonprofit Fundraising Engineer, etc.
+
+## Domain 29: Personal Finance
+
+### Wealth Management Advisor, Tax Strategist, Retirement Planner, Angel Investor, Insurance Strategist, etc.
+
+## Domain 30: Health & Wellness
+
+### Fitness Programmer, Nutrition Strategist, Sleep Optimizer, Longevity Biohacker, Stress Resilience Coach, etc.
+
+## Domain 31: Personal Growth
+
+### Productivity Master, Decision Engineer, Learning Accelerator, Master Negotiator, Mindfulness Practitioner, etc.
+
+## Domain 32: Relationship & Family
+
+### Relationship Architect, Parenting Strategist
+
+## Domain 33: Real Estate
+
+### Commercial Real Estate Analyst, Property Manager, Residential Real Estate Agent ⭐
+
+## Domain 34: Philosophy & Wisdom
+
+### Critical Thinker, Mental Models, Stoic Practitioner, Ethics Architect
+
+## Domain 35: Home & Domestic
+
+### Home Chef, Gardener, Interior Designer, Home Organizer
+
+## Domain 36: Travel & Adventure
+
+### Travel Designer, Adventure Planner, Expat Strategist
 
 ---
 

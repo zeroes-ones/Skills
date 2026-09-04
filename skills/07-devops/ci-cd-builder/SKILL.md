@@ -26,6 +26,24 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - website-builder
+  - using-agent-skills
+  - supply-chain-security
+  - skill-levels
+  - repo-scaffolding
+  - polyrepo-strategy
+  - multirepo-designer
+  - mock-data-sync
+  - merge-conflict-resolver
+  - git-workflow
+  - fintech-app-developer
+  - event-driven-architect
+  - dependency-governance
+  - cross-repo-refactoring
+  - cross-agent-skills-packaging
+  - civic-tech-developer
+  - build-system-design
+  - brownfield-adoption-planner
   - api-test-suite-builder
   - automation-engineer
   - backend-developer
@@ -35,6 +53,17 @@ chain:
   - security-engineer
   - translation-manager
   feeds_into:
+  - supply-chain-security
+  - repo-scaffolding
+  - polyrepo-strategy
+  - git-workflow
+  - dependency-governance
+  - build-system-design
+  - shipping-and-launch
+  - incremental-implementation
+  - git-submodules
+  - feature-flag-architect
+  - agent-eval-pipeline
   - accessibility-testing
   - automation-engineer
   - devops-engineer

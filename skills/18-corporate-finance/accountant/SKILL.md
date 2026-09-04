@@ -25,11 +25,24 @@ updated: 2026-07-23
 token_budget: 3510
 chain:
   consumes_from:
+  - saas-monetization-strategist
+  - personal-finance
+  - micro-saas-developer
+  - marketplace-platform-builder
+  - fintech-app-developer
+  - financial-security
+  - creator-economy-builder
   - compliance-officer
   - fp-and-a-analyst
   - legal-advisor
   - treasury-manager
+  - m-and-a-strategist
   feeds_into:
+  - personal-finance
+  - tax-strategist
+  - home-buying
+  - commercial-real-estate-analyst
+  - m-and-a-strategist
   - board-manager
   - ceo-strategist
   - fp-and-a-analyst

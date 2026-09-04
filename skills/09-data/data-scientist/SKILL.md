@@ -24,6 +24,13 @@ updated: 2026-07-23
 token_budget: 4500
 chain:
   consumes_from:
+  - using-agent-skills
+  - technical-signals-engineer
+  - product-analyst
+  - portfolio-signal-manager
+  - ml-ai-engineer
+  - environmental-tech-developer
+  - data-governance-officer
   - analytics-engineer
   - business-intelligence-engineer
   - data-engineer
@@ -31,6 +38,11 @@ chain:
   - ml-engineer
   - quantitative-analyst
   feeds_into:
+  - technical-signals-engineer
+  - ml-ai-engineer
+  - fundamental-analyst
+  - data-visualization-engineer
+  - ab-testing-specialist
   - analytics-engineer
   - business-intelligence-engineer
   - growth-engineer

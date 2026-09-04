@@ -32,6 +32,7 @@ chain:
   - devops-engineer
   - fp-and-a-analyst
   feeds_into:
+  - roi-gate
   - cloud-architect
   - vp-engineering
   - fp-and-a-analyst

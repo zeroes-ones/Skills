@@ -24,10 +24,15 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - skill-levels
   - marketing-manager
   - medical-illustrator
   - product-strategist
   feeds_into:
+  - website-builder
+  - presentation-designer
+  - material-design-expert
+  - apple-hig-expert
   - frontend-developer
   - product-marketing-manager
   - ui-ux-designer

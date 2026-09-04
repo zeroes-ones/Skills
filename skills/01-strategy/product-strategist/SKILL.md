@@ -25,10 +25,20 @@ updated: 2026-07-23
 token_budget: 2715
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
   - business-strategist
   - data-scientist
   - ux-researcher
   feeds_into:
+  - business-strategist
+  - website-builder
+  - saas-monetization-strategist
+  - roi-gate
+  - mission-driven-growth-strategist
+  - explore-tools
+  - enterprise-pricing-strategist
+  - dynamic-skill-creator
   - brand-guidelines
   - ceo-strategist
   - fp-and-a-analyst

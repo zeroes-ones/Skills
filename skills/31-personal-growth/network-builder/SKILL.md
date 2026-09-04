@@ -20,6 +20,7 @@ token_budget: 8500
 chain:
   consumes_from:
   - life-architect
+  - public-speaking-coach
   feeds_into:
   - master-negotiator
   - public-speaking-coach

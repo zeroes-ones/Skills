@@ -36,7 +36,11 @@ chain:
     - market-data-engineer
     - options-risk-engineer
     - technical-signals-engineer
+    - forex-trader
+    - macro-strategist
   feeds_into:
+    - options-risk-engineer
+    - commodities-analyst
     - portfolio-signal-manager
     - algorithmic-trader
     - macro-strategist
@@ -456,6 +460,23 @@ Before delivering work, verify:
 
 If any checkbox fails, revise before delivering. If revision is impossible (no live data), inform the user of exactly what cannot be verified and why.
 
+## Production Checklist
+
+Before delivering any futures analysis or trade plan, verify:
+
+- [ ] **C1: Contract specs verified from exchange** — Multiplier, tick size, tick value, trading hours from CME/exchange, never from memory (see references/contract-specifications.md)
+- [ ] **C2: Notional value surfaced** — Every position shown in dollar notional, never contract count alone; leverage ratio computed against account equity
+- [ ] **C3: Margin current** — SPAN margin from broker/exchange API this session; stale margin causes margin calls (see references/span-margin-calculator.md)
+- [ ] **C4: Roll uses calendar spreads** — Never two outright orders; quote the calendar spread price (see references/roll-strategy-guide.md)
+- [ ] **C5: FND/LTD known** — No physical-delivery position without an exit plan before FND-5 (see references/delivery-management.md)
+- [ ] **C6: Session correct** — Order type and session (RTH/ETH/Globex) match the scenario; emergency exits use the right venue
+- [ ] **C7: Prices tagged** — Every price [VERIFIED] with source and timestamp; no training-data prices
+- [ ] **C8: Risk limits respected** — Position within the account's stated overnight/day-trade limits and max-loss per trade
+- [ ] **C9: Tax treatment noted** — Section 1256 60/40 implications flagged where relevant (see references/tax-treatment.md)
+- [ ] **C10: Error path known** — Margin-call, gap-through-stop, and delivery-notice responses reviewed before the trade is live (see references/error-recovery.md)
+
+If any checkbox fails, revise before delivering. If revision is impossible (no live data), state exactly what could not be verified and why.
+
 ## Deliberate Practice
 
 ### Exercise 1: Contract Spec Drill (5 min)
@@ -483,4 +504,3 @@ For each scenario, select the correct order type and session: (a) Entering long 
 - [broker-integration-futures.md](references/broker-integration-futures.md) — Broker API specifics for futures: IBKR futures orders, Schwab futures, order types, SPAN pulls
 - [tax-treatment.md](references/tax-treatment.md) — Section 1256 60/40 treatment, mark-to-market rules, wash sale inapplicability, Form 6781 filing requirements
 - [error-recovery.md](references/error-recovery.md) — Futures-specific error patterns: margin call response, gap-through-stop recovery, delivery notice handling, roll error correction
-

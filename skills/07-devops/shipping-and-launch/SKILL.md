@@ -32,6 +32,9 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - incremental-implementation
+  - agent-persona-orchestrator
   - automation-engineer
   - ci-cd-builder
   - qa-engineer
@@ -39,6 +42,7 @@ chain:
   - performance-engineer
   - release-manager
   feeds_into:
+  - feature-flag-architect
   - automation-engineer
   - incident-responder
   - release-manager

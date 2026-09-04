@@ -29,6 +29,7 @@ tags:
 token_budget: 3780
 chain:
   consumes_from:
+  - skill-levels
   - ceo-strategist
   - cto-advisor
   - director-engineering
@@ -37,6 +38,7 @@ chain:
   - hr-manager
   - technical-program-manager
   feeds_into:
+  - engineering-leadership-interview-prep
   - ceo-strategist
   - cto-advisor
   - director-engineering

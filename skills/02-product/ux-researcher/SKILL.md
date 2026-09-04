@@ -23,8 +23,21 @@ updated: 2026-07-23
 token_budget: 2400
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
   - product-manager
   feeds_into:
+  - website-builder
+  - product-analyst
+  - personal-productivity-developer
+  - educational-game-developer
+  - education-access-developer
+  - community-organizing-tech
+  - civic-tech-developer
+  - casual-game-developer
+  - brainstorming
+  - access-tech-developer
+  - customer-onboarding-specialist
   - fintech-ui-designer
   - frontend-developer
   - game-ui-designer

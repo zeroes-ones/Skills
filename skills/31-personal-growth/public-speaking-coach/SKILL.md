@@ -18,7 +18,7 @@ tags:
 - presence
 token_budget: 8500
 chain:
-  consumes_from: []
+  consumes_from: [network-builder]
   examples:
   - skills/31-personal-growth/public-speaking-coach/examples/backtest
   feeds_into:

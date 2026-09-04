@@ -23,10 +23,13 @@ updated: 2026-07-23
 token_budget: 3520
 chain:
   consumes_from:
+    - enterprise-pricing-strategist
     - sales-engineer
     - customer-success-manager
     - customer-support-engineer
+    - customer-onboarding-specialist
   feeds_into:
+    - customer-onboarding-specialist
     - customer-success-manager
     - revops-manager
     - product-manager

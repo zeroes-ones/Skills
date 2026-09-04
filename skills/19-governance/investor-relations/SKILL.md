@@ -25,6 +25,9 @@ updated: 2026-07-23
 token_budget: 3490
 chain:
   consumes_from:
+  - presentation-designer
+  - angel-investor
+  - m-and-a-strategist
   - accountant
   - board-manager
   - ceo-strategist

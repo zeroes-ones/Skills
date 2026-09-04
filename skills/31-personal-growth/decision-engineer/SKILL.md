@@ -18,7 +18,7 @@ tags:
 - calibration
 token_budget: 8500
 chain:
-  consumes_from: []
+  consumes_from: [learning-accelerator, life-architect, productivity-master]
   examples:
   - skills/31-personal-growth/decision-engineer/examples/backtest
   feeds_into:

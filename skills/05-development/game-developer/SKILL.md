@@ -30,6 +30,8 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - game-networking-developer
+    - educational-game-developer
     - backend-developer
     - frontend-developer
     - game-engine-architect
@@ -38,6 +40,10 @@ chain:
     - performance-engineer
     - qa-engineer
   feeds_into:
+    - gameplay-programmer
+    - game-networking-developer
+    - educational-game-developer
+    - casual-game-developer
     - qa-engineer
     - performance-engineer
   alternatives: []

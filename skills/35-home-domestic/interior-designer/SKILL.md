@@ -15,7 +15,8 @@ tags:
 - space-planning
 - furniture
 chain:
-  consumes_from: []
+  consumes_from:
+  - residential-real-estate-agent
   examples:
   - skills/35-home-domestic/interior-designer/examples/backtest
   feeds_into: []

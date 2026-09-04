@@ -29,6 +29,7 @@ tags:
 token_budget: 8000
 chain:
   consumes_from:
+  - ml-ai-engineer
   - content-policy-manager
   - ml-engineer
   - ai-engineer

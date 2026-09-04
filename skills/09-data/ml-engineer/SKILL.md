@@ -31,10 +31,14 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - data-governance-officer
     - data-engineer
     - data-scientist
     - quantitative-analyst
+    - mlops-engineer
   feeds_into:
+    - trust-safety-engineer
+    - on-device-ai-engineer
     - ai-engineer
     - llm-engineer
     - mlops-engineer

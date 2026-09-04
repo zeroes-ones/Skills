@@ -22,11 +22,17 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - cross-skill-communication
+  - senior-engineer-mode-router
   - agent-eval-pipeline
   - multi-agent-orchestration
   - token-efficiency
   - context-engineering
   feeds_into:
+  - multi-agent-orchestration
+  - cross-skill-communication
+  - cross-agent-skills-packaging
+  - context-compaction-strategies
   - backend-developer
   - system-architect
   - devops-engineer

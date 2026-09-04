@@ -26,6 +26,8 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+    - options-risk-engineer
+    - fundamental-analyst
     - portfolio-signal-manager
     - technical-signals-engineer
     - commodities-analyst
@@ -306,6 +308,38 @@ Continue ✓                                     Adjust: switch venue, change li
 <!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Best Practices
+
+1. **Paper trade for 30 days minimum before live capital.** The gap between backtest and reality is always larger than you think. Paper trade with realistic fills (not mid-price) and actual slippage assumptions. If you cann
+2. **Half-Kelly is full Kelly in practice.** Full Kelly assumes you know your edge exactly — you do not. Half-Kelly preserves 75% of the growth rate with 50% of the drawdown risk. When in doubt, quarter-Kelly.
+3. **Size positions by risk, not conviction.** "High conviction" signals do not deserve larger positions. They deserve the same 1-2% risk per trade. Conviction is an emotion; position sizing is math. Let the math win.
+4. **Walk-forward validation is the only backtest that matters.** A single in-sample backtest with optimized parameters is curve-fitting, not strategy development. Minimum five walk-forward windows with stable parameters ac
+5. **Monitor signal decay in real time.** UOA signals have a half-life measured in hours to days. If your signal-to-execution pipeline takes more than 5 minutes, you are trading stale information. Benchmark: time from signa
+6. **Treat commissions as a strategy input, not an afterthought.** On a $3,000 options position with $65 round-trip commissions, you need +2.2% just to break even. Factor commissions into position sizing — $2,000 minimum tr
+7. **Log everything — every fill, every rejection, every reconnect.** Trading bugs are discovered in logs, not in P&L. Structured JSON logs with correlation IDs from signal → validation → order → fill → position update → ex
+8. **Run a "paper clone" of live strategies.** Mirror your live strategy in a paper account with the same signals, same sizing, same timing. Divergence between paper and live P&L reveals execution problems — slippage you di
+
+> Full depth: `references/best-practices.md`
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Live trading executed on stale data from the previous close — system traded on 4-hour-old quotes | Market-data feed lost connection; signal validation used last cached prices without a freshness check; no timestamp validation before order submission | Reject any signal where `(now - data.timestamp).seconds > 60` during market hours; add feed heartbeat monitoring that halts trading if the feed drops >120s | Stale data is worse than no data — a freshness gate and feed heartbeat are mandatory before any order is generated |
+| Broker API retry caused a double-fill — 2,000 shares bought instead of 1,000, doubling position and risk | Network timeout on order submission; code retried without an idempotency key; broker processed both as independent orders; the stop only covered the first fill | Add `client_order_id` to every order; check order status before retrying; never resubmit a timed-out order without confirming it did not fill | Timeouts are not rejections — idempotency keys and status checks are what prevent double execution |
+| Circuit breaker fired at -20% drawdown but liquidation crashed mid-loop, leaving positions open | Liquidation iterated `portfolio.positions` and one position had already been closed by a stop-loss; the IndexError aborted liquidation of the rest | Wrap each position iteration in try/except; skip missing positions; liquidate independently so one failure cannot block the others | A breaker that cannot liquidate is decoration — liquidation must be resilient per-position |
+| Backtest reported Sharpe 2.5; live Sharpe was -0.3 | Walk-forward validation used only 1-2 out-of-sample windows of ~6 months each — too little data to distinguish skill from luck | Require ≥252 trading days per out-of-sample window and ≥5 walk-forward windows; reject if out-of-sample Sharpe varies >50% across windows | Short backtests inflate ratios — statistical significance requires enough out-of-sample data |
+| Position ran unprotected for hours after an order-submission timeout | Broker call timed out at market open; no retry with backoff and no order-status verification; the order had actually filled but the client never learned | Exponential backoff (1s→16s, max 5); after timeout query order status before retrying; alert after 5 retries | A lost confirmation is not a lost order — verify status, then decide whether to retry |
+
+> Full decoder with auto-recovery loops: `references/error-decoder.md`
+## Production Checklist
+
+Before delivering, verify:
+
+- [ ] **ID:** Checklist Item
+
+> Full checklist with validation commands: `references/checklist.md`
 
 ## References
 <!-- STANDARD: 3min -->

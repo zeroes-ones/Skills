@@ -24,6 +24,18 @@ tags:
 token_budget: 3000
 chain:
   consumes_from:
+    - using-agent-skills
+    - source-driven-development
+    - skill-levels
+    - mcp-management
+    - doubt-driven-development
+    - debugging-and-error-recovery
+    - cross-repo-refactoring
+    - codebase-design
+    - code-simplification
+    - browser-testing-with-devtools
+    - brownfield-adoption-planner
+    - agent-persona-orchestrator
     - api-test-suite-builder
     - backend-developer
     - frontend-developer
@@ -33,6 +45,13 @@ chain:
     - staff-engineer
     - tdd-guide
   feeds_into:
+    - doubt-driven-development
+    - debugging-and-error-recovery
+    - codebase-design
+    - code-simplification
+    - verification-before-completion
+    - merge-conflict-resolver
+    - dynamic-skill-creator
     - api-test-suite-builder
     - backend-developer
     - frontend-developer

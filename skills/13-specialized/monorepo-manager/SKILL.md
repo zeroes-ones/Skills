@@ -24,8 +24,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
-  consumes_from: ["devops-engineer", "ci-cd-builder", "backend-developer"]
-  feeds_into: ["ci-cd-builder", "backend-developer", "frontend-developer"]
+  consumes_from: ["devops-engineer", "ci-cd-builder", "backend-developer", build-system-design, git-submodules, polyrepo-strategy, repo-scaffolding, using-agent-skills]
+  feeds_into: ["ci-cd-builder", "backend-developer", "frontend-developer", build-system-design, cross-repo-refactoring, dependency-governance, git-submodules, git-workflow, multirepo-designer, polyrepo-strategy, repo-scaffolding]
 ---
 # Monorepo Manager
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

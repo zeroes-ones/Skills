@@ -24,6 +24,8 @@ updated: 2026-07-23
 token_budget: 5000
 chain:
   consumes_from:
+  - using-agent-skills
+  - roi-gate
   - data-engineer
   - data-scientist
   - mlops-engineer

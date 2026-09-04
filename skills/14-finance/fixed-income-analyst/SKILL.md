@@ -10,9 +10,15 @@ description: >
   mortgage underwriting (route to accountant), or corporate credit ratings
   (route to financial-security).
 token_budget: 6000
-chain: symmetric
-consumes_from: [macro-strategist, market-data-engineer, quantitative-analyst]
-provides_to: [portfolio-signal-manager, algorithmic-trader, macro-strategist]
+chain:
+  consumes_from:
+  - macro-strategist
+  - market-data-engineer
+  - quantitative-analyst
+  feeds_into:
+  - portfolio-signal-manager
+  - algorithmic-trader
+  - macro-strategist
 ---
 
 # Fixed Income Analyst
@@ -485,6 +491,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
 | `treasury-manager` | Cash management: excess cash deployment, duration matching, counterparty limits, collateral optimization | **PUSH:** Short-duration investment options. **PUSH:** Repo market dislocation alert | Deploys cash into recommended short-term FI instruments per liquidity requirements |
 
 ## Error Recovery
+<!-- DEEP: 10+min — FI failure patterns: duration-type confusion, CTD switch, special repo, basis investigation, key-rate attribution -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---|---|---|---|
@@ -542,6 +549,23 @@ Every metric tagged. P&L decomposed into rate and spread components. Convexity q
 - [ ] **Scenario analysis includes BOTH rate and spread moves** — corporates have two risk factors
 - [ ] **No fabricated CUSIPs, ISINs, or security identifiers** — leave blank if unverified
 
+## Production Checklist
+
+Before delivering any fixed-income analysis or trade plan, verify:
+
+- [ ] **C1: Security identifiers verified** — No fabricated CUSIPs/ISINs; leave blank if unverified
+- [ ] **C2: Duration/DV01 computed correctly** — Modified duration and DV01 per $1M from current yield, not a duration-type mix-up (references/duration-convexity-formulas.md)
+- [ ] **C3: Curve data current** — Treasury curve, on/off-the-run, and key rates from live sources (references/treasury-yield-curves.md)
+- [ ] **C4: CTD & conversion factor verified** — Bond-futures hedge ratios use the current CTD and conversion factor (references/bond-futures-reference.md)
+- [ ] **C5: Repo/financing reality checked** — GC vs special repo and implied repo acknowledged; no assumption of generic financing (references/repo-and-financing.md)
+- [ ] **C6: Credit basis explained** — CDS-bond basis decomposed, not hand-waved (references/credit-analysis-framework.md)
+- [ ] **C7: TIPS breakeven decomposed** — Nominal/TIPS split into expectations + inflation risk premium + liquidity premium (references/tips-inflation-products.md)
+- [ ] **C8: Carry/roll computed** — Carry, roll-down, and break-even quantified for the holding period (references/carry-rolldown-strategies.md)
+- [ ] **C9: Cross-currency basis flagged** — Hedged yield computation where relevant (references/global-rates-linkages.md)
+- [ ] **C10: Error path known** — CTD switch, special repo, and basis-investigation responses reviewed (references/error-recovery.md)
+
+If any checkbox fails, revise before delivering. If revision is impossible (no live data), state exactly what could not be verified and why.
+
 ## Deliberate Practice
 
 ### Exercise 1: DV01 Computation (5 min)
@@ -569,4 +593,3 @@ Portfolio DV01 = $45,000. CTD of ZN futures (10yr): DV01 = $78 per $100K, conver
 - [carry-rolldown-strategies.md](references/carry-rolldown-strategies.md) — Carry decomposition, roll-down computation, break-even, horizon returns
 - [global-rates-linkages.md](references/global-rates-linkages.md) — Cross-currency basis, hedged yield computation, global FI allocation, central bank divergence
 - [error-recovery.md](references/error-recovery.md) — Error recovery: duration type confusion, CTD switch, special repo, basis investigation, key rate attribution
-

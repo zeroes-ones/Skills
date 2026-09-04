@@ -35,6 +35,7 @@ chain:
     - macro-strategist
     - technical-signals-engineer
   feeds_into:
+    - macro-strategist
     - portfolio-signal-manager
     - algorithmic-trader
     - futures-trader
@@ -475,6 +476,7 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
 | `futures-trader` | Spot-futures basis for currency pairs, hedging recommendation (futures vs spot), arbitrage opportunities | **PUSH:** Basis divergence alert (>0.5% between spot and futures). **PUSH:** Request to convert spot position to futures for Section 1256 tax treatment | Futures trader executes currency futures hedge or conversion per basis analysis |
 
 ## Error Recovery
+<!-- DEEP: 10+min — FX failure patterns: news slippage, swap rollover, correlation breaks, margin close-out -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---|---|---|---|
@@ -513,6 +515,23 @@ The position is session-aware (overlap order), carry-aware (intraday avoids swap
 - [ ] **Next central bank meetings calendared:** No carry trade held through binary event
 - [ ] **No fabricated spreads or swap rates:** If unverified, say so. Route to broker for actual values
 
+## Production Checklist
+
+Before delivering any FX analysis or trade plan, verify:
+
+- [ ] **C1: Pip values computed from current rates** — Never from memory; use references/pip-value-tables.md and tag [COMPUTED]
+- [ ] **C2: Swap/rollover verified with broker** — Current swap rates and triple-Wednesday timing, not training-data values (references/swap-rollover-mechanics.md)
+- [ ] **C3: Session match confirmed** — Entry session optimal/acceptable for the pair (references/session-liquidity-guide.md)
+- [ ] **C4: Central-bank calendar checked** — No high-impact event within the holding window unless explicitly trading it (references/central-bank-calendar.md)
+- [ ] **C5: Correlation & net exposure computed** — Portfolio not accidentally concentrated; net USD/JPY exposure quantified (references/correlation-matrix.md)
+- [ ] **C6: Broker capabilities matched** — Order types and leverage within the specific broker's API and account tier (references/broker-integration-forex.md)
+- [ ] **C7: Exotic risk assessed** — Political/liquidity/crash risk sized for any exotic pair (references/exotic-pairs-risk.md)
+- [ ] **C8: No fabricated spreads or swap rates** — Unverified values flagged and routed to broker
+- [ ] **C9: Position sizing within risk limits** — Max loss per trade ≤ stated account risk; leverage within broker caps
+- [ ] **C10: Error path known** — News-slippage, margin close-out, and correlation-break responses reviewed before going live (references/error-recovery.md)
+
+If any checkbox fails, revise before delivering. If revision is impossible (no live data), state exactly what could not be verified and why.
+
 ## Deliberate Practice
 
 ### Exercise 1: Pip Value Calculator (5 min)
@@ -540,4 +559,3 @@ You plan to hold 0.5 lots long GBP/JPY for 30 days. GBP rate 5.00%, JPY rate 0.2
 - [broker-integration-forex.md](references/broker-integration-forex.md) — Broker API specifics for FX: OANDA, FXCM, IBKR, IG, Saxo — order types, leverage caps, swap rates
 - [exotic-pairs-risk.md](references/exotic-pairs-risk.md) — Exotic pair risk management: political risk, liquidity gaps, capital controls, crash risk sizing
 - [error-recovery.md](references/error-recovery.md) — FX-specific error patterns: news slippage, swap miscalculation, correlation breaks, margin close-out
-

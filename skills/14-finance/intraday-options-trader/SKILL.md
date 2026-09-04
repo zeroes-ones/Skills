@@ -186,7 +186,7 @@ HARD circuit breakers: daily loss limit, 2-consecutive-loss pause, VIX spike hal
 
 ## Error Decoder
 
-| # | Symptom | Root Cause | Exact Fix | Lesson |
+| # | Symptom | Root Cause | Fix | Lesson |
 |---|---------|-----------|-----------|--------|
 | E1 | "0DTE credit spread lost $450 on a 5-wide spread" | Gamma explosion at 3:30 PM. Underlying breached short strike in final minutes | Never hold 0DTE positions past 3:00 PM. Close by 2:45 PM to have buffer. Butterfly only for 0DTE | 0DTE short premium is negative EV. The occasional losses are larger than the frequent small wins |
 | E2 | "Gamma scalp lost money even though stock was volatile" | Realized vol < implied vol. Theta decay exceeded scalp profits | Before entry: confirm IV percentile < 30% and current HV > IV. If not, scalp will lose | Gamma scalping only works when realized vol exceeds implied. Buying expensive vol for scalping guarantees losses |
@@ -286,6 +286,17 @@ Before ANY intraday options session:
 - [ ] 13. **SPX for 0DTE:** Cash-settled. Individual stock 0DTE = assignment roulette. Only SPX.
 - [ ] 14. **Post-session journal template ready:** Entry/exit, strategy, P&L, MAE/MFE, bias flag, attribution.
 - [ ] 15. **Mental state check:** If tired, stressed, or emotional → reduce size by 50% or skip the session.
+
+## Best Practices
+
+1. Only butterfly is +EV on 0DTE. Credit spreads, iron condors, long premium all have negative EV. If you must trade 0DTE non-butterfly, you're gambling, not trading
+2. Wait until 9:35 AM minimum before entering. Verify spread < 5% of option price. The opening 2 minutes are market-maker price discovery, not a tradeable market for retail
+3. VIX spike > 50% intraday = close everything, go flat. VIX > 25 = halve sizes, widen stops. VIX spike conditions = avoid new premium-buying entries because spreads are punitive
+4. Apply FalseStopGuard: confirm reversal with volume + wick + thin-window analysis before exiting. Not every pullback is a reversal. Wait for confirmation before triggering a stop
+5. HARD daily loss limit = STOP FOR THE DAY. 2 consecutive max-loss trades = 30-minute mandatory pause. Resume at 50% size. Third loss = day over. No exceptions — the market is still there tomorrow
+6. DMA broker only for gamma scalping (IBKR Pro, not Lite). Sub-50ms execution required for profitable hedging. Free commissions = you're the product — the latency cost far exceeds any commission savings
+7. ORB trades with options spread > 5% should use shares instead. ORB works best on instruments with 1-tick spreads. Options are a secondary vehicle for ORB — use SPY shares for the primary ORB setup
+<!-- DEEP: 10+min — extended deep-dive patterns and automation details live in this skill's references/ -->
 
 ## References
 

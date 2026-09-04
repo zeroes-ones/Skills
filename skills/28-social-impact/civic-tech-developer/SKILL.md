@@ -30,6 +30,9 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - nonprofit-fundraising-engineer
+    - education-access-developer
+    - community-organizing-tech
     - accessibility-auditor
     - api-designer
     - backend-developer
@@ -41,6 +44,7 @@ chain:
     - security-engineer
     - ux-researcher
   feeds_into:
+    - community-organizing-tech
     - qa-engineer
     - accessibility-testing
     - ci-cd-builder

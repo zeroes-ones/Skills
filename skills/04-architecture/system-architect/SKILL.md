@@ -23,11 +23,48 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - wayfinder
+  - using-agent-skills
+  - supply-chain-security
+  - skill-levels
+  - grilling
+  - explore-tools
+  - brainstorming
+  - agent-handoff-protocol
+  - senior-engineer-mode-router
   - cto-advisor
   - product-manager
   - security-engineer
   - staff-engineer
   feeds_into:
+  - wayfinder
+  - grilling
+  - explore-tools
+  - brainstorming
+  - zkp-engineer
+  - smart-contract-auditor
+  - prototype
+  - multirepo-designer
+  - multi-agent-orchestration
+  - mobile-architecture-patterns
+  - mcp-management
+  - marketplace-platform-builder
+  - macos-developer
+  - ios-developer
+  - healthcare-security
+  - game-engine-architect
+  - event-driven-architect
+  - environmental-tech-developer
+  - dynamic-skill-creator
+  - doubt-driven-development
+  - domain-modeling
+  - desktop-developer
+  - desktop-architecture-patterns
+  - cryptographic-engineer
+  - context-compaction-strategies
+  - codebase-design
+  - brownfield-adoption-planner
+  - system-design-interview-prep
   - algorithmic-trader
   - api-designer
   - backend-developer
@@ -632,6 +669,12 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 ## References
 <!-- STANDARD: 3min -->
+- **System Design 101**: See [system-design-101.md](references/system-design-101.md) — core concepts, scale estimation, and the 8-step interview framework
+- **Distributed Systems 101**: See [distributed-systems-101.md](references/distributed-systems-101.md) — fallacies, consistency models, CAP, partial failure
+- **Microservices Patterns**: See [microservices-patterns.md](references/microservices-patterns.md) — decomposition, gateway, circuit breaker, outbox, strangler fig
+- **Consistent Hashing**: See [consistent-hashing.md](references/consistent-hashing.md) — ring placement, virtual nodes, remapping storms
+- **Modular Monolith**: See [modular-monolith.md](references/modular-monolith.md) — bounded-context modules, enforced boundaries, extraction path
+- **Netflix Microservices Lessons**: See [netflix-microservices-lessons.md](references/netflix-microservices-lessons.md) — chaos, statelessness, regional isolation, observability
 - **Architecture Fitness Functions**: See [architecture-fitness-functions.md](references/architecture-fitness-functions.md)
 - **When Monolith Wins**: See [when-monolith-wins.md](references/when-monolith-wins.md)
 

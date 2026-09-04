@@ -25,6 +25,7 @@ author: Sandeep Kumar Penchala
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
     - cto-advisor
     - finops-engineer
     - product-strategist

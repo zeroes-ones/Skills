@@ -35,9 +35,21 @@ token_budget: 5000
 chain:
   type: symmetric
   consumes_from:
+    - macro-strategist
+    - job-search-strategist
+    - home-buying
     - accountant
     - fp-and-a-analyst
   feeds_into:
+    - home-buying
+    - wealth-management-advisor
+    - tax-strategist
+    - side-hustle-builder
+    - retirement-planner
+    - real-estate-investor
+    - insurance-strategist
+    - debt-optimizer
+    - angel-investor
     - accountant
     - fp-and-a-analyst
   alternatives: []
@@ -447,4 +459,3 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [/scripts/debt_payoff_plan.py](scripts/debt_payoff_plan.py) -- Avalanche vs snowball comparison with interest and timeline
 - [/scripts/retirement_projector.py](scripts/retirement_projector.py) -- Monte Carlo retirement success probability
 - [/scripts/fire_calculator.py](scripts/fire_calculator.py) -- Savings rate to FIRE timeline, Coast FIRE date
-

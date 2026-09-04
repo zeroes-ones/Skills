@@ -28,9 +28,14 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - coding-interview-prep
+    - engineering-leadership-interview-prep
+    - system-design-interview-prep
     - resume-writer
     - job-search-strategist
   feeds_into:
+    - resume-writer
+    - job-search-strategist
     - hr-manager
     - recruiting
   alternatives: []

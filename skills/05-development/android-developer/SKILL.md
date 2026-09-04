@@ -9,6 +9,9 @@ tags: [android, kotlin, jetpack-compose, mobile, play-store, gradle, material-de
 token_budget: 4500
 chain:
   consumes_from:
+    - using-agent-skills
+    - personal-productivity-developer
+    - on-device-ai-engineer
     - accessibility-auditor
     - backend-developer
     - feature-flag-architect
@@ -20,6 +23,8 @@ chain:
     - security-reviewer
     - ui-ux-designer
   feeds_into:
+  - mobile-architecture-patterns
+  - access-tech-developer
   - automation-engineer
   - flutter-developer
   - kotlin-multiplatform
@@ -122,6 +127,7 @@ What are you trying to do?
 ├── Configure Gradle build variants → Jump to references/android-build-variants.md
 ├── Implement background work → Jump to "Core Workflow > Phase 4"
 ├── Optimize performance → Jump to references/android-performance-optimization.md
+├── Build a Wear OS / Android TV / Android Auto app → Jump to references/android-wear-tv-auto.md
 ├── Make app accessible → Jump to references/android-accessibility.md
 ├── Prepare for Play Store → Jump to references/play-store-deployment.md
 ├── Handle coroutines/Flow properly → Jump to references/kotlin-coroutines-flow.md
@@ -721,6 +727,7 @@ Detailed reference material loaded on demand:
 - **Android Build Variants**: See [references/android-build-variants.md](references/android-build-variants.md) — Build types (debug/release), product flavors (environment/region), flavor dimensions, signing configs (debug/release/CI env vars), build variants matrix, convention plugins via buildSrc, version catalogs (libs.versions.toml), resourceConfigs, abiFilters, splits (density/ABI)
 - **Play Store Deployment**: See [references/play-store-deployment.md](references/play-store-deployment.md) — Play App Signing (upload key vs app signing key), AAB generation, internal/alpha/beta/production tracks, staged rollout (10%→50%→100%), in-app review API, Billing 7.x subscriptions/one-time, pre-launch report, policy compliance, Data safety form, IARC content rating, managed publishing
 - **Android Accessibility**: See [references/android-accessibility.md](references/android-accessibility.md) — TalkBack navigation, contentDescription best practices, Compose semantics (semantics, mergeDescendants, invisibleToUser), touch target minimums (48dp), color contrast (4.5:1 text, 3:1 large text), focus order, live regions (AccessibilityLiveRegion), testing with Accessibility Scanner, WCAG 2.2 AA mapped to Android
+- **Extended Form Factors (Wear OS / Android TV / Android Auto)**: See [references/android-wear-tv-auto.md](references/android-wear-tv-auto.md) — Wear Compose glanceable UI, tiles/complications/watch faces, HealthServices and WatchConnectivity; TV D-pad focus model, 10-foot legibility, leanback/Compose-for-TV and media templates; Auto Car App Library templates, driver-distraction rules, category services, and release/review channels for each surface
 - **Android Performance Optimization**: See [references/android-performance-optimization.md](references/android-performance-optimization.md) — Cold start optimization (launch themes, lazy content providers, baseline profiles), scroll jank (LazyColumn stable keys, recomposition counts, unstable parameters), memory management (bitmap downsampling, heap dump analysis, leak detection), APK size (R8 full mode, resource shrinking, ABI splits, resConfigs), Macrobenchmark with BaselineProfileRule, systrace/perfetto capture
 
 **External references:**

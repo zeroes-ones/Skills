@@ -33,6 +33,8 @@ chain:
   consumes_from:
   - smart-contract-auditor
   feeds_into:
+  - wallet-infrastructure-engineer
+  - defi-protocol-engineer
   - cryptographic-engineer
   alternatives: []
 ---

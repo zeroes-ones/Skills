@@ -35,6 +35,7 @@ chain:
     - performance-engineer
     - embedded-engineer
   feeds_into:
+    - game-networking-developer
     - game-developer
     - gameplay-programmer
     - frontend-developer

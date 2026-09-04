@@ -32,12 +32,14 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
     - api-designer
     - backend-developer
     - database-designer
     - fullstack-developer
     - migration-architect
   feeds_into:
+    - cross-repo-refactoring
     - api-designer
     - migration-architect
     - documentation-engineer

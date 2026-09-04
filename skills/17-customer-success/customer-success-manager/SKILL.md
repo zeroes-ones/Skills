@@ -23,6 +23,7 @@ updated: 2026-07-23
 token_budget: 3480
 chain:
   consumes_from:
+    - customer-onboarding-specialist
     - sales-engineer
     - account-manager
     - product-manager

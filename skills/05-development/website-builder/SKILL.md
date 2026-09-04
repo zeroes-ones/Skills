@@ -28,6 +28,8 @@ tags:
 token_budget: 5000
 chain:
   feeds_into:
+    - personal-productivity-developer
+    - micro-saas-developer
     - seo-specialist
     - frontend-developer
     - fullstack-developer
@@ -39,6 +41,7 @@ chain:
     - ci-cd-builder
     - devops-engineer
   consumes_from:
+    - using-agent-skills
     - api-designer
     - backend-developer
     - brand-guidelines

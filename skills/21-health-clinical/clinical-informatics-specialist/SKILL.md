@@ -27,11 +27,13 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - health-condition-supporter
   - backend-developer
   - compliance-officer
   - patient-experience-researcher
   - regulatory-specialist
   feeds_into:
+  - health-condition-supporter
   - ai-safety-health-reviewer
   - data-engineer
   - health-regulatory-submission

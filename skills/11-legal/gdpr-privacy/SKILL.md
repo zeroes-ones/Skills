@@ -28,10 +28,12 @@ updated: 2026-07-23
 token_budget: 8000
 chain:
   consumes_from:
+  - privacy-engineering
   - compliance-officer
   - legal-advisor
   - privacy-engineer
   feeds_into:
+  - privacy-engineering
   - compliance-officer
   - hipaa-technical-implementation
   - privacy-engineer

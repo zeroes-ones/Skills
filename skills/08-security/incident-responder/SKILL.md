@@ -26,6 +26,21 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - vulnerability-management
+  - verification-before-completion
+  - using-agent-skills
+  - threat-intelligence
+  - supply-chain-security
+  - smart-contract-auditor
+  - shipping-and-launch
+  - healthcare-security
+  - doubt-driven-development
+  - dependency-governance
+  - debugging-and-error-recovery
+  - data-security
+  - cloud-security
+  - applying-llm-guardrails
+  - ai-security
   - chaos-engineer
   - compliance-officer
   - crisis-response-manager
@@ -34,6 +49,9 @@ chain:
   - security-reviewer
   - site-reliability-engineer
   feeds_into:
+  - threat-intelligence
+  - supply-chain-security
+  - debugging-and-error-recovery
   - compliance-officer
   - code-reviewer
   - devops-engineer

@@ -189,7 +189,7 @@ Half-Kelly sizing with volatility + regime adjustments. 4-exit system. Weekend g
 
 ## Error Decoder
 
-| # | Symptom | Root Cause | Exact Fix | Lesson |
+| # | Symptom | Root Cause | Fix | Lesson |
 |---|---------|-----------|-----------|--------|
 | E1 | "Credit spread won't hit 50% profit after 25 days" | Strike too far OTM (delta too low). Premium too small relative to time needed | Next trade: target 0.25-0.30Δ for credit spreads. 50% profit should hit within 40-50% of DTE | If the credit spread is too conservative, the premium doesn't justify the capital |
 | E2 | "Stopped out of pullback entry, then it reversed and rallied to target" | Entered at first sign of pullback before support confirmed. FalseStopGuard not applied | Wait for support test AND bounce confirmation. Enter on the green candle after support holds, not during the drop | Patience on entry is as important as the entry itself. The pullback needs to prove support held |
@@ -289,6 +289,17 @@ Before ANY swing options trade:
 - [ ] 13. **IV environment favorable:** Credit spreads when IV > HV. Debit spreads when IV < HV.
 - [ ] 14. **September/October sizing:** If these months, reduce all sizes by 50%.
 - [ ] 15. **Journal template ready:** Entry thesis, expected vs. actual, bias check, lessons.
+
+## Best Practices
+
+1. Always check earnings calendar before entry. Close directional positions before earnings or reduce to 25%. No exceptions — binary events are unmanageable by position sizing
+2. Close at 50% of max profit. The last few dollars are not worth gamma/pin/assignment risk. Credit spread winners should be harvested early, not held to expiration
+3. [BACKTEST-EVIDENCE] Size based on trend duration and pullback depth, NOT entry score. High scores (>85) → REDUCE size by 25%. Score predicts direction; trend duration determines conviction
+4. Fixed sizing regardless of streak length. After 3 consecutive wins, actually REDUCE size by 25%. Win streaks revert to mean — the probability of the next trade being a winner doesn't increase because the last 6 were
+5. Enforce portfolio correlation limit: no more than 60% of swing capital in correlated positions. Assume crash correlation of 0.7-0.9 for all equity positions. Diversification fails in crashes
+6. If DTE ≤ 7 and holding over weekend: reduce size 25-50%, add 10% to stop buffer. Weekend gaps are 2-3× larger than weekday overnight gaps
+7. Max 5% per trade regardless of Kelly output. Apply half-Kelly as standard. Quarter-Kelly for accounts < $25K. Kelly constraints are survival mechanisms
+<!-- DEEP: 10+min — extended deep-dive patterns and automation details live in this skill's references/ -->
 
 ## References
 

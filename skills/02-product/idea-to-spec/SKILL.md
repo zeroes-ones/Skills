@@ -23,6 +23,7 @@ updated: 2026-07-23
 token_budget: 2190
 chain:
   consumes_from:
+    - using-agent-skills
     - product-manager
     - qa-engineer
     - system-architect

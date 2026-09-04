@@ -32,6 +32,7 @@ chain:
     - ui-ux-designer
     - accessibility-auditor
     - brand-guidelines
+    - mobile-developer
   feeds_into:
     - ios-developer
     - macos-developer

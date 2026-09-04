@@ -26,6 +26,10 @@ updated: 2026-07-23
 token_budget: 3555
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
+  - shipping-and-launch
+  - debugging-and-error-recovery
   - chaos-engineer
   - cloud-architect
   - database-reliability-engineer
@@ -36,6 +40,7 @@ chain:
   - performance-engineer
   - release-manager
   feeds_into:
+  - debugging-and-error-recovery
   - chaos-engineer
   - incident-responder
   - observability-engineer

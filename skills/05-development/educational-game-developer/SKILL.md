@@ -31,6 +31,7 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - education-access-developer
     - accessibility-auditor
     - content-strategist
     - frontend-developer

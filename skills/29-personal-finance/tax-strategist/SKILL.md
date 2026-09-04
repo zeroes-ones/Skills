@@ -22,9 +22,13 @@ tags:
 token_budget: 8500
 chain:
   consumes_from:
+  - debt-optimizer
   - accountant
   - personal-finance
   feeds_into:
+  - real-estate-investor
+  - insurance-strategist
+  - estate-planner
   - retirement-planner
   - wealth-management-advisor
   alternatives: []

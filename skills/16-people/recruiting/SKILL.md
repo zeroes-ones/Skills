@@ -22,11 +22,14 @@ updated: 2026-07-23
 token_budget: 3500
 chain:
   consumes_from:
+  - resume-writer
+  - interview-coach
   - director-engineering
   - engineering-manager
   - hr-manager
   - people-ops
   feeds_into:
+  - learning-development-lead
   - director-engineering
   - engineering-manager
   - fp-and-a-analyst

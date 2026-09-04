@@ -31,6 +31,9 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
+    - brownfield-adoption-planner
+    - senior-engineer-mode-router
     - backend-developer
     - frontend-developer
     - code-reviewer

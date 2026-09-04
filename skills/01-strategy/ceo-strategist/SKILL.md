@@ -24,6 +24,9 @@ updated: 2026-07-23
 token_budget: 3285
 chain:
   consumes_from:
+  - using-agent-skills
+  - threat-intelligence
+  - skill-levels
   - accountant
   - bizdev-manager
   - board-manager
@@ -37,6 +40,8 @@ chain:
   - treasury-manager
   - vp-engineering
   feeds_into:
+  - mission-driven-growth-strategist
+  - m-and-a-strategist
   - board-manager
   - fp-and-a-analyst
   - hr-manager

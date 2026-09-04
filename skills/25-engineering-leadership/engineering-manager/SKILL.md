@@ -30,6 +30,8 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+  - skill-levels
+  - learning-development-lead
   - director-engineering
   - hr-manager
   - people-ops
@@ -37,6 +39,7 @@ chain:
   - recruiting
   - scrum-master
   feeds_into:
+  - engineering-leadership-interview-prep
   - backend-developer
   - cto-advisor
   - director-engineering

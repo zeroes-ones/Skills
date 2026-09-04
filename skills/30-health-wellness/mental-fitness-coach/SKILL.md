@@ -19,6 +19,7 @@ tags:
 token_budget: 8500
 chain:
   consumes_from:
+  - sleep-optimizer
   - mindfulness-practitioner
   feeds_into:
   - stress-resilience-coach

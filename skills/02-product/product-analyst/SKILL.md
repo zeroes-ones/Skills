@@ -20,6 +20,7 @@ updated: 2026-07-24
 token_budget: 4000
 chain:
   consumes_from:
+  - customer-onboarding-specialist
   - ab-testing-specialist
   - analytics-engineer
   - data-engineer

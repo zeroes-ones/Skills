@@ -40,6 +40,8 @@ chain:
     - performance-engineer
     - qa-engineer
   feeds_into:
+    - game-engine-architect
+    - environmental-tech-developer
     - firmware-developer
     - hardware-architect
     - performance-engineer

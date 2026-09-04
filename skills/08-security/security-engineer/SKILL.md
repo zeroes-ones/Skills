@@ -26,6 +26,18 @@ updated: 2026-07-23
 token_budget: 2835
 chain:
   consumes_from:
+    - zkp-engineer
+    - using-agent-skills
+    - threat-intelligence
+    - supply-chain-security
+    - iam-architect
+    - healthcare-security
+    - event-driven-architect
+    - dependency-governance
+    - data-security
+    - cloud-security
+    - appsec-engineer
+    - agent-handoff-protocol
     - automation-engineer
     - cloud-architect
     - compliance-officer
@@ -37,6 +49,27 @@ chain:
     - security-reviewer
     - system-architect
   feeds_into:
+    - threat-intelligence
+    - supply-chain-security
+    - healthcare-security
+    - dependency-governance
+    - data-security
+    - cloud-security
+    - appsec-engineer
+    - vulnerability-management
+    - smart-contract-auditor
+    - privacy-engineering
+    - offensive-security
+    - mcp-management
+    - marketplace-platform-builder
+    - fintech-app-developer
+    - financial-security
+    - cryptography
+    - cryptographic-engineer
+    - community-organizing-tech
+    - civic-tech-developer
+    - applying-llm-guardrails
+    - ai-security
     - automation-engineer
     - backend-developer
     - ci-cd-builder

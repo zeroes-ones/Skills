@@ -30,6 +30,7 @@ chain:
   consumes_from:
   - project-manager
   feeds_into:
+  - community-organizing-tech
   - release-manager
   alternatives: []
 ---

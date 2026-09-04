@@ -28,9 +28,11 @@ token_budget: 5000
 chain:
   type: symmetric
   consumes_from:
+    - macro-strategist
     - personal-finance
     - accountant
   feeds_into:
+    - residential-real-estate-agent
     - personal-finance
   alternatives: []
 ---
@@ -292,6 +294,28 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [INFERRED] — Reasonable extrapolation from general principles
 - [UNKNOWN] — Requires verification against specific context
 
+## Best Practices
+
+1. Implement data freshness heartbeat checks; halt trading on stale data; use redundant data feeds with failover under 100ms
+2. Use walk-forward validation; out-of-sample test on unseen periods; incorporate transaction costs and slippage in backtest; paper trade for 30+ days before live
+3. Automate corporate action handling; add position size sanity limits as circuit breakers; reconcile positions against prime broker daily
+4. Build 3-6 month emergency fund before investing; keep in high-yield savings; treat as non-negotiable first step in any financial plan
+5. Model total cost of ownership including taxes, insurance, maintenance (1-2% of home value/year), HOA, and utilities; stay under 28% DTI for housing
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Pre-approved at the listing price, but the loan falls through at closing | Pre-approval was never fully underwritten; credit, income, or asset docs changed; or the buyer switched products late | Re-verify pre-approval details before every offer; lock rate and re-confirm with the lender at offer acceptance; keep docs current | A pre-approval is a starting point, not a funding guarantee — re-confirm before each offer |
+| Appraisal comes in below the agreed price | Market moved, the offer outpaced recent comps, or the appraiser used different comparables | Review the appraisal for comp errors; request a reconsideration with better comps; renegotiate or cover the gap per the agreed strategy | An appraisal gap is negotiable — challenge with data before assuming the deal is dead |
+| Inspection reveals major issues after the offer was accepted | The buyer waived or rushed the inspection to compete | Always run the inspection within the contingency window; prioritize safety/structural findings in negotiation | The inspection contingency is the buyer's main protection — never waive it without a written risk discussion |
+| Closing costs come in thousands above the estimate | Estimates omitted title, transfer tax, or prorations; rate lock expired | Provide an itemized closing-cost estimate before the offer and reconcile to the Closing Disclosure line by line | The surprise at closing is where trust dies — itemize costs before the offer, not at the table |
+| Buyer misses the financing deadline and loses earnest money | The contingency date passed while the loan was still in process | Track every contingency deadline on a calendar from day one; get extensions in writing before dates lapse | Deadlines are the buyer's protection — miss them and the protection disappears with the deposit |
+
+> Full domain decoder: `references/error-decoder.md`
+## Production Checklist
+
+- [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
+
 ## References
 <!-- STANDARD: 3min -->
 
@@ -305,4 +329,3 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Error Decoder**: See [references/error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [references/footguns.md](references/footguns.md)
 - **Sub-Skills**: See [references/sub-skills.md](references/sub-skills.md)
-

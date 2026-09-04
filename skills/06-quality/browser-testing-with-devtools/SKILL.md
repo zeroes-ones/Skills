@@ -37,6 +37,7 @@ tags:
 token_budget: 4500
 chain:
   consumes_from:
+    - using-agent-skills
     - frontend-developer
     - ui-ux-designer
     - accessibility-auditor

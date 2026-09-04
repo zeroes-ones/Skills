@@ -22,6 +22,7 @@ tags: [cross-agent, skills-packaging, manifest, symbolic-links, compatibility, m
 token_budget: 4500
 chain:
   consumes_from:
+    - dynamic-skill-creator
     - agent-handoff-protocol
     - platform-engineer
     - devops-engineer

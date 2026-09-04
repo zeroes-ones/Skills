@@ -24,12 +24,21 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - threat-intelligence
+  - supply-chain-security
+  - skill-levels
+  - polyrepo-strategy
+  - healthcare-security
   - director-engineering
   - engineering-manager
   - security-engineer
   - system-architect
   - vp-engineering
   feeds_into:
+  - polyrepo-strategy
+  - roi-gate
+  - engineering-leadership-interview-prep
   - ceo-strategist
   - director-engineering
   - system-architect

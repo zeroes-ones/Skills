@@ -25,11 +25,16 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - educational-game-developer
+  - community-organizing-tech
+  - civic-tech-developer
+  - access-tech-developer
   - frontend-developer
   - mobile-developer
   - translation-manager
   - ux-writer
   feeds_into:
+  - education-access-developer
   - frontend-developer
   - mobile-developer
   - qa-engineer

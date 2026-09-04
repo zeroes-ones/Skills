@@ -26,6 +26,9 @@ updated: 2026-07-23
 token_budget: 5000
 chain:
   consumes_from:
+  - resume-writer
+  - job-search-strategist
+  - interview-coach
   - accountant
   - ceo-strategist
   - compliance-officer
@@ -33,6 +36,7 @@ chain:
   - people-ops
   - recruiting
   feeds_into:
+  - learning-development-lead
   - ceo-strategist
   - director-engineering
   - engineering-manager

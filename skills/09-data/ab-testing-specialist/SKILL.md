@@ -27,10 +27,12 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - pricing-purchase-optimizer
     - data-scientist
     - analytics-engineer
     - feature-flag-architect
   feeds_into:
+    - product-analyst
     - growth-engineer
     - product-manager
   alternatives: []

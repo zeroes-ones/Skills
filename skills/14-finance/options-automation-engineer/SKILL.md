@@ -203,7 +203,7 @@ IBKR (ib_insync), tastytrade, Tradier, TDA/Schwab, Alpaca comparison. Code examp
 
 ## Error Decoder
 
-| # | Symptom | Root Cause | Exact Fix | Lesson |
+| # | Symptom | Root Cause | Fix | Lesson |
 |---|---------|-----------|-----------|--------|
 | E1 | "Spread order rejected: complex order not supported" | Broker doesn't support native complex orders for this spread type | Switch to broker that supports it. Do NOT simulate by legging single orders sequentially | If the broker can't handle your order type natively, switch brokers — don't hack around it |
 | E2 | "Auto-roll executed at a loss — rolled ITM credit spread hoping for recovery" | Roll logic didn't have the ITM gate. Hoping, not trading | Add GR-R3: IF ITM credit spread AND roll credit < $0.05 → DO NOT ROLL. Close or take assignment | Rolling ITM spreads is loss-avoidance behavior, not a strategy. Code must enforce this |
@@ -303,6 +303,17 @@ Before ANY automated options system goes live:
 - [ ] 13. **Graduated deployment:** 25% size → 50% → 75% → 100%, 2 weeks at each level.
 - [ ] 14. **Daily health report automated:** System status, P&L, open positions, breaker history.
 - [ ] 15. **Manual override exists but requires multi-step confirmation:** No single-click overrides.
+
+## Best Practices
+
+1. Hard-code GR-R3: IF ITM credit spread AND roll credit < $0.05 → DO NOT ROLL. Close position. The automaton must never roll a loser hoping it turns around
+2. Wire every breaker directly to the execution engine at compile time. A CRITICAL breaker that fires must call `system.halt()` — not log, not alert, not wait for confirmation. Hard stop
+3. Liquidity filter FIRST in the pipeline: OI > 100 AND spread < 5%. This eliminates 60-80% of the universe with a single cheap API call before any technical computation
+4. Minimum 2 weeks paper + 2 weeks at 25% size. Paper catches logic bugs. Small live size catches slippage, partial fills, API edge cases. The ramp-up is non-negotiable
+5. Implement data freshness heartbeat: `if (data.timestamp - now()) > 30 seconds: SKIP scan cycle, log alert`. Never act on stale data
+6. Use underlying-based stops for spread positions. Or implement a wider limit buffer (10%+) that activates when VIX > 25. Option-price stops fail during vol events — it's when, not if
+7. Multi-broker failover or at minimum: WebSocket heartbeat every 5s, alert at 30s silence, emergency reconnect at 60s, emergency shutdown at 120s. Silence ≠ safety
+<!-- DEEP: 10+min — extended deep-dive patterns and automation details live in this skill's references/ -->
 
 ## References
 

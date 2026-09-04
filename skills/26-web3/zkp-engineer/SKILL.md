@@ -33,6 +33,7 @@ chain:
     - cryptographic-engineer
     - system-architect
     - backend-developer
+    - smart-contract-auditor
   feeds_into:
     - smart-contract-auditor
     - security-engineer

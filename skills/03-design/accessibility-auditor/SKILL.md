@@ -24,13 +24,23 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
   - access-tech-developer
   - accessibility-testing
   - apple-hig-expert
   - frontend-developer
   - material-design-expert
   - ui-ux-designer
+  - browser-testing-with-devtools
   feeds_into:
+  - healthcare-ui-designer
+  - game-ui-designer
+  - fintech-ui-designer
+  - educational-game-developer
+  - education-access-developer
+  - civic-tech-developer
+  - android-developer
   - access-tech-developer
   - accessibility-testing
   - apple-hig-expert

@@ -25,10 +25,17 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
+    - skill-levels
+    - healthcare-security
     - system-architect
     - cloud-architect
     - security-engineer
   feeds_into:
+    - healthcare-security
+    - threat-intelligence
+    - game-networking-developer
+    - system-design-interview-prep
     - devops-engineer
     - cloud-architect
     - site-reliability-engineer
@@ -698,6 +705,9 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 ## References
 <!-- STANDARD: 3min -->
+- **DNS Deep Dive**: See [dns-deep-dive.md](references/dns-deep-dive.md) — hierarchy, record types, TTL strategy
+- **HTTPS in Practice**: See [https-in-practice.md](references/https-in-practice.md) — TLS handshake, certificates, forward secrecy
+- **DNS & Service Discovery**: See [dns-and-service-discovery.md](references/dns-and-service-discovery.md) — registration/resolution, registries, service mesh
 
 Detailed reference material loaded on demand:
 

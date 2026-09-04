@@ -20,6 +20,8 @@ tags:
 token_budget: 8500
 chain:
   consumes_from:
+  - public-speaking-coach
+  - network-builder
   - decision-engineer
   feeds_into:
   - job-search-strategist

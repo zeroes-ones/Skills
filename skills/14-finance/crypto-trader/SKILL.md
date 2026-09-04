@@ -11,9 +11,15 @@ description: >
   - quantitative-analyst
   - portfolio-signal-manager
 token_budget: 550
-chain: symmetric
-consumes_from: [market-data-engineer, macro-strategist, technical-signals-engineer, financial-security]
-provides_to: [portfolio-signal-manager, algorithmic-trader]
+chain:
+  consumes_from:
+  - market-data-engineer
+  - macro-strategist
+  - technical-signals-engineer
+  - financial-security
+  feeds_into:
+  - portfolio-signal-manager
+  - algorithmic-trader
 portability: spec-level
 ---
 
@@ -387,6 +393,21 @@ For a $10K USDC transfer ETH → Arbitrum: compare 5 bridge options (native brid
 * [INFERRED] — Reasonable extrapolation from general principles
 * [UNKNOWN] — Requires verification against specific context
 
+## Best Practices
+
+1. Maintain sufficient margin on the futures leg for 3x the maximum historical mark-index divergence. Monitor mark price in real-time during high-vol regimes. Prefer exchanges with robust liquidation engines (partial liquidation, not full position).
+2. Diversify stablecoin holdings across 3+ issuers with different banking relationships. Hold portion in actual fiat via off-ramp. Monitor real-time depeg indicators (Curve 3pool balance, CEX order books). Set stop-loss on stablecoin positions in DeFi.
+3. Always fetch live gas from a gas oracle (Etherscan API, Blocknative, GasNow). Quote gas in native token AND USD. Add 50% buffer for execution during volatile periods.
+4. Assess protocol safety via: (1) audit count and recency, (2) bug bounty size, (3) time since deployment, (4) immutable vs upgradeable contracts, (5) multisig signer count and identity. TVL is an input to yield calculation, NOT safety assessment.
+5. Use Flashbots Protect or similar MEV-protection RPC. Split large orders across multiple blocks. Use DEX aggregators with MEV protection (CowSwap, 1inch Fusion). Never submit large market orders to public mempools.
+6. Always label yields with APR/APY. Convert all rates to APR for apples-to-apples comparison. Document compounding frequency assumption. Use the formula: APY = (1 + APR/n)^n - 1.
+## Production Checklist
+
+- [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
+
+
+<!-- DEEP: 10+min — extended deep-dive patterns live in this skill's references/ -->
+
 ## References
 
 * [perpetual-futures-mechanics.md](references/perpetual-futures-mechanics.md) — Funding rate calculation, mark vs index price, liquidation engines, insurance funds
@@ -398,4 +419,3 @@ For a $10K USDC transfer ETH → Arbitrum: compare 5 bridge options (native brid
 * [bridge-and-l2-guide.md](references/bridge-and-l2-guide.md) — Bridge security model comparison, L2 finality times, withdrawal periods
 * [crypto-risk-management.md](references/crypto-risk-management.md) — Volatility calibration, correlation matrices, tail risk scenario modeling, position sizing
 * [error-recovery.md](references/error-recovery.md) — Additional error patterns: oracle manipulation, governance attacks, reentrancy, flash loan exploits
-

@@ -26,10 +26,12 @@ tags:
 token_budget: 3500
 chain:
   consumes_from:
+    - civic-tech-developer
     - localization-engineer
     - frontend-developer
     - mobile-developer
   feeds_into:
+    - education-access-developer
     - localization-engineer
     - qa-engineer
     - ci-cd-builder

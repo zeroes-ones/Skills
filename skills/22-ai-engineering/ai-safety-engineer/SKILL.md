@@ -26,11 +26,14 @@ tags:
 token_budget: 3800
 chain:
   consumes_from:
+    - ai-engineer
     - ai-safety-health-reviewer
     - mlops-engineer
     - compliance-officer
     - llm-engineer
   feeds_into:
+    - applying-llm-guardrails
+    - ai-security
     - llm-engineer
     - medical-content-reviewer
     - product-manager

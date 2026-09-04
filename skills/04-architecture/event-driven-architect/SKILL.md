@@ -25,6 +25,7 @@ chain:
   - database-designer
   - system-architect
   feeds_into:
+  - system-design-interview-prep
   - backend-developer
   - ci-cd-builder
   - database-designer
@@ -583,6 +584,9 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 ## References
 <!-- STANDARD: 3min -->
+- **Saga Pattern**: See [saga-pattern.md](references/saga-pattern.md) — distributed transactions, choreography vs orchestration, compensations
+- **Message Queues**: See [message-queues.md](references/message-queues.md) — brokers, delivery semantics, ordering, DLQ
+- **WebSockets & Realtime**: See [websockets-realtime.md](references/websockets-realtime.md) — handshake, scaling, reconnect/resume
 
 Detailed reference material loaded on demand:
 

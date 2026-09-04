@@ -14,6 +14,7 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
   - backend-developer
   feeds_into:
   - code-reviewer

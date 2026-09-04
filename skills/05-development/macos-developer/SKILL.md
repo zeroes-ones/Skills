@@ -27,6 +27,7 @@ chain:
     - system-architect
     - ui-ux-designer
   feeds_into:
+    - desktop-architecture-patterns
     - performance-engineer
     - qa-engineer
     - security-reviewer

@@ -25,6 +25,7 @@ tags:
 token_budget: 3500
 chain:
   consumes_from:
+  - ai-security
   - ai-safety-engineer
   - clinical-informatics-specialist
   - compliance-officer

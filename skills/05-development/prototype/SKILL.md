@@ -28,10 +28,15 @@ tags:
 token_budget: 3500
 chain:
   consumes_from:
+    - using-agent-skills
+    - personal-productivity-developer
+    - educational-game-developer
     - brainstorming
     - system-architect
     - fullstack-developer
   feeds_into:
+    - micro-saas-developer
+    - casual-game-developer
     - fullstack-developer
     - backend-developer
     - frontend-developer

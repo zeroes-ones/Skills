@@ -21,6 +21,7 @@ token_budget: 8500
 chain:
   consumes_from:
   - habit-engineer
+  - nutrition-strategist
   feeds_into:
   - nutrition-strategist
   - longevity-biohacker

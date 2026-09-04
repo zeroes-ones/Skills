@@ -24,6 +24,7 @@ updated: 2026-07-23
 token_budget: 3800
 chain:
   consumes_from:
+  - presentation-designer
   - backend-developer
   - bizdev-manager
   - demand-generation
@@ -33,6 +34,7 @@ chain:
   - product-marketing-manager
   - revops-manager
   feeds_into:
+  - enterprise-pricing-strategist
   - account-manager
   - customer-success-manager
   - product-manager

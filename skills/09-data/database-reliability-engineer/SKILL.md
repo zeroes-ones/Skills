@@ -25,11 +25,13 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - healthcare-security
   - data-engineer
   - database-designer
   - devops-engineer
   - migration-architect
   feeds_into:
+  - data-governance-officer
   - data-engineer
   - devops-engineer
   - market-data-engineer

@@ -30,10 +30,12 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
     - ci-cd-builder
     - devops-engineer
     - monorepo-manager
   feeds_into:
+    - merge-conflict-resolver
     - ci-cd-builder
     - release-manager
     - devops-engineer

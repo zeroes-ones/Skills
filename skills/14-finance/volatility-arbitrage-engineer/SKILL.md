@@ -192,7 +192,7 @@ Implied vs realized correlation. Pair correlation. Sector correlation norms. Cor
 
 ## Error Decoder
 
-| # | Symptom | Root Cause | Exact Fix | Lesson |
+| # | Symptom | Root Cause | Fix | Lesson |
 |---|---------|-----------|-----------|--------|
 | E1 | "Dispersion trade lost 15% in a week despite vega neutrality" | Correlation spike. Implied correlation → 1.0 during market stress. Short correlation position crushed | Close dispersion trade when realized correlation exceeds implied + 0.15. Correlation is the dominant risk, not vega | Vega neutrality gives false comfort. In vol arb, correlation is the silent killer |
 | E2 | "Short VIX futures position lost 40% in 3 days. VIX went from 18 to 32" | No kill switch. VIX spike was preceded by 3 days of term structure flattening | Implement hard VIX-level exit: VIX > 25: close 50%; VIX > 30: close 100%. Term structure inversion = pre-close now | Shorting vol without a mechanical exit is gambling. The exit must fire before you can talk yourself out of it |
@@ -290,6 +290,17 @@ Before ANY vol arb position:
 - [ ] 13. **Liquidity verified:** All instruments tradeable. Exit possible even during vol events.
 - [ ] 14. **Counterparty risk assessed:** For OTC products: ISDA, CSA, collateral terms.
 - [ ] 15. **Journal entry:** Trade thesis, edge quantification, risk limits, exit conditions documented.
+
+## Best Practices
+
+1. Automate regime detection with daily push notifications. Term structure inversion = close all short vol within 24 hours. No exceptions. The cost of automation ($0) is trivial vs the cost of missing a regime shift
+2. Scale allocation inversely with VIX: full at VIX < 15, half at VIX 20-25, zero at VIX > 25. Low VIX doesn't mean safe — it means the compression before the spike
+3. Check VVIX before buying VIX options. If VVIX > 120, the move is partially priced in. Use VIX futures for clean delta exposure instead
+4. Maximum 8% vega per name. Minimum 20 stocks in basket. Screen for M&A targets, earnings, FDA decisions, regulatory events before basket construction
+5. Never be net short puts during VIX > 25, market < 200SMA, FOMC days, or geopolitical events. Skew is the market's fear gauge — respect it. "Expensive" skew usually has a reason
+6. Fixed sizing regardless of streak length. Sizing should DECREASE when volatility is low (because the next spike is closer), never increase due to recent profitability. Half-Kelly as ceiling
+7. Hard-code kill switch: VIX > 28 → close 50%. VIX > 35 → close 100%. This is code, not a note in a trading journal. The one vol spike you don't exit costs more than years of roll yield
+<!-- DEEP: 10+min — extended deep-dive patterns and automation details live in this skill's references/ -->
 
 ## References
 

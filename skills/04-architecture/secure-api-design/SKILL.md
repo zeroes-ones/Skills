@@ -36,6 +36,7 @@ chain:
     - api-designer
     - security-reviewer
   feeds_into:
+    - system-design-interview-prep
     - backend-developer
     - security-reviewer
 ---
@@ -682,6 +683,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 ## References
 <!-- STANDARD: 3min -->
+- **JWT Tokens**: See [jwt-tokens.md](references/jwt-tokens.md) — lifecycle, verification, alg-confusion, revocation, JWT vs sessions
+- **Password Storage**: See [password-storage.md](references/password-storage.md) — salted memory-hard KDFs, login flow, breach framing
 
 - [OWASP API Security Top 10](https://owasp.org/API-Security/editions/2023/en/0x00-header/) — Definitive ranking of the top 10 API security risks with detailed prevention guidance
 - [JWT Best Practices (IETF RFC 8725)](https://datatracker.ietf.org/doc/html/rfc8725) — JSON Web Token Best Current Practices: algorithm pinning, claim validation, key rotation

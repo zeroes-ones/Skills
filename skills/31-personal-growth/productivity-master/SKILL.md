@@ -20,8 +20,10 @@ tags:
 token_budget: 8500
 chain:
   consumes_from:
+  - stress-resilience-coach
   - life-architect
   - habit-engineer
+  - decision-engineer
   feeds_into:
   - learning-accelerator
   - decision-engineer

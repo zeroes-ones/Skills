@@ -24,6 +24,8 @@ updated: 2026-07-23
 token_budget: 3420
 chain:
   consumes_from:
+    - email-composer
+    - customer-onboarding-specialist
     - backend-developer
     - observability-engineer
     - product-manager

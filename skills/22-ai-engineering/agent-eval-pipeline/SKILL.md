@@ -23,10 +23,15 @@ tags: [agent-evaluation, behavioral-testing, llm-as-judge, statistical-evals, ci
 token_budget: 4500
 chain:
   consumes_from:
+    - multi-agent-orchestration
+    - dynamic-skill-creator
+    - cross-agent-skills-packaging
+    - context-compaction-strategies
     - qa-engineer
     - ci-cd-builder
     - llm-engineer
   feeds_into:
+    - agent-handoff-protocol
     - devops-engineer
     - platform-engineer
     - staff-engineer

@@ -32,6 +32,7 @@ updated: 2026-07-26
 token_budget: 3200
 chain:
   consumes_from:
+    - ux-researcher
     - ui-ux-designer
     - accessibility-auditor
     - patient-experience-researcher

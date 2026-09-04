@@ -38,6 +38,7 @@ chain:
     - fundamental-analyst
     - data-scientist
   feeds_into:
+    - options-strategist
     - portfolio-signal-manager
     - algorithmic-trader
     - data-scientist

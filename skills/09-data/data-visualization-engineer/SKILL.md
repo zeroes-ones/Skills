@@ -29,9 +29,15 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - product-analyst
+    - fintech-ui-designer
+    - environmental-tech-developer
     - data-scientist
     - analytics-engineer
   feeds_into:
+    - fintech-ui-designer
+    - environmental-tech-developer
+    - presentation-designer
     - growth-engineer
     - product-manager
   alternatives: []

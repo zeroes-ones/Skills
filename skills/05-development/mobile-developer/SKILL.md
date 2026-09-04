@@ -24,6 +24,18 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
+    - skill-levels
+    - roi-gate
+    - mock-data-sync
+    - mobile-architecture-patterns
+    - ios-developer
+    - healthcare-ui-designer
+    - game-ui-designer
+    - game-engine-architect
+    - fintech-ui-designer
+    - explore-tools
+    - on-device-ai-engineer
     - accessibility-testing
     - api-designer
     - backend-developer
@@ -37,7 +49,20 @@ chain:
     - security-reviewer
     - tdd-guide
     - ui-ux-designer
+    - apple-hig-expert
   feeds_into:
+    - mobile-architecture-patterns
+    - material-design-expert
+    - personal-productivity-developer
+    - environmental-tech-developer
+    - educational-game-developer
+    - education-access-developer
+    - creator-economy-builder
+    - community-organizing-tech
+    - civic-tech-developer
+    - casual-game-developer
+    - android-developer
+    - access-tech-developer
     - apple-hig-expert
     - automation-engineer
     - flutter-developer

@@ -25,6 +25,10 @@ updated: 2026-07-23
 token_budget: 3900
 chain:
   consumes_from:
+  - saas-monetization-strategist
+  - llm-search-optimizer
+  - creator-economy-builder
+  - casual-game-developer
   - automation-engineer
   - bizdev-manager
   - business-strategist

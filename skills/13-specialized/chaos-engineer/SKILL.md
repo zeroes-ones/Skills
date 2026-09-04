@@ -25,7 +25,7 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
-  consumes_from: ["backend-developer", "devops-engineer", "site-reliability-engineer", "observability-engineer"]
+  consumes_from: ["backend-developer", "devops-engineer", "site-reliability-engineer", "observability-engineer", using-agent-skills]
   feeds_into: ["backend-developer", "site-reliability-engineer", "incident-responder", "devops-engineer"]
 ---
 # Chaos Engineer

@@ -24,10 +24,24 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - product-analyst
+  - personal-productivity-developer
+  - environmental-tech-developer
+  - educational-game-developer
+  - education-access-developer
+  - casual-game-developer
+  - ad-monetization-engineer
   - business-intelligence-engineer
   - data-engineer
   - data-scientist
   feeds_into:
+  - product-analyst
+  - saas-monetization-strategist
+  - llm-search-optimizer
+  - data-visualization-engineer
+  - ab-testing-specialist
+  - data-governance-officer
   - business-intelligence-engineer
   - data-scientist
   - demand-generation

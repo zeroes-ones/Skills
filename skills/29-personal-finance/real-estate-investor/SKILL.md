@@ -21,6 +21,7 @@ tags:
 token_budget: 8500
 chain:
   consumes_from:
+  - debt-optimizer
   - personal-finance
   - tax-strategist
   feeds_into:

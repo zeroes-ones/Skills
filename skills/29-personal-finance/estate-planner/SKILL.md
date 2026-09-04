@@ -24,6 +24,7 @@ chain:
   - tax-strategist
   - retirement-planner
   - insurance-strategist
+  - wealth-management-advisor
   feeds_into:
   - wealth-management-advisor
   alternatives: []

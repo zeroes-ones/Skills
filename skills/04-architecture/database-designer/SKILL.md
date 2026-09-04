@@ -25,11 +25,28 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
+  - event-driven-architect
+  - domain-modeling
+  - data-security
   - api-designer
   - backend-developer
   - idea-to-spec
   - system-architect
   feeds_into:
+  - event-driven-architect
+  - data-security
+  - personal-productivity-developer
+  - marketplace-platform-builder
+  - healthcare-security
+  - fintech-app-developer
+  - environmental-tech-developer
+  - deprecation-engineer
+  - creator-economy-builder
+  - civic-tech-developer
+  - ai-engineer
+  - system-design-interview-prep
   - api-designer
   - backend-developer
   - data-engineer
@@ -651,6 +668,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 ## References
 <!-- STANDARD: 3min -->
+- **Redis Use Cases**: See [redis-use-cases.md](references/redis-use-cases.md) — cache, sessions, rate limits, leaderboards, locks, pub-sub
+- **Bloom Filters**: See [bloom-filters.md](references/bloom-filters.md) — probabilistic membership, false positives, cache-penetration gates
 - **Denormalization ROI Calculator**: See [denormalization-roi-calculator.md](references/denormalization-roi-calculator.md)
 - **Sharding Cost Analysis**: See [sharding-cost-analysis.md](references/sharding-cost-analysis.md)
 - **When Postgres is All You Need**: See [when-postgres-is-all-you-need.md](references/when-postgres-is-all-you-need.md)

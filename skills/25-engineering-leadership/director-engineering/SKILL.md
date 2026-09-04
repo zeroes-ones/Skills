@@ -18,6 +18,8 @@ version: 1.1.0
 updated: 2026-07-23
 chain:
   consumes_from:
+  - skill-levels
+  - learning-development-lead
   - cto-advisor
   - engineering-manager
   - hr-manager
@@ -26,6 +28,7 @@ chain:
   - technical-program-manager
   - vp-engineering
   feeds_into:
+  - engineering-leadership-interview-prep
   - cto-advisor
   - engineering-manager
   - recruiting

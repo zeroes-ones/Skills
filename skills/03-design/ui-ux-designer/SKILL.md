@@ -24,11 +24,28 @@ updated: 2026-07-23
 token_budget: 2280
 chain:
   consumes_from:
+    - website-builder
+    - using-agent-skills
+    - skill-levels
+    - browser-testing-with-devtools
+    - senior-engineer-mode-router
     - accessibility-auditor
     - brand-guidelines
     - product-manager
     - ux-researcher
   feeds_into:
+    - website-builder
+    - browser-testing-with-devtools
+    - pricing-purchase-optimizer
+    - presentation-designer
+    - personal-productivity-developer
+    - macos-developer
+    - ios-developer
+    - educational-game-developer
+    - casual-game-developer
+    - android-developer
+    - ai-engineer
+    - access-tech-developer
     - accessibility-auditor
     - apple-hig-expert
     - fintech-ui-designer

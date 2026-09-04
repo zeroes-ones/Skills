@@ -19,7 +19,7 @@ tags:
 - portfolio
 token_budget: 8500
 chain:
-  consumes_from: []
+  consumes_from: [decision-engineer, mental-fitness-coach, mindfulness-practitioner, stress-resilience-coach]
   examples:
   - skills/31-personal-growth/life-architect/examples/backtest
   feeds_into:

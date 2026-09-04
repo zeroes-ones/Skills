@@ -15,7 +15,8 @@ tags:
 - productivity
 - zones
 chain:
-  consumes_from: []
+  consumes_from:
+  - residential-real-estate-agent
   examples:
   - skills/35-home-domestic/home-organizer/examples/backtest
   feeds_into: []

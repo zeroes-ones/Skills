@@ -32,12 +32,14 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - ml-ai-engineer
     - ml-engineer
     - ai-engineer
     - devops-engineer
     - data-engineer
     - llm-engineer
   feeds_into:
+    - ml-ai-engineer
     - llm-engineer
     - ai-safety-engineer
     - ml-engineer

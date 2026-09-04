@@ -27,15 +27,21 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - skill-levels
+    - context-compaction-strategies
+    - agent-eval-pipeline
     - backend-developer
     - code-reviewer
     - engineering-manager
     - system-architect
   feeds_into:
+    - code-simplification
+    - engineering-leadership-interview-prep
     - system-architect
     - backend-developer
     - frontend-developer
     - code-reviewer
+    - coding-interview-prep
 ---
 # Staff Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

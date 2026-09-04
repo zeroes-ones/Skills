@@ -25,6 +25,7 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - presentation-designer
     - marketing-manager
     - product-manager
     - brand-guidelines

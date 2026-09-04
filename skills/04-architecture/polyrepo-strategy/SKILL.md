@@ -34,6 +34,7 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - repo-scaffolding
     - monorepo-manager
     - ci-cd-builder
     - api-designer

@@ -34,6 +34,8 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - nonprofit-fundraising-engineer
+    - mission-driven-growth-strategist
     - accessibility-auditor
     - backend-developer
     - content-strategist

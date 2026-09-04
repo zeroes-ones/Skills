@@ -208,7 +208,7 @@ LEAPS rho is 3-5x short-dated options. For 18-month LEAPS, 1% rate change = ±$4
 
 ## Error Decoder
 
-| # | Symptom | Root Cause | Exact Fix | Lesson |
+| # | Symptom | Root Cause | Fix | Lesson |
 |---|---------|-----------|-----------|--------|
 | E1 | "PMCC showing guaranteed loss on assignment calculation" | Short call strike < LEAPS strike | Roll short call UP to K > LEAPS_K. Never enter PMCC with short_K ≤ long_K | The strike hierarchy is the PMCC prime directive — check before EVERY short call sale |
 | E2 | "LEAPS lost 30% but stock only dropped 15%" | DITM LEAPS delta < 0.85 at entry; extrinsic inflated the premium above intrinsic | Check delta at entry. ≥0.80 minimum. Extrinsic < 4%. The LEAPS should track stock within 10-15% | "Cheap" LEAPS (higher strike) have more extrinsic → worse stock tracking. Pay up for the DITM strike |
@@ -313,6 +313,17 @@ Before deploying ANY LEAPS strategy to live trading:
 - [ ] 13. **Tax implications:** LTCG eligibility timeline noted. Tax-loss harvesting opportunities identified.
 - [ ] 14. **Correlation check:** For LEAPS hedges, underlying correlation to portfolio holdings verified.
 - [ ] 15. **Post-mortem template prepared:** Entry thesis, expected Greeks evolution, actual vs. expected P&L tracking sheet ready.
+
+## Best Practices
+
+1. Buy 0.80+ delta for stock replacement. 0.60Δ LEAPS has 35-40% extrinsic — the stock must rise 8-12% just to break even from extrinsic decay alone
+2. Minimum 365 DTE at PMCC entry. 540+ DTE ideal. Each short call cycle (30-45 DTE) amortizes ~20-25% of LEAPS extrinsic. Need 4+ cycles minimum to amortize and profit
+3. Never buy LEAPS puts at IV rank > 30%. Wait for vol compression or dollar-cost average over 3 entries during low-vol windows. The insurance is only valuable if bought cheap
+4. Compute rho exposure at entry: rho × expected rate change × position size. In a rate-cutting cycle, favor LEAPS puts or add a rate hedge. Size for the rate scenario, not just the equity scenario
+5. Quantify dividend gap before entry: yield × years × notional. If dividend yield > 4%, LEAPS stock replacement is rarely +EV. Consider selling puts instead or pick a lower-yield ticker
+6. Roll at 7 DTE minimum if short call is ATM or ITM. If ex-div within DTE and call is ITM → close immediately. Time premium loss on forced LEAPS exercise is the silent PMCC killer
+7. Roll decision criteria: DTE < 90 AND IV rank < 40% AND trend_score > 40. If IV rank is high, delay roll or switch to a different strike. The combination of DTE + vol + trend determines optimal roll timing
+<!-- DEEP: 10+min — extended deep-dive patterns and automation details live in this skill's references/ -->
 
 ## References
 

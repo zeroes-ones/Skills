@@ -26,6 +26,7 @@ tags:
 token_budget: 3500
 chain:
   consumes_from:
+  - health-condition-supporter
   - clinical-informatics-specialist
   - content-policy-manager
   - data-scientist

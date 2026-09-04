@@ -25,6 +25,7 @@ updated: 2026-07-23
 token_budget: 3480
 chain:
   consumes_from:
+    - m-and-a-strategist
     - fp-and-a-analyst
     - accountant
     - ceo-strategist

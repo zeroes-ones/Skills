@@ -30,10 +30,15 @@ output:
   path_hint: "cryptographic-engineer/"
 chain:
   consumes_from:
+    - cryptography
+    - blockchain-developer
     - security-engineer
     - system-architect
     - backend-developer
+    - smart-contract-auditor
   feeds_into:
+    - wallet-infrastructure-engineer
+    - defi-protocol-engineer
     - zkp-engineer
     - smart-contract-auditor
     - compliance-officer

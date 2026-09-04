@@ -30,6 +30,7 @@ chain:
     - community-operations-manager
     - clinical-informatics-specialist
   feeds_into:
+    - healthcare-ui-designer
     - product-manager
     - clinical-informatics-specialist
     - patient-health-educator

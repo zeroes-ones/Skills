@@ -35,7 +35,9 @@ chain:
   consumes_from:
     - market-data-engineer
     - data-scientist
+    - macro-strategist
   feeds_into:
+    - options-strategist
     - portfolio-signal-manager
     - algorithmic-trader
     - technical-signals-engineer

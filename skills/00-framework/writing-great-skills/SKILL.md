@@ -30,9 +30,13 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
+    - teach
+    - dynamic-skill-creator
+    - cross-skill-communication
     - technical-writer
     - documentation-engineer
-  feeds_into: []
+  feeds_into: [cross-skill-communication, dynamic-skill-creator]
   alternatives: []
 ---
 

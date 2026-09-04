@@ -27,13 +27,17 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - using-agent-skills
     - product-manager
     - ux-researcher
     - system-architect
+    - grilling
   feeds_into:
+    - prototype
     - product-manager
     - system-architect
     - fullstack-developer
+    - grilling
   alternatives:
     - grilling
     - idea-to-spec

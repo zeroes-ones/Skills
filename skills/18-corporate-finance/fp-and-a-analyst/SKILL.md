@@ -23,6 +23,9 @@ updated: 2026-07-23
 token_budget: 3420
 chain:
   consumes_from:
+  - saas-monetization-strategist
+  - personal-finance
+  - fintech-app-developer
   - accountant
   - business-intelligence-engineer
   - ceo-strategist
@@ -34,6 +37,9 @@ chain:
   - revops-manager
   - treasury-manager
   feeds_into:
+  - personal-finance
+  - enterprise-pricing-strategist
+  - m-and-a-strategist
   - accountant
   - board-manager
   - ceo-strategist

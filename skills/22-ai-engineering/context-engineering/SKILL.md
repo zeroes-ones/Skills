@@ -18,6 +18,7 @@ tags: [context-engineering, token-budget, context-window, prompt-caching, contex
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
   - context-compaction-strategies
   - context-optimizer
   - token-efficiency

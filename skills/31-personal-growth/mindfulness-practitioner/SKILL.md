@@ -22,6 +22,7 @@ chain:
   examples:
   - skills/31-personal-growth/mindfulness-practitioner/examples/backtest
   feeds_into:
+  - relationship-architect
   - mental-fitness-coach
   - stress-resilience-coach
   - life-architect

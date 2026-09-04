@@ -24,6 +24,17 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - website-builder
+    - using-agent-skills
+    - skill-levels
+    - roi-gate
+    - prototype
+    - multirepo-designer
+    - feature-flag-architect
+    - explore-tools
+    - codebase-design
+    - brainstorming
+    - senior-engineer-mode-router
     - api-designer
     - backend-developer
     - database-designer
@@ -32,6 +43,15 @@ chain:
     - security-reviewer
     - tdd-guide
   feeds_into:
+    - prototype
+    - personal-productivity-developer
+    - micro-saas-developer
+    - marketplace-platform-builder
+    - deprecation-engineer
+    - creator-economy-builder
+    - community-organizing-tech
+    - code-simplification
+    - casual-game-developer
     - api-test-suite-builder
     - devops-engineer
     - qa-engineer

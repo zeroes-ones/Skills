@@ -20,8 +20,10 @@ tags:
   - skill-library
 token_budget: 5500
 chain:
-  consumes_from: []
+  consumes_from: [cross-skill-communication]
   feeds_into:
+    - cross-skill-communication
+    - senior-engineer-mode-router
     - brainstorming
     - idea-to-spec
     - ceo-strategist

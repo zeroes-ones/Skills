@@ -36,6 +36,7 @@ chain:
   consumes_from:
   - security-engineer
   feeds_into:
+  - system-design-interview-prep
   - cryptographic-engineer
   alternatives: []
 ---

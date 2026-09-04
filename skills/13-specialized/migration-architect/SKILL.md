@@ -24,8 +24,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 2010
 chain:
-  consumes_from: ["system-architect", "database-designer", "devops-engineer"]
-  feeds_into: ["devops-engineer", "database-reliability-engineer", "backend-developer"]
+  consumes_from: ["system-architect", "database-designer", "devops-engineer", cross-repo-refactoring, deprecation-engineer, git-submodules, using-agent-skills]
+  feeds_into: ["devops-engineer", "database-reliability-engineer", "backend-developer", deprecation-engineer]
 ---
 # Migration Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

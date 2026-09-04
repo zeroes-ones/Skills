@@ -21,7 +21,11 @@ version: 1.0.0
 updated: 2026-07-27
 token_budget: 3000
 chain:
+  consumes_from:
+  - cross-skill-communication
   feeds_into:
+    - cross-skill-communication
+    - senior-engineer-mode-router
     - code-reviewer
     - security-reviewer
     - qa-engineer

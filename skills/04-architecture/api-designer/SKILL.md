@@ -23,11 +23,29 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
+  - domain-modeling
+  - deprecation-engineer
   - backend-developer
   - database-designer
   - idea-to-spec
   - system-architect
   feeds_into:
+  - deprecation-engineer
+  - website-builder
+  - secure-api-design
+  - polyrepo-strategy
+  - mock-data-sync
+  - marketplace-platform-builder
+  - healthcare-security
+  - graphql-engineer
+  - fintech-app-developer
+  - event-driven-architect
+  - cross-repo-refactoring
+  - creator-economy-builder
+  - civic-tech-developer
+  - system-design-interview-prep
   - api-test-suite-builder
   - backend-developer
   - database-designer
@@ -614,5 +632,8 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 ## References
 <!-- STANDARD: 3min -->
+- **API Design Best Practices**: See [api-design-best-practices.md](references/api-design-best-practices.md) — resources, errors, pagination, versioning, REST vs gRPC
+- **Idempotent APIs**: See [idempotency.md](references/idempotency.md) — idempotency keys, stored-response replay, effectively-once
+- **RPC & gRPC**: See [rpc-and-grpc.md](references/rpc-and-grpc.md) — stubs, IDL, deadlines, HTTP/2
 - **"Is REST Overkill?" Decision Tree**: See ["is-rest-overkill?"-decision-tree.md](references/"is-rest-overkill?"-decision-tree.md)
 - **Versioning Cost Analysis**: See [versioning-cost-analysis.md](references/versioning-cost-analysis.md)

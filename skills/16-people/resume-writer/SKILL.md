@@ -31,6 +31,8 @@ chain:
     - interview-coach
     - job-search-strategist
   feeds_into:
+    - job-search-strategist
+    - interview-coach
     - recruiting
     - hr-manager
   alternatives: []

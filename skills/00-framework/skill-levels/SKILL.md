@@ -19,7 +19,10 @@ tags:
   - level-calibration
 token_budget: 4000
 chain:
+  consumes_from:
+  - using-agent-skills
   feeds_into:
+    - cross-skill-communication
     - backend-developer
     - frontend-developer
     - fullstack-developer

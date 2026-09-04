@@ -29,8 +29,10 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - teach
     - project-manager
     - technical-writer
+    - wayfinder
   feeds_into:
     - project-manager
     - wayfinder

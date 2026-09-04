@@ -35,6 +35,9 @@ chain:
     - security-engineer
     - compliance-officer
   feeds_into:
+    - fintech-app-developer
+    - crypto-trader
+    - algorithmic-trader
     - compliance-officer
     - accountant
   alternatives: []
@@ -460,4 +463,3 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [/references/financial-regulations.md](references/financial-regulations.md) — FFIEC CAT, NYDFS, DORA, GLBA compliance mapping
 - [/references/secure-enclave-finance.md](references/secure-enclave-finance.md) — Nitro Enclaves, confidential computing for payments and KYC
 - [/scripts/verify-skill.sh](scripts/verify-skill.sh) — Verify all 14 required sections, ground rules, decision trees, gotchas, and references
-

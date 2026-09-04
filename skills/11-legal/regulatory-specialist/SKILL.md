@@ -30,6 +30,7 @@ chain:
   - health-regulatory-submission
   - legal-advisor
   feeds_into:
+  - healthcare-security
   - ai-safety-health-reviewer
   - clinical-informatics-specialist
   - compliance-officer

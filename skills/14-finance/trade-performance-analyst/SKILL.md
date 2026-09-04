@@ -17,7 +17,7 @@ token_budget: 500
 chain:
   type: symmetric
   consumes_from: [portfolio-signal-manager, algorithmic-trader, intraday-options-trader, swing-options-trader, options-automation-engineer]
-  feeds_into: [portfolio-signal-manager]
+  feeds_into: [portfolio-signal-manager, quantitative-analyst]
 portability: spec-level
 ---
 
@@ -368,6 +368,20 @@ A global macro strategy trades equities, bonds, currencies, and commodities. Wha
 * [COMMON-PRACTICE] — Widely used in the industry
 * [INFERRED] — Reasonable extrapolation from general principles
 * [UNKNOWN] — Requires verification against specific context
+
+## Best Practices
+
+1. Always report Sortino and Calmar alongside Sharpe. Check skew and kurtosis. If skew < -0.5 or kurtosis > 4, flag: "Sharpe is misleading for this return distribution. Weight Sortino and Calmar more heavily."
+2. Always model: commission + half-spread + estimated market impact (scaled by trade size/volume ratio) + funding/borrow costs. Show gross and net returns. If net < 1.5x risk-free rate, question viability.
+3. Use total-return benchmarks that include delisted stocks, or compare to ETFs (SPY, IWM) that track investable indices. If comparing to an index, acknowledge the survivorship premium (approximately 1-2% annually for small caps).
+4. Use daily returns for drawdown calculation whenever possible. If only monthly data is available, multiply the monthly drawdown estimate by 1.3-1.5x as a rough adjustment for intra-month volatility.
+5. Always report expectancy alongside win rate. If win rate >60% and expectancy <0, flag: [NEGATIVE EXPECTANCY — STRATEGY LOSES MONEY]. Train the user to ask "what's my expectancy?" not "what's my win rate?"
+## Production Checklist
+
+- [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
+
+
+<!-- DEEP: 10+min — extended deep-dive patterns live in this skill's references/ -->
 
 ## References
 

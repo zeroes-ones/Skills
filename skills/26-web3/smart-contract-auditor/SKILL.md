@@ -31,10 +31,15 @@ output:
   path_hint: "smart-contract-auditor/"
 chain:
   consumes_from:
+    - wallet-infrastructure-engineer
+    - defi-protocol-engineer
     - security-engineer
     - backend-developer
     - system-architect
+    - cryptographic-engineer
+    - zkp-engineer
   feeds_into:
+    - blockchain-developer
     - cryptographic-engineer
     - zkp-engineer
     - devops-engineer

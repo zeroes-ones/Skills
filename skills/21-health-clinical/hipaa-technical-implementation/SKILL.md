@@ -25,6 +25,8 @@ tags:
 - security
 chain:
   consumes_from:
+  - healthcare-ui-designer
+  - healthcare-security
   - backend-developer
   - compliance-officer
   - gdpr-privacy
@@ -32,6 +34,7 @@ chain:
   - privacy-engineer
   - security-engineer
   feeds_into:
+  - healthcare-security
   - backend-developer
   - compliance-officer
   - devops-engineer

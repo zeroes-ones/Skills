@@ -28,6 +28,8 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - privacy-engineering
+  - residential-real-estate-agent
   - accessibility-auditor
   - ai-safety-health-reviewer
   - board-manager
@@ -35,6 +37,10 @@ chain:
   - hipaa-technical-implementation
   - privacy-engineer
   feeds_into:
+  - supply-chain-security
+  - healthcare-security
+  - dependency-governance
+  - m-and-a-strategist
   - accountant
   - bizdev-manager
   - board-manager

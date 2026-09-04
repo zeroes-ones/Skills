@@ -29,6 +29,8 @@ chain:
     - llm-engineer
     - context-engineering
   feeds_into:
+    - agent-handoff-protocol
+    - cross-skill-communication
     - agent-eval-pipeline
     - backend-developer
     - platform-engineer

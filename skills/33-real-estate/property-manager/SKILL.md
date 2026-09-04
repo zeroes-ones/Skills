@@ -20,7 +20,9 @@ token_budget: 8500
 chain:
   consumes_from:
   - real-estate-investor
-  feeds_into: []
+  - residential-real-estate-agent
+  feeds_into:
+  - residential-real-estate-agent
   alternatives:
   - third-party-pm
   - real-estate-operator

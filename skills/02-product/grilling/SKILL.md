@@ -29,6 +29,7 @@ tags:
 token_budget: 3000
 chain:
   consumes_from:
+    - using-agent-skills
     - brainstorming
     - product-manager
     - system-architect

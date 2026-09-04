@@ -25,11 +25,16 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - using-agent-skills
+  - deprecation-engineer
   - api-designer
   - devrel-advocate
   - hardware-architect
   - technical-writer
   feeds_into:
+  - writing-great-skills
+  - teach
+  - dynamic-skill-creator
   - backend-developer
   - devrel-advocate
   - technical-writer

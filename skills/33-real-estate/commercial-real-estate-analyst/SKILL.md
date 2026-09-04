@@ -21,7 +21,8 @@ chain:
   consumes_from:
   - real-estate-investor
   - accountant
-  feeds_into: []
+  feeds_into:
+  - residential-real-estate-agent
   alternatives:
   - investment-banker
   - real-estate-appraiser

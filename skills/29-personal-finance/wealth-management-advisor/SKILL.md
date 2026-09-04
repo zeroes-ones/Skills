@@ -20,6 +20,7 @@ tags:
 token_budget: 8500
 chain:
   consumes_from:
+  - insurance-strategist
   - tax-strategist
   - retirement-planner
   - estate-planner

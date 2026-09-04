@@ -20,9 +20,11 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - senior-engineer-mode-router
     - system-architect
     - code-reviewer
   feeds_into:
+    - brownfield-adoption-planner
     - backend-developer
     - frontend-developer
     - fullstack-developer

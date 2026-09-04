@@ -23,6 +23,15 @@ updated: 2026-07-23
 token_budget: 2430
 chain:
   consumes_from:
+    - using-agent-skills
+    - skill-levels
+    - saas-monetization-strategist
+    - product-analyst
+    - grilling
+    - data-visualization-engineer
+    - brainstorming
+    - ai-engineer
+    - ab-testing-specialist
     - account-manager
     - ai-safety-engineer
     - ai-safety-health-reviewer
@@ -40,6 +49,16 @@ chain:
     - sales-engineer
     - ux-researcher
   feeds_into:
+    - saas-monetization-strategist
+    - product-analyst
+    - grilling
+    - brainstorming
+    - ai-engineer
+    - wayfinder
+    - micro-saas-developer
+    - educational-game-developer
+    - domain-modeling
+    - customer-onboarding-specialist
     - content-strategist
     - customer-success-manager
     - customer-support-engineer

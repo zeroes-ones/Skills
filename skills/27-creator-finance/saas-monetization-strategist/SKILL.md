@@ -31,6 +31,7 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - enterprise-pricing-strategist
     - product-strategist
     - product-manager
     - business-strategist
@@ -39,6 +40,11 @@ chain:
     - analytics-engineer
     - growth-engineer
   feeds_into:
+    - pricing-purchase-optimizer
+    - micro-saas-developer
+    - marketplace-platform-builder
+    - creator-economy-builder
+    - ad-monetization-engineer
     - product-manager
     - growth-engineer
     - accountant

@@ -45,6 +45,11 @@ chain:
     - security-engineer
     - security-reviewer
   feeds_into:
+    - saas-monetization-strategist
+    - nonprofit-fundraising-engineer
+    - micro-saas-developer
+    - marketplace-platform-builder
+    - creator-economy-builder
     - qa-engineer
     - security-reviewer
     - performance-engineer

@@ -333,7 +333,7 @@ Before recommending any advanced structure, gather:
 
 ## Error Decoder
 
-| # | Symptom | Root Cause | Exact Fix | Prevention Lesson |
+| # | Symptom | Root Cause | Fix | Prevention Lesson |
 |---|---------|-----------|-----------|-------------------|
 | E1 | "My box spread shows -$60,000 loss" | American-style short box — early assignment on one leg broke the arbitrage | Close all remaining legs immediately. Accept the loss. Next time: use SPX (European) boxes only | **Never sell short boxes on American-style options.** The risk-free math only works if all legs survive to expiration |
 | E2 | "Zebra is losing money even though stock is flat" | Long legs aren't deep enough ITM — extrinsic decay is eating the position | Check extrinsic on long legs. If > 2% of premium, roll deeper ITM or close | **Verify extrinsic < 2% before entry (R1 for Zebra).** 0.75+ delta isn't enough — check the actual extrinsic |
@@ -466,6 +466,19 @@ Before executing ANY advanced options structure, verify:
 - [ ] **S15: Simpler alternative considered** — Presented the standard-strategy alternative and why it doesn't fit
 
 ---
+
+## Best Practices
+
+1. **Model every structure on bid/ask, never mid.** Filled at bid (sell legs) and ask (buy legs), a 5% spread can erase a modeled profit — if the trade only works at mid, it does not work.
+2. **Never leg into multi-leg structures.** One exchange-native spread order, always. Legging exposes you to execution risk between legs and turns a defined-risk structure into an undefined one.
+3. **Respect the margin reality of your account type.** Reg T margins each leg independently; a 6-leg structure can demand 3× your estimate. Run the margin check before entry, not after.
+4. **Know the early-assignment rules per underlying.** American-style short boxes and ITM short calls near ex-dividend get assigned — use European (SPX/NDX) for box trades and check the dividend calendar for every short call.
+5. **Cap naked short exposure with far-OTM wings.** Ratio structures with uncovered shorts need tail protection; the small debit on the wing is insurance against a realized-volatility spike.
+6. **Quantify the worst case in dollars before entry.** The user must know the exact max loss and account percentage at risk, and be able to explain the P&L diagram in one sentence.
+7. **Set exit triggers at entry.** Profit target, stop, time stop, and Greeks-based triggers all specified before the position is opened — exits decided in the moment are exits decided by emotion.
+8. **Verify extrinsic on long legs.** Deep-ITM longs with >2% extrinsic are paying for time you may not get — check extrinsic before entry, not after the position bleeds.
+
+> Full depth: strategy references in this skill's `references/` directory.
 
 ## References
 

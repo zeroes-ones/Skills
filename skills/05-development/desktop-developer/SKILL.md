@@ -12,13 +12,17 @@ tags: [desktop, electron, tauri, wpf, qt, cross-platform, native]
 token_budget: 4500
 chain:
   consumes_from:
+    - desktop-architecture-patterns
     - backend-developer
     - frontend-developer
     - performance-engineer
     - qa-engineer
     - security-reviewer
     - system-architect
+    - on-device-ai-engineer
   feeds_into:
+  - desktop-architecture-patterns
+  - macos-developer
   - automation-engineer
   - qa-engineer
   - performance-engineer
@@ -112,6 +116,7 @@ What are you trying to do?
 ├── Set up cross-platform CI/CD builds → Go to "Core Workflow" — Phase 5
 ├── Write cross-platform tests → Jump to "references/cross-platform-testing.md"
 ├── Add OS-level integrations (notifications, file associations, protocols) → Go to "references/electron-architecture-patterns.md" — OS Integration section
+├── Build a Windows-native (WinUI/WPF/Win32) or Linux-native (GTK/Qt) app → Jump to "references/windows-linux-native.md"
 ├── Need security review of IPC surface → Invoke security-reviewer skill
 ├── Need UI/UX design patterns → Invoke ui-ux-designer skill
 └── Don't know which framework to choose? → Share target platforms, performance requirements, team skills, and app type
@@ -598,6 +603,7 @@ Detailed reference material loaded on demand:
 - **Native Module Integration**: See [references/native-module-integration.md](references/native-module-integration.md) — N-API, FFI, Rust bindings, C++ addons, prebuilds, cross-platform compilation
 - **Desktop Window Management**: See [references/desktop-window-management.md](references/desktop-window-management.md) — Multi-window, frameless, DPI scaling, tray, menu bar, focus management
 - **Cross-Platform Testing**: See [references/cross-platform-testing.md](references/cross-platform-testing.md) — Spectron, Playwright, platform matrix, GPU testing, power-state simulation
+- **Windows-Native & Linux-Native Depth**: See [references/windows-linux-native.md](references/windows-linux-native.md) — when to go native vs cross-platform; WinUI 3/WPF/Win32 essentials (Snap Layouts, taskbar, toasts, MSIX/MSI signing, DPI); Linux GTK4/libadwaita vs Qt by desktop environment, Flatpak/portals, Wayland and AT-SPI; cross-cutting native checklist and war stories
 
 ## State Log
 <!-- STANDARD: 3min -->

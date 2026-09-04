@@ -33,6 +33,7 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
+    - side-hustle-builder
     - api-designer
     - backend-developer
     - database-designer
@@ -44,6 +45,7 @@ chain:
     - saas-monetization-strategist
     - security-reviewer
   feeds_into:
+    - nonprofit-fundraising-engineer
     - qa-engineer
     - security-reviewer
     - growth-engineer

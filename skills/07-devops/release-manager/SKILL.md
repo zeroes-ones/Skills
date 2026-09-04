@@ -26,6 +26,16 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - verification-before-completion
+  - using-agent-skills
+  - shipping-and-launch
+  - merge-conflict-resolver
+  - incremental-implementation
+  - git-workflow
+  - event-planner
+  - doubt-driven-development
+  - deprecation-engineer
+  - agent-persona-orchestrator
   - automation-engineer
   - ci-cd-builder
   - devops-engineer
@@ -33,6 +43,8 @@ chain:
   - qa-engineer
   - site-reliability-engineer
   feeds_into:
+  - shipping-and-launch
+  - feature-flag-architect
   - automation-engineer
   - devops-engineer
   - project-manager

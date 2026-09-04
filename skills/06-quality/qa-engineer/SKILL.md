@@ -23,6 +23,22 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - verification-before-completion
+  - using-agent-skills
+  - source-driven-development
+  - skill-levels
+  - mock-data-sync
+  - merge-conflict-resolver
+  - incremental-implementation
+  - game-engine-architect
+  - event-driven-architect
+  - domain-modeling
+  - debugging-and-error-recovery
+  - code-simplification
+  - brownfield-adoption-planner
+  - appsec-engineer
+  - agent-persona-orchestrator
+  - senior-engineer-mode-router
   - access-tech-developer
   - accessibility-auditor
   - accessibility-testing
@@ -63,7 +79,14 @@ chain:
   - tdd-guide
   - translation-manager
   - website-builder
+  - browser-testing-with-devtools
   feeds_into:
+  - verification-before-completion
+  - debugging-and-error-recovery
+  - shipping-and-launch
+  - dynamic-skill-creator
+  - doubt-driven-development
+  - agent-eval-pipeline
   - access-tech-developer
   - accessibility-testing
   - android-developer

@@ -25,6 +25,29 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - website-builder
+    - using-agent-skills
+    - skill-levels
+    - roi-gate
+    - prototype
+    - pricing-purchase-optimizer
+    - mobile-architecture-patterns
+    - material-design-expert
+    - healthcare-ui-designer
+    - graphql-engineer
+    - game-ui-designer
+    - game-engine-architect
+    - fintech-ui-designer
+    - explore-tools
+    - domain-modeling
+    - desktop-architecture-patterns
+    - codebase-design
+    - code-simplification
+    - browser-testing-with-devtools
+    - apple-hig-expert
+    - ai-engineer
+    - senior-engineer-mode-router
+    - on-device-ai-engineer
     - accessibility-auditor
     - accessibility-testing
     - algorithmic-trader
@@ -45,6 +68,24 @@ chain:
     - ux-researcher
     - ux-writer
   feeds_into:
+    - explore-tools
+    - desktop-architecture-patterns
+    - code-simplification
+    - browser-testing-with-devtools
+    - personal-productivity-developer
+    - micro-saas-developer
+    - game-developer
+    - environmental-tech-developer
+    - educational-game-developer
+    - education-access-developer
+    - desktop-developer
+    - debugging-and-error-recovery
+    - creator-economy-builder
+    - community-organizing-tech
+    - civic-tech-developer
+    - casual-game-developer
+    - access-tech-developer
+    - system-design-interview-prep
     - accessibility-auditor
     - code-reviewer
     - devrel-advocate
@@ -703,6 +744,7 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 
 ## References
 <!-- STANDARD: 3min -->
+- **Frontend System Design**: See [frontend-system-design.md](references/frontend-system-design.md) — app architecture, state classification, rendering strategy, performance budgets
 
 Detailed reference material loaded on demand:
 

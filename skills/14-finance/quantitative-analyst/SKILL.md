@@ -26,11 +26,16 @@ token_budget: 4000
 chain:
   type: symmetric
   consumes_from:
+    - ml-ai-engineer
+    - macro-strategist
     - market-data-engineer
     - data-scientist
     - ml-engineer
     - trade-performance-analyst
   feeds_into:
+    - ml-ai-engineer
+    - options-strategist
+    - options-risk-engineer
     - algorithmic-trader
     - data-scientist
     - ml-engineer
@@ -276,6 +281,38 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [COMMON-PRACTICE] — Widely used in the industry
 - [INFERRED] — Reasonable extrapolation from general principles
 - [UNKNOWN] — Requires verification against specific context
+
+## Best Practices
+
+1. **Always validate before you analyze** — Stale quotes, bad prints, and dividend-adjusted chains produce phantom UOA signals. Run Phase 1 data validation on every batch. A bad-print call sweep on a dead strike looks ident
+2. **Premium alone isn't enough — OI comparison is essential** — A $2M call purchase that's actually closing an existing position is bearish, not bullish. Without OI comparison, you're trading the wrong side 30%+ of the tim
+3. **Side (ASK vs BID) determines intent, not just direction** — An ask-side fill means the trader crossed the spread to get in. A bid-side fill means they hit the bid to get out (or sell). Mid-market fills on negotiated tr
+4. **Time decay is the silent killer — Theta must be part of every signal** — A bullish signal on 5-DTE options is fundamentally different from the same signal on 60-DTE options. At 5 DTE, Theta burns 3-5% of premium per da
+5. **IV rank tells you if you're overpaying** — Buying options at IV rank > 80 means you're paying top-dollar for premium. The signal may be directionally correct but the entry price is terrible. Factor IV rank into positio
+6. **Earnings create noise, not signal** — 60-70% of unusual options activity in the 3 days before earnings is hedging or volatility arbitrage, not directional bets. Always check the earnings calendar. If a signal falls wit
+7. **Multi-leg detection separates smart money from gamblers** — A $3M call purchase could be: (a) naked directional bet, (b) leg of a bull call spread (buying ATM, selling OTM), (c) closing leg of a short call. Multi-leg d
+8. **Sector context amplifies or dampens signals** — A bullish call sweep on a stock whose sector ETF is down 3% on the week is fighting the tape. Sector tailwind (+2%+) upgrades signal confidence; sector headwind (−2%+) do
+
+> Full depth: `references/best-practices.md`
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Strategy looks great in backtest, dies live — the "edge" was data leakage | Future information (e.g., full-period normalization, lookahead in signals) leaked into the backtest | Audit every feature for lookahead; walk-forward or point-in-time data only; run a leakage test before trusting any backtest | The first question about any backtest is not "is it profitable?" but "could it have known the future?" |
+| P-value / Sharpe quoted from too few samples — a 6-month result treated as proof | Insufficient out-of-sample data; multiple testing inflates apparent significance | Require ≥1 year out-of-sample and ≥5 walk-forward windows; correct for multiple comparisons; report confidence intervals | Statistical significance requires enough independent samples — small-sample ratios are noise with a calculator |
+| Results change wildly when parameters are nudged — curve-fit strategy | Parameters optimized in-sample without stability testing | Sensitivity analysis across the parameter grid; prefer flat, stable regions over sharp optima; out-of-sample validation on untouched data | A strategy that only works at its exact optimized parameters is a description of the past, not a prediction |
+| Survivorship or selection bias inflates performance — only winners in the universe | Backtest universe built from today's listings or hindsight selection | Use point-in-time universe data; include delisted names; document universe construction | If the universe only contains survivors, the backtest inherits their luck |
+| Live fills systematically worse than modeled — execution cost ignored | Backtest assumed mid-price fills with no slippage, fees, or impact | Model bid/ask spread, commission, and market impact at trade size; compare live vs paper fills monthly | The gap between modeled and real fills is where backtest alpha goes to die — model execution honestly |
+
+> Full decoder: `references/error-decoder.md`
+## Production Checklist
+
+Before delivering, verify:
+
+- [ ] **ID:** Checklist Item
+
+> Full checklist with validation commands: `references/checklist.md`
 
 ## References
 

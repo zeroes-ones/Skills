@@ -16,8 +16,8 @@ license: MIT
 token_budget: 550
 chain:
   type: symmetric
-  consumes_from: [market-data-engineer, fixed-income-analyst, forex-trader]
-  feeds_into: [commodities-analyst, fundamental-analyst, quantitative-analyst, portfolio-signal-manager, futures-trader, crypto-trader, forex-trader, fixed-income-analyst, personal-finance, home-buying, volatility-arbitrage-engineer]
+  consumes_from: [market-data-engineer, fixed-income-analyst, forex-trader, fundamental-analyst, futures-trader]
+  feeds_into: [commodities-analyst, fundamental-analyst, quantitative-analyst, portfolio-signal-manager, futures-trader, crypto-trader, forex-trader, fixed-income-analyst, personal-finance, home-buying, volatility-arbitrage-engineer, algorithmic-trader]
 portability: spec-level
 ---
 
@@ -398,6 +398,21 @@ Build a 3-scenario macro outlook (baseline 60%, upside 20%, downside 20%). For e
 * [COMMON-PRACTICE] — Widely used in the industry
 * [INFERRED] — Reasonable extrapolation from general principles
 * [UNKNOWN] — Requires verification against specific context
+
+## Best Practices
+
+1. Triangulate with 2+ indicators from different sectors. Always cross-check manufacturing surveys with services surveys and hard data (payrolls, retail sales, industrial production).
+2. Check the stock-bond correlation regime quarterly. If 90D correlation >0, reduce bond allocation or replace with TIPS, commodities, or trend-following for diversification.
+3. Always report: [ACTUAL] vs [CONSENSUS] vs [PRIOR]. The surprise = actual - consensus. The momentum = actual - prior. Both matter for different trade horizons.
+4. Use the yield curve as ONE input alongside credit spreads, labor market, and leading indicators. Don't time the recession — size positions for a range of outcomes. The curve tells you the direction; it doesn't tell you the timing.
+5. Diagnose: is this a liquidity event (funding markets stress, money market spreads) or a solvency event (corporate defaults rising, household debt service spiking)? Liquidity events → buy aggressively on central bank action. Solvency events → wait for debt restructuring before buying.
+6. Always compute 3-month and 6-month moving averages. Don't change the macro regime classification on a single data point unless it's confirmed by 2+ other indicators.
+## Production Checklist
+
+- [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
+
+
+<!-- DEEP: 10+min — extended deep-dive patterns live in this skill's references/ -->
 
 ## References
 

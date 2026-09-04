@@ -22,6 +22,8 @@ tags:
 token_budget: 3800
 chain:
   consumes_from:
+  - using-agent-skills
+  - skill-levels
   - backend-developer
   - code-reviewer
   - frontend-developer
@@ -29,6 +31,8 @@ chain:
   - idea-to-spec
   - qa-engineer
   feeds_into:
+  - verification-before-completion
+  - incremental-implementation
   - accessibility-testing
   - backend-developer
   - code-reviewer

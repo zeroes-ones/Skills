@@ -10,9 +10,16 @@ description: >
   to futures-trader), FX trading (route to forex-trader), or equity valuation
   (route to quantitative-analyst).
 token_budget: 5500
-chain: symmetric
-consumes_from: [macro-strategist, market-data-engineer, futures-trader]
-provides_to: [portfolio-signal-manager, algorithmic-trader]
+chain:
+  consumes_from:
+  - fundamental-analyst
+  - macro-strategist
+  - market-data-engineer
+  - futures-trader
+  feeds_into:
+  - futures-trader
+  - portfolio-signal-manager
+  - algorithmic-trader
 ---
 
 # Commodities Analyst
@@ -416,6 +423,20 @@ US corn: beginning stocks 2.2B bu, production 15.0B bu, domestic use 12.5B bu, e
 ### Exercise 5: Gold Driver (5 min)
 10yr TIPS yield goes from 1.50% to 2.00%. DXY goes from 104 to 106. Gold was at $2,050. Estimate the new gold price using: ΔGold ≈ -100 × ΔReal_Yield - 15 × ΔDXY.
 
+## Best Practices
+
+1. Check BEFORE the announcement: what does the futures curve imply? Backwardation = tight supply expected. If the curve is already in backwardation, a production cut is partially priced. Compare announced cut to analyst consensus, not to zero
+2. Switch strategy by season: Winter (Nov-Mar): trade weather forecasts, HDD deviations, storage withdrawals. Summer (Jun-Aug): trade cooling demand, power burn, CDD. Shoulder (Apr-May, Sep-Oct): trade storage injection trajectory. Don't use one playbook year-round
+3. Track 10yr TIPS yield as the PRIMARY gold driver. If real yields are rising, do not buy gold regardless of the inflation narrative. The gold/inflation relationship is mediated entirely through real yields and the USD
+4. Always compute: Available Inventory = On-Warrant Inventory (Total - Cancelled). Track the ratio of cancelled/on-warrant. >30% = imminent drawdown. The commodity market already sees this — if you don't, you're trading at an information disadvantage
+5. Track the crop calendar: pollination (corn) = July, pod-setting (soybeans) = August, grain-fill (wheat) = May-June. The weather during the reproductive phase determines yield. Do not extrapolate vegetative-phase conditions to final yield. The market won't remove weather premium until the crop is mad
+## Production Checklist
+
+- [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
+
+
+<!-- DEEP: 10+min — extended deep-dive patterns live in this skill's references/ -->
+
 ## References
 - [energy-complex.md](references/energy-complex.md) — Crude oil benchmarks, natural gas markets, refined products, EIA data guide
 - [metals-markets.md](references/metals-markets.md) — Precious metals drivers, base metals supply chains, LME/COMEX/SHFE exchange data
@@ -426,4 +447,3 @@ US corn: beginning stocks 2.2B bu, production 15.0B bu, domestic use 12.5B bu, e
 - [geopolitical-risk.md](references/geopolitical-risk.md) — Strait of Hormuz, Russia/Ukraine grain corridor, OPEC+ politics, sanctions frameworks
 - [seasonality-calendar.md](references/seasonality-calendar.md) — Crop calendars, heating/cooling seasons, refinery turnaround schedules, hurricane season
 - [error-recovery.md](references/error-recovery.md) — Error recovery: weather premium, global vs local balance, secular mean-reversion, curve misunderstanding
-

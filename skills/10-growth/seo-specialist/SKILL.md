@@ -24,10 +24,16 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - website-builder
+  - micro-saas-developer
+  - marketplace-platform-builder
+  - casual-game-developer
   - content-strategist
   - frontend-developer
   - analytics-engineer
   feeds_into:
+  - llm-search-optimizer
+  - ad-monetization-engineer
   - content-strategist
   - growth-engineer
   - marketing-manager

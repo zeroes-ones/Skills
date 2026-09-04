@@ -55,6 +55,7 @@ tags:
 token_budget: 3200
 chain:
   consumes_from:
+    - data-governance-officer
     - security-engineer
     - compliance-officer
     - cloud-architect
