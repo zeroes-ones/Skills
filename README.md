@@ -229,10 +229,9 @@ Details + measured baseline: **[`docs/flagship-senior-engineering.md`](docs/flag
 An interactive, dependency-free graph of the whole library — click any skill and see exactly
 what it consumes from and feeds into.
 
-- **Open it now:** double-click [`docs/graph-explorer/index.html`](docs/graph-explorer/index.html)
-  (works offline, no build step). Enable **Settings → Pages → Source: GitHub Actions** once and the
-  [deploy workflow](.github/workflows/deploy-pages.yml) keeps it live at
-  `https://<owner>.github.io/Skills/`.
+- **Open it live:** **[https://zeroes-ones.github.io/Skills/](https://zeroes-ones.github.io/Skills/)** —
+  or double-click [`docs/graph-explorer/index.html`](docs/graph-explorer/index.html) locally
+  (works offline, no build step).
 - **What's inside (regenerated from live data):** 298 skill nodes, 1,916 directed chain edges
   (1,567 undirected connections) across 37 domains. Pan/zoom, search, per-domain filter; hovering
   a skill highlights its whole neighborhood; clicking opens its chain panel — consumes from,
