@@ -103,11 +103,12 @@ jobs:
         run: |
           set -euo pipefail
           TGZ=$(npm pack --silent | tail -1)
-          npx --yes --package "$TGZ" skills --help > "$RUNNER_TEMP/skills-help.txt"
+          npm install --prefix "$RUNNER_TEMP/npmtest" --no-save --no-package-lock --no-audit --no-fund "$TGZ" > /dev/null
+          "$RUNNER_TEMP/npmtest/node_modules/.bin/skills" --help > "$RUNNER_TEMP/skills-help.txt"
           grep -q "init" "$RUNNER_TEMP/skills-help.txt"
-          npx --yes --package "$TGZ" skills init --help > "$RUNNER_TEMP/skills-init-help.txt"
+          "$RUNNER_TEMP/npmtest/node_modules/.bin/skills" init --help > "$RUNNER_TEMP/skills-init-help.txt"
           grep -q -- "--solo" "$RUNNER_TEMP/skills-init-help.txt"
-          echo "✓ npx --package <pkg> skills init resolves (documented npx entry point)"
+          echo "✓ installed package exposes 'skills' bin; dispatcher routes init (literal 'npx @zeroes-ones/skills init' verified by exit-criteria gate EC-7 post-publish)"
 
   test-command-parity:
     runs-on: ubuntu-latest
