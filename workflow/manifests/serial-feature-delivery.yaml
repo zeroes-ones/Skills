@@ -1,0 +1,39 @@
+name: serial-feature-delivery
+version: "1.0.0"
+description: "Serial single-agent flow: spec -> architecture -> code review, each handoff carrying a registered payload. Any skill with Core Workflow + Verification is a valid default-mode node."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 30
+start: spec
+nodes:
+  - id: spec
+    skill: idea-to-spec
+    outputs: [spec]
+  - id: architect
+    skill: system-architect
+    inputs: [spec]
+    outputs: [architecture]
+  - id: reviewer
+    skill: code-reviewer
+    inputs: [architecture]
+    outputs: [review-verdict]
+edges:
+  - from: spec
+    to: architect
+    when: spec.status == done
+    payload: handoff-v1
+  - from: architect
+    to: reviewer
+    when: architect.status == done
+    payload: handoff-v1
+end: [reviewer]

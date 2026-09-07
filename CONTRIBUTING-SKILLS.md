@@ -20,17 +20,22 @@
 ## Step 1: Scaffold the Skill
 
 ```bash
+
 bash scripts/scaffold-skill.sh 05-development/my-new-skill
+
 ```
 
 This generates:
+
 ```
+
 skills/05-development/my-new-skill/
 ├── SKILL.md                    # Pre-populated with all 22 required sections
 ├── scripts/
 │   └── verify-skill.sh         # Verification harness
 └── references/
     └── additional-resources.md  # Deep-knowledge placeholder
+
 ```
 
 The scaffolded SKILL.md has **every required section** with placeholder content and format hints. You fill in the domain expertise.
@@ -42,6 +47,7 @@ The scaffolded SKILL.md has **every required section** with placeholder content 
 Open `SKILL.md` and complete the YAML frontmatter:
 
 ```yaml
+
 ---
 name: "my-new-skill"               # MUST match directory name
 description: "Use when… Handles… Do NOT use…"  # ≤1024 chars
@@ -62,7 +68,45 @@ chain:
   feeds_into: ["downstream-skill"]   # Skills that consume this output
 token_budget: 3500                   # 2500-5000, based on body length
 ---
+
 ```
+
+### Optional Frontmatter: `workflow:` Node Contract (graph use)
+
+Skills that will be used as **nodes in a workflow manifest** (see `WORKFLOW-SYSTEM.md`) may declare
+an optional, additive node contract — typed artifacts, completion criteria, iteration budget, and
+escalation target:
+
+```yaml
+
+workflow:
+  artifacts:
+    inputs: [brief, system-context]        # names consumed from run-state / prior nodes
+    outputs: [spec]                        # names this node produces
+  completion:                              # what "done" means for this node
+    criteria:
+      - "Every explicit requirement has a matching section in the spec"
+      - "All open questions are resolved or flagged open_questions"
+    evidence: required                     # required | optional
+  iteration:
+    max: 3                                 # revision attempts before exhaustion (1 = no loop)
+    on_exhaustion: escalate                # escalate | next | fail
+  escalate_to: [human-gate]                # node id in the manifest, or a skill name
+
+```
+
+Rules:
+
+- **Additive and optional.** A skill without `workflow:` lints clean and runs in default mode —
+  existing skills are untouched. Add it only to skills your manifests actually exercise.
+- **Safe YAML Subset.** The block uses the subset in `WORKFLOW-SYSTEM.md` Section 3 (scalars,
+  scalar-only flow lists, shallow nesting). No anchors, flow maps, or block scalars.
+- **Completion drives loops.** `completion.criteria` are verifiable claims; `iteration.max` bounds
+  revision; `on_exhaustion` decides the exhausted outcome. With no `criteria`, the skill's
+  Verification / Production Checklist tables are the criteria source at execution time.
+- **Lint it.** `python3 scripts/lib/lint-workflow.py skills/<domain>/<skill-name>/SKILL.md`
+  (see Step 4). Unknown keys and type violations fail loudly — typos must not silently change
+  loop behavior.
 
 ### Domain Codes
 | Code | Domain |
@@ -145,21 +189,33 @@ Work through these in priority order. Run lint-template after each section.
 Run after every section:
 
 ```bash
+
 # Fast — checks only the one skill
 python3 scripts/lib/lint-template.py skills/<domain>/<skill-name>/SKILL.md
 python3 scripts/lib/lint-yaml.py skills/<domain>/<skill-name>/SKILL.md
 python3 scripts/lib/lint-markdown.py skills/<domain>/<skill-name>/SKILL.md
+python3 scripts/lib/lint-workflow.py skills/<domain>/<skill-name>/SKILL.md  # if workflow: block added
+
 ```
 
 Run before committing:
 
 ```bash
+
 # Full governance suite
 bash scripts/validate-skills.sh
 
 # Chain symmetry — ensures bidirectional references
 python3 scripts/validate_chains.py
+
+# Workflow manifests (if any) — shape, references, cycles, loop budgets
+python3 scripts/validate-workflows.py --all
+
 ```
+
+**Commit/push cadence:** run the fast local gates per edit (lint-workflow, lint-yaml,
+lint-template), the full suite once per push, and batch related pushes so CI runs once — see
+`docs/git-ci-efficiency.md` for the complete commit/push and CI-credit policy.
 
 ---
 
@@ -168,9 +224,11 @@ python3 scripts/validate_chains.py
 Every skill must have bidirectional chain references:
 
 ```yaml
+
 chain:
   consumes_from: ["upstream-skill"]  # This skill depends on upstream-skill
   feeds_into: ["downstream-skill"]   # This skill feeds into downstream-skill
+
 ```
 
 **The chain MUST be symmetric:**
@@ -186,11 +244,13 @@ Run `python3 scripts/validate_chains.py` to verify 0 asymmetries before committi
 Before submitting a PR, test the skill with at least one AI agent:
 
 ```bash
+
 # With Claude Code
 claude "use skill my-new-skill to [task]"
 
 # With Copilot CLI
 copilot "invoke skill my-new-skill for [scenario]"
+
 ```
 
 Verify:
@@ -204,10 +264,12 @@ Verify:
 ## Step 7: Open a PR
 
 ```bash
+
 git checkout -b skill/my-new-skill
 git add skills/<domain>/my-new-skill/
 git commit -m "feat: add my-new-skill"
 git push origin skill/my-new-skill
+
 ```
 
 Create the PR. The PR template will prompt you to confirm all checklist items.

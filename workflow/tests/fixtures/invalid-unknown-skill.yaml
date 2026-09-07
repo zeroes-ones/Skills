@@ -1,0 +1,5 @@
+name: invalid-unknown-skill
+version: "1.0.0"
+nodes:
+  - id: ghost
+    skill: definitely-not-a-real-skill

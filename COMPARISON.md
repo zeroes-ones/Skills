@@ -2,11 +2,64 @@
 
 How zeroes-ones/Skills compares to other agent skill libraries.
 
+## Measured Baseline (live)
+
+Data for the zeroes-ones/Skills corpus, refreshed with:
+`python3 scripts/benchmark-skills.py --root skills --markdown`
+(add `--root <peer> --flat` to score a peer corpus with the same metrics).
+
+<!-- MEASURED-BASELINE:START -->
+
+| Skills (prompts) | 297 |
+| Executable-node eligible (Core Workflow + Verification) | 281 |
+| Declared `workflow:` contracts | 30 |
+| Avg body words (load cost) | 8840 |
+| Compiled coverage | 233/297 |
+| Avg effective load (compiled tokens) | 3545 |
+| Effective load saving vs raw body | 63.1% |
+| Portability target declared | 100.0% |
+| Golden eval sets covered | 3/3 |
+| Routing Top-1 / Top-5 (lexical baseline) | 3/10 (30%) / 6/10 (60%) |
+
+<!-- MEASURED-BASELINE:END -->
+
+### vs. leading skill ecosystems — measured (peer repos fetched 2026-09-07)
+
+Scored with the same harness (`python3 scripts/benchmark-skills.py`); structural rows are only
+comparable where corpora share conventions, so the fair headline metrics are count and load cost:
+
+| Metric | zeroes-ones/Skills | anthropics/skills | addyosmani/agent-skills | mattpocock/skills | obra/superpowers |
+|--------|--------------------|-------------------|-------------------------|-------------------|------------------|
+| Prompts | 297 | 19 | 25 | 37 | 14 |
+| Avg body words (load cost) | 8840 | 1969 | 2073 | 638 | 1457 |
+| Core Workflow + Verification structure | 281/297 | 0/19 (different anatomy) | 0/25 (different anatomy) | 0/37 (different anatomy) | 0/14 (different anatomy) |
+| `workflow:` contracts | 30 | 0 | 0 | 0 | 0 |
+| Portability target declared | 100.0% | 0.0% | 0.0% | 0.0% | 0.0% |
+| Golden eval sets covered | 3/3 | 0/3 | 0/3 | 0/3 | 0/3 |
+
+Routing rows are omitted for peers (their names do not match this library's held-out task set).
+Re-run method: `python3 scripts/benchmark-skills.py --root skills --markdown` (ours) and
+`--root <peer>/skills --shallow --markdown` for single-level layouts.
+
+### Where each ecosystem leads (qualitative, 2026)
+
+| Dimension | zeroes-ones/Skills | anthropics/skills | superpowers | mattpocock/skills |
+|---|---|---|---|---|
+| Scale + lifecycle coverage | 297 skills / 37 domains (CEO → governance) | curated ~19 skill archetypes | ~14-skill disciplined methodology | ~37 pragmatic daily skills |
+| Skill load economy | compiled 65-90% savings + progressive disclosure (body words are raw) | lean bodies | lean bodies, auto-injected session discipline | leanest bodies (638 avg) |
+| Quality governance | template/YAML/chain gates, audit, portability across 6 agents | high curation bar | methodology consistency | battle-tested by use |
+| Executable workflow layer (loops/graphs/engine) | **unique** — none of the peers ship an engine + manifests + guardrails | none | pipeline discipline is prose (workflows as plans) | none |
+| Evals + telemetry + self-improvement | golden evals, OTel exporter, SLIs, verifier-gated self-improvement | none published | none published | none published |
+| Ecosystem/mindshare + marketplace distribution | newer; smaller install base | Anthropic official + huge reach | large reach + plugin marketplaces | large reach (skills.sh / plugin marketplaces) |
+
+Note: "Matt Pocock's Superpowers" historically conflates `mattpocock/skills` with
+`obra/superpowers`; measured rows above match each repository by its URL.
+
 ## vs. addyosmani/agent-skills
 
 | Dimension | zeroes-ones/Skills | addyosmani/agent-skills |
 |-----------|-------------------|------------------------|
-| **Skills** | 210 across 28 domains | 24 across ~10 domains |
+| **Skills** | 297 across 37 domains | 24 across ~10 domains |
 | **Scope** | Full company lifecycle (CEO → governance) | Engineering workflow (Define → Ship) |
 | **Quality system** | 10/10 rating with 12+ required sections per skill | 6 standard sections per skill |
 | **Chain/dependency** | 1,675 symmetric edges, bidirectional graph | Cross-references by name only |

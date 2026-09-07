@@ -1,0 +1,47 @@
+name: agent-efficiency-pass
+version: "1.0.0"
+description: "Serial chain over prompt-engineering and efficiency skills: route the task, engineer the prompt, compact the context, then tune the token budget — every handoff carrying a registered payload. Proves graph-capability extends to 00-framework/22-ai-engineering skills, not just delivery skills."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 30
+start: plan
+nodes:
+  - id: plan
+    skill: using-agent-skills
+    outputs: [skill-plan]
+  - id: craft
+    skill: llm-engineer
+    inputs: [skill-plan]
+    outputs: [prompt-design]
+  - id: compact
+    skill: context-compaction-strategies
+    inputs: [prompt-design]
+    outputs: [compacted-context]
+  - id: budget-tune
+    skill: token-efficiency
+    inputs: [compacted-context]
+    outputs: [token-budget-plan]
+edges:
+  - from: plan
+    to: craft
+    when: plan.status == done
+    payload: handoff-v1
+  - from: craft
+    to: compact
+    when: craft.status == done
+    payload: handoff-v1
+  - from: compact
+    to: budget-tune
+    when: compact.status == done
+    payload: handoff-v1
+end: [budget-tune]

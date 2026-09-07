@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**295 skills across 37 domains. 9.9/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — the 948 pre-existing asymmetric edges were repaired in a dedicated 2026 pass).
+**297 skills across 37 domains. 9.9/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — the 948 pre-existing asymmetric edges were repaired in a dedicated 2026 pass).
 
 ### 🚀 Quick Links
 
@@ -101,7 +101,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 ## Quality Status
 
-**Library rating: 9.9/10** (live domain-calibrated audit over 295 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
+**Library rating: 9.9/10** (live domain-calibrated audit over 297 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
 
 > The "Quality Status" numbers below are from an earlier generation of the audit (214-skill baseline). The authoritative current numbers come from `python3 scripts/audit-library.py` (live) and `skills-audit-report.txt`; see [GAP-ANALYSIS.md](GAP-ANALYSIS.md) for the 2026 delta analysis.
 
@@ -222,6 +222,8 @@ Existing project? See [`COMPARISON.md`](COMPARISON.md) and the `brownfield-adopt
 | `senior-engineer-mode-router` | Framework | Routes the 8 senior-engineer modes (build/refactor/debug/design/perf/clean-arch/multi-agent/UI) to skill chains |
 | `engineering-leadership-interview-prep` | Eng Leadership | EM→CTO leadership interviews: ladder scope, question banks, org/exec cases, mock rubric |
 | `coding-interview-prep` | Development | DSA pattern bank (~25 patterns), 6-step solve framework, timed live-coding mocks with rubric |
+| `iterative-task-execution` | Specialized | Loop-until-done discipline: intake → execute → verify → decide; revise within budget or escalate |
+| `workflow-graph-authoring` | Specialized | Author executable workflow manifests: nodes/edges/loops/gates/supervisor over skills + LangGraph mapping |
 
 ## Usage
 
@@ -283,7 +285,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 295 skills in current project (team/company default) |
+| `skills-init` | Activate all 297 skills in current project (team/company default) |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
@@ -301,8 +303,8 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 295 skills
-skills-init               # All 37 domains, 295 skills, full lifecycle coverage
+# Startup or team project — full 297 skills
+skills-init               # All 37 domains, 297 skills, full lifecycle coverage
 
 ```
 
@@ -358,7 +360,18 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`WISDOM-FRAMEWORK.md`](WISDOM-FRAMEWORK.md) | MVP-first, cost-effective, token-efficient decision making |
 | [`TECH-STACK-DECISIONS.md`](TECH-STACK-DECISIONS.md) | Technology selection by project archetype with cost projections |
 | [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — greenfield and brownfield paths |
+| [`docs/using-for-any-project.md`](docs/using-for-any-project.md) | 5-step recipe: run ANY project as bounded, verified, measurable agent workflows |
+| [`docs/git-ci-efficiency.md`](docs/git-ci-efficiency.md) | When to commit/push + how to save CI credits (local gates first, path filters, caching, batching) |
+| [`docs/self-incorporation.md`](docs/self-incorporation.md) | How the library upgrades itself — every skill checklist + loops/graphs/vectors incorporation design |
+| [`docs/world-class-execution.md`](docs/world-class-execution.md) | 100% effectiveness doctrine — per-mode speed rules, measured baselines, enforcement |
+| [`docs/small-context-100-runbook.md`](docs/small-context-100-runbook.md) | Small-context runbook: one-skill-at-a-time budget math, memory without loss, 100%-effective protocol + commands |
+| [`scripts/run-effectiveness.py`](scripts/run-effectiveness.py) | Score any run 0-100: completion, clean, exit-by-design, handoffs, budget, memory (gateable) |
+| [`scripts/skill-incorporate.py`](scripts/skill-incorporate.py) | Per-skill incorporation scorecard over the whole library (gaps as data) |
+| [`examples/efficiency-in-action.md`](examples/efficiency-in-action.md) | Real-time token/memory/prompt efficiency example with measured savings across loops & graphs |
 | [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 2,000+ sub-skills across all domains with industry variations |
+| [`WORKFLOW-SYSTEM.md`](WORKFLOW-SYSTEM.md) | Loops & graphs over the library — node contracts, manifests, run-state, handoff payloads (see [`examples/workflow-runtime/`](examples/workflow-runtime/README.md)) |
+| [`END-TO-END-EXCELLENCE.md`](END-TO-END-EXCELLENCE.md) | The 10/10 start-to-end rubric — content → node → graph → execution → handoff → verification → efficiency, with coverage status and gap register |
+| [`BEYOND-LOOPS-GRAPHS.md`](BEYOND-LOOPS-GRAPHS.md) | Deep research on what comes after loops & graphs — memory, evals-as-gates, self-improvement, observability, edge guardrails, semantic retrieval — with a build map and phased roadmap |
 | [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | Quality bar, domain-calibrated scoring rubric, and external reviewer guide |
 | [`personas/README.md`](personas/README.md) | Persona architecture — 3-layer design, parallel fan-out, merge patterns |
 | [`hooks/SIMPLIFY-IGNORE.md`](hooks/SIMPLIFY-IGNORE.md) | Code block protection — marking sections as immutable during simplification |
@@ -366,8 +379,19 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`scripts/lint.sh`](scripts/lint.sh) | Master lint runner — 5 categories (files, markdown, yaml, shell, template) with --fix, --json, --ci |
 | [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates |
 | [`scripts/run-evals.sh`](scripts/run-evals.sh) | 3-tier evaluation harness — structural, routing, behavioral |
+| [`scripts/validate-workflows.py`](scripts/validate-workflows.py) | Workflow manifest validator — structure, cycles, loop budgets, payloads, `--coverage` (297/297 skills referenceable) |
+| [`scripts/workflow-runner.py`](scripts/workflow-runner.py) | Deterministic loop engine — parallel join, budgets, checkpoints, `--memory`, `--guardrail` |
+| [`scripts/export-traces.py`](scripts/export-traces.py) | Run-state → OTel-shaped span exporter (agent-run observability) |
+| [`scripts/skill-sli-report.py`](scripts/skill-sli-report.py) | Per-workflow SLIs + escalation-rate gate over run checkpoints |
+| [`scripts/eval-skill.sh`](scripts/eval-skill.sh) | Golden-skill regression evals (evals/golden/*) — CI merge gate |
+| [`scripts/skill-evolve-prep.py`](scripts/skill-evolve-prep.py) | Failure-trace → self-improvement draft inbox |
+| [`scripts/build-skill-index.py`](scripts/build-skill-index.py) | 297-skill index + lexical routing baseline |
+| [`scripts/benchmark-skills.py`](scripts/benchmark-skills.py) | Corpus metrics + live measured baseline (refreshes COMPARISON.md) |
+| [`scripts/executors/agent_executor.py`](scripts/executors/agent_executor.py) | Reusable agent executor (claude/gemini) with timeout + fallback for real node content |
+| [`scripts/project-init.sh`](scripts/project-init.sh) | One command: attach the workflow layer to ANY project (`.agent/` scaffold + starter manifest) |
+| [`scripts/skill-factory.py`](scripts/skill-factory.py) | Create a skill draft on demand (workflow: contract included); use it as a node/sub-agent |
 | [`scripts/validate-commands.js`](scripts/validate-commands.js) | Cross-tool command parity validator |
-| [`.githooks/pre-commit`](.githooks/pre-commit) | Git pre-commit hook — 13-gate lint & validate before every commit |
+| [`.githooks/pre-commit`](.githooks/pre-commit) | Git pre-commit hook — 16-gate lint & validate before every commit |
 
 ## Linting & Validation
 

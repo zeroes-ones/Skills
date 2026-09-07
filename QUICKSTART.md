@@ -7,14 +7,19 @@
 ## Step 1: Install (30 seconds)
 
 ```bash
+
 curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
+
 ```
 
 This clones the library to `~/.zeroes-ones/skills` and creates symlinks for Claude Code, Copilot CLI, Cursor, and OpenClaw.
 
 **Verify:**
+
 ```bash
+
 ls ~/.zeroes-ones/skills/skills/  # Should show 00-framework, 01-strategy, ...
+
 ```
 
 ---
@@ -22,11 +27,13 @@ ls ~/.zeroes-ones/skills/skills/  # Should show 00-framework, 01-strategy, ...
 ## Step 2: Activate in Your Project (15 seconds)
 
 ```bash
+
 cd your-project/
 skills-init
+
 ```
 
-This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover all 214 skills.
+This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover all 297 skills.
 
 ---
 
@@ -35,7 +42,9 @@ This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI ag
 Open your AI agent (Claude Code, Copilot CLI, Cursor, etc.) and type:
 
 ```
+
 /system-architect: I'm building a URL shortener. What architecture should I use?
+
 ```
 
 **What to expect:** The agent reads `system-architect/SKILL.md`, follows its decision tree, and produces:
@@ -53,7 +62,9 @@ Open your AI agent (Claude Code, Copilot CLI, Cursor, etc.) and type:
 Skills declare their dependencies in YAML `chain:` blocks. Feed output from one skill into the next:
 
 ```
+
 /backend-developer: Use the architecture from system-architect to build the URL shortener API. I need POST /shorten, GET /:slug, and GET /:slug/stats endpoints.
+
 ```
 
 The backend-developer skill knows it `consumes_from: [system-architect]` — it expects architecture decisions as input and produces API code as output.
@@ -61,7 +72,9 @@ The backend-developer skill knows it `consumes_from: [system-architect]` — it 
 Then feed the API to the reviewer:
 
 ```
+
 /code-reviewer: Review the URL shortener API code that backend-developer just produced.
+
 ```
 
 **What to expect:** The reviewer catches issues the developer missed — missing input validation, SQL injection risks, missing error handling. All 1,675 chain edges are bidirectionally symmetric (verified programmatically).
@@ -73,8 +86,10 @@ Then feed the API to the reviewer:
 As your project grows, activate more skills:
 
 ```bash
+
 skills-init --grow   # 18 skills: add CI/CD, observability, SEO, analytics
-skills-init --full   # 214 skills: full enterprise coverage
+skills-init --full   # 297 skills: full enterprise coverage
+
 ```
 
 See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to $25K MRR (56 skills).
@@ -88,7 +103,7 @@ See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a c
 | **Skill invocation** | `/skill-name: your request` — the agent reads SKILL.md and follows its workflow |
 | **Progressive disclosure** | QUICK (30s gist) → STANDARD (3min working knowledge) → DEEP (10+min war stories) |
 | **Skill chaining** | Output from skill A feeds into skill B via `chain:` YAML declarations |
-| **Tiered activation** | `--solo` (8 skills) → `--grow` (18) → `--full` (214) — activate only what you need |
+| **Tiered activation** | `--solo` (8 skills) → `--grow` (18) → `--full` (297) — activate only what you need |
 
 ---
 
@@ -102,4 +117,4 @@ See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a c
 
 ---
 
-*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 214 skills, 29 domains, 9.9/10 quality.*
+*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 297 skills, 37 domains, 9.9/10 quality.*

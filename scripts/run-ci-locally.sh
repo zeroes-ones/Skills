@@ -129,6 +129,59 @@ for root, _, files in os.walk('skills'):
 print(f'    {total} skills checked, {over_budget} over 5000-word budget')
 " 2>/dev/null
     step_pass "Token budget report"
+
+    # 1d. Workflow validation + loop-engine self-tests
+    echo ""
+    echo "  [1d] Workflow manifests + loop engine..."
+    ok_workflow=true
+    if ! python3 "$REPO_ROOT/scripts/validate-workflows.py" --selftest >/dev/null 2>&1; then
+        ok_workflow=false
+        echo "    ❌ validate-workflows.py --selftest failed"
+    fi
+    if ! python3 "$REPO_ROOT/scripts/validate-workflows.py" --all >/dev/null 2>&1; then
+        ok_workflow=false
+        echo "    ❌ validate-workflows.py --all failed"
+    fi
+    if ! python3 "$REPO_ROOT/scripts/workflow-runner.py" --selftest >/dev/null 2>&1; then
+        ok_workflow=false
+        echo "    ❌ workflow-runner.py --selftest failed"
+    fi
+    if [ "$ok_workflow" = true ]; then
+        step_pass "Workflow validation + engine self-tests"
+    else
+        step_fail "Workflow validation + engine self-tests"
+    fi
+
+    # 1e. Golden skill evals (deterministic regression, Frontier B2/G3)
+    echo ""
+    echo "  [1e] Golden skill evals..."
+    if [ -d "$REPO_ROOT/evals/golden" ]; then
+        if bash "$REPO_ROOT/scripts/eval-skill.sh" --all >/dev/null 2>&1; then
+            step_pass "Golden skill evals"
+        else
+            step_fail "Golden skill evals (golden sets must not rot)"
+        fi
+    else
+        step_skip "Golden skill evals (no evals/golden)"
+    fi
+
+    # 1f. Measured baseline (informational — data for COMPARISON.md)
+    echo ""
+    echo "  [1f] Measured baseline (informational)..."
+    python3 "$REPO_ROOT/scripts/benchmark-skills.py" --root skills 2>&1 | head -9 || true
+    step_pass "Measured baseline (informational)"
+
+    # 1g. Run telemetry (informational — exporter + SLIs over example checkpoints)
+    echo ""
+    echo "  [1g] Run telemetry (informational)..."
+    if [ -d "$REPO_ROOT/examples/workflow-runtime/state" ]; then
+        python3 "$REPO_ROOT/scripts/export-traces.py" \
+            --state "$REPO_ROOT/examples/workflow-runtime/state/happy-run-state.json" 2>&1 | wc -l \
+            | xargs echo "    happy spans:"
+        python3 "$REPO_ROOT/scripts/skill-sli-report.py" \
+            --dir "$REPO_ROOT/examples/workflow-runtime/state" 2>&1 | head -6
+    fi
+    step_pass "Run telemetry (informational)"
 }
 
 # ── Job 2: Hooks ────────────────────────────────────────────────────────

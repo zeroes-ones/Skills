@@ -1,0 +1,61 @@
+name: valid-review-loop
+version: "1.0.0"
+description: Prototype of the flagship multi-agent review graph with a bounded fix-review loop.
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+start: code-reviewer
+nodes:
+  - id: code-reviewer
+    skill: code-reviewer
+    outputs: [code-review-findings]
+    max_iterations: 1
+  - id: security-reviewer
+    skill: security-reviewer
+    outputs: [security-findings]
+    max_iterations: 1
+  - id: fixer
+    skill: backend-developer
+    inputs: [code-review-findings, security-findings]
+    outputs: [fix-report]
+    max_iterations: 1
+  - id: human-gate
+    type: gate
+    kind: human
+    requires: [fix-report]
+    description: Production change requires human approval.
+parallel:
+  - id: reviewers
+    nodes: [code-reviewer, security-reviewer]
+    join: all
+    outputs: [review-findings]
+edges:
+  - from: code-reviewer
+    to: fixer
+    when: code-reviewer.status == done
+    payload: handoff-v1
+  - from: security-reviewer
+    to: fixer
+    when: security-reviewer.status == done
+    payload: handoff-v1
+  - from: fixer
+    to: human-gate
+    when: fixer.status == done
+    payload: handoff-v1
+loops:
+  - id: review-fix-loop
+    nodes: [code-reviewer, security-reviewer, fixer]
+    exit_when: code-reviewer.verdict == pass
+    max_iterations: 3
+    escalate_to: human-gate
+    convergence:
+      window: 2
+      require_delta: true

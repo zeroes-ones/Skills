@@ -1,0 +1,67 @@
+name: repo-self-check
+version: "1.0.0"
+description: "Dogfooding: the workflow layer runs THIS repo itself. Three quality gates (workflow validation, skill frontmatter lints, golden evals) run as a parallel block (join: all) and merge into a human release gate - the same shape as multi-agent review, applied to the repo's own maintenance."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 20
+start: start-check
+nodes:
+  - id: start-check
+    skill: using-agent-skills
+    outputs: [gate-plan]
+  - id: workflow-validation
+    skill: using-agent-skills
+    outputs: [validation-report]
+  - id: skill-lints
+    skill: writing-great-skills
+    outputs: [lint-report]
+  - id: golden-evals
+    skill: agent-eval-pipeline
+    outputs: [eval-report]
+gates:
+  - id: release-gate
+    type: gate
+    kind: human
+    requires: [validation-report, lint-report, eval-report]
+    description: Human merges after all three quality gates are green.
+parallel:
+  - id: quality-gates
+    nodes: [workflow-validation, skill-lints, golden-evals]
+    join: all
+    outputs: [quality-summary]
+edges:
+  - from: start-check
+    to: workflow-validation
+    when: start-check.status == done
+    payload: handoff-v1
+  - from: start-check
+    to: skill-lints
+    when: start-check.status == done
+    payload: handoff-v1
+  - from: start-check
+    to: golden-evals
+    when: start-check.status == done
+    payload: handoff-v1
+  - from: workflow-validation
+    to: release-gate
+    when: workflow-validation.status == done
+    payload: handoff-v1
+  - from: skill-lints
+    to: release-gate
+    when: skill-lints.status == done
+    payload: handoff-v1
+  - from: golden-evals
+    to: release-gate
+    when: golden-evals.status == done
+    payload: handoff-v1
+end: [release-gate]

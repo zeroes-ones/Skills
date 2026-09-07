@@ -1,0 +1,26 @@
+{
+  "skill": "code-reviewer",
+  "description": "Golden regression cases for code-reviewer behavior: file-and-line findings, explicit verdicts, severity grading.",
+  "cases": [
+    {
+      "id": "file-line-findings",
+      "input": "Review a diff and report findings without referencing specific files or lines.",
+      "expected_behavior": "Findings must reference concrete files and lines so the author can act.",
+      "checks": [
+        { "label": "concrete references", "patterns": ["file", "line", "path", "src/"] },
+        { "label": "actionable finding", "patterns": ["fix", "rename", "remove", "add", "extract"] }
+      ],
+      "reference_output": "Finding: dead code in src/auth.py around line 120 (unused helper after refactor) - remove the helper and its import."
+    },
+    {
+      "id": "verdict-and-grade",
+      "input": "Conclude a review of a change with no stated verdict or severity.",
+      "expected_behavior": "The review ends with an explicit verdict (pass or changes_requested) and graded findings.",
+      "checks": [
+        { "label": "verdict stated", "patterns": ["changes_requested", "verdict", "pass"] },
+        { "label": "severity graded", "patterns": ["severity", "high", "medium", "low"] }
+      ],
+      "reference_output": "Verdict: changes_requested. Severity: high - the auth bypass in service A must be resolved before merge; medium - dead code cleanup."
+    }
+  ]
+}

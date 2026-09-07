@@ -25,6 +25,10 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -128,3 +132,39 @@ jobs:
             fi
           done < <(grep -roPH '\[.*\]\(\.\/references\/[^)]+\)' skills/ 2>/dev/null || true)
           exit $errors
+
+  workflow-graphs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install PyYAML
+        run: python3 -m pip install --quiet pyyaml
+
+      - name: Workflow validation + loop-engine self-tests
+        run: |
+          python3 scripts/validate-workflows.py --selftest
+          python3 scripts/validate-workflows.py --all
+          python3 scripts/workflow-runner.py --selftest
+
+      - name: Golden skill evals
+        run: bash scripts/eval-skill.sh --all
+
+      - name: Dogfood — repo self-check runs as a graph
+        run: |
+          python3 scripts/workflow-runner.py \
+            --manifest workflow/manifests/repo-self-check.yaml \
+            --executor scripts/executors/repo_checks.py \
+            --state /tmp/repo-state.json --memory /tmp/repo-memory
+          spans=$(python3 scripts/export-traces.py --state /tmp/repo-state.json | wc -l)
+          echo "## Repo Self-Check (workflow-graphs job)" >> $GITHUB_STEP_SUMMARY
+          echo "trace spans: $spans" >> $GITHUB_STEP_SUMMARY
+
+      - name: Measured baseline (informational)
+        run: python3 scripts/benchmark-skills.py --root skills --markdown

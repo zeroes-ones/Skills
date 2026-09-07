@@ -4,7 +4,7 @@
 # Author: Sandeep Kumar Penchala
 #
 # One-time setup. Clones the skills library to a canonical location and
-# creates global symlinks so every project can access all 56 skills.
+# creates global symlinks so every project can access all 297 skills.
 #
 # Usage: curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
 #    or: ./scripts/install.sh

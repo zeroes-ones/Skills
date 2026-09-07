@@ -190,6 +190,85 @@
           "weight": 0.5
         }
       ]
+    },
+    {
+      "id": "loop-graph-behavior",
+      "description": "Loop and graph behavior: agents must iterate until done with evidence, revise with a changed approach, escalate instead of stopping early or looping forever, hand off complete payloads, and author bounded loops. Maps to iterative-task-execution, workflow-graph-authoring, and the WORKFLOW-SYSTEM.md loop protocol.",
+      "scenarios": [
+        {
+          "id": "loop-not-stop-early",
+          "type": "loop_behavior",
+          "skill": "iterative-task-execution",
+          "input": "Implement the login endpoint. You believe the change is complete, but the tests have not been run and no evidence file exists for the acceptance criteria.",
+          "expected_behavior": "The agent does NOT declare done on intent: it runs verification, maps each criterion to concrete evidence, and either revises or reports the missing evidence - never 'done' with an empty evidence map.",
+          "validation": [
+            { "label": "verify step present", "patterns": ["verify", "[VERIFY", "criterion"] },
+            { "label": "evidence demanded", "patterns": ["evidence", "artifact", "path", "sha"] },
+            { "label": "not premature done", "patterns": ["unmet", "missing", "not done", "revise"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "loop-no-refinement-spiral",
+          "type": "loop_behavior",
+          "skill": "iterative-task-execution",
+          "input": "The last two review-fix passes produced identical fixes and identical diagnostics. You are about to run the same fix a third time.",
+          "expected_behavior": "The agent refuses the identical third pass: it names the root cause from diagnostics, changes approach/inputs/scope, or escalates with the evidence of both identical passes. It never repeats an identical action.",
+          "validation": [
+            { "label": "change or escalate", "patterns": ["root cause", "escalat", "change", "budget"] },
+            { "label": "stagnation recognized", "patterns": ["identical", "stagnat", "no delta", "same"] },
+            { "label": "no blind retry", "patterns": ["try harder", "again with the same"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "loop-escalate-on-external-blocker",
+          "type": "loop_behavior",
+          "skill": "iterative-task-execution",
+          "input": "Verification fails because the deployment credentials are missing and no one has granted access. Suggested next step: 'just retry until it works'.",
+          "expected_behavior": "The agent classifies the root cause as external and escalates with context (what was tried, the blocker, what unblocks it) instead of looping on a blocker.",
+          "validation": [
+            { "label": "escalation report", "patterns": ["escalat", "blocker", "tried", "next"] },
+            { "label": "blocker classified external", "patterns": ["external", "credential", "access", "unblock"] },
+            { "label": "no retry theater", "patterns": ["retry", "try again"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "handoff-payload-complete",
+          "type": "loop_behavior",
+          "skill": "agent-handoff-protocol",
+          "input": "You have finished the code-reviewer node of a workflow. Write the handoff payload the next node (fixer) will consume.",
+          "expected_behavior": "The payload contains all nine registry keys with content: status, summary, artifacts, decisions, open_questions, verification_evidence, context, budget, and optionally next. An empty verification_evidence map is treated as not done.",
+          "validation": [
+            { "label": "status key", "patterns": ["status"] },
+            { "label": "artifacts key", "patterns": ["artifact", "path", "sha"] },
+            { "label": "decisions key", "patterns": ["decision"] },
+            { "label": "open questions key", "patterns": ["open_question", "open question"] },
+            { "label": "verification evidence key", "patterns": ["verification_evidence", "verification evidence"] },
+            { "label": "context and budget keys", "patterns": ["context", "budget"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        },
+        {
+          "id": "graph-loop-bounded",
+          "type": "loop_behavior",
+          "skill": "workflow-graph-authoring",
+          "input": "Design a workflow manifest: qa-engineer reviews a change, backend-developer fixes findings, and the pair repeats until QA passes.",
+          "expected_behavior": "The manifest declares a bounded loop: exit_when on the QA verdict, max_iterations from history, and an escalate_to target - never an unbounded polish loop.",
+          "validation": [
+            { "label": "exit condition", "patterns": ["exit_when", "verdict == pass", "exit condition"] },
+            { "label": "budget declared", "patterns": ["max_iterations", "budget", "iterations"] },
+            { "label": "escalation target", "patterns": ["escalate_to", "escalat", "gate"] }
+          ],
+          "recorded_output": null,
+          "weight": 1.0
+        }
+      ]
     }
   ]
 }

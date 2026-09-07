@@ -1,0 +1,12 @@
+name: invalid-unknown-node-ref
+version: "1.0.0"
+start: code-reviewer
+nodes:
+  - id: code-reviewer
+    skill: code-reviewer
+  - id: fixer
+    skill: backend-developer
+edges:
+  - from: code-reviewer
+    to: ghost-node
+    when: code-reviewer.status == done

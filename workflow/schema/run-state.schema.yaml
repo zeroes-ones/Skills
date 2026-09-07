@@ -1,0 +1,156 @@
+# Run-State Schema (normative documentation)
+#
+# Canonical L2 execution state: one JSON file per workflow run (e.g. run-state.json).
+# Written by whichever agent/executor performs node work; read at every boundary.
+# Normative validation is implemented in scripts/workflow-runner.py and exercised by its
+# fixture suite. Semantics: WORKFLOW-SYSTEM.md Section 4.
+
+top_level:
+  workflow:
+    type: string
+    required: true                            # manifest name (slug)
+  manifest_sha:
+    type: string
+    required: true                            # sha256 of the manifest file, first 12 hex chars
+  created:
+    type: string
+    required: true                            # ISO-8601 UTC
+  updated:
+    type: string
+    required: true                            # ISO-8601 UTC; rewritten on every state write
+  node:
+    type: string                              # current node id; null when the run is idle/complete
+    required: true
+  phase:
+    type: string                              # current lifecycle phase of the active node
+    required: true
+    enum: [intake, execute, verify, decide, done, escalated, blocked, complete]
+  iteration:
+    type: integer                             # pass counter of the active loop (1-based)
+    required: true
+    min: 0
+  budget:
+    type: map
+    required: true
+    fields:
+      max_steps:
+        type: integer
+        required: true
+        min: 1
+      steps_used:
+        type: integer
+        required: true
+        min: 0
+      iterations:
+        type: map[string, integer]            # loop id -> pass count
+        required: false
+  nodes:
+    type: map[string, map]                    # node id -> record
+    required: true
+    item_fields:
+      status:
+        type: string
+        required: true
+        enum: [pending, running, done, blocked, needs_review, skipped]
+      verdict:
+        type: string                          # node-level result, e.g. pass | changes_requested
+        required: false
+      iterations:
+        type: integer
+        required: true
+        min: 0
+      evidence:
+        type: list[string]                    # artifact/check names backing the verdict
+        required: false
+      summary:
+        type: string
+        max_length: 400
+        required: false
+      sha:
+        type: string                          # hash of this node record (state-integrity)
+        required: false
+  fields:
+    type: map[string, map]                    # shared typed state
+    required: true
+    item_fields:
+      value:
+        type: any                             # scalar | list | map (JSON-serializable)
+        required: true
+      writer:
+        type: string                          # node/parallel id that owns the field
+        required: true
+      sha:
+        type: string
+        required: false
+  artifacts:
+    type: map[string, map]                    # name -> record
+    required: true
+    item_fields:
+      path:
+        type: string
+        required: true
+      sha:
+        type: string
+        required: true                        # sha256 of file contents, first 12 hex chars
+      type:
+        type: string                          # doc | code | test-report | config | other
+        required: true
+  decisions:
+    type: list[map]                           # append-only decision ledger
+    required: true
+    item_fields:
+      at:
+        type: string                          # node id
+        required: true
+      what:
+        type: string
+        required: true
+      by:
+        type: string                          # node id (writer)
+        required: true
+  open_questions:
+    type: list[string]
+    required: true
+  handoff:
+    type: map
+    required: false                           # present between node completion and next intake
+    item_fields:
+      from:
+        type: string
+        required: true
+      to:
+        type: string
+        required: true
+      payload:
+        type: string                          # payload registry name (optional)
+        required: false
+      sha:
+        type: string
+        required: true                        # hash covering payload content
+  log:
+    type: list[map]                           # append-only, chronological
+    required: true
+    item_fields:
+      step:
+        type: integer
+        required: true
+      node:
+        type: string
+        required: true
+      action:
+        type: string
+        required: true
+        enum: [intake, execute, verify, revise, handoff-out, handoff-in, escalate, checkpoint, done]
+      detail:
+        type: string
+        required: false
+
+# ---------------------------------------------------------------- integrity rules (summary)
+# R1  Every state write updates 'updated' and appends to 'log'.
+# R2  'nodes.<id>.sha' covers the node record; 'fields.<name>.sha' covers the field value.
+# R3  On handoff: sender's state hash is compared with receiver's observed hash; mismatch aborts
+#     the run (never propagates possibly-corrupt state).
+# R4  'steps_used' never exceeds 'budget.max_steps'; the runner halts and reports when it would.
+# R5  'open_questions' is consumed (emptied or explicitly resolved) only by the owning node;
+#     unresolved items are carried into the handoff payload.
+# R6  Re-running a node with status 'done' is a no-op unless force is set by the executor.

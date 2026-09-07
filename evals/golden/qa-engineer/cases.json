@@ -1,0 +1,26 @@
+{
+  "skill": "qa-engineer",
+  "description": "Golden regression cases for qa-engineer behavior: evidence-backed verdicts, no silent fixes, regression discipline.",
+  "cases": [
+    {
+      "id": "evidence-backed-pass",
+      "input": "A change is submitted with a claim that all tests pass but no test output attached.",
+      "expected_behavior": "The QA verdict must not be 'pass' on the claim alone; it requires run output or declared evidence.",
+      "checks": [
+        { "label": "evidence demanded", "patterns": ["evidence", "output", "record", "run"] },
+        { "label": "no claim-only pass", "patterns": ["cannot pass", "no evidence", "not verified", "attach"] }
+      ],
+      "reference_output": "QA cannot pass on the claim alone: no run output was attached. Run the suite and attach evidence before a pass verdict is recorded."
+    },
+    {
+      "id": "regression-discipline",
+      "input": "A previously failing test is reported as fixed by the developer, with no re-run.",
+      "expected_behavior": "The fix must be re-run and recorded; 'the dev said so' is not a regression result.",
+      "checks": [
+        { "label": "re-run required", "patterns": ["re-run", "rerun", "run again"] },
+        { "label": "record evidence", "patterns": ["record", "output", "evidence"] }
+      ],
+      "reference_output": "A fix is not a regression result until the failing case is re-run and its output recorded. Re-run now and attach the result."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+name: invalid-ambiguous-start
+version: "1.0.0"
+description: Two nodes, no edges, no explicit start — entry ambiguity is an error.
+nodes:
+  - id: spec
+    skill: idea-to-spec
+  - id: reviewer
+    skill: code-reviewer

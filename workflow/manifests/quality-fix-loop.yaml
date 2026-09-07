@@ -1,0 +1,46 @@
+name: quality-fix-loop
+version: "1.0.0"
+description: "Single-agent bounded loop: backend change -> QA -> fix until QA passes, escalating to a human release gate at exhaustion. Demonstrates the loop protocol over ordinary (default-mode) skills."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 40
+start: developer
+nodes:
+  - id: developer
+    skill: backend-developer
+    outputs: [change]
+  - id: qa
+    skill: qa-engineer
+    inputs: [change]
+    outputs: [qa-report]
+gates:
+  - id: release-gate
+    type: gate
+    kind: human
+    requires: [qa-report, change]
+    description: Human approves the change after QA converges or the loop exhausts.
+edges:
+  - from: qa
+    to: release-gate
+    when: qa.status == done
+    payload: handoff-v1
+loops:
+  - id: quality-loop
+    nodes: [developer, qa]
+    exit_when: qa.verdict == pass
+    max_iterations: 3
+    escalate_to: release-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [release-gate]

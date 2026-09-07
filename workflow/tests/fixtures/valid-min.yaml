@@ -1,0 +1,7 @@
+name: valid-min
+version: "1.0.0"
+description: Minimum valid manifest — one skill node, default start/end.
+nodes:
+  - id: spec
+    skill: idea-to-spec
+    outputs: [spec]

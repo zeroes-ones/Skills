@@ -1,0 +1,70 @@
+name: parallel-audits-merge
+version: "1.0.0"
+description: "Multi-agent fan-out: three specialist auditors run over one change and merge through a human release gate (join: all). In engine execution the auditors run in parallel; the stdlib runner executes them in FIFO order and the gate fires only after all three complete."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 30
+start: developer
+nodes:
+  - id: developer
+    skill: backend-developer
+    outputs: [change]
+  - id: code-reviewer
+    skill: code-reviewer
+    inputs: [change]
+    outputs: [code-findings]
+  - id: security-reviewer
+    skill: security-reviewer
+    inputs: [change]
+    outputs: [security-findings]
+  - id: qa-engineer
+    skill: qa-engineer
+    inputs: [change]
+    outputs: [qa-findings]
+gates:
+  - id: release-gate
+    type: gate
+    kind: human
+    requires: [code-findings, security-findings, qa-findings]
+    description: Human merges the audit board once all three specialists have reported.
+parallel:
+  - id: auditors
+    nodes: [code-reviewer, security-reviewer, qa-engineer]
+    join: all
+    outputs: [audit-findings]
+edges:
+  - from: developer
+    to: code-reviewer
+    when: developer.status == done
+    payload: handoff-v1
+  - from: developer
+    to: security-reviewer
+    when: developer.status == done
+    payload: handoff-v1
+  - from: developer
+    to: qa-engineer
+    when: developer.status == done
+    payload: handoff-v1
+  - from: code-reviewer
+    to: release-gate
+    when: code-reviewer.status == done
+    payload: handoff-v1
+  - from: security-reviewer
+    to: release-gate
+    when: security-reviewer.status == done
+    payload: handoff-v1
+  - from: qa-engineer
+    to: release-gate
+    when: qa-engineer.status == done
+    payload: handoff-v1
+end: [release-gate]

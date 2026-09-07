@@ -1,0 +1,15 @@
+name: invalid-undeclared-cycle
+version: "1.0.0"
+start: code-reviewer
+nodes:
+  - id: code-reviewer
+    skill: code-reviewer
+  - id: fixer
+    skill: backend-developer
+edges:
+  - from: code-reviewer
+    to: fixer
+    when: code-reviewer.status == done
+  - from: fixer
+    to: code-reviewer
+    when: fixer.status == done

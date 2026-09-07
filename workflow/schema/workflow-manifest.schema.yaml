@@ -1,0 +1,245 @@
+# Workflow Manifest Schema (normative documentation)
+#
+# Canonical L1 format. Human-readable contract for scripts/validate-workflows.py and
+# scripts/workflow-runner.py; validation logic is implemented in those scripts and exercised by
+# their fixture suites. Files using this schema must stay inside the Safe YAML Subset
+# (WORKFLOW-SYSTEM.md, Section 3): scalars, scalar-only flow lists, indentation lists/maps,
+# one structural level of nesting inside each list item, no anchors/aliases, no flow maps,
+# no block scalars.
+#
+# See WORKFLOW-SYSTEM.md Sections 2 and 2.4-2.7 for semantics and the condition vocabulary.
+
+meta:
+  name:
+    type: string
+    required: true
+    pattern: "^[a-z0-9][a-z0-9-]*$"          # lowercase slug; filename must equal name + .yaml
+    example: review-and-fix
+  version:
+    type: string
+    required: false
+    default: "1.0.0"
+  description:
+    type: string
+    required: false
+    max_length: 1024
+
+control:
+  start:
+    type: string                             # node id; default = the node with no incoming edges
+    required: false
+  end:
+    type: list[string]                       # node ids; default = nodes with no outgoing edges
+    required: false
+  state:
+    type: map
+    required: false
+    fields:
+      shared:
+        type: boolean
+        default: true
+      schema:
+        type: string                         # optional registered state-schema name
+      merge:
+        type: string                         # append-unique | replace | majority
+        default: append-unique
+  payloads:
+    type: map                                 # payload registry: name -> list of required keys
+    required: false
+    item:
+      type: list[string]                      # keys from the canonical registry (see below)
+  budget:
+    type: map
+    required: false
+    fields:
+      max_steps:
+        type: integer
+        required: true
+        min: 1
+
+nodes:
+  type: list[map]
+  required: true
+  min_items: 1
+  item_fields:
+    id:
+      type: string
+      required: true
+      pattern: "^[a-z0-9][a-z0-9-]*$"
+      uniqueness: true                        # across nodes, loops, parallel, gates ids
+    type:
+      type: string
+      required: false
+      default: skill
+      enum: [skill, gate, supervisor, task]
+    skill:
+      type: string                            # REQUIRED when type == skill; must resolve to a
+      required: false                         #   skills/*/SKILL.md frontmatter name
+    kind:
+      type: string                            # REQUIRED when type == gate
+      enum: [human, auto]
+    description:
+      type: string
+      required: false
+    inputs:
+      type: list[string]                      # run-state field / artifact names consumed
+      required: false
+    outputs:
+      type: list[string]                      # run-state field / artifact names produced
+      required: false
+    max_iterations:
+      type: integer                           # revision attempts for this node (1 = no loop)
+      required: false
+      default: 1
+      min: 1
+    on_exhaustion:
+      type: string
+      required: false
+      default: escalate
+      enum: [escalate, next, fail]
+    escalate_to:
+      type: string                            # node id in this manifest
+      required: false
+    workers:
+      type: list[string]                      # REQUIRED when type == supervisor
+      required: false
+    routing:
+      type: string                            # supervisor routing policy
+      required: false
+      default: parallel
+      enum: [parallel, sequential, select]
+    select:
+      type: string                            # routing == select -> single worker node id
+      required: false
+    executor:
+      type: string                            # type == task -> executor handler name
+      required: false
+    gate:
+      type: map                               # type == gate (auto) -> condition + targets
+      required: false
+      fields:
+        pass_when: { type: string }           # condition vocabulary (Section 2.6)
+        else_go: { type: string }             # node id when condition false
+
+edges:
+  type: list[map]
+  required: false
+  item_fields:
+    from:
+      type: string
+      required: true
+      resolvable: node                        # must exist among nodes/gates/supervisor ids
+    to:
+      type: string
+      required: true
+      resolvable: node
+    when:
+      type: string
+      required: false
+      default: always
+      syntax: condition_vocabulary            # Section 2.6
+    payload:
+      type: string
+      required: false
+      resolvable: payloads                    # must exist in meta.payloads when payloads present
+  rule: "No edge may create a cycle except through a declared loop (see loops)."
+
+loops:
+  type: list[map]
+  required: false
+  item_fields:
+    id:
+      type: string
+      required: true
+      uniqueness: true
+    nodes:
+      type: list[string]                      # node ids, executed in order per pass
+      required: true
+      min_items: 1
+      resolvable: node
+    exit_when:
+      type: string
+      required: true
+      syntax: condition_vocabulary
+    max_iterations:
+      type: integer
+      required: true
+      min: 1
+    escalate_to:
+      type: string
+      required: false
+      resolvable: node                        # exhaustion target; default: report + stop
+    convergence:
+      type: map
+      required: false
+      default: { window: 2, require_delta: true }
+      fields:
+        window:
+          type: integer
+          min: 1
+        require_delta:
+          type: boolean
+          default: true
+  rule: "A node may belong to at most one loop; loops must not nest or overlap."
+
+parallel:
+  type: list[map]
+  required: false
+  item_fields:
+    id:
+      type: string
+      required: true
+      uniqueness: true
+    nodes:
+      type: list[string]
+      required: true
+      min_items: 2
+      resolvable: node
+    join:
+      type: string
+      required: false
+      default: all
+      enum: [all, majority, any]
+    outputs:
+      type: list[string]                      # merged run-state fields written at the join
+      required: false
+  rule: "Members of one parallel block must declare disjoint outputs (single-writer ownership)."
+
+gates:
+  type: list[map]
+  required: false
+  item_fields:
+    id:
+      type: string
+      required: true
+      uniqueness: true
+    type:
+      type: string
+      required: true
+      const: gate
+    kind:
+      type: string
+      required: true
+      enum: [human, auto]
+    requires:
+      type: list[string]                      # artifact/field names that must exist pre-gate
+      required: false
+    pass_when:                                # kind: auto -> condition deciding pass/fail
+      type: string
+      required: false
+    description:
+      type: string
+      required: false
+
+# ---------------------------------------------------------------- validation rules (summary)
+# V1  name slug matches filename, is unique across workflow/manifests/.
+# V2  every node id unique across nodes/loops/parallel/gates.
+# V3  edges/loops/parallel/gates reference existing node ids; skills resolve under skills/.
+# V4  undeclared cycles rejected (graph minus declared loop edges must be acyclic).
+# V5  every loop has exit_when + max_iterations; escalate_to resolves.
+# V6  parallel members write disjoint outputs.
+# V7  edge 'when' and loop 'exit_when' strings match the condition vocabulary.
+# V8  payload names resolve to meta.payloads; payload keys drawn from the canonical registry
+#     (status, summary, artifacts, decisions, open_questions, verification_evidence,
+#      context, budget, next).
+# V9  start/end resolve; every node reachable from start.

@@ -1,0 +1,17 @@
+name: invalid-bad-payload
+version: "1.0.0"
+payloads:
+  handoff-v1:
+    - status
+    - made_up_key
+start: code-reviewer
+nodes:
+  - id: code-reviewer
+    skill: code-reviewer
+  - id: fixer
+    skill: backend-developer
+edges:
+  - from: code-reviewer
+    to: fixer
+    when: code-reviewer.status == done
+    payload: handoff-v1

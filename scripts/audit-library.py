@@ -131,6 +131,7 @@ def audit(skills):
         "best_practices": {"present": 0, "exempt": 0, "missing": 0},
         "prod_checklist": {"present": 0, "exempt": 0, "missing": 0},
         "deep_marker": {"present": 0, "exempt": 0, "missing": 0},
+        "workflow_readiness": {"declared": 0, "eligible": 0},
     }
 
     # Required skeleton sections
@@ -203,6 +204,16 @@ def audit(skills):
         else:
             results["deep_marker"]["missing"] += 1
 
+    # Workflow readiness — optional `workflow:` frontmatter (L0 node contract) declared in the
+    # frontmatter, and eligibility (has Core Workflow + Verification to serve as default
+    # completion-criteria source). Adoption metric only; not part of the overall quality score.
+    for _, content, _, _ in skills:
+        front = re.search(r"^---\s*\n(.*?)\n---\s*$", content, re.S | re.M)
+        if front and re.search(r"(?m)^workflow:\s*$", front.group(1)):
+            results["workflow_readiness"]["declared"] += 1
+        if has_section(content, "Core Workflow") and has_section(content, "Verification"):
+            results["workflow_readiness"]["eligible"] += 1
+
     # ── Scoring ──
     scores = {}
 
@@ -228,6 +239,10 @@ def audit(skills):
     # Progressive Disclosure
     pd_vals = [results["progressive"][m] for m in ["QUICK", "STANDARD", "DEEP"]]
     scores["progressive_disclosure"] = sum(v * 10 / total for v in pd_vals) / 3
+
+    # Workflow readiness adoption (declared / eligible) — informational, excluded from overall
+    wr = results["workflow_readiness"]
+    scores["workflow_readiness"] = wr["declared"] * 10 / wr["eligible"] if wr["eligible"] else 0.0
 
     # Overall
     weights = {
@@ -281,6 +296,9 @@ def print_report(results, brief=False):
              f"{results['scale_depth']}/{total} with L1-L5"),
             ("Progressive Disclosure", "progressive_disclosure",
              f"Q:{prog['QUICK']} S:{prog['STANDARD']} D:{prog['DEEP']}"),
+            ("Workflow Readiness", "workflow_readiness",
+             f"{results['workflow_readiness']['declared']} declared / "
+             f"{results['workflow_readiness']['eligible']} eligible"),
         ]
 
         for label, key, detail in dims:

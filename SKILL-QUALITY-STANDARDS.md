@@ -22,6 +22,7 @@ Every skill in this repository must be a skill you'd want to use yourself:
 ## File Structure
 
 ```
+
 skill-name/
 ├── SKILL.md              # Instructions (~250-550 lines, ~3000-4000 token budget, dense, actionable)
 ├── scripts/              # Deterministic tools (Python/bash)
@@ -32,6 +33,7 @@ skill-name/
 └── assets/               # Templates, samples, configuration
     ├── template-1.md
     └── sample.json
+
 ```
 
 ## The 10/10 Quality Bar
@@ -72,6 +74,7 @@ Every Quickstart section ends with a concrete description of what success produc
 Every SKILL.md MUST start with:
 
 ```yaml
+
 ---
 name: "kebab-case-name"
 description: "One line: who uses this, when, for what, what it produces. 200 chars max."
@@ -93,7 +96,43 @@ chain:
   feeds_into: ["skill-b"]
   alternatives: ["skill-c"]
 ---
+
 ```
+
+### Optional Frontmatter: `workflow:` Node Contract
+
+A 10/10 skill that will be exercised as a **graph node** (referenced by a workflow manifest — see
+`WORKFLOW-SYSTEM.md`) additionally declares what it consumes, what it produces, and what counts as
+done:
+
+```yaml
+
+workflow:
+  artifacts:
+    inputs: [brief]
+    outputs: [spec]
+  completion:
+    criteria: ["Every explicit requirement has a matching section in the spec"]
+    evidence: required
+  iteration:
+    max: 3
+    on_exhaustion: escalate
+  escalate_to: [human-gate]
+
+```
+
+Quality rules:
+
+- **Additive, never required.** Absent `workflow:` = default mode: the skill's Verification /
+  Production Checklist sections are the completion-criteria source. Adding the block must never
+  change how the skill reads without a manifest.
+- **Completion claims need evidence.** A criterion without concrete evidence (artifact path + hash,
+  test output, checklist) is an open item, not a checkbox — the loop protocol refuses to mark the
+  node done on vibes.
+- **Bounded iteration.** `iteration.max >= 1`; exhaustion (`escalate | next | fail`) is explicit so
+  a failing node escalates instead of stopping silently or looping forever.
+- **Verified by tooling.** `python3 scripts/lib/lint-workflow.py <skill>/SKILL.md` (structure) and
+  `python3 scripts/audit-library.py` (Workflow Readiness adoption dimension: declared vs. eligible).
 
 ---
 
@@ -102,7 +141,9 @@ chain:
 Every skill MUST include these elements that separate good (7/10) skills from 10/10:
 
 ### 1. Progressive Disclosure Markers
+
 ```markdown
+
 ## Section Title
 <!-- QUICK: 30s -->
 One-liner summary here.
@@ -112,78 +153,110 @@ Detailed explanation with code/commands here.
 
 <!-- DEEP: 10+min -->
 War story, edge cases, failure narrative here.
+
 ```
 
 ### 2. Error Decoders
+
 ```markdown
+
 ## Error Decoder
 | Error Message | Root Cause | Fix | Lesson |
 |--------------|------------|-----|--------|
 | "Error X" | What actually went wrong | Exact command/code fix | How to prevent it |
+
 ```
 
 ### 3. Time Estimates on Workflow Steps
+
 ```markdown
+
 ### Phase 2: Implementation (~30 min)
 1. **Do:** ...
 2. **Verify:** ...
 3. **Recover:** ...
+
 ```
 
 ### 4. "What Good Looks Like"
+
 ```markdown
+
 **What good looks like:** The output opens correctly in the expected tool, structure matches requirements, no placeholder content remains.
+
 ```
 
 ### 5. Cross-Skill Integration Examples
+
 ```markdown
+
 ### Cross-Skill Integration
+
 ```bash
+
 # Run skill A → produce output → pass to skill B
 skill-a-command && skill-b-command
+
 ```
+
 ```
 
 ### 6. Token Budget in Frontmatter
+
 ```yaml
+
 token_budget: 3500  # estimated tokens this skill consumes (~250-550 lines)
+
 ```
 
 ### 7. Domain-Specific Checklist Reference IDs
+
 ```markdown
+
 ## Production Checklist
 - [ ] **[API1]** OpenAPI 3.1 specification complete with all paths, schemas, and security schemes
 - [ ] **[API2]** Error responses follow RFC 7807 Problem Details across all endpoints
 ...
 - [ ] **[API14]** Consumer-facing changelog maintained with deprecation timelines
+
 ```
+
 IDs use domain prefixes (API, EM, DE, VP, SE, etc.) for traceability across skills.
 
 ### 8. Before/After Code in Footguns
+
 ```markdown
+
 | Footgun | Broken | Fixed |
 |---------|--------|-------|
 | Issue | ```broken code``` | ```fixed code``` |
+
 ```
 
 ### 9. Proactive Triggers
+
 ```markdown
+
 ## Proactive Triggers
 <!-- STANDARD: 2min — surface these WITHOUT being asked -->
 
 - **Trigger condition** → What to flag. Why it matters before being asked. 🔴
 - **Another trigger** → Description of what to surface proactively. 🟡
 - **Warning sign** → Context on why this matters for downstream quality. 🟠
+
 ```
 
 ### 10. Anti-Patterns Table
+
 ```markdown
+
 ## Anti-Patterns
 <!-- STANDARD: 2min -->
 
 | ❌ Anti-Pattern | ✅ Do This Instead |
 |----------------|-------------------|
 | What NOT to do — with concrete example | The correct approach — with concrete example |
+
 ```
 
 ---
@@ -332,7 +405,9 @@ Health/clinical skills (same 5 as above) may not have DEEP markers because their
 ### Quick Audit Command
 
 ```bash
+
 python3 scripts/audit-library.py
+
 ```
 
 This script encodes all domain-aware calibration rules above and produces an accurate library rating. Run it before making claims about missing sections.

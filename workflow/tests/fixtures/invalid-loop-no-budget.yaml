@@ -1,0 +1,16 @@
+name: invalid-loop-no-budget
+version: "1.0.0"
+start: code-reviewer
+nodes:
+  - id: code-reviewer
+    skill: code-reviewer
+  - id: fixer
+    skill: backend-developer
+edges:
+  - from: code-reviewer
+    to: fixer
+    when: code-reviewer.status == done
+loops:
+  - id: runaway
+    nodes: [code-reviewer, fixer]
+    exit_when: code-reviewer.verdict == pass

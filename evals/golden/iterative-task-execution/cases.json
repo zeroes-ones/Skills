@@ -1,0 +1,37 @@
+{
+  "skill": "iterative-task-execution",
+  "description": "Golden regression cases for the loop protocol: no premature done, no unbounded refinement, escalation on blockers.",
+  "cases": [
+    {
+      "id": "no-premature-done",
+      "input": "A task is claimed complete but no criterion has evidence.",
+      "expected_behavior": "Completion requires a criterion-to-evidence map; empty evidence is not done.",
+      "checks": [
+        { "label": "verify marker", "patterns": ["[VERIFY", "verify", "criterion"] },
+        { "label": "evidence named", "patterns": ["evidence", "artifact", "path", "sha"] },
+        { "label": "not done", "patterns": ["not done", "unmet", "missing", "revise"] }
+      ],
+      "reference_output": "[VERIFY: 0/3 criteria met]\n  criterion: login endpoint returns tokens\n  evidence: none - tests not run, no artifact\n  unmet: login endpoint, error handling, expiry\n[VERIFY RESULT: fail] - not done: run the checks and attach evidence, or revise."
+    },
+    {
+      "id": "escalate-on-blocker",
+      "input": "Verification is blocked because deployment credentials are unavailable.",
+      "expected_behavior": "An external blocker is escalated with context, not retried in a loop.",
+      "checks": [
+        { "label": "escalation report", "patterns": ["escalat", "blocker", "tried"] },
+        { "label": "context carried", "patterns": ["credential", "access", "unblock", "next"] }
+      ],
+      "reference_output": "Escalation: blocked by missing deployment credentials (external blocker, not a retry issue). Tried pass 1 with the standard pipeline. Unblock path: request credentials from platform team, then resume."
+    },
+    {
+      "id": "no-refinement-spiral",
+      "input": "Two consecutive passes produced identical fixes and identical diagnostics.",
+      "expected_behavior": "An identical next pass is refused; the agent changes approach or escalates.",
+      "checks": [
+        { "label": "stagnation named", "patterns": ["identical", "stagnat", "no delta", "same"] },
+        { "label": "change or escalate", "patterns": ["change", "escalat", "root cause"] }
+      ],
+      "reference_output": "Stagnation: pass 2 is identical to pass 1 (no delta in diagnostics). Refusing a third identical pass. Root cause is still unknown; escalate with both diagnostics sets or change approach."
+    }
+  ]
+}
