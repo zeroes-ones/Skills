@@ -595,26 +595,93 @@
   }
 
   /* ---------- events ---------- */
+  const PT = new Map();          // active pointers for pinch
+  let pinchDist = 0;
+  function centerPt(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
+
   svg.addEventListener("pointerdown", (e) => {
+    PT.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (PT.size === 2) {
+      const [a, b] = Array.from(PT.values());
+      pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+      svg.classList.add("panning");
+      panning = { px: a.x, py: a.y, ox: view.x, oy: view.y, pinch: true };
+      return;
+    }
     if (e.target.closest(".node") || e.target.closest(".cluster")) return;
     panning = { px: e.clientX, py: e.clientY, ox: view.x, oy: view.y };
     svg.classList.add("panning");
     svg.setPointerCapture(e.pointerId);
   });
   svg.addEventListener("pointermove", (e) => {
-    if (panning) {
+    if (!PT.has(e.pointerId)) return;
+    PT.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (PT.size === 2) {
+      const [a, b] = Array.from(PT.values());
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (pinchDist > 0 && d > 0) {
+        const r = svg.getBoundingClientRect();
+        const mid = centerPt(a, b);
+        zoomAt(mid.x - r.left, mid.y - r.top, d / pinchDist);
+        pinchDist = d;
+        if (MODE.kind === "overview") renderOverview();
+      }
+      return;
+    }
+    if (panning && !panning.pinch) {
       view.x = panning.ox + (e.clientX - panning.px);
       view.y = panning.oy + (e.clientY - panning.py);
       setTransform();
     }
   });
-  svg.addEventListener("pointerup", () => { panning = null; svg.classList.remove("panning"); });
+  let lastTap = { t: 0, x: 0, y: 0 };
+  function endPointer(e) {
+    PT.delete(e.pointerId);
+    if (PT.size < 2) { pinchDist = 0; }
+    if (PT.size === 0) {
+      panning = null;
+      svg.classList.remove("panning");
+      // double-tap (touch) zooms in, when not on a node/cluster
+      if (!panning && e.type === "pointerup" &&
+          !(e.target && e.target.closest && e.target.closest(".node,.cluster"))) {
+        const now = Date.now();
+        if (now - lastTap.t < 350 && Math.abs(e.clientX - lastTap.x) < 40 &&
+            Math.abs(e.clientY - lastTap.y) < 40) {
+          const r = svg.getBoundingClientRect();
+          zoomAt(e.clientX - r.left, e.clientY - r.top, 1.6);
+          if (MODE.kind === "overview") renderOverview();
+          lastTap.t = 0;
+        } else {
+          lastTap = { t: now, x: e.clientX, y: e.clientY };
+        }
+      }
+    }
+  }
+  svg.addEventListener("pointerup", endPointer);
+  svg.addEventListener("pointercancel", endPointer);
   svg.addEventListener("wheel", (e) => {
     e.preventDefault();
     const r = svg.getBoundingClientRect();
     zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.14 : 0.88);
     if (MODE.kind === "overview") { renderOverview(); } else { renderAll(); }
   }, { passive: false });
+  svg.addEventListener("dblclick", (e) => {
+    e.preventDefault();
+    const r = svg.getBoundingClientRect();
+    zoomAt(e.clientX - r.left, e.clientY - r.top, 1.6);
+    if (MODE.kind === "overview") renderOverview();
+  });
+  document.getElementById("zoomIn").addEventListener("click", () => {
+    const r = svg.getBoundingClientRect();
+    zoomAt(r.width / 2, r.height / 2, 1.4);
+    if (MODE.kind === "overview") renderOverview();
+  });
+  document.getElementById("zoomOut").addEventListener("click", () => {
+    const r = svg.getBoundingClientRect();
+    zoomAt(r.width / 2, r.height / 2, 1 / 1.4);
+    if (MODE.kind === "overview") renderOverview();
+  });
+  document.getElementById("zoomFit").addEventListener("click", goOverview);
 
   function tipNode(id, cx, cy) {
     const n = byId[id];

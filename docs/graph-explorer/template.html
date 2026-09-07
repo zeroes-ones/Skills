@@ -25,6 +25,10 @@
     overflow: hidden;
     background: #05070f;
     -webkit-font-smoothing: antialiased;
+    display: flex; flex-direction: column;
+  }
+  @supports (height: 100dvh) {
+    html, body { height: 100dvh; }
   }
   /* cinematic gradient-mesh backdrop */
   .backdrop {
@@ -41,11 +45,7 @@
     background-size: 22px 22px;
     opacity: .5;
   }
-  header {
-    position: relative;
-    padding: 22px 28px 10px;
-    display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap;
-  }
+  header { padding: 18px 26px 8px; display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; flex: none; }
   .eyebrow {
     font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
     color: var(--accent); font-weight: 600;
@@ -94,10 +94,31 @@
   #crumbs button:hover { color: var(--text); }
   #crumbs .sep { opacity: .5; }
   #crumbs .current { color: #fff; font-weight: 600; }
-  main { display: flex; min-height: 0; height: calc(100% - 128px); }
-  #viewport { position: relative; flex: 1; min-width: 0; border-radius: var(--radius); margin: 0 12px 12px 28px; overflow: hidden; }
+  main { display: flex; min-height: 0; flex: 1; }
+  #viewport { position: relative; flex: 1; min-width: 0; min-height: 0; border-radius: var(--radius); margin: 4px 12px 12px 24px; overflow: hidden; }
   #graph { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
   #graph.panning { cursor: grabbing; }
+  #controls {
+    position: absolute; right: 14px; bottom: 14px; z-index: 14;
+    display: flex; gap: 6px; padding: 5px; border-radius: 14px;
+    background: rgba(12,17,32,.6); border: 1px solid var(--line);
+    backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
+  #controls button {
+    width: 34px; height: 34px; border-radius: 10px; border: 0; cursor: pointer;
+    background: rgba(255,255,255,.08); color: #eef2fa; font-size: 17px; line-height: 1;
+    transition: background .15s var(--ease);
+  }
+  #controls button:hover { background: rgba(255,255,255,.18); }
+  #controls button.fit { font-size: 13px; width: auto; padding: 0 10px; }
+  #hint {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: 18px; z-index: 12;
+    color: var(--muted); font-size: 11.5px; letter-spacing: .02em;
+    background: rgba(10,14,26,.5); border: 1px solid var(--line);
+    padding: 5px 12px; border-radius: 999px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    pointer-events: none; white-space: nowrap;
+  }
   .fadein { animation: rise .7s var(--ease) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @keyframes worldIn { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: scale(1); } }
@@ -190,9 +211,19 @@
   }
   @media (max-width: 900px) {
     aside { display: none; }
-    #viewport { margin-right: 12px; }
-    header { padding: 16px; }
-    #crumbs { padding-left: 16px; }
+    #viewport { margin: 4px 8px 8px; border-radius: 14px; }
+    header { padding: 12px 14px 6px; }
+    #crumbs { padding-left: 14px; }
+    .subtitle { display: none; }
+    #stats { display: none; }
+    .top-right { display: none; }
+    #search { width: 100%; min-width: 0; margin-top: 4px; }
+    h1 { font-size: 22px; }
+    #hint { bottom: 10px; font-size: 10px; padding: 4px 10px; }
+    #controls { right: 10px; bottom: 10px; }
+  }
+  @media (max-width: 520px) {
+    #hint { display: none; }
   }
 </style>
 </head>
@@ -214,7 +245,13 @@
 <div id="crumbs" class="fadein"><button id="crumbRoot">All Fields</button><span class="sep">/</span><span id="crumbCurrent" class="current">constellations</span></div>
 <main>
   <div id="viewport">
-    <svg id="graph" aria-label="Skill dependency graph. Drag to pan, scroll to zoom."></svg>
+    <svg id="graph" aria-label="Skill dependency graph. Drag to pan, scroll or pinch to zoom."></svg>
+    <div id="controls" class="fadein" aria-label="Zoom controls">
+      <button id="zoomOut" title="Zoom out">−</button>
+      <button id="zoomFit" class="fit" title="Fit all fields">⌂</button>
+      <button id="zoomIn" title="Zoom in">+</button>
+    </div>
+    <div id="hint" class="fadein">drag to pan · scroll / pinch / buttons to zoom · click a field or skill</div>
     <div id="legend" class="fadein">
       <span class="in"><i></i>consumes from</span>
       <span class="out"><i></i>feeds into</span>
