@@ -366,6 +366,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/world-class-execution.md`](docs/world-class-execution.md) | 100% effectiveness doctrine — per-mode speed rules, measured baselines, enforcement |
 | [`docs/small-context-100-runbook.md`](docs/small-context-100-runbook.md) | Small-context runbook: one-skill-at-a-time budget math, memory without loss, 100%-effective protocol + commands |
 | [`docs/distribution-best-in-class.md`](docs/distribution-best-in-class.md) | Research: how we compare to superpowers / anthropics/skills / skills.sh and what to incorporate (registry publishing, marketplace, methodology plugin) |
+| [`docs/plugin-marketplace-publishing.md`](docs/plugin-marketplace-publishing.md) | Plugin & marketplace playbook — plugin.json/marketplace.json mechanics, monetization reality, packaging steps |
 | [`scripts/run-effectiveness.py`](scripts/run-effectiveness.py) | Score any run 0-100: completion, clean, exit-by-design, handoffs, budget, memory (gateable) |
 | [`scripts/skill-incorporate.py`](scripts/skill-incorporate.py) | Per-skill incorporation scorecard over the whole library (gaps as data) |
 | [`examples/efficiency-in-action.md`](examples/efficiency-in-action.md) | Real-time token/memory/prompt efficiency example with measured savings across loops & graphs |
