@@ -94,3 +94,6 @@ The three public distribution channels documented in `README.md` (Distribution s
 
 **Owned external gates (cannot be completed from the repo):** EC-6 (npm token),
 EC-7 (post-publish), EC-9 (registry indexing), EC-11 (Claude Code CLI session).
+The one-time launch checklist with exact commands and done-boxes for every owner action
+(including enabling GitHub Pages for the graph explorer) is in
+[`docs/owner-next-actions.md`](owner-next-actions.md).

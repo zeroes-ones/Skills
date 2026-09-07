@@ -210,6 +210,10 @@ plugins. Indexing is telemetry-driven — the first `npx skills add` requests it
 > concrete definition of done, a verification command, and an owner. See
 > **[`docs/install-exit-criteria.md`](docs/install-exit-criteria.md)** for the checklist and the
 > two external gates that only land once the repo is pushed (npm publish, registry indexing).
+>
+> **Owner one-time actions** (Pages toggle, `npm publish`, post-publish `npx` check, Claude
+> plugin install) are collected in **[`docs/owner-next-actions.md`](docs/owner-next-actions.md)** —
+> ready to run in ~10 minutes whenever you are.
 
 ## Visual Skill-Chain Explorer
 

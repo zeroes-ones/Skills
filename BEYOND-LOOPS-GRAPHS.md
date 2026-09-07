@@ -167,3 +167,46 @@ bundle retrieval returns prerequisite skills (chain-backed); tokens-per-task vs.
 - Guardrails/handoffs: OpenAI Agents SDK runner lifecycle; OWASP Top 10 for LLM Applications
   2025; genta.dev reliability engineering; GuardAgent ICML 2025.
 - Retrieval/routing: vLLM Semantic Router analyses; BAAI SkillRouter; Graph-of-Skills; SkillPager.
+
+## 9. Verified status & decision (checked against the code, 2026-09-07)
+
+Question asked: *should we integrate loops/graphs/handoff like real-world iteration, should we
+use vectors too, and should every skill be created dynamically when something new appears?*
+
+### Status — what is already built (verified, not assumed)
+
+| Area | State | Where |
+|---|---|---|
+| Loops — per-loop `max_iterations`, `exit_when`, stagnation detection, `escalate_to` gate, global step budget | **Built** | `scripts/workflow-runner.py`; manifests incl. `quality-fix-loop.yaml` |
+| Graphs — DAG edges, parallel blocks with `join`, group-join semantics | **Built** | runner + `parallel-audits-merge.yaml`; engine self-tests run in the `workflow-graphs` CI job (green) |
+| Handoff — `{from, to, payload, sha}` records (sha covers the sending node) | **Built** | runner; `agent-handoff-protocol`, `multi-agent-orchestration` skills |
+| Real-agent execution (the "content" leg) | **Built (opt-in)** | `scripts/executors/agent_executor.py` — `AGENT_CMD` with `{prompt}` for claude / gemini / codex / ollama |
+| Run-memory (B1) | **Engine-level built** | runner `--memory <dir>` writes durable per-run JSONL |
+| Trace exporter (B4) | **Built** | `scripts/export-traces.py`, wired into CI dogfood |
+| Edge guardrails (B5) | **Hook built, policy unwired** | runner `--guardrail <module>` classify hook exists; manifest `safety:` edge policy is P1 |
+| Semantic retrieval / vectors (B6) | **Lexical baseline built; embeddings NOT yet** | `scripts/build-skill-index.py` (name+description tokens, explicitly a baseline); `run-routing-evals.js` |
+| Dynamic skill creation | **Tooling built; auto-draft NOT yet** | `skill-factory.py`, `skill-incorporate.py`, `skill-evolve-prep/promote.py`, `scaffold-skill.sh`; B3 trace→draft→replay→promote is P2 |
+
+### Decisions
+
+1. **Loops / graphs / handoff — already integrated.** The engine, five shipped manifests, CI
+   self-tests, and the agent executor cover real-world iteration. *Improve next (P1):* wire
+   `safety:` edge policies (B5) into manifests + add the golden-eval merge gate to pre-commit.
+   Ship one *agent-in-the-loop* manifest demo (engine + `AGENT_CMD` loop that revises until
+   verification passes) as the documented real-world pattern.
+2. **Vectors — yes, next after P1.** Rationale: 297 skills today, thousands tomorrow; the static
+   lexical router measures ~68.8% rank-1 and will degrade as the corpus grows. Build per B6:
+   optional embedder over skill **bodies**, top-K + rerank, chain-bundle expansion, gated on
+   beating the lexical baseline on held-out routing evals (acceptance: Top-1/Top-5 up,
+   tokens-per-task down vs. full-load). Embedder stays pluggable (API or local ollama) so the
+   default can be privacy-preserving/offline.
+3. **Dynamic skill creation — yes, but verification-gated.** Create skills *for anything new*
+   through a two-tier pipeline instead of unsupervised auto-creation:
+   - deterministic on-demand scaffolding today (`skill-factory`/`scaffold-skill.sh` + the
+     16-gate governance suite);
+   - auto-draft from detected gaps (routing miss, failed node, explicit request) once B3 lands
+     (P2) — trace → draft → **human-in-loop promote**; never auto-merge an unvetted skill
+     (principle 2: verification-gated promotion).
+   This satisfies "dynamic environment" without degrading the library's trust story.
+4. **"Add if required"**: no code change is required to answer this question — the roadmap above
+   (P1 → B6 → B3) is the add. Revisit status markers here after each phase lands.
