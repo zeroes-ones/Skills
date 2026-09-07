@@ -211,6 +211,24 @@ plugins. Indexing is telemetry-driven — the first `npx skills add` requests it
 > **[`docs/install-exit-criteria.md`](docs/install-exit-criteria.md)** for the checklist and the
 > two external gates that only land once the repo is pushed (npm publish, registry indexing).
 
+## Visual Skill-Chain Explorer
+
+An interactive, dependency-free graph of the whole library — click any skill and see exactly
+what it consumes from and feeds into.
+
+- **Open it now:** double-click [`docs/graph-explorer/index.html`](docs/graph-explorer/index.html)
+  (works offline, no build step). Enable **Settings → Pages → Source: GitHub Actions** once and the
+  [deploy workflow](.github/workflows/deploy-pages.yml) keeps it live at
+  `https://<owner>.github.io/Skills/`.
+- **What's inside (regenerated from live data):** 297 skill nodes, 1,911 directed chain edges
+  (1,562 undirected connections) across 37 domains. Pan/zoom, search, per-domain filter; hovering
+  a skill highlights its whole neighborhood; clicking opens its chain panel — consumes from,
+  feeds into, plus GitHub and skills.sh links.
+- **Always current:** `python3 scripts/emit-skill-graph.py` rebuilds
+  `docs/graph-explorer/{index.html,skill-graph.json}` from SKILL.md frontmatter; the `graph-explorer`
+  job in [`validate.yml`](.github/workflows/validate.yml) fails CI if committed outputs ever drift
+  from the skills.
+
 ## Brownfield Adoption
 
 Existing project? See [`COMPARISON.md`](COMPARISON.md) and the `brownfield-adoption-planner` skill — 4-phase gated rollout starting with read-only safety skills, zero risk to production code.

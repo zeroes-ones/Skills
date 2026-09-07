@@ -9,6 +9,8 @@ on:
       - 'scripts/validate-skills.sh'
       - 'scripts/validate_chains.py'
       - 'scripts/lib/lint-template.py'
+      - 'scripts/emit-skill-graph.py'
+      - 'docs/graph-explorer/**'
       - '.github/**'
   push:
     branches: [main]
@@ -18,6 +20,8 @@ on:
       - 'scripts/validate-skills.sh'
       - 'scripts/validate_chains.py'
       - 'scripts/lib/lint-template.py'
+      - 'scripts/emit-skill-graph.py'
+      - 'docs/graph-explorer/**'
       - '.github/**'
   workflow_dispatch:
 
@@ -132,6 +136,14 @@ jobs:
             fi
           done < <(grep -roPH '\[.*\]\(\.\/references\/[^)]+\)' skills/ 2>/dev/null || true)
           exit $errors
+
+  graph-explorer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Explorer outputs are fresh
+        run: python3 scripts/emit-skill-graph.py --check
 
   workflow-graphs:
     runs-on: ubuntu-latest

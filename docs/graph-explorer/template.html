@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zeroes &amp; Ones — Skill Chain Explorer</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.45 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  header h1 { font-size: 16px; margin: 0; }
+  header .stats { color: var(--muted); font-size: 12px; display: flex; gap: 14px; flex-wrap: wrap; }
+  header .stats b { color: var(--text); font-weight: 600; }
+  #search {
+    margin-left: auto;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    width: 240px;
+    font-size: 13px;
+  }
+  #domainFilter {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 13px;
+    max-width: 220px;
+  }
+  main { flex: 1; display: flex; min-height: 0; }
+  #viewport {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+  }
+  #graph { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+  #graph.panning { cursor: grabbing; }
+  #tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: var(--text);
+    max-width: 300px;
+    display: none;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  }
+  aside {
+    width: 340px;
+    border-left: 1px solid var(--border);
+    background: var(--panel);
+    padding: 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  aside h2 { margin: 0 0 2px; font-size: 18px; word-break: break-word; }
+  aside .meta { color: var(--muted); font-size: 12px; }
+  aside code.path {
+    display: block; font-size: 11px; color: var(--accent);
+    background: var(--bg); padding: 6px 8px; border-radius: 6px;
+    overflow-wrap: anywhere; margin: 6px 0;
+  }
+  aside .desc { font-size: 13px; color: var(--text); }
+  aside .neighbors { display: flex; flex-direction: column; gap: 4px; }
+  aside .neighbors h3 {
+    margin: 8px 0 2px; font-size: 12px; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--muted);
+  }
+  aside .chip {
+    display: flex; align-items: center; gap: 8px; padding: 5px 8px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    cursor: pointer; font-size: 13px; color: var(--text);
+  }
+  aside .chip:hover { border-color: var(--accent); }
+  aside .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  aside .links a {
+    color: var(--accent); text-decoration: none; font-size: 12px;
+    display: inline-block; margin-right: 12px;
+  }
+  aside .links a:hover { text-decoration: underline; }
+  #empty { padding: 20px; color: var(--muted); }
+  .node { cursor: pointer; }
+  .node-title { pointer-events: none; }
+  @media (max-width: 860px) {
+    aside { width: 260px; }
+    header .stats { display: none; }
+    #search { width: 150px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Skill Chain Explorer</h1>
+  <div class="stats" id="stats"></div>
+  <select id="domainFilter" title="Filter by domain">
+    <option value="">All domains</option>
+  </select>
+  <input id="search" type="search" placeholder="Search 297 skills…" autocomplete="off">
+</header>
+<main>
+  <div id="viewport">
+    <svg id="graph" aria-label="Skill dependency graph. Drag to pan, scroll to zoom."></svg>
+    <div id="tooltip"></div>
+  </div>
+  <aside id="panel">
+    <div id="empty">Click a node to inspect a skill — its chain neighbors (who it consumes from and feeds into) are highlighted in the graph.</div>
+  </aside>
+</main>
+<script type="application/json" id="graph-data">__GRAPH_JSON__</script>
+<script src="graph-explorer.js"></script>
+</body>
+</html>

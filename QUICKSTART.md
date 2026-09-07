@@ -77,7 +77,7 @@ Then feed the API to the reviewer:
 
 ```
 
-**What to expect:** The reviewer catches issues the developer missed — missing input validation, SQL injection risks, missing error handling. All 1,675 chain edges are bidirectionally symmetric (verified programmatically).
+**What to expect:** The reviewer catches issues the developer missed — missing input validation, SQL injection risks, missing error handling. All chain edges are bidirectionally symmetric (verified programmatically).
 
 ---
 
