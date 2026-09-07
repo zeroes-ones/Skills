@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-07T19:15:30Z
+# Generated: 2026-09-07T19:36:20Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    5fd371bee0df70608d6d0124874b841b2e3080cf
+# Commit:    c17bc6b483ce7431b2ef45a4b8d9c5087965f865
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -17,8 +17,10 @@ ffd847830fc4daa5ff70cdde91f58597623f5103959130f1240d1b9d82e6ea25  scripts/add-fi
 faee631777544e92d7f2b676903643d0bfdea22887c68b768069f90685389471  scripts/audit-library.py
 5e967a4ccc318b31d0af47e02174382a23afa24dd767f44e70174cff25be087a  scripts/behavioral-evals.py
 15f7ac66cb302d8f8ce9fe39ea824a8e853d58ae31f083357890edbc2badf5c7  scripts/benchmark-skills.py
+f0cb08ecfed782f0549fd727d4d988786bb487ef78a6e4fe62604170478f6f49  scripts/build-flat-index.sh
 220f0d9b3f3c60c27f0b213809d92d55dec5d8151a1f604cd892677c0f6097b1  scripts/build-skill-index.py
 83e5bc2f876a6d31cc3fc9c54cbafbddb83bce9158f28780dcb83dbe8c236efe  scripts/calculate-roi.sh
+43f5d32c82818855c00463ec3f13502a9972ab15279aaed90fc0d397f9d3e229  scripts/check-flat-index.py
 b34d876e8dd8148c56a17d28b0e160abb1fa5d78648be4f6c2f06e99315991aa  scripts/compile-skills.sh
 4cb7e67fd1ffeab924c1405f1f65e18e976aa151278fb70374d3bf63c280e24e  scripts/compliance-check.sh
 f2a34eb14b3f482c6d57cfcd91837db04ba65ec00b23bf7859db44b51073f680  scripts/eval-skill.sh
@@ -28,7 +30,7 @@ e5133d51013888d8cc6cd26f11bb656b1430d15c45ffb64aaf3cdb0cb4f15cf0  scripts/export
 586fef2eccac0908aec7c3eb94dde158b3e5d099500235816fb8ecc0c2b3b976  scripts/init-project.sh
 a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject-anti-hallucination.py
 129cab96cfa4784974cc0d539b44d7ee24897cb6fe659e4aca88ab214fef2f94  scripts/install-hooks.sh
-0347b2adac1123faf4c405b5d9c201876221f83a875c02ba93c15e01ecf09b89  scripts/install.sh
+044ab1c8f613b22c515379397722a434a263c35d74bed4c83d7962a51201f652  scripts/install.sh
 cc63951ce1b92eea4d9fae4af852a57ca4b66a28e34bf5270951dd1372e00fe4  scripts/lib/deep-research-gate.sh
 4401693116769e6c5fece0929968d1902112619fe3d0633789e4bcc7ed82cb47  scripts/lib/eval-golden.py
 0ba91108c919c1de83b5d27bade167ff13cd97620f4460614d7ed0a89f0bce7d  scripts/lib/guardrails.py
@@ -58,7 +60,7 @@ e30826411b84e2d4402143670ff88d6821e2635b762d964fcc3015595228cc56  scripts/skill-
 e3257e7332f11cd5bcafa5d4a3de62b8dc881115de7265bfad372bf08ea33958  scripts/skill-sli-report.py
 5efe46068f41d543978a8df504ea429125bd03c425675074b8d3a8fd3e739c37  scripts/trim-context.sh
 0a95e1fb6019c454162c2e3222fe9d461c65eecf7a3a8955373a26a7f13d7cb0  scripts/upgrade_to_10_v2.py
-5c424d382f57745f0dfd43a6fb30ccc4adf6989ed5c7b299176dcc56af6c6bed  scripts/validate-skills.sh
+c4d949c4b48f0b0bad3042fe50fafed5d37b0a453659f3656f971a9e1d860492  scripts/validate-skills.sh
 c74bde423ccadafcd78579625e11291289e19f52ba0ec4d992dc0d7e6d58f718  scripts/validate-workflows.py
 c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh

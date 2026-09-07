@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Skills Validation Suite — Blocking CI/CD Governance Gate
-# Validates all 106 skills against the agentskills.io spec + internal quality standards.
+# Validates all 297 skills against the agentskills.io spec + internal quality standards.
 # Exit code 0 = all checks pass. Non-zero = violations found.
 set -euo pipefail
 
@@ -661,6 +661,11 @@ if over:
 else:
     print('All skills within 500-line budget')
 " || true
+
+# --- [22] AGENT DISCOVERY LAYER (skills-flat) ---
+echo "[22] Agent discovery layer (skills-flat)..."
+FLAT_CHECK="$(cd "$(dirname "$0")/.." && pwd)/scripts/check-flat-index.py"
+check "Flat discovery layer resolves all skills with no collisions" python3 "$FLAT_CHECK"
 
 # --- SUMMARY ---
 echo ""

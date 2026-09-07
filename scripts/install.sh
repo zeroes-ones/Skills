@@ -38,8 +38,10 @@ echo -e "      ${GREEN}✓${NC} Skills library at ${SKILLS_HOME}"
 # Step 2: Set up global agent symlinks
 echo -e "${YELLOW}[2/4]${NC} Creating global agent symlinks..."
 
-# Format: agent_name:target_dir (colon-separated)
-AGENT_LIST="claude:$HOME/.claude/skills copilot:$HOME/.copilot/skills cursor:$HOME/.cursor/skills openclaw:$HOME/.openclaw/workspace/skills"
+# Format: agent_name:target_dir (colon-separated).
+# `skills-flat` is linked (one-level <name>/SKILL.md discovery view of all 297 skills),
+# never the nested skills/<domain>/<name> store — native scanners only look one level deep.
+AGENT_LIST="agents:$HOME/.agents/skills claude:$HOME/.claude/skills copilot:$HOME/.copilot/skills github:$HOME/.github/skills cursor:$HOME/.cursor/skills codex:$HOME/.codex/skills gemini:$HOME/.gemini/skills windsurf:$HOME/.windsurf/skills cline:$HOME/.cline/skills opencode:$HOME/.opencode/skills"
 
 agents_configured=""
 for entry in $AGENT_LIST; do
@@ -48,9 +50,11 @@ for entry in $AGENT_LIST; do
     if [ -L "$target" ]; then
         echo -e "      ${GREEN}✓${NC} $agent already linked"
         agents_configured="$agents_configured $agent"
+    elif [ -e "$target" ] && [ -n "$(ls -A "$target" 2>/dev/null)" ]; then
+        echo -e "      ${YELLOW}○${NC} $agent dir exists with content (keep user skills, skip)"
     elif [ -d "$(dirname "$target")" ] || mkdir -p "$(dirname "$target")" 2>/dev/null; then
         rm -rf "$target" 2>/dev/null || true
-        ln -sf "$SKILLS_HOME/skills" "$target"
+        ln -sf "$SKILLS_HOME/skills-flat" "$target"
         echo -e "      ${GREEN}✓${NC} $agent → $target"
         agents_configured="$agents_configured $agent"
     else
@@ -72,16 +76,21 @@ PROJECT="${1:-.}"
 cd "$PROJECT" || { echo "Cannot access $PROJECT"; exit 1; }
 echo "Activating skills in $(pwd)..."
 
-# Format: agent_name:target_dir (colon-separated)
-AGENT_LIST="claude:.claude/skills copilot:.copilot/skills cursor:.cursor/skills openclaw:.openclaw/workspace/skills"
+# Format: agent_name:target_dir (colon-separated); project scope uses the same
+# flat discovery layer as the global install (see scripts/install.sh).
+AGENT_LIST="agents:.agents/skills claude:.claude/skills copilot:.copilot/skills github:.github/skills cursor:.cursor/skills codex:.codex/skills gemini:.gemini/skills windsurf:.windsurf/skills cline:.cline/skills opencode:.opencode/skills"
 
 for entry in $AGENT_LIST; do
     agent="${entry%%:*}"
     target="${entry#*:}"
     parent=$(dirname "$target")
-    if [ -d "$parent" ] || mkdir -p "$parent" 2>/dev/null; then
+    if [ -L "$target" ]; then
+        echo "  ✓ $agent already linked"
+    elif [ -e "$target" ] && [ -n "$(ls -A "$target" 2>/dev/null)" ]; then
+        echo "  ○ $agent dir exists with content (keep, skip)"
+    elif [ -d "$parent" ] || mkdir -p "$parent" 2>/dev/null; then
         rm -rf "$target" 2>/dev/null || true
-        ln -sf "$SKILLS_HOME/skills" "$target"
+        ln -sf "$SKILLS_HOME/skills-flat" "$target"
         echo "  ✓ $agent → $target"
         # Add to .gitignore
         grep -q "^$target$" .gitignore 2>/dev/null || echo "$target" >> .gitignore
