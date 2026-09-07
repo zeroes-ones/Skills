@@ -80,9 +80,10 @@ skills.sh (Vercel Labs) is the "npm of agent skills": public repos are auto-inde
 `skills` CLI (`npx skills`) installs from GitHub shorthand into whichever agents are present.
 
 How they do it:
-- **Repo layout drives indexing**: the crawler looks for `SKILL.md` dirs (one level of nesting
-  under a skills dir). Our committed `skills-flat/` provides exactly that shape, and our
-  `skills/<domain>/` tree is the canonical store.
+- **Repo layout drives indexing**: discovery walks `skills/<category>/<name>/SKILL.md` catalog
+  layouts one extra level deep — our canonical `skills/<domain>/<name>/` tree qualifies as-is
+  (no mirror repo needed). Skills declared in `.claude-plugin/marketplace.json` are additionally
+  searched at their declared depth (also true for us now).
 - **One skill dir = one `SKILL.md` + optional `scripts/ references/ examples/`** — our format.
 - **Install = symlink/copy into each agent's dir** (`skills add owner/repo --skill <name>
   -a claude,cursor,…`); agent discovery paths are the table in
@@ -92,11 +93,11 @@ How they do it:
   repo adds marketplace compatibility on top of registry discovery — the same two-manifest
   model as Claude, which is what `scripts/emit-marketplace.py` now generates.
 
-Practical: `npx skills add zeroes-ones/Skills --all` (or `--skill <name>` for one) installs the
-library on any machine with the CLI; `skills find`, `skills update`, and `skills-lock.json`
-(emit lockfiles for team reproducibility) are CLI-side. Full index/publish plan stays in
-`docs/distribution-best-in-class.md` §4 (item 1: flat index for registry auto-discovery — the
-`skills-flat/` layer is that index, so registry publishing needs only a flat mirror repo).
+Practical: indexing is telemetry-driven — run `npx skills add zeroes-ones/Skills --list` once
+from any machine with Node (or `npx skills use zeroes-ones/Skills@<skill>`), then confirm with
+`npx skills find <skill-name>`; the skills.sh detail page (`skills.sh/zeroes-ones/Skills/<name>`)
+appears minutes to hours later. If auto-discovery misses, use skills.sh's request-indexing issue
+flow. `skills-lock.json` (emit lockfiles for team reproducibility) is CLI-side.
 
 ## 4. Monetization reality (2026, directional)
 

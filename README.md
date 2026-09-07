@@ -187,7 +187,7 @@ Eight slash commands work identically across Claude Code, Gemini CLI, and Copilo
 
 Run: `./scripts/run-evals.sh --tier all`
 
-## Distribution — npm & Shell
+## Distribution — npm, Shell & skills.sh
 
 ```bash
 # Shell install (one command)
@@ -196,7 +196,15 @@ curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/inst
 # npm install
 npx @zeroes-ones/skills init
 
+# skills.sh (open agent skills registry) — installs into whichever agents are present
+npx skills add zeroes-ones/Skills          # all skills, or --skill <name> for one
+npx skills find <skill-name>               # confirm the repo is indexed (post-activation)
 ```
+
+Our canonical `skills/<domain>/<name>/SKILL.md` catalog layout is natively discoverable by the
+skills.sh crawler, and `.claude-plugin/marketplace.json` declares the whole library as Claude
+plugins. Indexing is telemetry-driven — the first `npx skills add` requests it; see
+[`docs/plugin-marketplace-publishing.md`](docs/plugin-marketplace-publishing.md) §3.
 
 ## Brownfield Adoption
 
