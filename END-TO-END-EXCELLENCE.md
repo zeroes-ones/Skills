@@ -61,10 +61,11 @@ debt, not blocking.
    (`workflow/templates/verify-node.md`).
 4. **Declared handoff surface** — what the node consumes and produces is knowable before the run.
 
-**Status:** 297/297 skills referenceable; 281 eligible in default mode; 4 declared contracts
-(`code-reviewer`, `security-reviewer`, `qa-engineer`, `backend-developer` — the flagship graph
-nodes). **Gap:** explicit contracts exist on only 4; the mechanism and the tracker (audit
-Workflow Readiness) exist, the mass declaration is a staged pass, not a missing feature.
+**Status:** 297/297 skills referenceable; 294 eligible in default mode; 30 declared contracts
+(`code-reviewer`, `security-reviewer`, `qa-engineer`, `backend-developer`, … — the flagship graph
+nodes plus phases 1–3 hubs). **Gap:** the remaining ~264 eligible skills can still adopt
+`workflow:` contracts; the mechanism and the tracker (audit Workflow Readiness) exist, and the
+mass declaration is a ranked staged pass, not a missing feature.
 
 ## 3. Plane C — Graph integration (what makes a node part of a graph)
 
@@ -205,7 +206,7 @@ rules, then add.
 
 | # | Gap | What it needs | Priority | Where it lives |
 |---|-----|---------------|----------|----------------|
-| G1 | Contracts only on 4 of 281 eligible | Staged pass: add `workflow:` contracts to the most-exercised skills by chain-degree rank; tracker already live | High (phases 1-2 done: 24 declared hubs; continue per ranked backlog) | skills frontmatter + audit dimension |
+| G1 | Contracts on 30 of 294 eligible | Ranked staged pass: add `workflow:` contracts to remaining eligible skills by chain-degree rank; tracker live | High (phases 1-3 done: 30 declared hubs; continue per ranked backlog) | skills frontmatter + audit dimension |
 | G2 | Parallel fidelity in the stdlib engine | **Done (join):** runner fires member edges only after the whole parallel group joins (self-test 9/9); true supervisor fan-out + join policy 'majority/any' enforcement still map-level (LangGraph) | High (join done) | `scripts/workflow-runner.py` |
 | G3 | Behavioral evals not yet run in CI | **Done (deterministic):** golden sets (`evals/golden/`) + `eval-skill.sh` wired into run-ci step 1e and pre-commit G15 (7/7 cases green). LLM-judge execution of the `loop-graph-behavior` scenario suite remains future work | Medium (harness done) | `evals/golden/`, `scripts/eval-skill.sh` |
 | G4 | Grandfathered template debt in flagship skills | **Done:** added Error Decoder / When NOT to Use / Anti-Rationalization to `code-reviewer`, `qa-engineer`, `security-reviewer`, `backend-developer`; all pass `lint-template` with 0 errors (advisory body-length + checklist-label warnings remain) | Medium (done) | those SKILL.md files |
