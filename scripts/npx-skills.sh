@@ -17,7 +17,17 @@
 #=============================================================================
 set -euo pipefail
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve the real location of this script when invoked through a symlink
+# (npm installs bins as symlinks under node_modules/.bin, npx/global installs
+# symlink into PATH dirs) — BASH_SOURCE[0] points at the symlink, not the file.
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
+
 cmd="${1:-}"
 if [ $# -gt 0 ]; then shift; fi
 

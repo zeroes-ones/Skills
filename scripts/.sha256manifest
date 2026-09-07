@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-07T20:41:33Z
+# Generated: 2026-09-07T20:51:50Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    de1da13766353a8a723dbb8c8dde529e8ee93596
+# Commit:    e7c428f7fe88e775e0f29c58dc756391856c1928
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -46,7 +46,7 @@ e5ef422fedad81411d061b2cc53fcc9dbc55cd8be60ae6e14e3e4cb6af774507  scripts/lib/li
 79b5cf6db04974cd871b66f8f518640c80afce10194589a83de470eadcaa1b96  scripts/lib/validate-skill-examples.sh
 5f2ffb808c267412a2fe61d40a51fa5ebaf76836bcc32a191f02202200b7a5b0  scripts/lint.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
-58eeace6aeb315ff577bcb7704be7c3216cda603015921bc6ace1abeedfe0c21  scripts/npx-skills.sh
+2c41832b2a048defec53bdba4b35d9d9be486431ef58685cdf2ea460c7d6501f  scripts/npx-skills.sh
 8e8e66508163e9685bb107f39629e560c17e44fc43ef938530f0b32847e0b586  scripts/project-init.sh
 41b298d2e24fa17ae6bfb7391f702b3edf71ad6ea3d38b3515883836ae37c895  scripts/run-ci-locally.sh
 83ddcc311bf59928a4c86f4a52c431d0addaf4d157b20990173b149fa6375f37  scripts/run-effectiveness.py
