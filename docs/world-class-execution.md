@@ -89,13 +89,17 @@ complete, and memory-written** — not a feeling.
 
 ## 5. The next speed levers (documented, not yet built)
 
-1. **Span-backend ingest** for live per-project cost/latency dashboards (export-traces is
+1. **Distribution & registry publishing (best-in-class gap):** publish a flat
+   `skills-sh/<name>/SKILL.md` index for skills.sh auto-discovery, add marketplace/plugin
+   manifests, and emit `skills-lock.json` from project-init — full plan in
+   `docs/distribution-best-in-class.md`.
+2. **Span-backend ingest** for live per-project cost/latency dashboards (export-traces is
    import-ready JSONL).
-2. **Embedding + rerank routing** over skill bodies — cut load further and beat the 30% lexical
+3. **Embedding + rerank routing** over skill bodies — cut load further and beat the 30% lexical
    Top-1 baseline (SkillRouter: bodies, not metadata).
-3. **Prompt caching + model tiering** in `agent_executor.py` (fast model for easy nodes, strong
+4. **Prompt caching + model tiering** in `agent_executor.py` (fast model for easy nodes, strong
    model for gatekeepers) to shrink the dominant agent-leg cost.
-4. **LLM-judge CI** executing the loop-graph behavioral suite as a merge gate.
+5. **LLM-judge CI** executing the loop-graph behavioral suite as a merge gate.
 
 ## 6. The 100% rule
 

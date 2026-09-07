@@ -32,7 +32,7 @@ comparable where corpora share conventions, so the fair headline metrics are cou
 |--------|--------------------|-------------------|-------------------------|-------------------|------------------|
 | Prompts | 297 | 19 | 25 | 37 | 14 |
 | Avg body words (load cost) | 8976 | 1969 | 2073 | 638 | 1457 |
-| Core Workflow + Verification structure | 281/297 | 0/19 (different anatomy) | 0/25 (different anatomy) | 0/37 (different anatomy) | 0/14 (different anatomy) |
+| Core Workflow + Verification structure | 294/297 | 0/19 (different anatomy) | 0/25 (different anatomy) | 0/37 (different anatomy) | 0/14 (different anatomy) |
 | `workflow:` contracts | 30 | 0 | 0 | 0 | 0 |
 | Portability target declared | 100.0% | 0.0% | 0.0% | 0.0% | 0.0% |
 | Golden eval sets covered | 3/3 | 0/3 | 0/3 | 0/3 | 0/3 |
@@ -43,11 +43,17 @@ Re-run method: `python3 scripts/benchmark-skills.py --root skills --markdown` (o
 
 ### Where each ecosystem leads (qualitative, 2026)
 
-| Dimension | zeroes-ones/Skills | anthropics/skills | superpowers | mattpocock/skills |
-|---|---|---|---|---|
-| Scale + lifecycle coverage | 297 skills / 37 domains (CEO → governance) | curated ~19 skill archetypes | ~14-skill disciplined methodology | ~37 pragmatic daily skills |
-| Skill load economy | compiled 65-90% savings + progressive disclosure (body words are raw) | lean bodies | lean bodies, auto-injected session discipline | leanest bodies (638 avg) |
-| Quality governance | template/YAML/chain gates, audit, portability across 6 agents | high curation bar | methodology consistency | battle-tested by use |
+| Dimension | zeroes-ones/Skills | anthropics/skills | superpowers | mattpocock/skills | skills.sh (ecosystem) |
+|---|---|---|---|---|---|
+| Scale + lifecycle coverage | 297 skills / 37 domains (CEO → governance) | curated ~19 skill archetypes | ~14-skill disciplined methodology | ~37 pragmatic daily skills | registry of many publishers' skills |
+| Skill load economy | compiled 65-90% savings + progressive disclosure (body words are raw) | lean bodies | lean bodies, auto-injected session discipline | leanest bodies (638 avg) | CLI-managed installs |
+| Quality governance | template/YAML/chain gates, audit, portability across 6 agents | high curation bar | methodology consistency | battle-tested by use | audits + community reputation |
+| Distribution / marketplace | GitHub only today | official plugin/marketplace reach | plugin marketplaces + session hooks | skills.sh installer + plugin marketplaces | **the open registry + `skills` CLI** (auto-discovery, leaderboard) |
+| Executable workflow layer / evals / self-improvement | **unique** | none | methodology as prose | none | install/update tooling, not content |
+
+See `docs/distribution-best-in-class.md` for the researched incorporation plan (flat index for
+registry auto-discovery, marketplace manifests, curated flagship set, methodology plugin,
+lockfiles).
 | Executable workflow layer (loops/graphs/engine) | **unique** — none of the peers ship an engine + manifests + guardrails | none | pipeline discipline is prose (workflows as plans) | none |
 | Evals + telemetry + self-improvement | golden evals, OTel exporter, SLIs, verifier-gated self-improvement | none published | none published | none published |
 | Ecosystem/mindshare + marketplace distribution | newer; smaller install base | Anthropic official + huge reach | large reach + plugin marketplaces | large reach (skills.sh / plugin marketplaces) |

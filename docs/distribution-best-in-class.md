@@ -1,0 +1,88 @@
+# Distribution & Best-in-Class — vs. superpowers, anthropics/skills, skills.sh
+
+What it takes to be best in class among the world's agent-skill ecosystems — measured corpus
+comparisons plus a researched analysis of the **distribution layer** (skills.sh) and the
+methodology/curation strengths of the other two. Companion to `COMPARISON.md` (measured) and
+`BEYOND-LOOPS-GRAPHS.md` (frontier builds).
+
+## 1. Where we already measure ahead (from COMPARISON.md, fetched & scored 2026-09-07)
+
+| Capability | zeroes-ones/Skills | anthropics/skills | obra/superpowers | mattpocock/skills |
+|---|---|---|---|---|
+| Prompts | 297 | 19 | 14 | 37 |
+| Avg raw body words (load cost) | 8,976 | 1,969 | 1,457 | 638 |
+| Compiled coverage & saving | 233/297, 63.4% load saving | — | — | — |
+| Executable-node eligible | 294 | — | — | — |
+| `workflow:` node contracts | 30 | 0 | 0 | 0 |
+| Governance gates | 16/16 pre-commit; validate-skills 0 fails; markdownlint 0/297 | curation bar | methodology consistency | use-tested |
+| Executable workflow engine (loops/graphs/parallel joins/guardrails) | **unique** | none | methodology as prose plans | none |
+| Evals + telemetry + verifier-gated self-improvement | golden evals, OTel exporter, SLIs, skill-evolve promote | none published | none | none |
+
+Headline: the library leads on **engineering & governance** (measured) and on an
+**executable workflow layer that none of the peers ship**; it trails on **distribution,
+ecosystem reach, and auto-injection methodology**.
+
+## 2. What skills.sh is (research summary)
+
+- **skills.sh** (Vercel Labs) is the open registry/marketplace for agent skills: publish,
+  discover, install, update. Companion `skills` CLI (`npx skills`) is "the npm of agent skills."
+- **Publishing:** any public GitHub repo with `skills/<name>/SKILL.md` is auto-indexed — no
+  submission form. Detail pages render the SKILL.md; installs are telemetry that drives
+  leaderboards (All-Time / Trending 24h / Hot).
+- **SKILL.md standard:** directory per skill with `SKILL.md` (frontmatter `name` + `description`
+  required; optional `license`, `compatibility`, `metadata` (author/version/tags),
+  `allowed-tools`; optional `scripts/`, `references/`, `examples/`, `assets/`). This is the same
+  open standard our library already uses (`agentskills.io`-aligned).
+- **CLI features we can align to:** `add owner/repo --skill <n>`, agent auto-detection
+  (`.claude/skills`, `.cursor/skills`, `.agents/skills`, …), symlink-by-default with `--copy`
+  fallback, lock files (`skills-lock.json`) for reproducible team installs, `find`/search,
+  `update`/`check`, `init` scaffolding. Our `project-init.sh`/`install.sh` already mirror the
+  symlink-first + copy-if-required philosophy; we do not yet emit skills.sh lockfiles or publish
+  to the registry.
+- **Security caveat:** registry skills are not verified by default; skills.sh runs periodic
+  audits. Reputation comes from repo health + installs + review.
+
+Sources: vercel-labs/skills AGENTS.md & CLI reference; skills.sh detail pages; agentskills.io
+format docs; ecosystem write-ups (dev.to, openreplay, classmethod). Treat specific timeline
+claims (e.g., "launch 2026") with skepticism; mechanics above are consistently documented.
+
+## 3. What the other two teach us (to incorporate)
+
+**obra/superpowers — methodology & auto-injection.**
+- Session-start hooks auto-inject relevant skills (we have hooks in `hooks/`, but per-project
+  auto-injection of workflow-layer discipline can be stronger).
+- Socratic brainstorming → dated plan → subagent-driven execution → mandatory verification:
+  an end-to-end methodology, not a loose library. We encode the discipline as an executable
+  engine (stronger guarantees) but should package it as an optional **methodology plugin**
+  ("Superpowers-style flow on top of our engine").
+
+**anthropics/skills — curation & reach.**
+- Small, polished, archetypal set curated by a vendor with massive distribution.
+- Clean SKILL.md standard + agent-agnostic guidance + strong documentation.
+- Incorporate: publish a curated **top-30 "flagship set"** page/plugin (our best skills) so
+  distribution surfaces quality, not just volume; align metadata (`compatibility`, `license`)
+  exactly to the registry standard.
+
+## 4. Incorporation plan (ranked)
+
+| # | Action | Why | Status/Effort |
+|---|--------|-----|---------------|
+| 1 | **Flat index for skills.sh auto-discovery** | Registry scans `skills/<name>/SKILL.md`; ours are nested (`skills/<domain>/<name>/`). Add a committed flat layer `skills-sh/<name>/SKILL.md` (symlinks) or a generated release artifact so every skill is indexable. | High — one-time script + CI |
+| 2 | **Publish to skills.sh + anthropics plugin marketplace** | Push the flat index repo (this repo, after #1) so detail pages appear; add `plugin.json`/marketplace manifests for the official Claude plugin flow. | Medium |
+| 3 | **Registry-standard metadata** | Ensure every skill has `license`, `version`, `tags`, `compatibility`; trigger-phrase descriptions (routing) — most already true post-backlog. | Low |
+| 4 | **Curated flagship set (top 30)** | README section + marketplace collection of best-of skills; keeps curation story equal to anthropics while offering 297 total. | Medium |
+| 5 | **Optional methodology plugin** | Package "iterate-until-100% + verify-gates" as an auto-injected session flow (obra-style) on top of our engine. | Medium |
+| 6 | **Lockfile + update parity** | Emit `skills-lock.json` from project-init so team installs are reproducible like skills.sh CLI. | Low |
+| 7 | **Discoverability inside the repo** | README skills table + per-skill `skills.sh/owner/repo/skill` links once published. | Low |
+| 8 | **Registry hygiene & audits** | Per-skill verification runs we already gate (16/16) become the trust story that distinguishes us from unverified third-party skills. | Low (done; publicize) |
+
+## 5. The best-in-class definition (updated)
+
+Best in class = **best measurable engineering + governance** (we hold this) **+ best in class
+distribution and trust** (skills.sh publishing, curated flagship set, marketplace manifests,
+reproducible installs) **+ a packaged methodology that auto-injects discipline** (obra-style)
+**+ continued frontier builds** (BEYOND-LOOPS-GRAPHS: memory consolidation, embedding routing,
+span-backend telemetry, LLM-judge CI).
+
+When those four columns are true and measurable, "best in class in the world" is a published,
+benchmarked statement rather than a claim.
