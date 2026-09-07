@@ -92,17 +92,19 @@ jobs:
           set -euo pipefail
           TGZ=$(npm pack --silent | tail -1)
           echo "tarball: $TGZ"
-          tar tzf "$TGZ" | grep -q "package/scripts/init-project.sh"
-          tar tzf "$TGZ" | grep -q "package/scripts/npx-skills.sh"
-          tar tzf "$TGZ" | grep -q "package/scripts/install.sh"
-          tar tzf "$TGZ" | grep -q "package/docs/install-exit-criteria.md"
-          echo "✓ tarball contains bin scripts + docs"
+          tar tzf "$TGZ" > "$RUNNER_TEMP/tarball.list"
+          for entry in package/scripts/init-project.sh package/scripts/npx-skills.sh package/scripts/install.sh package/docs/install-exit-criteria.md package/package.json; do
+            grep -q "^$entry$" "$RUNNER_TEMP/tarball.list" || { echo "ERROR: $entry missing from tarball"; exit 1; }
+            echo "✓ $entry"
+          done
       - name: Skills bin dispatches from the packed tarball
         run: |
           set -euo pipefail
           TGZ=$(npm pack --silent | tail -1)
-          npx --yes --package "$TGZ" skills --help | grep -q "init"
-          npx --yes --package "$TGZ" skills init --help | grep -q -- "--solo"
+          npx --yes --package "$TGZ" skills --help > "$RUNNER_TEMP/skills-help.txt"
+          grep -q "init" "$RUNNER_TEMP/skills-help.txt"
+          npx --yes --package "$TGZ" skills init --help > "$RUNNER_TEMP/skills-init-help.txt"
+          grep -q -- "--solo" "$RUNNER_TEMP/skills-init-help.txt"
           echo "✓ npx --package <pkg> skills init resolves (documented npx entry point)"
 
   test-command-parity:
