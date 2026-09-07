@@ -29,8 +29,8 @@ complete, and memory-written** — not a feeling.
 ## 2. Speed doctrine, per mode
 
 ### Single-agent (fastest path)
-1. **Load compiled, not raw.** `.skills-compiled/` skills load at ~3,500 tokens vs ~8,800 raw
-   body words (63.1% effective-load saving measured). QUICK-first: read Route + Ground Rules,
+1. **Load compiled, not raw.** `.skills-compiled/` skills load at ~3,500 tokens vs ~8,976 raw
+   body words (63.4% effective-load saving measured). QUICK-first: read Route + Ground Rules,
    drill down only when needed.
 2. **One verify per exit.** Run the verify-node template once with artifact evidence — never
    loop on a claim, never re-read the skill per pass.
@@ -69,7 +69,7 @@ complete, and memory-written** — not a feeling.
 |---|---|
 | Engine wall-clock per run (stub) | ~96-100 ms |
 | Tool self-tests | validator 177 ms / engine 99 ms / lint 9 checks |
-| Effective skill load | 3,545 compiled tokens avg (63.1% saving, 233/297 compiled) |
+| Effective skill load | 3,545 compiled tokens avg (63.4% saving, 233/297 compiled) |
 | Run memory vs full state | ~883 B vs ~3.8 KB (~6× smaller) |
 | Flagship effectiveness | happy 100/100 (w/ memory) · exhaust 45/100 |
 | Parallel join | gate fires only after all members (guaranteed) |

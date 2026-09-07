@@ -26,7 +26,7 @@ everything else lives in state/memory on disk.
 ## 2. Context saving — the four levers
 
 1. **Load compiled, not raw.** Skills compile to 65-90% fewer tokens (avg effective load 3,545
-   vs ~8,800 raw body words; 63.1% measured saving). Compiled copies are what agents should read.
+   vs ~8,976 raw body words; 63.4% measured saving). Compiled copies are what agents should read.
 2. **Progressive disclosure.** Read Route the Request + Ground Rules (QUICK) first; drill into
    DEEP sections only when the task needs them — routing decisions cost a fraction of the body.
 3. **Compact each hop.** `context-compaction-strategies` between nodes keeps handoff context

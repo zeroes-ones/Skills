@@ -11,12 +11,12 @@ Data for the zeroes-ones/Skills corpus, refreshed with:
 <!-- MEASURED-BASELINE:START -->
 
 | Skills (prompts) | 297 |
-| Executable-node eligible (Core Workflow + Verification) | 281 |
+| Executable-node eligible (Core Workflow + Verification) | 294 |
 | Declared `workflow:` contracts | 30 |
-| Avg body words (load cost) | 8840 |
+| Avg body words (load cost) | 8976 |
 | Compiled coverage | 233/297 |
 | Avg effective load (compiled tokens) | 3545 |
-| Effective load saving vs raw body | 63.1% |
+| Effective load saving vs raw body | 63.4% |
 | Portability target declared | 100.0% |
 | Golden eval sets covered | 3/3 |
 | Routing Top-1 / Top-5 (lexical baseline) | 3/10 (30%) / 6/10 (60%) |
@@ -31,7 +31,7 @@ comparable where corpora share conventions, so the fair headline metrics are cou
 | Metric | zeroes-ones/Skills | anthropics/skills | addyosmani/agent-skills | mattpocock/skills | obra/superpowers |
 |--------|--------------------|-------------------|-------------------------|-------------------|------------------|
 | Prompts | 297 | 19 | 25 | 37 | 14 |
-| Avg body words (load cost) | 8840 | 1969 | 2073 | 638 | 1457 |
+| Avg body words (load cost) | 8976 | 1969 | 2073 | 638 | 1457 |
 | Core Workflow + Verification structure | 281/297 | 0/19 (different anatomy) | 0/25 (different anatomy) | 0/37 (different anatomy) | 0/14 (different anatomy) |
 | `workflow:` contracts | 30 | 0 | 0 | 0 | 0 |
 | Portability target declared | 100.0% | 0.0% | 0.0% | 0.0% | 0.0% |
