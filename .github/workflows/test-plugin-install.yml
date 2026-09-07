@@ -13,6 +13,7 @@ on:
       - '.claude/commands/**'
       - '.gemini/commands/**'
       - '.copilot/commands/**'
+      - '.github/**'
   pull_request:
     branches: [main]
     paths:
@@ -22,6 +23,7 @@ on:
       - 'package.json'
       - '.claude-plugin/**'
       - '.cursor-plugin/**'
+      - '.github/**'
 
 jobs:
   # Exit criteria EC-1…EC-3 — see docs/install-exit-criteria.md
