@@ -1,0 +1,12 @@
+{
+  "name": "data",
+  "version": "1.0.0",
+  "description": "9 skills: ab-testing-specialist, analytics-engineer, data-engineer, data-governance-officer, data-scientist, data-visualization-engineer, \u2026 (09-data)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

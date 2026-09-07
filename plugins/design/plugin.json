@@ -1,0 +1,12 @@
+{
+  "name": "design",
+  "version": "1.0.0",
+  "description": "8 skills: accessibility-auditor, apple-hig-expert, brand-guidelines, fintech-ui-designer, game-ui-designer, healthcare-ui-designer, \u2026 (03-design)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

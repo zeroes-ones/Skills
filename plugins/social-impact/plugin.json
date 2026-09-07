@@ -1,0 +1,12 @@
+{
+  "name": "social-impact",
+  "version": "1.0.0",
+  "description": "7 skills: access-tech-developer, civic-tech-developer, community-organizing-tech, education-access-developer, environmental-tech-developer, mission-driven-growth-strategist, \u2026 (28-social-impact)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

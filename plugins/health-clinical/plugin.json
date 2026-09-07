@@ -1,0 +1,12 @@
+{
+  "name": "health-clinical",
+  "version": "1.0.0",
+  "description": "10 skills: clinical-informatics-specialist, community-operations-manager, crisis-response-manager, health-condition-supporter, health-regulatory-submission, healthcare-security, \u2026 (21-health-clinical)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

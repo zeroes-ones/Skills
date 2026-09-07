@@ -1,0 +1,12 @@
+{
+  "name": "creator-finance",
+  "version": "1.0.0",
+  "description": "5 skills: creator-economy-builder, fintech-app-developer, marketplace-platform-builder, micro-saas-developer, saas-monetization-strategist, \u2026 (27-creator-finance)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

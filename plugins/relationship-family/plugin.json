@@ -1,0 +1,12 @@
+{
+  "name": "relationship-family",
+  "version": "1.0.0",
+  "description": "2 skills: parenting-strategist, relationship-architect, \u2026 (32-relationship-family)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

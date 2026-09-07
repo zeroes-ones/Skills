@@ -1,0 +1,12 @@
+{
+  "name": "personal-growth",
+  "version": "1.0.0",
+  "description": "8 skills: decision-engineer, learning-accelerator, life-architect, master-negotiator, mindfulness-practitioner, network-builder, \u2026 (31-personal-growth)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "architecture",
+  "version": "1.0.0",
+  "description": "12 skills: api-designer, codebase-design, database-designer, desktop-architecture-patterns, event-driven-architect, feature-flag-architect, \u2026 (04-architecture)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

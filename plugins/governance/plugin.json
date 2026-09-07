@@ -1,0 +1,12 @@
+{
+  "name": "governance",
+  "version": "1.0.0",
+  "description": "2 skills: board-manager, investor-relations, \u2026 (19-governance)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

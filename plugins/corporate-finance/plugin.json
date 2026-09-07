@@ -1,0 +1,12 @@
+{
+  "name": "corporate-finance",
+  "version": "1.0.0",
+  "description": "4 skills: accountant, fp-and-a-analyst, m-and-a-strategist, treasury-manager, \u2026 (18-corporate-finance)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

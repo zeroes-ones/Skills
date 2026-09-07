@@ -1,0 +1,12 @@
+{
+  "name": "trust-safety",
+  "version": "1.0.0",
+  "description": "7 skills: applying-llm-guardrails, content-policy-manager, data-security, patient-community-safety, privacy-engineer, privacy-engineering, \u2026 (23-trust-safety)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

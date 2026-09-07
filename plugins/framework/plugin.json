@@ -1,0 +1,12 @@
+{
+  "name": "framework",
+  "version": "1.0.0",
+  "description": "6 skills: agent-persona-orchestrator, cross-skill-communication, senior-engineer-mode-router, skill-levels, using-agent-skills, writing-great-skills, \u2026 (00-framework)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "personal-finance",
+  "version": "1.0.0",
+  "description": "9 skills: angel-investor, debt-optimizer, estate-planner, insurance-strategist, real-estate-investor, retirement-planner, \u2026 (29-personal-finance)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

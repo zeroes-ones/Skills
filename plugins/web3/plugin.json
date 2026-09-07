@@ -1,0 +1,12 @@
+{
+  "name": "web3",
+  "version": "1.0.0",
+  "description": "5 skills: cryptographic-engineer, defi-protocol-engineer, smart-contract-auditor, wallet-infrastructure-engineer, zkp-engineer, \u2026 (26-web3)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

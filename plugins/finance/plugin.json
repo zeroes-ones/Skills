@@ -1,0 +1,12 @@
+{
+  "name": "finance",
+  "version": "1.0.0",
+  "description": "24 skills: advanced-options-structures, algorithmic-trader, commodities-analyst, crypto-trader, financial-security, fixed-income-analyst, \u2026 (14-finance)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "people",
+  "version": "1.0.0",
+  "description": "7 skills: hr-manager, interview-coach, job-search-strategist, learning-development-lead, people-ops, recruiting, \u2026 (16-people)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

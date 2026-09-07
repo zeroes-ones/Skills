@@ -4,500 +4,197 @@
     "name": "Sandeep Kumar Penchala",
     "email": "sandeepkumarp@outlook.com"
   },
+  "description": "Zeroes & Ones skills library: 297 agent-agnostic skills covering the full company lifecycle (one plugin per domain + zeroes-ones-all over the flat layer)",
   "plugins": [
     {
       "name": "zeroes-ones-all",
       "description": "All 297 skills in one plugin (flat discovery layer)",
-      "version": "1.0.0",
-      "category": "full-library",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills-flat"
-      ]
+      "source": "./plugins/zeroes-ones-all"
     },
     {
       "name": "framework",
       "description": "6 skills: agent-persona-orchestrator, cross-skill-communication, senior-engineer-mode-router, skill-levels, using-agent-skills, writing-great-skills, \u2026 (00-framework)",
-      "version": "1.0.0",
-      "category": "framework",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/00-framework"
-      ]
+      "source": "./plugins/framework"
     },
     {
       "name": "strategy",
       "description": "6 skills: business-strategist, ceo-strategist, cto-advisor, enterprise-pricing-strategist, product-strategist, roi-gate, \u2026 (01-strategy)",
-      "version": "1.0.0",
-      "category": "strategy",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/01-strategy"
-      ]
+      "source": "./plugins/strategy"
     },
     {
       "name": "product",
       "description": "6 skills: brainstorming, grilling, idea-to-spec, product-analyst, product-manager, ux-researcher, \u2026 (02-product)",
-      "version": "1.0.0",
-      "category": "product",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/02-product"
-      ]
+      "source": "./plugins/product"
     },
     {
       "name": "design",
       "description": "8 skills: accessibility-auditor, apple-hig-expert, brand-guidelines, fintech-ui-designer, game-ui-designer, healthcare-ui-designer, \u2026 (03-design)",
-      "version": "1.0.0",
-      "category": "design",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/03-design"
-      ]
+      "source": "./plugins/design"
     },
     {
       "name": "architecture",
       "description": "12 skills: api-designer, codebase-design, database-designer, desktop-architecture-patterns, event-driven-architect, feature-flag-architect, \u2026 (04-architecture)",
-      "version": "1.0.0",
-      "category": "architecture",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/04-architecture"
-      ]
+      "source": "./plugins/architecture"
     },
     {
       "name": "development",
       "description": "28 skills: android-developer, backend-developer, blockchain-developer, casual-game-developer, coding-interview-prep, desktop-developer, \u2026 (05-development)",
-      "version": "1.0.0",
-      "category": "development",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/05-development"
-      ]
+      "source": "./plugins/development"
     },
     {
       "name": "quality",
       "description": "10 skills: accessibility-testing, api-test-suite-builder, browser-testing-with-devtools, code-reviewer, code-simplification, debugging-and-error-recovery, \u2026 (06-quality)",
-      "version": "1.0.0",
-      "category": "quality",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/06-quality"
-      ]
+      "source": "./plugins/quality"
     },
     {
       "name": "devops",
       "description": "17 skills: automation-engineer, build-system-design, ci-cd-builder, cloud-architect, dependency-governance, devops-engineer, \u2026 (07-devops)",
-      "version": "1.0.0",
-      "category": "devops",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/07-devops"
-      ]
+      "source": "./plugins/devops"
     },
     {
       "name": "security",
       "description": "11 skills: appsec-engineer, cloud-security, compliance-officer, cryptography, iam-architect, incident-responder, \u2026 (08-security)",
-      "version": "1.0.0",
-      "category": "security",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/08-security"
-      ]
+      "source": "./plugins/security"
     },
     {
       "name": "data",
       "description": "9 skills: ab-testing-specialist, analytics-engineer, data-engineer, data-governance-officer, data-scientist, data-visualization-engineer, \u2026 (09-data)",
-      "version": "1.0.0",
-      "category": "data",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/09-data"
-      ]
+      "source": "./plugins/data"
     },
     {
       "name": "growth",
       "description": "7 skills: ad-monetization-engineer, content-strategist, devrel-advocate, growth-engineer, llm-search-optimizer, pricing-purchase-optimizer, \u2026 (10-growth)",
-      "version": "1.0.0",
-      "category": "growth",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/10-growth"
-      ]
+      "source": "./plugins/growth"
     },
     {
       "name": "legal",
       "description": "3 skills: gdpr-privacy, legal-advisor, regulatory-specialist, \u2026 (11-legal)",
-      "version": "1.0.0",
-      "category": "legal",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/11-legal"
-      ]
+      "source": "./plugins/legal"
     },
     {
       "name": "operations",
       "description": "9 skills: customer-support-engineer, event-planner, handoff, project-manager, scrum-master, teach, \u2026 (12-operations)",
-      "version": "1.0.0",
-      "category": "operations",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/12-operations"
-      ]
+      "source": "./plugins/operations"
     },
     {
       "name": "specialized",
       "description": "16 skills: agent-handoff-protocol, brownfield-adoption-planner, chaos-engineer, cross-agent-skills-packaging, cross-repo-refactoring, deprecation-engineer, \u2026 (13-specialized)",
-      "version": "1.0.0",
-      "category": "specialized",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/13-specialized"
-      ]
+      "source": "./plugins/specialized"
     },
     {
       "name": "finance",
       "description": "24 skills: advanced-options-structures, algorithmic-trader, commodities-analyst, crypto-trader, financial-security, fixed-income-analyst, \u2026 (14-finance)",
-      "version": "1.0.0",
-      "category": "finance",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/14-finance"
-      ]
+      "source": "./plugins/finance"
     },
     {
       "name": "sales",
       "description": "6 skills: bizdev-manager, demand-generation, marketing-manager, partnerships-manager, revops-manager, sales-engineer, \u2026 (15-sales)",
-      "version": "1.0.0",
-      "category": "sales",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/15-sales"
-      ]
+      "source": "./plugins/sales"
     },
     {
       "name": "people",
       "description": "7 skills: hr-manager, interview-coach, job-search-strategist, learning-development-lead, people-ops, recruiting, \u2026 (16-people)",
-      "version": "1.0.0",
-      "category": "people",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/16-people"
-      ]
+      "source": "./plugins/people"
     },
     {
       "name": "customer-success",
       "description": "3 skills: account-manager, customer-onboarding-specialist, customer-success-manager, \u2026 (17-customer-success)",
-      "version": "1.0.0",
-      "category": "customer-success",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/17-customer-success"
-      ]
+      "source": "./plugins/customer-success"
     },
     {
       "name": "corporate-finance",
       "description": "4 skills: accountant, fp-and-a-analyst, m-and-a-strategist, treasury-manager, \u2026 (18-corporate-finance)",
-      "version": "1.0.0",
-      "category": "corporate-finance",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/18-corporate-finance"
-      ]
+      "source": "./plugins/corporate-finance"
     },
     {
       "name": "governance",
       "description": "2 skills: board-manager, investor-relations, \u2026 (19-governance)",
-      "version": "1.0.0",
-      "category": "governance",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/19-governance"
-      ]
+      "source": "./plugins/governance"
     },
     {
       "name": "hardware",
       "description": "4 skills: embedded-engineer, firmware-developer, game-engine-architect, hardware-architect, \u2026 (20-hardware)",
-      "version": "1.0.0",
-      "category": "hardware",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/20-hardware"
-      ]
+      "source": "./plugins/hardware"
     },
     {
       "name": "health-clinical",
       "description": "10 skills: clinical-informatics-specialist, community-operations-manager, crisis-response-manager, health-condition-supporter, health-regulatory-submission, healthcare-security, \u2026 (21-health-clinical)",
-      "version": "1.0.0",
-      "category": "health-clinical",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/21-health-clinical"
-      ]
+      "source": "./plugins/health-clinical"
     },
     {
       "name": "ai-engineering",
       "description": "15 skills: agent-eval-pipeline, ai-engineer, ai-safety-engineer, ai-safety-health-reviewer, ai-security, business-intelligence-engineer, \u2026 (22-ai-engineering)",
-      "version": "1.0.0",
-      "category": "ai-engineering",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/22-ai-engineering"
-      ]
+      "source": "./plugins/ai-engineering"
     },
     {
       "name": "trust-safety",
       "description": "7 skills: applying-llm-guardrails, content-policy-manager, data-security, patient-community-safety, privacy-engineer, privacy-engineering, \u2026 (23-trust-safety)",
-      "version": "1.0.0",
-      "category": "trust-safety",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/23-trust-safety"
-      ]
+      "source": "./plugins/trust-safety"
     },
     {
       "name": "creative",
       "description": "5 skills: email-composer, medical-illustrator, presentation-designer, product-marketing-manager, ux-writer, \u2026 (24-creative)",
-      "version": "1.0.0",
-      "category": "creative",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/24-creative"
-      ]
+      "source": "./plugins/creative"
     },
     {
       "name": "engineering-leadership",
       "description": "5 skills: director-engineering, engineering-leadership-interview-prep, engineering-manager, staff-engineer, vp-engineering, \u2026 (25-engineering-leadership)",
-      "version": "1.0.0",
-      "category": "engineering-leadership",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/25-engineering-leadership"
-      ]
+      "source": "./plugins/engineering-leadership"
     },
     {
       "name": "web3",
       "description": "5 skills: cryptographic-engineer, defi-protocol-engineer, smart-contract-auditor, wallet-infrastructure-engineer, zkp-engineer, \u2026 (26-web3)",
-      "version": "1.0.0",
-      "category": "web3",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/26-web3"
-      ]
+      "source": "./plugins/web3"
     },
     {
       "name": "creator-finance",
       "description": "5 skills: creator-economy-builder, fintech-app-developer, marketplace-platform-builder, micro-saas-developer, saas-monetization-strategist, \u2026 (27-creator-finance)",
-      "version": "1.0.0",
-      "category": "creator-finance",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/27-creator-finance"
-      ]
+      "source": "./plugins/creator-finance"
     },
     {
       "name": "social-impact",
       "description": "7 skills: access-tech-developer, civic-tech-developer, community-organizing-tech, education-access-developer, environmental-tech-developer, mission-driven-growth-strategist, \u2026 (28-social-impact)",
-      "version": "1.0.0",
-      "category": "social-impact",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/28-social-impact"
-      ]
+      "source": "./plugins/social-impact"
     },
     {
       "name": "personal-finance",
       "description": "9 skills: angel-investor, debt-optimizer, estate-planner, insurance-strategist, real-estate-investor, retirement-planner, \u2026 (29-personal-finance)",
-      "version": "1.0.0",
-      "category": "personal-finance",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/29-personal-finance"
-      ]
+      "source": "./plugins/personal-finance"
     },
     {
       "name": "health-wellness",
       "description": "7 skills: fitness-programmer, habit-engineer, longevity-biohacker, mental-fitness-coach, nutrition-strategist, sleep-optimizer, \u2026 (30-health-wellness)",
-      "version": "1.0.0",
-      "category": "health-wellness",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/30-health-wellness"
-      ]
+      "source": "./plugins/health-wellness"
     },
     {
       "name": "personal-growth",
       "description": "8 skills: decision-engineer, learning-accelerator, life-architect, master-negotiator, mindfulness-practitioner, network-builder, \u2026 (31-personal-growth)",
-      "version": "1.0.0",
-      "category": "personal-growth",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/31-personal-growth"
-      ]
+      "source": "./plugins/personal-growth"
     },
     {
       "name": "relationship-family",
       "description": "2 skills: parenting-strategist, relationship-architect, \u2026 (32-relationship-family)",
-      "version": "1.0.0",
-      "category": "relationship-family",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/32-relationship-family"
-      ]
+      "source": "./plugins/relationship-family"
     },
     {
       "name": "real-estate",
       "description": "3 skills: commercial-real-estate-analyst, property-manager, residential-real-estate-agent, \u2026 (33-real-estate)",
-      "version": "1.0.0",
-      "category": "real-estate",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/33-real-estate"
-      ]
+      "source": "./plugins/real-estate"
     },
     {
       "name": "philosophy-wisdom",
       "description": "4 skills: critical-thinker, ethics-architect, mental-models, stoic-practitioner, \u2026 (34-philosophy-wisdom)",
-      "version": "1.0.0",
-      "category": "philosophy-wisdom",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/34-philosophy-wisdom"
-      ]
+      "source": "./plugins/philosophy-wisdom"
     },
     {
       "name": "home-domestic",
       "description": "4 skills: gardener, home-chef, home-organizer, interior-designer, \u2026 (35-home-domestic)",
-      "version": "1.0.0",
-      "category": "home-domestic",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/35-home-domestic"
-      ]
+      "source": "./plugins/home-domestic"
     },
     {
       "name": "travel-adventure",
       "description": "3 skills: adventure-planner, expat-strategist, travel-designer, \u2026 (36-travel-adventure)",
-      "version": "1.0.0",
-      "category": "travel-adventure",
-      "source": "github",
-      "repo": "zeroes-ones/Skills",
-      "ref": "main",
-      "strict": false,
-      "skills": [
-        "./skills/36-travel-adventure"
-      ]
+      "source": "./plugins/travel-adventure"
     }
   ]
 }

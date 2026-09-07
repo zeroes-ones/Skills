@@ -1,0 +1,12 @@
+{
+  "name": "security",
+  "version": "1.0.0",
+  "description": "11 skills: appsec-engineer, cloud-security, compliance-officer, cryptography, iam-architect, incident-responder, \u2026 (08-security)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "hardware",
+  "version": "1.0.0",
+  "description": "4 skills: embedded-engineer, firmware-developer, game-engine-architect, hardware-architect, \u2026 (20-hardware)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

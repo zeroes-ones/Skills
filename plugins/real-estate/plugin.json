@@ -1,0 +1,12 @@
+{
+  "name": "real-estate",
+  "version": "1.0.0",
+  "description": "3 skills: commercial-real-estate-analyst, property-manager, residential-real-estate-agent, \u2026 (33-real-estate)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

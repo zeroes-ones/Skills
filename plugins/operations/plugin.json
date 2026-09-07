@@ -1,0 +1,12 @@
+{
+  "name": "operations",
+  "version": "1.0.0",
+  "description": "9 skills: customer-support-engineer, event-planner, handoff, project-manager, scrum-master, teach, \u2026 (12-operations)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

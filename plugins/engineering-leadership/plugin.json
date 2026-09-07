@@ -1,0 +1,12 @@
+{
+  "name": "engineering-leadership",
+  "version": "1.0.0",
+  "description": "5 skills: director-engineering, engineering-leadership-interview-prep, engineering-manager, staff-engineer, vp-engineering, \u2026 (25-engineering-leadership)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

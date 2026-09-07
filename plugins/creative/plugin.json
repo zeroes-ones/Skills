@@ -1,0 +1,12 @@
+{
+  "name": "creative",
+  "version": "1.0.0",
+  "description": "5 skills: email-composer, medical-illustrator, presentation-designer, product-marketing-manager, ux-writer, \u2026 (24-creative)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

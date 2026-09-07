@@ -1,0 +1,12 @@
+{
+  "name": "specialized",
+  "version": "1.0.0",
+  "description": "16 skills: agent-handoff-protocol, brownfield-adoption-planner, chaos-engineer, cross-agent-skills-packaging, cross-repo-refactoring, deprecation-engineer, \u2026 (13-specialized)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

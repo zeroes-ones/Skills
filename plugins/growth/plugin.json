@@ -1,0 +1,12 @@
+{
+  "name": "growth",
+  "version": "1.0.0",
+  "description": "7 skills: ad-monetization-engineer, content-strategist, devrel-advocate, growth-engineer, llm-search-optimizer, pricing-purchase-optimizer, \u2026 (10-growth)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

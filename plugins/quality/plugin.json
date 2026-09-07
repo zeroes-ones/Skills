@@ -1,0 +1,12 @@
+{
+  "name": "quality",
+  "version": "1.0.0",
+  "description": "10 skills: accessibility-testing, api-test-suite-builder, browser-testing-with-devtools, code-reviewer, code-simplification, debugging-and-error-recovery, \u2026 (06-quality)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

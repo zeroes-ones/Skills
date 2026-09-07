@@ -1,0 +1,12 @@
+{
+  "name": "health-wellness",
+  "version": "1.0.0",
+  "description": "7 skills: fitness-programmer, habit-engineer, longevity-biohacker, mental-fitness-coach, nutrition-strategist, sleep-optimizer, \u2026 (30-health-wellness)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

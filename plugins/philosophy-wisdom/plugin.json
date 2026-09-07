@@ -1,0 +1,12 @@
+{
+  "name": "philosophy-wisdom",
+  "version": "1.0.0",
+  "description": "4 skills: critical-thinker, ethics-architect, mental-models, stoic-practitioner, \u2026 (34-philosophy-wisdom)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

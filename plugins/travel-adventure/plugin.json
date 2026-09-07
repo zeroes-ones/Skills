@@ -1,0 +1,12 @@
+{
+  "name": "travel-adventure",
+  "version": "1.0.0",
+  "description": "3 skills: adventure-planner, expat-strategist, travel-designer, \u2026 (36-travel-adventure)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

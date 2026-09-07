@@ -1,0 +1,12 @@
+{
+  "name": "product",
+  "version": "1.0.0",
+  "description": "6 skills: brainstorming, grilling, idea-to-spec, product-analyst, product-manager, ux-researcher, \u2026 (02-product)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

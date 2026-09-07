@@ -1,0 +1,12 @@
+{
+  "name": "home-domestic",
+  "version": "1.0.0",
+  "description": "4 skills: gardener, home-chef, home-organizer, interior-designer, \u2026 (35-home-domestic)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

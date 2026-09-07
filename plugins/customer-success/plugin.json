@@ -1,0 +1,12 @@
+{
+  "name": "customer-success",
+  "version": "1.0.0",
+  "description": "3 skills: account-manager, customer-onboarding-specialist, customer-success-manager, \u2026 (17-customer-success)",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}
