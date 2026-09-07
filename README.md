@@ -215,6 +215,15 @@ plugins. Indexing is telemetry-driven — the first `npx skills add` requests it
 > plugin install) are collected in **[`docs/owner-next-actions.md`](docs/owner-next-actions.md)** —
 > ready to run in ~10 minutes whenever you are.
 
+## Flagship — Senior Engineering & Micro-SDLC
+
+Hyper-focused core: tight, verified build loops executed by a senior engineer. **30 curated
+skills** across three axes (micro-SDLC loop · core senior engineering · systems & leadership),
+measured, and installable in Claude Code as one plugin:
+`/plugin install flagship-senior-engineering@zeroes-ones-skills`. Includes the executable
+`senior-dev-loop.yaml` micro-SDLC loop (implement ↔ review until pass, human ship gate).
+Details + measured baseline: **[`docs/flagship-senior-engineering.md`](docs/flagship-senior-engineering.md)**.
+
 ## Visual Skill-Chain Explorer
 
 An interactive, dependency-free graph of the whole library — click any skill and see exactly

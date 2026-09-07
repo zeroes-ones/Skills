@@ -15,6 +15,7 @@ enforces loop budgets, stagnation, step budgets, and handoff bookkeeping in code
 | `quality-fix-loop.yaml` | **Bounded loop, single-agent** | backend-developer ↔ qa-engineer until `qa.verdict == pass`; exhaustion escalates to a human gate |
 | `parallel-audits-merge.yaml` | **Parallel, multi-agent** | three specialist auditors over one change, join: all, human gate fires after the last auditor |
 | `agent-efficiency-pass.yaml` | **Serial, prompt/efficiency skills** | using-agent-skills → llm-engineer → context-compaction-strategies → token-efficiency |
+| `senior-dev-loop.yaml` | **Bounded loop, single-agent (flagship)** | micro-SDLC over flagship skills: incremental-implementation ↔ code-reviewer until `review.verdict == pass`; exhaustion escalates to a human ship gate — see `docs/flagship-senior-engineering.md` |
 
 Together they cover single- and multi-agent handoffs, serial and parallel work, and the
 prompt-engineering + efficiency layers of the library — the shapes requested for library-wide

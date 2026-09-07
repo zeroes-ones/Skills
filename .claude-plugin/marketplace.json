@@ -4,12 +4,17 @@
     "name": "Sandeep Kumar Penchala",
     "email": "sandeepkumarp@outlook.com"
   },
-  "description": "Zeroes & Ones skills library: 297 agent-agnostic skills covering the full company lifecycle (one plugin per domain + zeroes-ones-all over the flat layer)",
+  "description": "Zeroes & Ones skills library: 297 agent-agnostic skills covering the full company lifecycle (one plugin per domain, zeroes-ones-all over the flat layer, plus flagship sets)",
   "plugins": [
     {
       "name": "zeroes-ones-all",
       "description": "All 297 skills in one plugin (flat discovery layer)",
       "source": "./plugins/zeroes-ones-all"
+    },
+    {
+      "name": "flagship-senior-engineering",
+      "description": "Senior Engineering & Micro-SDLC Flagship \u2014 30 curated skills: incremental-implementation, tdd-guide, verification-before-completion, source-driven-development, iterative-task-execution, code-reviewer, qa-engineer, debugging-and-error-recovery\u2026",
+      "source": "./plugins/flagship-senior-engineering"
     },
     {
       "name": "framework",

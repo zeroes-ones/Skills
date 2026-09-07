@@ -1,0 +1,12 @@
+{
+  "name": "flagship-senior-engineering",
+  "version": "1.0.0",
+  "description": "Senior Engineering & Micro-SDLC Flagship \u2014 30 curated skills: incremental-implementation, tdd-guide, verification-before-completion, source-driven-development, iterative-task-execution, code-reviewer, qa-engineer, debugging-and-error-recovery\u2026",
+  "author": {
+    "name": "Sandeep Kumar Penchala",
+    "email": "sandeepkumarp@outlook.com"
+  },
+  "skills": [
+    "./skills"
+  ]
+}

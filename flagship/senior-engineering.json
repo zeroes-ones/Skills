@@ -1,0 +1,44 @@
+{
+  "id": "senior-engineering",
+  "title": "Senior Engineering & Micro-SDLC Flagship",
+  "subtitle": "Hyper-focused core: tight, verified build loops executed by a senior engineer — curated from the full library.",
+  "axes": {
+    "micro-sdlc": "The loop: plan -> implement -> test -> review -> verify -> ship, repeated in tight iterations until verification passes",
+    "senior-core": "Core senior engineering tasks: architecture, design, build, secure-by-default, performance",
+    "senior-systems": "Systems & leadership depth: codebase/platform ownership, dependency governance, senior engineering modes, staff/EM judgment"
+  },
+  "skills": [
+    { "name": "incremental-implementation", "axis": "micro-sdlc" },
+    { "name": "tdd-guide", "axis": "micro-sdlc" },
+    { "name": "verification-before-completion", "axis": "micro-sdlc" },
+    { "name": "source-driven-development", "axis": "micro-sdlc" },
+    { "name": "iterative-task-execution", "axis": "micro-sdlc" },
+    { "name": "code-reviewer", "axis": "micro-sdlc" },
+    { "name": "qa-engineer", "axis": "micro-sdlc" },
+    { "name": "debugging-and-error-recovery", "axis": "micro-sdlc" },
+    { "name": "code-simplification", "axis": "micro-sdlc" },
+    { "name": "shipping-and-launch", "axis": "micro-sdlc" },
+
+    { "name": "system-architect", "axis": "senior-core" },
+    { "name": "codebase-design", "axis": "senior-core" },
+    { "name": "api-designer", "axis": "senior-core" },
+    { "name": "database-designer", "axis": "senior-core" },
+    { "name": "event-driven-architect", "axis": "senior-core" },
+    { "name": "backend-developer", "axis": "senior-core" },
+    { "name": "networking-engineer", "axis": "senior-core" },
+    { "name": "secure-api-design", "axis": "senior-core" },
+    { "name": "performance-engineer", "axis": "senior-core" },
+    { "name": "merge-conflict-resolver", "axis": "senior-core" },
+
+    { "name": "senior-engineer-mode-router", "axis": "senior-systems" },
+    { "name": "staff-engineer", "axis": "senior-systems" },
+    { "name": "engineering-manager", "axis": "senior-systems" },
+    { "name": "platform-engineer", "axis": "senior-systems" },
+    { "name": "dependency-governance", "axis": "senior-systems" },
+    { "name": "monorepo-manager", "axis": "senior-systems" },
+    { "name": "repo-scaffolding", "axis": "senior-systems" },
+    { "name": "multi-agent-orchestration", "axis": "senior-systems" },
+    { "name": "cross-repo-refactoring", "axis": "senior-systems" },
+    { "name": "cloud-architect", "axis": "senior-systems" }
+  ]
+}

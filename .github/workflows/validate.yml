@@ -10,7 +10,10 @@ on:
       - 'scripts/validate_chains.py'
       - 'scripts/lib/lint-template.py'
       - 'scripts/emit-skill-graph.py'
+      - 'scripts/emit-marketplace.py'
       - 'docs/graph-explorer/**'
+      - 'flagship/**'
+      - 'plugins/**'
       - '.github/**'
   push:
     branches: [main]
@@ -21,7 +24,10 @@ on:
       - 'scripts/validate_chains.py'
       - 'scripts/lib/lint-template.py'
       - 'scripts/emit-skill-graph.py'
+      - 'scripts/emit-marketplace.py'
       - 'docs/graph-explorer/**'
+      - 'flagship/**'
+      - 'plugins/**'
       - '.github/**'
   workflow_dispatch:
 
@@ -144,6 +150,9 @@ jobs:
 
       - name: Explorer outputs are fresh
         run: python3 scripts/emit-skill-graph.py --check
+
+      - name: Marketplace outputs are fresh (plugins/ + manifest)
+        run: python3 scripts/emit-marketplace.py --check
 
   workflow-graphs:
     runs-on: ubuntu-latest

@@ -1,0 +1,46 @@
+name: senior-dev-loop
+version: "1.0.0"
+description: "Micro-SDLC bounded loop over flagship skills: incremental-implementation -> code-reviewer until review passes, escalating to a human ship gate at exhaustion. The executable story behind docs/flagship-senior-engineering.md — a senior engineer iterating in tight, verified loops."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 40
+start: implement
+nodes:
+  - id: implement
+    skill: incremental-implementation
+    outputs: [change]
+  - id: review
+    skill: code-reviewer
+    inputs: [change]
+    outputs: [review-report]
+gates:
+  - id: ship-gate
+    type: gate
+    kind: human
+    requires: [review-report, change]
+    description: Senior engineer ships after review converges or the loop exhausts.
+edges:
+  - from: review
+    to: ship-gate
+    when: review.status == done
+    payload: handoff-v1
+loops:
+  - id: micro-sdlc-loop
+    nodes: [implement, review]
+    exit_when: review.verdict == pass
+    max_iterations: 4
+    escalate_to: ship-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [ship-gate]
