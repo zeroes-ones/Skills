@@ -6,12 +6,13 @@
 <title>Zeroes &amp; Ones — Skill Chain Explorer</title>
 <style>
   :root {
-    --bg: #0d1117;
-    --panel: #161b22;
-    --border: #30363d;
+    --bg: #0b0f17;
+    --panel: #121826;
+    --border: #2a3350;
     --text: #e6edf3;
-    --muted: #8b949e;
+    --muted: #8b98b4;
     --accent: #58a6ff;
+    --amber: #e3b341;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
@@ -28,94 +29,111 @@
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--panel);
+    padding: 10px 16px 6px;
   }
-  header h1 { font-size: 16px; margin: 0; }
+  header h1 { font-size: 16px; margin: 0; white-space: nowrap; }
   header .stats { color: var(--muted); font-size: 12px; display: flex; gap: 14px; flex-wrap: wrap; }
   header .stats b { color: var(--text); font-weight: 600; }
   #search {
     margin-left: auto;
-    background: var(--bg);
+    background: #0d1420;
     color: var(--text);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 6px 10px;
-    width: 240px;
+    width: 230px;
     font-size: 13px;
   }
-  #domainFilter {
-    background: var(--bg);
-    color: var(--text);
+  #search:focus { outline: none; border-color: var(--accent); }
+  #chips {
+    display: flex; gap: 6px; overflow-x: auto;
+    padding: 6px 16px 8px;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: thin;
+  }
+  .chip-btn {
     border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 8px;
-    font-size: 13px;
-    max-width: 220px;
+    background: #131b2c;
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 3px 11px;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all .12s ease;
   }
+  .chip-btn:hover { color: var(--text); border-color: var(--accent); }
+  .chip-btn.active { background: #1f6feb22; color: #cfe4ff; border-color: #1f6feb; }
+  .chip-btn .n { opacity: .65; margin-left: 4px; }
   main { flex: 1; display: flex; min-height: 0; }
-  #viewport {
-    flex: 1;
-    position: relative;
-    min-width: 0;
-  }
+  #viewport { flex: 1; position: relative; min-width: 0; }
   #graph { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
   #graph.panning { cursor: grabbing; }
   #tooltip {
-    position: absolute;
-    pointer-events: none;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 12px;
-    color: var(--text);
-    max-width: 300px;
-    display: none;
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,.4);
+    position: absolute; pointer-events: none;
+    background: #0f1626; border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 11px; font-size: 12px;
+    display: none; z-index: 10;
+    box-shadow: 0 6px 20px rgba(0,0,0,.5);
+    max-width: 320px;
   }
   aside {
-    width: 340px;
-    border-left: 1px solid var(--border);
-    background: var(--panel);
-    padding: 14px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    width: 350px; border-left: 1px solid var(--border);
+    background: var(--panel); display: flex; flex-direction: column; min-height: 0;
   }
-  aside h2 { margin: 0 0 2px; font-size: 18px; word-break: break-word; }
-  aside .meta { color: var(--muted); font-size: 12px; }
-  aside code.path {
+  .pathfinder {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .pathfinder .pf-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .pf-row { display: flex; gap: 6px; }
+  .pf-row input {
+    flex: 1; min-width: 0; background: #0d1420; color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 12px;
+  }
+  .pf-row input:focus { outline: none; border-color: var(--accent); }
+  .pf-row button {
+    background: #1f6feb; color: #fff; border: 0; border-radius: 6px;
+    padding: 5px 12px; cursor: pointer; font-size: 12px; white-space: nowrap;
+  }
+  .pf-row button:hover { background: #388bfd; }
+  #pathResult { font-size: 12px; color: var(--amber); min-height: 16px; word-break: break-word; }
+  #pathResult.err { color: #f85149; }
+  #panel { flex: 1; padding: 12px 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  #panel h2 { margin: 0; font-size: 17px; word-break: break-word; }
+  #panel .meta { color: var(--muted); font-size: 12px; }
+  #panel code.path {
     display: block; font-size: 11px; color: var(--accent);
-    background: var(--bg); padding: 6px 8px; border-radius: 6px;
-    overflow-wrap: anywhere; margin: 6px 0;
+    background: #0d1420; padding: 6px 8px; border-radius: 6px;
+    overflow-wrap: anywhere; margin: 4px 0;
   }
-  aside .desc { font-size: 13px; color: var(--text); }
-  aside .neighbors { display: flex; flex-direction: column; gap: 4px; }
-  aside .neighbors h3 {
-    margin: 8px 0 2px; font-size: 12px; text-transform: uppercase;
-    letter-spacing: .05em; color: var(--muted);
+  #panel .desc { font-size: 13px; color: var(--text); }
+  .section-label {
+    margin: 10px 0 4px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--muted); font-weight: 600;
   }
-  aside .chip {
+  #panel .chip {
     display: flex; align-items: center; gap: 8px; padding: 5px 8px;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    background: #0d1420; border: 1px solid var(--border); border-radius: 8px;
     cursor: pointer; font-size: 13px; color: var(--text);
   }
-  aside .chip:hover { border-color: var(--accent); }
-  aside .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
-  aside .links a {
+  #panel .chip:hover { border-color: var(--accent); }
+  #panel .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  #panel .links a {
     color: var(--accent); text-decoration: none; font-size: 12px;
-    display: inline-block; margin-right: 12px;
+    display: inline-block; margin-right: 14px;
   }
-  aside .links a:hover { text-decoration: underline; }
-  #empty { padding: 20px; color: var(--muted); }
+  #panel .links a:hover { text-decoration: underline; }
+  .legend { display:flex; gap:14px; color:var(--muted); font-size:11px; align-items:center; }
+  .legend i { display:inline-block; width:14px; height:2px; margin-right:4px; vertical-align:middle; }
+  .legend .in i { background:#58a6ff; }
+  .legend .out i { background:#e3b341; }
+  #empty { color: var(--muted); }
   .node { cursor: pointer; }
-  .node-title { pointer-events: none; }
-  @media (max-width: 860px) {
-    aside { width: 260px; }
+  .node circle { transition: opacity .12s ease; }
+  .hub-ring { fill: none; stroke: rgba(88,166,255,.35); stroke-width: 1; }
+  @media (max-width: 900px) {
+    aside { width: 280px; }
     header .stats { display: none; }
     #search { width: 150px; }
   }
@@ -125,18 +143,31 @@
 <header>
   <h1>Skill Chain Explorer</h1>
   <div class="stats" id="stats"></div>
-  <select id="domainFilter" title="Filter by domain">
-    <option value="">All domains</option>
-  </select>
+  <div class="legend" id="edgeLegend">
+    <span class="in"><i></i>consumes from</span>
+    <span class="out"><i></i>feeds into</span>
+  </div>
   <input id="search" type="search" placeholder="Search 297 skills…" autocomplete="off">
 </header>
+<div id="chips"></div>
 <main>
   <div id="viewport">
     <svg id="graph" aria-label="Skill dependency graph. Drag to pan, scroll to zoom."></svg>
     <div id="tooltip"></div>
   </div>
-  <aside id="panel">
-    <div id="empty">Click a node to inspect a skill — its chain neighbors (who it consumes from and feeds into) are highlighted in the graph.</div>
+  <aside>
+    <div class="pathfinder">
+      <div class="pf-label">Pathfinder — shortest chain between two skills</div>
+      <div class="pf-row">
+        <input id="pathFrom" type="text" placeholder="From (e.g. system-architect)" autocomplete="off">
+        <input id="pathTo" type="text" placeholder="To (e.g. code-reviewer)" autocomplete="off">
+        <button id="pathBtn" title="Find chain">Path</button>
+      </div>
+      <div id="pathResult"></div>
+    </div>
+    <div id="panel">
+      <div id="empty">Click a skill to inspect it — its chain neighbors (who it consumes from and feeds into) light up in the graph. Use the domain chips above to zoom into a field, or the pathfinder to trace a chain between two skills.</div>
+    </div>
   </aside>
 </main>
 <script type="application/json" id="graph-data">__GRAPH_JSON__</script>
