@@ -7,15 +7,15 @@ exact action, the verification command, and a done-box. Cross-references:
 
 ---
 
-## 1. Enable GitHub Pages — makes the graph explorer live
-The explorer is fully built (`docs/graph-explorer/`) and its deploy workflow
-(`.github/workflows/deploy-pages.yml`) is green-ready; it currently fails only because Pages
-is not enabled for the repo (API enablement returns 403 with the current PAT).
+## 1. Enable GitHub Pages — makes the graph explorer live ✅ DONE (2026-09-07)
+Explorer is fully built (`docs/graph-explorer/`), its deploy workflow
+(`.github/workflows/deploy-pages.yml`) is green, and Pages is now enabled with
+**Source: GitHub Actions**.
 
-- [ ] **Action:** GitHub web UI → **Settings → Pages → Source: "GitHub Actions"** (or use a
-      Pages-scoped token: `gh api --method POST repos/zeroes-ones/Skills/pages -f build_type=workflow`).
-- [ ] **Verify:** trigger or wait for the "Deploy Graph Explorer to GitHub Pages" workflow →
-      green; open `https://zeroes-ones.github.io/Skills/` and confirm the graph renders.
+- [x] **Action:** GitHub web UI → **Settings → Pages → Source: "GitHub Actions"**.
+- [x] **Verify:** "Deploy Graph Explorer to GitHub Pages" workflow → **success**;
+      live at **https://zeroes-ones.github.io/Skills/** (verified: HTTP 200, explorer
+      v2 with domain chips + pathfinder served).
 
 ## 2. Publish the npm package (EC-6)
 `@zeroes-ones/skills` is publish-ready (bins + tarball contents verified in CI); it has never
@@ -44,6 +44,8 @@ Detail pages already resolve (`skills.sh/zeroes-ones/Skills/<name>` → 200). Pe
 
 ---
 
-**Status:** items 1–4 are the remaining owner-gated launch steps after the installability work
-and the graph-explorer build (`origin/main` `c390792a`). Everything code-side is done, verified,
-and CI-green.
+**Status:** item 1 (Pages) is **done** — explorer v2 live at `https://zeroes-ones.github.io/Skills/`.
+Items 2–4 (npm publish EC-6, post-publish npx check EC-7, Claude plugin install EC-11) are the
+remaining owner-gated launch steps. Claude Code plugin install (EC-11) was verified in a
+maintainer session (marketplace add + `zeroes-ones-all` 297 skills + flagship 30); item 4's
+checkbox documents the end-user flow. Everything code-side is done, verified, and CI-green.
