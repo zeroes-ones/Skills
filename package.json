@@ -1,7 +1,7 @@
 {
   "name": "@zeroes-ones/skills",
   "version": "2.0.0",
-  "description": "210 agent-agnostic skills covering the full company lifecycle — from CEO vision through architecture, development, security, compliance, and operations.",
+  "description": "297 agent-agnostic skills covering the full company lifecycle — from CEO vision through architecture, development, security, compliance, and operations. Installer/activator CLI (npx @zeroes-ones/skills init).",
   "license": "MIT",
   "author": "Sandeep Kumar Penchala",
   "repository": {
@@ -25,26 +25,17 @@
     "devops"
   ],
   "bin": {
+    "skills": "./scripts/npx-skills.sh",
     "skills-init": "./scripts/init-project.sh",
     "skills-update": "./scripts/install.sh",
     "skills-validate": "./scripts/validate-skills.sh",
     "skills-lint": "./scripts/lint.sh"
   },
   "files": [
-    "skills/",
     "scripts/",
-    "personas/",
-    "hooks/",
     "docs/",
-    "evals/",
-    "AGNOSTIC-PRINCIPLES.md",
-    "COORDINATION-MATRIX.md",
-    "PROJECT-BOOTSTRAP.md",
-    "SCALE-DEPTH-FRAMEWORK.md",
-    "SKILL-QUALITY-STANDARDS.md",
-    "SUB-SKILL-MAP.md",
-    "WISDOM-FRAMEWORK.md",
-    "README.md"
+    "README.md",
+    "QUICKSTART.md"
   ],
   "engines": {
     "node": ">=16.0.0"

@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-07T19:37:54Z
+# Generated: 2026-09-07T20:41:33Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    b9797df3a265e25341970043b16413b6f3f29419
+# Commit:    de1da13766353a8a723dbb8c8dde529e8ee93596
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -28,10 +28,10 @@ f2a34eb14b3f482c6d57cfcd91837db04ba65ec00b23bf7859db44b51073f680  scripts/eval-s
 8719461626c18b24373c76517dc40407dcebdc503f532768f57784e3d2770b7e  scripts/executors/agent_executor.py
 12110beef66ea313b7fbcc58058fe16d86f84cf269cdaa1154ac0d5fa19e0583  scripts/executors/repo_checks.py
 e5133d51013888d8cc6cd26f11bb656b1430d15c45ffb64aaf3cdb0cb4f15cf0  scripts/export-traces.py
-586fef2eccac0908aec7c3eb94dde158b3e5d099500235816fb8ecc0c2b3b976  scripts/init-project.sh
+26e03ab164ebaafcd52b04b20797cb771ff1c2a67ec3bcaa6148ca7533614ae3  scripts/init-project.sh
 a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject-anti-hallucination.py
 129cab96cfa4784974cc0d539b44d7ee24897cb6fe659e4aca88ab214fef2f94  scripts/install-hooks.sh
-044ab1c8f613b22c515379397722a434a263c35d74bed4c83d7962a51201f652  scripts/install.sh
+18f651cf3ba52b4f699be673b0ccffea67a8f3c0b5bb91092e04f6de77547054  scripts/install.sh
 cc63951ce1b92eea4d9fae4af852a57ca4b66a28e34bf5270951dd1372e00fe4  scripts/lib/deep-research-gate.sh
 4401693116769e6c5fece0929968d1902112619fe3d0633789e4bcc7ed82cb47  scripts/lib/eval-golden.py
 0ba91108c919c1de83b5d27bade167ff13cd97620f4460614d7ed0a89f0bce7d  scripts/lib/guardrails.py
@@ -46,6 +46,7 @@ e5ef422fedad81411d061b2cc53fcc9dbc55cd8be60ae6e14e3e4cb6af774507  scripts/lib/li
 79b5cf6db04974cd871b66f8f518640c80afce10194589a83de470eadcaa1b96  scripts/lib/validate-skill-examples.sh
 5f2ffb808c267412a2fe61d40a51fa5ebaf76836bcc32a191f02202200b7a5b0  scripts/lint.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
+58eeace6aeb315ff577bcb7704be7c3216cda603015921bc6ace1abeedfe0c21  scripts/npx-skills.sh
 8e8e66508163e9685bb107f39629e560c17e44fc43ef938530f0b32847e0b586  scripts/project-init.sh
 41b298d2e24fa17ae6bfb7391f702b3edf71ad6ea3d38b3515883836ae37c895  scripts/run-ci-locally.sh
 83ddcc311bf59928a4c86f4a52c431d0addaf4d157b20990173b149fa6375f37  scripts/run-effectiveness.py

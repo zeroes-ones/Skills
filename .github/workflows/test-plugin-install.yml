@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/install.sh'
       - 'scripts/init-project.sh'
+      - 'scripts/npx-skills.sh'
       - 'package.json'
       - '.claude-plugin/**'
       - '.cursor-plugin/**'
@@ -17,21 +18,60 @@ on:
     paths:
       - 'scripts/install.sh'
       - 'scripts/init-project.sh'
+      - 'scripts/npx-skills.sh'
       - 'package.json'
       - '.claude-plugin/**'
       - '.cursor-plugin/**'
 
 jobs:
+  # Exit criteria EC-1…EC-3 — see docs/install-exit-criteria.md
   test-shell-install:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test install script
+      - name: Syntax check install scripts
         run: |
-          bash scripts/install.sh --dry-run || echo "Dry-run mode not supported — checking syntax"
           bash -n scripts/install.sh
           bash -n scripts/init-project.sh
+          bash -n scripts/npx-skills.sh
+      - name: E2E — dual-mode skills-init against the checkout store (PR + push)
+        run: |
+          set -euo pipefail
+          export SKILLS_HOME="$GITHUB_WORKSPACE"   # checkout layout == store layout
+          PROJ="$RUNNER_TEMP/e2e-local"
+          rm -rf "$PROJ"; mkdir -p "$PROJ"; cd "$PROJ"
+          bash "$GITHUB_WORKSPACE/scripts/init-project.sh" > /dev/null
+          test "$(find -L .agents/skills -name SKILL.md | wc -l | tr -d ' ')" = "297"
+          bash "$GITHUB_WORKSPACE/scripts/init-project.sh" --solo > /dev/null
+          test "$(find -L .agents/skills -name SKILL.md | wc -l | tr -d ' ')" = "8"
+          bash "$GITHUB_WORKSPACE/scripts/init-project.sh" --grow > /dev/null
+          test "$(find -L .claude/skills -name SKILL.md | wc -l | tr -d ' ')" = "18"
+          bash "$GITHUB_WORKSPACE/scripts/init-project.sh" --status | grep -q "grow"
+          bash "$GITHUB_WORKSPACE/scripts/init-project.sh" > /dev/null
+          test -L .agents/skills
+          test "$(find -L .agents/skills -name SKILL.md | wc -l | tr -d ' ')" = "297"
+          echo "✓ dual-mode skills-init: 297 default / 8 solo / 18 grow / mode switching OK"
+      - name: E2E — fresh shell install from GitHub (push to main only)
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          export HOME="$RUNNER_TEMP/e2e-home"
+          rm -rf "$HOME"; mkdir -p "$HOME"
+          bash "$GITHUB_WORKSPACE/scripts/install.sh"
+          test -d "$HOME/.zeroes-ones/skills"
+          test "$(find "$HOME/.zeroes-ones/skills/skills" -name SKILL.md | wc -l | tr -d ' ')" = "297"
+          test "$(find "$HOME/.zeroes-ones/skills/skills-flat" -maxdepth 1 -mindepth 1 | wc -l | tr -d ' ')" = "297"
+          test -L "$HOME/.claude/skills"
+          test -x "$HOME/.local/bin/skills-init"
+          PROJ="$RUNNER_TEMP/e2e-remote-proj"
+          rm -rf "$PROJ"; mkdir -p "$PROJ"; cd "$PROJ"
+          "$HOME/.local/bin/skills-init" --solo > /dev/null
+          test "$(find -L .agents/skills -name SKILL.md | wc -l | tr -d ' ')" = "8"
+          "$HOME/.local/bin/skills-init" > /dev/null
+          test "$(find -L .claude/skills -name SKILL.md | wc -l | tr -d ' ')" = "297"
+          echo "✓ fresh install from GitHub: 297 skills, agent symlinks, dual-mode skills-init"
 
+  # Exit criteria EC-4…EC-5 — see docs/install-exit-criteria.md
   test-npm-package:
     runs-on: ubuntu-latest
     steps:
@@ -39,16 +79,31 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Validate package.json
+      - name: Validate package.json + bin scripts exist
         run: |
-          node -e "const pkg = require('./package.json'); console.log('Package:', pkg.name, pkg.version); console.log('Bins:', Object.keys(pkg.bin).join(', '));"
-      - name: Check bin scripts exist
-        run: |
-          for bin in skills-init skills-update skills-validate skills-lint; do
+          node -e "const p = require('./package.json'); if (!p.bin.skills) throw new Error('bin.skills missing'); console.log('Package:', p.name, p.version); console.log('Bins:', Object.keys(p.bin).join(', '));"
+          for bin in skills skills-init skills-update skills-validate skills-lint; do
             script=$(node -e "console.log(require('./package.json').bin['$bin'])")
-            if [ ! -f "$script" ]; then echo "ERROR: $script not found for $bin"; exit 1; fi
+            test -f "$script" || { echo "ERROR: $script not found for $bin"; exit 1; }
             echo "✓ $bin → $script"
           done
+      - name: Pack tarball and verify contents
+        run: |
+          set -euo pipefail
+          TGZ=$(npm pack --silent | tail -1)
+          echo "tarball: $TGZ"
+          tar tzf "$TGZ" | grep -q "package/scripts/init-project.sh"
+          tar tzf "$TGZ" | grep -q "package/scripts/npx-skills.sh"
+          tar tzf "$TGZ" | grep -q "package/scripts/install.sh"
+          tar tzf "$TGZ" | grep -q "package/docs/install-exit-criteria.md"
+          echo "✓ tarball contains bin scripts + docs"
+      - name: Skills bin dispatches from the packed tarball
+        run: |
+          set -euo pipefail
+          TGZ=$(npm pack --silent | tail -1)
+          npx --yes --package "$TGZ" skills --help | grep -q "init"
+          npx --yes --package "$TGZ" skills init --help | grep -q -- "--solo"
+          echo "✓ npx --package <pkg> skills init resolves (documented npx entry point)"
 
   test-command-parity:
     runs-on: ubuntu-latest

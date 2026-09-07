@@ -190,10 +190,10 @@ Run: `./scripts/run-evals.sh --tier all`
 ## Distribution — npm, Shell & skills.sh
 
 ```bash
-# Shell install (one command)
+# Shell install (one command) — clone to ~/.zeroes-ones/skills + global agent symlinks
 curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
 
-# npm install
+# npm install — same activator CLI, package-distributed (bootstraps the store on first use)
 npx @zeroes-ones/skills init
 
 # skills.sh (open agent skills registry) — installs into whichever agents are present
@@ -205,6 +205,11 @@ Our canonical `skills/<domain>/<name>/SKILL.md` catalog layout is natively disco
 skills.sh crawler, and `.claude-plugin/marketplace.json` declares the whole library as Claude
 plugins. Indexing is telemetry-driven — the first `npx skills add` requests it; see
 [`docs/plugin-marketplace-publishing.md`](docs/plugin-marketplace-publishing.md) §3.
+
+> **What "installable" means for this repo — exit criteria.** Every install channel above has a
+> concrete definition of done, a verification command, and an owner. See
+> **[`docs/install-exit-criteria.md`](docs/install-exit-criteria.md)** for the checklist and the
+> two external gates that only land once the repo is pushed (npm publish, registry indexing).
 
 ## Brownfield Adoption
 
@@ -289,7 +294,7 @@ curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/inst
 
 ```
 
-This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for all your agents, installs convenience commands, and sets up auto-activation for new projects.
+This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for all your agents, installs the `skills-init` / `skills-update` convenience commands, and sets up auto-activation for new projects. `skills-init` is installed from `scripts/init-project.sh` (one source of truth shared with the npm bin) and supports both activation modes below.
 
 | Command | What It Does |
 |---------|-------------|
@@ -297,11 +302,13 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
-| `skills-update` | Pull latest skills — all symlinked projects update instantly |
+| `skills-update` | Pull latest library — also refreshes the `skills-init` command |
 
 ### Tiered Activation — Match Skills to Project Maturity
 
-Skills scale with your project. Start lean, expand as you grow:
+Two modes, pick per project: `skills-init` with no flags activates **all 297 skills** (team/company
+default — one flat layer every agent discovers). Want a lean start? Activate a tier, then expand
+as you grow:
 
 ```bash
 # Personal side project — just the essentials

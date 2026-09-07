@@ -87,12 +87,12 @@ As your project grows, activate more skills:
 
 ```bash
 
-skills-init --grow   # 18 skills: add CI/CD, observability, SEO, analytics
+skills-init --grow   # 18 skills: add business strategy, UX research, design, architecture, backend, DevOps
 skills-init --full   # 297 skills: full enterprise coverage
 
 ```
 
-See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to $25K MRR (56 skills).
+See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to full coverage (297 skills).
 
 ---
 

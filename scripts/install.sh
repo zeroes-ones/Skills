@@ -12,7 +12,7 @@
 set -euo pipefail
 
 SKILLS_HOME="${SKILLS_HOME:-$HOME/.zeroes-ones/skills}"
-REPO_URL="https://github.com/zeroes-ones/Skills.git"
+REPO_URL="${REPO_URL:-https://github.com/zeroes-ones/Skills.git}"
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
@@ -62,58 +62,30 @@ for entry in $AGENT_LIST; do
     fi
 done
 
-# Step 3: Create convenience command
+# Step 3: Create convenience commands
 echo -e "${YELLOW}[3/4]${NC} Creating convenience commands..."
 
-# skills-init command for per-project setup
 mkdir -p "$HOME/.local/bin"
-cat > "$HOME/.local/bin/skills-init" << 'INITSCRIPT'
-#!/usr/bin/env bash
-# Run this inside any project directory to activate all skills
-SKILLS_HOME="${SKILLS_HOME:-$HOME/.zeroes-ones/skills}"
-PROJECT="${1:-.}"
 
-cd "$PROJECT" || { echo "Cannot access $PROJECT"; exit 1; }
-echo "Activating skills in $(pwd)..."
+# skills-init — per-project activation. Installed from the repo's canonical
+# scripts/init-project.sh (single source of truth; also the `skills-init` npm
+# bin). Dual-mode: all 297 skills by default, or --solo/--grow subsets.
+install -m 755 "$SKILLS_HOME/scripts/init-project.sh" "$HOME/.local/bin/skills-init"
+echo -e "      ${GREEN}✓${NC} skills-init → $HOME/.local/bin/skills-init (default: all 297; --solo/--grow subsets)"
 
-# Format: agent_name:target_dir (colon-separated); project scope uses the same
-# flat discovery layer as the global install (see scripts/install.sh).
-AGENT_LIST="agents:.agents/skills claude:.claude/skills copilot:.copilot/skills github:.github/skills cursor:.cursor/skills codex:.codex/skills gemini:.gemini/skills windsurf:.windsurf/skills cline:.cline/skills opencode:.opencode/skills"
-
-for entry in $AGENT_LIST; do
-    agent="${entry%%:*}"
-    target="${entry#*:}"
-    parent=$(dirname "$target")
-    if [ -L "$target" ]; then
-        echo "  ✓ $agent already linked"
-    elif [ -e "$target" ] && [ -n "$(ls -A "$target" 2>/dev/null)" ]; then
-        echo "  ○ $agent dir exists with content (keep, skip)"
-    elif [ -d "$parent" ] || mkdir -p "$parent" 2>/dev/null; then
-        rm -rf "$target" 2>/dev/null || true
-        ln -sf "$SKILLS_HOME/skills-flat" "$target"
-        echo "  ✓ $agent → $target"
-        # Add to .gitignore
-        grep -q "^$target$" .gitignore 2>/dev/null || echo "$target" >> .gitignore
-    fi
-done
-
-# Also symlink bootstrap guide
-ln -sf "$SKILLS_HOME/PROJECT-BOOTSTRAP.md" .skills-bootstrap.md 2>/dev/null || true
-echo ""
-echo "✓ Skills activated. Use /{skill-name} to invoke any skill."
-echo "  See .skills-bootstrap.md for the lifecycle navigation guide."
-INITSCRIPT
-chmod +x "$HOME/.local/bin/skills-init"
-echo -e "      ${GREEN}✓${NC} skills-init → $HOME/.local/bin/skills-init"
-
-# skills-update command for pulling latest
+# skills-update — pull latest library, then refresh the commands so fixes to
+# scripts/init-project.sh propagate to already-installed machines.
 cat > "$HOME/.local/bin/skills-update" << 'UPDATESCRIPT'
 #!/usr/bin/env bash
 SKILLS_HOME="${SKILLS_HOME:-$HOME/.zeroes-ones/skills}"
-cd "$SKILLS_HOME" || exit 1
+cd "$SKILLS_HOME" || { echo "Skills library not found at $SKILLS_HOME"; exit 1; }
 echo "Updating skills library..."
 git pull origin main
-echo "✓ All projects now use updated skills (symlinks auto-resolve)."
+if [ -f "scripts/init-project.sh" ]; then
+    install -m 755 "scripts/init-project.sh" "$HOME/.local/bin/skills-init" 2>/dev/null || true
+    echo "✓ Refreshed skills-init command."
+fi
+echo "✓ Skills updated — linked projects use the latest (symlinks auto-resolve)."
 UPDATESCRIPT
 chmod +x "$HOME/.local/bin/skills-update"
 echo -e "      ${GREEN}✓${NC} skills-update → $HOME/.local/bin/skills-update"
