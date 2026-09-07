@@ -49,6 +49,7 @@ chain:
     - intraday-options-trader
     - swing-options-trader
     - volatility-arbitrage-engineer
+    - options-quant-engineer
   alternatives:
     - ml-engineer
 

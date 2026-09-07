@@ -4,7 +4,7 @@
 # Author: Sandeep Kumar Penchala
 #
 # Run inside any project to symlink skills into that project. Two modes:
-#   * default (no flag) — all 297 skills from the flat layer (~/.zeroes-ones/
+#   * default (no flag) — all 298 skills from the flat layer (~/.zeroes-ones/
 #     skills/skills-flat), one level deep so every agent discovers them
 #   * tiered — --solo (8 essential) / --grow (18) subsets, by skill name
 # Usage: skills-init [--solo|--grow|--full|--status] [project-path]
@@ -34,7 +34,7 @@ GROW_SKILLS="$SOLO_SKILLS business-strategist ux-researcher ui-ux-designer acces
 # layer and agent set as scripts/install.sh (global install).
 AGENT_LIST="agents:.agents/skills claude:.claude/skills copilot:.copilot/skills github:.github/skills cursor:.cursor/skills codex:.codex/skills gemini:.gemini/skills windsurf:.windsurf/skills cline:.cline/skills opencode:.opencode/skills"
 
-FULL_COUNT=297
+FULL_COUNT=298
 
 tier_info() {
     case "$1" in
@@ -106,7 +106,7 @@ show_status() {
         echo -e "  Tier:    ${GREEN}$tier${NC} ($count skills linked)"
     fi
     echo ""
-    echo -e "  ${CYAN}default/full${NC} → all 297 skills (team/company projects)"
+    echo -e "  ${CYAN}default/full${NC} → all 298 skills (team/company projects)"
     echo -e "  ${CYAN}grow${NC}         → 18 skills (project gaining traction)"
     echo -e "  ${CYAN}solo${NC}         → 8 essential skills (personal projects)"
     echo -e "  Run: ${BLUE}skills-init [--solo|--grow|--full]${NC} to switch tiers"
@@ -219,7 +219,7 @@ activate() {
         if [ "$mode" = "solo" ]; then
             echo -e "  Ready to scale?    ${BLUE}skills-init --grow${NC}"
         elif [ "$mode" = "grow" ]; then
-            echo -e "  Need everything?   ${BLUE}skills-init${NC} (all 297 skills)"
+            echo -e "  Need everything?   ${BLUE}skills-init${NC} (all 298 skills)"
         fi
         echo -e "  Update later:      ${BLUE}skills-update${NC}"
     else
@@ -244,8 +244,8 @@ while [ $# -gt 0 ]; do
         --help|-h)
             echo "Usage: skills-init [--solo|--grow|--full|--status] [project-path]"
             echo ""
-            echo "  (no flag)  all 297 skills — team/company projects (default)"
-            echo "  --full     all 297 skills (explicit)"
+            echo "  (no flag)  all 298 skills — team/company projects (default)"
+            echo "  --full     all 298 skills (explicit)"
             echo "  --grow     18 skills for projects gaining traction"
             echo "  --solo     8 essential skills for personal projects"
             echo "  --status   show current activation tier + skill count"

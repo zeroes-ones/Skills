@@ -27,7 +27,7 @@ tags:
 chain:
   examples:
   - skills/14-finance/options-automation-engineer/examples/backtest
-  consumes_from: [algorithmic-trader, options-strategist, options-risk-engineer, intraday-options-trader, swing-options-trader, advanced-options-structures]
+  consumes_from: [algorithmic-trader, options-strategist, options-risk-engineer, intraday-options-trader, swing-options-trader, advanced-options-structures, options-quant-engineer]
   feeds_into: [trade-performance-analyst, portfolio-signal-manager, devops-engineer, algorithmic-trader]
 version: 1.0.0
 status: active

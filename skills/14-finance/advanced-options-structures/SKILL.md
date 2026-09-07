@@ -47,6 +47,7 @@ chain:
     - algorithmic-trader
     - portfolio-signal-manager
     - options-automation-engineer
+    - options-quant-engineer
   alternatives:
     - options-strategist
 

@@ -61,6 +61,7 @@ chain:
     - trade-performance-analyst
     - options-automation-engineer
     - portfolio-signal-manager
+    - options-quant-engineer
   alternatives:
     - ml-engineer
 workflow:

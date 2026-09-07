@@ -29,7 +29,7 @@ been published (registry 404 today).
 ## 3. Post-publish `npx` smoke check (EC-7)
 - [ ] **Action:** on a clean machine with Node ≥ 16:
       `npx @zeroes-ones/skills init` — should bootstrap `~/.zeroes-ones/skills` on first use and
-      activate skills in the current project (default 297; `--solo` 8 / `--grow` 18 / `--status`).
+      activate skills in the current project (default 298; `--solo` 8 / `--grow` 18 / `--status`).
 - [ ] **Also:** `npx @zeroes-ones/skills update` and `npx @zeroes-ones/skills --help` resolve.
 
 ## 4. Claude Code plugin marketplace install (EC-11)
@@ -47,5 +47,5 @@ Detail pages already resolve (`skills.sh/zeroes-ones/Skills/<name>` → 200). Pe
 **Status:** item 1 (Pages) is **done** — explorer v2 live at `https://zeroes-ones.github.io/Skills/`.
 Items 2–4 (npm publish EC-6, post-publish npx check EC-7, Claude plugin install EC-11) are the
 remaining owner-gated launch steps. Claude Code plugin install (EC-11) was verified in a
-maintainer session (marketplace add + `zeroes-ones-all` 297 skills + flagship 30); item 4's
+maintainer session (marketplace add + `zeroes-ones-all` 298 skills + flagship 30); item 4's
 checkbox documents the end-user flow. Everything code-side is done, verified, and CI-green.

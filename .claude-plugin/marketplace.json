@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "zeroes-ones-all",
-      "description": "All 297 skills in one plugin (flat discovery layer)",
+      "description": "All 298 skills in one plugin (flat discovery layer)",
       "source": "./plugins/zeroes-ones-all"
     },
     {
@@ -88,7 +88,7 @@
     },
     {
       "name": "finance",
-      "description": "24 skills: advanced-options-structures, algorithmic-trader, commodities-analyst, crypto-trader, financial-security, fixed-income-analyst, \u2026 (14-finance)",
+      "description": "25 skills: advanced-options-structures, algorithmic-trader, commodities-analyst, crypto-trader, financial-security, fixed-income-analyst, \u2026 (14-finance)",
       "source": "./plugins/finance"
     },
     {

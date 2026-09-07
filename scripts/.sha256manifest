@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-07T21:42:40Z
+# Generated: 2026-09-07T22:24:10Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    45fb12f59d3a15cd5f955f67bc0885f013f03276
+# Commit:    a829ee01dacc47f3bae0e691596fde700696df32
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -29,10 +29,10 @@ f2a34eb14b3f482c6d57cfcd91837db04ba65ec00b23bf7859db44b51073f680  scripts/eval-s
 8719461626c18b24373c76517dc40407dcebdc503f532768f57784e3d2770b7e  scripts/executors/agent_executor.py
 12110beef66ea313b7fbcc58058fe16d86f84cf269cdaa1154ac0d5fa19e0583  scripts/executors/repo_checks.py
 e5133d51013888d8cc6cd26f11bb656b1430d15c45ffb64aaf3cdb0cb4f15cf0  scripts/export-traces.py
-26e03ab164ebaafcd52b04b20797cb771ff1c2a67ec3bcaa6148ca7533614ae3  scripts/init-project.sh
+e602f47d56bfb606f103113e38ebf5f25059ea62d6a0611553d6dc81a91a512d  scripts/init-project.sh
 a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject-anti-hallucination.py
 129cab96cfa4784974cc0d539b44d7ee24897cb6fe659e4aca88ab214fef2f94  scripts/install-hooks.sh
-18f651cf3ba52b4f699be673b0ccffea67a8f3c0b5bb91092e04f6de77547054  scripts/install.sh
+081fd8193ed7185c28574f1607f19b95a8bfeb5b9a3c52dc1253c1bc2d507164  scripts/install.sh
 cc63951ce1b92eea4d9fae4af852a57ca4b66a28e34bf5270951dd1372e00fe4  scripts/lib/deep-research-gate.sh
 4401693116769e6c5fece0929968d1902112619fe3d0633789e4bcc7ed82cb47  scripts/lib/eval-golden.py
 0ba91108c919c1de83b5d27bade167ff13cd97620f4460614d7ed0a89f0bce7d  scripts/lib/guardrails.py
@@ -246,6 +246,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-fina
 2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/macro-strategist/scripts/verify-skill.sh
 2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/market-data-engineer/scripts/verify-skill.sh
 176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/14-finance/options-automation-engineer/scripts/verify-skill.sh
+1aa289470fd7a0d453ff06cad50672b88dc7dfc0e13a7b9d4b4c64886f32eb39  skills/14-finance/options-quant-engineer/scripts/verify-skill.sh
 4e73c72d7d4836b217a57853380d7d0b7fc21697edf7886e484c4a7180fa8d0e  skills/14-finance/options-risk-engineer/scripts/verify-skill.sh
 3bf8221130818a327efad2c4c9886b4c19541caa6ed944fb688d8923b7e26093  skills/14-finance/options-risk-engineer/verify-skill.sh
 9f28a53f3cc6173d457b7ac4a1ccff6f07dbabdaa12744e71a831a15be3e3189  skills/14-finance/options-strategist/scripts/verify-skill.sh

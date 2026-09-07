@@ -15,6 +15,7 @@ A **marketplace** is a repo with `.claude-plugin/marketplace.json`; each **plugi
 `.claude-plugin/plugin.json`.
 
 `plugin.json` (minimal):
+
 ```json
 {
   "name": "workflow-engine",
@@ -24,10 +25,12 @@ A **marketplace** is a repo with `.claude-plugin/marketplace.json`; each **plugi
   "skills": ["./skills/"]       // component path arrays: commands, skills, agents, hooks, mcpServers
 }
 ```
+
 Required: `name` (kebab-case), `version` (semver), `description`, `author`; optional
 `homepage`, `repository`, `license`, `keywords`, `category`, plus component path fields.
 
 `marketplace.json` (catalog):
+
 ```json
 {
   "name": "zeroes-ones-skills",
@@ -38,6 +41,7 @@ Required: `name` (kebab-case), `version` (semver), `description`, `author`; opti
   ]
 }
 ```
+
 - `source`: relative path (Git-based marketplaces), `github`/`repo` (+ optional `ref`/`sha`),
   git URL, or `git-subdir`.
 - `strict` (default true): when true, `plugin.json` is the authority; `strict: false` lets the
@@ -57,7 +61,7 @@ update`. Private hosting works (git credential helpers); org distribution via Se
   idempotent, self-validating) catalogues **38 plugins** in the `zeroes-ones-skills`
   marketplace. In the current CLI schema each plugin is a **real directory inside the
   marketplace repo** with its own `plugin.json`:
-  - `plugins/zeroes-ones-all/` — `skills` symlinked to `../../skills-flat` (all 297 skills);
+  - `plugins/zeroes-ones-all/` — `skills` symlinked to `../../skills-flat` (all 298 skills);
   - `plugins/<domain>/` — one per domain (`framework`, `strategy`, `finance`, …), `skills`
     symlinked to `../../skills/<domain>`.
   No plugin `source` is virtual/GitHub anymore — the earlier `source: "github"` + `ref`

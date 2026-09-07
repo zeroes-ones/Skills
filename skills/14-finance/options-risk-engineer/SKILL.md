@@ -45,6 +45,7 @@ chain:
     - leaps-strategist
     - options-automation-engineer
     - volatility-arbitrage-engineer
+    - options-quant-engineer
   alternatives:
     - portfolio-signal-manager
   examples:

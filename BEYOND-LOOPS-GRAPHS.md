@@ -40,7 +40,7 @@ turn "a graph that terminates" into "a graph that gets better, is provable, and 
 | Self-improvement | `loop-reflect` → ledger, `dynamic-skill-creator` (manual authoring), `doubt-driven-development`, engine replay/checkpoints | **No trace→skill pipeline** (auto-draft a skill from a successful/failed trajectory, re-run it on saved trajectories, promote only if verified). Audited-skill-graph ideas map 1:1 onto our manifest + coverage machinery — but the collector/promoter loop does not exist |
 | Observability | Runner `log` + run-state checkpoints; `observability-engineer` (application infra) | **No agent-run telemetry convention** (OTel spans per node, cost/latency/verdict, stable span names, PII-safe logging, session-level evals) |
 | Guardrails | `applying-llm-guardrails`, `ai-security`, payload registry + state-hash checks at handoff | **No guardrail hooks in the runner** (output classification between nodes; per-edge safety policy in manifests; injection defense across handoffs beyond hashes) |
-| Semantic routing | `using-agent-skills` (static ASCII router), chain graph, `.skills-compiled` | **No retrieval layer** (embeddings + rerank over 297 skill bodies) and no routing evals (SkillRouter-style accuracy on a held-out task set); router accuracy is untested |
+| Semantic routing | `using-agent-skills` (static ASCII router), chain graph, `.skills-compiled` | **No retrieval layer** (embeddings + rerank over 298 skill bodies) and no routing evals (SkillRouter-style accuracy on a held-out task set); router accuracy is untested |
 | Governance | `llm-engineer` prompt versioning, skill frontmatter semver | **No skill-version registry / A-B promotion** path with eval deltas tied to `version:` bumps |
 
 ## 4. The build map — what "10/10 superior" concretely adds next
@@ -53,7 +53,7 @@ turn "a graph that terminates" into "a graph that gets better, is provable, and 
 > B4 delivered (`scripts/export-traces.py` + per-workflow SLI gate `scripts/skill-sli-report.py`,
 > wired as CI step 1g; span-backend ingest is import-ready JSONL), B5 delivered
 > (`--guardrail` hook + `lib/guardrails.py`; per-edge manifest policy still to build),
-> B6 delivered (baseline `scripts/build-skill-index.py`: 297-skill index + lexical Top-1 30%
+> B6 delivered (baseline `scripts/build-skill-index.py`: 298-skill index + lexical Top-1 30%
 > routing baseline; embedding+rerank layer still to build). G2 parallel join landed in the
 > engine; G3 wired golden evals into CI (run-ci step 1e + pre-commit G15).
 
@@ -113,11 +113,11 @@ now SDK standards; our runner lacks the hook, so "safe graphs" is claimed, not e
 node intake; log entry shows the guardrail trip; 100% sampled.
 
 ### B6 — Semantic skill retrieval & routing (Frontier 6)
-**Build:** `skill-retrieval` layer: embed 297 skill **bodies** (research: body > metadata) +
+**Build:** `skill-retrieval` layer: embed 298 skill **bodies** (research: body > metadata) +
 descriptions into an index (`scripts/build-skill-index.py`, stdlib+optional embedder), top-K +
 rerank, dependency-aware bundle expansion using the existing chain graph (prerequisite bundles);
 routing evals on a held-out task→skill set to measure Top-1 accuracy and token savings.
-**Why:** static routers stop scaling; 297 skills today, thousands tomorrow; accuracy degrades when
+**Why:** static routers stop scaling; 298 skills today, thousands tomorrow; accuracy degrades when
 everything is loaded. This complements (not replaces) `using-agent-skills` as the interactive
 fallback.
 **Acceptance:** index build over all skills; routing eval reports Top-1/Top-5 on a held-out set;
@@ -138,7 +138,7 @@ bundle retrieval returns prerequisite skills (chain-backed); tokens-per-task vs.
 
 | Phase | Scope | Reuses | Success signal |
 |-------|-------|--------|----------------|
-| **P0 (now, low risk)** | B4 exporter + B2 golden-set scaffolding + B6 index skeleton | run-state, `evals/`, chain graph, audit tooling | export-trace runs on both shipped checkpoints; ≥3 golden case files; index builds over 297 skills |
+| **P0 (now, low risk)** | B4 exporter + B2 golden-set scaffolding + B6 index skeleton | run-state, `evals/`, chain graph, audit tooling | export-trace runs on both shipped checkpoints; ≥3 golden case files; index builds over 298 skills |
 | **P1** | B5 edge guardrails + B2 merge gate wired into pre-commit G16 | runner hooks, lint-workflow/CI scripts | poisoned-payload fixture blocked; skill-body PR triggers eval gate in CI |
 | **P2** | B1 run-memory + B3 auto-draft distiller (human-in-loop promote) | ledger, dynamic-skill-creator, engine replay | one end-to-end trace→draft→replay→promote demo with source citation |
 | **P3** | Routing evals + retrieval routing in production; memory consolidation job | B6 index, run memory | Top-1 routing accuracy measured; tokens-per-task vs full-load published |
@@ -194,7 +194,7 @@ use vectors too, and should every skill be created dynamically when something ne
    `safety:` edge policies (B5) into manifests + add the golden-eval merge gate to pre-commit.
    Ship one *agent-in-the-loop* manifest demo (engine + `AGENT_CMD` loop that revises until
    verification passes) as the documented real-world pattern.
-2. **Vectors — yes, next after P1.** Rationale: 297 skills today, thousands tomorrow; the static
+2. **Vectors — yes, next after P1.** Rationale: 298 skills today, thousands tomorrow; the static
    lexical router measures ~68.8% rank-1 and will degrade as the corpus grows. Build per B6:
    optional embedder over skill **bodies**, top-K + rerank, chain-bundle expansion, gated on
    beating the lexical baseline on held-out routing evals (acceptance: Top-1/Top-5 up,

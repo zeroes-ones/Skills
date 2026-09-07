@@ -4,7 +4,7 @@
 # Author: Sandeep Kumar Penchala
 #
 # One-time setup. Clones the skills library to a canonical location and
-# creates global symlinks so every project can access all 297 skills.
+# creates global symlinks so every project can access all 298 skills.
 #
 # Usage: curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
 #    or: ./scripts/install.sh
@@ -39,7 +39,7 @@ echo -e "      ${GREEN}✓${NC} Skills library at ${SKILLS_HOME}"
 echo -e "${YELLOW}[2/4]${NC} Creating global agent symlinks..."
 
 # Format: agent_name:target_dir (colon-separated).
-# `skills-flat` is linked (one-level <name>/SKILL.md discovery view of all 297 skills),
+# `skills-flat` is linked (one-level <name>/SKILL.md discovery view of all 298 skills),
 # never the nested skills/<domain>/<name> store — native scanners only look one level deep.
 AGENT_LIST="agents:$HOME/.agents/skills claude:$HOME/.claude/skills copilot:$HOME/.copilot/skills github:$HOME/.github/skills cursor:$HOME/.cursor/skills codex:$HOME/.codex/skills gemini:$HOME/.gemini/skills windsurf:$HOME/.windsurf/skills cline:$HOME/.cline/skills opencode:$HOME/.opencode/skills"
 
@@ -69,9 +69,9 @@ mkdir -p "$HOME/.local/bin"
 
 # skills-init — per-project activation. Installed from the repo's canonical
 # scripts/init-project.sh (single source of truth; also the `skills-init` npm
-# bin). Dual-mode: all 297 skills by default, or --solo/--grow subsets.
+# bin). Dual-mode: all 298 skills by default, or --solo/--grow subsets.
 install -m 755 "$SKILLS_HOME/scripts/init-project.sh" "$HOME/.local/bin/skills-init"
-echo -e "      ${GREEN}✓${NC} skills-init → $HOME/.local/bin/skills-init (default: all 297; --solo/--grow subsets)"
+echo -e "      ${GREEN}✓${NC} skills-init → $HOME/.local/bin/skills-init (default: all 298; --solo/--grow subsets)"
 
 # skills-update — pull latest library, then refresh the commands so fixes to
 # scripts/init-project.sh propagate to already-installed machines.

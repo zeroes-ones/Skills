@@ -24,15 +24,15 @@ The three public distribution channels documented in `README.md` (Distribution s
   HTTP 200 and is valid bash (`bash -n`).
   *Verify:* `curl -s -o /dev/null -w "%{http_code}" <url>` → `200`; CI `test-shell-install`.
 - **EC-2** Fresh install exits 0 and produces: store at `~/.zeroes-ones/skills` containing
-  **297** `SKILL.md` under `skills/` and **297** entries in `skills-flat/`, plus global agent
+  **298** `SKILL.md` under `skills/` and **298** entries in `skills-flat/`, plus global agent
   symlinks (`.claude/skills`, `.agents/skills`, …) and `~/.local/bin/skills-init` +
   `skills-update`.
   *Verify:* isolated-`HOME` end-to-end run — CI `test-shell-install` job does exactly this.
 - **EC-3** Installed `skills-init` (copied from `scripts/init-project.sh`) supports **both**
-  activation modes: default = all 297 skills (flat, one level deep); `--solo` = 8,
+  activation modes: default = all 298 skills (flat, one level deep); `--solo` = 8,
   `--grow` = 18 by name; `--status` reports tier + count; switching modes replaces this
   script's own links; pre-existing user content in an agent dir is never deleted.
-  *Verify:* counts after each mode via `find -L <agent-dir> -name SKILL.md | wc -l` → 297 / 8 / 18 —
+  *Verify:* counts after each mode via `find -L <agent-dir> -name SKILL.md | wc -l` → 298 / 8 / 18 —
   CI `test-shell-install` job.
 
 ### EC-4 … EC-7 — npm package (EC-6/EC-7 are external gates)
@@ -48,7 +48,7 @@ The three public distribution channels documented in `README.md` (Distribution s
   not 404).
 - **EC-7** **GATE (post-publish):** on a clean machine with Node ≥ 16,
   `npx @zeroes-ones/skills init` bootstraps `~/.zeroes-ones/skills` on first use, then activates
-  skills in the current project (default 297; `--solo`/`--grow`/`--status` work).
+  skills in the current project (default 298; `--solo`/`--grow`/`--status` work).
 
 ### EC-8 … EC-9 — skills.sh registry (EC-9 is an external gate)
 - **EC-8** Repo is natively indexable: canonical `skills/<category>/<name>/SKILL.md` tree with
@@ -80,8 +80,8 @@ The three public distribution channels documented in `README.md` (Distribution s
 | ID | Criterion | Status | Where verified |
 |---|---|---|---|
 | EC-1 | raw URL + bash syntax | ✅ | curl 200 (2026-09-07); CI |
-| EC-2 | fresh shell install 297/297 + symlinks | ✅ | local isolated-HOME e2e; CI `test-shell-install` |
-| EC-3 | dual-mode `skills-init` | ✅ | local e2e (297/8/18, mode switch, foreign-dir keep); CI |
+| EC-2 | fresh shell install 298/298 + symlinks | ✅ | local isolated-HOME e2e; CI `test-shell-install` |
+| EC-3 | dual-mode `skills-init` | ✅ | local e2e (298/8/18, mode switch, foreign-dir keep); CI |
 | EC-4 | `skills` bin + dispatcher | ✅ | local `bash -n` + dispatcher run; CI |
 | EC-5 | `npm pack` clean | ✅ (CI runs on push) | CI `test-npm-package` |
 | EC-6 | **npm published** | ⛔ GATE | needs `npm publish` (owner token) |
